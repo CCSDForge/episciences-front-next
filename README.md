@@ -123,6 +123,53 @@ Le système utilise l'approche suivante :
 
 Cette approche est compatible avec le mode statique de Next.js (`output: 'export'`) et permet une mise à jour rapide et économe en ressources.
 
+## 🔧 Conversion des fichiers d'environnement
+
+Le projet inclut un script `convert-env.js` qui permet de convertir les fichiers d'environnement et les assets du format Vite vers Next.js.
+
+### Prérequis
+
+- Le dossier `episciences-front-assets` doit être présent au même niveau que le projet
+- Le dossier doit contenir :
+  - Les fichiers `.env.local.[JOURNAL]` pour chaque revue
+  - Un fichier `journals.txt` listant les codes des revues
+  - Un dossier `logos` contenant les logos SVG des revues
+
+### Utilisation
+
+```bash
+# Se placer dans le dossier scripts
+cd scripts
+
+# Exécuter le script
+node convert-env.js
+```
+
+### Fonctionnalités
+
+Le script effectue automatiquement :
+1. La conversion des préfixes `VITE_` en `NEXT_PUBLIC_` dans les fichiers .env
+2. La suppression des commentaires spéciaux (###> ###)
+3. La copie des logos SVG vers le dossier `external-assets`
+4. La copie du fichier `journals.txt`
+
+### Structure résultante
+
+```
+external-assets/
+├── .env.local.[JOURNAL]  # Fichiers d'environnement convertis
+├── journals.txt          # Liste des codes de revues
+└── logos/               # Logos SVG des revues
+    ├── logo-[JOURNAL]-big.svg
+    └── logo-[JOURNAL]-small.svg
+```
+
+### Messages de statut
+
+- ✅ Succès de l'opération
+- ⚠️ Avertissement (fichier ignoré ou manquant)
+- ❌ Erreur (échec de conversion ou fichier non trouvé)
+
 ## 🚀 Déploiement Full Static
 
 Le projet est configuré pour un déploiement en mode Full Static, ce qui signifie que tout le site est pré-généré au moment du build.
