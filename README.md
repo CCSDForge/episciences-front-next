@@ -123,5 +123,82 @@ Le système utilise l'approche suivante :
 
 Cette approche est compatible avec le mode statique de Next.js (`output: 'export'`) et permet une mise à jour rapide et économe en ressources.
 
+## 🚀 Déploiement Full Static
+
+Le projet est configuré pour un déploiement en mode Full Static, ce qui signifie que tout le site est pré-généré au moment du build.
+
+### Configuration requise
+
+- Un serveur web statique (nginx, Apache, etc.)
+- Node.js >= 18.17.0 (pour le build)
+- Espace disque suffisant pour les fichiers générés
+
+### Étapes de déploiement
+
+1. **Préparation du build**
+```bash
+# Installation des dépendances
+npm install
+
+# Configuration des variables d'environnement
+cp .env.example .env.production
+# Éditer .env.production avec les valeurs de production
+```
+
+2. **Génération du site statique**
+```bash
+# Build de production
+npm run build
+
+# Les fichiers statiques seront générés dans le dossier 'dist/[JOURNAL_CODE]'
+# où [JOURNAL_CODE] est la valeur de NEXT_PUBLIC_JOURNAL_CODE
+```
+
+3. **Déploiement**
+- Copier le contenu du dossier `dist/[JOURNAL_CODE]` vers votre serveur web
+- Configurer votre serveur web pour servir les fichiers statiques
+- Configurer la réécriture d'URL pour gérer les routes Next.js
+
+### Exemple de configuration Nginx
+
+```nginx
+server {
+    listen 80;
+    server_name votre-domaine.com;
+    root /chemin/vers/dossier/dist/[JOURNAL_CODE];
+    
+    location / {
+        try_files $uri $uri.html $uri/index.html =404;
+    }
+    
+    # Gestion du cache
+    location /_next/static {
+        expires 1y;
+        add_header Cache-Control "public, no-transform";
+    }
+}
+```
+
+### Mise à jour du contenu
+
+Pour mettre à jour le contenu déployé :
+
+1. Générer un nouvel article spécifique :
+```bash
+npm run build:article <id>
+```
+
+2. Copier uniquement les fichiers modifiés vers le serveur :
+```bash
+rsync -avz --delete dist/[JOURNAL_CODE]/ user@serveur:/chemin/vers/dossier/dist/[JOURNAL_CODE]/
+```
+
+### Points importants
+
+- Vérifier que toutes les URLs externes sont absolues
+- Tester la navigation et les liens après déploiement
+- Vérifier que le cache du navigateur est correctement configuré
+- S'assurer que les redirections fonctionnent correctement
+
 ## 🤝 Contributing
 Please follow the code conventions and migration rules defined in the documentation files. 
