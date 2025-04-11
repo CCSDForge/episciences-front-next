@@ -1,0 +1,220 @@
+@use "@/styles/breakpoints.scss";
+.searchResultsSidebar {
+  min-width: 265px;
+  max-width: 265px;
+  margin-top: -46px;
+
+  @media (max-width:  breakpoints.$sm) {
+    display: none;
+  }
+
+  &-typesSection-title, &-yearsSection-title, &-volumesSection-title, &-sectionsSection-title, &-authorsSection-title {
+    font-weight: bold;
+    border-bottom: 1px solid var(--grey-light);
+    padding-bottom: 8px;
+  }
+
+  &-typesSection {
+    &-types {
+      padding: 20px 0px 20px 0px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      &-choice {
+        display: flex;
+        justify-content: space-between;
+
+        &-row {
+          display: flex;
+          gap: 18px;
+
+          &-label {
+            cursor: pointer;
+
+            &-checked {
+              color: var(--black);
+            }
+          }
+        }
+
+        &-badge {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background: var(--primary);
+          color: var(--primary-text);
+          min-width: 24px;
+          max-width: 24px;
+          min-height: 24px;
+          max-height: 24px;
+          border-radius: 50%;
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  &-yearsSection {
+    &-years {
+      max-height: 180px;
+      padding: 20px 0px 20px 0px;
+
+      &-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 180px;
+        overflow-y: scroll;
+        margin-bottom: 10px;
+        color: var(--grey);
+        cursor: pointer;
+
+        &-choice {
+          display: flex;
+          justify-content: space-between;
+
+          &-row {
+            display: flex;
+            gap: 18px;
+    
+            &-label {
+              cursor: pointer;
+    
+              &-checked {
+                color: var(--black);
+              }
+            }
+          }
+
+          &-badge {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--primary);
+            color: var(--primary-text);
+            min-width: 24px;
+            max-width: 24px;
+            min-height: 24px;
+            max-height: 24px;
+            border-radius: 50%;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+
+  &-volumesSection {
+    &-volumes {
+      max-height: 180px;
+      padding: 20px 0px 20px 0px;
+
+      &-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 180px;
+        overflow-y: scroll;
+        margin-bottom: 10px;
+        color: var(--grey);
+        cursor: pointer;
+
+        &-choice {
+          display: flex;
+          gap: 18px;
+  
+          &-label {
+            cursor: pointer;
+  
+            &-checked {
+              color: var(--black);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &-sectionsSection {
+    &-sections {
+      max-height: 180px;
+      padding: 20px 0px 20px 0px;
+
+      &-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 180px;
+        overflow-y: scroll;
+        margin-bottom: 10px;
+        color: var(--grey);
+        cursor: pointer;
+
+        &-choice {
+          display: flex;
+          gap: 18px;
+  
+          &-label {
+            cursor: pointer;
+  
+            &-checked {
+              color: var(--black);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &-authorsSection {
+    &-authors {
+      max-height: 180px;
+      padding: 20px 0px 20px 0px;
+      border-bottom: 1px solid var(--grey-light);
+
+      &-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 180px;
+        overflow-y: scroll;
+        margin-bottom: 10px;
+        color: var(--grey);
+        cursor: pointer;
+
+        &-choice {
+          display: flex;
+          justify-content: space-between;
+
+          &-row {
+            display: flex;
+            gap: 18px;
+    
+            &-label {
+              cursor: pointer;
+    
+              &-checked {
+                color: var(--black);
+              }
+            }
+          }
+
+          &-badge {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--primary);
+            color: var(--primary-text);
+            min-width: 24px;
+            max-width: 24px;
+            min-height: 24px;
+            max-height: 24px;
+            border-radius: 50%;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}

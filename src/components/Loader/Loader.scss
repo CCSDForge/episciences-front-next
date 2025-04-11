@@ -1,0 +1,14 @@
+@use "@/styles/breakpoints.scss";
+
+.loader {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  left: 50%;
+  right: 50%;
+  top: 30%;
+
+  @media (max-width: breakpoints.$sm) {
+    width: 100px;
+  }
+} 

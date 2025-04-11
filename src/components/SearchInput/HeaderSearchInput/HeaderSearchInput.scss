@@ -1,0 +1,41 @@
+.headerSearchInput {
+  height: 100%;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+
+  &-input {
+    color: var(--black);
+    font-size: 17px;
+    font-style: italic;
+    border: none;
+
+    &::placeholder {
+      color: var(--grey-dark);
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  &-icon {    
+    &-caretLeft, &-search {
+      margin-left: 10px;
+    }
+
+    &-caretLeft, &-close {
+      cursor: pointer;
+    }
+
+    &-caretLeft {
+      min-width: 24px;
+      height: 24px;
+    }
+
+    &-close {
+      margin-right: 20px;
+    }
+  }
+} 

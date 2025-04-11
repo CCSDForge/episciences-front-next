@@ -1,0 +1,57 @@
+@use "@/styles/breakpoints.scss";
+
+.statisticsSection {
+  display: flex;
+  gap: 60px;
+  justify-content: space-between;
+  margin: 45px 0px 5px 120px;
+
+  @media (max-width:  breakpoints.$sm) {
+    gap: 30px;
+    margin: 45px 0px 5px 0px;
+  }
+
+  @media (max-width:  breakpoints.$xsm) {
+    gap: 15px;
+  }
+
+  &-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 5px;
+
+    @media (max-width:  breakpoints.$sm) {
+      flex: 20%;
+    }
+
+    &-stat {
+      font-size: 40px;
+      color: var(--primary);
+
+      @media (max-width:  breakpoints.$sm) {
+        font-size: 34px;
+      }
+    }
+
+    &-title {
+      font-size: 22px;
+      max-width: 300px;
+
+      @media (max-width:  breakpoints.$sm) {
+        font-size: 16px;
+        max-width: 200px;
+      }
+    }
+  }
+
+  &-divider {
+    width: 4px;
+    background: var(--primary);
+
+    @media (max-width:  breakpoints.$xsm) {
+      width: 2px;
+    }
+  }
+} 

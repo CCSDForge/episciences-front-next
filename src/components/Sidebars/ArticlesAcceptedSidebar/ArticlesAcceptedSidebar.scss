@@ -1,0 +1,38 @@
+@use "@/styles/breakpoints.scss";
+
+.articlesAcceptedSidebar {
+  min-width: 265px;
+  margin-top: -46px;
+
+  @media (max-width:  breakpoints.$sm) {
+    display: none;
+  }
+
+  &-typesSection {
+    &-title {
+      font-weight: bold;
+      border-bottom: 1px solid var(--grey-light);
+      padding-bottom: 8px;
+    }
+
+    &-types {
+      padding: 20px 0px 20px 0px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      &-choice {
+        display: flex;
+        gap: 18px;
+
+        &-label {
+          cursor: pointer;
+
+          &-checked {
+            color: var(--black);
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+.authorsSearchInput {
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+
+  &-input {
+    color: var(--primary);
+    font-size: 17px;
+    font-style: italic;
+    border: none;
+    width: 100%;
+    padding-right: 30px;
+
+    &::placeholder {
+      color: var(--primary);
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  &-icon {
+    position: absolute;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+} 

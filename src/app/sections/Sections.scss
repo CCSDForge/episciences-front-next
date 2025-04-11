@@ -1,0 +1,97 @@
+@use "@/styles/breakpoints.scss" as breakpoints;
+
+.sections {
+  &-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+
+    @media (max-width: breakpoints.$sm) {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    &-text {
+      min-width: 265px;
+    }
+
+    &-count {
+      width: 100%;
+      display: flex;
+      padding-left: 60px;
+
+      @media (max-width: breakpoints.$sm) {
+        padding-left: 0px;
+      }
+
+      &-text {
+        color: var(--grey);
+        font-size: 21px;
+        font-weight: 300;
+
+        &-sections {
+          padding-right: 17px;
+          border-right: 1px solid var(--grey-light);
+        }
+
+        &-articles {
+          padding-left: 17px;
+        }
+      }
+
+      &-icons {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 30px;
+  
+        &-icon {
+          cursor: pointer;
+  
+          &-row, &-row-red {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+          }
+  
+          &-row {
+            color: var(--grey);
+            
+            &-red {
+              color: var(--primary);
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &-filters {
+    margin: 0px 0px 15px 325px;
+    padding-bottom: 28px;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+
+    &-results {
+      display: flex;
+      margin-bottom: 150px;
+
+      &-cards {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding-left: 60px;
+
+        @media (max-width: breakpoints.$sm) {
+          padding-left: 0px;
+        }
+      }
+    }
+  }
+} 

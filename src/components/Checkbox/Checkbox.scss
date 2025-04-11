@@ -1,0 +1,16 @@
+.checkbox {
+  -webkit-appearance: initial;
+  appearance: initial;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--grey-dark);
+  cursor: pointer;
+
+  &:checked {
+    background: var(--primary);
+
+    &::after {
+      content: none;
+    }
+  }
+} 

@@ -1,0 +1,381 @@
+{
+  "common": {
+    "article": "article",
+    "articles": "articles",
+    "document": "document",
+    "documents": "documents",
+    "volume": "volume",
+    "volumes": "volumes",
+    "section": "rubrique",
+    "sections": "rubriques",
+    "author": "auteur",
+    "authorFor": "auteur pour",
+    "authors": "auteurs",
+    "authorsFor": "auteurs pour",
+    "member": "membre",
+    "members": "membres",
+    "about": "À propos",
+    "resultsFor": "résultats pour",
+    "resultFor": "résultat pour",
+    "read": "Lire",
+    "readMore": "Lire plus",
+    "readLess": "Lire moins",
+    "seeMore": "En savoir plus",
+    "seeLess": "En savoir moins",
+    "doi": "DOI",
+    "pdf": "PDF",
+    "cite": "Citer",
+    "citeSuccess": "La citation {{template}} a été copiée dans le presse-papier",
+    "week": "semaine",
+    "weeks": "semaines",
+    "content": "Articles & volumes",
+    "publishedOn": "Publié le",
+    "acceptedOn": "Accepté le",
+    "abstract": "Abstract",
+    "toggleAbstracts": {
+      "hideAll": "Cacher tous les abstracts",
+      "showAll": "Afficher tous les abstracts"
+    },
+    "volumeCommittee": "Comité éditorial",
+    "volumeCard": {
+      "volume": "Volume",
+      "specialIssue": "Volume spécial",
+      "proceeding": "Acte de conférence"
+    },
+    "renderingMode": {
+      "tile": "Tuile",
+      "list": "Liste"
+    },
+    "filters": {
+      "filter": "Filtrer",
+      "editFilters": "Éditer les filtres",
+      "clearAll": "Effacer tous les filtres",
+      "applyFilters": "Appliquer les filtres",
+      "years": "Années",
+      "documentTypes": "Types de document",
+      "volumeTypes": "Types de volume",
+      "volumes": "Volumes",
+      "sections": "Rubriques",
+      "authors": "Auteurs"
+    },
+    "roles": {
+      "chief-editor": "Rédacteur en chef",
+      "editor": "Rédacteur",
+      "guest-editor": "Rédacteur invité",
+      "secretary": "Secrétaire de rédaction",
+      "webmaster": "Webmaster"
+    }
+  },
+  "components": {
+    "header": {
+      "journal": "Revues en libre accès",
+      "content": "Articles & volumes",
+      "about": "À propos",
+      "links": {
+        "articles": "Tous les articles",
+        "articlesAccepted": "Tous les articles acceptés",
+        "volumes": "Tous les volumes",
+        "lastVolume": "Dernier volume",
+        "sections": "Rubriques",
+        "specialIssues": "Volumes spéciaux",
+        "proceedings": "Actes de conférences",
+        "authors": "Auteurs",
+        "about": "La revue",
+        "news": "Actualités",
+        "statistics": "Statistiques",
+        "boards": "Comités",
+        "forAuthors": "Pour les auteurs"
+      },
+      "searchPlaceholder": "rechercher",
+      "search": "Rechercher",
+      "submit": "Déposer"
+    },
+    "footer": {
+      "links": {
+        "notice": "Notice de la revue",
+        "contact": "Contact",
+        "credits": "Crédits",
+        "rss": "RSS",
+        "documentation": "Documentation",
+        "acknowledgements": "Remerciements",
+        "publishingPolicy": "Politique de publication",
+        "legalMentions": "Mentions légales",
+        "privacyStatement": "Déclaration de confidentialité",
+        "termsOfUse": "Termes d'utilisation"
+      }
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Accueil",
+      "blocks": {
+        "articles": {
+          "subtitle": "Derniers articles",
+          "see": "Voir tous les articles"
+        },
+        "news": {
+          "subtitle": "Actualités",
+          "see": "Voir toutes les actualités"
+        },
+        "members": {
+          "subtitle": "Membres",
+          "see": "Voir tous les membres"
+        },
+        "indexation": {
+          "subtitle": "Indexation de la revue"
+        },
+        "specialIssues": {
+          "subtitle": "Volumes spéciaux",
+          "see": "Voir tous les volumes"
+        },
+        "articlesAccepted": {
+          "subtitle": "Derniers articles acceptés",
+          "see": "Voir tous les articles acceptés"
+        }
+      }
+    },
+    "articles": {
+      "title": "Articles",
+      "types": {
+        "article": "Article",
+        "book": "Livre",
+        "bookpart": "Partie de livre",
+        "conference": "Communication dans un congrès",
+        "lecture": "Lecture",
+        "other": "Autre",
+        "preprint": "Pré-publication",
+        "report": "Rapport",
+        "software": "Logiciel"
+      }
+    },
+    "articleDetails": {
+      "title": "Article",
+      "sections": {
+        "graphicalAbstract": "Abstract graphique",
+        "abstract": "Abstract",
+        "keywords": "Mots-clés",
+        "references": "Références",
+        "linkedPublications": "Publications liées -  jeux de données - logiciel",
+        "citedBy": "Cité par",
+        "preview": "Aperçu"
+      },
+      "citedBySection": {
+        "source": "Source : ",
+        "authors": "Auteurs",
+        "reference": "Référence de la revue",
+        "volume": "Volume",
+        "page": "pp.",
+        "doi": "DOI"
+      },
+      "actions": {
+        "download": "Télécharger l'article",
+        "openOn": "Ouvrir sur",
+        "cite": "Citer",
+        "metadata": "Metadata",
+        "share": {
+          "text": "Partager",
+          "email": "Mail",
+          "twitter": "X",
+          "linkedin": "LinkedIn",
+          "facebook": "Facebook"
+        }
+      },
+      "publicationDetails": {
+        "title": "Détails de publication",
+        "publishedOn": "Publié le",
+        "acceptedOn": "Accepté le",
+        "submittedOn": "Soumis le",
+        "importedOn": "Importé le"
+      },
+      "volumeDetails": {
+        "title": "Volume",
+        "specialIssue": "Volume spécial",
+        "proceeding": "Acte de conférence"
+      },
+      "license": "Licence",
+      "licenses": {
+        "arxiv": {
+          "assumed": "arXiv.org - Assumed non-exclusive license to distribute",
+          "nonExclusive": "arXiv.org - Non-exclusive license to distribute"
+        },
+        "creativeCommons": {
+          "nonCommercial1.0": "Attribution - Pas d'Utilisation Commerciale 1.0 Générique (CC BY-NC 1.0)",
+          "nonCommercial2.0": "Attribution - Pas d'Utilisation Commerciale 2.0 Générique (CC BY-NC 2.0)",
+          "nonCommercial2.5": "Attribution - Pas d'Utilisation Commerciale 2.5 Générique (CC BY-NC 2.5)",
+          "nonCommercial3.0": "Attribution - Pas d'Utilisation Commerciale 3.0 non transposé (CC BY-NC 3.0)",
+          "nonCommercial4.0": "Attribution - Pas d'Utilisation Commerciale 4.0 International (CC BY-NC 4.0)",
+          "noDerivatives1.0": "Attribution - Pas de Modification 1.0 Générique (CC BY-ND 1.0)",
+          "noDerivatives2.0": "Attribution - Pas de Modification 2.0 Générique (CC BY-ND 2.0)",
+          "noDerivatives2.5": "Attribution - Pas de Modification 2.5 Générique (CC BY-ND 2.5)",
+          "noDerivatives3.0": "Attribution - Pas de Modification 3.0 non transposé (CC BY-ND 3.0)",
+          "noDerivatives4.0": "Attribution - Pas de Modification 4.0 International (CC BY-ND 4.0)",
+          "noDerivativesNonCommercial1.0": "Attribution - Pas de Modification - Pas d'Utilisation Commerciale 1.0 Générique (CC BY-ND-NC 1.0)",
+          "noDerivativesNonCommercial2.0": "Attribution - Pas d'Utilisation Commerciale - Pas de Modification 2.0 Générique (CC BY-NC-ND 2.0)",
+          "noDerivativesNonCommercial2.5": "Attribution - Pas d'Utilisation Commerciale - Pas de Modification 2.5 Générique (CC BY-NC-ND 2.5)",
+          "noDerivativesNonCommercial3.0": "Attribution - Pas d'Utilisation Commerciale - Pas de Modification 3.0 non transposé (CC BY-NC-ND 3.0)",
+          "noDerivativesNonCommercial4.0": "Attribution - Pas d'Utilisation Commerciale - Pas de Modification 4.0 International (CC BY-NC-ND 4.0)",
+          "nonCommercialShareAlike1.0": "Attribution - Pas d'Utilisation Commerciale - Partage dans les Mêmes Conditions 1.0 Générique (CC BY-NC-SA 1.0)",
+          "nonCommercialShareAlike2.0": "Attribution - Pas d'Utilisation Commerciale - Partage dans les Mêmes Conditions 2.0 Générique (CC BY-NC-SA 2.0)",
+          "nonCommercialShareAlike2.5": "Attribution - Pas d'Utilisation Commerciale - Partage dans les Mêmes Conditions 2.5 Générique (CC BY-NC-SA 2.5)",
+          "nonCommercialShareAlike3.0": "Attribution - Pas d'Utilisation Commerciale - Partage dans les Mêmes Conditions 3.0 non transposé (CC BY-NC-SA 3.0)",
+          "nonCommercialShareAlike4.0": "Attribution - Pas d'Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International (CC BY-NC-SA 4.0)",
+          "shareAlike1.0": "Attribution - Partage dans les Mêmes Conditions 1.0 Générique (CC BY-SA 1.0)",
+          "shareAlike2.0": "Attribution - Partage dans les Mêmes Conditions 2.0 Générique (CC BY-SA 2.0)",
+          "shareAlike2.5": "Attribution - Partage dans les Mêmes Conditions 2.5 Générique (CC BY-SA 2.5)",
+          "shareAlike3.0": "Attribution - Partage dans les Mêmes Conditions 3.0 non transposé (CC BY-SA 3.0)",
+          "shareAlike4.0": "Attribution - Partage dans les Mêmes Conditions 4.0 International (CC BY-SA 4.0)",
+          "generic1.0": "Attribution 1.0 Générique (CC BY 1.0)",
+          "generic2.0": "Attribution 2.0 Générique (CC BY 2.0)",
+          "generic2.5": "Attribution 2.5 Générique (CC BY 2.5)",
+          "generic3.0": "Attribution 3.0 non transposé (CC BY 3.0)",
+          "generic4.0": "Attribution 4.0 International (CC BY 4.0)",
+          "zero1.0": "CC0 1.0 universel (CC0 1.0) Transfert dans le Domaine Public"
+        },
+        "others": {
+          "closedAccess": "Accès fermé",
+          "embargoedAccess": "Accès sous embargo",
+          "restrictedAccess": "Accès restreint",
+          "openAccess": "Accès ouvert"
+        }
+      },
+      "funding": "Financement",
+      "metrics": {
+        "title": "Indicateurs",
+        "views": "Vues",
+        "downloads": "Téléchargements"
+      },
+      "relationships": {
+        "isSameAs": "Est identique à",
+        "isDerivedFrom": "Est dérivé de",
+        "hasDerivation": "A une dérivation",
+        "isReviewOf": "Est une évaluation de",
+        "hasReview": "A une évaluation",
+        "isCommentOn": "Est commenté sur",
+        "hasComment": "A un commentaire",
+        "isReplyTo": "Est une réponse pour",
+        "hasReply": "A une réponse",
+        "basedOnData": "Basé sur les données de",
+        "isDataBasisFor": "Est une donnée de base pour",
+        "hasRelatedMaterial": "Dispose d'un contenu lié",
+        "isRelatedMaterial": "Est un contenu lié à",
+        "isCompiledBy": "Est compilé par",
+        "compiles": "Compile",
+        "isDocumentedBy": "Est documenté par",
+        "documents": "Documente",
+        "isSupplementTo": "Est un supplément à",
+        "isSupplementedBy": "Est complété par",
+        "isContinuedBy": "Est continué par",
+        "continues": "Continue",
+        "isPartOf": "Fait partie de",
+        "hasPart": "A une partie",
+        "references": "Reference",
+        "isReferencedBy": "Est référencé par",
+        "isBasedOn": "Est basé sur",
+        "isBasisFor": "Est basé pour",
+        "requires": "Requiert",
+        "isRequiredBy": "Est requis pour",
+        "finances": "Finance",
+        "isFinancedBy": "Est financé par",
+        "isVersionOf": "Est une version de",
+        "isRelatedTo": "Est lié à"
+      }
+    },
+    "articlesAccepted": {
+      "title": "À paraître"
+    },
+    "search": {
+      "title": "Rechercher"
+    },
+    "volumes": {
+      "title": "Volumes",
+      "types": {
+        "specialIssues": "Volumes spéciaux",
+        "proceedings": "Actes de conférences"
+      }
+    },
+    "volumeDetails": {
+      "title": "Volume",
+      "titleSpecialIssue": "Volume spécial",
+      "titleProceeding": "Acte de conférence",
+      "proceedingSettings": {
+        "theme": "Thème de la conférence"
+      },
+      "actions": {
+        "downloadAll": "Télécharger tous les articles"
+      },
+      "relatedVolumes": {
+        "volumes": "Liste des volumes",
+        "specialIssues": "Liste des volumes spéciaux",
+        "proceedings": "Liste des actes de conférences",
+        "lookAtSelectedVolume": "Consulter le volume sélectionné",
+        "lookAtSelectedIssue": "Consulter le volume spécial sélectionné",
+        "lookAtSelectedProceedings": "Consulter l'acte de conférence sélectionné"
+      }
+    },
+    "sections": {
+      "title": "Rubriques"
+    },
+    "sectionDetails": {
+      "title": "Rubrique"
+    },
+    "authors": {
+      "title": "Auteurs",
+      "searchName": "rechercher un nom",
+      "others": "Autres"
+    },
+    "about": {
+      "title": "La revue"
+    },
+    "news": {
+      "title": "Actualités"
+    },
+    "statistics": {
+      "title": "Statistiques",
+      "labels": {
+        "glance": "En un coup d'oeil",
+        "evaluationPublication": "Évaluation et publication"
+      },
+      "types": {
+        "nbSubmissions": "Soumissions",
+        "acceptanceRate": "Taux d'acceptation",
+        "medianSubmissionPublication": "Temps médian entre la soumission et la publication",
+        "medianSubmissionAcceptance": "Temps médian entre la soumission et l'acceptation",
+        "nbSubmissionsDetails": "Répartition des soumissions",
+        "medianReviewsNumber": "Nombre médian d'évaluations d'articles de recherche",
+        "reviewsReceived": "Évaluations reçues",
+        "reviewsRequested": "Évaluations demandées"
+      },
+      "statuses": {
+        "published": "Articles publiés",
+        "refused": "Articles refusés",
+        "beingPublished": "En cours de publication",
+        "accepted": "Articles acceptés",
+        "other-status": "Autre statut"
+      }
+    },
+    "boards": {
+      "title": "Comités",
+      "tableOfContents": "Table des matières",
+      "types": {
+        "technicalBoard": "Comité technique",
+        "editorialBoard": "Comité éditorial",
+        "scientificAdvisoryBoard": "Comité scientifique",
+        "formerMember": "Ancien membre"
+      },
+      "roles": {
+        "member": "Membre",
+        "guestEditor": "Rédacteur invité",
+        "editor": "Rédacteur",
+        "chiefEditor": "Rédacteur en chef",
+        "secretary": "Secrétaire",
+        "formerMember": "Ancien membre"
+      }
+    },
+    "forAuthors": {
+      "title": "Pour les auteurs"
+    },
+    "credits": {
+      "title": "Crédits"
+    }
+  }
+}

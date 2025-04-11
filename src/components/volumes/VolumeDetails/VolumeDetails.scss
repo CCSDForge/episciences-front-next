@@ -1,0 +1,28 @@
+@use "@/styles/breakpoints.scss";
+.volumeDetails {
+  &-id {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &-mobileRelatedList {
+      display: none;
+
+      @media (max-width:  breakpoints.$xsm) {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--grey);
+        font-weight: normal;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      &-icon {
+        margin-top: 4px;
+      }
+    }
+  }
+
+  // ... existing code ...
+} 

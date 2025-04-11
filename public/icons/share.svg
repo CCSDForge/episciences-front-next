@@ -1,0 +1,14 @@
+<svg id="Icon_Share" data-name="Icon Share" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="13.23" height="14.656" viewBox="0 0 13.23 14.656">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_4150" data-name="Rectangle 4150" width="13.23" height="14.656" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="Groupe_2198" data-name="Groupe 2198" clip-path="url(#clip-path)">
+    <circle id="Ellipse_239" data-name="Ellipse 239" cx="2.629" cy="2.629" r="2.629" transform="translate(7.972)" fill="#0c101a"/>
+    <path id="Tracé_1539" data-name="Tracé 1539" d="M10.6,9.4a2.629,2.629,0,1,1-2.629,2.629A2.629,2.629,0,0,1,10.6,9.4" transform="translate(0 0)" fill="#0c101a"/>
+    <path id="Tracé_1540" data-name="Tracé 1540" d="M2.6,4.728A2.6,2.6,0,1,1,0,7.328a2.6,2.6,0,0,1,2.6-2.6" transform="translate(0 0)" fill="#0c101a"/>
+    <line id="Ligne_2880" data-name="Ligne 2880" y1="4.698" x2="8.001" transform="translate(2.6 2.63)" fill="none" stroke="#0c101a" stroke-width="1"/>
+    <line id="Ligne_2881" data-name="Ligne 2881" x2="8.001" y2="4.7" transform="translate(2.6 7.328)" fill="none" stroke="#0c101a" stroke-width="1"/>
+  </g>
+</svg>

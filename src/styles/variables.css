@@ -1,0 +1,17 @@
+:root {
+  --primary: var(--journal-primary-color);
+  --primary-text: var(--journal-primary-text-color);
+  --grey: #757575;
+  --grey-light: #717193;
+  --grey-dark: #4E4E5F;
+  --grey-darker: #363642;
+  --white: #FFFFFF;
+  --black: #000000;
+  --black-shadow: #0000001F;
+  --blue-navy: #04005F;
+  --blue-navy-dark: #00005E;
+
+  /* Journal specific variables - will be overridden by env variables */
+  --journal-primary-color: #7A020D;
+  --journal-primary-text-color: #ffffff;
+} 

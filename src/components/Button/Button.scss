@@ -1,0 +1,22 @@
+.button {
+  background: var(--primary);
+  color: var(--primary-text);
+  width: 170px;
+  height: 100%;
+  font-size: 17px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+
+  &-withIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    &-icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+} 

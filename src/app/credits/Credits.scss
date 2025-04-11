@@ -1,0 +1,81 @@
+@use "@/styles/breakpoints.scss" as breakpoints;
+
+.credits {
+  &-title {
+    margin-bottom: 70px;
+
+    @media (max-width: breakpoints.$sm) {
+      margin-bottom: 30px;
+    }
+  }
+
+  &-content {
+    display: flex;
+
+    &-body {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-left: 60px;
+
+      @media (max-width: breakpoints.$sm) {
+        padding-left: 0px;
+      }
+
+      &-section {
+        display: block;
+
+        &-hidden {
+          * {
+            display: none;
+          }
+        }
+
+        h2, h3 {
+          scroll-margin: 120px;
+        }
+
+        h3, h4 {
+          margin: 0;
+        }
+
+        h4 {
+          margin-top: 16px;
+        }
+
+        p {
+          margin: 16px 0px 16px 0px;
+        }
+
+        img {
+          width: 100%;
+        }
+
+        li p {
+          margin: 0;
+        }
+
+        &-subtitle {
+          display: flex;
+          justify-content: space-between;
+          padding: 0px 15px 8px 0px;
+          margin: 20px 0px 20px 0px;
+          border-bottom: 1px solid var(--primary);
+          cursor: pointer;
+
+          img, &-caret {
+            width: auto;
+          }
+
+          &-text, &-caret {
+            display: block;
+          }
+        }
+
+        &-link {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+} 

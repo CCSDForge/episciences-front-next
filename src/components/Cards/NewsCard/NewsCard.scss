@@ -1,0 +1,138 @@
+@use "@/styles/breakpoints.scss";
+
+.newsCard {
+  display: flex;
+  gap: 20px;
+  padding: 20px 35px 20px 35px;
+  border: 1px solid var(--grey);
+  border-bottom: 4px solid var(--primary);
+  scroll-margin: 120px;
+
+  @media (max-width:  breakpoints.$sm) {
+    padding: 25px;
+  }
+
+  @media (max-width:  breakpoints.$xsm) {
+    flex-direction: column;
+  }
+
+  &-tile {
+    padding: 25px;
+    cursor: pointer;
+
+    &-blur {
+      opacity: 0.2;
+    }
+
+    &-full {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: row;
+      gap: 40px;
+
+      @media (max-width:  breakpoints.$xsm) {
+        flex-direction: column;
+      }
+
+      &-expanded {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
+    &-anchor {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--grey-light);
+    }
+  }
+
+  &-publicationDate {
+    min-width: 190px;
+    color: var(--grey-light);
+    font-style: italic;
+    border-right: 1px solid var(--grey-light);
+    font-size: 14px;
+
+    @media (max-width:  breakpoints.$sm) {
+      min-width: auto;
+    }
+
+    @media (max-width:  breakpoints.$xsm) {
+      border-right: none;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--grey-light);
+    }
+
+    &-tile {
+      border-right: none;
+      padding-top: 8px;
+
+      @media (max-width:  breakpoints.$xsm) {
+        padding-bottom: 0px;
+        border-bottom: none;
+      }
+    }
+  }
+
+  &-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &-tile {
+      justify-content: space-between;
+
+      &-full {
+        height: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    &-title {
+      margin-bottom: 24px;
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 600;
+
+      &-tile {
+        margin-bottom: 45px;
+      }
+    }
+
+    &-content {
+      flex: 1;
+      margin-bottom: 16px;
+      color: var(--black);
+      font-size: 16px;
+      white-space: pre-wrap;
+
+      &-toggle {
+        color: var(--primary);
+        font-weight: bold;
+        margin-top: 20px;
+        cursor: pointer;
+      }
+    }
+
+    &-read {
+      align-self: flex-end;
+      color: var(--primary);
+      font-size: 14px;
+
+      a {
+        display: flex;
+        justify-content: space-between;
+        gap: 4px;
+      }
+
+      &-full {
+        a {
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+}

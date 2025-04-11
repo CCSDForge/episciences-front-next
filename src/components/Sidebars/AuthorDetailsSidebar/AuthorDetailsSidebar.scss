@@ -1,0 +1,100 @@
+@use "@/styles/breakpoints.scss";
+.authorDetailsSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  position: absolute;
+  width: 720px;
+  height: 100%;
+  right: 0;
+  bottom: 0;
+  background: var(--white);
+  padding: 32px 32px 32px 90px;
+  border-left: 2px solid var(--primary);
+  overflow-y: scroll;
+
+  @media (max-width:  breakpoints.$sm) {
+    width: 420px;
+  }
+
+  @media (max-width:  breakpoints.$xsm) {
+    width: auto;
+    padding: 24px;
+    top: 30px;
+    left: 0;
+    border-left: none;
+    border-top: 1px solid var(--primary);
+  }
+
+  &-close {
+    width: 17px;
+    align-self: flex-end;
+    margin-top: 64px;
+    cursor: pointer;
+
+    @media (max-width:  breakpoints.$xsm) {
+      margin-top: 0px;
+    }
+  }
+
+  &-content {
+    &-name {
+      color: var(--black);
+      font-size: 30px;
+      font-weight: bold;
+      border-bottom: 1px solid var(--primary);
+      margin-bottom: 16px;
+    }
+
+    &-article {
+      display: flex;
+      flex-direction: column;
+      font-size: 16px;
+      border-bottom: 1px solid var(--primary);
+      margin-bottom: 16px;
+
+      &-title {
+        color: var(--primary);
+        font-weight: bold;
+        margin-bottom: 24px;
+      }
+
+      &-publicationDate {
+        color: var(--grey);
+        font-style: italic;
+        margin-bottom: 16px;
+      }
+      
+      &-doi {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 40px;
+
+        &-text {
+          font-weight: bold;
+        }
+
+        &-link {
+          color: var(--grey);
+          text-decoration: underline;
+        }
+      }
+
+      &-seeMore {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        color: var(--grey);
+        font-size: 16px;
+        font-style: italic;
+        margin-bottom: 24px;
+  
+        &-icon {
+          height: 11px;
+        }
+      }
+    }
+  }
+} 

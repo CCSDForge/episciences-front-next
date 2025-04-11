@@ -1,0 +1,90 @@
+@use "@/styles/breakpoints.scss";
+
+.sectionArticleCard {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 35px 20px 35px;
+  border: 1px solid var(--grey);
+  border-bottom: 4px solid var(--primary);
+
+  @media (max-width:  breakpoints.$sm) {
+    padding: 25px;
+  }
+
+  &-tag {
+    width: fit-content;
+    height: fit-content;
+    padding: 4px 8px 4px 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--primary);
+    color: var(--primary-text);
+  }
+
+  &-title {
+    color: var(--black);
+    font-size: 21px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  &-authors {
+    font-size: 16px;
+    margin-bottom: 40px;
+  }
+
+  &-abstract {
+    margin-bottom: 25px;
+
+    &-title {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--primary);
+      cursor: pointer;
+
+      &-closed {
+        width: 100px;
+      }
+
+      &-text {
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--primary);
+      }
+    }
+
+    &-content {
+      display: none;
+      font-size: 16px;
+      margin-top: 8px;
+
+      &-opened {
+        display: block;
+      }
+    }
+  }
+
+  &-anchor {
+    display: flex;
+    justify-content: space-between;
+
+    &-publicationDate {
+      color: var(--grey-light);
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    &-icons {
+      &-download {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+        flex: 1;
+        gap: 8px;
+        color: var(--primary);
+        font-size: 13px;
+      }
+    }
+  }
+}

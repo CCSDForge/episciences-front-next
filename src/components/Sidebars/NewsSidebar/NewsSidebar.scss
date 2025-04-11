@@ -1,0 +1,118 @@
+@use "@/styles/breakpoints.scss" as breakpoints;
+
+.news-sidebar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @media (max-width: breakpoints.$sm) {
+    display: none;
+  }
+}
+
+.newsSidebar {
+  min-width: 265px;
+  font-size: 16px;
+
+  @media (max-width:  breakpoints.$sm) {
+    min-width: 115px;
+  }
+
+  @media (max-width:  breakpoints.$xsm) {
+    display: none;
+  }
+
+  &-title {
+    font-weight: bold;
+    border-bottom: 1px solid var(--grey-light);
+    padding-bottom: 8px;
+  }
+
+  &-years {
+    max-height: 180px;
+    padding: 20px 0px 20px 0px;
+    border-bottom: 1px solid var(--grey-light);
+
+    &-list {
+      max-height: 180px;
+      overflow-y: scroll;
+
+      &-year {
+        margin-bottom: 10px;
+        color: var(--grey);
+        cursor: pointer;
+
+        &-selected {
+          color: var(--black);
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+.sidebar {
+  min-width: 265px;
+  margin-top: 31px;
+
+  @media (max-width: breakpoints.$sm) {
+    display: none;
+  }
+
+  &-title {
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #333;
+    }
+  }
+
+  &-content {
+    &-section {
+      margin-bottom: 1.5rem;
+
+      h3 {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 0.75rem;
+      }
+
+      &-years {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        &-year {
+          padding: 0.5rem 0.75rem;
+          background-color: #fff;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: #f0f0f0;
+          }
+
+          &-selected {
+            background-color: #e63946;
+            color: white;
+            border-color: #e63946;
+
+            &:hover {
+              background-color: #d62b39;
+            }
+          }
+
+          span {
+            font-size: 0.875rem;
+          }
+        }
+      }
+    }
+  }
+} 

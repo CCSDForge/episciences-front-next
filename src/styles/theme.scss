@@ -1,0 +1,13 @@
+@use 'variables' as *;
+
+:root {
+  --white: #{$white};
+  --black: #{$black};
+  --black-shadow: #{$black-shadow};
+  --grey: #{$grey};
+  --grey-light: #{$grey-light};
+  --grey-dark: #{$grey-dark};
+  --grey-darker: #{$grey-darker};
+  --blue-navy: #{$blue-navy};
+  --blue-navy-dark: #{$blue-navy-dark};
+} 

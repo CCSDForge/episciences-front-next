@@ -1,0 +1,9 @@
+declare namespace NodeJS {
+  interface ProcessEnv {
+    NEXT_PUBLIC_VITE_DOI_HOMEPAGE: string;
+    NEXT_PUBLIC_VITE_ARXIV_HOMEPAGE: string;
+    NEXT_PUBLIC_VITE_HAL_HOMEPAGE: string;
+    NEXT_PUBLIC_VITE_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE: string;
+    NEXT_PUBLIC_VITE_ORCID_HOMEPAGE: string;
+  }
+} 

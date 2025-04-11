@@ -1,0 +1,259 @@
+@use "@/styles/breakpoints.scss";
+
+.volumeCard {
+  display: flex;
+  justify-content: space-between;
+  padding: 30px 35px 20px 35px;
+  border: 1px solid var(--grey);
+  border-bottom: 4px solid var(--primary);
+
+  @media (max-width:  breakpoints.$sm) {
+    padding: 25px;
+    flex-direction: column;
+  }
+
+  &-resume {
+    min-width: 190px;
+    padding-right: 50px;
+    border-right: 1px solid var(--grey-light);
+
+    @media (max-width:  breakpoints.$sm) {
+      border-right: 0px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--grey-light);
+    }
+    
+    &-year {
+      color: var(--black);
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+
+      @media (max-width:  breakpoints.$sm) {
+        margin-bottom: 0px;
+      }
+    }
+
+    &-count {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+
+      @media (max-width:  breakpoints.$sm) {
+        display: none;
+      }
+
+      &-icon {
+        height: 13px;
+      }
+
+      &-text {
+        color: var(--grey-light);
+        font-size: 13px;
+      }
+    }
+  }
+
+  &-content {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    padding-left: 18px;
+
+    @media (max-width:  breakpoints.$sm) {
+      padding-left: 0px;
+      margin-top: 8px;
+    }
+
+    &-num {
+      color: var(--primary);
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 18px;
+
+      @media (max-width:  breakpoints.$sm) {
+        display: none;
+      }
+
+      &-mobile {
+        display: none;
+
+        @media (max-width:  breakpoints.$sm) {
+          display: block;
+          margin-bottom: 0px;
+          font-size: 21px;
+        }
+      }
+    }
+
+    &-title {
+      color: var(--black);
+      font-size: 21px;
+      font-weight: 600;
+      margin-bottom: 10px;
+
+      @media (max-width:  breakpoints.$xsm) {
+        font-size: 16px;
+      }
+    }
+
+    &-committee {
+      color: var(--black);
+      font-size: 18px;
+      margin-bottom: 20px;
+
+      @media (max-width:  breakpoints.$xsm) {
+        font-size: 15px;
+      }
+    }
+
+    &-description {
+      margin-bottom: 25px;
+  
+      &-title {
+        display: flex;
+        gap: 8px;
+        border-bottom: 1px solid var(--primary);
+        cursor: pointer;
+  
+        &-closed {
+          width: 100px;
+        }
+  
+        &-text {
+          font-size: 16px;
+          font-weight: bold;
+          color: var(--primary);
+        }
+      }
+  
+      &-content {
+        display: none;
+        font-size: 16px;
+        margin-top: 8px;
+        white-space: pre-wrap;
+  
+        &-opened {
+          display: block;
+        }
+      }
+    }
+
+    &-download {
+      margin-top: auto;
+      display: flex;
+      align-self: flex-end;
+      gap: 8px;
+      color: var(--primary);
+      font-size: 13px;
+    }
+  }
+
+  &-tile {
+    padding: 24px;
+    justify-content: flex-start;
+    gap: 20px;
+
+    @media (max-width:  breakpoints.$sm) {
+      flex-direction: row;
+    }
+
+    &-img {
+      width: 120px;
+    }
+
+    &-template {
+      min-width: 90px;
+      max-width: 90px;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      background: var(--primary);
+      color: var(--primary-text);
+
+      &-jpe {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+
+      &-volume {
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      &-issue {
+        font-size: 12px;
+        font-weight: 300;
+        margin-bottom: 4px;
+      }
+
+      &-number {
+        font-size: 50px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-align: end;
+      }
+
+      &-year {
+        margin-top: auto;
+        font-size: 12px;
+        font-weight: 300;
+        text-align: end;
+      }
+    }
+
+    &-text {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+
+      &-volume {
+        color: var(--primary);
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      &-title {
+        color: var(--black);
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-clamp: 3;
+        -webkit-line-clamp: 3;
+      }
+
+      &-year {
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      &-count {
+        display: flex;
+        gap: 8px;
+        color: var(--grey);
+        font-size: 13px;
+      }
+      
+      &-download {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+        gap: 8px;
+        color: var(--primary);
+        font-size: 13px;
+        margin-top: auto;
+        padding-top: 8px;
+        border-top: 1px solid var(--grey-light);
+      }
+    }
+  }
+} 

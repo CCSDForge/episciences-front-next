@@ -1,0 +1,84 @@
+@use "@/styles/breakpoints.scss";
+
+.sectionCard {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 35px 20px 35px;
+  border: 1px solid var(--grey);
+  border-bottom: 4px solid var(--primary);
+
+  @media (max-width:  breakpoints.$sm) {
+    padding: 25px;
+  }
+
+  &-title {
+    display: flex;
+    align-items: center;
+    font-size: 21px;
+    margin-bottom: 20px;
+
+    &-text {
+      color: var(--primary);
+      font-size: 24px;
+      font-weight: bold;
+      padding-right: 30px;
+
+      @media (max-width:  breakpoints.$sm) {
+        max-width: 420px;
+      }
+    }
+
+    &-count {
+      border-left: 1px solid var(--grey-light);
+      padding-left: 30px;
+      font-weight: 300;
+
+      @media (max-width:  breakpoints.$xsm) {
+        display: none;
+      }
+    }
+  }
+
+  &-description {
+    margin-bottom: 25px;
+
+    &-title {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--primary);
+      cursor: pointer;
+
+      &-closed {
+        display: inline-flex;
+      }
+
+      &-text {
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--primary);
+      }
+    }
+
+    &-content {
+      display: none;
+      font-size: 16px;
+      margin-top: 8px;
+
+      &-opened {
+        display: block;
+        white-space: pre-wrap;
+      }
+    }
+  }
+
+  &-countMobile {
+    display: none;
+
+    @media (max-width:  breakpoints.$xsm) {
+      display: flex;
+      align-self: flex-end;
+      font-size: 21px;
+      font-weight: 300;
+    }
+  }
+} 

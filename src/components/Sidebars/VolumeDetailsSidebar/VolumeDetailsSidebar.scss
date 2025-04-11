@@ -1,0 +1,162 @@
+@use "@/styles/breakpoints.scss";
+.volumeDetailsSidebar {
+  min-width: 265px;
+
+  @media (max-width:  breakpoints.$sm) {
+    min-width: 215px;
+  }
+
+  @media (max-width:  breakpoints.$xsm) {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--grey-light);
+  }
+
+  &-tile {
+    width: 160px;
+    height: 230px;
+    margin-bottom: 25px;
+  }
+
+  &-template {
+    min-width: 120px;
+    max-width: 120px;
+    min-height: 200px;
+    max-height: 200px;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background: var(--primary);
+    color: var(--primary-text);
+    margin-bottom: 25px;
+
+    &-jpe {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    &-volume {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    &-issue {
+      font-size: 12px;
+      font-weight: 300;
+      margin-bottom: 4px;
+    }
+
+    &-number {
+      font-size: 50px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: end;
+
+      &-conference {
+        font-size: 24px;
+      }
+    }
+
+    &-year {
+      margin-top: auto;
+      font-size: 12px;
+      font-weight: 300;
+      text-align: end;
+    }
+  }
+
+  &-count {
+    font-size: 21px;
+    font-weight: 300;
+    margin-bottom: 15px;
+
+    @media (max-width:  breakpoints.$xsm) {
+      display: none;
+    }
+  }
+
+  &-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 42px;
+
+    @media (max-width:  breakpoints.$xsm) {
+      margin-bottom: 25px;
+    }
+
+    &-action {
+      display: flex;
+      align-items: center;
+      padding: 3px 5px 3px 5px;
+      gap: 8px;
+      width: fit-content;
+      height: 34px;
+      border: 1px solid var(--primary);
+      border-bottom: 4px solid var(--primary);
+      cursor: pointer;
+
+      @media (max-width:  breakpoints.$sm) {
+        max-width: 180px;
+      }
+
+      @media (max-width:  breakpoints.$xsm) {
+        width: auto;
+      }
+
+      &-text {
+        font-size: 14px;
+
+        @media (max-width:  breakpoints.$sm) {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+
+  &-relatedVolumes {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+
+    @media (max-width:  breakpoints.$xsm) {
+      display: none;
+    }
+    
+    &-title {
+      color: var(--grey-dark);
+      font-size: 16px;
+      font-weight: bold;
+      border-bottom: 1px solid var(--grey-light);
+      padding-bottom: 8px;
+    }
+
+    &-volumes {
+      height: 180px;
+      padding: 20px 0px 20px 0px;
+
+      &-list {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        height: 100%;
+        overflow-y: scroll;
+
+        &-volume {
+          font-size: 14px;
+          color: var(--grey-light);
+
+          &-current {
+            color: var(--grey-dark);
+            text-decoration: underline;
+            cursor: default;
+            pointer-events: none;
+          }
+        }
+      }
+    }
+  }
+}

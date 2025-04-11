@@ -1,0 +1,57 @@
+@use "@/styles/breakpoints.scss";
+.authorsSidebar {
+  min-width: 310px;
+  max-width: 310px;
+  margin-top: 20px;
+
+  @media (max-width:  breakpoints.$xsm) {
+    min-width: unset;
+    max-width: none;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  &-search {
+    height: 36px;
+    border-bottom: 1px solid var(--primary);
+    padding-bottom: 6px;
+    margin-bottom: 25px;
+  }
+
+  &-letters {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    row-gap: 18px;
+    column-gap: 12px;
+    margin: 0px 25px 0px 15px;
+
+    @media (max-width:  breakpoints.$xsm) {
+      grid-template-columns: repeat(6, 1fr);
+      margin: auto;
+    }
+
+    &-letter {
+      width: 38px;
+      text-align: center;
+      font-size: 24px;
+      cursor: pointer;
+
+      &-active {
+        color: var(--primary-text);
+        background: var(--primary);
+        font-weight: bold;
+      }
+
+      &-disabled {
+        cursor: auto;
+        pointer-events: none;
+        color: var(--grey-light);
+      }
+
+      &-others {
+        grid-column: span 2;
+        width: auto;
+      }
+    }
+  }
+}

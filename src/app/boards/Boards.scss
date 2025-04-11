@@ -1,0 +1,96 @@
+@use "@/styles/breakpoints.scss" as breakpoints;
+
+.boards {
+  &-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+
+    @media (max-width: breakpoints.$sm) {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    &-text {
+      min-width: 265px;
+
+      @media (max-width: breakpoints.$sm) {
+        min-width: unset;
+      }
+    }
+
+    &-count {
+      color: var(--grey);
+      font-size: 21px;
+      font-weight: 300;
+      padding-left: 60px;
+
+      @media (max-width: breakpoints.$sm) {
+        padding-left: 0px;
+      }
+    }
+  }
+
+  &-content {
+    display: flex;
+
+    &-groups {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-left: 60px;
+
+      @media (max-width: breakpoints.$sm) {
+        padding-left: 0px;
+      }
+
+      &-group {
+        margin-bottom: 45px;
+
+        @media (max-width: breakpoints.$sm) {
+          margin-bottom: 15px;
+        }
+
+        &-title {
+          display: flex;
+          justify-content: space-between;
+          padding-bottom: 5px;
+          margin-bottom: 20px;
+          border-bottom: 1px solid var(--primary);
+          cursor: pointer;
+        }
+
+        &-content {
+          display: none;
+
+          &-active {
+            display: block;
+          }
+
+          &-description {
+            margin-bottom: 20px;
+
+            p {
+              margin: 16px 0px 16px 0px;
+            }
+          }
+
+          &-grid {
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(3, 1fr);
+
+            @media (max-width: breakpoints.$sm) {
+              grid-template-columns: repeat(2, 1fr);
+            }
+
+            @media (max-width: breakpoints.$xsm) {
+              grid-template-columns: repeat(1, 1fr);
+            }
+          }
+        }
+      }
+    }
+  }
+} 

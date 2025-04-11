@@ -1,0 +1,32 @@
+@use "@/styles/breakpoints.scss";
+.journalSection {
+  padding: 12px 24px 12px 24px;
+  border: 1px solid var(--grey);
+  border-bottom: 4px solid var(--primary);
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width:  breakpoints.$sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width:  breakpoints.$xsm) {
+      display: flex;
+      flex-direction: column;
+    }
+
+    li {
+      color: var(--primary);
+      font-size: 14px;
+      margin-bottom: 10px;
+
+      a {
+        display: flex;
+        gap: 5px;
+        text-decoration: underline;
+      }
+    }
+  }
+}
