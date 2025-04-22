@@ -54,7 +54,6 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
-    "@types/better-react-mathjax": "^2.0.0",
     "@types/he": "^1.2.3",
     "@types/node": "^20",
     "@types/react": "^18.2.43",
