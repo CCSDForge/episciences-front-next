@@ -35,7 +35,7 @@ export default function ArticleAcceptedCard({ language, t, article, toggleAbstra
           </div>
         </Link>
       )}
-      <div className='articleAcceptedCard-authors'>{article.authors.map(author => author.fullname).join(', ')}</div>
+      <div className='articleAcceptedCard-authors'>{article && article.authors ? article.authors.map(author => author.fullname).join(', ') : ''}</div>
       {article.abstract && (
         <div className='articleAcceptedCard-abstract'>
           <div className={`articleAcceptedCard-abstract-title ${!article.openedAbstract && 'articleAcceptedCard-abstract-title-closed'}`} onClick={toggleAbstractCallback}>

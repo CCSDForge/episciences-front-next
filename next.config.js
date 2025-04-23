@@ -6,7 +6,6 @@ const fs = require('fs-extra');
 function validateEnv() {
   const requiredVars = [
     'NEXT_PUBLIC_JOURNAL_RVCODE',
-    'NEXT_PUBLIC_JOURNAL_CODE',
     'NEXT_PUBLIC_API_ROOT_ENDPOINT',
   ];
 
@@ -67,18 +66,33 @@ function copyLogos() {
   }
 }
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const nextConfig = {
-  output: 'export',  // Générer un site statique
-  distDir: `dist/${validateEnv()}`,
-  reactStrictMode: true,
-  trailingSlash: true, // Générer des répertoires avec index.html
-  basePath: '', // Chemin de base explicitement vide
-  skipMiddlewareUrlNormalize: true, // Déplacé hors de experimental comme suggéré par l'erreur
+  // Configuration conditionnelle selon l'environnement
+  ...(isDev ? {
+    // Configuration de développement
+    reactStrictMode: true,
+    distDir: '.next',  // Dossier par défaut en dev
+  } : {
+    // Configuration de production
+    output: 'export',
+    distDir: `dist/${validateEnv()}`,
+    reactStrictMode: true,
+    trailingSlash: true,
+  }),
+
+  // Configuration commune
+  basePath: '',
+  skipMiddlewareUrlNormalize: true,
   
-  // Définition des variables d'environnement pour les composants
-  env: {
-    NEXT_PUBLIC_STATIC_BUILD: 'true', // Activer le mode statique
-    NEXT_PUBLIC_DISABLE_CLIENT_NAVIGATION: 'true', // Désactiver la navigation côté client
+  // Variables d'environnement conditionnelles
+  env: isDev ? {
+    NEXT_PUBLIC_STATIC_BUILD: 'false',
+    NEXT_PUBLIC_DISABLE_CLIENT_NAVIGATION: 'false',
+  } : {
+    NEXT_PUBLIC_STATIC_BUILD: 'true',
+    NEXT_PUBLIC_DISABLE_CLIENT_NAVIGATION: 'true',
   },
   
   // Désactiver temporairement la vérification TypeScript pour résoudre les problèmes de build
