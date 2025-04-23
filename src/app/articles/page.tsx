@@ -18,7 +18,7 @@ interface ArticlesData {
 export default async function ArticlesPage() {
   try {
     const ARTICLES_PER_PAGE = 10;
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_CODE;
+    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
     
     if (!rvcode) {
       throw new Error('Journal code not available');
