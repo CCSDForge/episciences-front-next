@@ -4,16 +4,12 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
-// import filter from '/icons/filter.svg';
-// import listRed from '/icons/list-red.svg';
-// import listGrey from '/icons/list-grey.svg';
-// import tileRed from '/icons/tile-red.svg';
-// import tileGrey from '/icons/tile-grey.svg';
-import filter from '/public/icons/filter.svg';
-import listRed from '/public/icons/list-red.svg';
-import listGrey from '/public/icons/list-grey.svg';
-import tileRed from '/public/icons/tile-red.svg';
-import tileGrey from '/public/icons/tile-grey.svg';
+// Use direct paths for static build compatibility
+const filter = '/icons/filter.svg';
+const listRed = '/icons/list-red.svg';
+const listGrey = '/icons/list-grey.svg';
+const tileRed = '/icons/tile-red.svg';
+const tileGrey = '/icons/tile-grey.svg';
 import { useAppSelector } from '@/hooks/store';
 import { RENDERING_MODE } from '@/utils/card';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';

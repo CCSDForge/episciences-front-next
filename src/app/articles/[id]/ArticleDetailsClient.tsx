@@ -261,10 +261,12 @@ export default function ArticleDetailsClient({ article, id }: ArticleDetailsClie
   useEffect(() => {
     const fetchCitations = async () => {
       const fetchedCitations = await getCitations(metadataCSL as string);
-      fetchedCitations.push({
-        key: CITATION_TEMPLATE.BIBTEX,
-        citation: metadataBibTeX as string
-      })
+      
+      // Update the BibTeX citation with the proper content
+      const bibtexIndex = fetchedCitations.findIndex(citation => citation.key === CITATION_TEMPLATE.BIBTEX);
+      if (bibtexIndex !== -1 && metadataBibTeX) {
+        fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
+      }
 
       setCitations(fetchedCitations);
     };

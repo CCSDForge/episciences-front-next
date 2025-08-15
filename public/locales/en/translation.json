@@ -57,7 +57,10 @@
       "volumes": "Volumes",
       "sections": "Sections",
       "authors": "Authors"
-    }
+    },
+    "publicationDetails": "Publication Details",
+    "submittedOn": "Submitted on",
+    "lastModifiedOn": "Last modified on"
   },
   "components": {
     "header": {

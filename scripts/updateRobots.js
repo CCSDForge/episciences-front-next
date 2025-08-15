@@ -1,6 +1,9 @@
 const path = require('path');
 const fs = require('fs-extra');
 
+// Load environment variables from .env.local
+require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
+
 function validateEnv() {
   if (!process.env.NEXT_PUBLIC_JOURNAL_RVCODE) {
     throw new Error("NEXT_PUBLIC_JOURNAL_RVCODE est requis");

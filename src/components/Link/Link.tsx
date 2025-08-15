@@ -26,7 +26,7 @@ function normalizePath(path: string): string {
   return normalizedPath.replace(/\/+/g, '/');
 }
 
-// Composant Link personnalisé qui génère des liens HTML standards
+// Composant Link personnalisé qui génère des liens HTML standards pour le SEO
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({ 
   href, 
   children,
@@ -35,12 +35,15 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
   // Normaliser le chemin
   const normalizedHref = normalizePath(href);
   
+  // Filtrer les props spécifiques à Next.js qui ne sont pas valides pour les éléments <a>
+  const { prefetch, scroll, replace, shallow, ...validProps } = props;
+  
   // Utiliser un élément <a> standard avec le chemin normalisé
   return (
     <a 
       ref={ref}
       href={normalizedHref} 
-      {...props}
+      {...validProps}
     >
       {children}
     </a>

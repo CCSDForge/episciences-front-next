@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 
 export default async function NewsPage() {
   try {
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_CODE || '';
+    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_CODE || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || '';
     
     if (!rvcode) {
       throw new Error('Le code de la revue est requis');

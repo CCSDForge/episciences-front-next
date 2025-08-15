@@ -227,7 +227,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
           onTouchStart={(): void => setShowSharingDropdown(!showSharingDropdown)}
         >
           <img className="articleDetailsSidebar-links-link-icon" src={share} alt="Share icon" />
-          <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.share')}</div>
+          <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.share.text')}</div>
           <div className={`articleDetailsSidebar-links-link-modal-content ${showSharingDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}>
             <div className="articleDetailsSidebar-links-link-modal-content-sharing">
               <EmailShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>

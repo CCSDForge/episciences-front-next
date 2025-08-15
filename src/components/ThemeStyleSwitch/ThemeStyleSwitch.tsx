@@ -7,10 +7,10 @@ import applyThemeVariables from '@/config/theme';
 const ThemeStyleSwitch: React.FC = () => {
   const theme = useAppSelector(state => state.themeReducer?.theme || 'light');
   
-  // Appliquer les variables de couleur du journal
-  applyThemeVariables();
-  
   useEffect(() => {
+    // Appliquer les variables de couleur du journal
+    applyThemeVariables();
+    
     // Appliquer le thème au body
     if (theme === 'dark') {
       document.body.classList.add('dark-theme');

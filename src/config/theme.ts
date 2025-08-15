@@ -8,8 +8,5 @@ const applyThemeVariables = (): void => {
   }
 };
 
-if (typeof window !== 'undefined') {
-  applyThemeVariables();
-}
 
 export default applyThemeVariables; 

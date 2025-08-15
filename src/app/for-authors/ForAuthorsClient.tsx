@@ -6,8 +6,9 @@ import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
 
-import caretUp from '/public/icons/caret-up-red.svg';
-import caretDown from '/public/icons/caret-down-red.svg';
+// Use direct paths for static build compatibility
+const caretUp = '/icons/caret-up-red.svg';
+const caretDown = '/icons/caret-down-red.svg';
 import { useAppSelector } from '@/hooks/store';
 import { generateIdFromText, unifiedProcessor, serializeMarkdown, getMarkdownImageURL, adjustNestedListsInMarkdownContent } from '@/utils/markdown';
 import ForAuthorsSidebar, { IForAuthorsHeader } from '@/components/Sidebars/ForAuthorsSidebar/ForAuthorsSidebar';
@@ -262,18 +263,14 @@ export default function ForAuthorsClient({
                           {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
                             <img 
                               className='forAuthors-content-body-section-subtitle-caret' 
-                              src={caretUp.src} 
+                              src={caretUp} 
                               alt='Caret up icon'
-                              width={24}
-                              height={24}
                             />
                           ) : (
                             <img 
                               className='forAuthors-content-body-section-subtitle-caret' 
-                              src={caretDown.src} 
+                              src={caretDown} 
                               alt='Caret down icon'
-                              width={24}
-                              height={24}
                             />
                           )}
                         </div>

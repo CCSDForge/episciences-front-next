@@ -64,7 +64,10 @@
       "guest-editor": "Rédacteur invité",
       "secretary": "Secrétaire de rédaction",
       "webmaster": "Webmaster"
-    }
+    },
+    "publicationDetails": "Détails de publication",
+    "submittedOn": "Soumis le",
+    "lastModifiedOn": "Modifié le"
   },
   "components": {
     "header": {

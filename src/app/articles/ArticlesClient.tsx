@@ -85,8 +85,8 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
       const initialData = Array.isArray(initialArticles.data) ? initialArticles.data : [];
       
       let filteredData = initialData;
-      const selectedTypes = getSelectedTypes();
-      const selectedYears = getSelectedYears();
+      const selectedTypes = types.filter(t => t.isChecked).map(t => t.value);
+      const selectedYears = years.filter(y => y.isChecked).map(y => y.year);
       
       if (selectedTypes.length > 0) {
         filteredData = filteredData.filter((article: any) => 
@@ -113,7 +113,7 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
           .map((article: any) => ({ ...article, openedAbstract: false }))
       );
     }
-  }, [initialArticles, types, years, getSelectedTypes, getSelectedYears, isStaticBuild]);
+  }, [initialArticles, types, years, isStaticBuild]);
 
   useEffect(() => {
     if (!isStaticBuild && articles) {
@@ -206,27 +206,6 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
     setYears(updatedYears);
   }
 
-  const setAllTaggedFilters = (): void => {
-    const initFilters: IArticleFilter[] = []
-
-    types.filter((t) => t.isChecked).forEach((t) => {
-      initFilters.push({
-        type: 'type',
-        value: t.value,
-        labelPath: t.labelPath
-      })
-    })
-
-    years.filter((y) => y.isChecked).forEach((y) => {
-      initFilters.push({
-        type: 'year',
-        value: y.year,
-        label: y.year
-      })
-    })
-
-    setTaggedFilters(initFilters)
-  }
 
   const onCloseTaggedFilter = (type: ArticleTypeFilter, value: string | number): void => {
     if (type === 'type') {
@@ -267,7 +246,25 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
   }
 
   useEffect(() => {
-    setAllTaggedFilters()
+    const initFilters: IArticleFilter[] = []
+
+    types.filter((t) => t.isChecked).forEach((t) => {
+      initFilters.push({
+        type: 'type',
+        value: t.value,
+        labelPath: t.labelPath
+      })
+    })
+
+    years.filter((y) => y.isChecked).forEach((y) => {
+      initFilters.push({
+        type: 'year',
+        value: y.year,
+        label: y.year
+      })
+    })
+
+    setTaggedFilters(initFilters)
   }, [types, years])
 
   const toggleAbstract = (articleId?: number): void => {

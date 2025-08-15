@@ -20,6 +20,9 @@ export const metadata: Metadata = {
     default: 'Episciences',
   },
   description: 'Overlay Journal Platform',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default async function RootLayout({

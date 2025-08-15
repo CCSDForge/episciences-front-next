@@ -132,8 +132,8 @@ export default function VolumesClient({
       const filteredData = {...initialVolumes};
       
       // Appliquer les filtres si nécessaire
-      const selectedTypes = getSelectedTypes();
-      const selectedYears = getSelectedYears();
+      const selectedTypes = types.filter(t => t.isChecked).map(t => t.value);
+      const selectedYears = years.filter(y => y.isSelected).map(y => y.year);
       
       if (selectedTypes.length > 0 || selectedYears.length > 0) {
         filteredData.data = initialVolumes.data.filter(vol => {
@@ -151,7 +151,7 @@ export default function VolumesClient({
       
       setVolumesData(filteredData);
     }
-  }, [initialVolumes, types, years, currentPage, getSelectedTypes, getSelectedYears]);
+  }, [initialVolumes, types, years, currentPage]);
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
@@ -244,27 +244,6 @@ export default function VolumesClient({
     setYears(updatedYears);
   };
 
-  const setAllTaggedFilters = (): void => {
-    const initFilters: IVolumeFilter[] = [];
-
-    types.filter((type) => type.isChecked).forEach((type) => {
-      initFilters.push({
-        type: 'type',
-        value: type.value,
-        labelPath: type.labelPath
-      });
-    });
-
-    years.filter((y) => y.isSelected).forEach((y) => {
-      initFilters.push({
-        type: 'year',
-        value: y.year,
-        label: y.year
-      });
-    });
-
-    setTaggedFilters(initFilters);
-  };
 
   const onCloseTaggedFilter = (type: VolumeTypeFilter, value: string | number) => {
     if (type === 'type') {
@@ -317,7 +296,25 @@ export default function VolumesClient({
   };
 
   useEffect(() => {
-    setAllTaggedFilters();
+    const initFilters: IVolumeFilter[] = [];
+
+    types.filter((type) => type.isChecked).forEach((type) => {
+      initFilters.push({
+        type: 'type',
+        value: type.value,
+        labelPath: type.labelPath
+      });
+    });
+
+    years.filter((y) => y.isSelected).forEach((y) => {
+      initFilters.push({
+        type: 'year',
+        value: y.year,
+        label: y.year
+      });
+    });
+
+    setTaggedFilters(initFilters);
   }, [types, years]);
 
   const breadcrumbItems = [

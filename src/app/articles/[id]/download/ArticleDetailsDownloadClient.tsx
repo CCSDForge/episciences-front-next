@@ -39,7 +39,7 @@ export default function ArticleDetailsDownloadClient({ article }: ArticleDetails
           { path: BREADCRUMB_PATHS.articles, label: `${t('pages.articles.title')} >` },
           { path: BREADCRUMB_PATHS.articleDetails(article.id.toString()), label: `${article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title} >` }
         ]} 
-        crumbLabel={t('pages.articleDetails.sections.download')} 
+        crumbLabel={t('pages.articleDetails.actions.download')} 
       />
       <div className="articleDetails-content">
         <div className="articleDetails-content-download">

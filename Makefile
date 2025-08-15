@@ -23,7 +23,7 @@ DEFAULT_SMALL_LOGO := default-small.svg
 # Read journals from the journal list file
 JOURNALS := $(shell cat $(JOURNAL_LIST_FILE) 2>/dev/null)
 
-.PHONY: all clean list $(JOURNALS)
+.PHONY: all clean list serve $(JOURNALS)
 
 # Default target
 all: $(JOURNALS)
@@ -82,4 +82,31 @@ $(JOURNALS):
 	@echo "Copying fonts..."
 	@mkdir -p $(call FONTS_DEST_DIR,$@)
 	@cp -r $(FONTS_SRC_DIR)/* $(call FONTS_DEST_DIR,$@)/ || { echo "Failed to copy fonts"; exit 1; }
-	@echo "Build completed for journal: $@ in $(BUILD_DIR)/$@" 
+	@echo "Build completed for journal: $@ in $(BUILD_DIR)/$@"
+
+# Serve static build with Python HTTP server
+# Usage: make serve JOURNAL=epijinfo
+# Usage: make serve JOURNAL=epijinfo PORT=8080 (default port is 3000)
+serve:
+	@if [ -z "$(JOURNAL)" ]; then \
+		echo "Error: JOURNAL parameter is required."; \
+		echo "Usage: make serve JOURNAL=<journal_name>"; \
+		echo "Available journals:"; \
+		cat $(JOURNAL_LIST_FILE) | grep -v '^$$'; \
+		exit 1; \
+	fi
+	@if ! grep -q "^$(JOURNAL)$$" $(JOURNAL_LIST_FILE) 2>/dev/null; then \
+		echo "Error: Journal '$(JOURNAL)' does not exist in $(JOURNAL_LIST_FILE)."; \
+		echo "Available journals:"; \
+		cat $(JOURNAL_LIST_FILE) | grep -v '^$$'; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(BUILD_DIR)/$(JOURNAL)" ]; then \
+		echo "Error: Build directory '$(BUILD_DIR)/$(JOURNAL)' does not exist."; \
+		echo "Please build the journal first with: make $(JOURNAL)"; \
+		exit 1; \
+	fi
+	@echo "Starting Python HTTP server for journal '$(JOURNAL)' on port $(or $(PORT),3000)..."
+	@echo "Open your browser at: http://localhost:$(or $(PORT),3000)"
+	@echo "Press Ctrl+C to stop the server"
+	@cd $(BUILD_DIR)/$(JOURNAL) && python3 -m http.server $(or $(PORT),3000)
