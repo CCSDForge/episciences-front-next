@@ -43,6 +43,8 @@ export function formatArticle(article: RawArticle): FetchedArticle {
   }
 
   const extendedArticle = article as ExtendedRawArticle;
+  console.log('DEBUG formatArticle - extendedArticle.keywords:', extendedArticle.keywords);
+  console.log('DEBUG formatArticle - Raw article keys:', Object.keys(extendedArticle));
 
   try {
     // Récupération des métadonnées de base
@@ -279,6 +281,29 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       license = articleContent.program?.license_ref?.value
     }
 
+    /** Format keywords */
+    let keywords: string[] | undefined = undefined;
+    
+    // Check for keywords in various possible locations
+    if (extendedArticle.keywords) {
+      keywords = extendedArticle.keywords;
+    } else if (articleContent.keywords) {
+      keywords = articleContent.keywords;
+    } else if (articleContent.program) {
+      // Check for keywords in program data
+      const keywordProgram = Array.isArray(articleContent.program) 
+        ? articleContent.program.find(p => p.keywords) 
+        : articleContent.program.keywords ? articleContent.program : null;
+      
+      if (keywordProgram?.keywords) {
+        keywords = keywordProgram.keywords;
+      }
+    }
+    
+    console.log('DEBUG formatArticle - Found keywords:', keywords);
+    console.log('DEBUG formatArticle - articleContent.keywords:', articleContent.keywords);
+    console.log('DEBUG formatArticle - extendedArticle.keywords:', extendedArticle.keywords);
+
     /** Format metrics */
     const metrics: { views: number; downloads: number } = { views: 0, downloads: 0 };
     if (articleDB?.current?.metrics) {
@@ -302,7 +327,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       repositoryIdentifier: articleDB?.current?.identifiers?.repository_identifier,
       pdfLink: articleDB?.current?.mainPdfUrl?.length ? articleDB?.current?.mainPdfUrl : undefined,
       docLink: articleDB?.current?.repository?.doc_url,
-      keywords: extendedArticle.keywords,
+      keywords,
       doi: extendedArticle.doi,
       volumeId: articleDB?.current?.volume?.id,
       references,

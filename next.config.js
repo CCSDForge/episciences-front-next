@@ -16,7 +16,7 @@ function validateEnv() {
   }
 
   // Utiliser le code de la revue comme nom de dossier
-  return process.env.NEXT_PUBLIC_JOURNAL_CODE || 'default';
+  return process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'default';
 }
 
 // Fonction pour générer le sitemap

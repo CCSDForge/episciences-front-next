@@ -66,9 +66,9 @@ export function journalExists(journalCode: string): boolean {
  * Retourne la liste des codes de journaux pour la génération statique
  */
 export function getStaticJournalCodes(): string[] {
-  const journalCode = process.env.NEXT_PUBLIC_JOURNAL_CODE;
+  const journalCode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
   if (!journalCode) {
-    throw new Error('NEXT_PUBLIC_JOURNAL_CODE is not defined');
+    throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
   }
   return [journalCode];
 } 

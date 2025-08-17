@@ -10,6 +10,35 @@ interface ArticleDetailsDownloadPageProps {
 
 export const dynamic = 'force-static';
 
+export async function generateStaticParams() {
+  // Si un ID spécifique est fourni, ne générer que cet article
+  if (process.env.ONLY_BUILD_ARTICLE_ID) {
+    return [{ id: process.env.ONLY_BUILD_ARTICLE_ID }];
+  }
+  
+  // Sinon, continuer avec la génération complète de tous les articles
+  try {
+    const { fetchArticles } = await import('@/services/article');
+    const { data: articles } = await fetchArticles({ 
+      rvcode: process.env.NEXT_PUBLIC_RVCODE || '',
+      page: 1,
+      itemsPerPage: 5000
+    });
+    
+    if (!articles || !articles.length) {
+      return [{ id: "no-articles-found" }];
+    }
+    
+    console.log(`Génération des pages de téléchargement pour ${articles.length} articles.`);
+    return articles.map((article: any) => ({
+      id: article?.id.toString(),
+    }));
+  } catch (error) {
+    console.error('Error generating static params for download pages:', error);
+    return [{ id: 'no-articles-found' }];
+  }
+}
+
 export async function generateMetadata({ params }: ArticleDetailsDownloadPageProps): Promise<Metadata> {
   try {
     // Vérifier si nous avons un ID factice

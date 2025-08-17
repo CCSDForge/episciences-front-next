@@ -90,13 +90,15 @@ export default function LinkedPublicationsSection({ relatedItems }: LinkedPublic
     }
 
     if (relatedItem.identifierType === LINKED_PUBLICATION_IDENTIFIER_TYPE.OTHER && relatedItem.value.includes('swh')) {
+      const swhHomepage = process.env.NEXT_PUBLIC_VITE_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE || 'https://archive.softwareheritage.org';
+      
       return (
         <div className="articleDetails-content-article-section-content-linkedPublications-publication">
           {relationship && <div className="articleDetails-content-article-section-content-linkedPublications-publication-badge">{t(relationship)}</div>}
-          <Link href={`${process.env.NEXT_PUBLIC_VITE_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE}/${relatedItem.value}`} target='_blank' rel="noopener noreferrer">
+          <Link href={`${swhHomepage}/${relatedItem.value}`} target='_blank' rel="noopener noreferrer">
             <img 
               className="articleDetails-content-article-section-content-linkedPublications-publication-img" 
-              src={`${process.env.NEXT_PUBLIC_VITE_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE}/badge/${relatedItem.value}`} 
+              src={`${swhHomepage}/badge/${relatedItem.value}`} 
               alt={relatedItem.value} 
             />
           </Link>
@@ -104,7 +106,7 @@ export default function LinkedPublicationsSection({ relatedItems }: LinkedPublic
             title="Software preview" 
             loading="lazy" 
             className="articleDetails-content-article-section-content-linkedPublications-publication-embed" 
-            src={`${process.env.NEXT_PUBLIC_VITE_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE}/browse/embed/${relatedItem.value}`}
+            src={`${swhHomepage}/browse/embed/${relatedItem.value}`}
           />
         </div>
       );

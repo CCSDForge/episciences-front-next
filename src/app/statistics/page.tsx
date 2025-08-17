@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 
 export default async function StatisticsPage() {
   try {
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_CODE || '';
+    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
     
     if (!rvcode) {
-      throw new Error('Le code de la revue est requis');
+      throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
     }
     
     const response = await fetchStatistics({

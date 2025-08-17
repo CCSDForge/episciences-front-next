@@ -14,8 +14,14 @@ export default async function ArticlesAcceptedPage() {
     const ARTICLES_ACCEPTED_PER_PAGE = 10;
     
     // Récupération statique des articles acceptés pendant le build
+    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+    
+    if (!rvcode) {
+      throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
+    }
+
     const articlesAccepted = await fetchArticles({
-      rvcode: process.env.NEXT_PUBLIC_JOURNAL_CODE || '',
+      rvcode,
       page: 1,
       itemsPerPage: ARTICLES_ACCEPTED_PER_PAGE,
       onlyAccepted: true,

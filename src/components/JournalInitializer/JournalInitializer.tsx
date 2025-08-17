@@ -23,7 +23,7 @@ export function JournalInitializer() {
     const journalName = process.env.NEXT_PUBLIC_JOURNAL_NAME || '[Pre-Production] Journal Epijinfo fake journalInitializer';
     return {
       id: parseInt(process.env.NEXT_PUBLIC_JOURNAL_ID || '3'),
-      code: process.env.NEXT_PUBLIC_JOURNAL_CODE || 'epijinfo',
+      code: process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo',
       name: journalName,
       title: { fr: journalName, en: journalName } as Record<AvailableLanguage, string>,
       settings: [],

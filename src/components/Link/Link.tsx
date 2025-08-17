@@ -1,6 +1,7 @@
 'use client';
 
 import { ComponentProps, forwardRef } from 'react';
+import NextLink from 'next/link';
 
 type LinkProps = {
   href: string;
@@ -26,7 +27,16 @@ function normalizePath(path: string): string {
   return normalizedPath.replace(/\/+/g, '/');
 }
 
-// Composant Link personnalisé qui génère des liens HTML standards pour le SEO
+// Déterminer si on doit utiliser Next.js Link ou anchor standard
+function shouldUseNextLink(href: string): boolean {
+  // Utiliser Next.js Link pour les liens internes en mode développement
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isInternal = !href.startsWith('http') && !href.startsWith('//') && !href.startsWith('mailto:') && !href.startsWith('#');
+  
+  return isDevelopment && isInternal;
+}
+
+// Composant Link personnalisé qui utilise Next.js Link en dev et anchor en production
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({ 
   href, 
   children,
@@ -38,7 +48,16 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
   // Filtrer les props spécifiques à Next.js qui ne sont pas valides pour les éléments <a>
   const { prefetch, scroll, replace, shallow, ...validProps } = props;
   
-  // Utiliser un élément <a> standard avec le chemin normalisé
+  // En développement, utiliser Next.js Link pour les liens internes
+  if (shouldUseNextLink(normalizedHref)) {
+    return (
+      <NextLink href={normalizedHref} {...validProps}>
+        {children}
+      </NextLink>
+    );
+  }
+  
+  // En production ou pour les liens externes, utiliser un élément <a> standard
   return (
     <a 
       ref={ref}

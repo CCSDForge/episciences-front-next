@@ -10,7 +10,11 @@ interface Journal {
 }
 
 export const getJournalCode = (): string => {
-  return process.env.NEXT_PUBLIC_JOURNAL_CODE || '';
+  const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+  if (!rvcode) {
+    throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
+  }
+  return rvcode;
 };
 
 export const getJournal = async (): Promise<IJournal> => {

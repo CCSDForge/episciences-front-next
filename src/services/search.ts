@@ -1,4 +1,4 @@
-import { API_PATHS } from '@/config/api'
+import { API_PATHS, API_URL } from '@/config/api'
 import { FetchedArticle, formatArticle } from '@/utils/article'
 import { PaginatedResponseWithRange, SearchRange } from '@/utils/pagination'
 import { formatSearchRange } from '@/utils/search'
@@ -35,7 +35,9 @@ export async function fetchSearchResults({
   range?: SearchRange;
 }> {
   try {
-    const apiUrl = new URL(API_PATHS.search, process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT);
+    // Construct the full URL by concatenating API_URL and search path
+    const fullUrl = `${API_URL}${API_PATHS.search}`;
+    const apiUrl = new URL(fullUrl);
     
     // Ajout des paramètres à l'URL
     apiUrl.searchParams.append('terms', terms);
@@ -104,7 +106,7 @@ export async function fetchSearchResults({
     const fullResults = await Promise.all(
       searchResults.map(async (searchResult) => {
         const articleId = searchResult.docid;
-        const rawArticle = await fetch(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/${API_PATHS.papers}${articleId}`, {
+        const rawArticle = await fetch(`${API_URL}${API_PATHS.papers}${articleId}`, {
           next: {
             tags: ['article', `article-${articleId}`],
           }

@@ -237,7 +237,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
                 <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={facebook} alt="Facebook icon" />
               </FacebookShareButton>
               <TwitterShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-                <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={twitter} alt="Twitter icon" />
+                <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={twitter} alt="X icon" />
               </TwitterShareButton>
               <LinkedinShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
                 <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={linkedin} alt="Linkedin icon" />

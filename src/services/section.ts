@@ -64,7 +64,7 @@ export async function fetchSections({ rvcode, page = 1, itemsPerPage = 10 }: Fet
 
 export async function fetchSectionArticles(paperIds: string[]) {
   const articlesPromises = paperIds.map(async (docid) => {
-    const response = await fetch(`${API_URL}${API_PATHS.papers}/${docid}`, {
+    const response = await fetch(`${API_URL}${API_PATHS.papers}${docid}`, {
       next: { revalidate: false }
     });
     

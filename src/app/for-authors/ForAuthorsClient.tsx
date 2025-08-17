@@ -253,7 +253,22 @@ export default function ForAuthorsClient({
                   remarkPlugins={[remarkGfm]}
                   urlTransform={uri => uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri}
                   components={{
-                    a: ({ ...props }) => <Link href={props.href!} target='_blank' className='forAuthors-content-body-section-link'>{props.children?.toString()}</Link>,
+                    a: ({ ...props }) => {
+                      const href = props.href!;
+                      const isExternal = href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:');
+                      const isAnchor = href.startsWith('#');
+                      
+                      return (
+                        <Link 
+                          href={href} 
+                          target={isExternal ? '_blank' : undefined}
+                          rel={isExternal ? 'noopener noreferrer' : undefined}
+                          className='forAuthors-content-body-section-link'
+                        >
+                          {props.children?.toString()}
+                        </Link>
+                      );
+                    },
                     h2: ({ ...props }) => {
                       const id = generateIdFromText(props.children?.toString()!);
 

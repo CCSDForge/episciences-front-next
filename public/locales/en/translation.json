@@ -309,7 +309,11 @@
       }
     },
     "sections": {
-      "title": "Sections"
+      "title": "Sections",
+      "totalArticles": "Total Articles",
+      "articlesInSection": "Articles in this Section",
+      "noArticlesTitle": "No Articles Found",
+      "noArticlesMessage": "This section currently has no articles."
     },
     "sectionDetails": {
       "title": "Section"

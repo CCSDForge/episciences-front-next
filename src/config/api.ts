@@ -1,10 +1,5 @@
-// Assurez-vous que l'URL de l'API se termine par /api comme dans la version React
-function ensureApiEndpoint(url: string): string {
-  if (!url) return '';
-  return url.endsWith('/api') ? url : `${url}/api`;
-}
-
-export const API_URL = ensureApiEndpoint(process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api-preprod.episciences.org')
+// Use the API root endpoint directly since it already includes /api
+export const API_URL = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api-preprod.episciences.org/api'
 
 export const API_PATHS = {
   papers: '/papers/',

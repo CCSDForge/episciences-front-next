@@ -36,6 +36,9 @@ import './ArticleDetails.scss';
 interface ArticleDetailsClientProps {
   article: IArticle | null;
   id: string;
+  initialRelatedVolume?: IVolume | null;
+  initialMetadataCSL?: string | null;
+  initialMetadataBibTeX?: string | null;
 }
 
 interface EnhancedArticleAuthor extends IArticleAuthor {
@@ -54,17 +57,23 @@ enum ARTICLE_SECTION {
 
 const MAX_BREADCRUMB_TITLE = 20;
 
-export default function ArticleDetailsClient({ article, id }: ArticleDetailsClientProps): JSX.Element {
+export default function ArticleDetailsClient({ 
+  article, 
+  id, 
+  initialRelatedVolume,
+  initialMetadataCSL,
+  initialMetadataBibTeX 
+}: ArticleDetailsClientProps): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const language = useAppSelector(state => state.i18nReducer.language);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
   
-  const [relatedVolume, setRelatedVolume] = useState<IVolume | undefined>(undefined);
-  const [metadataCSL, setMetadataCSL] = useState<string | null>(null);
-  const [metadataBibTeX, setMetadataBibTeX] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [relatedVolume, setRelatedVolume] = useState<IVolume | undefined>(initialRelatedVolume || undefined);
+  const [metadataCSL, setMetadataCSL] = useState<string | null>(initialMetadataCSL || null);
+  const [metadataBibTeX, setMetadataBibTeX] = useState<string | null>(initialMetadataBibTeX || null);
+  const [isLoading, setIsLoading] = useState(!initialRelatedVolume && !initialMetadataCSL);
 
   const [openedSections, setOpenedSections] = useState<{ key: ARTICLE_SECTION, isOpened: boolean }[]>([
     { key: ARTICLE_SECTION.GRAPHICAL_ABSTRACT, isOpened: true },
@@ -81,6 +90,12 @@ export default function ArticleDetailsClient({ article, id }: ArticleDetailsClie
 
   useEffect(() => {
     async function fetchData() {
+      // Skip client-side fetching if data was provided server-side
+      if (initialRelatedVolume !== undefined && initialMetadataCSL !== undefined) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setIsLoading(true);
         
@@ -90,7 +105,8 @@ export default function ArticleDetailsClient({ article, id }: ArticleDetailsClie
           return;
         }
         
-        if (article?.volumeId && rvcode) {
+        // Only fetch volume if not provided server-side
+        if (!initialRelatedVolume && article?.volumeId && rvcode) {
           const volumeData = await fetchVolume({ 
             rvcode, 
             vid: article.volumeId.toString(), 
@@ -98,7 +114,9 @@ export default function ArticleDetailsClient({ article, id }: ArticleDetailsClie
           });
           setRelatedVolume(volumeData || undefined);
         }
-        if (id && rvcode) {
+        
+        // Only fetch metadata if not provided server-side
+        if (!initialMetadataCSL && !initialMetadataBibTeX && id && rvcode) {
           const [cslData, bibtexData] = await Promise.all([
             fetchArticleMetadata({ rvcode, paperid: id, type: METADATA_TYPE.CSL }),
             fetchArticleMetadata({ rvcode, paperid: id, type: METADATA_TYPE.BIBTEX })
@@ -113,10 +131,10 @@ export default function ArticleDetailsClient({ article, id }: ArticleDetailsClie
       }
     }
     fetchData();
-  }, [article, id, rvcode, language]);
+  }, [article, id, rvcode, language, initialRelatedVolume, initialMetadataCSL, initialMetadataBibTeX]);
 
   useEffect(() => {
-    if (article && !authors.length && !institutions.length) {
+    if (article && article.authors && authors.length === 0 && institutions.length === 0) {
       const allAuthors: EnhancedArticleAuthor[] = [];
       const allInstitutionsSet = new Set<string>();
 
@@ -138,7 +156,7 @@ export default function ArticleDetailsClient({ article, id }: ArticleDetailsClie
       setAuthors(allAuthors)
       setInstitutions(Array.from(allInstitutionsSet))
     }
-  }, [article, authors, institutions])
+  }, [article])
 
   const renderArticleTitleAndAuthors = (isMobile: boolean): JSX.Element => {
     return (
@@ -146,12 +164,19 @@ export default function ArticleDetailsClient({ article, id }: ArticleDetailsClie
         <h1 className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}>
           <MathJax dynamic>{article?.title}</MathJax>
         </h1>
-        {authors.length > 0 && (
+        <div>
+          <div>Debug: authors.length = {authors.length}</div>
+          <div>Debug: institutions.length = {institutions.length}</div>
+          <div>Debug: article.authors.length = {article?.authors?.length || 0}</div>
+        </div>
+        {authors.length > 0 ? (
           <CollapsibleInstitutions 
             authors={authors} 
             institutions={institutions} 
             isMobile={isMobile} 
           />
+        ) : (
+          <div>No authors processed yet</div>
         )}
       </>
     )
@@ -276,6 +301,14 @@ export default function ArticleDetailsClient({ article, id }: ArticleDetailsClie
 
   return (
     <main className='articleDetails'>
+      <div style={{background: 'yellow', padding: '10px', margin: '10px'}}>
+        <div><strong>MAIN DEBUG INFO:</strong></div>
+        <div>isLoading: {isLoading ? 'true' : 'false'}</div>
+        <div>article exists: {article ? 'true' : 'false'}</div>
+        <div>article.authors length: {article?.authors?.length || 0}</div>
+        <div>processed authors length: {authors.length}</div>
+        <div>processed institutions length: {institutions.length}</div>
+      </div>
       <Breadcrumb 
         parents={[
           { path: BREADCRUMB_PATHS.home, label: `${t('pages.home.title')} > ${t('common.content')} >` },

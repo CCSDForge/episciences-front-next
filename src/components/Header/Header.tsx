@@ -60,7 +60,7 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
   const mobileMenuDropdownRef = useRef<HTMLDivElement | null>(null);
 
   const getLogoOfJournal = (size: 'small' | 'big'): string => {
-    const code = process.env.NEXT_PUBLIC_JOURNAL_CODE || 'epijinfo';
+    const code = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
     return `/logos/logo-${size}.svg`;
   };
 
@@ -106,7 +106,7 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
     }
 
     setIsSearching(false);
-    router.push(PATHS.search);
+    router.push(`${PATHS.search}?terms=${encodeURIComponent(search)}`);
   };
 
   const getEpisciencesHomePageLink = (): string => 
@@ -126,7 +126,7 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
 
   const getSubmitManagerLink = (): string | null => {
     const managerUrl = process.env.NEXT_PUBLIC_EPISCIENCES_MANAGER;
-    const code = currentJournal?.code || process.env.NEXT_PUBLIC_JOURNAL_CODE;
+    const code = currentJournal?.code || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
 
     if (!managerUrl) return null;
     return code ? `${managerUrl}/${code}` : managerUrl;

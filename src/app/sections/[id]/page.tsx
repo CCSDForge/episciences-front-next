@@ -1,57 +1,92 @@
 import { Metadata } from 'next';
-import { fetchSections } from '@/services/section';
-import SectionsClient from '../SectionsClient';
+import { fetchSection, fetchSections, fetchSectionArticles } from '@/services/section';
+import SectionDetailsClient from './SectionDetailsClient';
 
-export const metadata: Metadata = {
-  title: 'Sections',
-};
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  try {
+    if (params.id === 'no-sections-found') {
+      return {
+        title: 'No sections found',
+        description: 'No sections available for this journal',
+      };
+    }
 
-const SECTIONS_PER_PAGE = 10;
+    const section = await fetchSection({ sid: params.id });
+    const sectionTitle = section.title?.en || section.title?.fr || `Section ${params.id}`;
+    
+    return {
+      title: `${sectionTitle} | Episciences`,
+      description: section.description?.en || section.description?.fr || `Articles in ${sectionTitle}`,
+    };
+  } catch (error) {
+    console.error(`Error generating metadata for section ${params.id}:`, error);
+    return {
+      title: 'Section Details',
+      description: 'Section details page',
+    };
+  }
+}
 
 export async function generateStaticParams() {
   try {
     const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
     if (!rvcode) {
       console.error('NEXT_PUBLIC_JOURNAL_RVCODE is not defined');
-      return [{ id: 'section-placeholder' }];  // Valeur par défaut
+      return [{ id: 'no-sections-found' }];
     }
 
-    // Fetch first page to get total count
-    const firstPage = await fetchSections({
-      rvcode,
-      page: 1,
-      itemsPerPage: SECTIONS_PER_PAGE
-    });
+    // Fetch all sections to get their IDs (similar to volumes)
+    let allSections = [];
+    let page = 1;
+    let hasMore = true;
 
-    const totalPages = Math.ceil(firstPage.totalItems / SECTIONS_PER_PAGE);
-    
-    // Si aucune section trouvée, retourne au moins une page par défaut
-    if (totalPages === 0) {
-      return [{ id: 'section-placeholder' }];
+    while (hasMore) {
+      const sectionsData = await fetchSections({
+        rvcode,
+        page,
+        itemsPerPage: 100
+      });
+      
+      allSections.push(...sectionsData.data);
+      
+      // Check if there are more pages
+      hasMore = sectionsData.data.length === 100;
+      page++;
+      
+      // Safety break to avoid infinite loop
+      if (page > 50) break;
     }
+
+    if (!allSections || allSections.length === 0) {
+      return [{ id: 'no-sections-found' }];
+    }
+
+    console.log(`Generating static params for ${allSections.length} sections`);
     
-    // Generate array of page numbers
-    return Array.from({ length: totalPages }, (_, i) => ({
-      id: (i + 1).toString()
+    // Generate params for each section ID
+    return allSections.map((section: any) => ({
+      id: section.id.toString(),
     }));
   } catch (error) {
     console.error('Error generating static params for sections:', error);
-    return [{ id: 'section-placeholder' }];  // Valeur par défaut en cas d'erreur
+    return [{ id: 'no-sections-found' }];
   }
 }
 
-export default async function SectionsPage({
+export default async function SectionDetailsPage({
   params
 }: {
   params: { id: string }
 }) {
   try {
-    // Vérifier si nous avons un ID factice
+    // Check for placeholder ID
     if (params.id === 'no-sections-found') {
-      return <div className="section-placeholder">
-        <h1>Aucune section disponible</h1>
-        <p>Aucune section n'est disponible pour ce journal actuellement.</p>
-      </div>;
+      return (
+        <div className="error-message">
+          <h1>No sections available</h1>
+          <p>No sections are currently available for this journal.</p>
+        </div>
+      );
     }
     
     const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
@@ -60,26 +95,44 @@ export default async function SectionsPage({
       throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE is not defined');
     }
     
-    const page = parseInt(params.id, 10);
+    // Fetch section details by ID (like volumes do)
+    const rawSection = await fetchSection({ sid: params.id });
     
-    const sectionsData = await fetchSections({
-      rvcode,
-      page,
-      itemsPerPage: SECTIONS_PER_PAGE
-    });
+    // Format section data (similar to fetchSections formatting)
+    const section = {
+      ...rawSection,
+      id: rawSection.sid || rawSection.id,
+      title: rawSection.titles || rawSection.title,
+      description: rawSection.descriptions || rawSection.description,
+      articles: rawSection.papers || rawSection.articles || []
+    };
+    
+    // Fetch articles for this section
+    let articles = [];
+    if (section.articles && section.articles.length > 0) {
+      // Extract paper IDs from the articles array
+      const paperIds = section.articles.map((article: any) => 
+        article.paperid || article.id || article.docid || article
+      ).filter(Boolean);
+      
+      if (paperIds.length > 0) {
+        articles = await fetchSectionArticles(paperIds.map(id => id.toString()));
+      }
+    }
     
     return (
-      <SectionsClient 
-        initialSections={sectionsData} 
-        initialPage={page}
+      <SectionDetailsClient 
+        section={section}
+        articles={articles}
+        sectionId={params.id}
       />
     );
   } catch (error) {
-    console.error(`Erreur lors de la récupération des sections (page ${params.id}):`, error);
+    console.error(`Error fetching section ${params.id}:`, error);
     return (
       <div className="error-message">
-        <h1>Erreur lors du chargement des sections</h1>
-        <p>Impossible de charger les données des sections.</p>
+        <h1>Section not found</h1>
+        <p>The section you're looking for could not be found.</p>
       </div>
     );
   }

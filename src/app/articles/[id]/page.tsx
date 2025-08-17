@@ -1,9 +1,12 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { fetchArticle, fetchArticles } from '@/services/article';
+import { fetchArticle, fetchArticles, fetchArticleMetadata } from '@/services/article';
+import { fetchVolume } from '@/services/volume';
 import ArticleDetailsClient from './ArticleDetailsClient';
-import { FetchedArticle } from '@/utils/article';
+import ArticleDetailsServer from './ArticleDetailsServer';
+import { FetchedArticle, METADATA_TYPE } from '@/utils/article';
 import { IArticle } from '@/types/article';
+import { IVolume } from '@/types/volume';
 
 interface ArticleDetailsPageProps {
   params: {
@@ -43,10 +46,16 @@ export async function generateStaticParams() {
   
   // Sinon, continuer avec la génération complète de tous les articles
   try {
+    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+    if (!rvcode) {
+      console.error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
+      return [{ id: 'no-articles-found' }];
+    }
+    
     const { data: articles } = await fetchArticles({ 
-      rvcode: process.env.NEXT_PUBLIC_RVCODE || '',
+      rvcode,
       page: 1,
-      itemsPerPage: 1000
+      itemsPerPage: 5000
     });
     
     if (!articles || !articles.length) {
@@ -68,14 +77,64 @@ export default async function ArticleDetailsPage({ params }: ArticleDetailsPageP
   try {
     // Vérifier si nous avons un ID factice
     if (params.id === 'no-articles-found') {
-      return {
-        title: `Aucun article - Détails | ${process.env.NEXT_PUBLIC_JOURNAL_NAME}`,
-        description: "Page placeholder pour les détails d'articles"
-      };
+      return (
+        <div className="error-message">
+          <h1>Aucun article disponible</h1>
+          <p>Page placeholder pour les détails d'articles</p>
+        </div>
+      );
     }
     
-    const article = await fetchArticle(params.id);
-    return <ArticleDetailsClient article={article as IArticle | null} id={params.id} />;
+    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+    if (!rvcode) {
+      throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
+    }
+    const language = process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE || 'en';
+    
+    // Fetch all data server-side for complete pre-rendering
+    const [article, metadataCSL, metadataBibTeX] = await Promise.all([
+      fetchArticle(params.id),
+      fetchArticleMetadata({ rvcode, paperid: params.id, type: METADATA_TYPE.CSL }).catch(() => null),
+      fetchArticleMetadata({ rvcode, paperid: params.id, type: METADATA_TYPE.BIBTEX }).catch(() => null)
+    ]);
+
+    // Fetch related volume if article has volumeId
+    let relatedVolume: IVolume | null = null;
+    if (article?.volumeId && rvcode) {
+      try {
+        relatedVolume = await fetchVolume({ 
+          rvcode, 
+          vid: article.volumeId.toString(), 
+          language 
+        });
+      } catch (error) {
+        console.error('Error fetching volume:', error);
+      }
+    }
+
+    // Use server-side rendering for maximum pre-rendering
+    if (article) {
+      return (
+        <ArticleDetailsServer 
+          article={article as IArticle} 
+          id={params.id}
+          relatedVolume={relatedVolume}
+          metadataCSL={metadataCSL}
+          metadataBibTeX={metadataBibTeX}
+        />
+      );
+    }
+
+    // Fallback to client component if no article data
+    return (
+      <ArticleDetailsClient 
+        article={null} 
+        id={params.id}
+        initialRelatedVolume={relatedVolume}
+        initialMetadataCSL={metadataCSL}
+        initialMetadataBibTeX={metadataBibTeX}
+      />
+    );
   } catch (error) {
     console.error(`Erreur lors de la récupération de l'article ${params.id}:`, error);
     return (

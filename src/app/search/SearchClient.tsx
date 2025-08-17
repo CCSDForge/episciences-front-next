@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import PageTitle from '@/components/PageTitle/PageTitle';
+import { fetchSearchResults } from '@/services/search';
 
 // import filter from '/icons/filter.svg';
 import filter from '/public/icons/filter.svg';
@@ -14,11 +15,12 @@ import { AvailableLanguage } from "@/utils/i18n";
 import { SearchRange } from "@/utils/pagination";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Loader from '@/components/Loader/Loader';
-import SearchResultCard, { ISearchResultCard } from "@/components/Cards/SearchResultCard/SearchResultCard";
+import ArticleCard, { IArticleCard } from "@/components/Cards/ArticleCard/ArticleCard";
 import SearchResultsMobileModal from '@/components/Modals/SearchResultsMobileModal/SearchResultsMobileModal';
 import SearchResultsSidebar, { ISearchResultTypeSelection, ISearchResultYearSelection, ISearchResultVolumeSelection, ISearchResultSectionSelection, ISearchResultAuthorSelection } from "@/components/Sidebars/SearchResultsSidebar/SearchResultsSidebar";
 import Pagination from "@/components/Pagination/Pagination";
 import Tag from "@/components/Tag/Tag";
+import '../articles/Articles.scss';
 
 type SearchResultTypeFilter = 'type' | 'year' | 'volume' | 'section' | 'author';
 
@@ -51,12 +53,20 @@ export default function SearchClient({
 }: SearchClientProps): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const SEARCH_RESULTS_PER_PAGE = 10;
 
   const language = useAppSelector(state => state.i18nReducer.language);
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
+  const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
+  
+  // Use rvcode from Redux or fallback to environment variable
+  const rvcode = reduxRvcode || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+  
+  // Check if we're in static build mode
+  const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
+  
 
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [search, setSearch] = useState(initialSearch);
@@ -71,6 +81,104 @@ export default function SearchClient({
   const [taggedFilters, setTaggedFilters] = useState<ISearchResultFilter[]>([]);
   const [showAllAbstracts, setShowAllAbstracts] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
+
+  // Read search query from URL parameters
+  useEffect(() => {
+    const urlSearch = searchParams.get('terms') || searchParams.get('q') || '';
+    if (urlSearch && urlSearch !== search) {
+      setSearch(urlSearch);
+    }
+  }, [searchParams]);
+  
+  // Perform search when search terms or basic params change
+  useEffect(() => {
+    const performSearch = async () => {
+      if (!search || !rvcode) {
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        const selectedTypes = getSelectedTypes();
+        const selectedYears = getSelectedYears();
+        const selectedVolumes = getSelectedVolumes();
+        const selectedSections = getSelectedSections();
+        const selectedAuthors = getSelectedAuthors();
+        
+        const results = await fetchSearchResults({
+          terms: search,
+          rvcode,
+          page: currentPage,
+          itemsPerPage: SEARCH_RESULTS_PER_PAGE,
+          types: selectedTypes,
+          years: selectedYears,
+          volumes: selectedVolumes,
+          sections: selectedSections,
+          authors: selectedAuthors
+        });
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Search failed:', error);
+        // Keep the existing empty results in case of error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    performSearch();
+  }, [search, rvcode, currentPage]);
+
+  // Trigger search when filters change
+  useEffect(() => {
+    if (search && rvcode) {
+      // Only trigger if we have basic search params and filters have changed
+      const hasActiveFilters = types.some(t => t.isChecked) || 
+                             years.some(y => y.isChecked) ||
+                             volumes.some(v => v.isChecked) ||
+                             sections.some(s => s.isChecked) ||
+                             authors.some(a => a.isChecked);
+      
+      if (hasActiveFilters) {
+        // Reset to page 1 when filters change and trigger search
+        if (currentPage !== 1) {
+          setCurrentPage(1);
+        } else {
+          // If already on page 1, trigger search directly
+          performFilteredSearch();
+        }
+      }
+    }
+  }, [types, years, volumes, sections, authors]);
+
+  const performFilteredSearch = async () => {
+    if (!search || !rvcode) return;
+    
+    setIsLoading(true);
+    try {
+      const selectedTypes = getSelectedTypes();
+      const selectedYears = getSelectedYears();
+      const selectedVolumes = getSelectedVolumes();
+      const selectedSections = getSelectedSections();
+      const selectedAuthors = getSelectedAuthors();
+      
+      const results = await fetchSearchResults({
+        terms: search,
+        rvcode,
+        page: currentPage,
+        itemsPerPage: SEARCH_RESULTS_PER_PAGE,
+        types: selectedTypes,
+        years: selectedYears,
+        volumes: selectedVolumes,
+        sections: selectedSections,
+        authors: selectedAuthors
+      });
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getSelectedTypes = (): string[] => types.filter(t => t.isChecked).map(t => t.value);
   const getSelectedYears = (): number[] => years.filter(y => y.isChecked).map(y => y.year);
@@ -434,47 +542,47 @@ export default function SearchClient({
   };
 
   return (
-    <main className='search'>
+    <main className='articles'>
       <PageTitle title={t('pages.search.title')} />
 
       <Breadcrumb parents={[
         { path: 'home', label: `${t('pages.home.title')} > ${t('common.content')} >` }
       ]} crumbLabel={t('pages.search.title')} />
-      <div className='search-title'>
-        <h1 className='search-title-text'>{t('pages.search.title')}</h1>
-        <div className='search-title-count'>
+      <div className='articles-title'>
+        <h1 className='articles-title-text'>{t('pages.search.title')}</h1>
+        <div className='articles-title-count'>
           {searchResults && searchResults.totalItems > 1 ? (
-            <div className='search-title-count'>{searchResults.totalItems} {t('common.resultsFor')} "{search}"</div>
+            <div className='articles-title-count-text'>{searchResults.totalItems} {t('common.resultsFor')} "{search}"</div>
           ) : (
-            <div className='search-title-count'>{searchResults?.totalItems ?? 0} {t('common.resultFor')} "{search}"</div>
+            <div className='articles-title-count-text'>{searchResults?.totalItems ?? 0} {t('common.resultFor')} "{search}"</div>
           )}
-          <div className="search-title-count-filtersMobile">
-            <div className="search-title-count-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
-              <img className="search-title-count-filtersMobile-tile-icon" src={filter} alt='List icon' />
-              <div className="search-title-count-filtersMobile-tile-text">{taggedFilters.length > 0 ? `${t('common.filters.editFilters')} (${taggedFilters.length})` : `${t('common.filters.filter')}`}</div>
+          <div className="articles-title-count-filtersMobile">
+            <div className="articles-title-count-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
+              <img className="articles-title-count-filtersMobile-tile-icon" src={filter} alt='List icon' />
+              <div className="articles-title-count-filtersMobile-tile-text">{taggedFilters.length > 0 ? `${t('common.filters.editFilters')} (${taggedFilters.length})` : `${t('common.filters.filter')}`}</div>
             </div>
             {openedFiltersMobileModal && <SearchResultsMobileModal language={language} t={t} initialTypes={types} onUpdateTypesCallback={setTypes} initialYears={years} onUpdateYearsCallback={setYears} initialVolumes={volumes} onUpdateVolumesCallback={setVolumes} initialSections={sections} onUpdateSectionsCallback={setSections} initialAuthors={authors} onUpdateAuthorsCallback={setAuthors} onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}/>}
           </div>
         </div>
       </div>
-      <div className="search-filters">
+      <div className="articles-filters">
         {taggedFilters.length > 0 && (
-          <div className="search-filters-tags">
+          <div className="articles-filters-tags">
             {taggedFilters.map((filter, index) => (
               <Tag key={index} text={filter.labelPath ? t(filter.labelPath) : filter.translatedLabel ? filter.translatedLabel[language] : filter.label!.toString()} onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}/>
             ))}
-            <div className="search-filters-tags-clear" onClick={clearTaggedFilters}>{t('common.filters.clearAll')}</div>
+            <div className="articles-filters-tags-clear" onClick={clearTaggedFilters}>{t('common.filters.clearAll')}</div>
           </div>
         )}
-        <div className="search-filters-abstracts" onClick={toggleAllAbstracts}>
+        <div className="articles-filters-abstracts" onClick={toggleAllAbstracts}>
           {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
         </div>
       </div>
-      <div className="search-filters-abstracts search-filters-abstracts-mobile" onClick={toggleAllAbstracts}>
+      <div className="articles-filters-abstracts articles-filters-abstracts-mobile" onClick={toggleAllAbstracts}>
         {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
       </div>
-      <div className='search-content'>
-        <div className='search-content-results'>
+      <div className='articles-content'>
+        <div className='articles-content-results'>
           <SearchResultsSidebar
             language={language}
             t={t}
@@ -492,14 +600,14 @@ export default function SearchClient({
           {isLoading ? (
             <Loader />
           ) : (
-            <div className='search-content-results-cards'>
+            <div className='articles-content-results-cards'>
               {enhancedSearchResults.map((searchResult, index) => (
-                <SearchResultCard
+                <ArticleCard
                   key={index}
                   language={language}
                   rvcode={rvcode}
                   t={t}
-                  searchResult={searchResult as ISearchResultCard}
+                  article={searchResult as IArticleCard}
                   toggleAbstractCallback={(): void => toggleAbstract(searchResult?.id)}
                 />
               ))}

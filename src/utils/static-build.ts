@@ -9,13 +9,13 @@ export const isStaticBuild = typeof window === 'undefined';
  * Récupère le code de la revue de manière sécurisée pour le build statique
  */
 export function getJournalCode(): string {
-  if (isStaticBuild) {
-    // Valeur par défaut pour le build statique
-    return process.env.NEXT_PUBLIC_JOURNAL_CODE || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'jips';
+  const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+  
+  if (!rvcode) {
+    throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
   }
   
-  // En environnement client, utiliser la valeur de l'environnement
-  return process.env.NEXT_PUBLIC_JOURNAL_CODE || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || '';
+  return rvcode;
 }
 
 /**

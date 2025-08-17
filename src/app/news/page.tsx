@@ -15,10 +15,10 @@ export async function generateStaticParams() {
 
 export default async function NewsPage() {
   try {
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_CODE || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || '';
+    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
     
     if (!rvcode) {
-      throw new Error('Le code de la revue est requis');
+      throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
     }
 
     const newsData = await fetchNews({

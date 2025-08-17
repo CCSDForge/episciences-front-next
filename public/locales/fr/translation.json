@@ -316,7 +316,11 @@
       }
     },
     "sections": {
-      "title": "Rubriques"
+      "title": "Rubriques",
+      "totalArticles": "Total des Articles",
+      "articlesInSection": "Articles de cette Section",
+      "noArticlesTitle": "Aucun Article Trouvé",
+      "noArticlesMessage": "Cette section n'a actuellement aucun article."
     },
     "sectionDetails": {
       "title": "Rubrique"
