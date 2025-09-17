@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { TFunction } from 'i18next';
 import { MathJax } from 'better-react-mathjax';
 import { Link } from '@/components/Link/Link';
@@ -31,13 +30,11 @@ interface IArticleCardProps {
 }
 
 export default function ArticleCard({ language, rvcode, t, article, toggleAbstractCallback }: IArticleCardProps): JSX.Element {
-  const router = useRouter();
   const [citations, setCitations] = useState<ICitation[]>([]);
   const [showCitationsDropdown, setShowCitationsDropdown] = useState(false);
 
-  const navigateToArticle = () => {
-    const path = `${PATHS.articles}/${article.id}`.replace(/^\//, '');
-    router.push(`/${path}`);
+  const getArticlePath = () => {
+    return `${PATHS.articles}/${article.id}`;
   };
 
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
@@ -102,9 +99,9 @@ export default function ArticleCard({ language, rvcode, t, article, toggleAbstra
           {t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}
         </div>
       )}
-      <div className="articleCard-title" onClick={navigateToArticle} style={{ cursor: 'pointer' }}>
+      <Link href={getArticlePath()} className="articleCard-title" style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
         <MathJax dynamic>{article.title}</MathJax>
-      </div>
+      </Link>
       <div className="articleCard-authors">
         {article.authors.map(author => author.fullname).join(', ')}
       </div>
