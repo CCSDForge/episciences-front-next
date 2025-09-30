@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { HomeData } from '@/services/home';
@@ -24,7 +24,8 @@ interface HomeClientProps {
   language: string;
 }
 
-export default function HomeClient({ homeData, language }: HomeClientProps): JSX.Element {
+// Internal component that uses Redux
+function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
   const { t, i18n } = useTranslation();
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
 
@@ -280,4 +281,25 @@ export default function HomeClient({ homeData, language }: HomeClientProps): JSX
       )}
     </main>
   );
+}
+
+// Wrapper component that only renders when mounted
+export default function HomeClient(props: HomeClientProps): JSX.Element {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Ensure we're in the browser and component is mounted
+  // This is critical for static export builds
+  if (typeof window === 'undefined' || !mounted) {
+    return (
+      <main className='home' style={{ minHeight: '100vh' }}>
+        <h1 className='home-title'>Loading...</h1>
+      </main>
+    );
+  }
+
+  return <HomeClientInner {...props} />;
 } 

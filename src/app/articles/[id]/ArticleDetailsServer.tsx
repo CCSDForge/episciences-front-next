@@ -1,10 +1,9 @@
-'use client';
-
-import React, { useState } from 'react';
+import React from 'react';
 import { IArticle, IArticleAuthor } from "@/types/article";
 import { IVolume } from "@/types/volume";
-import { getCitations, ICitation, CITATION_TEMPLATE } from '@/utils/article';
+import { ICitation } from '@/utils/article';
 import { BREADCRUMB_PATHS } from '@/config/paths';
+import { Translations, t } from '@/utils/server-i18n';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServer';
@@ -14,9 +13,12 @@ import LinkedPublicationsSection from './components/LinkedPublicationsSection';
 import CitedBySection from './components/CitedBySection';
 import ReferencesSection from './components/ReferencesSection';
 import PreviewSection from './components/PreviewSection';
-import caretUpRed from '../../../../public/icons/caret-up-red.svg';
-import caretDownRed from '../../../../public/icons/caret-down-red.svg';
+import CollapsibleSectionWrapper from './components/CollapsibleSectionWrapper';
 import './ArticleDetails.scss';
+
+// Icon paths
+const caretUpRed = '/icons/caret-up-red.svg';
+const caretDownRed = '/icons/caret-down-red.svg';
 
 interface ArticleDetailsServerProps {
   article: IArticle;
@@ -24,6 +26,8 @@ interface ArticleDetailsServerProps {
   relatedVolume?: IVolume | null;
   metadataCSL?: string | null;
   metadataBibTeX?: string | null;
+  translations: Translations;
+  locale?: string;
 }
 
 interface EnhancedArticleAuthor extends IArticleAuthor {
@@ -47,20 +51,11 @@ export default function ArticleDetailsServer({
   id,
   relatedVolume,
   metadataCSL,
-  metadataBibTeX
+  metadataBibTeX,
+  translations,
+  locale
 }: ArticleDetailsServerProps): JSX.Element {
-  
-  // State for collapsible sections
-  const [openedSections, setOpenedSections] = useState<{ key: ARTICLE_SECTION, isOpened: boolean }[]>([
-    { key: ARTICLE_SECTION.GRAPHICAL_ABSTRACT, isOpened: true },
-    { key: ARTICLE_SECTION.ABSTRACT, isOpened: true },
-    { key: ARTICLE_SECTION.KEYWORDS, isOpened: true },
-    { key: ARTICLE_SECTION.REFERENCES, isOpened: true },
-    { key: ARTICLE_SECTION.LINKED_PUBLICATIONS, isOpened: true },
-    { key: ARTICLE_SECTION.CITED_BY, isOpened: true },
-    { key: ARTICLE_SECTION.PREVIEW, isOpened: true }
-  ]);
-  
+
   // Process authors and institutions
   const allAuthors: EnhancedArticleAuthor[] = [];
   const allInstitutionsSet = new Set<string>();
@@ -82,11 +77,11 @@ export default function ArticleDetailsServer({
 
   const institutions = Array.from(allInstitutionsSet);
 
-  // Process citations (simplified for client component)
+  // Process citations
   const citations: ICitation[] = [];
   if (metadataBibTeX) {
     citations.push({
-      key: CITATION_TEMPLATE.BIBTEX,
+      key: 'BibTeX',
       citation: metadataBibTeX
     });
   }
@@ -100,54 +95,21 @@ export default function ArticleDetailsServer({
           {article?.title}
         </h1>
         {allAuthors.length > 0 && (
-          <CollapsibleInstitutions 
-            authors={allAuthors} 
-            institutions={institutions} 
-            isMobile={isMobile} 
+          <CollapsibleInstitutions
+            authors={allAuthors}
+            institutions={institutions}
+            isMobile={isMobile}
           />
         )}
       </>
     );
   };
 
-  const toggleSection = (sectionKey: ARTICLE_SECTION) => {
-    const updatedSections = openedSections.map((section) => {
-      if (section.key === sectionKey) {
-        return { ...section, isOpened: !section.isOpened };
-      }
-      return { ...section };
-    });
-
-    setOpenedSections(updatedSections);
-  };
-
-  const renderSection = (sectionKey: ARTICLE_SECTION, sectionTitle: string, sectionContent: JSX.Element | null): JSX.Element | null => {
-    if (!sectionContent) {
-      return null;
-    }
-
-    const isOpenedSection = openedSections.find(section => section.key === sectionKey)?.isOpened;
-
-    return (
-      <div className='articleDetails-content-article-section'>
-        <div className={`articleDetails-content-article-section-title ${!isOpenedSection && 'articleDetails-content-article-section-closed'}`} onClick={(): void => toggleSection(sectionKey)}>
-          <div className='articleDetails-content-article-section-title-text'>{sectionTitle}</div>
-          {isOpenedSection ? (
-            <img className='articleDetails-content-article-section-title-caret' src={caretUpRed} alt='Caret up icon' />
-          ) : (
-            <img className='articleDetails-content-article-section-title-caret' src={caretDownRed} alt='Caret down icon' />
-          )}
-        </div>
-        <div className={`articleDetails-content-article-section-content ${isOpenedSection && 'articleDetails-content-article-section-content-opened'}`}>{sectionContent}</div>
-      </div>
-    );
-  };
-
   const getGraphicalAbstractSection = (): JSX.Element | null => {
-    const graphicalAbstractURL = (rvcode && article?.graphicalAbstract) 
-      ? `https://${rvcode}.episciences.org/public/documents/${article.id}/${article?.graphicalAbstract}` 
+    const graphicalAbstractURL = (rvcode && article?.graphicalAbstract)
+      ? `https://${rvcode}.episciences.org/public/documents/${article.id}/${article?.graphicalAbstract}`
       : null;
-    
+
     return graphicalAbstractURL ? (
       <img src={graphicalAbstractURL} className="articleDetails-content-article-section-content-graphicalAbstract" alt="Graphical Abstract" />
     ) : null;
@@ -161,11 +123,11 @@ export default function ArticleDetailsServer({
     if (!article?.keywords) {
       return null;
     }
-    
+
     return (
-      <KeywordsSection 
-        keywordsData={article.keywords} 
-        currentLanguage={defaultLanguage as AvailableLanguage}
+      <KeywordsSection
+        keywordsData={article.keywords}
+        currentLanguage={(locale || defaultLanguage) as AvailableLanguage}
       />
     );
   };
@@ -194,33 +156,86 @@ export default function ArticleDetailsServer({
     ) : null;
   };
 
+  // Helper to render sections with collapsible wrapper
+  const renderSection = (sectionKey: ARTICLE_SECTION, sectionTitle: string, sectionContent: JSX.Element | null): JSX.Element | null => {
+    if (!sectionContent) {
+      return null;
+    }
+
+    return (
+      <CollapsibleSectionWrapper
+        title={sectionTitle}
+        sectionKey={sectionKey}
+        initialOpen={true}
+        caretUpIcon={caretUpRed}
+        caretDownIcon={caretDownRed}
+      >
+        {sectionContent}
+      </CollapsibleSectionWrapper>
+    );
+  };
 
   return (
     <main className='articleDetails'>
-      <Breadcrumb 
+      <Breadcrumb
         parents={[
-          { path: BREADCRUMB_PATHS.home, label: `Home > Articles & Issues >` },
-          { path: BREADCRUMB_PATHS.articles, label: `Articles >` }
-        ]} 
-        crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''} 
+          {
+            path: BREADCRUMB_PATHS.home,
+            label: `${t('pages.home.title', translations)} > ${t('common.content', translations)} >`
+          },
+          {
+            path: BREADCRUMB_PATHS.articles,
+            label: `${t('pages.articles.title', translations)} >`
+          }
+        ]}
+        crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''}
       />
-      
+
       <div className="articleDetails-content">
         {renderArticleTitleAndAuthors(true)}
-        <ArticleDetailsSidebarServer 
-          article={article} 
-          relatedVolume={relatedVolume} 
-          citations={citations} 
+        <ArticleDetailsSidebarServer
+          article={article}
+          relatedVolume={relatedVolume}
+          citations={citations}
+          translations={translations}
         />
         <div className="articleDetails-content-article">
           {renderArticleTitleAndAuthors(false)}
-          {renderSection(ARTICLE_SECTION.GRAPHICAL_ABSTRACT, 'Graphical abstract', getGraphicalAbstractSection())}
-          {renderSection(ARTICLE_SECTION.ABSTRACT, 'Abstract', getAbstractSection())}
-          {renderSection(ARTICLE_SECTION.KEYWORDS, 'Keywords', getKeywordsSection())}
-          {renderSection(ARTICLE_SECTION.LINKED_PUBLICATIONS, 'Linked publications - datasets - software', getLinkedPublicationsSection())}
-          {renderSection(ARTICLE_SECTION.CITED_BY, 'Cited by', getCitedBySection())}
-          {renderSection(ARTICLE_SECTION.REFERENCES, 'References', getReferencesSection())}
-          {renderSection(ARTICLE_SECTION.PREVIEW, 'Preview', getPreviewSection())}
+          {renderSection(
+            ARTICLE_SECTION.GRAPHICAL_ABSTRACT,
+            t('pages.articleDetails.sections.graphicalAbstract', translations),
+            getGraphicalAbstractSection()
+          )}
+          {renderSection(
+            ARTICLE_SECTION.ABSTRACT,
+            t('pages.articleDetails.sections.abstract', translations),
+            getAbstractSection()
+          )}
+          {renderSection(
+            ARTICLE_SECTION.KEYWORDS,
+            t('pages.articleDetails.sections.keywords', translations),
+            getKeywordsSection()
+          )}
+          {renderSection(
+            ARTICLE_SECTION.LINKED_PUBLICATIONS,
+            t('pages.articleDetails.sections.linkedPublications', translations),
+            getLinkedPublicationsSection()
+          )}
+          {renderSection(
+            ARTICLE_SECTION.CITED_BY,
+            t('pages.articleDetails.sections.citedBy', translations),
+            getCitedBySection()
+          )}
+          {renderSection(
+            ARTICLE_SECTION.REFERENCES,
+            t('pages.articleDetails.sections.references', translations),
+            getReferencesSection()
+          )}
+          {renderSection(
+            ARTICLE_SECTION.PREVIEW,
+            t('pages.articleDetails.sections.preview', translations),
+            getPreviewSection()
+          )}
         </div>
       </div>
     </main>

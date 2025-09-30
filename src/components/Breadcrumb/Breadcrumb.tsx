@@ -1,5 +1,3 @@
-'use client';
-
 import { Fragment } from 'react';
 import { Link } from '@/components/Link/Link';
 import { PATHS } from '@/config/paths';

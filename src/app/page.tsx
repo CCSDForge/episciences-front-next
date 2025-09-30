@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
 import { fetchHomeData } from '@/services/home';
 import { getFormattedSiteTitle } from '@/utils/metadata';
-import HomeClient from '@/components/HomeClient/HomeClient';
+import dynamicImport from 'next/dynamic';
 import '@/styles/pages/Home.scss';
+
+const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'), { ssr: false });
 
 export const metadata: Metadata = {
   title: getFormattedSiteTitle('Accueil'),

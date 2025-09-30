@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { fetchArticles } from '@/services/article';
-import ArticlesClient from './ArticlesClient';
+import dynamic from 'next/dynamic';
+
+const ArticlesClient = dynamic(() => import('./ArticlesClient'), { ssr: false });
+
 
 export const metadata: Metadata = {
   title: 'Articles',

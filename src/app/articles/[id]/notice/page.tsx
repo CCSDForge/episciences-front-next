@@ -1,14 +1,14 @@
 import { Metadata } from 'next';
 import { fetchArticle } from '@/services/article';
-import ArticleDetailsNoticeClient from './ArticleDetailsNoticeClient';
+import dynamicImport from 'next/dynamic';
+
+const ArticleDetailsNoticeClient = dynamicImport(() => import('./ArticleDetailsNoticeClient'), { ssr: false });
 
 interface ArticleDetailsNoticePageProps {
   params: {
     id: string;
   };
 }
-
-export const dynamic = 'force-static';
 
 export async function generateStaticParams() {
   // Si un ID spécifique est fourni, ne générer que cet article

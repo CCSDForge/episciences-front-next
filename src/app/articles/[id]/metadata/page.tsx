@@ -1,7 +1,9 @@
 import { Metadata } from 'next';
 import { fetchArticle, fetchArticleMetadata } from '@/services/article';
-import ArticleDetailsMetadataClient from './ArticleDetailsMetadataClient';
+import dynamicImport from 'next/dynamic';
 import { METADATA_TYPE } from '@/utils/article';
+
+const ArticleDetailsMetadataClient = dynamicImport(() => import('./ArticleDetailsMetadataClient'), { ssr: false });
 
 interface ArticleDetailsMetadataPageProps {
   params: {
@@ -17,7 +19,7 @@ export async function generateMetadata({ params }: ArticleDetailsMetadataPagePro
         title: 'Aucun article disponible - Métadonnées',
       };
     }
-    
+
     const article = await fetchArticle(params.id);
     return {
       title: article?.title ? `${article.title} - Métadonnées` : 'Article non trouvé',
@@ -29,8 +31,6 @@ export async function generateMetadata({ params }: ArticleDetailsMetadataPagePro
     };
   }
 }
-
-export const dynamic = 'force-static';
 
 export async function generateStaticParams() {
   // Si un ID spécifique est fourni, ne générer que cet article
@@ -65,12 +65,14 @@ export default async function ArticleDetailsMetadataPage({ params }: ArticleDeta
   try {
     // Vérifier si nous avons un ID factice
     if (params.id === 'no-articles-found') {
-      return {
-        title: `Aucun article - Métadonnées | ${process.env.NEXT_PUBLIC_JOURNAL_NAME}`,
-        description: "Page placeholder pour les métadonnées d'articles"
-      };
+      return (
+        <div className="error-message">
+          <h1>Aucun article disponible</h1>
+          <p>Page placeholder pour les métadonnées d'articles</p>
+        </div>
+      );
     }
-    
+
     const [article, metadataCSL, metadataBibTeX] = await Promise.all([
       fetchArticle(params.id),
       fetchArticleMetadata({ 

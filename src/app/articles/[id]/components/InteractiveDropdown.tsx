@@ -20,9 +20,10 @@ interface InteractiveDropdownProps {
   type: 'cite' | 'metadata' | 'share';
   citations?: ICitation[];
   articleId?: string;
+  label?: string; // Optional pre-translated label
 }
 
-export default function InteractiveDropdown({ type, citations = [], articleId }: InteractiveDropdownProps) {
+export default function InteractiveDropdown({ type, citations = [], articleId, label }: InteractiveDropdownProps) {
   const { t } = useTranslation();
   const router = useRouter();
   
@@ -113,6 +114,10 @@ export default function InteractiveDropdown({ type, citations = [], articleId }:
   };
 
   const getLabel = () => {
+    // Use provided label if available (from server)
+    if (label) return label;
+
+    // Fallback to translation hook (for client-only usage)
     switch (type) {
       case 'cite':
         return t('pages.articleDetails.actions.cite');

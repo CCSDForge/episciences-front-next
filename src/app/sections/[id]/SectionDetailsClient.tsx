@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from "@/hooks/store";
 import { ISection } from "@/types/section";
@@ -17,7 +17,7 @@ interface SectionDetailsClientProps {
   sectionId: string;
 }
 
-export default function SectionDetailsClient({
+function SectionDetailsClientInner({
   section,
   articles,
   sectionId
@@ -96,4 +96,22 @@ export default function SectionDetailsClient({
       </div>
     </main>
   );
+}
+
+export default function SectionDetailsClient(props: SectionDetailsClientProps): JSX.Element {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (typeof window === 'undefined' || !mounted) {
+    return (
+      <main className='sectionDetails' style={{ minHeight: '100vh' }}>
+        <h1>Loading...</h1>
+      </main>
+    );
+  }
+
+  return <SectionDetailsClientInner {...props} />;
 }

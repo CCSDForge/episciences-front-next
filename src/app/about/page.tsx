@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
-import AboutClient from './AboutClient';
+import dynamic from 'next/dynamic';
 import './About.scss';
 import { fetchAboutPage } from '@/services/about';
 import { IPage } from '@/types/page';
+
+const AboutClient = dynamic(() => import('./AboutClient'), { ssr: false });
+
 
 export const metadata: Metadata = {
   title: 'À propos',

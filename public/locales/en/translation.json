@@ -88,11 +88,12 @@
     },
     "footer": {
       "links": {
-        "notice": "Journal’s leaflet",
+        "notice": "Journal's leaflet",
         "contact": "Contact",
         "credits": "Credits",
         "rss": "RSS",
         "documentation": "Documentation",
+        "journals": "Journals",
         "acknowledgements": "Acknowledgements",
         "publishingPolicy": "Publishing policy",
         "legalMentions": "Legal mentions",

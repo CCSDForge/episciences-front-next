@@ -1,14 +1,14 @@
 import { Metadata } from 'next';
 import { fetchArticle } from '@/services/article';
-import ArticleDetailsPreviewClient from './ArticleDetailsPreviewClient';
+import dynamicImport from 'next/dynamic';
+
+const ArticleDetailsPreviewClient = dynamicImport(() => import('./ArticleDetailsPreviewClient'), { ssr: false });
 
 interface ArticleDetailsPreviewPageProps {
   params: {
     id: string;
   };
 }
-
-export const dynamic = 'force-static';
 
 export async function generateStaticParams() {
   // Si un ID spécifique est fourni, ne générer que cet article
@@ -65,12 +65,14 @@ export default async function ArticleDetailsPreviewPage({ params }: ArticleDetai
   try {
     // Vérifier si nous avons un ID factice
     if (params.id === 'no-articles-found') {
-      return {
-        title: `Aucun article - Aperçu | ${process.env.NEXT_PUBLIC_JOURNAL_NAME}`,
-        description: "Page placeholder pour l'aperçu d'articles"
-      };
+      return (
+        <div className="error-message">
+          <h1>Aucun article disponible</h1>
+          <p>Page placeholder pour l'aperçu d'articles</p>
+        </div>
+      );
     }
-    
+
     const article = await fetchArticle(params.id);
     return <ArticleDetailsPreviewClient article={article} />;
   } catch (error) {

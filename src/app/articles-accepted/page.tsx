@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { fetchArticles } from '@/services/article';
-import ArticlesAcceptedClient from './ArticlesAcceptedClient';
+import dynamic from 'next/dynamic';
 import { IArticle } from '@/types/article';
+
+const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'), { ssr: false });
+
 
 // Métadonnées pour la page
 export const metadata: Metadata = {

@@ -1,9 +1,11 @@
 import { Metadata } from 'next';
 import { fetchSearchResults } from '@/services/search';
-import SearchClient from './SearchClient';
+import dynamicImport from 'next/dynamic';
 import './Search.scss';
 import { redirect } from 'next/navigation';
 import { PATHS } from '@/config/paths';
+
+const SearchClient = dynamicImport(() => import('./SearchClient'), { ssr: false });
 
 export const metadata: Metadata = {
   title: 'Recherche',
@@ -14,8 +16,6 @@ export async function generateStaticParams() {
   // La recherche effective sera effectuée côté client
   return [{}];
 }
-
-export const dynamic = 'force-static';
 
 export default async function SearchPage() {
   try {

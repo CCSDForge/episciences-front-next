@@ -20,6 +20,53 @@
     height: 180px;
   }
 
+  // Hide reduced header by default, show it when header-reduced class is applied
+  &-reduced-journal {
+    display: none;
+    height: 50px;
+    justify-content: space-between;
+
+    &-logo {
+      width: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid var(--primary);
+
+      @media (max-width:  breakpoints.$xsm) {
+        width: 60px;
+      }
+    }
+
+    &-blank {
+      width: 100%;
+      background: var(--primary);
+
+      @media (max-width:  breakpoints.$xsm) {
+        display: none;
+      }
+    }
+
+    &-dropdown {
+      cursor: pointer;
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 50px;
+      color: var(--blue-navy);
+      border-bottom: 1px solid var(--primary);
+
+      @media (max-width:  breakpoints.$xsm) {
+        min-width: unset;
+        width: 100%;
+        background: var(--primary);
+        color: var(--primary-text);
+        padding-right: 24px;
+      }
+    }
+  }
+
   &-reduced {
     height: 110px;
 
@@ -31,48 +78,15 @@
       height: auto;
     }
 
-    &-journal {
-      height: 50px;
+    // When reduced, hide preheader and normal journal header
+    .header-preheader,
+    .header-journal {
+      display: none;
+    }
+
+    // When reduced, show reduced journal header
+    .header-reduced-journal {
       display: flex;
-      justify-content: space-between;
-
-      &-logo {
-        width: 190px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-bottom: 1px solid var(--primary);
-
-        @media (max-width:  breakpoints.$xsm) {
-          width: 60px;
-        }
-      }
-
-      &-blank {
-        width: 100%;
-        background: var(--primary);
-
-        @media (max-width:  breakpoints.$xsm) {
-          display: none;
-        }
-      }
-
-      &-dropdown {
-        cursor: pointer;
-        min-width: 387px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        color: var(--blue-navy);
-        border-bottom: 1px solid var(--primary);
-
-        @media (max-width:  breakpoints.$xsm) {
-          min-width: unset;
-          width: 100%;
-          background: var(--primary);
-          color: var(--primary-text);
-        }
-      }
     }
   }
 
@@ -100,6 +114,17 @@
       align-items: center;
       justify-content: space-between;
       color: var(--blue-navy);
+
+      &-left {
+        font-size: 14px;
+        font-weight: 300;
+        text-decoration: underline;
+      }
+
+      &-right {
+        display: flex;
+        align-items: center;
+      }
 
       &-access {
         font-size: 14px;
@@ -256,59 +281,156 @@
       display: flex;
       align-items: center;
       height: 100%;
-      margin-top: 2px;
+      gap: 5px;
 
-      &-reduced {
-        margin-top: 0px;
+      &-focused {
+        gap: 8px;
+
+        .header-postheader-search-form {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .header-postheader-search-input {
+          flex: 1;
+        }
+      }
+
+      &-back,
+      &-clear {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        img {
+          width: 20px;
+          height: 20px;
+
+          @media (max-width:  breakpoints.$xsm) {
+            width: 16px;
+            height: 16px;
+          }
+        }
+
+        &:hover {
+          opacity: 0.7;
+        }
       }
 
       &-delimiter {
         height: 43px;
         border: 0.8px solid var(--grey-light);
-        margin-right: 5px;
 
         @media (max-width:  breakpoints.$sm) {
           display: none;
         }
       }
 
-      &-search {
-        width: 300px;
+      &-form {
+        display: flex;
+        align-items: center;
         height: 100%;
+        gap: 0;
+      }
+
+      &-input {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        border: 0;
+        border-right: none;
+        background: var(--white);
+        padding: 0 10px;
+        min-width: 200px;
 
         @media (max-width:  breakpoints.$sm) {
-          width: 240px;
+          min-width: 150px;
         }
 
         @media (max-width:  breakpoints.$xsm) {
-          width: 220px;
+          min-width: 120px;
+          padding: 0 5px;
+        }
+
+        &-icon {
+          width: 20px;
+          height: 20px;
+          margin-right: 8px;
+          flex-shrink: 0;
+
+          @media (max-width:  breakpoints.$xsm) {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+          }
         }
 
         input {
+          border: none;
+          outline: none;
+          background: transparent;
           width: 100%;
-          height: auto;
-          margin-right: 20px;
+          height: 100%;
+          font-size: 16px;
+          color: var(--grey);
+          padding: 8px 0;
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
 
-          &:placeholder-shown {
-           text-overflow: ellipsis; 
+          @media (max-width:  breakpoints.$xsm) {
+            font-size: 14px;
+          }
+
+          &::placeholder {
+            color: var(--grey);
+            opacity: 0.7;
+          }
+
+          &:focus {
+            outline: none;
+            border: none;
+            background: transparent;
           }
         }
       }
 
       &-submit {
         height: 100%;
+        display: flex;
+        align-items: center;
 
         @media (max-width:  breakpoints.$sm) {
           display: none;
         }
 
-        &-search {
-          height: 43px;
-          border-left: 0.8px solid var(--grey-light);
+        button {
+          height: 100%;
+          background: var(--primary);
+          color: var(--primary-text);
+          border: none;
+          padding: 0 25px;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: opacity 0.2s;
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
 
-          button {
-            background: var(--white);
-            color: var(--primary);
+          &:hover {
+            opacity: 0.9;
+          }
+
+          &:focus {
+            outline: none;
           }
         }
       }

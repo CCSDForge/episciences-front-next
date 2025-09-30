@@ -1,7 +1,10 @@
 import { Metadata } from 'next';
 import { fetchCreditsPage } from '@/services/credits';
-import CreditsClient from './CreditsClient';
+import dynamic from 'next/dynamic';
 import './Credits.scss';
+
+const CreditsClient = dynamic(() => import('./CreditsClient'), { ssr: false });
+
 
 export const metadata: Metadata = {
   title: 'Crédits',

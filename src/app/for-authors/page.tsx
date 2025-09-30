@@ -1,6 +1,9 @@
 import { Metadata } from 'next';
-import ForAuthorsClient from './ForAuthorsClient';
+import dynamic from 'next/dynamic';
 import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
+
+const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'), { ssr: false });
+
 
 // Cette fonction est appelée au build time
 export async function generateStaticParams() {

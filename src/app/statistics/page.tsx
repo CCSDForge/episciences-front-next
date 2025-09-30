@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
-import StatisticsClient from './StatisticsClient';
+import dynamic from 'next/dynamic';
 import './Statistics.scss';
 import { fetchStatistics } from '@/services/statistics';
 import { IStatResponse, IStat } from '@/types/stat';
+
+const StatisticsClient = dynamic(() => import('./StatisticsClient'), { ssr: false });
+
 
 export const metadata: Metadata = {
   title: 'Statistiques',

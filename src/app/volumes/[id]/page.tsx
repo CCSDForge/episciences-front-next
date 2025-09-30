@@ -1,6 +1,9 @@
 import { Metadata } from 'next';
 import { fetchVolume, fetchVolumes } from '@/services/volume';
-import VolumeDetailsClient from './VolumeDetailsClient';
+import dynamic from 'next/dynamic';
+
+const VolumeDetailsClient = dynamic(() => import('./VolumeDetailsClient'), { ssr: false });
+
 
 export const metadata: Metadata = {
   title: 'Volume Details',

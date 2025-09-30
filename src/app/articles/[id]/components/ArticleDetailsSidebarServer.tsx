@@ -1,20 +1,18 @@
-'use client';
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from '@/components/Link/Link';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
-import { ICitation, getLicenseTranslations, getMetadataTypes } from '@/utils/article';
+import { ICitation } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
+import { Translations, t } from '@/utils/server-i18n';
 import InteractiveDropdown from './InteractiveDropdown';
+import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
 
-// Import des icônes
-import externalLink from '/public/icons/external-link-black.svg';
-import download from '/public/icons/download-black.svg';
-import caretUpGrey from '/public/icons/caret-up-grey.svg';
-import caretDownGrey from '/public/icons/caret-down-grey.svg';
+// Import icon paths
+const externalLink = '/icons/external-link-black.svg';
+const download = '/icons/download-black.svg';
 
 import '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar.scss';
 
@@ -23,19 +21,16 @@ interface ArticleDetailsSidebarServerProps {
   relatedVolume?: IVolume | null;
   citations: ICitation[];
   metrics?: JSX.Element;
+  translations: Translations;
 }
 
-export default function ArticleDetailsSidebarServer({ 
-  article, 
-  relatedVolume, 
-  citations, 
-  metrics 
+export default function ArticleDetailsSidebarServer({
+  article,
+  relatedVolume,
+  citations,
+  metrics,
+  translations
 }: ArticleDetailsSidebarServerProps): JSX.Element {
-
-  // State for collapsible sections
-  const [isPublicationDetailsOpen, setIsPublicationDetailsOpen] = useState(true);
-  const [isFundingOpen, setIsFundingOpen] = useState(true);
-  const [isIndicatorsOpen, setIsIndicatorsOpen] = useState(true);
 
   const renderRelatedVolume = (relatedVolume?: IVolume | null): JSX.Element | null => {
     if (!relatedVolume) return null;
@@ -44,14 +39,14 @@ export default function ArticleDetailsSidebarServer({
 
     if (relatedVolume?.types && relatedVolume.types.length > 0) {
       if (relatedVolume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
-        text += 'Proceedings';
+        text += t('common.volumeCard.proceeding', translations);
       }
 
       if (relatedVolume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
-        text += 'Special issue';
+        text += t('common.volumeCard.specialIssue', translations);
       }
     } else {
-      text += 'Volume';
+      text += t('common.volumeCard.volume', translations);
     }
 
     return (
@@ -64,12 +59,93 @@ export default function ArticleDetailsSidebarServer({
   const renderLicenseContent = (): JSX.Element | null => {
     if (!article?.license) return null;
 
-    // Simplified license rendering for server-side
     return (
       <div className="articleDetailsSidebar-volumeDetails-license">
-        <div>License</div>
+        <div>{t('pages.articleDetails.license', translations)}</div>
         <div className="articleDetailsSidebar-volumeDetails-license-content">{article.license}</div>
       </div>
+    );
+  };
+
+  const renderPublicationDetails = (): JSX.Element => {
+    return (
+      <>
+        {article?.submissionDate && (
+          <div className="articleDetailsSidebar-publicationDetails-content-row">
+            <div>{t('pages.articleDetails.publicationDetails.submittedOn', translations)}</div>
+            <div>{formatDate(article.submissionDate, 'en')}</div>
+          </div>
+        )}
+        {article?.acceptanceDate && (
+          <div className="articleDetailsSidebar-publicationDetails-content-row">
+            <div>{t('pages.articleDetails.publicationDetails.acceptedOn', translations)}</div>
+            <div>{formatDate(article.acceptanceDate, 'en')}</div>
+          </div>
+        )}
+        {article?.publicationDate && (
+          <div className="articleDetailsSidebar-publicationDetails-content-row articleDetailsSidebar-publicationDetails-content-row-publicationDate">
+            <div>{t('pages.articleDetails.publicationDetails.publishedOn', translations)}</div>
+            <div className="articleDetailsSidebar-publicationDetails-content-row-publicationDate-value">
+              {formatDate(article.publicationDate, 'en')}
+            </div>
+          </div>
+        )}
+        {article?.modificationDate && (
+          <div className="articleDetailsSidebar-publicationDetails-content-row">
+            <div>{t('pages.articleDetails.publicationDetails.lastModifiedOn', translations)}</div>
+            <div>{formatDate(article.modificationDate, 'en')}</div>
+          </div>
+        )}
+      </>
+    );
+  };
+
+  const renderFunding = (): JSX.Element | null => {
+    if (!article?.fundings || article.fundings.length === 0) {
+      return null;
+    }
+
+    return (
+      <SidebarCollapsibleWrapper
+        title={t('pages.articleDetails.funding', translations)}
+        initialOpen={true}
+        className="articleDetailsSidebar-funding"
+      >
+        {article.fundings.map((fund: any, index: number) => (
+          <div key={index} className="articleDetailsSidebar-funding-content-row">
+            <div>{fund.funder || fund}</div>
+            {fund.award && <div>#{fund.award}</div>}
+          </div>
+        ))}
+      </SidebarCollapsibleWrapper>
+    );
+  };
+
+  const renderMetrics = (): JSX.Element | null => {
+    if (!article?.metrics || (article.metrics.views === 0 && article.metrics.downloads === 0)) {
+      return null;
+    }
+
+    return (
+      <SidebarCollapsibleWrapper
+        title={t('pages.articleDetails.metrics.title', translations)}
+        initialOpen={true}
+        className="articleDetailsSidebar-metrics"
+      >
+        <div className="articleDetailsSidebar-metrics-data-row">
+          <div className="articleDetailsSidebar-metrics-data-row-number">{article.metrics.views}</div>
+          <div className="articleDetailsSidebar-metrics-data-row-text">
+            {t('pages.articleDetails.metrics.views', translations)}
+          </div>
+        </div>
+        <div className="articleDetailsSidebar-metrics-data-divider"></div>
+        <div className="articleDetailsSidebar-metrics-data-row">
+          <div className="articleDetailsSidebar-metrics-data-row-number">{article.metrics.downloads}</div>
+          <div className="articleDetailsSidebar-metrics-data-row-text">
+            {t('pages.articleDetails.metrics.downloads', translations)}
+          </div>
+        </div>
+      </SidebarCollapsibleWrapper>
     );
   };
 
@@ -80,7 +156,9 @@ export default function ArticleDetailsSidebarServer({
           <Link href={`/${PATHS.articles}/${article.id}/download`}>
             <div className="articleDetailsSidebar-links-link">
               <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
-              <div className="articleDetailsSidebar-links-link-text">Download article</div>
+              <div className="articleDetailsSidebar-links-link-text">
+                {t('pages.articleDetails.actions.download', translations)}
+              </div>
             </div>
           </Link>
         )}
@@ -97,56 +175,41 @@ export default function ArticleDetailsSidebarServer({
               alt="External link icon"
             />
             <div className="articleDetailsSidebar-links-link-text">
-              Open on {article.repositoryName}
+              {t('pages.articleDetails.actions.openOn', translations, { repositoryName: article.repositoryName })} {article.repositoryName}
             </div>
           </a>
         )}
-        
-        <InteractiveDropdown type="cite" citations={citations} articleId={article.id.toString()} />
-        <InteractiveDropdown type="metadata" articleId={article.id.toString()} />
-        <InteractiveDropdown type="share" />
+
+        <InteractiveDropdown
+          type="cite"
+          citations={citations}
+          articleId={article.id.toString()}
+          label={t('pages.articleDetails.actions.cite', translations)}
+        />
+        <InteractiveDropdown
+          type="metadata"
+          articleId={article.id.toString()}
+          label={t('pages.articleDetails.actions.metadata', translations)}
+        />
+        <InteractiveDropdown
+          type="share"
+          label={t('pages.articleDetails.actions.share.text', translations)}
+        />
       </div>
-      
-      <div className="articleDetailsSidebar-publicationDetails">
-        <div className="articleDetailsSidebar-publicationDetails-title" onClick={() => setIsPublicationDetailsOpen(!isPublicationDetailsOpen)}>
-          <div className="articleDetailsSidebar-publicationDetails-title-text">Publication Details</div>
-          <img className="articleDetailsSidebar-publicationDetails-title-caret" src={isPublicationDetailsOpen ? caretUpGrey : caretDownGrey} alt="Caret icon" />
-        </div>
-        <div className={`articleDetailsSidebar-publicationDetails-content ${isPublicationDetailsOpen ? 'articleDetailsSidebar-publicationDetails-content-opened' : ''}`}>
-          {article?.submissionDate && (
-            <div className="articleDetailsSidebar-publicationDetails-content-row">
-              <div>Submitted on</div>
-              <div>{formatDate(article.submissionDate, 'en')}</div>
-            </div>
-          )}
-          {article?.acceptanceDate && (
-            <div className="articleDetailsSidebar-publicationDetails-content-row">
-              <div>Accepted on</div>
-              <div>{formatDate(article.acceptanceDate, 'en')}</div>
-            </div>
-          )}
-          {article?.publicationDate && (
-            <div className="articleDetailsSidebar-publicationDetails-content-row articleDetailsSidebar-publicationDetails-content-row-publicationDate">
-              <div>Published on</div>
-              <div className="articleDetailsSidebar-publicationDetails-content-row-publicationDate-value">
-                {formatDate(article.publicationDate, 'en')}
-              </div>
-            </div>
-          )}
-          {article?.modificationDate && (
-            <div className="articleDetailsSidebar-publicationDetails-content-row">
-              <div>Last modified on</div>
-              <div>{formatDate(article.modificationDate, 'en')}</div>
-            </div>
-          )}
-        </div>
-      </div>
+
+      <SidebarCollapsibleWrapper
+        title={t('pages.articleDetails.publicationDetails', translations)}
+        initialOpen={true}
+        className="articleDetailsSidebar-publicationDetails"
+      >
+        {renderPublicationDetails()}
+      </SidebarCollapsibleWrapper>
 
       <div className="articleDetailsSidebar-volumeDetails">
         {renderRelatedVolume(relatedVolume)}
         {article?.doi && (
           <div className="articleDetailsSidebar-volumeDetails-doi">
-            <div>DOI</div>
+            <div>{t('common.doi', translations)}</div>
             <Link href={`https://doi.org/${article.doi}`} className="articleDetailsSidebar-volumeDetails-doi-content" target="_blank" rel="noopener noreferrer">
               {article.doi}
             </Link>
@@ -155,42 +218,8 @@ export default function ArticleDetailsSidebarServer({
         {renderLicenseContent()}
       </div>
 
-      {article?.fundings && article.fundings.length > 0 && (
-        <div className="articleDetailsSidebar-funding">
-          <div className="articleDetailsSidebar-funding-title" onClick={() => setIsFundingOpen(!isFundingOpen)}>
-            <div className="articleDetailsSidebar-funding-title-text">Funding</div>
-            <img className="articleDetailsSidebar-funding-title-caret" src={isFundingOpen ? caretUpGrey : caretDownGrey} alt="Caret icon" />
-          </div>
-          <div className={`articleDetailsSidebar-funding-content ${isFundingOpen ? 'articleDetailsSidebar-funding-content-opened' : ''}`}>
-            {article.fundings.map((fund: any, index: number) => (
-              <div key={index} className="articleDetailsSidebar-funding-content-row">
-                <div>{fund.funder || fund}</div>
-                {fund.award && <div>#{fund.award}</div>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {article?.metrics && (article.metrics.views > 0 || article.metrics.downloads > 0) && (
-        <div className="articleDetailsSidebar-metrics">
-          <div className="articleDetailsSidebar-metrics-title" onClick={() => setIsIndicatorsOpen(!isIndicatorsOpen)}>
-            <div className="articleDetailsSidebar-metrics-title-text">Indicators</div>
-            <img className="articleDetailsSidebar-metrics-title-caret" src={isIndicatorsOpen ? caretUpGrey : caretDownGrey} alt="Caret icon" />
-          </div>
-          <div className={`articleDetailsSidebar-metrics-data ${isIndicatorsOpen ? 'articleDetailsSidebar-metrics-data-opened' : ''}`}>
-            <div className="articleDetailsSidebar-metrics-data-row">
-              <div className="articleDetailsSidebar-metrics-data-row-number">{article.metrics.views}</div>
-              <div className="articleDetailsSidebar-metrics-data-row-text">Views</div>
-            </div>
-            <div className="articleDetailsSidebar-metrics-data-divider"></div>
-            <div className="articleDetailsSidebar-metrics-data-row">
-              <div className="articleDetailsSidebar-metrics-data-row-number">{article.metrics.downloads}</div>
-              <div className="articleDetailsSidebar-metrics-data-row-text">Downloads</div>
-            </div>
-          </div>
-        </div>
-      )}
+      {renderFunding()}
+      {renderMetrics()}
     </div>
   );
 }

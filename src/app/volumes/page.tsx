@@ -1,6 +1,9 @@
 import { Metadata } from 'next';
 import { fetchVolumes } from '@/services/volume';
-import VolumesClient from './VolumesClient';
+import dynamic from 'next/dynamic';
+
+const VolumesClient = dynamic(() => import('./VolumesClient'), { ssr: false });
+
 
 const VOLUMES_PER_PAGE = 10;
 

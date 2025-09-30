@@ -1,7 +1,10 @@
 import { Metadata } from 'next';
-import NewsClient from './NewsClient';
+import dynamic from 'next/dynamic';
 import { fetchNews } from '@/services/news';
 import './News.scss';
+
+const NewsClient = dynamic(() => import('./NewsClient'), { ssr: false });
+
 
 export const metadata: Metadata = {
   title: 'Actualités',

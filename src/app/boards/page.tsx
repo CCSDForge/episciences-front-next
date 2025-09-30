@@ -1,6 +1,9 @@
 import { Metadata } from 'next';
 import { fetchBoardMembers, fetchBoardPages } from '@/services/board';
-import BoardsClient from './BoardsClient';
+import dynamic from 'next/dynamic';
+
+const BoardsClient = dynamic(() => import('./BoardsClient'), { ssr: false });
+
 
 export const metadata: Metadata = {
   title: 'Boards',

@@ -1,6 +1,9 @@
 import { Metadata } from 'next';
 import { fetchSections } from '@/services/section';
-import SectionsClient from './SectionsClient';
+import dynamic from 'next/dynamic';
+
+const SectionsClient = dynamic(() => import('./SectionsClient'), { ssr: false });
+
 
 export const metadata: Metadata = {
   title: 'Sections',

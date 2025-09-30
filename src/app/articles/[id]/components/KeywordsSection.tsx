@@ -1,5 +1,3 @@
-"use client";
-
 import { AvailableLanguage, availableLanguages } from '@/utils/i18n';
 
 interface KeywordsSectionProps {
@@ -8,14 +6,11 @@ interface KeywordsSectionProps {
 }
 
 export default function KeywordsSection({ keywordsData, currentLanguage }: KeywordsSectionProps): JSX.Element | null {
-  console.log('KeywordsSection - keywordsData:', keywordsData);
-  console.log('KeywordsSection - currentLanguage:', currentLanguage);
   
   const getKeywords = (): string[] => {
     const keywordsList: string[] = [];
 
     if (!keywordsData) {
-      console.log('KeywordsSection - No keywordsData, returning empty array');
       return keywordsList;
     }
 
@@ -24,8 +19,6 @@ export default function KeywordsSection({ keywordsData, currentLanguage }: Keywo
     }
 
     Object.entries(keywordsData).forEach(([key, values]) => {
-      console.log('Processing keyword entry:', key, values);
-      
       if (availableLanguages.includes(key as AvailableLanguage)) {
         if (key === currentLanguage) {
           if (Array.isArray(values)) {
@@ -48,11 +41,8 @@ export default function KeywordsSection({ keywordsData, currentLanguage }: Keywo
   };
 
   const keywordsList = getKeywords();
-  console.log('KeywordsSection - final keywordsList:', keywordsList);
-  console.log('KeywordsSection - keywordsList.length:', keywordsList.length);
-  
+
   if (!keywordsList.length) {
-    console.log('KeywordsSection - No keywords to display, returning null');
     return null;
   }
 

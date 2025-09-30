@@ -4,13 +4,11 @@ import Script from 'next/script'
 // Importer l'intercepteur fetch pour logger toutes les requêtes
 import '@/utils/fetchInterceptor';
 
-import ClientOnly from '@/components/ClientOnly/ClientOnly';
-import ProviderContainer from '@/components/ProviderContainer/ProviderContainer';
-import Footer from '@/components/Footer/Footer';
-import Header from '@/components/Header/Header';
-import ThemeStyleSwitch from '@/components/ThemeStyleSwitch/ThemeStyleSwitch';
+import ClientProviders from '@/components/ClientProviders/ClientProviders';
+import FooterServer from '@/components/Footer/FooterServer';
+import HeaderServer from '@/components/Header/HeaderServer';
+import HeaderClientWrapper from '@/components/Header/HeaderClientWrapper';
 import { fetchVolumes } from '@/services/volume';
-import { LastVolumeInitializer } from '@/components/LastVolumeInitializer/LastVolumeInitializer';
 
 import "@/styles/index.scss";
 
@@ -34,7 +32,7 @@ export default async function RootLayout({
   let initialVolume = null;
   try {
     const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-    
+
     if (rvcode) {
       const volumesData = await fetchVolumes({
         rvcode,
@@ -44,7 +42,7 @@ export default async function RootLayout({
         types: [],
         years: []
       });
-      
+
       if (volumesData.data.length > 0) {
         initialVolume = volumesData.data[0];
       }
@@ -62,18 +60,18 @@ export default async function RootLayout({
         <script src="/force-static.js" />
       </head>
       <body>
-        <ClientOnly>
-          <ProviderContainer>
-            <ThemeStyleSwitch />
-            <Header />
-            <div className="main-content">
-              {children}
-            </div>
-            <Footer />
-            {/* Initialiser le volume avec les données préchargées */}
-            {initialVolume && <LastVolumeInitializer initialVolume={initialVolume} />}
-          </ProviderContainer>
-        </ClientOnly>
+        {/* Client providers for Redux, i18n, MathJax - wrapping all content */}
+        <ClientProviders initialVolume={initialVolume}>
+          {/* Header with scroll behavior */}
+          <HeaderClientWrapper>
+            <HeaderServer />
+          </HeaderClientWrapper>
+          {/* Server-rendered content - visible in static HTML */}
+          <div className="main-content">
+            {children}
+          </div>
+          <FooterServer />
+        </ClientProviders>
       </body>
     </html>
   );

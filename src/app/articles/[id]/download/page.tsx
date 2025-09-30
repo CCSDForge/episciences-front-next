@@ -1,14 +1,14 @@
 import { Metadata } from 'next';
 import { fetchArticle } from '@/services/article';
-import ArticleDetailsDownloadClient from './ArticleDetailsDownloadClient';
+import dynamicImport from 'next/dynamic';
+
+const ArticleDetailsDownloadClient = dynamicImport(() => import('./ArticleDetailsDownloadClient'), { ssr: false });
 
 interface ArticleDetailsDownloadPageProps {
   params: {
     id: string;
   };
 }
-
-export const dynamic = 'force-static';
 
 export async function generateStaticParams() {
   // Si un ID spécifique est fourni, ne générer que cet article
@@ -65,12 +65,14 @@ export default async function ArticleDetailsDownloadPage({ params }: ArticleDeta
   try {
     // Vérifier si nous avons un ID factice
     if (params.id === 'no-articles-found') {
-      return {
-        title: `Aucun article - Téléchargement | ${process.env.NEXT_PUBLIC_JOURNAL_NAME}`,
-        description: "Page placeholder pour le téléchargement d'articles"
-      };
+      return (
+        <div className="error-message">
+          <h1>Aucun article disponible</h1>
+          <p>Page placeholder pour le téléchargement d'articles</p>
+        </div>
+      );
     }
-    
+
     const article = await fetchArticle(params.id);
     return <ArticleDetailsDownloadClient article={article} />;
   } catch (error) {
