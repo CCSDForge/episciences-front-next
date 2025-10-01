@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import Script from 'next/script'
+import Script from 'next/script';
 
 // Importer l'intercepteur fetch pour logger toutes les requêtes
 import '@/utils/fetchInterceptor';
@@ -9,6 +9,7 @@ import FooterServer from '@/components/Footer/FooterServer';
 import HeaderServer from '@/components/Header/HeaderServer';
 import HeaderClientWrapper from '@/components/Header/HeaderClientWrapper';
 import { fetchVolumes } from '@/services/volume';
+import { defaultLanguage } from '@/utils/language-utils';
 
 import "@/styles/index.scss";
 
@@ -28,6 +29,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Always use default language in root layout
+  // Language-specific rendering is handled by [lang] layout
+  const currentLanguage = defaultLanguage;
+
   // Précharger les données du dernier volume côté serveur
   let initialVolume = null;
   try {
@@ -36,7 +41,7 @@ export default async function RootLayout({
     if (rvcode) {
       const volumesData = await fetchVolumes({
         rvcode,
-        language: process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE || 'en',
+        language: currentLanguage,
         page: 1,
         itemsPerPage: 1,
         types: [],
@@ -51,26 +56,20 @@ export default async function RootLayout({
     console.error('Error preloading last volume:', error);
   }
 
+  const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
+
   return (
-    <html lang="fr">
+    <html lang={currentLanguage}>
       <head>
         {/* Définir la base URL pour tous les liens relatifs */}
         <base href="/" />
-        {/* Charger notre script le plus tôt possible */}
-        <script src="/force-static.js" />
+        {/* Charger notre script uniquement en mode production statique */}
+        {isStaticBuild && <script src="/force-static.js" />}
       </head>
       <body>
         {/* Client providers for Redux, i18n, MathJax - wrapping all content */}
-        <ClientProviders initialVolume={initialVolume}>
-          {/* Header with scroll behavior */}
-          <HeaderClientWrapper>
-            <HeaderServer />
-          </HeaderClientWrapper>
-          {/* Server-rendered content - visible in static HTML */}
-          <div className="main-content">
-            {children}
-          </div>
-          <FooterServer />
+        <ClientProviders initialVolume={initialVolume} initialLanguage={currentLanguage}>
+          {children}
         </ClientProviders>
       </body>
     </html>

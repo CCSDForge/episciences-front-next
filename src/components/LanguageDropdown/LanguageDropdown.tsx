@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import i18next from 'i18next';
 import './LanguageDropdown.scss';
 
@@ -12,6 +13,7 @@ import caretDownWhite from '/public/icons/caret-down-white.svg';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
 import { AvailableLanguage, availableLanguages } from '@/utils/i18n';
+import { getLocalizedPath, removeLanguagePrefix } from '@/utils/language-utils';
 
 interface ILanguageDropdownProps {
   withWhiteCaret?: boolean;
@@ -19,13 +21,15 @@ interface ILanguageDropdownProps {
 
 export default function LanguageDropdown({ withWhiteCaret }: ILanguageDropdownProps): JSX.Element | null {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
   const language = useAppSelector(state => state.i18nReducer.language);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const acceptedLanguagesStr = process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES || '';
   const acceptedLanguages = acceptedLanguagesStr ? acceptedLanguagesStr.split(',') : [];
-  const filteredLanguages = availableLanguages.filter(lang => 
+  const filteredLanguages = availableLanguages.filter(lang =>
     acceptedLanguages.length === 0 || acceptedLanguages.includes(lang)
   );
 
@@ -35,9 +39,9 @@ export default function LanguageDropdown({ withWhiteCaret }: ILanguageDropdownPr
         setShowDropdown(false);
       }
     };
-    
+
     document.addEventListener('touchstart', handleTouchOutside);
-    
+
     return () => {
       document.removeEventListener('touchstart', handleTouchOutside);
     };
@@ -50,8 +54,17 @@ export default function LanguageDropdown({ withWhiteCaret }: ILanguageDropdownPr
       return;
     }
 
-    dispatch(setLanguage(updatedLanguage));
-    i18next.changeLanguage(updatedLanguage);
+    // Navigate to the localized URL
+    if (pathname) {
+      // Remove current language prefix if any
+      const pathWithoutLang = removeLanguagePrefix(pathname);
+
+      // Get the localized path with new language
+      const localizedPath = getLocalizedPath(pathWithoutLang, updatedLanguage);
+
+      // Force full page reload to ensure all components update
+      window.location.href = localizedPath;
+    }
   };
 
   if (filteredLanguages.length <= 1) {
@@ -69,25 +82,25 @@ export default function LanguageDropdown({ withWhiteCaret }: ILanguageDropdownPr
       <div className='languageDropdown-icon'>
         <div className='languageDropdown-icon-text'>{language.toUpperCase()}</div>
         {showDropdown ? (
-          <img 
-            className='languageDropdown-icon-caret' 
-            src={withWhiteCaret ? "/icons/caret-up-white.svg" : "/icons/caret-up-blue.svg"} 
-            alt='Caret up icon' 
+          <img
+            className='languageDropdown-icon-caret'
+            src={withWhiteCaret ? "/icons/caret-up-white.svg" : "/icons/caret-up-blue.svg"}
+            alt='Caret up icon'
           />
         ) : (
-          <img 
-            className='languageDropdown-icon-caret' 
-            src={withWhiteCaret ? "/icons/caret-down-white.svg" : "/icons/caret-down-blue.svg"} 
-            alt='Caret down icon' 
+          <img
+            className='languageDropdown-icon-caret'
+            src={withWhiteCaret ? "/icons/caret-down-white.svg" : "/icons/caret-down-blue.svg"}
+            alt='Caret down icon'
           />
         )}
       </div>
       <div className={`languageDropdown-content ${showDropdown && 'languageDropdown-content-displayed'}`}>
         <div className='languageDropdown-content-links'>
           {filteredLanguages.map((availableLanguage: AvailableLanguage, index: number) => (
-            <span 
-              key={index} 
-              onClick={(): void => switchLanguage(availableLanguage)} 
+            <span
+              key={index}
+              onClick={(): void => switchLanguage(availableLanguage)}
               onTouchEnd={(): void => switchLanguage(availableLanguage)}
             >
               {availableLanguage.toUpperCase()}

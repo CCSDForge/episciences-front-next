@@ -68,23 +68,37 @@
       "content": "Articles & Issues",
       "about": "About",
       "links": {
+        "openAccessJournals": "Open Access journals",
+        "articlesAndIssues": "Articles & Issues",
+        "allArticles": "All articles",
         "articles": "All articles",
+        "allAcceptedArticles": "All accepted articles",
         "articlesAccepted": "All accepted articles",
+        "allVolumes": "All volumes",
         "volumes": "All volumes",
         "lastVolume": "Last volume",
         "sections": "Sections",
         "specialIssues": "Special issues",
         "proceedings": "Proceedings",
         "authors": "Authors",
-        "about": "The journal",
+        "about": "About",
+        "theJournal": "The journal",
         "news": "News",
         "statistics": "Statistics",
         "boards": "Boards",
         "forAuthors": "For authors"
       },
-      "searchPlaceholder": "search",
-      "search": "Search",
-      "submit": "Submit"
+      "search": {
+        "placeholder": "search",
+        "iconAlt": "Search",
+        "searchButton": "Search",
+        "submitButton": "Submit",
+        "clearLabel": "Clear search",
+        "clearAlt": "Clear",
+        "closeLabel": "Close search",
+        "backAlt": "Back"
+      },
+      "searchPlaceholder": "search"
     },
     "footer": {
       "links": {

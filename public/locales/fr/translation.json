@@ -75,23 +75,37 @@
       "content": "Articles & volumes",
       "about": "À propos",
       "links": {
+        "openAccessJournals": "Revues en libre accès",
+        "articlesAndIssues": "Articles & Numéros",
+        "allArticles": "Tous les articles",
         "articles": "Tous les articles",
+        "allAcceptedArticles": "Tous les articles acceptés",
         "articlesAccepted": "Tous les articles acceptés",
+        "allVolumes": "Tous les volumes",
         "volumes": "Tous les volumes",
         "lastVolume": "Dernier volume",
         "sections": "Rubriques",
         "specialIssues": "Volumes spéciaux",
         "proceedings": "Actes de conférences",
         "authors": "Auteurs",
-        "about": "La revue",
+        "about": "À propos",
+        "theJournal": "La revue",
         "news": "Actualités",
         "statistics": "Statistiques",
         "boards": "Comités",
         "forAuthors": "Pour les auteurs"
       },
-      "searchPlaceholder": "rechercher",
-      "search": "Rechercher",
-      "submit": "Déposer"
+      "search": {
+        "placeholder": "rechercher",
+        "iconAlt": "Rechercher",
+        "searchButton": "Rechercher",
+        "submitButton": "Valider",
+        "clearLabel": "Effacer la recherche",
+        "clearAlt": "Effacer",
+        "closeLabel": "Fermer la recherche",
+        "backAlt": "Retour"
+      },
+      "searchPlaceholder": "rechercher"
     },
     "footer": {
       "links": {

@@ -1,11 +1,15 @@
 import { Link } from '@/components/Link/Link';
-import { getServerTranslations, t, defaultLanguage } from '@/utils/server-i18n';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 import './Footer.scss';
 
 const logoEpisciences = '/logos/logo-episciences.svg';
 const logoSmall = '/logos/logo-small.svg';
 
-export default async function FooterServer(): Promise<JSX.Element> {
+interface FooterServerProps {
+  lang?: string;
+}
+
+export default async function FooterServer({ lang = 'en' }: FooterServerProps): Promise<JSX.Element> {
   const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'journal';
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
   const docUrl = process.env.NEXT_PUBLIC_EPISCIENCES_DOCUMENTATION_PAGE || 'https://doc.episciences.org';
@@ -16,8 +20,8 @@ export default async function FooterServer(): Promise<JSX.Element> {
   const termsOfUseUrl = `${episciencesUrl}/terms-of-use`;
   const contactEmail = `mailto:${rvcode}@episciences.org`;
 
-  // Load translations for the default language
-  const translations = await getServerTranslations(defaultLanguage);
+  // Load translations for the current language
+  const translations = await getServerTranslations(lang);
 
   return (
     <footer className="footer">

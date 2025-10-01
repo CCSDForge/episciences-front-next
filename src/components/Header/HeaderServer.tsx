@@ -1,16 +1,24 @@
 import { Link } from '@/components/Link/Link';
 import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 import './Header.scss';
 
 const logoEpisciences = '/icons/logo-text.svg';
 const logoBig = '/logos/logo-big.svg';
 const logoSmall = '/logos/logo-small.svg';
 
-export default function HeaderServer(): JSX.Element {
+interface HeaderServerProps {
+  lang?: string;
+}
+
+export default async function HeaderServer({ lang = 'en' }: HeaderServerProps): Promise<JSX.Element> {
   const journalName = process.env.NEXT_PUBLIC_JOURNAL_NAME || 'Journal';
   const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
+
+  // Load translations for the current language
+  const translations = await getServerTranslations(lang);
 
   return (
     <header className="header">
@@ -23,7 +31,7 @@ export default function HeaderServer(): JSX.Element {
         </div>
         <div className="header-preheader-links">
           <div className="header-preheader-links-left">
-            <Link href={episciencesUrl}>Open Access Journals</Link>
+            <Link href={episciencesUrl}>{t('components.header.links.openAccessJournals', translations)}</Link>
           </div>
           <div className="header-preheader-links-right">
             <LanguageDropdownWrapper />
@@ -59,39 +67,39 @@ export default function HeaderServer(): JSX.Element {
         <div className="header-postheader-links">
           {/* Articles & Issues dropdown */}
           <div className="header-postheader-links-dropdown">
-            <Link href="/articles">Articles & Issues</Link>
+            <Link href="/articles">{t('components.header.links.articlesAndIssues', translations)}</Link>
             <div className="header-postheader-links-dropdown-content">
               <div className="header-postheader-links-dropdown-content-links header-postheader-links-dropdown-content-links-large-fr">
-                <Link href="/articles">All articles</Link>
-                <Link href="/articles-accepted">All accepted articles</Link>
-                <Link href="/volumes">All volumes</Link>
-                <Link href="/volumes">Last volume</Link>
-                <Link href="/sections">Sections</Link>
-                <Link href="/volumes">Special issues</Link>
-                <Link href="/volumes">Proceedings</Link>
-                <Link href="/authors">Authors</Link>
+                <Link href="/articles">{t('components.header.links.allArticles', translations)}</Link>
+                <Link href="/articles-accepted">{t('components.header.links.allAcceptedArticles', translations)}</Link>
+                <Link href="/volumes">{t('components.header.links.allVolumes', translations)}</Link>
+                <Link href="/volumes">{t('components.header.links.lastVolume', translations)}</Link>
+                <Link href="/sections">{t('components.header.links.sections', translations)}</Link>
+                <Link href="/volumes">{t('components.header.links.specialIssues', translations)}</Link>
+                <Link href="/volumes">{t('components.header.links.proceedings', translations)}</Link>
+                <Link href="/authors">{t('components.header.links.authors', translations)}</Link>
               </div>
             </div>
           </div>
 
           {/* About dropdown */}
           <div className="header-postheader-links-dropdown">
-            <Link href="/about">About</Link>
+            <Link href="/about">{t('components.header.links.about', translations)}</Link>
             <div className="header-postheader-links-dropdown-content">
               <div className="header-postheader-links-dropdown-content-links">
-                <Link href="/about">The journal</Link>
-                <Link href="/news">News</Link>
-                <Link href="/statistics">Statistics</Link>
+                <Link href="/about">{t('components.header.links.theJournal', translations)}</Link>
+                <Link href="/news">{t('components.header.links.news', translations)}</Link>
+                <Link href="/statistics">{t('components.header.links.statistics', translations)}</Link>
               </div>
             </div>
           </div>
 
-          <Link href="/boards">Boards</Link>
-          <Link href="/for-authors">For authors</Link>
+          <Link href="/boards">{t('components.header.links.boards', translations)}</Link>
+          <Link href="/for-authors">{t('components.header.links.forAuthors', translations)}</Link>
         </div>
 
         {/* Search form */}
-        <SearchBar />
+        <SearchBar lang={lang} />
       </div>
     </header>
   );
