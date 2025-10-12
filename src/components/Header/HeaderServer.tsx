@@ -2,6 +2,7 @@ import { Link } from '@/components/Link/Link';
 import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getJournal } from '@/services/journal';
 import './Header.scss';
 
 const logoEpisciences = '/icons/logo-text.svg';
@@ -13,9 +14,17 @@ interface HeaderServerProps {
 }
 
 export default async function HeaderServer({ lang = 'en' }: HeaderServerProps): Promise<JSX.Element> {
-  const journalName = process.env.NEXT_PUBLIC_JOURNAL_NAME || 'Journal';
   const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
+
+  // Fetch journal info to get the name
+  let journalName = 'Journal';
+  try {
+    const journal = await getJournal();
+    journalName = journal?.name || journal?.title?.[lang as keyof typeof journal.title] || 'Journal';
+  } catch (error) {
+    console.error('Failed to fetch journal in HeaderServer:', error);
+  }
 
   // Load translations for the current language
   const translations = await getServerTranslations(lang);
@@ -56,7 +65,7 @@ export default async function HeaderServer({ lang = 'en' }: HeaderServerProps): 
             <img src={logoSmall} alt="Journal logo" />
           </Link>
         </div>
-        <div className="header-reduced-journal-blank"></div>
+        <div className="header-reduced-journal-blank">{journalName}</div>
         <div className="header-reduced-journal-dropdown">
           <LanguageDropdownWrapper />
         </div>

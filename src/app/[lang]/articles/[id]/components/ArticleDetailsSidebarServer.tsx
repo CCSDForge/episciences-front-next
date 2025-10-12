@@ -7,6 +7,7 @@ import { formatDate } from '@/utils/date';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
+import { supportsInlinePreview } from '@/utils/pdf-preview';
 import InteractiveDropdown from './InteractiveDropdown';
 import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
 
@@ -132,17 +133,19 @@ export default function ArticleDetailsSidebarServer({
         initialOpen={true}
         className="articleDetailsSidebar-metrics"
       >
-        <div className="articleDetailsSidebar-metrics-data-row">
-          <div className="articleDetailsSidebar-metrics-data-row-number">{article.metrics.views}</div>
-          <div className="articleDetailsSidebar-metrics-data-row-text">
-            {t('pages.articleDetails.metrics.views', translations)}
+        <div className="articleDetailsSidebar-metrics-data">
+          <div className="articleDetailsSidebar-metrics-data-item">
+            <div className="articleDetailsSidebar-metrics-data-item-number">{article.metrics.views}</div>
+            <div className="articleDetailsSidebar-metrics-data-item-label">
+              {t('pages.articleDetails.metrics.views', translations)}
+            </div>
           </div>
-        </div>
-        <div className="articleDetailsSidebar-metrics-data-divider"></div>
-        <div className="articleDetailsSidebar-metrics-data-row">
-          <div className="articleDetailsSidebar-metrics-data-row-number">{article.metrics.downloads}</div>
-          <div className="articleDetailsSidebar-metrics-data-row-text">
-            {t('pages.articleDetails.metrics.downloads', translations)}
+          <div className="articleDetailsSidebar-metrics-data-divider"></div>
+          <div className="articleDetailsSidebar-metrics-data-item">
+            <div className="articleDetailsSidebar-metrics-data-item-number">{article.metrics.downloads}</div>
+            <div className="articleDetailsSidebar-metrics-data-item-label">
+              {t('pages.articleDetails.metrics.downloads', translations)}
+            </div>
           </div>
         </div>
       </SidebarCollapsibleWrapper>
@@ -153,14 +156,27 @@ export default function ArticleDetailsSidebarServer({
     <div className="articleDetailsSidebar">
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
-          <Link href={`/${PATHS.articles}/${article.id}/download`}>
-            <div className="articleDetailsSidebar-links-link">
-              <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
-              <div className="articleDetailsSidebar-links-link-text">
-                {t('pages.articleDetails.actions.download', translations)}
-              </div>
-            </div>
-          </Link>
+          <>
+            {supportsInlinePreview(article.pdfLink) ? (
+              <Link href={`/${PATHS.articles}/${article.id}/download`} target="_blank">
+                <div className="articleDetailsSidebar-links-link">
+                  <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
+                  <div className="articleDetailsSidebar-links-link-text">
+                    {t('pages.articleDetails.actions.download', translations)}
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <a href={article.pdfLink} target="_blank" rel="noopener noreferrer" download>
+                <div className="articleDetailsSidebar-links-link">
+                  <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
+                  <div className="articleDetailsSidebar-links-link-text">
+                    {t('pages.articleDetails.actions.download', translations)}
+                  </div>
+                </div>
+              </a>
+            )}
+          </>
         )}
         {article?.docLink && (
           <a
@@ -198,7 +214,7 @@ export default function ArticleDetailsSidebarServer({
       </div>
 
       <SidebarCollapsibleWrapper
-        title={t('pages.articleDetails.publicationDetails', translations)}
+        title={t('pages.articleDetails.publicationDetails.title', translations)}
         initialOpen={true}
         className="articleDetailsSidebar-publicationDetails"
       >
@@ -207,16 +223,17 @@ export default function ArticleDetailsSidebarServer({
 
       <div className="articleDetailsSidebar-volumeDetails">
         {renderRelatedVolume(relatedVolume)}
-        {article?.doi && (
-          <div className="articleDetailsSidebar-volumeDetails-doi">
-            <div>{t('common.doi', translations)}</div>
-            <Link href={`https://doi.org/${article.doi}`} className="articleDetailsSidebar-volumeDetails-doi-content" target="_blank" rel="noopener noreferrer">
-              {article.doi}
-            </Link>
-          </div>
-        )}
         {renderLicenseContent()}
       </div>
+
+      {article?.doi && article.doi.trim() !== '' && (
+        <div className="articleDetailsSidebar-doi">
+          <div className="articleDetailsSidebar-doi-label">{t('common.doi', translations)}</div>
+          <Link href={`https://doi.org/${article.doi}`} className="articleDetailsSidebar-doi-link" target="_blank" rel="noopener noreferrer">
+            {article.doi}
+          </Link>
+        </div>
+      )}
 
       {renderFunding()}
       {renderMetrics()}

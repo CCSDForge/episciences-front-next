@@ -1,137 +1,89 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Instructions for Claude Code when working with this repository.
 
 ## Project Overview
 
-This is a Next.js 14 application for the Episciences academic journal platform, migrated from React (Vite) and configured for full static rendering with multi-journal support. The application generates static HTML sites for multiple academic journals, with each journal having its own configuration and build output.
+Next.js 14 application for Episciences academic journals. Generates fully static sites for multiple journals, each with its own configuration and build output. Uses App Router with Server/Client component split pattern.
 
 ## Essential Commands
 
-### Development
 ```bash
-# Install dependencies
+# Development
 npm install
-
-# Copy environment file and configure
-cp .env.example .env.local
-
-# Run development server
 npm run dev
 
-# Run linting
-npm run lint
+# Build specific journal (preferred method)
+make <journal-name>          # e.g., make epijinfo
+make list                    # List available journals
+make all                     # Build all journals
+
+# Test static build locally
+make serve JOURNAL=<journal> PORT=3000
+
+# Docker testing (Apache integration)
+make docker-test JOURNAL=<journal> PORT=8080
+make docker-logs             # View Apache logs
+make docker-stop             # Stop test server
 ```
 
-### Building and Deployment
-```bash
-# Production build (generates static site)
-npm run build
+## Multi-Journal System
 
-# Build specific journal using Makefile
-make <journal-name>  # e.g., make epijinfo
+- **Environment Files**: `external-assets/.env.local.<journal-code>` - one per journal
+- **Journal Registry**: `external-assets/journals.txt` - list of valid journal codes
+- **Logos**: `external-assets/logos/logo-<journal>-{big,small}.svg` - journal-specific logos
+- **Build Output**: `dist/<journal-code>/` - separate directory per journal
+- **Language Routing**: Apache `.htaccess` generated at build time (see APACHE_INTEGRATION.md)
 
-# List available journals
-make list
+## Architecture Patterns
 
-# Serve static build locally for testing
-make serve JOURNAL=<journal-name>  # e.g., make serve JOURNAL=epijinfo
-make serve JOURNAL=<journal-name> PORT=8080  # custom port
-```
+### Static Build System
+- Uses `output: 'export'` in next.config.js
+- Routes in `src/app/[lang]/` with language prefix
+- Client components use `*Client.tsx` naming pattern
+- Server components fetch data at build time
+- `src/utils/static-build.ts` provides `safeFetch()` for API mocking during build
 
-### Article Generation
-```bash
-# Build specific article only (for content updates)
-npm run build:article <article-id>
+### Critical Implementation Details
+- **Links**: Use custom `src/components/Link/Link.tsx` (renders `<a>` tags in production for SEO)
+- **Assets**: Use string paths `'/icons/icon.svg'` NOT ES6 imports
+- **Images**: Set `unoptimized: true` in next.config.js
+- **Env Variables**: Always provide fallback: `process.env.NEXT_PUBLIC_JOURNAL_RVCODE || ''`
 
-# Start webhook server for remote article rebuilding
-npm run webhook
-```
+### Component Organization
+- `src/app/[lang]/` - App Router pages with language routing
+- `src/components/` - Shared components (Cards, Modals, Sidebars, etc.)
+- `src/services/` - API service layer (articles, authors, volumes, etc.)
+- `src/types/` - TypeScript interfaces
+- `src/hooks/store` - Redux Toolkit state management
 
-## Multi-Journal Architecture
-
-The application supports multiple academic journals through a sophisticated configuration system:
-
-### Journal Configuration Structure
-- **Environment Files**: Each journal has its own `.env.local.<journal-code>` file in `external-assets/`
-- **Journal Registry**: `external-assets/journals.txt` lists all available journal codes
-- **Logo Assets**: Journal-specific logos in `external-assets/logos/` following naming pattern `logo-<journal>-big.svg` and `logo-<journal>-small.svg`
-- **Build Output**: Each journal builds to its own directory `dist/<journal-code>/`
-
-### Key Environment Variables
-- `NEXT_PUBLIC_JOURNAL_CODE` or `NEXT_PUBLIC_JOURNAL_RVCODE`: Journal identifier
-- `NEXT_PUBLIC_API_ROOT_ENDPOINT`: API endpoint for journal data
-- `NEXT_PUBLIC_STATIC_BUILD`: Controls static build behavior
-- `NEXT_PUBLIC_DISABLE_CLIENT_NAVIGATION`: Disables client-side routing for better SEO
-
-## Static Build System
-
-The application uses Next.js static export (`output: 'export'`) with custom optimizations:
-
-### Static Build Features
-- **Full Static Generation**: All pages pre-rendered at build time
-- **Journal-Specific Builds**: Each journal gets its own complete static site
-- **SEO Optimization**: Proper HTML files for each route, no client-side routing
-- **Asset Management**: Automatic copying of public assets, icons, fonts, and locales
-
-### Static Build Utilities (`src/utils/static-build.ts`)
-- `isStaticBuild`: Detects if running in static build context
-- `getJournalCode()`: Safely retrieves journal code during build
-- `safeFetch()`: Wraps API calls to return static data during build, real data at runtime
-
-## Core Architecture Patterns
-
-### App Router Structure
-- **Route Organization**: Pages in `src/app/` using Next.js 15 App Router
-- **Client Components**: Page logic split into `*Client.tsx` components for client-side functionality
-- **Static Data**: Server components fetch data at build time for static generation
-
-### Component Architecture
-- **Reusable Components**: In `src/components/` organized by type (Cards, Modals, Sidebars, etc.)
-- **Custom Link Component**: `src/components/Link/Link.tsx` - custom implementation that uses standard anchor tags for SEO instead of Next.js Link
-- **Image Handling**: Direct string paths (e.g., `'/icons/caret-up-red.svg'`) instead of imports for static build compatibility
-
-### State Management
-- **Redux Toolkit**: For global state management (`src/hooks/store`)
-- **i18next**: For internationalization with language detection
-- **Client-Only Rendering**: Critical for components requiring browser APIs
-
-### Data Services
-- **API Layer**: Service files in `src/services/` for each domain (articles, authors, volumes, etc.)
-- **Type Safety**: TypeScript interfaces in `src/types/` for all data structures
-- **Static Data Strategy**: Services handle both real API calls and static build mocking
+### State & i18n
+- Redux Toolkit for global state
+- i18next for internationalization (translations in `public/locales/`)
+- Client-side language detection with SSR-safe hooks
 
 ## Development Guidelines
 
-### Static Build Considerations
-- Use direct string paths for assets instead of ES6 imports (e.g., `const icon = '/icons/icon.svg'` not `import icon from '/icons/icon.svg'`)
-- Filter out Next.js-specific props (prefetch, scroll, replace, shallow) when using standard HTML elements
-- Always provide fallbacks for environment variables: `process.env.NEXT_PUBLIC_JOURNAL_CODE || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || ''`
-- Test builds with `make serve JOURNAL=<journal>` to verify static site functionality
+### When Building/Testing
+1. Always test with `make serve JOURNAL=<journal>` after changes
+2. For Apache integration, use `make docker-test JOURNAL=<journal>`
+3. Check generated HTML in `dist/<journal>/` - should be complete, not JS-only
+4. Multi-journal changes must be tested across different journal configs
 
-### Image and Asset Handling
-- Remove explicit width/height attributes from images when CSS handles sizing
-- Use the custom Link component (`src/components/Link/Link.tsx`) for all internal navigation
-- Place static assets in `public/` and reference with absolute paths starting with `/`
+### Code Patterns
+- Filter Next.js props (prefetch, scroll, replace, shallow) when using `<a>` tags
+- Use direct string paths for all static assets
+- Place new static files in `public/` directory
+- Client components: wrap browser-only code in useEffect
+- No explicit width/height on images when CSS handles sizing
 
-### Multi-Journal Development
-- Test changes across multiple journals using different environment configurations
-- Use the Makefile for journal-specific builds and testing
-- Verify that journal-specific assets (logos, colors) are properly isolated
+### Makefile-Generated Files
+- `.htaccess` - Generated per journal for language routing (monolingual vs multilingual)
+- `robots.txt` / `sitemap.xml` - Updated with journal-specific URLs
 
-### Performance and SEO
-- The application prioritizes SEO with full static HTML generation
-- Client-side JavaScript is minimal and progressive enhancement only
-- Each page has proper meta tags and static content for search engines
+## Troubleshooting
 
-## Testing Static Builds
-
-When making changes that affect the static build:
-
-1. Build the application: `npm run build`
-2. Serve locally: `make serve JOURNAL=epijinfo`
-3. Test navigation, images, and functionality
-4. Verify HTML content is properly generated in `dist/<journal>/`
-5. Check that all routes serve complete HTML (not just JavaScript)
-
-The static build system is designed for maximum SEO compatibility and fast loading times on static hosting platforms.
+- **Build fails**: Check `external-assets/.env.local.<journal>` exists
+- **Assets not found**: Ensure paths start with `/` and files are in `public/`
+- **Hydration errors**: Check for useEffect wrapping client-only code
+- **Language routing**: Verify `.htaccess` generated correctly in `dist/<journal>/`

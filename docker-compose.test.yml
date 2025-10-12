@@ -1,0 +1,33 @@
+services:
+  apache-test:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: episciences-apache-test
+    ports:
+      - "${PORT:-8080}:80"
+    volumes:
+      # Mount static build (read-only for safety)
+      - ./dist/${JOURNAL:-epijinfo}:/sites/episciences-front/dist/${JOURNAL:-epijinfo}:ro
+
+      # Mount Apache configs for hot-reload during development
+      - ./docker/apache-config/episciences-macro.conf:/usr/local/apache2/conf/extra/episciences-macro.conf:ro
+      # Note: episciences-front-hosts.cnf is generated dynamically by docker-entrypoint.sh
+
+      # Mount mock data
+      - ./docker/mock-data:/data:ro
+    environment:
+      - JOURNAL=${JOURNAL:-epijinfo}
+      - APACHE_LOG_DIR=/usr/local/apache2/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - episciences-test
+
+networks:
+  episciences-test:
+    driver: bridge

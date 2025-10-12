@@ -227,6 +227,28 @@
     }
   }
 
+  &-doi {
+    margin-bottom: 32px;
+
+    &-label {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--black);
+      margin-bottom: 8px;
+    }
+
+    &-link {
+      font-size: 16px;
+      color: var(--primary);
+      text-decoration: underline;
+      word-break: break-all;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+
   &-metrics {
     display: flex;
     flex-direction: column;
@@ -253,33 +275,35 @@
     }
 
     &-data {
-      display: none;
+      display: flex;
       justify-content: center;
-      margin-top: 20px;
-
-      &-opened {
-        display: flex;
-      }
+      align-items: center;
+      gap: 40px;
+      padding: 20px 0;
 
       &-divider {
-        width: 4px;
+        width: 2px;
+        height: 60px;
         background: var(--primary);
       }
 
-      &-row {
+      &-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        flex: 33.3%;
+        gap: 8px;
 
         &-number {
           color: var(--primary);
-          font-size: 27px;
+          font-size: 30px;
+          font-weight: normal;
+          line-height: 1;
         }
 
-        &-text {
+        &-label {
           color: var(--grey);
-          font-size: 14px;
+          font-size: 16px;
+          font-weight: normal;
         }
       }
     }

@@ -203,7 +203,8 @@
         "publishedOn": "Publié le",
         "acceptedOn": "Accepté le",
         "submittedOn": "Soumis le",
-        "importedOn": "Importé le"
+        "importedOn": "Importé le",
+        "lastModifiedOn": "Modifié le"
       },
       "volumeDetails": {
         "title": "Volume",

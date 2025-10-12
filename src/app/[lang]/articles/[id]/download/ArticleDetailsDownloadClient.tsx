@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTranslation } from 'next-i18next';
 import { FetchedArticle } from '@/utils/article';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
@@ -14,6 +15,17 @@ const MAX_BREADCRUMB_TITLE = 20;
 
 export default function ArticleDetailsDownloadClient({ article }: ArticleDetailsDownloadClientProps): JSX.Element {
   const { t } = useTranslation();
+
+  // Hide header and footer when component mounts
+  useEffect(() => {
+    // Add class to body to hide header and footer
+    document.body.classList.add('download-page');
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('download-page');
+    };
+  }, []);
 
   if (!article) {
     return (
@@ -32,24 +44,12 @@ export default function ArticleDetailsDownloadClient({ article }: ArticleDetails
   }
 
   return (
-    <main className="articleDetails">
-      <Breadcrumb 
-        parents={[
-          { path: BREADCRUMB_PATHS.home, label: `${t('pages.home.title')} > ${t('common.content')} >` },
-          { path: BREADCRUMB_PATHS.articles, label: `${t('pages.articles.title')} >` },
-          { path: BREADCRUMB_PATHS.articleDetails(article.id.toString()), label: `${article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title} >` }
-        ]} 
-        crumbLabel={t('pages.articleDetails.actions.download')} 
+    <main className="articleDetails-download">
+      <iframe
+        src={article.pdfLink}
+        className="articleDetails-download-frame"
+        title={article.title}
       />
-      <div className="articleDetails-content">
-        <div className="articleDetails-content-download">
-          <iframe 
-            src={article.pdfLink} 
-            className="articleDetails-content-download-frame"
-            title={article.title}
-          />
-        </div>
-      </div>
     </main>
   );
 } 

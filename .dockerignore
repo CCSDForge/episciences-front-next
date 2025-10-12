@@ -1,0 +1,59 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Next.js build artifacts
+.next
+out
+
+# Environment files (keep .env.example)
+.env*
+!.env.example
+
+# Build directories (except those needed for Docker)
+dist/*
+!dist/epijinfo
+!dist/.gitkeep
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs
+build.log
+
+# Documentation (except TESTING.md)
+*.md
+!README.md
+!TESTING.md
+!APACHE_INTEGRATION.md
+
+# Temporary files
+tmp/
+temp/
+.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+coverage
+.nyc_output
+
+# Other
+*.bak
+*.save
+*.back
+*.tar
+*.bz2
+*.rar

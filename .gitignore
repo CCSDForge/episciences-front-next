@@ -44,3 +44,4 @@ next-env.d.ts
 
 # external assets
 /external-assets/
+/build.log

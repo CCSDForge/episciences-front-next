@@ -12,6 +12,7 @@ import { IVolume } from '@/types/volume';
 import { ICitation, METADATA_TYPE, copyToClipboardCitation, getLicenseTranslations, getMetadataTypes } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
+import { supportsInlinePreview } from '@/utils/pdf-preview';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
 
@@ -144,12 +145,23 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
     <div className="articleDetailsSidebar">
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
-          <Link href={`/${PATHS.articles}/${article.id}/download`}>
-            <div className="articleDetailsSidebar-links-link">
-              <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
-              <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.download')}</div>
-            </div>
-          </Link>
+          <>
+            {supportsInlinePreview(article.pdfLink) ? (
+              <Link href={`/${PATHS.articles}/${article.id}/download`} target="_blank">
+                <div className="articleDetailsSidebar-links-link">
+                  <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
+                  <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.download')}</div>
+                </div>
+              </Link>
+            ) : (
+              <a href={article.pdfLink} target="_blank" rel="noopener noreferrer" download>
+                <div className="articleDetailsSidebar-links-link">
+                  <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
+                  <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.download')}</div>
+                </div>
+              </a>
+            )}
+          </>
         )}
         {article?.docLink && (
           <a
@@ -282,14 +294,26 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
 
       <div className="articleDetailsSidebar-volumeDetails">
         {renderRelatedVolume(relatedVolume)}
-        {article?.doi && (
-          <div className="articleDetailsSidebar-volumeDetails-doi">
-            <div>DOI</div>
-            <Link href={`https://doi.org/${article.doi}`} className="articleDetailsSidebar-volumeDetails-doi-content" target="_blank" rel="noopener noreferrer">{article.doi}</Link>
-          </div>
-        )}
         {renderLicenseContent()}
       </div>
+
+      {/* DEBUG: DOI value = {article?.doi || 'undefined'} */}
+      <div style={{background: 'yellow', padding: '10px', margin: '10px'}}>
+        <div>DEBUG DOI:</div>
+        <div>exists: {article?.doi ? 'YES' : 'NO'}</div>
+        <div>value: {article?.doi || 'undefined'}</div>
+        <div>length: {article?.doi?.length || 0}</div>
+        <div>trimmed: '{article?.doi?.trim()}'</div>
+      </div>
+
+      {article?.doi && article.doi.trim() !== '' && (
+        <div className="articleDetailsSidebar-doi">
+          <div className="articleDetailsSidebar-doi-label">{t('common.doi')}</div>
+          <Link href={`https://doi.org/${article.doi}`} className="articleDetailsSidebar-doi-link" target="_blank" rel="noopener noreferrer">
+            {article.doi}
+          </Link>
+        </div>
+      )}
 
       {article?.fundings && article.fundings.length > 0 && (
         <div className="articleDetailsSidebar-funding">

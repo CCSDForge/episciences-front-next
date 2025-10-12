@@ -10,7 +10,7 @@ import { PATHS } from '@/config/paths';
 import { INews } from '@/types/news';
 import { IVolume } from '@/types/volume';
 import { formatDate } from '@/utils/date';
-import { AvailableLanguage } from '@/utils/i18n';
+import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 import './PresentationSection.scss';
 
@@ -36,8 +36,8 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
   const renderNewsContent = (news: INews) => {
     try {
       const date = news.date_creation || news.publicationDate;
-      const title = news.title?.[language];
-      const content = news.content?.[language];
+      const title = news.title?.[language] || news.title?.[defaultLanguage] || Object.values(news.title || {}).find(t => !!t);
+      const content = news.content?.[language] || news.content?.[defaultLanguage] || Object.values(news.content || {}).find(c => !!c);
 
       if (!date || !title) return null;
 
@@ -70,8 +70,8 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
 
   const renderVolumeContent = (volume: IVolume) => {
     try {
-      const title = volume.title?.[language];
-      const description = volume.description?.[language];
+      const title = volume.title?.[language] || volume.title?.[defaultLanguage] || Object.values(volume.title || {}).find(t => !!t);
+      const description = volume.description?.[language] || volume.description?.[defaultLanguage] || Object.values(volume.description || {}).find(d => !!d);
 
       if (!volume.year || !title) return null;
 
@@ -100,15 +100,24 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
     }
   };
 
-  // Débogage du rendu de la section about
-  const hasValidAboutContent = aboutContent && typeof aboutContent === 'object' && aboutContent[language];
-  
+  // Get about content with fallback to default language if not available
+  const getAboutContent = (): string | undefined => {
+    if (!aboutContent || typeof aboutContent !== 'object') return undefined;
+
+    // Try requested language first, then fallback to default language, then any available language
+    return aboutContent[language] || aboutContent[defaultLanguage] ||
+           Object.values(aboutContent).find(content => !!content);
+  };
+
+  const aboutText = getAboutContent();
+  const hasValidAboutContent = !!aboutText;
+
   return (
     <div className='presentationSection'>
       {hasValidAboutContent && (
         <div className='presentationSection-about'>
           <div className='presentationSection-about-content'>
-            <ReactMarkdown>{`${aboutContent[language]?.substring(0, MAX_ABOUT_CONTENT_LENGTH) ?? ''}...`}</ReactMarkdown>
+            <ReactMarkdown>{`${aboutText?.substring(0, MAX_ABOUT_CONTENT_LENGTH) ?? ''}...`}</ReactMarkdown>
           </div>
           <Link href={PATHS.about}>
             <div className='presentationSection-about-seeMore'>
@@ -120,58 +129,13 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
       )}
       {lastInformation && lastInformation.information && (
         <>
-          {lastInformation.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS && (
-            <div className='presentationSection-new'>
-              <div className='presentationSection-new-title'>
-                <div className='presentationSection-new-title-date'>
-                  {formatDate((lastInformation.information as INews).publicationDate, language)}
-                </div>
-                <div className='presentationSection-new-title-text'>
-                  {(lastInformation.information as INews).title[language]}
-                </div>
-              </div>
-              {(lastInformation.information as INews).content && (
-                <div className='presentationSection-new-description'>
-                  {`${(lastInformation.information as INews).content![language]?.substring(0, MAX_NEWS_CONTENT_LENGTH) ?? ''}...`}
-                </div>
-              )}
-              <Link href={PATHS.news}>
-                <div className='presentationSection-new-seeMore'>
-                  <div className='presentationSection-new-seeMore-text'>{t('common.seeMore')}</div>
-                  <img className='presentationSection-new-seeMore-icon' src='/icons/caret-right-grey.svg' alt='Caret right icon' />
-                </div>
-              </Link>
-            </div>
-          )}
-          {(lastInformation.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME || 
-            lastInformation.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_SPECIAL_ISSUE) && (
-            <div className='presentationSection-new'>
-              <div className='presentationSection-new-title'>
-                <div className='presentationSection-new-title-date'>
-                  {(lastInformation.information as IVolume).year}
-                </div>
-                <div className='presentationSection-new-title-text'>
-                  {(lastInformation.information as IVolume).title ? 
-                    (lastInformation.information as IVolume).title![language] : ''}
-                </div>
-              </div>
-              {(lastInformation.information as IVolume).description && (
-                <div className='presentationSection-new-description'>
-                  {`${(lastInformation.information as IVolume).description![language]?.substring(0, MAX_NEWS_CONTENT_LENGTH) ?? ''}...`}
-                </div>
-              )}
-              <Link 
-                href={lastInformation.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME ? 
-                  PATHS.volumes : 
-                  `${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`}
-              >
-                <div className='presentationSection-new-seeMore'>
-                  <div className='presentationSection-new-seeMore-text'>{t('common.seeMore')}</div>
-                  <img className='presentationSection-new-seeMore-icon' src='/icons/caret-right-grey.svg' alt='Caret right icon' />
-                </div>
-              </Link>
-            </div>
-          )}
+          {lastInformation.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS &&
+            renderNewsContent(lastInformation.information as INews)
+          }
+          {(lastInformation.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME ||
+            lastInformation.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_SPECIAL_ISSUE) &&
+            renderVolumeContent(lastInformation.information as IVolume)
+          }
         </>
       )}
     </div>

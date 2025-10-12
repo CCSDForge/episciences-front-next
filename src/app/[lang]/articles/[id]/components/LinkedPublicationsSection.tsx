@@ -17,6 +17,16 @@ export default function LinkedPublicationsSection({ relatedItems }: LinkedPublic
 
   if (!relatedItems?.length) return null;
 
+  // Filter out specific relationship types
+  const filteredItems = relatedItems.filter(
+    (relatedItem) =>
+      relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
+      relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.HAS_PREPRINT
+  );
+
+  // If no items remain after filtering, return null
+  if (filteredItems.length === 0) return null;
+
   const getLinkedPublicationRow = (relatedItem: IArticleRelatedItem): JSX.Element => {
     const relationship = interworkRelationShipTypes.find(relationship => relationship.value === relatedItem.relationshipType)?.labelPath;
 
@@ -133,15 +143,9 @@ export default function LinkedPublicationsSection({ relatedItems }: LinkedPublic
 
   return (
     <ul>
-      {relatedItems
-        .filter(
-          (relatedItem) =>
-            relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
-            relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.HAS_PREPRINT
-        )
-        .map((relatedItem, index) => (
-          <li key={index}>{getLinkedPublicationRow(relatedItem)}</li>
-        ))}
+      {filteredItems.map((relatedItem, index) => (
+        <li key={index}>{getLinkedPublicationRow(relatedItem)}</li>
+      ))}
     </ul>
   );
 } 

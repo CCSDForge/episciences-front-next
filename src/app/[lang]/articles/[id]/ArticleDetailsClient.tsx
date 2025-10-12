@@ -16,8 +16,9 @@ import { PATHS, BREADCRUMB_PATHS } from '@/config/paths';
 import { useAppSelector } from "@/hooks/store";
 import { IArticle, IArticleAuthor, IArticleRelatedItem } from "@/types/article";
 import { IVolume } from "@/types/volume";
-import { articleTypes, CITATION_TEMPLATE, getCitations, ICitation, METADATA_TYPE } from '@/utils/article';
+import { articleTypes, CITATION_TEMPLATE, getCitations, ICitation, METADATA_TYPE, INTER_WORK_RELATIONSHIP } from '@/utils/article';
 import { AvailableLanguage } from '@/utils/i18n';
+import { supportsInlinePreview } from '@/utils/pdf-preview';
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Loader from "@/components/Loader/Loader";
 import ArticleMeta from "@/components/Meta/ArticleMeta/ArticleMeta";
@@ -164,11 +165,6 @@ export default function ArticleDetailsClient({
         <h1 className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}>
           <MathJax dynamic>{article?.title}</MathJax>
         </h1>
-        <div>
-          <div>Debug: authors.length = {authors.length}</div>
-          <div>Debug: institutions.length = {institutions.length}</div>
-          <div>Debug: article.authors.length = {article?.authors?.length || 0}</div>
-        </div>
         {authors.length > 0 ? (
           <CollapsibleInstitutions 
             authors={authors} 
@@ -224,18 +220,48 @@ export default function ArticleDetailsClient({
   }
 
   const getKeywordsSection = (): JSX.Element | null => {
-    return article?.keywords ? (
-      <KeywordsSection 
-        keywordsData={article.keywords} 
-        currentLanguage={language as AvailableLanguage} 
+    if (!article?.keywords) {
+      return null;
+    }
+
+    // Check if keywords is empty (array or object)
+    const hasKeywords = Array.isArray(article.keywords)
+      ? article.keywords.length > 0
+      : Object.keys(article.keywords).some(lang => {
+          const langKeywords = article.keywords[lang as keyof typeof article.keywords];
+          return Array.isArray(langKeywords) && langKeywords.length > 0;
+        });
+
+    if (!hasKeywords) {
+      return null;
+    }
+
+    return (
+      <KeywordsSection
+        keywordsData={article.keywords}
+        currentLanguage={language as AvailableLanguage}
       />
-    ) : null;
+    );
   }
 
   const getLinkedPublicationsSection = (): JSX.Element | null => {
-    return article?.relatedItems ? (
-      <LinkedPublicationsSection relatedItems={article.relatedItems} />
-    ) : null;
+    if (!article?.relatedItems || article.relatedItems.length === 0) {
+      return null;
+    }
+
+    // Filter out specific relationship types to match LinkedPublicationsSection logic
+    const filteredItems = article.relatedItems.filter(
+      (relatedItem) =>
+        relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
+        relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.HAS_PREPRINT
+    );
+
+    // If no items remain after filtering, return null
+    if (filteredItems.length === 0) {
+      return null;
+    }
+
+    return <LinkedPublicationsSection relatedItems={article.relatedItems} />;
   }
 
   const getReferencesSection = (): JSX.Element | null => {
@@ -251,13 +277,11 @@ export default function ArticleDetailsClient({
   }
 
   const getPreviewSection = (): JSX.Element | null => {
-   // console.log('Article object:', article);
-   // console.log('PDF Link:', article?.pdfLink);
-    return article?.pdfLink ? (
-      <PreviewSection 
-        pdfLink={article.pdfLink} 
-      />
-    ) : null;
+    if (!article?.pdfLink || !supportsInlinePreview(article.pdfLink)) {
+      return null;
+    }
+
+    return <PreviewSection pdfLink={article.pdfLink} />;
   }
 
   const renderMetrics = (): JSX.Element | undefined => {
@@ -301,14 +325,6 @@ export default function ArticleDetailsClient({
 
   return (
     <main className='articleDetails'>
-      <div style={{background: 'yellow', padding: '10px', margin: '10px'}}>
-        <div><strong>MAIN DEBUG INFO:</strong></div>
-        <div>isLoading: {isLoading ? 'true' : 'false'}</div>
-        <div>article exists: {article ? 'true' : 'false'}</div>
-        <div>article.authors length: {article?.authors?.length || 0}</div>
-        <div>processed authors length: {authors.length}</div>
-        <div>processed institutions length: {institutions.length}</div>
-      </div>
       <Breadcrumb 
         parents={[
           { path: BREADCRUMB_PATHS.home, label: `${t('pages.home.title')} > ${t('common.content')} >` },

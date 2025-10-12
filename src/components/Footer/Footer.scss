@@ -19,8 +19,6 @@
     @media (max-width:  breakpoints.$sm) {
       padding: 25px;
       flex-direction: column;
-      align-items: center;
-      text-align: center;
     }
 
     &-logo {
@@ -47,19 +45,16 @@
       &-journal, &-rss {
         display: flex;
         align-items: center;
-        text-align: center;
         gap: 25px;
 
         @media (max-width:  breakpoints.$sm) {
           gap: 12px;
-          justify-content: center;
         }
 
         @media (max-width:  breakpoints.$xsm) {
           flex-direction: column;
           gap: 4px;
-          align-items: center;
-          text-align: center;
+          align-items: flex-start;
 
           &-divider {
             display: none;
@@ -76,8 +71,6 @@
     @media (max-width:  breakpoints.$sm) {
       padding: 25px;
       flex-direction: column;
-      align-items: center;
-      text-align: center;
     }
 
     &-logo {
@@ -104,20 +97,17 @@
       &-documentation, &-legal {
         display: flex;
         align-items: center;
-        text-align: center;
         gap: 25px;
 
         @media (max-width:  breakpoints.$sm) {
           gap: 8px;
-          justify-content: center;
         }
-  
+
         @media (max-width:  breakpoints.$xsm) {
           flex-direction: column;
           gap: 4px;
-          align-items: center;
-          text-align: center;
-  
+          align-items: flex-start;
+
           &-divider {
             display: none;
           }

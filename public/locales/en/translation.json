@@ -196,7 +196,8 @@
         "publishedOn": "Published on",
         "acceptedOn": "Accepted on",
         "submittedOn": "Submitted on",
-        "importedOn": "Imported on"
+        "importedOn": "Imported on",
+        "lastModifiedOn": "Last modified on"
       },
       "volumeDetails": {
         "title": "Volume",

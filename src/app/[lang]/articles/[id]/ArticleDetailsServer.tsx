@@ -1,10 +1,11 @@
 import React from 'react';
 import { IArticle, IArticleAuthor } from "@/types/article";
 import { IVolume } from "@/types/volume";
-import { ICitation } from '@/utils/article';
+import { ICitation, INTER_WORK_RELATIONSHIP } from '@/utils/article';
 import { BREADCRUMB_PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
+import { supportsInlinePreview } from '@/utils/pdf-preview';
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServer';
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
@@ -124,6 +125,18 @@ export default function ArticleDetailsServer({
       return null;
     }
 
+    // Check if keywords is empty (array or object)
+    const hasKeywords = Array.isArray(article.keywords)
+      ? article.keywords.length > 0
+      : Object.keys(article.keywords).some(lang => {
+          const langKeywords = article.keywords[lang as keyof typeof article.keywords];
+          return Array.isArray(langKeywords) && langKeywords.length > 0;
+        });
+
+    if (!hasKeywords) {
+      return null;
+    }
+
     return (
       <KeywordsSection
         keywordsData={article.keywords}
@@ -133,9 +146,23 @@ export default function ArticleDetailsServer({
   };
 
   const getLinkedPublicationsSection = (): JSX.Element | null => {
-    return article?.relatedItems && article.relatedItems.length > 0 ? (
-      <LinkedPublicationsSection relatedItems={article.relatedItems} />
-    ) : null;
+    if (!article?.relatedItems || article.relatedItems.length === 0) {
+      return null;
+    }
+
+    // Filter out specific relationship types to match LinkedPublicationsSection logic
+    const filteredItems = article.relatedItems.filter(
+      (relatedItem) =>
+        relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
+        relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.HAS_PREPRINT
+    );
+
+    // If no items remain after filtering, return null
+    if (filteredItems.length === 0) {
+      return null;
+    }
+
+    return <LinkedPublicationsSection relatedItems={article.relatedItems} />;
   };
 
   const getReferencesSection = (): JSX.Element | null => {
@@ -151,9 +178,11 @@ export default function ArticleDetailsServer({
   };
 
   const getPreviewSection = (): JSX.Element | null => {
-    return article?.pdfLink ? (
-      <PreviewSection pdfLink={article.pdfLink} />
-    ) : null;
+    if (!article?.pdfLink || !supportsInlinePreview(article.pdfLink)) {
+      return null;
+    }
+
+    return <PreviewSection pdfLink={article.pdfLink} />;
   };
 
   // Helper to render sections with collapsible wrapper
