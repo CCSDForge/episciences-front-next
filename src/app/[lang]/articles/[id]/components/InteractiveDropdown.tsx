@@ -7,6 +7,9 @@ import { EmailShareButton, FacebookShareButton, LinkedinShareButton, TwitterShar
 
 import { ICitation, METADATA_TYPE, copyToClipboardCitation, getMetadataTypes, getCitations, CITATION_TEMPLATE } from '@/utils/article';
 import { PATHS } from '@/config/paths';
+import { fetchArticleMetadata } from '@/services/article';
+import { toast } from 'react-toastify';
+import { useAppSelector } from '@/hooks/store';
 
 // Import des icônes
 import quote from '/public/icons/quote-black.svg';
@@ -27,9 +30,11 @@ interface InteractiveDropdownProps {
 export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX, articleId, label }: InteractiveDropdownProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [citations, setCitations] = useState<ICitation[]>([]);
+  const [isDownloadingMetadata, setIsDownloadingMetadata] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const metadataTypes = getMetadataTypes();
@@ -81,10 +86,58 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
     setShowDropdown(false);
   };
 
-  const navigateToMetadata = (metadata: { type: METADATA_TYPE }): void => {
-    if (articleId) {
-      router.push(`/${PATHS.articles}/${articleId}/metadata`);
+  const getFileExtension = (type: METADATA_TYPE): string => {
+    switch (type) {
+      case METADATA_TYPE.BIBTEX:
+        return 'bib';
+      case METADATA_TYPE.JSON:
+      case METADATA_TYPE.CSL:
+      case METADATA_TYPE.JSON_LD:
+        return 'json';
+      case METADATA_TYPE.RIS:
+        return 'ris';
+      default:
+        return 'xml';
+    }
+  };
+
+  const downloadMetadata = async (metadata: { type: METADATA_TYPE; label: string }): Promise<void> => {
+    if (!articleId || !rvcode || isDownloadingMetadata) return;
+
+    try {
+      setIsDownloadingMetadata(true);
+      const metadataContent = await fetchArticleMetadata({
+        rvcode,
+        paperid: articleId,
+        type: metadata.type
+      });
+
+      if (!metadataContent) {
+        toast.error(t('pages.articleDetails.metadata.downloadError'));
+        return;
+      }
+
+      // Create blob and trigger download
+      const blob = new Blob([metadataContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `article_${articleId}_metadata_${metadata.type}.${getFileExtension(metadata.type)}`;
+
+      document.body.appendChild(a);
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success(t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label }));
       setShowDropdown(false);
+    } catch (error) {
+      console.error('Error downloading metadata:', error);
+      toast.error(t('pages.articleDetails.metadata.downloadError'));
+    } finally {
+      setIsDownloadingMetadata(false);
     }
   };
 
@@ -107,8 +160,8 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
         <div
           key={index}
           className="articleDetailsSidebar-links-link-modal-content-links-link"
-          onClick={(): void => navigateToMetadata(metadata)}
-          onTouchEnd={(): void => navigateToMetadata(metadata)}
+          onClick={(): void => downloadMetadata(metadata)}
+          onTouchEnd={(): void => downloadMetadata(metadata)}
         >{metadata.label}</div>
       ))}
     </div>

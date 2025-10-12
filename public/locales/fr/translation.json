@@ -297,6 +297,17 @@
         "isFinancedBy": "Est financé par",
         "isVersionOf": "Est une version de",
         "isRelatedTo": "Est lié à"
+      },
+      "metadata": {
+        "title": "Métadonnées",
+        "download": "Télécharger",
+        "downloadSuccess": "Métadonnées {{format}} téléchargées avec succès",
+        "downloadError": "Échec du téléchargement des métadonnées. Veuillez réessayer.",
+        "citationFormats": {
+          "APA": "APA",
+          "MLA": "MLA",
+          "BibTeX": "BibTeX"
+        }
       }
     },
     "articlesAccepted": {

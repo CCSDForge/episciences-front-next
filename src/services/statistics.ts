@@ -8,15 +8,17 @@ interface StatisticsParams {
   itemsPerPage?: number
 }
 
-export async function fetchStatistics({ rvcode, page = 1, itemsPerPage = 7, years = [] }: StatisticsParams): Promise<IStat[]> {
+export async function fetchStatistics({ rvcode, page = 1, itemsPerPage = 7, years }: StatisticsParams): Promise<IStat[]> {
   const params = new URLSearchParams()
   params.append('page', page.toString())
   params.append('itemsPerPage', itemsPerPage.toString())
   params.append('rvcode', encodeURIComponent(rvcode))
 
+  // Si years est défini et non vide, on ajoute le filtre par années
   if (years && years.length > 0) {
     years.forEach(year => params.append('year[]', year.toString()))
   }
+  // Si years est undefined ou vide, on ne passe pas le paramètre (toutes les années)
 
   const response = await fetch(`${API_URL}/statistics/?${params}`, {
     headers: {

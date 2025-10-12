@@ -290,6 +290,17 @@
         "isFinancedBy": "Is financed by",
         "isVersionOf": "Is version of",
         "isRelatedTo": "Is related to"
+      },
+      "metadata": {
+        "title": "Metadata",
+        "download": "Download",
+        "downloadSuccess": "{{format}} metadata downloaded successfully",
+        "downloadError": "Failed to download metadata. Please try again.",
+        "citationFormats": {
+          "APA": "APA",
+          "MLA": "MLA",
+          "BibTeX": "BibTeX"
+        }
       }
     },
     "articlesAccepted": {

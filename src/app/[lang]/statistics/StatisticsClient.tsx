@@ -23,10 +23,10 @@ import caretDown from '/public/icons/caret-down-red.svg';
 import filter from '/public/icons/filter.svg';
 
 interface StatisticsClientProps {
-  initialStats: IStatResponse;
+  initialStats?: IStatResponse;
 }
 
-export default function StatisticsClient({ initialStats }: StatisticsClientProps): JSX.Element {
+export default function StatisticsClient({ initialStats }: StatisticsClientProps = {}): JSX.Element {
   const { t, i18n } = useTranslation();
   const router = useRouter();
 
@@ -39,16 +39,52 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
   ]);
   const [years, setYears] = useState<IStatisticsYearSelection[]>([]);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
-  const [stats, setStats] = useState<IStatResponse | null>(initialStats);
-  const [isLoading, setIsLoading] = useState(false);
+  const [stats, setStats] = useState<IStatResponse | null>(initialStats || null);
+  const [isLoading, setIsLoading] = useState(!initialStats);
 
   const getSelectedYears = (): number[] => years.filter(y => y.isChecked).map(y => y.year);
 
+  // Chargement initial des statistiques si pas de données pré-chargées
   useEffect(() => {
-    if (initialStats) {
-      setStats(initialStats);
-    }
-  }, [initialStats]);
+    const loadInitialStatistics = async () => {
+      if (initialStats || !journalCode) return;
+
+      setIsLoading(true);
+      try {
+        const response = await fetchStatistics({
+          rvcode: journalCode,
+          page: 1,
+          itemsPerPage: 7
+        });
+
+        // Obtenir les années disponibles
+        const currentYear = new Date().getFullYear();
+        const availableYears = Array.from({length: 5}, (_, i) => currentYear - i);
+
+        // Adapter la réponse au format attendu
+        const formattedStats: IStatResponse = {
+          'hydra:member': response,
+          'hydra:totalItems': response.length,
+          'hydra:range': {
+            years: availableYears
+          },
+          data: response,
+          totalItems: response.length,
+          range: {
+            years: availableYears
+          }
+        };
+
+        setStats(formattedStats);
+      } catch (error) {
+        console.error('Erreur lors du chargement initial des statistiques:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadInitialStatistics();
+  }, [journalCode, initialStats]);
 
   useEffect(() => {
     if (stats?.range?.years && years.length === 0) {
@@ -106,17 +142,19 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
   useEffect(() => {
     const fetchUpdatedStatistics = async () => {
       const selectedYears = getSelectedYears();
-      if (!selectedYears.length) return;
+
+      // Ne rien faire si le composant n'est pas initialisé (pas de journalCode ou years vide)
+      if (!journalCode || years.length === 0) return;
 
       setIsLoading(true);
       try {
-      //  console.log('Fetching statistics with rvcode:', journalCode);
         const updatedStats = await fetchStatistics({
-          rvcode: journalCode!,
-          years: selectedYears,
+          rvcode: journalCode,
+          // Si aucune année n'est sélectionnée, on ne passe pas le filtre years (toutes les années)
+          // Si au moins une année est sélectionnée, on filtre par ces années
+          years: selectedYears.length > 0 ? selectedYears : undefined,
         });
-      //  console.log('Received stats:', updatedStats);
-        
+
         // Adapter la réponse au format attendu
         const formattedStats: IStatResponse = {
           'hydra:member': updatedStats,
@@ -126,7 +164,7 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
           totalItems: updatedStats.length,
           range: stats?.range
         };
-        
+
         setStats(formattedStats);
       } catch (error) {
         console.error('Erreur lors de la récupération des statistiques:', error);
@@ -135,13 +173,8 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
       }
     };
 
-    if (journalCode) {
-      fetchUpdatedStatistics();
-    } else {
-      // console.log('No journal code available');
-      return;
-    }
-  }, [getSelectedYears().join(','), journalCode]);
+    fetchUpdatedStatistics();
+  }, [getSelectedYears().join(','), journalCode, years.length]);
 
   const onCheckYear = (year: number): void => {
     const updatedYears = years.map((y) => {

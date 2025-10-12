@@ -10,6 +10,9 @@ import { isMobileOnly } from 'react-device-detect';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import { ICitation, METADATA_TYPE, copyToClipboardCitation, getLicenseTranslations, getMetadataTypes } from '@/utils/article';
+import { fetchArticleMetadata } from '@/services/article';
+import { toast } from 'react-toastify';
+import { useAppSelector } from '@/hooks/store';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { supportsInlinePreview } from '@/utils/pdf-preview';
@@ -41,6 +44,7 @@ interface IArticleDetailsSidebarProps {
 
 export default function ArticleDetailsSidebar({ language, t, article, relatedVolume, citations, metrics }: IArticleDetailsSidebarProps): JSX.Element {
   const router = useRouter();
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const [openedPublicationDetails, setOpenedPublicationDetails] = useState(true);
   const [showCitationsDropdown, setShowCitationsDropdown] = useState(false);
@@ -48,6 +52,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
   const [showSharingDropdown, setShowSharingDropdown] = useState(false);
   const [openedFunding, setOpenedFunding] = useState(true);
   const [metadataTypes] = useState(getMetadataTypes());
+  const [isDownloadingMetadata, setIsDownloadingMetadata] = useState(false);
 
   const citationsDropdownRef = useRef<HTMLDivElement | null>(null);
   const metadatasDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -134,10 +139,58 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
     setShowCitationsDropdown(false);
   };
 
-  const navigateToMetadata = (metadata: { type: METADATA_TYPE }): void => {
-    if (article?.id) {
-      router.push(`/${PATHS.articles}/${article.id}/metadata/${metadata.type}`);
+  const getFileExtension = (type: METADATA_TYPE): string => {
+    switch (type) {
+      case METADATA_TYPE.BIBTEX:
+        return 'bib';
+      case METADATA_TYPE.JSON:
+      case METADATA_TYPE.CSL:
+      case METADATA_TYPE.JSON_LD:
+        return 'json';
+      case METADATA_TYPE.RIS:
+        return 'ris';
+      default:
+        return 'xml';
+    }
+  };
+
+  const downloadMetadata = async (metadata: { type: METADATA_TYPE; label: string }): Promise<void> => {
+    if (!article?.id || !rvcode || isDownloadingMetadata) return;
+
+    try {
+      setIsDownloadingMetadata(true);
+      const metadataContent = await fetchArticleMetadata({
+        rvcode,
+        paperid: article.id.toString(),
+        type: metadata.type
+      });
+
+      if (!metadataContent) {
+        toast.error(t('pages.articleDetails.metadata.downloadError'));
+        return;
+      }
+
+      // Create blob and trigger download
+      const blob = new Blob([metadataContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `article_${article.id}_metadata_${metadata.type}.${getFileExtension(metadata.type)}`;
+
+      document.body.appendChild(a);
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success(t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label }));
       setShowMetadatasDropdown(false);
+    } catch (error) {
+      console.error('Error downloading metadata:', error);
+      toast.error(t('pages.articleDetails.metadata.downloadError'));
+    } finally {
+      setIsDownloadingMetadata(false);
     }
   };
 
@@ -222,8 +275,8 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
                   <div
                     key={index}
                     className="articleDetailsSidebar-links-link-modal-content-links-link"
-                    onClick={(): void => navigateToMetadata(metadata)}
-                    onTouchEnd={(): void => navigateToMetadata(metadata)}
+                    onClick={(): void => downloadMetadata(metadata)}
+                    onTouchEnd={(): void => downloadMetadata(metadata)}
                   >{metadata.label}</div>
                 ))}
               </div>
