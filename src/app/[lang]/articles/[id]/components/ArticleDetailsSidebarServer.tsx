@@ -20,7 +20,8 @@ import '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar.scss';
 interface ArticleDetailsSidebarServerProps {
   article: IArticle;
   relatedVolume?: IVolume | null;
-  citations: ICitation[];
+  metadataCSL?: string | null;
+  metadataBibTeX?: string | null;
   metrics?: JSX.Element;
   translations: Translations;
 }
@@ -28,7 +29,8 @@ interface ArticleDetailsSidebarServerProps {
 export default function ArticleDetailsSidebarServer({
   article,
   relatedVolume,
-  citations,
+  metadataCSL,
+  metadataBibTeX,
   metrics,
   translations
 }: ArticleDetailsSidebarServerProps): JSX.Element {
@@ -198,7 +200,8 @@ export default function ArticleDetailsSidebarServer({
 
         <InteractiveDropdown
           type="cite"
-          citations={citations}
+          metadataCSL={metadataCSL}
+          metadataBibTeX={metadataBibTeX}
           articleId={article.id.toString()}
           label={t('pages.articleDetails.actions.cite', translations)}
         />

@@ -3,6 +3,7 @@ import { getLanguageFromParams, acceptedLanguages } from '@/utils/language-utils
 import HeaderServer from '@/components/Header/HeaderServer';
 import HeaderClientWrapper from '@/components/Header/HeaderClientWrapper';
 import FooterServer from '@/components/Footer/FooterServer';
+import ToastContainerWrapper from '@/components/ToastContainerWrapper/ToastContainerWrapper';
 
 interface LanguageLayoutProps {
   children: ReactNode;
@@ -25,6 +26,7 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
 
   return (
     <>
+      <ToastContainerWrapper />
       {/* Header with scroll behavior */}
       <HeaderClientWrapper>
         <HeaderServer lang={lang} />

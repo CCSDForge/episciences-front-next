@@ -1,10 +1,10 @@
 import { Metadata } from 'next';
 import { fetchVolume, fetchVolumes } from '@/services/volume';
-import dynamic from 'next/dynamic';
+import { fetchArticle } from '@/services/article';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { combineWithLanguageParams } from '@/utils/static-params-helper';
-
-const VolumeDetailsClient = dynamic(() => import('./VolumeDetailsClient'), { ssr: false });
+import { FetchedArticle } from '@/utils/article';
+import VolumeDetailsClient from './VolumeDetailsClient';
 
 
 export const metadata: Metadata = {
@@ -25,22 +25,43 @@ export default async function VolumeDetailsPage({
         description: "Page placeholder pour les volumes"
       };
     }
-    
+
     const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-    
+
     if (!rvcode) {
       throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE is not defined');
     }
-    
+
     const volumeData = await fetchVolume({
       rvcode,
       vid: params.id,
       language
     });
-    
+
+    // Fetch all articles for the volume server-side
+    let articles: FetchedArticle[] = [];
+    if (volumeData && volumeData.articles && volumeData.articles.length > 0) {
+      const paperIds = volumeData.articles.map(article => article['@id'].replace(/\D/g, ''));
+
+      // Fetch articles in parallel with error handling
+      const articlePromises = paperIds.map(async (docid) => {
+        try {
+          const article = await fetchArticle(docid);
+          return article;
+        } catch (error) {
+          console.error(`Error fetching article ${docid}:`, error);
+          return null;
+        }
+      });
+
+      const fetchedArticles = await Promise.all(articlePromises);
+      articles = fetchedArticles.filter((article): article is FetchedArticle => article !== null && article !== undefined);
+    }
+
     return (
-      <VolumeDetailsClient 
+      <VolumeDetailsClient
         initialVolume={volumeData}
+        initialArticles={articles}
       />
     );
   } catch (error) {

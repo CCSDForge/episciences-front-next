@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import { EmailShareButton, FacebookShareButton, LinkedinShareButton, TwitterShareButton } from 'react-share';
 
-import { ICitation, METADATA_TYPE, copyToClipboardCitation, getMetadataTypes } from '@/utils/article';
+import { ICitation, METADATA_TYPE, copyToClipboardCitation, getMetadataTypes, getCitations, CITATION_TEMPLATE } from '@/utils/article';
 import { PATHS } from '@/config/paths';
 
 // Import des icônes
@@ -18,19 +18,49 @@ import linkedin from '/public/icons/linkedin.svg';
 
 interface InteractiveDropdownProps {
   type: 'cite' | 'metadata' | 'share';
-  citations?: ICitation[];
+  metadataCSL?: string | null;
+  metadataBibTeX?: string | null;
   articleId?: string;
   label?: string; // Optional pre-translated label
 }
 
-export default function InteractiveDropdown({ type, citations = [], articleId, label }: InteractiveDropdownProps) {
+export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX, articleId, label }: InteractiveDropdownProps) {
   const { t } = useTranslation();
   const router = useRouter();
-  
+
   const [showDropdown, setShowDropdown] = useState(false);
+  const [citations, setCitations] = useState<ICitation[]>([]);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  
+
   const metadataTypes = getMetadataTypes();
+
+  // Generate citations client-side when metadata is available
+  useEffect(() => {
+    const generateCitations = async () => {
+      if (type === 'cite' && (metadataCSL || metadataBibTeX)) {
+        console.log('[InteractiveDropdown] Generating citations...');
+        console.log('[InteractiveDropdown] CSL:', metadataCSL?.substring(0, 100));
+        console.log('[InteractiveDropdown] BibTeX:', metadataBibTeX?.substring(0, 100));
+
+        const fetchedCitations = await getCitations(metadataCSL as string);
+        console.log('[InteractiveDropdown] Fetched citations:', fetchedCitations);
+
+        // Update the BibTeX citation with the proper content
+        const bibtexIndex = fetchedCitations.findIndex(citation => citation.key === CITATION_TEMPLATE.BIBTEX);
+        if (bibtexIndex !== -1 && metadataBibTeX) {
+          fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
+        }
+
+        // Filter out citations with empty content
+        const validCitations = fetchedCitations.filter(citation => citation.citation && citation.citation.trim() !== '');
+        console.log('[InteractiveDropdown] Valid citations:', validCitations);
+
+        setCitations(validCitations);
+      }
+    };
+
+    generateCitations();
+  }, [type, metadataCSL, metadataBibTeX]);
 
   useEffect(() => {
     const handleTouchOutside = (event: TouchEvent): void => {

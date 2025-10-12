@@ -78,14 +78,8 @@ export default function ArticleDetailsServer({
 
   const institutions = Array.from(allInstitutionsSet);
 
-  // Process citations
-  const citations: ICitation[] = [];
-  if (metadataBibTeX) {
-    citations.push({
-      key: 'BibTeX',
-      citation: metadataBibTeX
-    });
-  }
+  // Pass metadata to client-side component for dynamic citation generation
+  // Don't generate citations server-side, let the client handle it
 
   const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || process.env.NEXT_PUBLIC_RVCODE || '';
 
@@ -225,7 +219,8 @@ export default function ArticleDetailsServer({
         <ArticleDetailsSidebarServer
           article={article}
           relatedVolume={relatedVolume}
-          citations={citations}
+          metadataCSL={metadataCSL}
+          metadataBibTeX={metadataBibTeX}
           translations={translations}
         />
         <div className="articleDetails-content-article">

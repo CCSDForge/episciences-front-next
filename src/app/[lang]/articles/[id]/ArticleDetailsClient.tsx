@@ -89,6 +89,12 @@ export default function ArticleDetailsClient({
   const [institutions, setInstitutions] = useState<string[]>([]);
   const [citations, setCitations] = useState<ICitation[]>([]);
 
+  // Debug: Log metadata values when they change
+  useEffect(() => {
+    console.log('[Metadata Debug] metadataCSL:', metadataCSL);
+    console.log('[Metadata Debug] metadataBibTeX:', metadataBibTeX);
+  }, [metadataCSL, metadataBibTeX]);
+
   useEffect(() => {
     async function fetchData() {
       // Skip client-side fetching if data was provided server-side
@@ -309,15 +315,24 @@ export default function ArticleDetailsClient({
 
   useEffect(() => {
     const fetchCitations = async () => {
+      console.log('[Citations Debug] Starting citation fetch...');
+      console.log('[Citations Debug] metadataCSL:', metadataCSL?.substring(0, 200));
+      console.log('[Citations Debug] metadataBibTeX:', metadataBibTeX?.substring(0, 200));
+
       const fetchedCitations = await getCitations(metadataCSL as string);
-      
+      console.log('[Citations Debug] Fetched citations:', fetchedCitations);
+
       // Update the BibTeX citation with the proper content
       const bibtexIndex = fetchedCitations.findIndex(citation => citation.key === CITATION_TEMPLATE.BIBTEX);
       if (bibtexIndex !== -1 && metadataBibTeX) {
         fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
       }
 
-      setCitations(fetchedCitations);
+      // Filter out citations with empty content
+      const validCitations = fetchedCitations.filter(citation => citation.citation && citation.citation.trim() !== '');
+      console.log('[Citations Debug] Valid citations after filtering:', validCitations);
+
+      setCitations(validCitations);
     };
 
     fetchCitations();

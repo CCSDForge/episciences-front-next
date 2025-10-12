@@ -345,7 +345,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
 
 export const copyToClipboardCitation = (citation: ICitation, t: TFunction<"translation", undefined>): void => {
   navigator.clipboard.writeText(citation.citation);
-  toast.success(t('common.copied'));
+  toast.success(t('common.citeSuccess', { template: citation.key }));
 };
 
 export const getLicenseTranslations = (t: TFunction<"translation", undefined>): { value: string; label: string; isLink?: boolean }[] => [
@@ -394,11 +394,78 @@ export const articleTypes: { labelPath: string; value: string; }[] = [
 ];
 
 export const getCitations = async (csl?: string): Promise<ICitation[]> => {
-  return [
-    { key: CITATION_TEMPLATE.APA, citation: csl || '' },
-    { key: CITATION_TEMPLATE.MLA, citation: csl || '' },
-    { key: CITATION_TEMPLATE.BIBTEX, citation: csl || '' }
-  ];
+  console.log('[getCitations] Called with CSL:', csl?.substring(0, 100));
+
+  if (!csl || csl.trim() === '') {
+    console.log('[getCitations] CSL is empty, returning empty array');
+    return [];
+  }
+
+  try {
+    // Dynamically import citation-js only when needed (client-side)
+    console.log('[getCitations] Importing citation-js...');
+    const citationModule = await import('citation-js');
+    console.log('[getCitations] citation-js module:', citationModule);
+
+    // Try different ways to access Cite
+    const Cite = citationModule.Cite || citationModule.default || citationModule;
+    console.log('[getCitations] Cite constructor:', typeof Cite, Cite);
+
+    // Register plugins
+    await import('@citation-js/plugin-csl');
+    console.log('[getCitations] Plugins loaded');
+
+    // Parse CSL data - it might be a JSON string, so try to parse it
+    let cslData: any = csl;
+    try {
+      cslData = JSON.parse(csl);
+      console.log('[getCitations] CSL parsed as JSON:', cslData);
+    } catch (parseError) {
+      console.log('[getCitations] CSL is not JSON, using as is');
+      // If not JSON, use as is
+    }
+
+    // Parse CSL data
+    console.log('[getCitations] Creating Cite object with data:', cslData);
+    const cite = new Cite(cslData);
+    console.log('[getCitations] Cite object created successfully:', cite);
+
+    // Format citations in different styles
+    console.log('[getCitations] Formatting APA...');
+    const apaCitation = cite.format('bibliography', {
+      format: 'text',
+      template: 'apa',
+      lang: 'en-US'
+    });
+    console.log('[getCitations] APA formatted:', apaCitation);
+
+    console.log('[getCitations] Formatting MLA...');
+    const mlaCitation = cite.format('bibliography', {
+      format: 'text',
+      template: 'mla',
+      lang: 'en-US'
+    });
+    console.log('[getCitations] MLA formatted:', mlaCitation);
+
+    const result = [
+      { key: CITATION_TEMPLATE.APA, citation: apaCitation },
+      { key: CITATION_TEMPLATE.MLA, citation: mlaCitation },
+      // BibTeX will be added separately from the metadataBibTeX API response
+      { key: CITATION_TEMPLATE.BIBTEX, citation: '' }
+    ];
+
+    console.log('[getCitations] Returning citations:', result);
+    return result;
+  } catch (error) {
+    console.error('[getCitations] Error formatting citations:', error);
+    console.error('[getCitations] Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    console.error('[getCitations] CSL data was:', csl);
+    return [];
+  }
 };
 
 export enum LINKED_PUBLICATION_IDENTIFIER_TYPE {

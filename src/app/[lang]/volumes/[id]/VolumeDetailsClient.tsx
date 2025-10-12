@@ -23,13 +23,15 @@ import './VolumeDetails.scss';
 
 interface VolumeDetailsClientProps {
   initialVolume: IVolume | null;
+  initialArticles?: FetchedArticle[];
 }
 
 const MAX_MOBILE_DESCRIPTION_LENGTH = 200;
 const RELATED_VOLUMES = 20;
 
 export default function VolumeDetailsClient({
-  initialVolume
+  initialVolume,
+  initialArticles = []
 }: VolumeDetailsClientProps): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
@@ -40,7 +42,7 @@ export default function VolumeDetailsClient({
 
   const [volume, setVolume] = useState(initialVolume);
   const [isFetchingArticles, setIsFetchingArticles] = useState(false);
-  const [articles, setArticles] = useState<FetchedArticle[]>([]);
+  const [articles, setArticles] = useState<FetchedArticle[]>(initialArticles);
   const [showFullMobileDescription, setShowFullMobileDescription] = useState(false);
   const [openedRelatedVolumesMobileModal, setOpenedRelatedVolumesMobileModal] = useState(false);
   const [relatedVolumesData, setRelatedVolumesData] = useState<IVolume[]>([]);
@@ -70,69 +72,13 @@ export default function VolumeDetailsClient({
     }
   }, [relatedVolumes, volume, isStaticBuild]);
 
+  // Update articles when initialArticles changes (only needed in dev mode for client-side navigation)
   useEffect(() => {
-    if (volume && volume.articles.length > 0) {
-      setIsFetchingArticles(true);
-      const paperIds = volume.articles.map(article => article['@id'].replace(/\D/g, ''));
-      fetchArticles(paperIds);
-    }
-  }, [volume]);
-
-  const fetchArticles = async (paperIds: string[]): Promise<void> => {
-    try {
-      // Vérifier si on est en mode statique
-      if (isStaticBuild) {
-        // En mode statique, ne pas faire d'appels fetch, utiliser une solution de remplacement
-        const placeholderArticles = paperIds.map(docid => {
-          // Créer un article minimal pour le rendu statique
-          return {
-            id: parseInt(docid, 10),
-            title: `Article ${docid}`,
-            authors: [],
-            publicationDate: '',
-            tag: '',
-            repositoryName: '',
-            repositoryIdentifier: '',
-            doi: '',
-            abstract: '',
-            pdfLink: '',
-            metrics: { views: 0, downloads: 0 }
-          } as FetchedArticle;
-        });
-        
-        setArticles(placeholderArticles);
-      } else {
-        // En mode développement, faire les appels fetch normalement
-        const articlesRequests: Promise<FetchedArticle>[] = paperIds.map(async (docid) => {
-          const article: RawArticle = await (await fetch(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/papers/${docid}`)).json();
-          return formatArticle(article);
-        });
-        
-        const fetchedArticles = await Promise.all(articlesRequests);
-        setArticles(fetchedArticles);
-      }
-    } catch (error) {
-      console.error('Error fetching articles:', error);
-      // En cas d'erreur, utiliser des données minimales pour ne pas bloquer le rendu
-      const fallbackArticles = paperIds.map(docid => ({
-        id: parseInt(docid, 10),
-        title: `Article ${docid}`,
-        authors: [],
-        publicationDate: '',
-        tag: '',
-        repositoryName: '',
-        repositoryIdentifier: '',
-        doi: '',
-        abstract: '',
-        pdfLink: '',
-        metrics: { views: 0, downloads: 0 }
-      } as FetchedArticle));
-      
-      setArticles(fallbackArticles);
-    } finally {
+    if (initialArticles && initialArticles.length > 0) {
+      setArticles(initialArticles);
       setIsFetchingArticles(false);
     }
-  };
+  }, [initialArticles]);
 
   const reorderRelatedVolumes = (volumesToBeOrdered: IVolume[]): IVolume[] => {
     if (!volume || !volumesToBeOrdered || !volumesToBeOrdered.length) return volumesToBeOrdered;
