@@ -11,7 +11,7 @@ import caretDown from '../../../../public/icons/caret-down-red.svg';
 import download from '../../../../public/icons/download-red.svg';
 import { PATHS } from '@/config/paths';
 import { IArticle } from '@/types/article';
-import { articleTypes } from '@/utils/article';
+import { articleTypes, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 
@@ -46,7 +46,7 @@ export default function SectionArticleCard({ language, t, article }: ISectionArt
             )}
           </div>
           <div className={`sectionArticleCard-abstract-content ${openedAbstract && 'sectionArticleCard-abstract-content-opened'}`}>
-            <MathJax dynamic>{article.abstract}</MathJax>
+            <MathJax dynamic>{getAbstractText(article.abstract, language)}</MathJax>
           </div>
         </div>
       )}
@@ -54,7 +54,7 @@ export default function SectionArticleCard({ language, t, article }: ISectionArt
         <div className='sectionArticleCard-anchor-publicationDate'>{formatDate(article.publicationDate, language)}</div>
         <div className="sectionArticleCard-anchor-icons">
           {article.pdfLink && (
-            <Link href={article.pdfLink} target='_blank'>
+            <Link href={`${PATHS.articles}/${article.id}/download`} target='_blank' rel="noopener noreferrer">
               <div className="sectionArticleCard-anchor-icons-download">
                 <img className="sectionArticleCard-anchor-icons-download-icon" src={download} alt='Download icon' />
                 <div className="sectionArticleCard-anchor-icons-download-text">{t('common.pdf')}</div>

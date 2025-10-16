@@ -36,6 +36,25 @@
       "hideAll": "Cacher tous les abstracts",
       "showAll": "Afficher tous les abstracts"
     },
+    "languages": {
+      "en": "Anglais",
+      "fr": "Français",
+      "es": "Espagnol",
+      "de": "Allemand",
+      "it": "Italien",
+      "pt": "Portugais",
+      "ar": "Arabe",
+      "fa": "Persan",
+      "ur": "Ourdou",
+      "he": "Hébreu",
+      "yi": "Yiddish",
+      "sd": "Sindhi",
+      "ps": "Pachto",
+      "ks": "Kashmiri",
+      "ug": "Ouïghour",
+      "ckb": "Kurde (Sorani)",
+      "dv": "Divehi"
+    },
     "volumeCommittee": "Comité éditorial",
     "volumeCard": {
       "volume": "Volume",
@@ -308,6 +327,12 @@
           "MLA": "MLA",
           "BibTeX": "BibTeX"
         }
+      },
+      "download": {
+        "openInNewTab": "Ouvrir dans un nouvel onglet",
+        "openPDF": "Ouvrir le PDF",
+        "pdfDisplayTitle": "Affichage du PDF",
+        "pdfDisplayMessage": "Le PDF ne peut pas être affiché directement. Cliquez sur le bouton ci-dessous pour l'ouvrir dans un nouvel onglet ou le télécharger."
       }
     },
     "articlesAccepted": {

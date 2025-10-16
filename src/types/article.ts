@@ -12,7 +12,7 @@ export type PartialVolumeArticle = IPartialArticle;
 export interface IArticle {
   id: number;
   title: string;
-  abstract?: string;
+  abstract?: string | IArticleAbstracts;
   graphicalAbstract?: string;
   authors: IArticleAuthor[];
   publicationDate: string;
@@ -50,6 +50,13 @@ export type IArticleRecordKeywords = {
 };
 
 export interface IArticleKeywords extends IArticleRecordKeywords {
+}
+
+export type IArticleRecordAbstracts = {
+  [language in AvailableLanguage]: string;
+};
+
+export interface IArticleAbstracts extends IArticleRecordAbstracts {
 }
 
 export interface IArticleReference {
@@ -153,7 +160,11 @@ interface IRawArticleContent {
   abstract?: {
     value: string | {
       value: string;
-    };
+    } | {
+      '@xml:lang'?: string;
+      '@language'?: string;
+      value: string;
+    }[];
   }
   contributors: {
     person_name: {
@@ -276,6 +287,7 @@ interface IRawArticleContent {
     resource: string;
   }
   keywords?: string[] | IArticleKeywords;
+  '@language'?: string;
   acceptance_date?: {
     day: string;
     month: string;

@@ -9,6 +9,7 @@ import { supportsInlinePreview } from '@/utils/pdf-preview';
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServer';
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
+import AbstractSection from './components/AbstractSection';
 import KeywordsSection from './components/KeywordsSection';
 import LinkedPublicationsSection from './components/LinkedPublicationsSection';
 import CitedBySection from './components/CitedBySection';
@@ -28,7 +29,7 @@ interface ArticleDetailsServerProps {
   metadataCSL?: string | null;
   metadataBibTeX?: string | null;
   translations: Translations;
-  locale?: string;
+  language?: string;
 }
 
 interface EnhancedArticleAuthor extends IArticleAuthor {
@@ -54,7 +55,7 @@ export default function ArticleDetailsServer({
   metadataCSL,
   metadataBibTeX,
   translations,
-  locale
+  language
 }: ArticleDetailsServerProps): JSX.Element {
 
   // Process authors and institutions
@@ -111,7 +112,16 @@ export default function ArticleDetailsServer({
   };
 
   const getAbstractSection = (): JSX.Element | null => {
-    return article?.abstract ? <div dangerouslySetInnerHTML={{ __html: article.abstract }} /> : null;
+    if (!article?.abstract) {
+      return null;
+    }
+
+    return (
+      <AbstractSection
+        abstractData={article.abstract}
+        currentLanguage={(language || defaultLanguage) as string}
+      />
+    );
   };
 
   const getKeywordsSection = (): JSX.Element | null => {
@@ -134,7 +144,7 @@ export default function ArticleDetailsServer({
     return (
       <KeywordsSection
         keywordsData={article.keywords}
-        currentLanguage={(locale || defaultLanguage) as AvailableLanguage}
+        currentLanguage={(language || defaultLanguage) as AvailableLanguage}
       />
     );
   };

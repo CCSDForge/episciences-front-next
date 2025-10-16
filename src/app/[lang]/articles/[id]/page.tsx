@@ -10,6 +10,7 @@ import { IVolume } from '@/types/volume';
 import { getServerTranslations, defaultLanguage, availableLanguages } from '@/utils/server-i18n';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { combineWithLanguageParams } from '@/utils/static-params-helper';
+import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
 
 interface ArticleDetailsPageProps {
   params: {
@@ -71,7 +72,8 @@ export async function generateStaticParams() {
       id: article?.id.toString()
     }));
 
-    console.log(`Génération de ${articles.length} articles x ${availableLanguages.length} langues = ${articlesParams.length * availableLanguages.length} pages.`);
+    // Initialize build progress tracking
+    initBuildProgress(articles.length);
 
     // Combine with language params to generate for all languages
     return combineWithLanguageParams(articlesParams);
@@ -85,6 +87,9 @@ export default async function ArticleDetailsPage({ params }: ArticleDetailsPageP
   try {
     // Get language from params
     const language = getLanguageFromParams(params);
+
+    // Log build progress
+    logArticleProgress(params.id, language, 'main');
 
     // Fetch translations server-side
     const translations = await getServerTranslations(language);

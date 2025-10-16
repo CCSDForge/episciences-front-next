@@ -242,6 +242,64 @@
             }
           }
 
+          // Multilingual support styles
+          .language-group {
+            margin-bottom: 24px;
+
+            &[dir="rtl"] {
+              text-align: right;
+              direction: rtl;
+            }
+
+            &[dir="ltr"] {
+              text-align: left;
+              direction: ltr;
+            }
+          }
+
+          .language-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            background: var(--grey);
+            color: var(--primary-text);
+            border-radius: 4px;
+            text-transform: uppercase;
+          }
+
+          .language-separator {
+            height: 1px;
+            background: var(--grey-light);
+            margin: 20px 0;
+          }
+
+          .abstract-single,
+          .abstract-multilingual {
+            font-size: 16px;
+            line-height: 1.6;
+          }
+
+          .abstract-content {
+            margin-bottom: 8px;
+          }
+
+          .keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+          }
+
+          .keywords-multilingual {
+            .keywords-list {
+              margin-top: 8px;
+            }
+          }
+
           &-citedBy {
             margin-top: 10px;
 

@@ -25,6 +25,7 @@ import ArticleMeta from "@/components/Meta/ArticleMeta/ArticleMeta";
 import ArticleDetailsSidebar from "@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar";
 import CollapsibleSection from './components/CollapsibleSection';
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
+import AbstractSection from './components/AbstractSection';
 import KeywordsSection from './components/KeywordsSection';
 import LinkedPublicationsSection from './components/LinkedPublicationsSection';
 import CitedBySection from './components/CitedBySection';
@@ -222,7 +223,16 @@ export default function ArticleDetailsClient({
   }
 
   const getAbstractSection = (): JSX.Element | null => {
-    return article?.abstract ? <MathJax dynamic>{article.abstract}</MathJax> : null
+    if (!article?.abstract) {
+      return null;
+    }
+
+    return (
+      <AbstractSection
+        abstractData={article.abstract}
+        currentLanguage={language}
+      />
+    );
   }
 
   const getKeywordsSection = (): JSX.Element | null => {
@@ -340,23 +350,34 @@ export default function ArticleDetailsClient({
 
   return (
     <main className='articleDetails'>
-      <Breadcrumb 
+      {/* Tracking pixel for article views - appears in Apache logs as /articles/[id]/preview */}
+      {article?.id && (
+        <img
+          src={`/articles/${article.id}/preview`}
+          alt=""
+          width="1"
+          height="1"
+          style={{ position: 'absolute', visibility: 'hidden' }}
+          aria-hidden="true"
+        />
+      )}
+      <Breadcrumb
         parents={[
           { path: BREADCRUMB_PATHS.home, label: `${t('pages.home.title')} > ${t('common.content')} >` },
           { path: BREADCRUMB_PATHS.articles, label: `${t('pages.articles.title')} >` }
-        ]} 
-        crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''} 
+        ]}
+        crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''}
       />
       {isLoading ? (
         <Loader />
       ) : (
         <>
-          <ArticleMeta 
-            language={language} 
-            article={article as IArticle | undefined} 
-            currentJournal={currentJournal} 
-            keywords={Array.isArray(article?.keywords) ? article.keywords : []} 
-            authors={authors} 
+          <ArticleMeta
+            language={language}
+            article={article as IArticle | undefined}
+            currentJournal={currentJournal}
+            keywords={Array.isArray(article?.keywords) ? article.keywords : []}
+            authors={authors}
           />
           {article?.tag && <div className='articleDetails-tag'>{t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}</div>}
           <div className="articleDetails-content">

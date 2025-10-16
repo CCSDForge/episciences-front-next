@@ -1,55 +1,75 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useTranslation } from 'next-i18next';
-import { FetchedArticle } from '@/utils/article';
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
-import { BREADCRUMB_PATHS } from '@/config/paths';
+import { useTranslation } from 'react-i18next';
+import dynamic from 'next/dynamic';
 import './ArticleDetailsDownload.scss';
 
+// Dynamically import PDFViewer to avoid SSR issues with PDF.js
+const PDFViewer = dynamic(() => import('@/components/PDFViewer/PDFViewer'), {
+  ssr: false,
+  loading: () => (
+    <div className="pdf-viewer-loading">
+      <div className="pdf-viewer-spinner"></div>
+      <p>Loading PDF viewer...</p>
+    </div>
+  )
+});
+
 interface ArticleDetailsDownloadClientProps {
-  article: FetchedArticle | null;
+  pdfUrl: string;
+  articleTitle: string;
 }
 
-const MAX_BREADCRUMB_TITLE = 20;
-
-export default function ArticleDetailsDownloadClient({ article }: ArticleDetailsDownloadClientProps): JSX.Element {
+export default function ArticleDetailsDownloadClient({
+  pdfUrl,
+  articleTitle
+}: ArticleDetailsDownloadClientProps): JSX.Element {
   const { t } = useTranslation();
 
-  // Hide header and footer when component mounts
-  useEffect(() => {
-    // Add class to body to hide header and footer
-    document.body.classList.add('download-page');
+  // Check if the PDF source is from a repository that might need special handling
+  const isZenodo = pdfUrl.includes('zenodo.org');
+  const useAdvancedViewer = isZenodo || pdfUrl.includes('arxiv.org');
 
-    // Cleanup on unmount
-    return () => {
-      document.body.classList.remove('download-page');
-    };
-  }, []);
-
-  if (!article) {
+  // If it's from Zenodo or similar sources that may have issues with iframe, use PDF.js viewer
+  if (useAdvancedViewer) {
     return (
-      <div className="articleDetails-error">
-        {t('errors.articleNotFound')}
+      <div className="pdf-container">
+        <PDFViewer pdfUrl={pdfUrl} title={articleTitle} />
       </div>
     );
   }
 
-  if (!article.pdfLink) {
-    return (
-      <div className="articleDetails-error">
-        {t('errors.downloadNotAvailable')}
-      </div>
-    );
-  }
-
+  // For standard PDFs, use the traditional iframe approach
   return (
-    <main className="articleDetails-download">
+    <div className="pdf-container">
+      <div className="pdf-toolbar">
+        <div className="pdf-toolbar-title">
+          {articleTitle}
+        </div>
+        <a
+          href={pdfUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="pdf-toolbar-link"
+        >
+          {t('pages.articleDetails.download.openInNewTab')}
+        </a>
+      </div>
       <iframe
-        src={article.pdfLink}
-        className="articleDetails-download-frame"
-        title={article.title}
+        src={pdfUrl}
+        className="pdf-frame"
+        title={`PDF - ${articleTitle}`}
+        allow="fullscreen"
       />
-    </main>
+      <div className="pdf-fallback">
+        <h1>{t('pages.articleDetails.download.pdfDisplayTitle')}</h1>
+        <p>
+          {t('pages.articleDetails.download.pdfDisplayMessage')}
+        </p>
+        <a href={pdfUrl} className="pdf-fallback-link" target="_blank" rel="noopener noreferrer">
+          {t('pages.articleDetails.download.openPDF')}
+        </a>
+      </div>
+    </div>
   );
-} 
+}

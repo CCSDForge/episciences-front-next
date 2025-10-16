@@ -15,7 +15,6 @@ import { toast } from 'react-toastify';
 import { useAppSelector } from '@/hooks/store';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
-import { supportsInlinePreview } from '@/utils/pdf-preview';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
 
@@ -199,21 +198,12 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
           <>
-            {supportsInlinePreview(article.pdfLink) ? (
-              <Link href={`/${PATHS.articles}/${article.id}/download`} target="_blank">
-                <div className="articleDetailsSidebar-links-link">
-                  <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
-                  <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.download')}</div>
-                </div>
-              </Link>
-            ) : (
-              <a href={article.pdfLink} target="_blank" rel="noopener noreferrer" download>
-                <div className="articleDetailsSidebar-links-link">
-                  <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
-                  <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.download')}</div>
-                </div>
-              </a>
-            )}
+            <a href={article.pdfLink} target="_blank" rel="noopener noreferrer">
+              <div className="articleDetailsSidebar-links-link">
+                <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
+                <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.download')}</div>
+              </div>
+            </a>
           </>
         )}
         {article?.docLink && (

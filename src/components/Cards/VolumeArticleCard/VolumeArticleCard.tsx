@@ -9,7 +9,7 @@ import './VolumeArticleCard.scss';
 
 import { PATHS } from '@/config/paths';
 import { IArticle } from '@/types/article';
-import { articleTypes } from '@/utils/article';
+import { articleTypes, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 
@@ -51,7 +51,7 @@ export default function VolumeArticleCard({ language, t, article }: IVolumeArtic
             />
           </div>
           <div className={`volumeArticleCard-abstract-content ${openedAbstract && 'volumeArticleCard-abstract-content-opened'}`}>
-            <MathJax dynamic>{article.abstract}</MathJax>
+            <MathJax dynamic>{getAbstractText(article.abstract, language)}</MathJax>
           </div>
         </div>
       )}
@@ -61,12 +61,12 @@ export default function VolumeArticleCard({ language, t, article }: IVolumeArtic
         </div>
         <div className="volumeArticleCard-anchor-icons">
           {article.pdfLink && (
-            <Link href={article.pdfLink} target="_blank" rel="noopener noreferrer">
+            <Link href={`${PATHS.articles}/${article.id}/download`} target="_blank" rel="noopener noreferrer">
               <div className="volumeArticleCard-anchor-icons-download">
-                <img 
-                  className="volumeArticleCard-anchor-icons-download-icon" 
-                  src="/icons/download-red.svg" 
-                  alt="Download icon" 
+                <img
+                  className="volumeArticleCard-anchor-icons-download-icon"
+                  src="/icons/download-red.svg"
+                  alt="Download icon"
                 />
                 <div className="volumeArticleCard-anchor-icons-download-text">{t('common.pdf')}</div>
               </div>

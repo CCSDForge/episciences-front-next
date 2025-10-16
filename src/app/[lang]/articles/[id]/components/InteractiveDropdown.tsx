@@ -43,12 +43,7 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
   useEffect(() => {
     const generateCitations = async () => {
       if (type === 'cite' && (metadataCSL || metadataBibTeX)) {
-        console.log('[InteractiveDropdown] Generating citations...');
-        console.log('[InteractiveDropdown] CSL:', metadataCSL?.substring(0, 100));
-        console.log('[InteractiveDropdown] BibTeX:', metadataBibTeX?.substring(0, 100));
-
         const fetchedCitations = await getCitations(metadataCSL as string);
-        console.log('[InteractiveDropdown] Fetched citations:', fetchedCitations);
 
         // Update the BibTeX citation with the proper content
         const bibtexIndex = fetchedCitations.findIndex(citation => citation.key === CITATION_TEMPLATE.BIBTEX);
@@ -58,7 +53,6 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
 
         // Filter out citations with empty content
         const validCitations = fetchedCitations.filter(citation => citation.citation && citation.citation.trim() !== '');
-        console.log('[InteractiveDropdown] Valid citations:', validCitations);
 
         setCitations(validCitations);
       }

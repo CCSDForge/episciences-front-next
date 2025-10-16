@@ -9,7 +9,7 @@ import caretUp from '../../../../public/icons/caret-up-red.svg';
 import caretDown from '../../../../public/icons/caret-down-red.svg';
 import download from '../../../../public/icons/download-red.svg';
 import { IArticle } from "@/types/article";
-import { articleTypes } from '@/utils/article';
+import { articleTypes, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 
@@ -47,7 +47,7 @@ export default function ArticleAcceptedCard({ language, t, article, toggleAbstra
             )}
           </div>
           <div className={`articleAcceptedCard-abstract-content ${article.openedAbstract && 'articleAcceptedCard-abstract-content-opened'}`}>
-            <MathJax dynamic>{article.abstract}</MathJax>
+            <MathJax dynamic>{getAbstractText(article.abstract, language)}</MathJax>
           </div>
         </div>
       )}

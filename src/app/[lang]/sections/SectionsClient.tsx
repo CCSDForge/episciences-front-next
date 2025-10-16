@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -39,25 +39,45 @@ export default function SectionsClient({
   const language = useAppSelector(state => state.i18nReducer.language);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
-  const [currentPage, setCurrentPage] = useState(initialPage);
+  // Initialiser la page depuis les query params ou initialPage
+  const pageFromUrl = searchParams.get('page');
+  const pageNumber = pageFromUrl ? Math.max(1, parseInt(pageFromUrl, 10)) : initialPage;
+
+  const [currentPage, setCurrentPage] = useState(pageNumber);
   const [sections, setSections] = useState(initialSections);
+  const [sectionsData, setSectionsData] = useState(initialSections);
   const [isLoading, setIsLoading] = useState(false);
 
-  const createQueryString = (name: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set(name, value);
-    } else {
-      params.delete(name);
+  // Synchroniser currentPage avec les query params
+  useEffect(() => {
+    const pageParam = searchParams.get('page');
+    const pageNum = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
+    if (!isNaN(pageNum) && pageNum !== currentPage) {
+      setCurrentPage(pageNum);
     }
-    return params.toString();
-  };
-  
+  }, [searchParams]);
+
+  // Pagination côté client
+  useEffect(() => {
+    if (initialSections?.data) {
+      const startIndex = (currentPage - 1) * SECTIONS_PER_PAGE;
+      const endIndex = startIndex + SECTIONS_PER_PAGE;
+      const paginatedData = initialSections.data.slice(startIndex, endIndex);
+
+      setSectionsData({
+        ...initialSections,
+        data: paginatedData,
+        totalItems: initialSections.totalItems
+      });
+    }
+  }, [initialSections, currentPage]);
+
   const handlePageClick = (selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
-    const newParams = createQueryString('page', newPage.toString());
-    router.push(`${pathname}?${newParams}`);
+    router.push(`${pathname}?page=${newPage}`);
     setCurrentPage(newPage);
+    // Scroll vers le haut de la page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const getSectionsCount = (): JSX.Element | null => {
@@ -108,7 +128,7 @@ export default function SectionsClient({
             <Loader />
           ) : (
             <div className='sections-content-results-cards'>
-              {sections?.data.map((section, index) => (
+              {sectionsData?.data.map((section, index) => (
                 <SectionCard
                   key={index}
                   language={language}
@@ -122,7 +142,7 @@ export default function SectionsClient({
         <Pagination
           currentPage={currentPage}
           itemsPerPage={SECTIONS_PER_PAGE}
-          totalItems={sections?.totalItems}
+          totalItems={sectionsData?.totalItems}
           onPageChange={handlePageClick}
         />
       </div>

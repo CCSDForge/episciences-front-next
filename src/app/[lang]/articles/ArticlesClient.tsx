@@ -51,7 +51,10 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code)
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name)
 
-  const [currentPage, setCurrentPage] = useState(1);
+  // Initialiser la page depuis les query params ou 1 par défaut
+  const pageFromUrl = searchParams.get('page');
+  const initialPage = pageFromUrl ? Math.max(1, parseInt(pageFromUrl, 10)) : 1;
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [enhancedArticles, setEnhancedArticles] = useState<EnhancedArticle[]>([])
   const [types, setTypes] = useState<IArticleTypeSelection[]>([])
   const [years, setYears] = useState<IArticleYearSelection[]>([]);
@@ -80,40 +83,61 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
     }
   );
   
+  // Synchroniser currentPage avec les query params
+  useEffect(() => {
+    const pageParam = searchParams.get('page');
+    const pageNumber = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
+    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
+      setCurrentPage(pageNumber);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     if (initialArticles?.data) {
       const initialData = Array.isArray(initialArticles.data) ? initialArticles.data : [];
-      
+
       let filteredData = initialData;
       const selectedTypes = types.filter(t => t.isChecked).map(t => t.value);
       const selectedYears = years.filter(y => y.isChecked).map(y => y.year);
-      
+
       if (selectedTypes.length > 0) {
-        filteredData = filteredData.filter((article: any) => 
+        filteredData = filteredData.filter((article: any) =>
           selectedTypes.includes(article.tag || '')
         );
       }
-      
+
       if (selectedYears.length > 0) {
         filteredData = filteredData.filter((article: any) => {
           const articleYear = new Date(article.publicationDate).getFullYear();
           return selectedYears.includes(articleYear);
         });
       }
-      
+
       if (isStaticBuild) {
-        setTotalArticlesCount(filteredData.length);
+        // En mode statique, on filtre et pagine côté client
+        const totalFiltered = filteredData.length;
+        setTotalArticlesCount(totalFiltered);
+
+        // Appliquer la pagination côté client
+        const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
+        const endIndex = startIndex + ARTICLES_PER_PAGE;
+        const paginatedData = filteredData.slice(startIndex, endIndex);
+
+        setEnhancedArticles(
+          paginatedData
+            .filter((article: any) => article && article.title)
+            .map((article: any) => ({ ...article, openedAbstract: false }))
+        );
       } else {
         setTotalArticlesCount(initialArticles.totalItems || 0);
+        setEnhancedArticles(
+          filteredData
+            .filter((article: any) => article && article.title)
+            .map((article: any) => ({ ...article, openedAbstract: false }))
+        );
       }
-      
-      setEnhancedArticles(
-        filteredData
-          .filter((article: any) => article && article.title)
-          .map((article: any) => ({ ...article, openedAbstract: false }))
-      );
     }
-  }, [initialArticles, types, years, isStaticBuild]);
+  }, [initialArticles, types, years, isStaticBuild, currentPage]);
 
   useEffect(() => {
     if (!isStaticBuild && articles) {
@@ -173,14 +197,14 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
-    router.push(`/articles/${newPage}`);
+    router.push(`${pathname}?page=${newPage}`);
     setEnhancedArticles([]);
     setCurrentPage(newPage);
+    // Scroll vers le haut de la page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const onCheckType = (value: string): void => {
-    setCurrentPage(1);
-
     const updatedTypes = types.map((t) => {
       if (t.value === value) {
         return { ...t, isChecked: !t.isChecked };
@@ -190,11 +214,11 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
     });
 
     setTypes(updatedTypes);
+    setCurrentPage(1);
+    router.push(pathname); // Retour à la page 1
   }
 
   const onCheckYear = (year: number): void => {
-    setCurrentPage(1);
-
     const updatedYears = years.map((y) => {
       if (y.year === year) {
         return { ...y, isChecked: !y.isChecked };
@@ -204,6 +228,8 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
     });
 
     setYears(updatedYears);
+    setCurrentPage(1);
+    router.push(pathname); // Retour à la page 1
   }
 
 

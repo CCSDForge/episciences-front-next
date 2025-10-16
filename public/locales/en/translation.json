@@ -36,6 +36,25 @@
       "hideAll": "Hide all abstracts",
       "showAll": "Show all abstracts"
     },
+    "languages": {
+      "en": "English",
+      "fr": "French",
+      "es": "Spanish",
+      "de": "German",
+      "it": "Italian",
+      "pt": "Portuguese",
+      "ar": "Arabic",
+      "fa": "Persian",
+      "ur": "Urdu",
+      "he": "Hebrew",
+      "yi": "Yiddish",
+      "sd": "Sindhi",
+      "ps": "Pashto",
+      "ks": "Kashmiri",
+      "ug": "Uyghur",
+      "ckb": "Kurdish (Sorani)",
+      "dv": "Dhivehi"
+    },
     "volumeCommittee": "Volume committee",
     "volumeCard": {
       "volume": "Volume",
@@ -301,6 +320,12 @@
           "MLA": "MLA",
           "BibTeX": "BibTeX"
         }
+      },
+      "download": {
+        "openInNewTab": "Open in new tab",
+        "openPDF": "Open PDF",
+        "pdfDisplayTitle": "PDF Display",
+        "pdfDisplayMessage": "The PDF cannot be displayed directly. Click the button below to open it in a new tab or download it."
       }
     },
     "articlesAccepted": {

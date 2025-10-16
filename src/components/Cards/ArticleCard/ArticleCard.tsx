@@ -13,7 +13,7 @@ import quoteIcon from '../../../../public/icons/quote-red.svg';
 import { PATHS } from '@/config/paths';
 import { useFetchArticleMetadataQuery } from '@/store/features/article/article.query';
 import { IArticle } from "@/types/article";
-import { CITATION_TEMPLATE, ICitation, METADATA_TYPE, articleTypes, copyToClipboardCitation, getCitations } from '@/utils/article';
+import { CITATION_TEMPLATE, ICitation, METADATA_TYPE, articleTypes, copyToClipboardCitation, getCitations, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 
@@ -121,7 +121,7 @@ export default function ArticleCard({ language, rvcode, t, article, toggleAbstra
             />
           </div>
           <div className={`articleCard-abstract-content ${article.openedAbstract ? 'articleCard-abstract-content-opened' : ''}`}>
-            <MathJax dynamic>{article.abstract}</MathJax>
+            <MathJax dynamic>{getAbstractText(article.abstract, language)}</MathJax>
           </div>
         </div>
       )}
@@ -131,12 +131,12 @@ export default function ArticleCard({ language, rvcode, t, article, toggleAbstra
         </div>
         <div className="articleCard-anchor-icons">
           {article.pdfLink && (
-            <Link href={`${PATHS.articles}/${article.id}/download`}>
+            <Link href={`${PATHS.articles}/${article.id}/download`} target="_blank" rel="noopener noreferrer">
               <div className="articleCard-anchor-icons-download">
-                <img 
-                  className="articleCard-anchor-icons-download-icon" 
-                  src={downloadIcon} 
-                  alt='Download icon' 
+                <img
+                  className="articleCard-anchor-icons-download-icon"
+                  src={downloadIcon}
+                  alt='Download icon'
                 />
                 <div className="articleCard-anchor-icons-download-text">
                   {t('common.pdf')}

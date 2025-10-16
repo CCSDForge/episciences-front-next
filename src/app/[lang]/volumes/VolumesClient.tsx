@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTranslation } from 'react-i18next';
 
 import filter from '/public/icons/filter.svg';
@@ -53,6 +53,7 @@ export default function VolumesClient({
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const language = useAppSelector(state => state.i18nReducer.language);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
@@ -74,6 +75,15 @@ export default function VolumesClient({
 
   const getSelectedTypes = (): string[] => types.filter(t => t.isChecked).map(t => t.value);
   const getSelectedYears = (): number[] => years.filter(y => y.isSelected).map(y => y.year);
+
+  // Synchroniser currentPage avec les query params
+  useEffect(() => {
+    const pageParam = searchParams.get('page');
+    const pageNumber = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
+    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
+      setCurrentPage(pageNumber);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (types.length > 0 && !initQueryFilters) {
@@ -127,69 +137,48 @@ export default function VolumesClient({
   useEffect(() => {
     // Utiliser uniquement les données initiales et appliquer un filtrage côté client
     if (initialVolumes?.data) {
-      // Filtrage simpliste pour simuler le comportement API
-      // Dans une version plus avancée, on pourrait implémenter une logique de filtrage plus sophistiquée
-      const filteredData = {...initialVolumes};
-      
       // Appliquer les filtres si nécessaire
       const selectedTypes = types.filter(t => t.isChecked).map(t => t.value);
       const selectedYears = years.filter(y => y.isSelected).map(y => y.year);
-      
+
+      let filteredArray = initialVolumes.data;
+
       if (selectedTypes.length > 0 || selectedYears.length > 0) {
-        filteredData.data = initialVolumes.data.filter(vol => {
+        filteredArray = initialVolumes.data.filter(vol => {
           // Filtrer par type
-          const typeMatch = selectedTypes.length === 0 || 
+          const typeMatch = selectedTypes.length === 0 ||
             (Array.isArray(vol.types) && vol.types.some(t => selectedTypes.includes(t)));
-          
+
           // Filtrer par année
-          const yearMatch = selectedYears.length === 0 || 
+          const yearMatch = selectedYears.length === 0 ||
             (typeof vol.year === 'number' && selectedYears.includes(vol.year));
-          
+
           return typeMatch && yearMatch;
         });
       }
-      
+
+      // Appliquer la pagination côté client
+      const totalFiltered = filteredArray.length;
+      const startIndex = (currentPage - 1) * VOLUMES_PER_PAGE;
+      const endIndex = startIndex + VOLUMES_PER_PAGE;
+      const paginatedArray = filteredArray.slice(startIndex, endIndex);
+
+      const filteredData = {
+        ...initialVolumes,
+        data: paginatedArray,
+        totalItems: totalFiltered
+      };
+
       setVolumesData(filteredData);
     }
   }, [initialVolumes, types, years, currentPage]);
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
-    
-    // Construire l'URL avec les paramètres de filtrage actuels
-    let url = `/${PATHS.volumes}/`;
-    
-    // Ajouter les paramètres de filtre si nécessaire
-    const params = new URLSearchParams();
-    
-    // Ajouter le numéro de page s'il est différent de 1
-    if (newPage > 1) {
-      params.append('page', newPage.toString());
-    }
-    
-    // Ajouter les types sélectionnés
-    const selectedTypes = getSelectedTypes();
-    if (selectedTypes.length > 0) {
-      params.append('type', selectedTypes.join(','));
-    }
-    
-    // Ajouter les années sélectionnées
-    const selectedYears = getSelectedYears();
-    if (selectedYears.length > 0) {
-      params.append('year', selectedYears.join(','));
-    }
-    
-    // Ajouter les paramètres à l'URL si nécessaire
-    const queryString = params.toString();
-    if (queryString) {
-      url += `?${queryString}`;
-    }
-    
-    // Utiliser la navigation statique au lieu de router.push
-    window.location.href = url;
-    
-    // Mettre à jour l'état local (ne sera pas utilisé à cause de la redirection)
+    router.push(`${pathname}?page=${newPage}`);
     setCurrentPage(newPage);
+    // Scroll vers le haut de la page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const getVolumesCount = (mode: RENDERING_MODE): JSX.Element | null => {
@@ -217,8 +206,6 @@ export default function VolumesClient({
   };
 
   const onCheckType = (value: string): void => {
-    setCurrentPage(1);
-    
     const updatedTypes = types.map((t) => {
       if (t.value === value) {
         return { ...t, isChecked: !t.isChecked };
@@ -228,11 +215,11 @@ export default function VolumesClient({
     });
 
     setTypes(updatedTypes);
+    setCurrentPage(1);
+    router.push(pathname); // Retour à la page 1
   };
 
   const onSelectYear = (year: number): void => {
-    setCurrentPage(1);
-
     const updatedYears = years.map((y) => {
       if (y.year === year) {
         return { ...y, isSelected: !y.isSelected };
@@ -242,13 +229,13 @@ export default function VolumesClient({
     });
 
     setYears(updatedYears);
+    setCurrentPage(1);
+    router.push(pathname); // Retour à la page 1
   };
 
 
   const onCloseTaggedFilter = (type: VolumeTypeFilter, value: string | number) => {
     if (type === 'type') {
-      setCurrentPage(1);
-      
       const updatedTypes = types.map((t) => {
         if (t.value === value) {
           return { ...t, isChecked: false };
@@ -258,24 +245,24 @@ export default function VolumesClient({
       });
 
       setTypes(updatedTypes);
-    } else if (type === 'year') {
       setCurrentPage(1);
-      
+      router.push(pathname); // Retour à la page 1
+    } else if (type === 'year') {
       const updatedYears = years.map((y) => {
         if (y.year === value) {
           return { ...y, isSelected: false };
         }
-  
+
         return y;
       });
-  
+
       setYears(updatedYears);
+      setCurrentPage(1);
+      router.push(pathname); // Retour à la page 1
     }
   };
 
   const clearTaggedFilters = (): void => {
-    setCurrentPage(1);
-    
     const updatedTypes = types.map((t) => {
       return { ...t, isChecked: false };
     });
@@ -287,6 +274,8 @@ export default function VolumesClient({
     setTypes(updatedTypes);
     setYears(updatedYears);
     setTaggedFilters([]);
+    setCurrentPage(1);
+    router.push(pathname); // Retour à la page 1
   };
 
   const toggleFiltersModal = () => {

@@ -150,6 +150,10 @@ $(JOURNALS):
 		echo "RewriteEngine On" >> $$HTACCESS_FILE; \
 		echo "RewriteBase /" >> $$HTACCESS_FILE; \
 		echo "" >> $$HTACCESS_FILE; \
+		echo "# Article tracking for statistics (before other rules)" >> $$HTACCESS_FILE; \
+		echo "# Track article previews: /articles/123/preview -> 1x1 transparent pixel" >> $$HTACCESS_FILE; \
+		echo "RewriteRule ^articles/([0-9]+)/preview$$ /tracking-pixel.gif [L]" >> $$HTACCESS_FILE; \
+		echo "" >> $$HTACCESS_FILE; \
 		echo "# Skip if already has language prefix (direct access to /$$DEFAULT_LANG/...)" >> $$HTACCESS_FILE; \
 		echo "RewriteCond %{REQUEST_URI} ^/$$DEFAULT_LANG/ [NC]" >> $$HTACCESS_FILE; \
 		echo "RewriteRule ^ - [L]" >> $$HTACCESS_FILE; \
@@ -164,6 +168,10 @@ $(JOURNALS):
 		echo "# Multilingual site - redirect to default language" >> $$HTACCESS_FILE; \
 		echo "RewriteEngine On" >> $$HTACCESS_FILE; \
 		echo "RewriteBase /" >> $$HTACCESS_FILE; \
+		echo "" >> $$HTACCESS_FILE; \
+		echo "# Article tracking for statistics (before other rules)" >> $$HTACCESS_FILE; \
+		echo "# Track article previews: /articles/123/preview -> 1x1 transparent pixel" >> $$HTACCESS_FILE; \
+		echo "RewriteRule ^articles/([0-9]+)/preview$$ /tracking-pixel.gif [L]" >> $$HTACCESS_FILE; \
 		echo "" >> $$HTACCESS_FILE; \
 		echo "# Skip if already has language prefix" >> $$HTACCESS_FILE; \
 		LANG_PATTERN=$$(echo "$$LANGS_ARRAY" | tr ' ' '|'); \

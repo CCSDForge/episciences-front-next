@@ -1,4 +1,4 @@
-import { IArticle, IArticleAuthor, IArticleCitedBy, IArticleReference, IArticleRelatedItem, RawArticle } from "../types/article";
+import { IArticle, IArticleAbstracts, IArticleAuthor, IArticleCitedBy, IArticleKeywords, IArticleReference, IArticleRelatedItem, RawArticle } from "../types/article";
 import { TFunction } from 'i18next';
 import { toast } from 'react-toastify';
 
@@ -43,8 +43,6 @@ export function formatArticle(article: RawArticle): FetchedArticle {
   }
 
   const extendedArticle = article as ExtendedRawArticle;
-  console.log('DEBUG formatArticle - extendedArticle.keywords:', extendedArticle.keywords);
-  console.log('DEBUG formatArticle - Raw article keys:', Object.keys(extendedArticle));
 
   try {
     // Récupération des métadonnées de base
@@ -76,17 +74,56 @@ export function formatArticle(article: RawArticle): FetchedArticle {
 
     if (!articleContent) return undefined;
 
-    let abstract = '';
+    let abstract: string | IArticleAbstracts = '';
 
     if (typeof articleContent.abstract?.value === 'string') {
+      // Simple string abstract
       abstract = articleContent.abstract.value;
     } else if (Array.isArray(articleContent.abstract?.value)) {
-      abstract = articleContent.abstract.value
+      // Check if it's a multilingual array with @xml:lang or @language attributes
+      const hasLanguageAttribute = articleContent.abstract.value.some(
+        item => typeof item === 'object' && item !== null &&
+          ('@xml:lang' in item || '@language' in item)
+      );
+
+      if (hasLanguageAttribute) {
+        // Build multilingual abstracts object
+        const abstractsObj: any = {};
+        articleContent.abstract.value.forEach(item => {
+          if (typeof item === 'object' && item !== null && 'value' in item) {
+            // Support both @xml:lang (Zenodo) and @language attributes
+            const lang = item['@xml:lang'] || item['@language'];
+            const content = item.value;
+            if (lang && content) {
+              abstractsObj[lang] = content;
+            }
+          }
+        });
+
+        // Only use structured format if we have multiple languages
+        if (Object.keys(abstractsObj).length > 1) {
+          abstract = abstractsObj as IArticleAbstracts;
+        } else if (Object.keys(abstractsObj).length === 1) {
+          // Single language, use simple string
+          abstract = Object.values(abstractsObj)[0] as string;
+        } else {
+          // Fallback to join if no valid language data
+          abstract = articleContent.abstract.value
+            .map(item => (typeof item === 'string' ? item : item.value))
+            .join(' ');
+        }
+      } else {
+        // Plain array without language codes - join them
+        abstract = articleContent.abstract.value
           .map(item => (typeof item === 'string' ? item : item.value))
           .join(' ');
+      }
     } else if (typeof articleContent.abstract?.value?.value === 'string') {
       abstract = articleContent.abstract.value.value;
     }
+
+    console.log('[formatArticle] Raw abstract data:', articleContent.abstract?.value);
+    console.log('[formatArticle] Formatted abstract:', abstract);
 
     /** Format references */
     let references: IArticleReference[] = []
@@ -282,27 +319,64 @@ export function formatArticle(article: RawArticle): FetchedArticle {
     }
 
     /** Format keywords */
-    let keywords: string[] | undefined = undefined;
-    
+    let keywords: string[] | IArticleKeywords | undefined = undefined;
+
     // Check for keywords in various possible locations
+    let rawKeywords: any = undefined;
+    let keywordsLanguage: string | undefined = undefined;
+
     if (extendedArticle.keywords) {
-      keywords = extendedArticle.keywords;
+      rawKeywords = extendedArticle.keywords;
     } else if (articleContent.keywords) {
-      keywords = articleContent.keywords;
+      rawKeywords = articleContent.keywords;
+      // Check if there's a @language attribute at the article content level
+      keywordsLanguage = articleContent['@language'];
     } else if (articleContent.program) {
       // Check for keywords in program data
-      const keywordProgram = Array.isArray(articleContent.program) 
-        ? articleContent.program.find(p => p.keywords) 
+      const keywordProgram = Array.isArray(articleContent.program)
+        ? articleContent.program.find(p => p.keywords)
         : articleContent.program.keywords ? articleContent.program : null;
-      
+
       if (keywordProgram?.keywords) {
-        keywords = keywordProgram.keywords;
+        rawKeywords = keywordProgram.keywords;
+        keywordsLanguage = keywordProgram['@language'];
       }
     }
-    
-    console.log('DEBUG formatArticle - Found keywords:', keywords);
-    console.log('DEBUG formatArticle - articleContent.keywords:', articleContent.keywords);
-    console.log('DEBUG formatArticle - extendedArticle.keywords:', extendedArticle.keywords);
+
+    // Process keywords - check if they're already structured by language
+    if (rawKeywords) {
+      if (Array.isArray(rawKeywords)) {
+        // Simple array - check if we have a language indicator
+        if (keywordsLanguage && rawKeywords.length > 0) {
+          // If there's a language attribute, structure it by language
+          const keywordsObj: any = {};
+          keywordsObj[keywordsLanguage] = rawKeywords;
+          // For now, keep as simple array since it's single language
+          // The KeywordsSection component will handle single-language display
+          keywords = rawKeywords;
+        } else {
+          keywords = rawKeywords;
+        }
+      } else if (typeof rawKeywords === 'object') {
+        // Object - check if it's a language-keyed object
+        const keys = Object.keys(rawKeywords);
+        const isMultilingual = keys.length > 1 ||
+          (keys.length === 1 && keys.some(k => k.length === 2)); // 2-char language codes
+
+        if (isMultilingual) {
+          keywords = rawKeywords as IArticleKeywords;
+        } else if (keys.length === 1 && Array.isArray(rawKeywords[keys[0]])) {
+          // Single language with array - extract the array
+          keywords = rawKeywords[keys[0]];
+        } else {
+          keywords = rawKeywords;
+        }
+      }
+    }
+
+    console.log('[formatArticle] Raw keywords data:', rawKeywords);
+    console.log('[formatArticle] Keywords language:', keywordsLanguage);
+    console.log('[formatArticle] Formatted keywords:', keywords);
 
     /** Format metrics */
     const metrics: { views: number; downloads: number } = { views: 0, downloads: 0 };
@@ -394,76 +468,53 @@ export const articleTypes: { labelPath: string; value: string; }[] = [
 ];
 
 export const getCitations = async (csl?: string): Promise<ICitation[]> => {
-  console.log('[getCitations] Called with CSL:', csl?.substring(0, 100));
-
   if (!csl || csl.trim() === '') {
-    console.log('[getCitations] CSL is empty, returning empty array');
     return [];
   }
 
   try {
     // Dynamically import citation-js only when needed (client-side)
-    console.log('[getCitations] Importing citation-js...');
     const citationModule = await import('citation-js');
-    console.log('[getCitations] citation-js module:', citationModule);
 
     // Try different ways to access Cite
     const Cite = citationModule.Cite || citationModule.default || citationModule;
-    console.log('[getCitations] Cite constructor:', typeof Cite, Cite);
 
     // Register plugins
     await import('@citation-js/plugin-csl');
-    console.log('[getCitations] Plugins loaded');
 
     // Parse CSL data - it might be a JSON string, so try to parse it
     let cslData: any = csl;
     try {
       cslData = JSON.parse(csl);
-      console.log('[getCitations] CSL parsed as JSON:', cslData);
     } catch (parseError) {
-      console.log('[getCitations] CSL is not JSON, using as is');
       // If not JSON, use as is
     }
 
     // Parse CSL data
-    console.log('[getCitations] Creating Cite object with data:', cslData);
     const cite = new Cite(cslData);
-    console.log('[getCitations] Cite object created successfully:', cite);
 
     // Format citations in different styles
-    console.log('[getCitations] Formatting APA...');
     const apaCitation = cite.format('bibliography', {
       format: 'text',
       template: 'apa',
       lang: 'en-US'
     });
-    console.log('[getCitations] APA formatted:', apaCitation);
 
-    console.log('[getCitations] Formatting MLA...');
     const mlaCitation = cite.format('bibliography', {
       format: 'text',
       template: 'mla',
       lang: 'en-US'
     });
-    console.log('[getCitations] MLA formatted:', mlaCitation);
 
     const result = [
       { key: CITATION_TEMPLATE.APA, citation: apaCitation },
-      { key: CITATION_TEMPLATE.MLA, citation: mlaCitation },
+      { key: CITATION_TEMPLATE.MLA, citation: mlaCitation }
       // BibTeX will be added separately from the metadataBibTeX API response
-      { key: CITATION_TEMPLATE.BIBTEX, citation: '' }
     ];
 
-    console.log('[getCitations] Returning citations:', result);
     return result;
   } catch (error) {
     console.error('[getCitations] Error formatting citations:', error);
-    console.error('[getCitations] Error details:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined
-    });
-    console.error('[getCitations] CSL data was:', csl);
     return [];
   }
 };
@@ -552,28 +603,67 @@ export const interworkRelationShipTypes:any[] = [
 
 export const truncatedArticleAuthorsName = (article: FetchedArticle): string => {
   if (!article) return '';
-  
+
   if (!article.authors || !Array.isArray(article.authors) || article.authors.length === 0) {
     return '';
   }
-  
+
   const MAX_AUTHORS = 3;
-  
+
   try {
     const authorNames = article.authors.map(author => author.fullname);
-    
+
     if (authorNames.length === 0) {
       return '';
     }
-    
+
     if (authorNames.length <= MAX_AUTHORS) {
       return authorNames.join(', ');
     }
-    
+
     const truncatedAuthors = authorNames.slice(0, MAX_AUTHORS);
     return `${truncatedAuthors.join(', ')} et al.`;
   } catch (error) {
     console.error('Error formatting authors:', error);
     return '';
   }
+}
+
+/**
+ * Extract text from abstract which can be either a string or a multilingual object
+ * @param abstract - The abstract data (string or object with language keys)
+ * @param preferredLanguage - Preferred language code to extract (defaults to 'en')
+ * @returns The abstract text as a string, or empty string if not found
+ */
+export const getAbstractText = (
+  abstract: string | IArticleAbstracts | undefined,
+  preferredLanguage: string = 'en'
+): string => {
+  if (!abstract) return '';
+
+  // If it's already a string, return it
+  if (typeof abstract === 'string') {
+    return abstract;
+  }
+
+  // If it's an object (multilingual), try to get the preferred language
+  if (typeof abstract === 'object') {
+    // Try preferred language first
+    if (abstract[preferredLanguage as keyof IArticleAbstracts]) {
+      return abstract[preferredLanguage as keyof IArticleAbstracts];
+    }
+
+    // Fallback to 'en' if not the preferred language
+    if (preferredLanguage !== 'en' && abstract['en' as keyof IArticleAbstracts]) {
+      return abstract['en' as keyof IArticleAbstracts];
+    }
+
+    // Fallback to the first available language
+    const languages = Object.keys(abstract);
+    if (languages.length > 0) {
+      return abstract[languages[0] as keyof IArticleAbstracts];
+    }
+  }
+
+  return '';
 } 

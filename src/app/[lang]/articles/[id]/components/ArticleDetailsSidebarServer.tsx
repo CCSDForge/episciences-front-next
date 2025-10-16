@@ -7,7 +7,6 @@ import { formatDate } from '@/utils/date';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
-import { supportsInlinePreview } from '@/utils/pdf-preview';
 import InteractiveDropdown from './InteractiveDropdown';
 import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
 
@@ -158,27 +157,14 @@ export default function ArticleDetailsSidebarServer({
     <div className="articleDetailsSidebar">
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
-          <>
-            {supportsInlinePreview(article.pdfLink) ? (
-              <Link href={`/${PATHS.articles}/${article.id}/download`} target="_blank">
-                <div className="articleDetailsSidebar-links-link">
-                  <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
-                  <div className="articleDetailsSidebar-links-link-text">
-                    {t('pages.articleDetails.actions.download', translations)}
-                  </div>
-                </div>
-              </Link>
-            ) : (
-              <a href={article.pdfLink} target="_blank" rel="noopener noreferrer" download>
-                <div className="articleDetailsSidebar-links-link">
-                  <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
-                  <div className="articleDetailsSidebar-links-link-text">
-                    {t('pages.articleDetails.actions.download', translations)}
-                  </div>
-                </div>
-              </a>
-            )}
-          </>
+          <Link href={`/${PATHS.articles}/${article.id}/download`} target="_blank">
+            <div className="articleDetailsSidebar-links-link">
+              <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
+              <div className="articleDetailsSidebar-links-link-text">
+                {t('pages.articleDetails.actions.download', translations)}
+              </div>
+            </div>
+          </Link>
         )}
         {article?.docLink && (
           <a
