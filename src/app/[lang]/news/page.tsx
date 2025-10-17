@@ -21,15 +21,19 @@ export async function generateStaticParams() {
 export default async function NewsPage() {
   try {
     const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-    
+
     if (!rvcode) {
       throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
     }
 
+    // For static builds, fetch all news for client-side pagination
+    const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
+    const itemsPerPage = isStaticBuild ? 9999 : 10;
+
     const newsData = await fetchNews({
       rvcode,
       page: 1,
-      itemsPerPage: 10
+      itemsPerPage: itemsPerPage
     });
 
     return <NewsClient initialNews={newsData} />;

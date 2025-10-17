@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from '@/components/Link/Link';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import { ICitation } from '@/utils/article';
@@ -23,6 +22,7 @@ interface ArticleDetailsSidebarServerProps {
   metadataBibTeX?: string | null;
   metrics?: JSX.Element;
   translations: Translations;
+  language?: string;
 }
 
 export default function ArticleDetailsSidebarServer({
@@ -31,8 +31,45 @@ export default function ArticleDetailsSidebarServer({
   metadataCSL,
   metadataBibTeX,
   metrics,
-  translations
+  translations,
+  language = 'en'
 }: ArticleDetailsSidebarServerProps): JSX.Element {
+
+  /**
+   * Get localized path for server-side rendering
+   */
+  const getLocalizedPath = (path: string): string => {
+    // Remove leading slash if present
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    // Add language prefix
+    return `/${language}/${cleanPath}`;
+  };
+
+  /**
+   * Get multilingual title with language fallback for server-side rendering
+   * Priority: current language > english > first available language
+   */
+  const getMultilingualTitle = (titles: Record<string, string> | undefined): string => {
+    if (!titles || typeof titles !== 'object') return '';
+
+    // Try current language
+    if (language && titles[language]) {
+      return titles[language];
+    }
+
+    // Fallback to English
+    if (titles['en']) {
+      return titles['en'];
+    }
+
+    // Fallback to first available language
+    const availableLanguages = Object.keys(titles);
+    if (availableLanguages.length > 0) {
+      return titles[availableLanguages[0]];
+    }
+
+    return '';
+  };
 
   const renderRelatedVolume = (relatedVolume?: IVolume | null): JSX.Element | null => {
     if (!relatedVolume) return null;
@@ -51,10 +88,31 @@ export default function ArticleDetailsSidebarServer({
       text += t('common.volumeCard.volume', translations);
     }
 
+    const volumeTitle = getMultilingualTitle(relatedVolume.title);
+
     return (
-      <Link href={`/${PATHS.volumes}/${relatedVolume.id}`} className="articleDetailsSidebar-volumeDetails-number">
-        {text} {relatedVolume.num}
-      </Link>
+      <>
+        <a href={getLocalizedPath(`${PATHS.volumes}/${relatedVolume.id}`)} className="articleDetailsSidebar-volumeDetails-number">
+          {text} {relatedVolume.num}
+        </a>
+        {volumeTitle && (
+          <div className="articleDetailsSidebar-volumeDetails-title">{volumeTitle}</div>
+        )}
+      </>
+    );
+  };
+
+  const renderRelatedSection = (): JSX.Element | null => {
+    if (!article?.section) return null;
+
+    const sectionTitle = getMultilingualTitle(article.section.title);
+
+    if (!sectionTitle) return null;
+
+    return (
+      <a href={getLocalizedPath(`sections/${article.section.id}`)} className="articleDetailsSidebar-volumeDetails-section">
+        {sectionTitle}
+      </a>
     );
   };
 
@@ -129,11 +187,10 @@ export default function ArticleDetailsSidebarServer({
     }
 
     return (
-      <SidebarCollapsibleWrapper
-        title={t('pages.articleDetails.metrics.title', translations)}
-        initialOpen={true}
-        className="articleDetailsSidebar-metrics"
-      >
+      <div className="articleDetailsSidebar-metrics">
+        <div className="articleDetailsSidebar-metrics-title">
+          {t('pages.articleDetails.metrics.title', translations)}
+        </div>
         <div className="articleDetailsSidebar-metrics-data">
           <div className="articleDetailsSidebar-metrics-data-item">
             <div className="articleDetailsSidebar-metrics-data-item-number">{article.metrics.views}</div>
@@ -149,7 +206,7 @@ export default function ArticleDetailsSidebarServer({
             </div>
           </div>
         </div>
-      </SidebarCollapsibleWrapper>
+      </div>
     );
   };
 
@@ -157,14 +214,14 @@ export default function ArticleDetailsSidebarServer({
     <div className="articleDetailsSidebar">
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
-          <Link href={`/${PATHS.articles}/${article.id}/download`} target="_blank">
+          <a href={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)} target="_blank" rel="noopener noreferrer">
             <div className="articleDetailsSidebar-links-link">
               <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
               <div className="articleDetailsSidebar-links-link-text">
                 {t('pages.articleDetails.actions.download', translations)}
               </div>
             </div>
-          </Link>
+          </a>
         )}
         {article?.docLink && (
           <a
@@ -212,15 +269,16 @@ export default function ArticleDetailsSidebarServer({
 
       <div className="articleDetailsSidebar-volumeDetails">
         {renderRelatedVolume(relatedVolume)}
+        {renderRelatedSection()}
         {renderLicenseContent()}
       </div>
 
       {article?.doi && article.doi.trim() !== '' && (
         <div className="articleDetailsSidebar-doi">
           <div className="articleDetailsSidebar-doi-label">{t('common.doi', translations)}</div>
-          <Link href={`https://doi.org/${article.doi}`} className="articleDetailsSidebar-doi-link" target="_blank" rel="noopener noreferrer">
+          <a href={`https://doi.org/${article.doi}`} className="articleDetailsSidebar-doi-link" target="_blank" rel="noopener noreferrer">
             {article.doi}
-          </Link>
+          </a>
         </div>
       )}
 

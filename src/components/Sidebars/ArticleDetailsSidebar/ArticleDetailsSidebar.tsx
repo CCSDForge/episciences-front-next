@@ -91,6 +91,32 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
 
   const toggleFunding = (): void => setOpenedFunding(!openedFunding);
 
+  /**
+   * Get multilingual title with language fallback
+   * Priority: current language > english > first available language
+   */
+  const getMultilingualTitle = (titles: Record<AvailableLanguage, string>): string => {
+    if (!titles) return '';
+
+    // Try current language
+    if (titles[language]) {
+      return titles[language];
+    }
+
+    // Fallback to English
+    if (titles['en']) {
+      return titles['en'];
+    }
+
+    // Fallback to first available language
+    const availableLanguages = Object.keys(titles) as AvailableLanguage[];
+    if (availableLanguages.length > 0) {
+      return titles[availableLanguages[0]];
+    }
+
+    return '';
+  };
+
   const renderRelatedVolume = (relatedVolume?: IVolume): JSX.Element | null => {
     if (!relatedVolume) return null;
 
@@ -110,6 +136,18 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
 
     return (
       <Link href={`/${PATHS.volumes}/${relatedVolume.id}`} className="articleDetailsSidebar-volumeDetails-number">{text} {relatedVolume.num}</Link>
+    );
+  };
+
+  const renderRelatedSection = (): JSX.Element | null => {
+    if (!article?.section) return null;
+
+    const sectionTitle = getMultilingualTitle(article.section.title);
+
+    if (!sectionTitle) return null;
+
+    return (
+      <div className="articleDetailsSidebar-volumeDetails-section">{sectionTitle}</div>
     );
   };
 
@@ -337,16 +375,8 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
 
       <div className="articleDetailsSidebar-volumeDetails">
         {renderRelatedVolume(relatedVolume)}
+        {renderRelatedSection()}
         {renderLicenseContent()}
-      </div>
-
-      {/* DEBUG: DOI value = {article?.doi || 'undefined'} */}
-      <div style={{background: 'yellow', padding: '10px', margin: '10px'}}>
-        <div>DEBUG DOI:</div>
-        <div>exists: {article?.doi ? 'YES' : 'NO'}</div>
-        <div>value: {article?.doi || 'undefined'}</div>
-        <div>length: {article?.doi?.length || 0}</div>
-        <div>trimmed: '{article?.doi?.trim()}'</div>
       </div>
 
       {article?.doi && article.doi.trim() !== '' && (

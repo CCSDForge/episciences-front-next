@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
-import { EmailShareButton, FacebookShareButton, LinkedinShareButton, TwitterShareButton } from 'react-share';
+import { BlueskyShareButton, EmailShareButton, FacebookShareButton, LinkedinShareButton, TwitterShareButton, WhatsappShareButton } from 'react-share';
 
 import { ICitation, METADATA_TYPE, copyToClipboardCitation, getMetadataTypes, getCitations, CITATION_TEMPLATE } from '@/utils/article';
 import { PATHS } from '@/config/paths';
@@ -14,10 +14,12 @@ import { useAppSelector } from '@/hooks/store';
 // Import des icônes
 import quote from '/public/icons/quote-black.svg';
 import share from '/public/icons/share.svg';
+import bluesky from '/public/icons/bluesky.svg';
 import mail from '/public/icons/mail.svg';
 import facebook from '/public/icons/facebook.svg';
 import twitter from '/public/icons/twitter.svg';
 import linkedin from '/public/icons/linkedin.svg';
+import whatsapp from '/public/icons/whatsapp.svg';
 
 interface InteractiveDropdownProps {
   type: 'cite' | 'metadata' | 'share';
@@ -161,22 +163,38 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
     </div>
   );
 
-  const renderShareDropdown = () => (
-    <div className="articleDetailsSidebar-links-link-modal-content-sharing">
-      <EmailShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-        <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={mail} alt="Mail icon" />
-      </EmailShareButton>
-      <FacebookShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-        <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={facebook} alt="Facebook icon" />
-      </FacebookShareButton>
-      <TwitterShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-        <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={twitter} alt="X icon" />
-      </TwitterShareButton>
-      <LinkedinShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-        <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={linkedin} alt="Linkedin icon" />
-      </LinkedinShareButton>
-    </div>
-  );
+  const renderShareDropdown = () => {
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+    return (
+      <div className="articleDetailsSidebar-links-link-modal-content-links">
+        <BlueskyShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
+          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={bluesky} alt="Bluesky icon" />
+          <span>{t('pages.articleDetails.actions.share.bluesky')}</span>
+        </BlueskyShareButton>
+        <FacebookShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
+          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={facebook} alt="Facebook icon" />
+          <span>{t('pages.articleDetails.actions.share.facebook')}</span>
+        </FacebookShareButton>
+        <LinkedinShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
+          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={linkedin} alt="Linkedin icon" />
+          <span>{t('pages.articleDetails.actions.share.linkedin')}</span>
+        </LinkedinShareButton>
+        <EmailShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
+          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={mail} alt="Mail icon" />
+          <span>{t('pages.articleDetails.actions.share.email')}</span>
+        </EmailShareButton>
+        <WhatsappShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
+          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={whatsapp} alt="WhatsApp icon" />
+          <span>{t('pages.articleDetails.actions.share.whatsapp')}</span>
+        </WhatsappShareButton>
+        <TwitterShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
+          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={twitter} alt="X icon" />
+          <span>{t('pages.articleDetails.actions.share.twitter')}</span>
+        </TwitterShareButton>
+      </div>
+    );
+  };
 
   const getIcon = () => {
     switch (type) {

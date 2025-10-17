@@ -422,7 +422,8 @@
           display: none;
         }
 
-        button {
+        button,
+        a {
           height: 100%;
           background: var(--primary);
           color: var(--primary-text);
@@ -432,13 +433,24 @@
           font-weight: 500;
           cursor: pointer;
           white-space: nowrap;
-          transition: opacity 0.2s;
+          transition: filter 0.2s;
           appearance: none;
           -webkit-appearance: none;
           -moz-appearance: none;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          text-decoration: none;
+
+          img {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+          }
 
           &:hover {
-            opacity: 0.9;
+            filter: brightness(0.9);
+            color: var(--primary-text);
           }
 
           &:focus {

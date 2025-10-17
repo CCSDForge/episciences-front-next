@@ -37,10 +37,18 @@ interface ArticlesClientProps {
     data: IArticle[];
     totalItems: number;
   };
+  lang?: string;
 }
 
-export default function ArticlesClient({ initialArticles }: ArticlesClientProps): JSX.Element {
-  const { t } = useTranslation();
+export default function ArticlesClient({ initialArticles, lang }: ArticlesClientProps): JSX.Element {
+  const { t, i18n } = useTranslation();
+
+  // Synchroniser la langue avec le paramètre de l'URL
+  useEffect(() => {
+    if (lang && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang, i18n]);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -93,7 +101,8 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
   }, [searchParams]);
 
   useEffect(() => {
-    if (initialArticles?.data) {
+    // En mode statique uniquement : filtrage et pagination côté client
+    if (isStaticBuild && initialArticles?.data) {
       const initialData = Array.isArray(initialArticles.data) ? initialArticles.data : [];
 
       let filteredData = initialData;
@@ -113,29 +122,20 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
         });
       }
 
-      if (isStaticBuild) {
-        // En mode statique, on filtre et pagine côté client
-        const totalFiltered = filteredData.length;
-        setTotalArticlesCount(totalFiltered);
+      // En mode statique, on filtre et pagine côté client
+      const totalFiltered = filteredData.length;
+      setTotalArticlesCount(totalFiltered);
 
-        // Appliquer la pagination côté client
-        const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
-        const endIndex = startIndex + ARTICLES_PER_PAGE;
-        const paginatedData = filteredData.slice(startIndex, endIndex);
+      // Appliquer la pagination côté client
+      const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
+      const endIndex = startIndex + ARTICLES_PER_PAGE;
+      const paginatedData = filteredData.slice(startIndex, endIndex);
 
-        setEnhancedArticles(
-          paginatedData
-            .filter((article: any) => article && article.title)
-            .map((article: any) => ({ ...article, openedAbstract: false }))
-        );
-      } else {
-        setTotalArticlesCount(initialArticles.totalItems || 0);
-        setEnhancedArticles(
-          filteredData
-            .filter((article: any) => article && article.title)
-            .map((article: any) => ({ ...article, openedAbstract: false }))
-        );
-      }
+      setEnhancedArticles(
+        paginatedData
+          .filter((article: any) => article && article.title)
+          .map((article: any) => ({ ...article, openedAbstract: false }))
+      );
     }
   }, [initialArticles, types, years, isStaticBuild, currentPage]);
 
@@ -198,7 +198,6 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
   const handlePageClick = (selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
     router.push(`${pathname}?page=${newPage}`);
-    setEnhancedArticles([]);
     setCurrentPage(newPage);
     // Scroll vers le haut de la page
     window.scrollTo({ top: 0, behavior: 'smooth' });

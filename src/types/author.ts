@@ -1,5 +1,3 @@
-import { AvailableLanguage } from "../utils/i18n";
-
 export interface IFacetAuthor {
   '@id': string;
   values: IAuthor;

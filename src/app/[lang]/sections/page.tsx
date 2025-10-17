@@ -21,7 +21,8 @@ export const metadata: Metadata = {
 
 const SECTIONS_PER_PAGE = 10;
 
-export default async function SectionsPage() {
+export default async function SectionsPage({ params }: { params: { lang: string } }) {
+  const lang = params.lang || 'en';
   try {
     const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
     
@@ -36,9 +37,10 @@ export default async function SectionsPage() {
     });
     
     return (
-      <SectionsClient 
-        initialSections={sectionsData} 
+      <SectionsClient
+        initialSections={sectionsData}
         initialPage={1}
+        lang={lang}
       />
     );
   } catch (error) {

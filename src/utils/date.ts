@@ -1,31 +1,33 @@
 import { AvailableLanguage } from "./i18n"
 
+// Helper: validates that a Date object is valid
+const createValidDate = (date: Date): Date | null => {
+  return !isNaN(date.getTime()) ? date : null;
+};
+
+// Helper: parses date parts and creates a Date object
+const parseDateParts = (parts: string[], yearIndex: number, monthIndex: number, dayIndex: number): Date | null => {
+  if (parts.length !== 3) return null;
+
+  const parsed = parts.map(p => parseInt(p, 10));
+  if (parsed.some(isNaN)) return null;
+
+  const year = parsed[yearIndex];
+  const month = parsed[monthIndex];
+  const day = parsed[dayIndex];
+
+  return createValidDate(new Date(year, month - 1, day));
+};
+
 const parseDate = (dateString: string): Date | null => {
   // Essayer différents formats de date
   const formats = [
     // Format ISO avec timezone
-    (str: string) => {
-      const date = new Date(str);
-      return !isNaN(date.getTime()) ? date : null;
-    },
+    (str: string) => createValidDate(new Date(str)),
     // Format DD/MM/YYYY
-    (str: string) => {
-      const parts = str.split('/');
-      if (parts.length !== 3) return null;
-      const [day, month, year] = parts.map(p => parseInt(p, 10));
-      if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
-      const date = new Date(year, month - 1, day);
-      return !isNaN(date.getTime()) ? date : null;
-    },
+    (str: string) => parseDateParts(str.split('/'), 2, 1, 0),
     // Format YYYY-MM-DD
-    (str: string) => {
-      const parts = str.split('-');
-      if (parts.length !== 3) return null;
-      const [year, month, day] = parts.map(p => parseInt(p, 10));
-      if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
-      const date = new Date(year, month - 1, day);
-      return !isNaN(date.getTime()) ? date : null;
-    }
+    (str: string) => parseDateParts(str.split('-'), 0, 1, 2),
   ];
 
   for (const format of formats) {
@@ -42,8 +44,8 @@ const parseDate = (dateString: string): Date | null => {
 
   // Si aucun format ne fonctionne, essayer directement avec new Date()
   try {
-    const date = new Date(dateString);
-    if (!isNaN(date.getTime())) {
+    const date = createValidDate(new Date(dateString));
+    if (date) {
       return date;
     }
   } catch (e) {

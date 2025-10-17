@@ -3,7 +3,9 @@
 import { Fragment, ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@/components/Link/Link';
+import { IInstitution } from '@/types/article';
 import orcid from '/public/icons/orcid.svg';
+import ror from '/public/icons/ror.svg';
 import caretUpGrey from '/public/icons/caret-up-grey.svg';
 import caretDownGrey from '/public/icons/caret-down-grey.svg';
 
@@ -15,7 +17,7 @@ interface Author {
 
 interface CollapsibleInstitutionsProps {
   authors: Author[];
-  institutions: string[];
+  institutions: IInstitution[];
   isMobile: boolean;
 }
 
@@ -57,7 +59,24 @@ export default function CollapsibleInstitutions({ authors, institutions, isMobil
     return (
       <>
         {institutions.map((institution, index) => (
-          <div key={index}>({index + 1}) {institution}</div>
+          <div key={index}>
+            ({index + 1}) {institution.name}
+            {institution.rorId && (
+              <Link
+                href={institution.rorId}
+                title="Research Organization Registry"
+                target='_blank'
+                rel="noopener noreferrer"
+              >
+                {' '}
+                <img
+                  className='articleDetails-content-article-institutions-ror'
+                  src={ror}
+                  alt='ROR icon'
+                />
+              </Link>
+            )}
+          </div>
         ))}
       </>
     );

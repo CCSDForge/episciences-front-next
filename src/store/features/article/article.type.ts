@@ -1,4 +1,4 @@
-import { IArticle } from '../../../types/article';
+import { IArticle } from '@/types/article';
 
 export interface IArticleState {
   articles: {

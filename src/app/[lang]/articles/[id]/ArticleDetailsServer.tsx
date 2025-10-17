@@ -1,5 +1,5 @@
 import React from 'react';
-import { IArticle, IArticleAuthor } from "@/types/article";
+import { IArticle, IArticleAuthor, IInstitution } from "@/types/article";
 import { IVolume } from "@/types/volume";
 import { ICitation, INTER_WORK_RELATIONSHIP } from '@/utils/article';
 import { BREADCRUMB_PATHS } from '@/config/paths';
@@ -11,7 +11,7 @@ import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServe
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
 import AbstractSection from './components/AbstractSection';
 import KeywordsSection from './components/KeywordsSection';
-import LinkedPublicationsSection from './components/LinkedPublicationsSection';
+import LinkedPublicationsSectionServer from './components/LinkedPublicationsSectionServer';
 import CitedBySection from './components/CitedBySection';
 import ReferencesSection from './components/ReferencesSection';
 import PreviewSection from './components/PreviewSection';
@@ -60,24 +60,24 @@ export default function ArticleDetailsServer({
 
   // Process authors and institutions
   const allAuthors: EnhancedArticleAuthor[] = [];
-  const allInstitutionsSet = new Set<string>();
+  const allInstitutionsMap = new Map<string, IInstitution>();
 
   article.authors.forEach((author) => {
     const enhancedAuthor: EnhancedArticleAuthor = { ...author, institutionsKeys: [] };
 
     author.institutions?.forEach((institution) => {
-      if (!allInstitutionsSet.has(institution)) {
-        allInstitutionsSet.add(institution);
+      if (!allInstitutionsMap.has(institution.name)) {
+        allInstitutionsMap.set(institution.name, institution);
       }
 
-      const institutionIndex = Array.from(allInstitutionsSet).indexOf(institution);
+      const institutionIndex = Array.from(allInstitutionsMap.keys()).indexOf(institution.name);
       enhancedAuthor.institutionsKeys.push(institutionIndex);
     });
 
     allAuthors.push(enhancedAuthor);
   });
 
-  const institutions = Array.from(allInstitutionsSet);
+  const institutions = Array.from(allInstitutionsMap.values());
 
   // Pass metadata to client-side component for dynamic citation generation
   // Don't generate citations server-side, let the client handle it
@@ -154,7 +154,7 @@ export default function ArticleDetailsServer({
       return null;
     }
 
-    // Filter out specific relationship types to match LinkedPublicationsSection logic
+    // Filter out specific relationship types to match LinkedPublicationsSectionServer logic
     const filteredItems = article.relatedItems.filter(
       (relatedItem) =>
         relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
@@ -166,7 +166,7 @@ export default function ArticleDetailsServer({
       return null;
     }
 
-    return <LinkedPublicationsSection relatedItems={article.relatedItems} />;
+    return <LinkedPublicationsSectionServer relatedItems={article.relatedItems} translations={translations} language={language} />;
   };
 
   const getReferencesSection = (): JSX.Element | null => {
@@ -232,6 +232,7 @@ export default function ArticleDetailsServer({
           metadataCSL={metadataCSL}
           metadataBibTeX={metadataBibTeX}
           translations={translations}
+          language={language}
         />
         <div className="articleDetails-content-article">
           {renderArticleTitleAndAuthors(false)}

@@ -28,20 +28,25 @@ interface ArticlesData {
   };
 }
 
-export default async function ArticlesPage() {
+export default async function ArticlesPage({ params }: { params: { lang: string } }) {
+  const lang = params.lang || 'en';
   try {
     const ARTICLES_PER_PAGE = 10;
     const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-    
+
     if (!rvcode) {
       throw new Error('Journal code not available');
     }
-    
+
+    // For static builds, fetch all articles for client-side pagination
+    const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
+    const itemsPerPage = isStaticBuild ? 9999 : ARTICLES_PER_PAGE;
+
     // Récupération statique des articles pendant le build
     const articles = await fetchArticles({
       rvcode,
       page: 1,
-      itemsPerPage: ARTICLES_PER_PAGE,
+      itemsPerPage: itemsPerPage,
       onlyAccepted: false,
       types: []
     });
@@ -56,8 +61,9 @@ export default async function ArticlesPage() {
     };
 
     return (
-      <ArticlesClient 
+      <ArticlesClient
         initialArticles={formattedArticles}
+        lang={lang}
       />
     );
   } catch (error) {
@@ -72,8 +78,9 @@ export default async function ArticlesPage() {
     };
     
     return (
-      <ArticlesClient 
+      <ArticlesClient
         initialArticles={emptyState}
+        lang={lang}
       />
     );
   }

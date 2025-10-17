@@ -1,5 +1,3 @@
-'use client';
-
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import {
@@ -18,7 +16,7 @@ import { Middleware } from '@reduxjs/toolkit';
 
 import rootReducer, { RootReducer } from './features';
 import { aboutApi } from './features/about/about.query';
-import { articleApi } from './features/article/article.query';
+import { articleApi } from '@/store/features/article';
 import { authorApi } from './features/author/author.query';
 import { boardApi } from './features/board/board.query';
 import { creditsApi } from './features/credits/credits.query';

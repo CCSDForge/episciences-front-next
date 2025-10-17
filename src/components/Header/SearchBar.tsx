@@ -62,6 +62,16 @@ export default function SearchBar({ lang }: SearchBarProps): JSX.Element {
     }
   };
 
+  const getSubmitManagerLink = (): string | null => {
+    const managerUrl = process.env.NEXT_PUBLIC_EPISCIENCES_MANAGER;
+    const code = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+
+    if (!managerUrl) return null;
+    return code ? `${managerUrl}/${code}` : managerUrl;
+  };
+
+  const submitManagerLink = getSubmitManagerLink();
+
   // Wait for client-side hydration to avoid mismatch
   if (!isClient) {
     return (
@@ -77,7 +87,17 @@ export default function SearchBar({ lang }: SearchBarProps): JSX.Element {
             />
           </div>
           <div className="header-postheader-search-submit">
-            <button type="submit" disabled>Submit</button>
+            {submitManagerLink ? (
+              <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
+                Submit
+                <img src="/icons/external-link-white.svg" alt="" />
+              </a>
+            ) : (
+              <button type="submit" disabled>
+                Submit
+                <img src="/icons/external-link-white.svg" alt="" />
+              </button>
+            )}
           </div>
         </form>
       </div>
@@ -126,7 +146,23 @@ export default function SearchBar({ lang }: SearchBarProps): JSX.Element {
         )}
 
         <div className="header-postheader-search-submit">
-          <button type="submit">{isFocused ? t('components.header.search.searchButton') : t('components.header.search.submitButton')}</button>
+          {isFocused ? (
+            <button type="submit">
+              {t('components.header.search.searchButton')}
+            </button>
+          ) : (
+            submitManagerLink ? (
+              <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
+                {t('components.header.search.submitButton')}
+                <img src="/icons/external-link-white.svg" alt="" />
+              </a>
+            ) : (
+              <button type="button" disabled>
+                {t('components.header.search.submitButton')}
+                <img src="/icons/external-link-white.svg" alt="" />
+              </button>
+            )
+          )}
         </div>
       </form>
     </div>

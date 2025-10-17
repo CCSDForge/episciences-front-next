@@ -1,18 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import LanguageDropdown from '@/components/LanguageDropdown/LanguageDropdown';
 
-export default function LanguageDropdownWrapper(): JSX.Element | null {
-  const [mounted, setMounted] = useState(false);
+interface LanguageDropdownWrapperProps {
+  lang?: string;
+}
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
-
-  return <LanguageDropdown />;
+export default function LanguageDropdownWrapper({ lang }: LanguageDropdownWrapperProps): JSX.Element {
+  // Toujours rendre le dropdown pour éviter les erreurs d'hydratation
+  // Le dropdown lui-même gérera la synchronisation avec Redux
+  return <LanguageDropdown initialLanguage={lang} />;
 }

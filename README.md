@@ -1,7 +1,7 @@
 # 🚀 Episciences Front Next.js
 
 ## 📝 Description
-Next.js 15 (App Router) version of Episciences front-end, migrated from React (Vite). This version is configured for Full Static rendering.
+Next.js 14 (App Router) version of Episciences front-end, migrated from React (Vite). This version is configured for Full Static rendering.
 
 ## 🛠 Technologies
 - Next.js 15 (App Router)

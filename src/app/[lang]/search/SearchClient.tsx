@@ -44,14 +44,23 @@ interface SearchClientProps {
   };
   initialSearch: string;
   initialPage: number;
+  lang?: string;
 }
 
-export default function SearchClient({ 
+export default function SearchClient({
   initialSearchResults,
   initialSearch,
-  initialPage
+  initialPage,
+  lang
 }: SearchClientProps): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // Synchroniser la langue avec le paramètre de l'URL
+  useEffect(() => {
+    if (lang && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang, i18n]);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -309,7 +318,6 @@ export default function SearchClient({
   }, [types, years, volumes, sections, authors, search]);
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
-    setEnhancedSearchResults([]);
     setCurrentPage(selectedItem.selected + 1);
   };
 

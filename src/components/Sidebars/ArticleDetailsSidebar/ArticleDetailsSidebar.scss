@@ -134,10 +134,20 @@
   }
 
   &-volumeDetails {
+    margin-bottom: 32px;
+
     &-number {
       font-size: 21px;
       font-weight: bold;
       color: var(--primary);
+    }
+
+    &-section {
+      font-size: 21px;
+      font-weight: bold;
+      color: var(--primary);
+      margin-top: 8px;
+      margin-bottom: 32px;
     }
 
     &-title, &-doi, &-license {
@@ -147,7 +157,7 @@
 
     &-title {
       margin-top: 8px;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
 
       @media (max-width:  breakpoints.$xsm) {
         padding-bottom: 16px;
@@ -252,26 +262,14 @@
   &-metrics {
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 16px;
     margin-bottom: 16px;
 
     &-title {
-      display: flex;
-      justify-content: space-between;
-      cursor: pointer;
       font-size: 16px;
       font-weight: bold;
       border-bottom: 1px solid var(--grey-light);
       padding-bottom: 8px;
-
-      &-text {
-        font-size: 16px;
-        font-weight: bold;
-      }
-
-      &-caret {
-        width: 14px;
-      }
     }
 
     &-data {

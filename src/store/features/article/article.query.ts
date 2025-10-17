@@ -1,8 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
-import { IArticle, IPartialArticle, RawArticle } from '../../../types/article'
-import { formatArticle, METADATA_TYPE } from '../../../utils/article'
-import { PaginatedResponseWithRange, Range } from '../../../utils/pagination'
+import { IArticle, IPartialArticle, RawArticle } from '@/types/article'
+import { formatArticle, METADATA_TYPE } from '@/utils/article'
+import { PaginatedResponseWithRange, Range } from '@/utils/pagination'
 import { createBaseQueryWithLdJsonAccept } from '../../utils'
 
 export const articleApi = createApi({

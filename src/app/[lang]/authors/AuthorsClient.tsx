@@ -31,6 +31,7 @@ interface AuthorsClientProps {
     items: IAuthor[];
     totalItems: number;
   };
+  lang?: string;
 }
 
 const AUTHORS_PER_PAGE = 10;
@@ -39,13 +40,21 @@ export default function AuthorsClient({
   initialPage,
   initialSearch,
   initialLetter = '',
-  initialAuthorsData
+  initialAuthorsData,
+  lang
 }: AuthorsClientProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // Synchroniser la langue avec le paramètre de l'URL
+  useEffect(() => {
+    if (lang && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang, i18n]);
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
-  const i18n = useAppSelector(state => state.i18nReducer);
+  const i18nState = useAppSelector(state => state.i18nReducer);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
   
@@ -278,7 +287,7 @@ export default function AuthorsClient({
           </div>
         </div>
       </div>
-      {expandedAuthorIndex >= 0 && <AuthorDetailsSidebar language={i18n.language} t={t} rvcode={rvcode} expandedAuthor={getExpandedAuthor()} onCloseDetailsCallback={onCloseDetails} />}
+      {expandedAuthorIndex >= 0 && <AuthorDetailsSidebar language={i18nState.language} t={t} rvcode={rvcode} expandedAuthor={getExpandedAuthor()} onCloseDetailsCallback={onCloseDetails} />}
     </main>
   );
 } 

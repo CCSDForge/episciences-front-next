@@ -225,7 +225,7 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
                   <Button
                     text={t('components.header.submit')}
                     onClickCallback={(): void => {}}
-                    icon={externalLink}
+                    icon="/icons/external-link-white.svg"
                   />
                 </Link>
               )}

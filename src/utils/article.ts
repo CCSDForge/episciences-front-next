@@ -1,6 +1,16 @@
-import { IArticle, IArticleAbstracts, IArticleAuthor, IArticleCitedBy, IArticleKeywords, IArticleReference, IArticleRelatedItem, RawArticle } from "../types/article";
-import { TFunction } from 'i18next';
-import { toast } from 'react-toastify';
+import {
+    IArticle,
+    IArticleAbstracts,
+    IArticleAuthor,
+    IArticleCitedBy,
+    IArticleKeywords,
+    IArticleReference,
+    IArticleRelatedItem,
+    IInstitution,
+    RawArticle
+} from "@/types/article";
+import {TFunction} from 'i18next';
+import {toast} from 'react-toastify';
 
 export interface ICitation {
   key: CITATION_TEMPLATE;
@@ -122,9 +132,6 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       abstract = articleContent.abstract.value.value;
     }
 
-    console.log('[formatArticle] Raw abstract data:', articleContent.abstract?.value);
-    console.log('[formatArticle] Formatted abstract:', abstract);
-
     /** Format references */
     let references: IArticleReference[] = []
     if (articleContent.citation_list?.citation) {
@@ -137,28 +144,40 @@ export function formatArticle(article: RawArticle): FetchedArticle {
     /** Format citedBy */
     let citedBy: IArticleCitedBy[] = []
     if (articleDB?.current?.cited_by) {
-      citedBy = Object.values(articleDB.current.cited_by).map((cb) => ({
-        source: cb.source_id_name,
-        citations: Object.values(JSON.parse(cb.citation as unknown as string)).map((c) => {
-          const citation = c as Record<string, string>;
-          const authors: string[] = citation.author.split(';')
-
+      citedBy = Object.values(articleDB.current.cited_by).map((cb) => {
+        try {
+          const parsedCitations = JSON.parse(cb.citation as unknown as string);
           return {
-            title: citation.title,
-            sourceTitle: citation.source_title,
-            authors: authors.map(author => ({
-              fullname: author.split(',')[0].trim(),
-              orcid: author.split(',')[1] ? author.split(',')[1].trim() : undefined
-            })),
-            reference: {
-              volume: citation.volume,
-              year: citation.year,
-              page: citation.page
-            },
-            doi: citation.doi
-          }
-        })
-      }))
+            source: cb.source_id_name,
+            citations: Object.values(parsedCitations).map((c) => {
+              const citation = c as Record<string, string>;
+              const authors: string[] = citation.author?.split(';') || [];
+
+              return {
+                title: citation.title || '',
+                sourceTitle: citation.source_title || '',
+                authors: authors.map(author => ({
+                  fullname: author.split(',')[0]?.trim() || '',
+                  orcid: author.split(',')[1]?.trim() || undefined
+                })),
+                reference: {
+                  volume: citation.volume || '',
+                  year: citation.year || '',
+                  page: citation.page || ''
+                },
+                doi: citation.doi || ''
+              }
+            })
+          };
+        } catch (parseError) {
+          console.error('[formatArticle] Error parsing citedBy citation:', parseError);
+          // Return empty citations for this source if parsing fails
+          return {
+            source: cb.source_id_name,
+            citations: []
+          };
+        }
+      }).filter(cb => cb.citations.length > 0); // Remove sources with no valid citations
     }
 
     /** Format acceptance date */
@@ -168,24 +187,35 @@ export function formatArticle(article: RawArticle): FetchedArticle {
     }
 
     let isImported = false;
-    if (articleDB?.current?.flag && articleDB?.current?.flag == "imported") {
+    if (articleDB?.current?.flag && articleDB?.current?.flag === "imported") {
       isImported = true;
     }
 
     /** Format authors */
     let authors: IArticleAuthor[] = [];
     if (Array.isArray(articleContent.contributors?.person_name)) {
-      const authorOrder = {"first": 1, "additional": 2};
-      const sortedAuthors = articleContent.contributors.person_name.sort((a, b) => authorOrder[a["@sequence"] as keyof typeof authorOrder] - authorOrder[b["@sequence"] as keyof typeof authorOrder]);
+      const authorOrder: Record<string, number> = {"first": 1, "additional": 2};
+      const sortedAuthors = articleContent.contributors.person_name.sort((a, b) => {
+        const orderA = authorOrder[a["@sequence"]] ?? 999;
+        const orderB = authorOrder[b["@sequence"]] ?? 999;
+        return orderA - orderB;
+      });
       authors = sortedAuthors.map((author) => {
         const fullname = author.given_name ? `${author.given_name} ${author.surname}`.trim() : author.surname.trim()
         const orcid = author.ORCID
-        let institutions: string[] = []
+        let institutions: IInstitution[] = []
         if (Array.isArray(author.affiliations?.institution)) {
-          institutions = author.affiliations?.institution.map(i => i.institution_name)
+          institutions = author.affiliations?.institution.map(i => ({
+            name: i.institution_name,
+            rorId: i.institution_id?.['@type'] === 'ror' ? i.institution_id.value : undefined
+          }))
         } else {
           if (author.affiliations?.institution?.institution_name) {
-            institutions = [author.affiliations?.institution?.institution_name]
+            const inst = author.affiliations?.institution
+            institutions = [{
+              name: inst.institution_name,
+              rorId: inst.institution_id?.['@type'] === 'ror' ? inst.institution_id.value : undefined
+            }]
           }
         }
 
@@ -198,12 +228,19 @@ export function formatArticle(article: RawArticle): FetchedArticle {
     } else if (articleContent.contributors?.person_name) {
       const authorFullname = articleContent.contributors.person_name.given_name ? `${articleContent.contributors.person_name.given_name} ${articleContent.contributors.person_name.surname}`.trim() : articleContent.contributors.person_name.surname.trim()
       const authorOrcid = articleContent.contributors.person_name.ORCID
-      let authorInstitutions: string[] = []
+      let authorInstitutions: IInstitution[] = []
       if (Array.isArray(articleContent.contributors.person_name.affiliations?.institution)) {
-        authorInstitutions = articleContent.contributors.person_name.affiliations?.institution.map(i => i.institution_name)
+        authorInstitutions = articleContent.contributors.person_name.affiliations?.institution.map(i => ({
+          name: i.institution_name,
+          rorId: i.institution_id?.['@type'] === 'ror' ? i.institution_id.value : undefined
+        }))
       } else {
         if (articleContent.contributors.person_name.affiliations?.institution?.institution_name) {
-          authorInstitutions = [articleContent.contributors.person_name.affiliations?.institution?.institution_name]
+          const inst = articleContent.contributors.person_name.affiliations?.institution
+          authorInstitutions = [{
+            name: inst.institution_name,
+            rorId: inst.institution_id?.['@type'] === 'ror' ? inst.institution_id.value : undefined
+          }]
         }
       }
 
@@ -334,12 +371,17 @@ export function formatArticle(article: RawArticle): FetchedArticle {
     } else if (articleContent.program) {
       // Check for keywords in program data
       const keywordProgram = Array.isArray(articleContent.program)
-        ? articleContent.program.find(p => p.keywords)
-        : articleContent.program.keywords ? articleContent.program : null;
+        ? articleContent.program.find((p): p is typeof p & { keywords: unknown } =>
+            p && typeof p === 'object' && 'keywords' in p && !!p.keywords)
+        : (articleContent.program as any)?.keywords ? articleContent.program : null;
 
-      if (keywordProgram?.keywords) {
-        rawKeywords = keywordProgram.keywords;
-        keywordsLanguage = keywordProgram['@language'];
+      if (keywordProgram) {
+        // TypeScript doesn't narrow the type properly, so we use type assertion
+        const programWithKeywords = keywordProgram as { keywords?: unknown; '@language'?: string };
+        if (programWithKeywords.keywords) {
+          rawKeywords = programWithKeywords.keywords;
+          keywordsLanguage = programWithKeywords['@language'];
+        }
       }
     }
 
@@ -374,16 +416,24 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       }
     }
 
-    console.log('[formatArticle] Raw keywords data:', rawKeywords);
-    console.log('[formatArticle] Keywords language:', keywordsLanguage);
-    console.log('[formatArticle] Formatted keywords:', keywords);
-
     /** Format metrics */
     const metrics: { views: number; downloads: number } = { views: 0, downloads: 0 };
     if (articleDB?.current?.metrics) {
         metrics.downloads = articleDB.current.metrics.file_count
         metrics.views = articleDB.current.metrics.page_count
     }
+
+    /** Format section */
+    let section = undefined;
+    if (articleDB?.current?.section) {
+      section = {
+        id: articleDB.current.section.id,
+        title: articleDB.current.section.titles
+      };
+    }
+
+    /** Format DOI - try multiple sources */
+    const doi = extendedArticle.doi || articleContent.doi_data?.doi || '';
 
     return {
       id: Number(extendedArticle.paperid),
@@ -402,8 +452,9 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       pdfLink: articleDB?.current?.mainPdfUrl?.length ? articleDB?.current?.mainPdfUrl : undefined,
       docLink: articleDB?.current?.repository?.doc_url,
       keywords,
-      doi: extendedArticle.doi,
+      doi,
       volumeId: articleDB?.current?.volume?.id,
+      section,
       references,
       citedBy,
       relatedItems,
@@ -476,18 +527,23 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
     // Dynamically import citation-js only when needed (client-side)
     const citationModule = await import('citation-js');
 
-    // Try different ways to access Cite
+    // Try different ways to access Cite - check if it's a valid constructor
     const Cite = citationModule.Cite || citationModule.default || citationModule;
+
+    if (typeof Cite !== 'function') {
+      console.error('[getCitations] citation-js module loaded incorrectly:', citationModule);
+      throw new Error('Failed to load citation-js Cite constructor');
+    }
 
     // Register plugins
     await import('@citation-js/plugin-csl');
 
     // Parse CSL data - it might be a JSON string, so try to parse it
-    let cslData: any = csl;
+    let cslData = csl;
     try {
       cslData = JSON.parse(csl);
     } catch (parseError) {
-      // If not JSON, use as is
+      // If not JSON, use as is (already a string or object)
     }
 
     // Parse CSL data
@@ -506,13 +562,11 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
       lang: 'en-US'
     });
 
-    const result = [
-      { key: CITATION_TEMPLATE.APA, citation: apaCitation },
-      { key: CITATION_TEMPLATE.MLA, citation: mlaCitation }
-      // BibTeX will be added separately from the metadataBibTeX API response
+    return [
+        {key: CITATION_TEMPLATE.APA, citation: apaCitation},
+        {key: CITATION_TEMPLATE.MLA, citation: mlaCitation},
+        {key: CITATION_TEMPLATE.BIBTEX, citation: ''} // Empty initially, will be filled from metadataBibTeX API response
     ];
-
-    return result;
   } catch (error) {
     console.error('[getCitations] Error formatting citations:', error);
     return [];
@@ -565,40 +619,40 @@ export enum INTER_WORK_RELATIONSHIP {
 }
 
 export const interworkRelationShipTypes:any[] = [
-  { value: INTER_WORK_RELATIONSHIP.IS_SAME_AS, label: 'article.relationType.isSameAs' },
-  { value: INTER_WORK_RELATIONSHIP.HAS_PREPRINT, label: 'article.relationType.hasPreprint' },
-  { value: INTER_WORK_RELATIONSHIP.IS_DERIVED_FROM, label: 'article.relationType.isDerivedFrom' },
-  { value: INTER_WORK_RELATIONSHIP.HAS_DERIVATION, label: 'article.relationType.hasDerivation' },
-  { value: INTER_WORK_RELATIONSHIP.IS_REVIEW_OF, label: 'article.relationType.isReviewOf' },
-  { value: INTER_WORK_RELATIONSHIP.HAS_REVIEW, label: 'article.relationType.hasReview' },
-  { value: INTER_WORK_RELATIONSHIP.IS_COMMENT_ON, label: 'article.relationType.isCommentOn' },
-  { value: INTER_WORK_RELATIONSHIP.HAS_COMMENT, label: 'article.relationType.hasComment' },
-  { value: INTER_WORK_RELATIONSHIP.IS_REPLY_TO, label: 'article.relationType.isReplyTo' },
-  { value: INTER_WORK_RELATIONSHIP.HAS_REPLY, label: 'article.relationType.hasReply' },
-  { value: INTER_WORK_RELATIONSHIP.BASED_ON_DATA, label: 'article.relationType.basedOnData' },
-  { value: INTER_WORK_RELATIONSHIP.IS_DATA_BASIS_FOR, label: 'article.relationType.isDataBasisFor' },
-  { value: INTER_WORK_RELATIONSHIP.HAS_RELATED_MATERIAL, label: 'article.relationType.hasRelatedMaterial' },
-  { value: INTER_WORK_RELATIONSHIP.IS_RELATED_MATERIAL, label: 'article.relationType.isRelatedMaterial' },
-  { value: INTER_WORK_RELATIONSHIP.IS_COMPILED_BY, label: 'article.relationType.isCompiledBy' },
-  { value: INTER_WORK_RELATIONSHIP.COMPILES, label: 'article.relationType.compiles' },
-  { value: INTER_WORK_RELATIONSHIP.IS_DOCUMENTED_BY, label: 'article.relationType.isDocumentedBy' },
-  { value: INTER_WORK_RELATIONSHIP.DOCUMENTS, label: 'article.relationType.documents' },
-  { value: INTER_WORK_RELATIONSHIP.IS_SUPPLEMENT_TO, label: 'article.relationType.isSupplementTo' },
-  { value: INTER_WORK_RELATIONSHIP.IS_SUPPLEMENTED_BY, label: 'article.relationType.isSupplementedBy' },
-  { value: INTER_WORK_RELATIONSHIP.IS_CONTINUED_BY, label: 'article.relationType.isContinuedBy' },
-  { value: INTER_WORK_RELATIONSHIP.CONTINUES, label: 'article.relationType.continues' },
-  { value: INTER_WORK_RELATIONSHIP.IS_PART_OF, label: 'article.relationType.isPartOf' },
-  { value: INTER_WORK_RELATIONSHIP.HAS_PART, label: 'article.relationType.hasPart' },
-  { value: INTER_WORK_RELATIONSHIP.REFERENCES, label: 'article.relationType.references' },
-  { value: INTER_WORK_RELATIONSHIP.IS_REFERENCED_BY, label: 'article.relationType.isReferencedBy' },
-  { value: INTER_WORK_RELATIONSHIP.IS_BASED_ON, label: 'article.relationType.isBasedOn' },
-  { value: INTER_WORK_RELATIONSHIP.IS_BASIS_FOR, label: 'article.relationType.isBasisFor' },
-  { value: INTER_WORK_RELATIONSHIP.REQUIRES, label: 'article.relationType.requires' },
-  { value: INTER_WORK_RELATIONSHIP.IS_REQUIRED_BY, label: 'article.relationType.isRequiredBy' },
-  { value: INTER_WORK_RELATIONSHIP.FINANCES, label: 'article.relationType.finances' },
-  { value: INTER_WORK_RELATIONSHIP.IS_FINANCED_BY, label: 'article.relationType.isFinancedBy' },
-  { value: INTER_WORK_RELATIONSHIP.IS_VERSION_OF, label: 'article.relationType.isVersionOf' },
-  { value: INTER_WORK_RELATIONSHIP.IS_RELATED_TO, label: 'article.relationType.isRelatedTo' }
+  { value: INTER_WORK_RELATIONSHIP.IS_SAME_AS, labelPath: 'pages.articleDetails.relationships.isSameAs' },
+  { value: INTER_WORK_RELATIONSHIP.HAS_PREPRINT, labelPath: 'pages.articleDetails.relationships.hasPreprint' },
+  { value: INTER_WORK_RELATIONSHIP.IS_DERIVED_FROM, labelPath: 'pages.articleDetails.relationships.isDerivedFrom' },
+  { value: INTER_WORK_RELATIONSHIP.HAS_DERIVATION, labelPath: 'pages.articleDetails.relationships.hasDerivation' },
+  { value: INTER_WORK_RELATIONSHIP.IS_REVIEW_OF, labelPath: 'pages.articleDetails.relationships.isReviewOf' },
+  { value: INTER_WORK_RELATIONSHIP.HAS_REVIEW, labelPath: 'pages.articleDetails.relationships.hasReview' },
+  { value: INTER_WORK_RELATIONSHIP.IS_COMMENT_ON, labelPath: 'pages.articleDetails.relationships.isCommentOn' },
+  { value: INTER_WORK_RELATIONSHIP.HAS_COMMENT, labelPath: 'pages.articleDetails.relationships.hasComment' },
+  { value: INTER_WORK_RELATIONSHIP.IS_REPLY_TO, labelPath: 'pages.articleDetails.relationships.isReplyTo' },
+  { value: INTER_WORK_RELATIONSHIP.HAS_REPLY, labelPath: 'pages.articleDetails.relationships.hasReply' },
+  { value: INTER_WORK_RELATIONSHIP.BASED_ON_DATA, labelPath: 'pages.articleDetails.relationships.basedOnData' },
+  { value: INTER_WORK_RELATIONSHIP.IS_DATA_BASIS_FOR, labelPath: 'pages.articleDetails.relationships.isDataBasisFor' },
+  { value: INTER_WORK_RELATIONSHIP.HAS_RELATED_MATERIAL, labelPath: 'pages.articleDetails.relationships.hasRelatedMaterial' },
+  { value: INTER_WORK_RELATIONSHIP.IS_RELATED_MATERIAL, labelPath: 'pages.articleDetails.relationships.isRelatedMaterial' },
+  { value: INTER_WORK_RELATIONSHIP.IS_COMPILED_BY, labelPath: 'pages.articleDetails.relationships.isCompiledBy' },
+  { value: INTER_WORK_RELATIONSHIP.COMPILES, labelPath: 'pages.articleDetails.relationships.compiles' },
+  { value: INTER_WORK_RELATIONSHIP.IS_DOCUMENTED_BY, labelPath: 'pages.articleDetails.relationships.isDocumentedBy' },
+  { value: INTER_WORK_RELATIONSHIP.DOCUMENTS, labelPath: 'pages.articleDetails.relationships.documents' },
+  { value: INTER_WORK_RELATIONSHIP.IS_SUPPLEMENT_TO, labelPath: 'pages.articleDetails.relationships.isSupplementTo' },
+  { value: INTER_WORK_RELATIONSHIP.IS_SUPPLEMENTED_BY, labelPath: 'pages.articleDetails.relationships.isSupplementedBy' },
+  { value: INTER_WORK_RELATIONSHIP.IS_CONTINUED_BY, labelPath: 'pages.articleDetails.relationships.isContinuedBy' },
+  { value: INTER_WORK_RELATIONSHIP.CONTINUES, labelPath: 'pages.articleDetails.relationships.continues' },
+  { value: INTER_WORK_RELATIONSHIP.IS_PART_OF, labelPath: 'pages.articleDetails.relationships.isPartOf' },
+  { value: INTER_WORK_RELATIONSHIP.HAS_PART, labelPath: 'pages.articleDetails.relationships.hasPart' },
+  { value: INTER_WORK_RELATIONSHIP.REFERENCES, labelPath: 'pages.articleDetails.relationships.references' },
+  { value: INTER_WORK_RELATIONSHIP.IS_REFERENCED_BY, labelPath: 'pages.articleDetails.relationships.isReferencedBy' },
+  { value: INTER_WORK_RELATIONSHIP.IS_BASED_ON, labelPath: 'pages.articleDetails.relationships.isBasedOn' },
+  { value: INTER_WORK_RELATIONSHIP.IS_BASIS_FOR, labelPath: 'pages.articleDetails.relationships.isBasisFor' },
+  { value: INTER_WORK_RELATIONSHIP.REQUIRES, labelPath: 'pages.articleDetails.relationships.requires' },
+  { value: INTER_WORK_RELATIONSHIP.IS_REQUIRED_BY, labelPath: 'pages.articleDetails.relationships.isRequiredBy' },
+  { value: INTER_WORK_RELATIONSHIP.FINANCES, labelPath: 'pages.articleDetails.relationships.finances' },
+  { value: INTER_WORK_RELATIONSHIP.IS_FINANCED_BY, labelPath: 'pages.articleDetails.relationships.isFinancedBy' },
+  { value: INTER_WORK_RELATIONSHIP.IS_VERSION_OF, labelPath: 'pages.articleDetails.relationships.isVersionOf' },
+  { value: INTER_WORK_RELATIONSHIP.IS_RELATED_TO, labelPath: 'pages.articleDetails.relationships.isRelatedTo' }
 ];
 
 export const truncatedArticleAuthorsName = (article: FetchedArticle): string => {

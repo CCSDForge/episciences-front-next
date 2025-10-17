@@ -23,15 +23,24 @@ interface SectionsData {
 interface SectionsClientProps {
   initialSections: SectionsData | null;
   initialPage: number;
+  lang?: string;
 }
 
 const SECTIONS_PER_PAGE = 10;
 
 export default function SectionsClient({
   initialSections,
-  initialPage
+  initialPage,
+  lang
 }: SectionsClientProps): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // Synchroniser la langue avec le paramètre de l'URL
+  useEffect(() => {
+    if (lang && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang, i18n]);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

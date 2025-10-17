@@ -17,15 +17,27 @@ import { getLocalizedPath, removeLanguagePrefix } from '@/utils/language-utils';
 
 interface ILanguageDropdownProps {
   withWhiteCaret?: boolean;
+  initialLanguage?: string;
 }
 
-export default function LanguageDropdown({ withWhiteCaret }: ILanguageDropdownProps): JSX.Element | null {
+export default function LanguageDropdown({ withWhiteCaret, initialLanguage }: ILanguageDropdownProps): JSX.Element | null {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+
+  // Utiliser la langue initiale ou celle de Redux
+  const language = initialLanguage || reduxLanguage;
+
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // Synchroniser Redux avec la langue initiale au mount
+  useEffect(() => {
+    if (initialLanguage && initialLanguage !== reduxLanguage) {
+      dispatch(setLanguage(initialLanguage as AvailableLanguage));
+    }
+  }, [initialLanguage, reduxLanguage, dispatch]);
 
   const acceptedLanguagesStr = process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES || '';
   const acceptedLanguages = acceptedLanguagesStr ? acceptedLanguagesStr.split(',') : [];

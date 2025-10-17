@@ -19,7 +19,8 @@ export async function generateStaticParams() {
   return generateLanguageParams();
 }
 
-export default async function SearchPage() {
+export default async function SearchPage({ params }: { params: { lang: string } }) {
+  const lang = params.lang || 'en';
   try {
     // Pour la génération statique, on pré-remplit avec une recherche vide
     // La vraie recherche sera effectuée côté client
@@ -36,10 +37,11 @@ export default async function SearchPage() {
     };
     
     return (
-      <SearchClient 
-        initialSearchResults={emptySearchResults} 
+      <SearchClient
+        initialSearchResults={emptySearchResults}
         initialSearch=""
         initialPage={1}
+        lang={lang}
       />
     );
   } catch (error) {

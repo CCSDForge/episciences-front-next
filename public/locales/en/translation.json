@@ -133,6 +133,20 @@
         "privacyStatement": "Privacy statement",
         "termsOfUse": "Terms of use"
       }
+    },
+    "pdfViewer": {
+      "downloadPDF": "Download PDF",
+      "openInNewTab": "Open in New Tab",
+      "showViewer": "Show Viewer",
+      "showInfo": "Show Info",
+      "loading": "Loading PDF viewer...",
+      "fallback": {
+        "title": "PDF Information",
+        "description": "This PDF is hosted on an external repository. You can:",
+        "useViewer": "Use the viewer above",
+        "downloadLocal": "Download the PDF to view it locally",
+        "openNewTab": "Open it in a new tab"
+      }
     }
   },
   "pages": {
@@ -204,10 +218,12 @@
         "metadata": "Metadata",
         "share": {
           "text": "Share",
+          "bluesky": "Bluesky",
           "email": "Mail",
           "twitter": "X",
           "linkedin": "LinkedIn",
-          "facebook": "Facebook"
+          "facebook": "Facebook",
+          "whatsapp": "WhatsApp"
         }
       },
       "publicationDetails": {
@@ -277,6 +293,7 @@
       },
       "relationships": {
         "isSameAs": "Is same as",
+        "hasPreprint": "Has preprint",
         "isDerivedFrom": "Is derived from",
         "hasDerivation": "Has derivation",
         "isReviewOf": "Is review of",

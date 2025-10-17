@@ -14,7 +14,9 @@ export function generateStaticParams() {
   return generateLanguageParams();
 }
 
-export default function AuthorsPage() {
+export default function AuthorsPage({ params }: { params: { lang: string } }) {
+  const lang = params.lang || 'en';
+
   // Valeurs par défaut pour la génération statique
   // Les paramètres seront gérés côté client
   return (
@@ -22,6 +24,7 @@ export default function AuthorsPage() {
       initialPage={1}
       initialSearch=""
       initialLetter=""
+      lang={lang}
     />
   );
 } 

@@ -1,4 +1,4 @@
-import { AvailableLanguage } from "../utils/i18n";
+import { AvailableLanguage } from "@/utils/i18n";
 
 export interface IPartialArticle {
   '@id': string;
@@ -28,6 +28,10 @@ export interface IArticle {
   keywords?: string[] | IArticleKeywords;
   doi: string;
   volumeId?: number;
+  section?: {
+    id: number;
+    title: Record<AvailableLanguage, string>;
+  };
   references?: IArticleReference[];
   citedBy?: IArticleCitedBy[];
   relatedItems?: IArticleRelatedItem[];
@@ -39,10 +43,15 @@ export interface IArticle {
   }
 }
 
+export interface IInstitution {
+  name: string;
+  rorId?: string;
+}
+
 export interface IArticleAuthor {
   fullname: string;
   orcid?: string;
-  institutions?: string[];
+  institutions?: IInstitution[];
 }
 
 export type IArticleRecordKeywords = {
@@ -141,6 +150,10 @@ export type RawArticle = IPartialArticle & IArticle & {
         volume?: {
           id: number;
         }
+        section?: {
+          id: number;
+          titles: Record<AvailableLanguage, string>;
+        }
         metrics?: {
           file_count: number;
           page_count: number;
@@ -175,8 +188,16 @@ interface IRawArticleContent {
       affiliations?: {
         institution?: {
           institution_name: string;
+          institution_id?: {
+            '@type': string;
+            value: string;
+          };
         } | {
           institution_name: string;
+          institution_id?: {
+            '@type': string;
+            value: string;
+          };
         }[]
       }
     } | {
@@ -187,8 +208,16 @@ interface IRawArticleContent {
       affiliations?: {
         institution?: {
           institution_name: string;
+          institution_id?: {
+            '@type': string;
+            value: string;
+          };
         } | {
           institution_name: string;
+          institution_id?: {
+            '@type': string;
+            value: string;
+          };
         }[]
       }
     }[]

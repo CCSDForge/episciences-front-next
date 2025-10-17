@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './PDFViewer.scss';
 
 interface PDFViewerProps {
@@ -13,6 +14,7 @@ interface PDFViewerProps {
  * This is more reliable than react-pdf for repositories like Zenodo
  */
 export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): JSX.Element {
+  const { t } = useTranslation();
   const [viewerUrl, setViewerUrl] = useState<string>('');
   const [showFallback, setShowFallback] = useState<boolean>(false);
 
@@ -40,23 +42,25 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): JSX.Elemen
           <a
             href={pdfUrl}
             download
-            className="pdf-viewer-btn pdf-viewer-download-link"
+            className="pdf-viewer-action-btn"
           >
-            Download PDF
+            <img src="/icons/download-blue.svg" alt="Download icon" />
+            <span>{t('components.pdfViewer.downloadPDF')}</span>
           </a>
           <a
             href={pdfUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="pdf-viewer-btn pdf-viewer-open-link"
+            className="pdf-viewer-action-btn"
           >
-            Open in New Tab
+            <img src="/icons/external-link-blue.svg" alt="Open icon" />
+            <span>{t('components.pdfViewer.openInNewTab')}</span>
           </a>
           <button
             onClick={() => setShowFallback(!showFallback)}
-            className="pdf-viewer-btn"
+            className="pdf-viewer-action-btn pdf-viewer-toggle-btn"
           >
-            {showFallback ? 'Show Viewer' : 'Show Info'}
+            <span>{showFallback ? t('components.pdfViewer.showViewer') : t('components.pdfViewer.showInfo')}</span>
           </button>
         </div>
       </div>
@@ -71,30 +75,32 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): JSX.Elemen
           />
         ) : (
           <div className="pdf-viewer-fallback">
-            <h2>PDF Information</h2>
+            <h2>{t('components.pdfViewer.fallback.title')}</h2>
             <p>
-              This PDF is hosted on an external repository. You can:
+              {t('components.pdfViewer.fallback.description')}
             </p>
             <ul>
-              <li>Use the viewer above (powered by Mozilla PDF.js)</li>
-              <li>Download the PDF to view it locally</li>
-              <li>Open it in a new tab</li>
+              <li>{t('components.pdfViewer.fallback.useViewer')}</li>
+              <li>{t('components.pdfViewer.fallback.downloadLocal')}</li>
+              <li>{t('components.pdfViewer.fallback.openNewTab')}</li>
             </ul>
             <div className="pdf-viewer-fallback-actions">
               <a
                 href={pdfUrl}
                 download
-                className="pdf-viewer-fallback-link"
+                className="pdf-viewer-action-btn"
               >
-                Download PDF
+                <img src="/icons/download-blue.svg" alt="Download icon" />
+                <span>{t('components.pdfViewer.downloadPDF')}</span>
               </a>
               <a
                 href={pdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="pdf-viewer-fallback-link"
+                className="pdf-viewer-action-btn"
               >
-                Open in New Tab
+                <img src="/icons/external-link-blue.svg" alt="Open icon" />
+                <span>{t('components.pdfViewer.openInNewTab')}</span>
               </a>
             </div>
           </div>

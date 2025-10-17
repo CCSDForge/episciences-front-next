@@ -26,23 +26,25 @@ interface ClientProvidersProps {
  * It ensures the store is only used client-side
  */
 const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initialLanguage, children }) => {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-
-    // Detect language from URL pathname
-    let detectedLang = initialLanguage || 'en';
-
+  // Detect language immediately, before first render
+  const detectedLang = (() => {
     if (typeof window !== 'undefined') {
       const pathname = window.location.pathname;
       // Check if pathname starts with /fr/ or /en/
       if (pathname.startsWith('/fr/') || pathname === '/fr') {
-        detectedLang = 'fr';
+        return 'fr';
       } else if (pathname.startsWith('/en/') || pathname === '/en') {
-        detectedLang = 'en';
+        return 'en';
       }
     }
+    return initialLanguage || 'en';
+  })();
+
+  const [isClient, setIsClient] = useState(false);
+
+  // Initialize Redux and i18next immediately with detected language
+  useEffect(() => {
+    setIsClient(true);
 
     // Update both i18next and Redux store
     if (i18n.language !== detectedLang) {
@@ -51,7 +53,7 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initia
 
     // Update Redux store with detected language
     store.dispatch(setLanguage(detectedLang as any));
-  }, [initialLanguage]);
+  }, [detectedLang]);
 
   return (
     <Provider store={store}>

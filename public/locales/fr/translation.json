@@ -118,7 +118,7 @@
         "placeholder": "rechercher",
         "iconAlt": "Rechercher",
         "searchButton": "Rechercher",
-        "submitButton": "Valider",
+        "submitButton": "Déposer",
         "clearLabel": "Effacer la recherche",
         "clearAlt": "Effacer",
         "closeLabel": "Fermer la recherche",
@@ -139,6 +139,20 @@
         "legalMentions": "Mentions légales",
         "privacyStatement": "Déclaration de confidentialité",
         "termsOfUse": "Termes d'utilisation"
+      }
+    },
+    "pdfViewer": {
+      "downloadPDF": "Télécharger le PDF",
+      "openInNewTab": "Ouvrir dans un nouvel onglet",
+      "showViewer": "Afficher le lecteur",
+      "showInfo": "Afficher les informations",
+      "loading": "Chargement du lecteur PDF...",
+      "fallback": {
+        "title": "Informations PDF",
+        "description": "Ce PDF est hébergé sur un dépôt externe. Vous pouvez :",
+        "useViewer": "Utiliser le lecteur ci-dessus",
+        "downloadLocal": "Télécharger le PDF pour le visualiser localement",
+        "openNewTab": "L'ouvrir dans un nouvel onglet"
       }
     }
   },
@@ -211,10 +225,12 @@
         "metadata": "Metadata",
         "share": {
           "text": "Partager",
+          "bluesky": "Bluesky",
           "email": "Mail",
           "twitter": "X",
           "linkedin": "LinkedIn",
-          "facebook": "Facebook"
+          "facebook": "Facebook",
+          "whatsapp": "WhatsApp"
         }
       },
       "publicationDetails": {
@@ -284,6 +300,7 @@
       },
       "relationships": {
         "isSameAs": "Est identique à",
+        "hasPreprint": "A une prépublication",
         "isDerivedFrom": "Est dérivé de",
         "hasDerivation": "A une dérivation",
         "isReviewOf": "Est une évaluation de",

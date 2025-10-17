@@ -18,7 +18,6 @@ import { IArticle, IArticleAuthor, IArticleRelatedItem } from "@/types/article";
 import { IVolume } from "@/types/volume";
 import { articleTypes, CITATION_TEMPLATE, getCitations, ICitation, METADATA_TYPE, INTER_WORK_RELATIONSHIP } from '@/utils/article';
 import { AvailableLanguage } from '@/utils/i18n';
-import { supportsInlinePreview } from '@/utils/pdf-preview';
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Loader from "@/components/Loader/Loader";
 import ArticleMeta from "@/components/Meta/ArticleMeta/ArticleMeta";
@@ -293,10 +292,11 @@ export default function ArticleDetailsClient({
   }
 
   const getPreviewSection = (): JSX.Element | null => {
-    if (!article?.pdfLink || !supportsInlinePreview(article.pdfLink)) {
+    if (!article?.pdfLink) {
       return null;
     }
 
+    // PreviewSection handles the viewer choice (iframe vs PDF.js) internally
     return <PreviewSection pdfLink={article.pdfLink} />;
   }
 

@@ -1,6 +1,5 @@
 import { AvailableLanguage } from "@/utils/i18n";
 import { PartialVolumeArticle } from "./article";
-import { VOLUME_TYPE } from "@/utils/volume";
 
 export interface IVolume {
   id: number;

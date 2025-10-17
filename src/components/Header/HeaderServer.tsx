@@ -43,7 +43,7 @@ export default async function HeaderServer({ lang = 'en' }: HeaderServerProps): 
             <Link href={episciencesUrl}>{t('components.header.links.openAccessJournals', translations)}</Link>
           </div>
           <div className="header-preheader-links-right">
-            <LanguageDropdownWrapper />
+            <LanguageDropdownWrapper lang={lang} />
           </div>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default async function HeaderServer({ lang = 'en' }: HeaderServerProps): 
         </div>
         <div className="header-reduced-journal-blank">{journalName}</div>
         <div className="header-reduced-journal-dropdown">
-          <LanguageDropdownWrapper />
+          <LanguageDropdownWrapper lang={lang} />
         </div>
       </div>
 

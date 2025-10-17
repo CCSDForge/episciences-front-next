@@ -23,7 +23,8 @@ export const metadata: Metadata = {
   description: 'Articles acceptés',
 };
 
-export default async function ArticlesAcceptedPage() {
+export default async function ArticlesAcceptedPage({ params }: { params: { lang: string } }) {
+  const lang = params.lang || 'en';
   try {
     const ARTICLES_ACCEPTED_PER_PAGE = 10;
     
@@ -60,18 +61,20 @@ export default async function ArticlesAcceptedPage() {
     };
 
     return (
-      <ArticlesAcceptedClient 
-        initialArticles={formattedArticles} 
+      <ArticlesAcceptedClient
+        initialArticles={formattedArticles}
         initialRange={formattedArticles.range}
+        lang={lang}
       />
     );
   } catch (error) {
     console.error('Error fetching articles accepted:', error);
     // Retourner un état vide en cas d'erreur
     return (
-      <ArticlesAcceptedClient 
-        initialArticles={{ data: [], totalItems: 0 }} 
+      <ArticlesAcceptedClient
+        initialArticles={{ data: [], totalItems: 0 }}
         initialRange={{ types: [], years: [] }}
+        lang={lang}
       />
     );
   }

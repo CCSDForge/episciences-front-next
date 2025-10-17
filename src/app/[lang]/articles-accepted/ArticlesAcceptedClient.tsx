@@ -28,8 +28,15 @@ type EnhancedArticleAccepted = FetchedArticle & {
   openedAbstract: boolean;
 }
 
-export default function ArticlesAcceptedClient({ initialArticles, initialRange }: { initialArticles: any, initialRange: any }): JSX.Element {
-  const { t } = useTranslation();
+export default function ArticlesAcceptedClient({ initialArticles, initialRange, lang }: { initialArticles: any, initialRange: any, lang?: string }): JSX.Element {
+  const { t, i18n } = useTranslation();
+
+  // Synchroniser la langue avec le paramètre de l'URL
+  useEffect(() => {
+    if (lang && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang, i18n]);
 
   const ARTICLES_ACCEPTED_PER_PAGE = 10;
 
@@ -59,12 +66,9 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange }
     refetchOnMountOrArgChange: !isStaticBuild 
   });
 
-  // Utiliser les données initiales au premier rendu
+  // En mode statique uniquement : utiliser les données initiales
   useEffect(() => {
-    // S'assurer que les données initiales sont toujours utilisées en mode statique
-    // ou lorsque les données API ne sont pas disponibles
-    if ((initialArticles?.data && !articlesAccepted && !isFetchingArticlesAccepted) || 
-        (isStaticBuild && initialArticles?.data)) {
+    if (isStaticBuild && initialArticles?.data) {
       const initialData = Array.isArray(initialArticles.data) ? initialArticles.data : [];
       setEnhancedArticlesAccepted(
         initialData
@@ -72,7 +76,7 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange }
           .map((article: any) => ({ ...article, openedAbstract: false }))
       );
     }
-  }, [initialArticles, articlesAccepted, isFetchingArticlesAccepted, isStaticBuild]);
+  }, [initialArticles, isStaticBuild]);
 
   useEffect(() => {
     if (initialRange?.types && types.length === 0) {
@@ -91,8 +95,9 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange }
     }
   }, [initialRange, types.length]);
 
+  // En mode non-statique : utiliser les données de l'API query
   useEffect(() => {
-    if (articlesAccepted?.data) {
+    if (!isStaticBuild && articlesAccepted?.data) {
       const articlesData = Array.isArray(articlesAccepted.data) ? articlesAccepted.data : [];
       const displayedArticlesAccepted = articlesData
         .filter((article) => article && article.title)
@@ -100,7 +105,7 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange }
 
       setEnhancedArticlesAccepted(displayedArticlesAccepted as EnhancedArticleAccepted[]);
     }
-  }, [articlesAccepted?.data]);
+  }, [isStaticBuild, articlesAccepted?.data]);
 
   useEffect(() => {
     if (articlesAccepted?.range && articlesAccepted.range.types && types.length === 0) {
@@ -121,7 +126,6 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange }
   }, [articlesAccepted?.range, articlesAccepted?.range?.types, types])
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
-    setEnhancedArticlesAccepted([]);
     setCurrentPage(selectedItem.selected + 1);
   };
 
@@ -176,17 +180,6 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange }
   useEffect(() => {
     setAllTaggedFilters()
   }, [types])
-
-  useEffect(() => {
-    if (articlesAccepted) {
-      const displayedArticlesAccepted = articlesAccepted?.data.filter((article) => article?.title).map((article) => {
-        return { ...article, openedAbstract: false };
-      });
-
-      setEnhancedArticlesAccepted(displayedArticlesAccepted as EnhancedArticleAccepted[])
-    }
-
-  }, [articlesAccepted, articlesAccepted?.data])
 
   const toggleAbstract = (articleId?: number): void => {
     if (!articleId) return
