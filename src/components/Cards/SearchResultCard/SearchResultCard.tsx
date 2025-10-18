@@ -12,7 +12,7 @@ import downloadIcon from '../../../../public/icons/download-red.svg';
 import quoteIcon from '../../../../public/icons/quote-red.svg';
 import { PATHS } from '@/config/paths';
 import { useFetchArticleMetadataQuery } from '@/store/features/article/article.query';
-import { IArticle } from "@/types/article";
+import { IArticle, IArticleAbstracts } from "@/types/article";
 import { CITATION_TEMPLATE, ICitation, METADATA_TYPE, articleTypes, copyToClipboardCitation, getCitations } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -34,6 +34,14 @@ export default function SearchResultCard({ language, rvcode, t, searchResult, to
   const [showCitationsDropdown, setShowCitationsDropdown] = useState(false);
 
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
+
+  // Helper to extract abstract string from union type
+  const getAbstractString = (abstract: string | IArticleAbstracts | undefined): string | undefined => {
+    if (!abstract) return undefined;
+    if (typeof abstract === 'string') return abstract;
+    // If it's an object, try to get the current language or fallback
+    return abstract[language] || abstract.en || abstract.fr || Object.values(abstract)[0];
+  };
 
   const { data: metadataCSL } = useFetchArticleMetadataQuery({ 
     rvcode: rvcode!, 
@@ -119,7 +127,7 @@ export default function SearchResultCard({ language, rvcode, t, searchResult, to
             />
           </div>
           <div className={`searchResultCardAbstractContent ${searchResult.openedAbstract ? 'searchResultCardAbstractContentOpened' : ''}`}>
-            <MathJax dynamic>{searchResult.abstract}</MathJax>
+            <MathJax dynamic>{getAbstractString(searchResult.abstract)}</MathJax>
           </div>
         </div>
       )}
