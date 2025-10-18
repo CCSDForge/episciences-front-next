@@ -146,16 +146,16 @@ export default function ArticleDetailsClient({
 
       article.authors.forEach((author) => {
         const enhancedAuthor: EnhancedArticleAuthor = { ...author, institutionsKeys: [] };
-  
+
         author.institutions?.forEach((institution) => {
-          if (!allInstitutionsSet.has(institution)) {
-            allInstitutionsSet.add(institution);
+          if (!allInstitutionsSet.has(institution.name)) {
+            allInstitutionsSet.add(institution.name);
           }
-  
-          const institutionIndex = Array.from(allInstitutionsSet).indexOf(institution);
+
+          const institutionIndex = Array.from(allInstitutionsSet).indexOf(institution.name);
           enhancedAuthor.institutionsKeys.push(institutionIndex);
         });
-  
+
         allAuthors.push(enhancedAuthor);
       });
 
@@ -242,8 +242,12 @@ export default function ArticleDetailsClient({
     const hasKeywords = Array.isArray(article.keywords)
       ? article.keywords.length > 0
       : Object.keys(article.keywords).some(lang => {
-          const langKeywords = article.keywords[lang as keyof typeof article.keywords];
-          return Array.isArray(langKeywords) && langKeywords.length > 0;
+          // Type guard: ensure keywords is an object (IArticleKeywords)
+          if (typeof article.keywords === 'object' && !Array.isArray(article.keywords)) {
+            const langKeywords = article.keywords[lang as keyof typeof article.keywords];
+            return Array.isArray(langKeywords) && langKeywords.length > 0;
+          }
+          return false;
         });
 
     if (!hasKeywords) {
