@@ -5,8 +5,8 @@ import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
 
-import caretUp from '@/assets/icons/caret-up-red.svg';
-import caretDown from '@/assets/icons/caret-down-red.svg';
+import caretUp from '/public/icons/caret-up-red.svg';
+import caretDown from '/public/icons/caret-down-red.svg';
 import { useAppSelector } from '@/hooks/store';
 import { generateIdFromText, unifiedProcessor, serializeMarkdown, getMarkdownImageURL, adjustNestedListsInMarkdownContent } from '@/utils/markdown';
 import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
-import filter from '@/assets/icons/filter.svg';
+import filter from '/public/icons/filter.svg';
 import { useAppSelector } from "@/hooks/store";
 import { useFetchArticlesQuery } from '@/store/features/article/article.query';
 import { IArticle } from "@/types/article";
