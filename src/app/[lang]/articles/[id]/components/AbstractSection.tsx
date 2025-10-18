@@ -11,10 +11,6 @@ interface AbstractSectionProps {
 
 export default function AbstractSection({ abstractData, currentLanguage }: AbstractSectionProps): JSX.Element | null {
 
-  // Debug: log abstract data structure
-  console.log('[AbstractSection] abstractData:', abstractData);
-  console.log('[AbstractSection] currentLanguage:', currentLanguage);
-
   // If abstractData is empty or null, return null
   if (!abstractData) {
     return null;

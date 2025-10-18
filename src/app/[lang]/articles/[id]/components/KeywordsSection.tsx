@@ -10,10 +10,6 @@ interface KeywordsSectionProps {
 
 export default function KeywordsSection({ keywordsData, currentLanguage }: KeywordsSectionProps): JSX.Element | null {
 
-  // Debug: log keywords data structure
-  console.log('[KeywordsSection] keywordsData:', keywordsData);
-  console.log('[KeywordsSection] currentLanguage:', currentLanguage);
-
   if (!keywordsData) {
     return null;
   }
