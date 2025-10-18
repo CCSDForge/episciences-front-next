@@ -66,14 +66,13 @@
       align-items: center;
       justify-content: flex-end;
       padding-right: 50px;
-      color: var(--blue-navy);
+      background: var(--primary);
+      color: var(--primary-text);
       border-bottom: 1px solid var(--primary);
 
       @media (max-width:  breakpoints.$xsm) {
         min-width: unset;
         width: 100%;
-        background: var(--primary);
-        color: var(--primary-text);
         padding-right: 24px;
       }
     }
