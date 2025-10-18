@@ -70,8 +70,6 @@ export default function AbstractSection({ abstractData, currentLanguage }: Abstr
         const direction = getTextDirection(lang);
         const languageLabel = getLanguageLabel(lang, currentLanguage);
 
-        console.log('[AbstractSection] Lang:', lang, 'Direction:', direction, 'Label:', languageLabel, 'Current language:', currentLanguage);
-
         return (
           <div key={`${lang}-${index}`} className="language-group" dir={direction}>
             <div className="language-badge">{languageLabel}</div>

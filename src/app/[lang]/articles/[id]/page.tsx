@@ -88,7 +88,6 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
 export async function generateStaticParams() {
   // Si un ID spécifique est fourni, ne générer que cet article
   if (process.env.ONLY_BUILD_ARTICLE_ID) {
-    console.log(`Génération ciblée de l'article ${process.env.ONLY_BUILD_ARTICLE_ID}`);
     return combineWithLanguageParams([{ id: process.env.ONLY_BUILD_ARTICLE_ID }]);
   }
 
@@ -107,7 +106,6 @@ export async function generateStaticParams() {
     });
 
     if (!articles || !articles.length) {
-      console.log('Aucun article trouvé. Génération d\'une page placeholder.');
       return combineWithLanguageParams([{ id: "no-articles-found" }]);
     }
 

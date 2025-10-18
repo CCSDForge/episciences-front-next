@@ -78,7 +78,6 @@ export default async function VolumeDetailsPage({
 export async function generateStaticParams() {
   // Targeted volume rebuild - only generate specific volume if env var is set
   if (process.env.ONLY_BUILD_VOLUME_ID) {
-    console.log(`Targeted build for volume ${process.env.ONLY_BUILD_VOLUME_ID}`);
     return combineWithLanguageParams([{ id: process.env.ONLY_BUILD_VOLUME_ID }]);
   }
 

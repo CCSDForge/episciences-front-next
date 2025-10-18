@@ -34,7 +34,6 @@ export async function generateMetadata({ params }: { params: { id: string; lang?
 export async function generateStaticParams() {
   // Targeted section rebuild - only generate specific section if env var is set
   if (process.env.ONLY_BUILD_SECTION_ID) {
-    console.log(`Targeted build for section ${process.env.ONLY_BUILD_SECTION_ID}`);
     return combineWithLanguageParams([{ id: process.env.ONLY_BUILD_SECTION_ID }]);
   }
 
@@ -71,8 +70,6 @@ export async function generateStaticParams() {
     if (!allSections || allSections.length === 0) {
       return [{ id: 'no-sections-found' }];
     }
-
-    console.log(`Generating static params for ${allSections.length} sections`);
 
     // Generate params for each section ID
     const sectionParams = allSections.map((section: any) => ({
