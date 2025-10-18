@@ -74,7 +74,7 @@ Un serveur webhook est inclus pour permettre la régénération à la demande d'
 #### Démarrage du serveur
 
 ```bash
-npm run webhook
+pm run webhook
 ```
 
 Le serveur démarre par défaut sur le port 3001 et expose les endpoints suivants :

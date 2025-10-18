@@ -12,12 +12,29 @@ import { acceptedLanguages, defaultLanguage } from './language-utils';
  * For static export compatibility, we generate all languages including the default.
  * The middleware will redirect /en/... to /... for the default language.
  *
+ * During targeted rebuilds (article, volume, section), this returns only the
+ * default language to minimize static page generation while satisfying Next.js
+ * export requirements (cannot return empty array).
+ *
  * Returns:
  * - { lang: 'en' } for English (default)
  * - { lang: 'fr' } for French
  * - etc.
+ * - Only { lang: defaultLanguage } during targeted rebuilds (minimal generation)
  */
 export function generateLanguageParams() {
+  // During targeted rebuilds, only generate default language for static pages
+  // This minimizes unnecessary generation while satisfying Next.js export requirement
+  // (pages with generateStaticParams cannot return empty array in export mode)
+  if (
+    process.env.ONLY_BUILD_ARTICLE_ID ||
+    process.env.ONLY_BUILD_VOLUME_ID ||
+    process.env.ONLY_BUILD_SECTION_ID
+  ) {
+    // Return only default language to minimize generation
+    return [{ lang: defaultLanguage }];
+  }
+
   return acceptedLanguages.map(lang => ({ lang }));
 }
 
