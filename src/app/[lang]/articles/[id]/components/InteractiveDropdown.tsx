@@ -156,8 +156,8 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
         <div
           key={index}
           className="articleDetailsSidebar-links-link-modal-content-links-link"
-          onClick={(): void => downloadMetadata(metadata)}
-          onTouchEnd={(): void => downloadMetadata(metadata)}
+          onClick={(): void => { void downloadMetadata(metadata); }}
+          onTouchEnd={(): void => { void downloadMetadata(metadata); }}
         >{metadata.label}</div>
       ))}
     </div>
