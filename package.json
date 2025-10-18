@@ -7,6 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "postbuild": "node scripts/updateRobots.js",
     "build:article": "node scripts/build-article.js",
     "rebuild": "node scripts/rebuild-resource.js",
@@ -58,6 +62,8 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
     "@types/he": "^1.2.3",
     "@types/node": "^20",
     "@types/react": "^18.2.43",
@@ -66,14 +72,19 @@
     "@types/xml2js": "^0.4.14",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "cross-env": "^7.0.3",
     "eslint": "^8.55.0",
     "eslint-config-next": "14.1.0",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "happy-dom": "^20.0.5",
+    "jsdom": "^27.0.1",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-preset-env": "^10.1.5",
     "sass": "^1.85.1",
     "sass-loader": "^16.0.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^3.2.4"
   }
 }

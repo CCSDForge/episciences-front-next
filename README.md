@@ -1,5 +1,10 @@
 # 🚀 Episciences Front Next.js
 
+[![CI Tests](https://github.com/CCSDForge/episciences-front-next/actions/workflows/ci.yml/badge.svg)](https://github.com/CCSDForge/episciences-front-next/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/CCSDForge/episciences-front-next/actions/workflows/codeql.yml/badge.svg)](https://github.com/CCSDForge/episciences-front-next/actions/workflows/codeql.yml)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.17.0-brightgreen)](https://nodejs.org/)
+[![Vitest](https://img.shields.io/badge/tested%20with-vitest-6E9F18)](https://vitest.dev/)
+
 ## 📝 Description
 Next.js 14 (App Router) version of Episciences front-end, migrated from React (Vite). This version is configured for Full Static rendering.
 
@@ -49,9 +54,74 @@ episciences-front-next/
 - `npm run build` : Build for production
 - `npm run start` : Run production version
 - `npm run lint` : Run ESLint checks
+- `npm run test` : Run tests in watch mode
+- `npm run test:ui` : Run tests with UI interface
+- `npm run test:run` : Run tests once (CI mode)
+- `npm run test:coverage` : Run tests with coverage report
 - `make epijinfo` : Specific build for epijinfo
 - `npm run build:article <id>` : Build a specific article only
 - `npm run webhook` : Start webhook server for on-demand article generation
+
+## 🧪 Testing
+
+This project uses [Vitest](https://vitest.dev/) for unit testing, providing a fast and modern testing experience.
+
+### Running Tests
+
+```bash
+# Run tests in watch mode (automatically reruns on file changes)
+npm run test
+
+# Run tests once (useful for CI/CD)
+npm run test:run
+
+# Run tests with interactive UI
+npm run test:ui
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### Test Coverage
+
+The project maintains the following coverage thresholds:
+- **Branches**: 70%
+- **Functions**: 70%
+- **Lines**: 80%
+- **Statements**: 80%
+
+Coverage reports are generated in the `coverage/` directory and include:
+- HTML report for browser viewing
+- LCOV format for integration with coverage tools
+- JSON and text summaries
+
+### Writing Tests
+
+Tests are located in `src/utils/__tests__/` and follow the naming convention `*.test.ts`.
+
+Example test structure:
+```typescript
+import { describe, it, expect } from 'vitest'
+import { myFunction } from '../myModule'
+
+describe('myFunction', () => {
+  it('should do something', () => {
+    expect(myFunction('input')).toBe('expected output')
+  })
+})
+```
+
+### Continuous Integration
+
+Tests run automatically on:
+- Every push to any branch
+- Every pull request to main
+- Multiple Node.js versions (18.x, 20.x)
+
+Security scanning with CodeQL runs:
+- On push to main
+- On pull requests to main
+- Weekly scheduled scans (Mondays at 2:00 AM UTC)
 
 ## 🔄 Génération ciblée d'articles
 
@@ -240,12 +310,9 @@ npm run build:article <id>
 rsync -avz --delete dist/[JOURNAL_CODE]/ user@serveur:/chemin/vers/dossier/dist/[JOURNAL_CODE]/
 ```
 
-### Points importants
+### Ajoutez le serveur Filesystem MCP à votre configuration Claude Code
+`claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem /chemin/absolu/vers/votre/depot`
 
-- Vérifier que toutes les URLs externes sont absolues
-- Tester la navigation et les liens après déploiement
-- Vérifier que le cache du navigateur est correctement configuré
-- S'assurer que les redirections fonctionnent correctement
 
 ## 🤝 Contributing
 Please follow the code conventions and migration rules defined in the documentation files. 
