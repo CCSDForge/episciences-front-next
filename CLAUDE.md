@@ -81,6 +81,14 @@ make docker-stop             # Stop test server
 - `.htaccess` - Generated per journal for language routing (monolingual vs multilingual)
 - `robots.txt` / `sitemap.xml` - Updated with journal-specific URLs
 
+## Git Workflow
+
+### Commits
+- **INTERDIT** : N'utilisez JAMAIS `git add -A` ou `git add --all`
+- Toujours ajouter les fichiers spécifiquement : `git add <fichier1> <fichier2>...`
+- Cela évite d'ajouter accidentellement des fichiers de cache, logs, ou fichiers temporaires (.nextcloudsync.log, .sync_*.db, etc.)
+- Exemple correct : `git add src/components/MyComponent.tsx src/utils/helper.ts`
+
 ## Troubleshooting
 
 - **Build fails**: Check `external-assets/.env.local.<journal>` exists
