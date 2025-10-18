@@ -2,6 +2,7 @@ import React from 'react';
 import { Metadata } from 'next';
 import { fetchArticle, fetchArticles, fetchArticleMetadata } from '@/services/article';
 import { fetchVolume } from '@/services/volume';
+import { getJournalByCode } from '@/services/journal';
 import ArticleDetailsClient from './ArticleDetailsClient';
 import ArticleDetailsServer from './ArticleDetailsServer';
 import { FetchedArticle, METADATA_TYPE } from '@/utils/article';
@@ -11,6 +12,8 @@ import { getServerTranslations, defaultLanguage, availableLanguages } from '@/ut
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
+import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
+import { AvailableLanguage } from '@/utils/i18n';
 
 interface ArticleDetailsPageProps {
   params: {
@@ -29,11 +32,51 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
         title: 'Aucun article disponible',
       };
     }
-    
+
     const article = await fetchArticle(params.id);
-    return {
-      title: article?.title ? article.title : 'Article non trouvé',
-    };
+    if (!article) {
+      return {
+        title: 'Article non trouvé',
+      };
+    }
+
+    // Get language from params
+    const language = getLanguageFromParams(params) as AvailableLanguage;
+
+    // Fetch journal data for complete metadata
+    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+    let currentJournal = undefined;
+    if (rvcode) {
+      try {
+        currentJournal = await getJournalByCode(rvcode);
+      } catch (error) {
+        console.error('Error fetching journal for metadata:', error);
+      }
+    }
+
+    // Extract keywords - handle both array and object formats
+    let keywords: string[] = [];
+    if (article.keywords) {
+      if (Array.isArray(article.keywords)) {
+        keywords = article.keywords;
+      } else {
+        // If keywords is an object with language keys, get keywords for current language or all
+        const keywordsObj = article.keywords as Record<string, string[]>;
+        keywords = keywordsObj[language] || Object.values(keywordsObj).flat();
+      }
+    }
+
+    // Extract authors
+    const authors = article.authors || [];
+
+    // Generate complete metadata using the utility function
+    return generateArticleMetadata({
+      language,
+      article,
+      currentJournal,
+      keywords,
+      authors
+    });
   } catch (error) {
     console.error(`Erreur lors de la récupération des métadonnées de l'article ${params.id}:`, error);
     return {
