@@ -420,13 +420,6 @@ export default function ArticleDetailsNoticeClient({ article }: ArticleDetailsNo
         crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''} 
       />
       <>
-        <ArticleMeta 
-          language={language} 
-          article={article} 
-          currentJournal={currentJournal} 
-          keywords={getKeywords()} 
-          authors={authors} 
-        />
         {article.tag && (
           <div className='articleDetails-tag'>
             {t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}

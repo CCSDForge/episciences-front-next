@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { IArticle, IArticleAuthor } from '@/types/article'
+import { IArticle, IArticleAuthor, IArticleAbstracts } from '@/types/article'
 import { IJournal } from '@/types/journal'
 import { AvailableLanguage } from '@/utils/i18n'
 
@@ -11,14 +11,23 @@ interface IArticleMetaProps {
   authors: IArticleAuthor[];
 }
 
-export function generateArticleMetadata({ 
-  language, 
-  article, 
-  currentJournal, 
-  keywords, 
-  authors 
+// Helper function to extract abstract as string
+function getAbstractString(abstract: string | IArticleAbstracts | undefined, language: AvailableLanguage): string {
+  if (!abstract) return '';
+  if (typeof abstract === 'string') return abstract;
+  // If it's an object with language keys, try to get the abstract for the current language
+  return abstract[language] || Object.values(abstract)[0] || '';
+}
+
+export function generateArticleMetadata({
+  language,
+  article,
+  currentJournal,
+  keywords,
+  authors
 }: IArticleMetaProps): Metadata {
   const metadataTitle = article?.title ? `${article.title}${currentJournal?.name ? ` | ${currentJournal.name}` : ''}` : undefined;
+  const abstractString = getAbstractString(article?.abstract, language);
 
   const otherMetadata: Record<string, string | string[]> = {
     "citation_journal_title": currentJournal?.name || '',
@@ -33,7 +42,7 @@ export function generateArticleMetadata({
     "DC.language": language,
     "DC.title": article?.title || '',
     "DC.type": "journal",
-    "DC.description": article?.abstract || '',
+    "DC.description": abstractString,
     "DC.date": article?.publicationDate || '',
     "DC.relation.ispartof": currentJournal?.name || '',
     "DC.publisher": "Episciences.org",
@@ -44,7 +53,7 @@ export function generateArticleMetadata({
       article?.pdfLink || ''
     ].filter(Boolean),
     "citation_author": authors.map(author => author.fullname),
-    "citation_author_institution": authors.flatMap(author => author.institutions || []),
+    "citation_author_institution": authors.flatMap(author => author.institutions?.map(inst => inst.name) || []),
     "citation_author_orcid": authors.filter(author => author.orcid).map(author => author.orcid as string),
     "citation_keywords": keywords,
     "DC.creator": authors.map(author => author.fullname),
@@ -53,7 +62,7 @@ export function generateArticleMetadata({
 
   return {
     title: metadataTitle || '',
-    description: article?.abstract || '',
+    description: abstractString,
     keywords: keywords,
     authors: authors.map(author => ({
       name: author.fullname,
@@ -68,14 +77,14 @@ export function generateArticleMetadata({
       tags: keywords,
       locale: language,
       url: article?.docLink || '',
-      description: article?.abstract || '',
+      description: abstractString,
       siteName: "Episciences.org"
     },
     twitter: {
       card: 'summary_large_image',
       site: '@episciences',
       title: metadataTitle || '',
-      description: article?.abstract || ''
+      description: abstractString
     },
     other: otherMetadata
   }

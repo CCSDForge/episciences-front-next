@@ -286,13 +286,6 @@ export default function ArticleDetailsClient({ article, id }: ArticleDetailsClie
         <Loader />
       ) : (
         <>
-          <ArticleMeta 
-            language={language} 
-            article={article as IArticle | undefined} 
-            currentJournal={currentJournal} 
-            keywords={Array.isArray(article?.keywords) ? article.keywords : []} 
-            authors={authors} 
-          />
           {article?.tag && <div className='articleDetails-tag'>{t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}</div>}
           <div className="articleDetails-content">
             {renderArticleTitleAndAuthors(true)}
