@@ -30,6 +30,13 @@ export async function generateMetadata({ params }: { params: { id: string; lang?
 }
 
 export async function generateStaticParams() {
+  // Targeted section rebuild - only generate specific section if env var is set
+  if (process.env.ONLY_BUILD_SECTION_ID) {
+    console.log(`Targeted build for section ${process.env.ONLY_BUILD_SECTION_ID}`);
+    return combineWithLanguageParams([{ id: process.env.ONLY_BUILD_SECTION_ID }]);
+  }
+
+  // Full build: generate all sections
   try {
     const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
     if (!rvcode) {
@@ -48,13 +55,13 @@ export async function generateStaticParams() {
         page,
         itemsPerPage: 100
       });
-      
+
       allSections.push(...sectionsData.data);
-      
+
       // Check if there are more pages
       hasMore = sectionsData.data.length === 100;
       page++;
-      
+
       // Safety break to avoid infinite loop
       if (page > 50) break;
     }
