@@ -9,6 +9,7 @@
     "lint": "next lint",
     "postbuild": "node scripts/updateRobots.js",
     "build:article": "node scripts/build-article.js",
+    "rebuild": "node scripts/rebuild-resource.js",
     "webhook": "node scripts/webhook-server.js"
   },
   "dependencies": {
