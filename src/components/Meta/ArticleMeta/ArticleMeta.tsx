@@ -16,7 +16,11 @@ function getAbstractString(abstract: string | IArticleAbstracts | undefined, lan
   if (!abstract) return '';
   if (typeof abstract === 'string') return abstract;
   // If it's an object with language keys, try to get the abstract for the current language
-  return abstract[language] || Object.values(abstract)[0] || '';
+  const langAbstract = abstract[language];
+  if (langAbstract) return langAbstract;
+  // Fallback to first available language
+  const firstAbstract = Object.values(abstract)[0];
+  return firstAbstract || '';
 }
 
 export function generateArticleMetadata({
@@ -27,7 +31,7 @@ export function generateArticleMetadata({
   authors
 }: IArticleMetaProps): Metadata {
   const metadataTitle = article?.title ? `${article.title}${currentJournal?.name ? ` | ${currentJournal.name}` : ''}` : undefined;
-  const abstractString = getAbstractString(article?.abstract, language);
+  const abstractString: string = getAbstractString(article?.abstract, language);
 
   const otherMetadata: Record<string, string | string[]> = {
     "citation_journal_title": currentJournal?.name || '',
