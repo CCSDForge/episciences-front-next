@@ -104,7 +104,7 @@ export default function AuthorsClient({
   }, [rvcode, currentPage, searchValue, activeLetter]);
 
   const createQueryString = (name: string, value: string) => {
-    const newParams = new URLSearchParams(params.toString());
+    const newParams = new URLSearchParams(params?.toString() || '');
     if (value) {
       newParams.set(name, value);
     } else {
@@ -213,20 +213,26 @@ export default function AuthorsClient({
 
   const onCloseTaggedFilter = (type: AuthorTypeFilter) => {
     if (type === 'search') {
-      const newParams = new URLSearchParams(params.toString());
+      const newParams = new URLSearchParams(params?.toString() || '');
       newParams.delete('search');
-      router.push(`${pathname}?${newParams.toString()}`);
+      if (pathname) {
+        router.push(`${pathname}?${newParams.toString()}`);
+      }
       setSearchValue('');
     } else if (type === 'activeLetter') {
-      const newParams = new URLSearchParams(params.toString());
+      const newParams = new URLSearchParams(params?.toString() || '');
       newParams.delete('letter');
-      router.push(`${pathname}?${newParams.toString()}`);
+      if (pathname) {
+        router.push(`${pathname}?${newParams.toString()}`);
+      }
       setActiveLetter('');
     }
   };
 
   const clearTaggedFilters = (): void => {
-    router.push(pathname);
+    if (pathname) {
+      router.push(pathname);
+    }
     setSearchValue('');
     setActiveLetter('');
     setTaggedFilters([]);

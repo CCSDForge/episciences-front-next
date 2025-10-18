@@ -87,7 +87,7 @@ export default function VolumesClient({
 
   // Synchroniser currentPage avec les query params
   useEffect(() => {
-    const pageParam = searchParams.get('page');
+    const pageParam = searchParams?.get('page');
     const pageNumber = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
     if (!isNaN(pageNumber) && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
@@ -184,7 +184,9 @@ export default function VolumesClient({
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
-    router.push(`${pathname}?page=${newPage}`);
+    if (pathname) {
+      router.push(`${pathname}?page=${newPage}`);
+    }
     setCurrentPage(newPage);
     // Scroll vers le haut de la page
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -225,7 +227,9 @@ export default function VolumesClient({
 
     setTypes(updatedTypes);
     setCurrentPage(1);
-    router.push(pathname); // Retour à la page 1
+    if (pathname) {
+      router.push(pathname); // Retour à la page 1
+    }
   };
 
   const onSelectYear = (year: number): void => {
@@ -239,7 +243,9 @@ export default function VolumesClient({
 
     setYears(updatedYears);
     setCurrentPage(1);
-    router.push(pathname); // Retour à la page 1
+    if (pathname) {
+      router.push(pathname); // Retour à la page 1
+    }
   };
 
 
@@ -255,7 +261,9 @@ export default function VolumesClient({
 
       setTypes(updatedTypes);
       setCurrentPage(1);
-      router.push(pathname); // Retour à la page 1
+      if (pathname) {
+        router.push(pathname); // Retour à la page 1
+      }
     } else if (type === 'year') {
       const updatedYears = years.map((y) => {
         if (y.year === value) {
@@ -267,7 +275,9 @@ export default function VolumesClient({
 
       setYears(updatedYears);
       setCurrentPage(1);
-      router.push(pathname); // Retour à la page 1
+      if (pathname) {
+        router.push(pathname); // Retour à la page 1
+      }
     }
   };
 
@@ -284,7 +294,9 @@ export default function VolumesClient({
     setYears(updatedYears);
     setTaggedFilters([]);
     setCurrentPage(1);
-    router.push(pathname); // Retour à la page 1
+    if (pathname) {
+      router.push(pathname); // Retour à la page 1
+    }
   };
 
   const toggleFiltersModal = () => {

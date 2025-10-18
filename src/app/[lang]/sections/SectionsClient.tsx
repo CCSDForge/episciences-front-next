@@ -49,7 +49,7 @@ export default function SectionsClient({
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Initialiser la page depuis les query params ou initialPage
-  const pageFromUrl = searchParams.get('page');
+  const pageFromUrl = searchParams?.get('page');
   const pageNumber = pageFromUrl ? Math.max(1, parseInt(pageFromUrl, 10)) : initialPage;
 
   const [currentPage, setCurrentPage] = useState(pageNumber);
@@ -59,7 +59,7 @@ export default function SectionsClient({
 
   // Synchroniser currentPage avec les query params
   useEffect(() => {
-    const pageParam = searchParams.get('page');
+    const pageParam = searchParams?.get('page');
     const pageNum = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
     if (!isNaN(pageNum) && pageNum !== currentPage) {
       setCurrentPage(pageNum);
@@ -83,7 +83,9 @@ export default function SectionsClient({
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
-    router.push(`${pathname}?page=${newPage}`);
+    if (pathname) {
+      router.push(`${pathname}?page=${newPage}`);
+    }
     setCurrentPage(newPage);
     // Scroll vers le haut de la page
     window.scrollTo({ top: 0, behavior: 'smooth' });

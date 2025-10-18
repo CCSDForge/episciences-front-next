@@ -93,7 +93,7 @@ export default function SearchClient({
 
   // Read search query from URL parameters
   useEffect(() => {
-    const urlSearch = searchParams.get('terms') || searchParams.get('q') || '';
+    const urlSearch = searchParams?.get('terms') || searchParams?.get('q') || '';
     if (urlSearch && urlSearch !== search) {
       setSearch(urlSearch);
     }

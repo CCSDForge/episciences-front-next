@@ -60,7 +60,7 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name)
 
   // Initialiser la page depuis les query params ou 1 par défaut
-  const pageFromUrl = searchParams.get('page');
+  const pageFromUrl = searchParams?.get('page');
   const initialPage = pageFromUrl ? Math.max(1, parseInt(pageFromUrl, 10)) : 1;
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [enhancedArticles, setEnhancedArticles] = useState<EnhancedArticle[]>([])
@@ -93,7 +93,7 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
   
   // Synchroniser currentPage avec les query params
   useEffect(() => {
-    const pageParam = searchParams.get('page');
+    const pageParam = searchParams?.get('page');
     const pageNumber = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
     if (!isNaN(pageNumber) && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
@@ -197,7 +197,9 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
-    router.push(`${pathname}?page=${newPage}`);
+    if (pathname) {
+      router.push(`${pathname}?page=${newPage}`);
+    }
     setCurrentPage(newPage);
     // Scroll vers le haut de la page
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -214,7 +216,9 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
 
     setTypes(updatedTypes);
     setCurrentPage(1);
-    router.push(pathname); // Retour à la page 1
+    if (pathname) {
+      router.push(pathname); // Retour à la page 1
+    }
   }
 
   const onCheckYear = (year: number): void => {
@@ -228,7 +232,9 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
 
     setYears(updatedYears);
     setCurrentPage(1);
-    router.push(pathname); // Retour à la page 1
+    if (pathname) {
+      router.push(pathname); // Retour à la page 1
+    }
   }
 
 

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ops.episciences.org/sitemap.xml
