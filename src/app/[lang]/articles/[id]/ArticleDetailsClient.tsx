@@ -14,7 +14,7 @@ import caretDownRed from '/public/icons/caret-down-red.svg';
 import orcid from '/public/icons/orcid.svg';
 import { PATHS, BREADCRUMB_PATHS } from '@/config/paths';
 import { useAppSelector } from "@/hooks/store";
-import { IArticle, IArticleAuthor, IArticleRelatedItem } from "@/types/article";
+import { IArticle, IArticleAuthor, IArticleRelatedItem, IInstitution } from "@/types/article";
 import { IVolume } from "@/types/volume";
 import { articleTypes, CITATION_TEMPLATE, getCitations, ICitation, METADATA_TYPE, INTER_WORK_RELATIONSHIP } from '@/utils/article';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -85,7 +85,7 @@ export default function ArticleDetailsClient({
     { key: ARTICLE_SECTION.PREVIEW, isOpened: true }
   ]);
   const [authors, setAuthors] = useState<EnhancedArticleAuthor[]>([]);
-  const [institutions, setInstitutions] = useState<string[]>([]);
+  const [institutions, setInstitutions] = useState<IInstitution[]>([]);
   const [citations, setCitations] = useState<ICitation[]>([]);
 
   // Debug: Log metadata values when they change
@@ -142,17 +142,17 @@ export default function ArticleDetailsClient({
   useEffect(() => {
     if (article && article.authors && authors.length === 0 && institutions.length === 0) {
       const allAuthors: EnhancedArticleAuthor[] = [];
-      const allInstitutionsSet = new Set<string>();
+      const allInstitutionsMap = new Map<string, IInstitution>();
 
       article.authors.forEach((author) => {
         const enhancedAuthor: EnhancedArticleAuthor = { ...author, institutionsKeys: [] };
 
         author.institutions?.forEach((institution) => {
-          if (!allInstitutionsSet.has(institution.name)) {
-            allInstitutionsSet.add(institution.name);
+          if (!allInstitutionsMap.has(institution.name)) {
+            allInstitutionsMap.set(institution.name, institution);
           }
 
-          const institutionIndex = Array.from(allInstitutionsSet).indexOf(institution.name);
+          const institutionIndex = Array.from(allInstitutionsMap.keys()).indexOf(institution.name);
           enhancedAuthor.institutionsKeys.push(institutionIndex);
         });
 
@@ -160,7 +160,7 @@ export default function ArticleDetailsClient({
       });
 
       setAuthors(allAuthors)
-      setInstitutions(Array.from(allInstitutionsSet))
+      setInstitutions(Array.from(allInstitutionsMap.values()))
     }
   }, [article])
 

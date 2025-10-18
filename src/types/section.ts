@@ -1,5 +1,8 @@
 import { AvailableLanguage } from "@/utils/i18n";
-import { PartialSectionArticle } from "@/types/article";
+import { PartialSectionArticle as ImportedPartialSectionArticle } from "@/types/article";
+
+// Re-export for external use
+export type PartialSectionArticle = ImportedPartialSectionArticle;
 
 export interface ISection {
   id: number;

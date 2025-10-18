@@ -130,7 +130,9 @@ export default async function SectionDetailsPage({
       ).filter(Boolean);
 
       if (paperIds.length > 0) {
-        articles = await fetchSectionArticles(paperIds.map((id: number) => id.toString()));
+        const fetchedArticles = await fetchSectionArticles(paperIds.map((id: number) => id.toString()));
+        // Filter out null values
+        articles = fetchedArticles.filter((article): article is IArticle => article !== null);
       }
     }
     
