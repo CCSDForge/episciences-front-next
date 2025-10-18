@@ -3,6 +3,8 @@ import { fetchSection, fetchSections, fetchSectionArticles } from '@/services/se
 import SectionDetailsClient from './SectionDetailsClient';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { combineWithLanguageParams } from '@/utils/static-params-helper';
+import { ISection, PartialSectionArticle } from '@/types/section';
+import { IArticle } from '@/types/article';
 
 export async function generateMetadata({ params }: { params: { id: string; lang?: string } }): Promise<Metadata> {
   try {
@@ -109,26 +111,26 @@ export default async function SectionDetailsPage({
     
     // Fetch section details by ID (like volumes do)
     const rawSection = await fetchSection({ sid: params.id });
-    
+
     // Format section data (similar to fetchSections formatting)
-    const section = {
-      ...rawSection,
-      id: rawSection.sid || rawSection.id,
-      title: rawSection.titles || rawSection.title,
-      description: rawSection.descriptions || rawSection.description,
-      articles: rawSection.papers || rawSection.articles || []
+    const section: ISection = {
+      id: rawSection.id,
+      title: rawSection.title,
+      description: rawSection.description,
+      committee: rawSection.committee,
+      articles: rawSection.articles || []
     };
-    
+
     // Fetch articles for this section
-    let articles = [];
+    let articles: IArticle[] = [];
     if (section.articles && section.articles.length > 0) {
       // Extract paper IDs from the articles array
-      const paperIds = section.articles.map((article: any) => 
-        article.paperid || article.id || article.docid || article
+      const paperIds = section.articles.map((article: PartialSectionArticle) =>
+        article.paperid
       ).filter(Boolean);
-      
+
       if (paperIds.length > 0) {
-        articles = await fetchSectionArticles(paperIds.map(id => id.toString()));
+        articles = await fetchSectionArticles(paperIds.map((id: number) => id.toString()));
       }
     }
     
