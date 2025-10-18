@@ -88,15 +88,15 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
             {renderContent()}
             {news.link && (
               <div className="newsCard-content-read newsCard-content-read-full">
-                <Link 
-                  href={news.link} 
-                  target="_blank" 
+                <Link
+                  href={news.link}
+                  target="_blank"
                   prefetch={false}
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
                 >
-                  <img 
-                    src={externalLink} 
-                    alt="External link icon" 
+                  <img
+                    src={externalLink}
+                    alt="External link icon"
                   />
                   <div className="newsCard-content-read-text">
                     {t('common.read')}
@@ -110,9 +110,9 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
     }
 
     return (
-      <div 
-        id={cardId()} 
-        className={blurCard ? 'newsCard newsCard-tile newsCard-tile-blur' : 'newsCard newsCard-tile'} 
+      <div
+        id={cardId()}
+        className={blurCard ? 'newsCard newsCard-tile newsCard-tile-blur' : 'newsCard newsCard-tile'}
         onClick={setFullNewsIndexCallback}
       >
         <div className="newsCard-content newsCard-content-tile">
@@ -125,11 +125,11 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
             </div>
             {news.link && (
               <div className="newsCard-content-read">
-                <Link 
-                  href={news.link} 
-                  target="_blank" 
+                <Link
+                  href={news.link}
+                  target="_blank"
                   prefetch={false}
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
                 >
                   <img 
                     src={externalLink} 
@@ -159,11 +159,11 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
         {renderContent()}
         {news.link && (
           <div className="newsCard-content-read">
-            <Link 
-              href={news.link} 
-              target="_blank" 
+            <Link
+              href={news.link}
+              target="_blank"
               prefetch={false}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
             >
               <img 
                 src={externalLink} 
