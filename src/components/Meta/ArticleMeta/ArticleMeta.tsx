@@ -79,44 +79,4 @@ export function generateArticleMetadata({
     },
     other: otherMetadata
   }
-}
-
-export default function ArticleMeta({ 
-  language, 
-  article, 
-  currentJournal, 
-  keywords, 
-  authors 
-}: IArticleMetaProps): JSX.Element {
-  const metadata = generateArticleMetadata({ language, article, currentJournal, keywords, authors });
-
-  return (
-    <>
-      {Object.entries(metadata.other || {}).map(([key, value]) => {
-        if (Array.isArray(value)) {
-          return value.map((v, i) => (
-            <meta key={`${key}-${i}`} name={key} content={typeof v === 'string' ? v : v.toString()} />
-          ));
-        }
-        return <meta key={key} name={key} content={typeof value === 'string' ? value : value.toString()} />;
-      })}
-      {metadata.openGraph && Object.entries(metadata.openGraph).map(([key, value]) => {
-        if (Array.isArray(value)) {
-          return value.map((v, i) => (
-            <meta key={`og:${key}-${i}`} property={`og:${key}`} content={typeof v === 'string' ? v : v.toString()} />
-          ));
-        }
-        if (typeof value === 'string') {
-          return <meta key={`og:${key}`} property={`og:${key}`} content={value} />;
-        }
-        return null;
-      })}
-      {metadata.twitter && Object.entries(metadata.twitter).map(([key, value]) => {
-        if (typeof value === 'string') {
-          return <meta key={`twitter:${key}`} name={`twitter:${key}`} content={value} />;
-        }
-        return null;
-      })}
-    </>
-  );
 } 
