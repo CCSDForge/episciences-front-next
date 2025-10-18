@@ -76,6 +76,13 @@ export default async function VolumeDetailsPage({
 }
 
 export async function generateStaticParams() {
+  // Targeted volume rebuild - only generate specific volume if env var is set
+  if (process.env.ONLY_BUILD_VOLUME_ID) {
+    console.log(`Targeted build for volume ${process.env.ONLY_BUILD_VOLUME_ID}`);
+    return combineWithLanguageParams([{ id: process.env.ONLY_BUILD_VOLUME_ID }]);
+  }
+
+  // Full build: generate all volumes
   try {
     const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
     const { data: volumes } = await fetchVolumes({
