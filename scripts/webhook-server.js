@@ -33,7 +33,7 @@ const PORT = process.env.WEBHOOK_PORT || 3001;
 const DEPLOY_SCRIPT = process.env.DEPLOY_SCRIPT || null;
 const MAX_QUEUE_PER_JOURNAL = parseInt(process.env.MAX_QUEUE_PER_JOURNAL || '10', 10);
 const REBUILD_SCRIPT = path.join(__dirname, 'rebuild-resource.js');
-const LOG_FILE = path.join(__dirname, 'webhook-logs.txt');
+const LOG_FILE = path.join(process.cwd(), 'logs', 'webhook-server.log');
 const JOURNALS_FILE = path.join(process.cwd(), 'external-assets', 'journals.txt');
 
 // Build manager class

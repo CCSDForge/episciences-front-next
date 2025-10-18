@@ -42,8 +42,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# ide
+/.idea/
+
 # external assets
 /external-assets/
-/build.log
-/.idea/
-/scripts/webhook-logs.txt
+
+# logs
+/logs/
+build.log
+
+# temporary files
+/tmp/
