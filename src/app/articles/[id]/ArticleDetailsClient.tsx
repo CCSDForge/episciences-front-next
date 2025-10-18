@@ -16,14 +16,13 @@ import { PATHS, BREADCRUMB_PATHS } from '@/config/paths';
 import { useAppSelector } from "@/hooks/store";
 import { IArticle, IArticleAuthor, IArticleRelatedItem } from "@/types/article";
 import { IVolume } from "@/types/volume";
-import { articleTypes, CITATION_TEMPLATE, getCitations, ICitation, METADATA_TYPE, INTER_WORK_RELATIONSHIP } from '@/utils/article';
+import { articleTypes, CITATION_TEMPLATE, getCitations, ICitation, METADATA_TYPE } from '@/utils/article';
 import { AvailableLanguage } from '@/utils/i18n';
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Loader from "@/components/Loader/Loader";
 import ArticleDetailsSidebar from "@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar";
 import CollapsibleSection from './components/CollapsibleSection';
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
-import AbstractSection from './components/AbstractSection';
 import KeywordsSection from './components/KeywordsSection';
 import LinkedPublicationsSection from './components/LinkedPublicationsSection';
 import CitedBySection from './components/CitedBySection';
@@ -36,9 +35,6 @@ import './ArticleDetails.scss';
 interface ArticleDetailsClientProps {
   article: IArticle | null;
   id: string;
-  initialRelatedVolume?: IVolume | null;
-  initialMetadataCSL?: string | null;
-  initialMetadataBibTeX?: string | null;
 }
 
 interface EnhancedArticleAuthor extends IArticleAuthor {
@@ -57,23 +53,17 @@ enum ARTICLE_SECTION {
 
 const MAX_BREADCRUMB_TITLE = 20;
 
-export default function ArticleDetailsClient({ 
-  article, 
-  id, 
-  initialRelatedVolume,
-  initialMetadataCSL,
-  initialMetadataBibTeX 
-}: ArticleDetailsClientProps): JSX.Element {
+export default function ArticleDetailsClient({ article, id }: ArticleDetailsClientProps): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const language = useAppSelector(state => state.i18nReducer.language);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
   
-  const [relatedVolume, setRelatedVolume] = useState<IVolume | undefined>(initialRelatedVolume || undefined);
-  const [metadataCSL, setMetadataCSL] = useState<string | null>(initialMetadataCSL || null);
-  const [metadataBibTeX, setMetadataBibTeX] = useState<string | null>(initialMetadataBibTeX || null);
-  const [isLoading, setIsLoading] = useState(!initialRelatedVolume && !initialMetadataCSL);
+  const [relatedVolume, setRelatedVolume] = useState<IVolume | undefined>(undefined);
+  const [metadataCSL, setMetadataCSL] = useState<string | null>(null);
+  const [metadataBibTeX, setMetadataBibTeX] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [openedSections, setOpenedSections] = useState<{ key: ARTICLE_SECTION, isOpened: boolean }[]>([
     { key: ARTICLE_SECTION.GRAPHICAL_ABSTRACT, isOpened: true },
@@ -88,20 +78,8 @@ export default function ArticleDetailsClient({
   const [institutions, setInstitutions] = useState<string[]>([]);
   const [citations, setCitations] = useState<ICitation[]>([]);
 
-  // Debug: Log metadata values when they change
-  useEffect(() => {
-    console.log('[Metadata Debug] metadataCSL:', metadataCSL);
-    console.log('[Metadata Debug] metadataBibTeX:', metadataBibTeX);
-  }, [metadataCSL, metadataBibTeX]);
-
   useEffect(() => {
     async function fetchData() {
-      // Skip client-side fetching if data was provided server-side
-      if (initialRelatedVolume !== undefined && initialMetadataCSL !== undefined) {
-        setIsLoading(false);
-        return;
-      }
-
       try {
         setIsLoading(true);
         
@@ -111,8 +89,7 @@ export default function ArticleDetailsClient({
           return;
         }
         
-        // Only fetch volume if not provided server-side
-        if (!initialRelatedVolume && article?.volumeId && rvcode) {
+        if (article?.volumeId && rvcode) {
           const volumeData = await fetchVolume({ 
             rvcode, 
             vid: article.volumeId.toString(), 
@@ -120,9 +97,7 @@ export default function ArticleDetailsClient({
           });
           setRelatedVolume(volumeData || undefined);
         }
-        
-        // Only fetch metadata if not provided server-side
-        if (!initialMetadataCSL && !initialMetadataBibTeX && id && rvcode) {
+        if (id && rvcode) {
           const [cslData, bibtexData] = await Promise.all([
             fetchArticleMetadata({ rvcode, paperid: id, type: METADATA_TYPE.CSL }),
             fetchArticleMetadata({ rvcode, paperid: id, type: METADATA_TYPE.BIBTEX })
@@ -137,10 +112,10 @@ export default function ArticleDetailsClient({
       }
     }
     fetchData();
-  }, [article, id, rvcode, language, initialRelatedVolume, initialMetadataCSL, initialMetadataBibTeX]);
+  }, [article, id, rvcode, language]);
 
   useEffect(() => {
-    if (article && article.authors && authors.length === 0 && institutions.length === 0) {
+    if (article && !authors.length && !institutions.length) {
       const allAuthors: EnhancedArticleAuthor[] = [];
       const allInstitutionsSet = new Set<string>();
 
@@ -162,7 +137,7 @@ export default function ArticleDetailsClient({
       setAuthors(allAuthors)
       setInstitutions(Array.from(allInstitutionsSet))
     }
-  }, [article])
+  }, [article, authors, institutions])
 
   const renderArticleTitleAndAuthors = (isMobile: boolean): JSX.Element => {
     return (
@@ -170,14 +145,12 @@ export default function ArticleDetailsClient({
         <h1 className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}>
           <MathJax dynamic>{article?.title}</MathJax>
         </h1>
-        {authors.length > 0 ? (
+        {authors.length > 0 && (
           <CollapsibleInstitutions 
             authors={authors} 
             institutions={institutions} 
             isMobile={isMobile} 
           />
-        ) : (
-          <div>No authors processed yet</div>
         )}
       </>
     )
@@ -221,61 +194,22 @@ export default function ArticleDetailsClient({
   }
 
   const getAbstractSection = (): JSX.Element | null => {
-    if (!article?.abstract) {
-      return null;
-    }
-
-    return (
-      <AbstractSection
-        abstractData={article.abstract}
-        currentLanguage={language}
-      />
-    );
+    return article?.abstract ? <MathJax dynamic>{article.abstract}</MathJax> : null
   }
 
   const getKeywordsSection = (): JSX.Element | null => {
-    if (!article?.keywords) {
-      return null;
-    }
-
-    // Check if keywords is empty (array or object)
-    const hasKeywords = Array.isArray(article.keywords)
-      ? article.keywords.length > 0
-      : Object.keys(article.keywords).some(lang => {
-          const langKeywords = article.keywords[lang as keyof typeof article.keywords];
-          return Array.isArray(langKeywords) && langKeywords.length > 0;
-        });
-
-    if (!hasKeywords) {
-      return null;
-    }
-
-    return (
-      <KeywordsSection
-        keywordsData={article.keywords}
-        currentLanguage={language as AvailableLanguage}
+    return article?.keywords ? (
+      <KeywordsSection 
+        keywordsData={article.keywords} 
+        currentLanguage={language as AvailableLanguage} 
       />
-    );
+    ) : null;
   }
 
   const getLinkedPublicationsSection = (): JSX.Element | null => {
-    if (!article?.relatedItems || article.relatedItems.length === 0) {
-      return null;
-    }
-
-    // Filter out specific relationship types to match LinkedPublicationsSection logic
-    const filteredItems = article.relatedItems.filter(
-      (relatedItem) =>
-        relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
-        relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.HAS_PREPRINT
-    );
-
-    // If no items remain after filtering, return null
-    if (filteredItems.length === 0) {
-      return null;
-    }
-
-    return <LinkedPublicationsSection relatedItems={article.relatedItems} />;
+    return article?.relatedItems ? (
+      <LinkedPublicationsSection relatedItems={article.relatedItems} />
+    ) : null;
   }
 
   const getReferencesSection = (): JSX.Element | null => {
@@ -291,12 +225,13 @@ export default function ArticleDetailsClient({
   }
 
   const getPreviewSection = (): JSX.Element | null => {
-    if (!article?.pdfLink) {
-      return null;
-    }
-
-    // PreviewSection handles the viewer choice (iframe vs PDF.js) internally
-    return <PreviewSection pdfLink={article.pdfLink} />;
+   // console.log('Article object:', article);
+   // console.log('PDF Link:', article?.pdfLink);
+    return article?.pdfLink ? (
+      <PreviewSection 
+        pdfLink={article.pdfLink} 
+      />
+    ) : null;
   }
 
   const renderMetrics = (): JSX.Element | undefined => {
@@ -324,24 +259,15 @@ export default function ArticleDetailsClient({
 
   useEffect(() => {
     const fetchCitations = async () => {
-      console.log('[Citations Debug] Starting citation fetch...');
-      console.log('[Citations Debug] metadataCSL:', metadataCSL?.substring(0, 200));
-      console.log('[Citations Debug] metadataBibTeX:', metadataBibTeX?.substring(0, 200));
-
       const fetchedCitations = await getCitations(metadataCSL as string);
-      console.log('[Citations Debug] Fetched citations:', fetchedCitations);
-
+      
       // Update the BibTeX citation with the proper content
       const bibtexIndex = fetchedCitations.findIndex(citation => citation.key === CITATION_TEMPLATE.BIBTEX);
       if (bibtexIndex !== -1 && metadataBibTeX) {
         fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
       }
 
-      // Filter out citations with empty content
-      const validCitations = fetchedCitations.filter(citation => citation.citation && citation.citation.trim() !== '');
-      console.log('[Citations Debug] Valid citations after filtering:', validCitations);
-
-      setCitations(validCitations);
+      setCitations(fetchedCitations);
     };
 
     fetchCitations();
@@ -349,34 +275,23 @@ export default function ArticleDetailsClient({
 
   return (
     <main className='articleDetails'>
-      {/* Tracking pixel for article views - appears in Apache logs as /articles/[id]/preview */}
-      {article?.id && (
-        <img
-          src={`/articles/${article.id}/preview`}
-          alt=""
-          width="1"
-          height="1"
-          style={{ position: 'absolute', visibility: 'hidden' }}
-          aria-hidden="true"
-        />
-      )}
-      <Breadcrumb
+      <Breadcrumb 
         parents={[
           { path: BREADCRUMB_PATHS.home, label: `${t('pages.home.title')} > ${t('common.content')} >` },
           { path: BREADCRUMB_PATHS.articles, label: `${t('pages.articles.title')} >` }
-        ]}
-        crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''}
+        ]} 
+        crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''} 
       />
       {isLoading ? (
         <Loader />
       ) : (
         <>
-          <ArticleMeta
-            language={language}
-            article={article as IArticle | undefined}
-            currentJournal={currentJournal}
-            keywords={Array.isArray(article?.keywords) ? article.keywords : []}
-            authors={authors}
+          <ArticleMeta 
+            language={language} 
+            article={article as IArticle | undefined} 
+            currentJournal={currentJournal} 
+            keywords={Array.isArray(article?.keywords) ? article.keywords : []} 
+            authors={authors} 
           />
           {article?.tag && <div className='articleDetails-tag'>{t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}</div>}
           <div className="articleDetails-content">
