@@ -39,8 +39,6 @@ declare module '@/utils/volume' {
   export function getVolumeDescription(volume: Volume): string
 }
 
-import { VOLUME_TYPE } from '@/utils/volume'
-
 export interface Journal {
   id: number
   code: string

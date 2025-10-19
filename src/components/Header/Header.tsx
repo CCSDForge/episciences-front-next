@@ -7,20 +7,12 @@ import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from 'react-device-detect';
 import './Header.scss';
 
-import arrowRight from '/public/icons/arrow-right-blue.svg';
-import burger from '/public/icons/burger.svg';
-import externalLink from '/public/icons/external-link-white.svg';
-import logoText from '/public/icons/logo-text.svg';
-import search from '/public/icons/search.svg';
-import caretDown from '/public/icons/caret-down-blue.svg';
-import caretUp from '/public/icons/caret-up-blue.svg';
-
 import { PATHS } from '@/config/paths';
 import { statisticsBlocksConfiguration } from '@/config/statistics';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setSearch } from '@/store/features/search/search.slice';
 import { availableLanguages } from '@/utils/i18n';
-import { VOLUME_TYPE, Volume } from '@/utils/volume';
+import { VOLUME_TYPE } from '@/utils/volume';
 import Button from '@/components/Button/Button';
 import LanguageDropdown from '@/components/LanguageDropdown/LanguageDropdown';
 import HeaderSearchInput from '@/components/SearchInput/HeaderSearchInput/HeaderSearchInput';
