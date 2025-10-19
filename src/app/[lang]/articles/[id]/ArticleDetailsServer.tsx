@@ -1,7 +1,7 @@
 import React from 'react';
 import { IArticle, IArticleAuthor, IInstitution } from "@/types/article";
 import { IVolume } from "@/types/volume";
-import { ICitation, INTER_WORK_RELATIONSHIP } from '@/utils/article';
+import { INTER_WORK_RELATIONSHIP } from '@/utils/article';
 import { BREADCRUMB_PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';

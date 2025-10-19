@@ -8,7 +8,6 @@ import { IBoardMember } from '@/types/board';
 import { IBoardPage } from '@/services/board';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
-import Loader from '@/components/Loader/Loader';
 import BoardsSidebar from '@/components/Sidebars/BoardsSidebar/BoardsSidebar';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import './Boards.scss';

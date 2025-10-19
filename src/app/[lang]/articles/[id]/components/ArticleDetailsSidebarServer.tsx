@@ -1,7 +1,6 @@
 import React from 'react';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
-import { ICitation } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';

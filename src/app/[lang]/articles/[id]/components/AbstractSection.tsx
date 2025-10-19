@@ -1,7 +1,6 @@
 "use client";
 
 import { MathJax } from 'better-react-mathjax';
-import { availableLanguages } from '@/utils/i18n';
 import { getTextDirection, getLanguageLabel } from '@/utils/rtl-languages';
 
 interface AbstractSectionProps {

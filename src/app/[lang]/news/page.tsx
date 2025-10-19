@@ -4,7 +4,7 @@ import { fetchNews } from '@/services/news';
 import './News.scss';
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
-import { getLanguageFromParams } from "@/utils/language-utils";
+
 const NewsClient = dynamic(() => import('./NewsClient'), { ssr: false });
 
 

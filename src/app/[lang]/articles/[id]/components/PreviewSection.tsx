@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import { useTranslation } from 'react-i18next';
 import { needsPdfJsViewer } from '@/utils/pdf-preview';
 
 // Dynamically import PDFViewer to avoid SSR issues with PDF.js

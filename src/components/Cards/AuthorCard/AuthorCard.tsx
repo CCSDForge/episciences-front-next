@@ -1,7 +1,6 @@
 'use client';
 
 import { TFunction } from 'i18next';
-import { Link } from '@/components/Link/Link';
 import './AuthorCard.scss';
 
 import caretRightBlack from '../../../../public/icons/caret-right-black.svg';

@@ -3,7 +3,6 @@
 import { Provider } from 'react-redux';
 import store from '@/store';
 import Header from '@/components/Header/Header';
-import type { Volume } from '@/utils/volume';
 
 interface ClientLayoutProps {
   children: React.ReactNode;

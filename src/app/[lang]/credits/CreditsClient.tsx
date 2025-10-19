@@ -7,8 +7,7 @@ import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
-// import caretUp from '/icons/caret-up-red.svg';
-// import caretDown from '/icons/caret-down-red.svg';
+
 import caretUp from '/public/icons/caret-up-red.svg';
 import caretDown from '/public/icons/caret-down-red.svg';
 import { useAppSelector } from '@/hooks/store';

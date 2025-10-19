@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import dynamicImport from 'next/dynamic';
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
-import { getLanguageFromParams } from "@/utils/language-utils";
+
 const AuthorsClient = dynamicImport(() => import('./AuthorsClient'), { ssr: false });
 
 export const metadata: Metadata = {

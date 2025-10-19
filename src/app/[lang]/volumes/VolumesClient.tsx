@@ -23,7 +23,6 @@ import Tag from "@/components/Tag/Tag";
 import PageTitle from "@/components/PageTitle/PageTitle";
 import './Volumes.scss';
 import { IVolume } from '@/types/volume';
-import { PATHS } from '@/config/paths';
 
 // Import VolumesResponse mais pas le hook useFetchVolumesQuery
 import type { VolumesResponse } from '@/store/features/volume/volume.query';

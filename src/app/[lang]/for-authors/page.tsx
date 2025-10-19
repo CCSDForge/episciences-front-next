@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
-import { getLanguageFromParams } from "@/utils/language-utils";
+
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'), { ssr: false });
 
 

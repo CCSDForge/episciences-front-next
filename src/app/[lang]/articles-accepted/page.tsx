@@ -6,9 +6,6 @@ import { fetchArticles } from '@/services/article';
 
 import dynamic from 'next/dynamic';
 
-import { IArticle } from '@/types/article';
-
-
 
 export async function generateStaticParams() {
   return generateLanguageParams();

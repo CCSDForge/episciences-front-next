@@ -1,7 +1,6 @@
 "use client";
 
-import { Fragment, ReactNode, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import {useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { IInstitution } from '@/types/article';
 import orcid from '/public/icons/orcid.svg';

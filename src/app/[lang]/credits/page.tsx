@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import './Credits.scss';
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
-import { getLanguageFromParams } from "@/utils/language-utils";
+
 const CreditsClient = dynamic(() => import('./CreditsClient'), { ssr: false });
 
 

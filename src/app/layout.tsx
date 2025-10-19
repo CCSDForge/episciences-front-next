@@ -1,13 +1,9 @@
 import { Metadata } from 'next';
-import Script from 'next/script';
 
 // Importer l'intercepteur fetch pour logger toutes les requêtes
 import '@/utils/fetchInterceptor';
 
 import ClientProviders from '@/components/ClientProviders/ClientProviders';
-import FooterServer from '@/components/Footer/FooterServer';
-import HeaderServer from '@/components/Header/HeaderServer';
-import HeaderClientWrapper from '@/components/Header/HeaderClientWrapper';
 import { fetchVolumes } from '@/services/volume';
 import { defaultLanguage } from '@/utils/language-utils';
 

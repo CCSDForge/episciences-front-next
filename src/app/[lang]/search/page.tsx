@@ -1,12 +1,9 @@
 import { Metadata } from 'next';
-import { fetchSearchResults } from '@/services/search';
 import dynamicImport from 'next/dynamic';
 import './Search.scss';
-import { redirect } from 'next/navigation';
-import { PATHS } from '@/config/paths';
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
-import { getLanguageFromParams } from "@/utils/language-utils";
+
 const SearchClient = dynamicImport(() => import('./SearchClient'), { ssr: false });
 
 export const metadata: Metadata = {

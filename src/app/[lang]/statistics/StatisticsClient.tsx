@@ -13,7 +13,7 @@ import Loader from '@/components/Loader/Loader';
 import PieChart from '@/components/Charts/PieChart/PieChart';
 import StatisticsMobileModal from '@/components/Modals/StatisticsMobileModal/StatisticsMobileModal';
 import StatisticsSidebar, { IStatisticsYearSelection } from '@/components/Sidebars/StatisticsSidebar/StatisticsSidebar';
-import { STATISTIC_BLOCK, statisticsBlocksConfiguration } from '@/config/statistics';
+import { statisticsBlocksConfiguration } from '@/config/statistics';
 
 // import caretUp from '/icons/caret-up-red.svg';
 // import caretDown from '/icons/caret-down-red.svg';

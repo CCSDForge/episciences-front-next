@@ -1,6 +1,6 @@
 "use client";
 
-import { AvailableLanguage, availableLanguages } from '@/utils/i18n';
+import { AvailableLanguage } from '@/utils/i18n';
 import { getTextDirection, getLanguageLabel } from '@/utils/rtl-languages';
 
 interface KeywordsSectionProps {

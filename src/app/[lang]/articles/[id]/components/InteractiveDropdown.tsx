@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { BlueskyShareButton, EmailShareButton, FacebookShareButton, LinkedinShareButton, TwitterShareButton, WhatsappShareButton } from 'react-share';
 
 import { ICitation, METADATA_TYPE, copyToClipboardCitation, getMetadataTypes, getCitations, CITATION_TEMPLATE } from '@/utils/article';
-import { PATHS } from '@/config/paths';
 import { fetchArticleMetadata } from '@/services/article';
 import { toast } from 'react-toastify';
 import { useAppSelector } from '@/hooks/store';
