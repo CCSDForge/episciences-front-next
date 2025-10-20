@@ -14,6 +14,7 @@ import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
 import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 import { AvailableLanguage } from '@/utils/i18n';
+import { cachedFetch } from '@/utils/fetch-cache';
 
 interface ArticleDetailsPageProps {
   params: {
@@ -88,6 +89,7 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
 export async function generateStaticParams() {
   // Si un ID spécifique est fourni, ne générer que cet article
   if (process.env.ONLY_BUILD_ARTICLE_ID) {
+    console.log(`[generateStaticParams] Targeted build for article ${process.env.ONLY_BUILD_ARTICLE_ID}`);
     return combineWithLanguageParams([{ id: process.env.ONLY_BUILD_ARTICLE_ID }]);
   }
 
@@ -99,11 +101,24 @@ export async function generateStaticParams() {
       return combineWithLanguageParams([{ id: 'no-articles-found' }]);
     }
 
-    const { data: articles } = await fetchArticles({
-      rvcode,
-      page: 1,
-      itemsPerPage: 5000
-    });
+    // Optimisation: limite configurable via env var (défaut: 2000 au lieu de 5000)
+    // Pour les très grands journaux, ajuster MAX_ARTICLES_TO_GENERATE
+    const maxArticles = parseInt(process.env.MAX_ARTICLES_TO_GENERATE || '2000', 10);
+    console.log(`[generateStaticParams] Fetching up to ${maxArticles} articles for ${rvcode}`);
+
+    // Utiliser le cache pour éviter de refetcher les mêmes articles plusieurs fois
+    // pendant le build (génération parallèle de pages)
+    const cacheKey = `articles-${rvcode}-${maxArticles}`;
+    const startTime = Date.now();
+    const { data: articles } = await cachedFetch(cacheKey, () =>
+      fetchArticles({
+        rvcode,
+        page: 1,
+        itemsPerPage: maxArticles
+      })
+    );
+    const fetchTime = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`[generateStaticParams] Fetched ${articles?.length || 0} articles in ${fetchTime}s`);
 
     if (!articles || !articles.length) {
       return combineWithLanguageParams([{ id: "no-articles-found" }]);
