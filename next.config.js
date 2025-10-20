@@ -192,6 +192,13 @@ const nextConfig = {
       name: `${journalCode}-cache`,
     };
 
+    // Réduire la verbosité des logs de cache webpack
+    // Ces warnings de désérialisation apparaissent quand webpack ne peut pas restaurer
+    // certains modules du cache et doit les rebuild. Ce n'est pas bloquant.
+    config.infrastructureLogging = {
+      level: 'error', // Ne montrer que les erreurs, pas les warnings de cache
+    };
+
     // Version corrigée - utiliser la nouvelle méthode recommandée pour les scripts personnalisés
     if (!isServer) {
       // Ne pas utiliser la manipulation directe de Compilation.assets
