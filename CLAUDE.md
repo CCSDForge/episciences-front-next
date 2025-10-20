@@ -35,6 +35,76 @@ make docker-stop             # Stop test server
 - **Build Output**: `dist/<journal-code>/` - separate directory per journal
 - **Language Routing**: Apache `.htaccess` generated at build time (see APACHE_INTEGRATION.md)
 
+## Build Performance & Caching
+
+### Performance Optimizations
+
+**Webpack Filesystem Cache** (enabled by default)
+- Cache isolated per journal in `.next/cache-{journal}/`
+- Supports parallel builds via webhook without conflicts
+- Typical gains: 40-56% faster on warm cache
+- Clean all caches: `make clean`
+
+**In-Memory Fetch Cache** (automatic during builds)
+- Prevents redundant API calls for article lists
+- Activated only during static builds (`NEXT_PUBLIC_STATIC_BUILD=true`)
+- Eliminates 100+ redundant fetches per build
+- Configurable limit: `MAX_ARTICLES_TO_GENERATE` (default: 2000)
+
+**Build Times** (epijinfo, 92 articles):
+- Cold cache: ~38s
+- Warm cache: ~21s
+- Targeted article rebuild: ~30s
+
+### CI/CD Cache Configuration
+
+**GitHub Actions:**
+```yaml
+- name: Cache Next.js build
+  uses: actions/cache@v4
+  with:
+    path: |
+      .next/cache-*
+      node_modules
+    key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.[jt]s', 'src/**/*.[jt]sx') }}
+    restore-keys: |
+      ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
+      ${{ runner.os }}-nextjs-
+```
+
+**GitLab CI:**
+```yaml
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - .next/cache-*/
+```
+
+**Jenkins:**
+```groovy
+stage("Build with Cache") {
+  steps {
+    cache(caches: [
+      arbitraryFileCache(
+        path: ".next/cache-*",
+        includes: "**/*",
+        cacheValidityDecidingFile: "package-lock.json"
+      )
+    ]) {
+      sh "npm run build"
+    }
+  }
+}
+```
+
+### Environment Variables
+
+- `MAX_ARTICLES_TO_GENERATE` (default: 2000) - Max articles to fetch per build
+- `ONLY_BUILD_ARTICLE_ID` - Build single article (targeted rebuild)
+- `ONLY_BUILD_VOLUME_ID` - Build single volume
+- `ONLY_BUILD_SECTION_ID` - Build single section
+
 ## Architecture Patterns
 
 ### Static Build System
