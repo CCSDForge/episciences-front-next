@@ -175,8 +175,22 @@ const nextConfig = {
       }
     });
 
-    // Désactiver la mise en cache pour éviter les erreurs de sérialisation
-    config.cache = false;
+    // Activer le cache filesystem pour améliorer les performances de build
+    // Le type 'filesystem' résout les problèmes de sérialisation en persistant le cache sur disque
+    // IMPORTANT: Cache isolé par journal pour supporter builds parallèles via webhook
+    const journalCode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'default';
+    config.cache = {
+      type: 'filesystem',
+      // Cache séparé par journal pour éviter conflits lors de builds parallèles
+      cacheDirectory: path.resolve(__dirname, `.next/cache-${journalCode}`),
+      buildDependencies: {
+        config: [__filename],
+      },
+      // Cache invalidé automatiquement quand ces fichiers changent
+      version: `${journalCode}-${isDev ? 'dev' : 'prod'}`,
+      // Nommer le cache pour faciliter le debugging
+      name: `${journalCode}-cache`,
+    };
 
     // Version corrigée - utiliser la nouvelle méthode recommandée pour les scripts personnalisés
     if (!isServer) {

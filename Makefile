@@ -92,6 +92,7 @@ list:
 clean:
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(NEXT_BUILD_DIR)
+	@rm -rf .next/cache-*
 	@rm -f .env.local
 
 # Per-journal build
