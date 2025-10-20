@@ -5,7 +5,7 @@ import './News.scss';
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
 
-const NewsClient = dynamic(() => import('./NewsClient'), { ssr: false });
+const NewsClient = dynamic(() => import('./NewsClient'));
 
 
 export const metadata: Metadata = {

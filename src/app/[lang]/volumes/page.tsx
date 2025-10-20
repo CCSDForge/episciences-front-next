@@ -12,7 +12,7 @@ export async function generateStaticParams() {
   return generateLanguageParams();
 }
 
-const VolumesClient = dynamic(() => import('./VolumesClient'), { ssr: false });
+const VolumesClient = dynamic(() => import('./VolumesClient'));
 
 
 const VOLUMES_PER_PAGE = 10;

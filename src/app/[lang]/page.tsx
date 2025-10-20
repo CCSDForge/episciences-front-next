@@ -16,7 +16,7 @@ export async function generateStaticParams() {
   return generateLanguageParams();
 }
 
-const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'), { ssr: false });
+const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'), );
 
 export const metadata: Metadata = {
   title: getFormattedSiteTitle('Accueil'),

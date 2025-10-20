@@ -5,7 +5,7 @@ import './Credits.scss';
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
 
-const CreditsClient = dynamic(() => import('./CreditsClient'), { ssr: false });
+const CreditsClient = dynamic(() => import('./CreditsClient'));
 
 
 export const metadata: Metadata = {

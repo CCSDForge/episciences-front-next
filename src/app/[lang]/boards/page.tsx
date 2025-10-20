@@ -12,7 +12,7 @@ export async function generateStaticParams() {
   return generateLanguageParams();
 }
 
-const BoardsClient = dynamic(() => import('./BoardsClient'), { ssr: false });
+const BoardsClient = dynamic(() => import('./BoardsClient'));
 
 
 export const metadata: Metadata = {

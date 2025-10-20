@@ -4,7 +4,7 @@ import './Search.scss';
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
 
-const SearchClient = dynamicImport(() => import('./SearchClient'), { ssr: false });
+const SearchClient = dynamicImport(() => import('./SearchClient'), );
 
 export const metadata: Metadata = {
   title: 'Recherche',

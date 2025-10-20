@@ -10,7 +10,7 @@ export async function generateStaticParams() {
   return generateLanguageParams();
 }
 
-const StatisticsClient = dynamic(() => import('./StatisticsClient'), { ssr: false });
+const StatisticsClient = dynamic(() => import('./StatisticsClient'));
 
 export const metadata: Metadata = {
   title: 'Statistiques',

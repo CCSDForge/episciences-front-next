@@ -11,7 +11,7 @@ export async function generateStaticParams() {
   return generateLanguageParams();
 }
 
-const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'), { ssr: false });
+const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'));
 
 
 // Métadonnées pour la page

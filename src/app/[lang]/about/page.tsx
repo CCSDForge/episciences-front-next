@@ -6,7 +6,7 @@ import { IPage } from '@/types/page';
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
 import { getLanguageFromParams } from "@/utils/language-utils";
-const AboutClient = dynamic(() => import('./AboutClient'), { ssr: false });
+const AboutClient = dynamic(() => import('./AboutClient'));
 
 
 export const metadata: Metadata = {

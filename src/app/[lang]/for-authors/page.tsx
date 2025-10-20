@@ -4,7 +4,7 @@ import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmis
 
 import { generateLanguageParams } from "@/utils/static-params-helper";
 
-const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'), { ssr: false });
+const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
 
 
 // Cette fonction est appelée au build time

@@ -12,7 +12,7 @@ export async function generateStaticParams() {
   return generateLanguageParams();
 }
 
-const SectionsClient = dynamic(() => import('./SectionsClient'), { ssr: false });
+const SectionsClient = dynamic(() => import('./SectionsClient'));
 
 
 export const metadata: Metadata = {
