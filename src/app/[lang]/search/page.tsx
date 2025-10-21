@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import dynamicImport from 'next/dynamic';
 import './Search.scss';
 
-import { generateLanguageParams } from "@/utils/static-params-helper";
+import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 
 const SearchClient = dynamicImport(() => import('./SearchClient'), );
 
@@ -11,9 +11,7 @@ export const metadata: Metadata = {
 };
 
 export async function generateStaticParams() {
-  // Pour le mode Full Static, on génère une seule page de recherche vide
-  // La recherche effective sera effectuée côté client
-  return generateLanguageParams();
+  return generateLanguageParamsForPage('search');
 }
 
 export default async function SearchPage({ params }: { params: { lang: string } }) {

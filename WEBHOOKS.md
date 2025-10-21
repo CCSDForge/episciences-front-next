@@ -39,6 +39,7 @@ The webhook system enables **on-demand regeneration** of static site resources w
 | `article` | Individual article page | Article ID: 12345 |
 | `volume` | Individual volume page | Volume ID: 42 |
 | `section` | Individual section page | Section ID: 7 |
+| `static-page` | Individual static page | Page: about, news, home |
 | `full` | Complete journal rebuild | All pages regenerated |
 
 ---
@@ -188,8 +189,9 @@ Trigger a rebuild for a specific resource or entire journal.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `journalCode` | string | ✅ Yes | Journal code (e.g., 'epijinfo', 'dmtcs') |
-| `resourceType` | string | ✅ Yes | Resource type: 'article', 'volume', 'section', 'full' |
-| `resourceId` | string | Conditional | Required for article/volume/section, not for full |
+| `resourceType` | string | ✅ Yes | Resource type: 'article', 'volume', 'section', 'static-page', 'full' |
+| `resourceId` | string | Conditional | Required for article/volume/section, not for static-page/full |
+| `pageName` | string | Conditional | Required for static-page (e.g., 'about', 'news', 'home') |
 | `deploy` | boolean | ❌ No | Trigger deployment script after build (default: false) |
 
 **Success Response (202 Accepted):**
@@ -531,6 +533,26 @@ curl -X POST http://localhost:3001/rebuild \
 
 ## Usage Examples
 
+### Available Static Pages
+
+The following static pages can be rebuilt individually using `resourceType: "static-page"`:
+
+| Page Name | Route | Description |
+|-----------|-------|-------------|
+| `home` | `/` | Homepage |
+| `about` | `/about` | About page |
+| `news` | `/news` | News page |
+| `credits` | `/credits` | Credits page |
+| `authors` | `/authors` | Authors list |
+| `boards` | `/boards` | Editorial boards |
+| `articles` | `/articles` | Articles list |
+| `articles-accepted` | `/articles-accepted` | Accepted articles |
+| `volumes` | `/volumes` | Volumes list |
+| `sections` | `/sections` | Sections list |
+| `for-authors` | `/for-authors` | For authors page |
+| `search` | `/search` | Search page |
+| `statistics` | `/statistics` | Statistics page |
+
 ### Basic Article Rebuild
 
 ```bash
@@ -556,6 +578,18 @@ curl -X POST http://localhost:3001/rebuild \
   }'
 ```
 
+### Static Page Rebuild
+
+```bash
+curl -X POST http://localhost:3001/rebuild \
+  -H "Content-Type: application/json" \
+  -d '{
+    "journalCode": "epijinfo",
+    "resourceType": "static-page",
+    "pageName": "about"
+  }'
+```
+
 ### Full Journal Rebuild
 
 ```bash
@@ -578,6 +612,30 @@ curl http://localhost:3001/rebuild/$BUILD_ID
 
 # Check every 5 seconds until completed
 watch -n 5 curl http://localhost:3001/rebuild/$BUILD_ID
+```
+
+### Command Line (CLI) Examples
+
+You can also trigger rebuilds directly from the command line using the rebuild script:
+
+```bash
+# Rebuild a specific article
+node scripts/rebuild-resource.js --journal epijinfo --type article --id 12345
+
+# Rebuild a specific volume
+node scripts/rebuild-resource.js --journal dmtcs --type volume --id 42
+
+# Rebuild a specific section
+node scripts/rebuild-resource.js --journal ops --type section --id 7
+
+# Rebuild a specific static page
+node scripts/rebuild-resource.js --journal epijinfo --type static-page --page about
+
+# Full journal rebuild
+node scripts/rebuild-resource.js --journal epijinfo --type full
+
+# Using npm scripts
+npm run rebuild -- --journal epijinfo --type static-page --page news
 ```
 
 ### Monitor Server Status

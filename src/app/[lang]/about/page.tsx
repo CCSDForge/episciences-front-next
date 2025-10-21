@@ -4,7 +4,7 @@ import './About.scss';
 import { fetchAboutPage } from '@/services/about';
 import { IPage } from '@/types/page';
 
-import { generateLanguageParams } from "@/utils/static-params-helper";
+import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 import { getLanguageFromParams } from "@/utils/language-utils";
 const AboutClient = dynamic(() => import('./AboutClient'));
 
@@ -15,8 +15,7 @@ export const metadata: Metadata = {
 };
 
 export async function generateStaticParams() {
-  // Pour une page à propos, il n'y a généralement pas de paramètres dynamiques
-  return generateLanguageParams();
+  return generateLanguageParamsForPage('about');
 }
 
 export default async function AboutPage() {

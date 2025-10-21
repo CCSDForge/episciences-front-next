@@ -1,4 +1,4 @@
-import { generateLanguageParams } from '@/utils/static-params-helper';
+import { generateLanguageParamsForPage } from '@/utils/static-params-helper';
 
 import { Metadata } from 'next';
 
@@ -13,7 +13,7 @@ import '@/styles/pages/Home.scss';
 
 
 export async function generateStaticParams() {
-  return generateLanguageParams();
+  return generateLanguageParamsForPage('home');
 }
 
 const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'), );

@@ -3,7 +3,7 @@ import { fetchCreditsPage } from '@/services/credits';
 import dynamic from 'next/dynamic';
 import './Credits.scss';
 
-import { generateLanguageParams } from "@/utils/static-params-helper";
+import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 
 const CreditsClient = dynamic(() => import('./CreditsClient'));
 
@@ -14,8 +14,7 @@ export const metadata: Metadata = {
 };
 
 export async function generateStaticParams() {
-  // Pour une page de crédits, il n'y a généralement pas de paramètres dynamiques
-  return generateLanguageParams();
+  return generateLanguageParamsForPage('credits');
 }
 
 export default async function CreditsPage() {

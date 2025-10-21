@@ -2,14 +2,14 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
 
-import { generateLanguageParams } from "@/utils/static-params-helper";
+import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
 
 
 // Cette fonction est appelée au build time
 export async function generateStaticParams() {
-  return generateLanguageParams();
+  return generateLanguageParamsForPage('for-authors');
 }
 
 // Cette fonction est aussi appelée au build time

@@ -1,4 +1,4 @@
-import { generateLanguageParams } from '@/utils/static-params-helper';
+import { generateLanguageParamsForPage } from '@/utils/static-params-helper';
 
 import { Metadata } from 'next';
 
@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import './Statistics.scss';
 
 export async function generateStaticParams() {
-  return generateLanguageParams();
+  return generateLanguageParamsForPage('statistics');
 }
 
 const StatisticsClient = dynamic(() => import('./StatisticsClient'));

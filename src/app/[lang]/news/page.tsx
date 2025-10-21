@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { fetchNews } from '@/services/news';
 import './News.scss';
 
-import { generateLanguageParams } from "@/utils/static-params-helper";
+import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 
 const NewsClient = dynamic(() => import('./NewsClient'));
 
@@ -14,8 +14,7 @@ export const metadata: Metadata = {
 };
 
 export async function generateStaticParams() {
-  // Pour une page d'actualités, il n'y a généralement pas de paramètres dynamiques
-  return generateLanguageParams();
+  return generateLanguageParamsForPage('news');
 }
 
 export default async function NewsPage() {
