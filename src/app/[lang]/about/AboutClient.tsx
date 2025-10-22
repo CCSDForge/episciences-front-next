@@ -8,10 +8,13 @@ import remarkGfm from 'remark-gfm';
 import caretUp from '/public/icons/caret-up-red.svg';
 import caretDown from '/public/icons/caret-down-red.svg';
 import { useAppSelector } from '@/hooks/store';
+import { useClientSideFetch } from '@/hooks/useClientSideFetch';
+import { fetchAboutPage } from '@/services/about';
 import { generateIdFromText, unifiedProcessor, serializeMarkdown, getMarkdownImageURL, adjustNestedListsInMarkdownContent } from '@/utils/markdown';
 import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
+import '@/styles/transitions.scss';
 
 // Interface personnalisée qui accepte n'importe quel format de page
 interface IPageData {
@@ -36,7 +39,18 @@ export default function AboutClient({ initialPage }: AboutClientProps): JSX.Elem
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code)
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name)
 
-  const [pageData, setPageData] = useState<IPageData | null>(initialPage);
+  // Architecture hybride : fetch automatique des données fraîches
+  // initialPage = HTML statique (SEO), data = données à jour depuis l'API
+  const { data: pageData, isUpdating } = useClientSideFetch({
+    fetchFn: async () => {
+      if (!rvcode) return null;
+      const rawData = await fetchAboutPage(rvcode);
+      return rawData?.['hydra:member']?.[0] || null;
+    },
+    initialData: initialPage,
+    enabled: !!rvcode,
+  });
+
   const [pageSections, setPageSections] = useState<IAboutSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IAboutHeader[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -135,30 +149,23 @@ export default function AboutClient({ initialPage }: AboutClientProps): JSX.Elem
     setSidebarHeaders(updatedHeaders);
   };
 
-  // Effet pour traiter les données initiales
-  useEffect(() => {
-    if (initialPage) {
-      setPageData(initialPage);
-    }
-  }, [initialPage]);
-
-  // Effet pour traiter le contenu de la page
+  // Effet pour traiter le contenu de la page (données statiques ou fraîches)
   useEffect(() => {
     if (pageData) {
       try {
         // Extraire le contenu en fonction du format des données
         let content = '';
-        
+
         // Vérifier si nous avons le format attendu
         if (pageData.content && pageData.content[language]) {
           content = pageData.content[language];
         }
-        
+
         // Si content est vide, essayer d'autres formats possibles
         if (!content && pageData.content) {
           content = pageData.content['en'] || pageData.content['fr'] || '';
         }
-        
+
         if (content) {
           const adjustedContent = adjustNestedListsInMarkdownContent(content);
           setPageSections(parseContentSections(adjustedContent));
@@ -186,7 +193,7 @@ export default function AboutClient({ initialPage }: AboutClientProps): JSX.Elem
     <main className='about'>
       <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.about.title')} />
       <h1 className='about-title'>{t('pages.about.title')}</h1>
-      <div className='about-content'>
+      <div className={`about-content content-transition ${isUpdating ? 'updating' : ''}`}>
         <AboutSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
         {isLoading ? (
           <Loader />

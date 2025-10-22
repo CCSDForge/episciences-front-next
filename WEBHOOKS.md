@@ -108,6 +108,184 @@ The webhook system enables **on-demand regeneration** of static site resources w
 
 ---
 
+## Hybrid Rendering Architecture for Static Pages
+
+### Overview
+
+To optimize the user experience when updating static pages (like `/about`, `/for-authors`, `/boards`, etc.), the system now implements a **hybrid rendering architecture** that separates the user-perceived update time from the actual HTML rebuild time.
+
+### The Problem
+
+Previously, updating a static page from the back-office triggered a full `next build`, which took ~31 seconds. This created a frustrating experience for content editors who had to wait for the rebuild to complete before seeing their changes live.
+
+### The Solution
+
+**Dual-Layer Architecture:**
+
+1. **Static HTML Layer** (SEO)
+   - Full HTML generated at build time
+   - Served instantly by Apache (< 100ms)
+   - Perfect for search engines and AI bots
+   - Provides fallback if API fails
+
+2. **Dynamic Hydration Layer** (Freshness)
+   - Client automatically fetches latest data from API
+   - Updates content in < 1 second
+   - Smooth invisible transitions
+   - No visible loading states
+
+### How It Works
+
+```
+┌────────────────────────────────────────────────────────┐
+│  BACK-OFFICE: Editor updates /about page              │
+└───────────────────┬────────────────────────────────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │  API saves content   │ < 1s
+         └──────────┬───────────┘
+                    │
+          ┌─────────┴──────────┐
+          │                    │
+          ▼                    ▼
+   ┌────────────┐      ┌──────────────────┐
+   │ Response:  │      │  Webhook POST    │
+   │ "✓ Saved"  │      │  /rebuild        │
+   └────────────┘      │  (async)         │
+                       └──────┬───────────┘
+                              │
+                              ▼
+                    ┌──────────────────────┐
+                    │  HTML Rebuild        │ ~31s
+                    │  (transparent)       │ (background)
+                    └──────────────────────┘
+
+┌────────────────────────────────────────────────────────┐
+│  PUBLIC SITE: Visitor loads /about                     │
+└───────────────────┬────────────────────────────────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │  Apache serves       │ < 100ms
+         │  static HTML         │ ✅ SEO perfect
+         └──────────┬───────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │  Browser hydrates JS │
+         └──────────┬───────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │  Fetch fresh data    │ < 500ms
+         │  from API            │
+         └──────────┬───────────┘
+                    │
+              ┌─────┴──────┐
+              │            │
+              ▼            ▼
+         [Same data]  [New data]
+              │            │
+              ▼            ▼
+         No change    Smooth update
+```
+
+### Pages Using Hybrid Rendering
+
+The following static pages now use this architecture:
+
+- `/about` - About page
+- `/for-authors` - For authors page
+- `/boards` - Editorial boards
+- `/credits` - Credits page
+- `/news` - News listing
+- `/` - Homepage
+
+**Note:** Individual articles, volumes, and sections continue to use the standard targeted rebuild system and do NOT use hybrid rendering.
+
+### Webhook Integration
+
+**Key Point:** The webhook rebuild for these pages is now **transparent to end users**:
+
+1. **Content Update Flow:**
+   ```bash
+   # Editor saves changes in back-office
+   → API saves (< 1s)
+   → User sees "✓ Saved" immediately
+   → Webhook triggers background rebuild
+   → Public site shows fresh content via client-side fetch
+   → HTML rebuild completes ~31s later (for SEO cache)
+   ```
+
+2. **When to Trigger Webhook:**
+   - Still trigger webhook for all static page updates
+   - Webhook ensures SEO-friendly HTML is updated
+   - HTML rebuild happens in background
+   - Users don't wait for rebuild to complete
+
+3. **Example API Call:**
+   ```bash
+   # Back-office triggers this after saving content
+   curl -X POST http://localhost:3001/rebuild \
+     -H "Content-Type: application/json" \
+     -d '{
+       "journalCode": "epijinfo",
+       "resourceType": "static-page",
+       "pageName": "about"
+     }'
+   # Returns 202 (accepted) immediately
+   # Build runs in background
+   ```
+
+### Benefits
+
+| Metric | Before | After |
+|--------|--------|-------|
+| **Editor perceived time** | 31s | < 2s |
+| **Public visitor time** | Instant | < 1s |
+| **SEO impact** | ✅ | ✅ (preserved) |
+| **Content freshness** | After rebuild | Immediate |
+| **HTML static cache** | 31s | 31s (async) |
+
+### Technical Implementation
+
+**Client-Side Hook:**
+```javascript
+// src/hooks/useClientSideFetch.ts
+// Automatically fetches fresh data on page load
+// Falls back to static HTML if API fails
+```
+
+**Usage in Components:**
+```javascript
+const { data, isUpdating } = useClientSideFetch({
+  fetchFn: () => fetchAboutPage(rvcode),
+  initialData: staticHtmlData,
+  enabled: !!rvcode
+});
+```
+
+### Best Practices
+
+1. **Always trigger webhook rebuilds**: Even though users see updates immediately via API, the webhook ensures SEO-friendly HTML is updated for search engines and AI bots.
+
+2. **Don't wait for rebuild completion**: The back-office can return success immediately after API save without waiting for the webhook response.
+
+3. **Monitor both systems**:
+   - API health (for immediate updates)
+   - Webhook health (for SEO cache updates)
+
+4. **Graceful degradation**: If API fails, users still see the static HTML content (slightly outdated but functional).
+
+### Documentation
+
+For complete details on the hybrid rendering system:
+- **Implementation Guide**: `HYBRID_RENDERING.md`
+- **Project Instructions**: `CLAUDE.md` (section "Hybrid Rendering Architecture")
+
+---
+
 ## Getting Started
 
 ### Prerequisites

@@ -11,10 +11,13 @@ import PageTitle from '@/components/PageTitle/PageTitle';
 import caretUp from '/public/icons/caret-up-red.svg';
 import caretDown from '/public/icons/caret-down-red.svg';
 import { useAppSelector } from '@/hooks/store';
+import { useClientSideFetch } from '@/hooks/useClientSideFetch';
+import { fetchCreditsPage } from '@/services/credits';
 import { generateIdFromText, unifiedProcessor, serializeMarkdown, getMarkdownImageURL, adjustNestedListsInMarkdownContent } from '@/utils/markdown';
 import CreditsSidebar, { ICreditsHeader } from '@/components/Sidebars/CreditsSidebar/CreditsSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
+import '@/styles/transitions.scss';
 
 interface ICreditsSection {
   id: string;
@@ -32,6 +35,16 @@ export default function CreditsClient({ creditsPage }: CreditsClientProps): JSX.
   const language = useAppSelector(state => state.i18nReducer.language)
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code)
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name)
+
+  // Architecture hybride : fetch automatique des données fraîches
+  const { data: pageData, isUpdating } = useClientSideFetch({
+    fetchFn: async () => {
+      if (!rvcode) return null;
+      return await fetchCreditsPage(rvcode);
+    },
+    initialData: creditsPage,
+    enabled: !!rvcode,
+  });
 
   const [pageSections, setPageSections] = useState<ICreditsSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<ICreditsHeader[]>([]);
@@ -130,10 +143,10 @@ export default function CreditsClient({ creditsPage }: CreditsClientProps): JSX.
   useEffect(() => {
     setIsLoading(true);
     try {
-      if (creditsPage?.content && language) {
-        const content = creditsPage.content[language];
+      if (pageData?.content && language) {
+        const content = pageData.content[language];
         const adjustedContent = adjustNestedListsInMarkdownContent(content);
-        
+
         setPageSections(parseContentSections(adjustedContent));
         setSidebarHeaders(parseSidebarHeaders(adjustedContent));
       }
@@ -142,7 +155,7 @@ export default function CreditsClient({ creditsPage }: CreditsClientProps): JSX.
     } finally {
       setIsLoading(false);
     }
-  }, [creditsPage, language]);
+  }, [pageData, language]);
 
   const breadcrumbItems = [
     { path: '/', label: `${t('pages.home.title')} >` },
@@ -157,7 +170,7 @@ export default function CreditsClient({ creditsPage }: CreditsClientProps): JSX.
       {isLoading ? (
         <Loader />
       ) : (
-        <div className='credits-content'>
+        <div className={`credits-content content-transition ${isUpdating ? 'updating' : ''}`}>
           <CreditsSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
             <div className='credits-content-body'>
             {pageSections.map(section => (

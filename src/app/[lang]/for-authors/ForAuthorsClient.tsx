@@ -10,10 +10,13 @@ import remarkGfm from 'remark-gfm';
 const caretUp = '/icons/caret-up-red.svg';
 const caretDown = '/icons/caret-down-red.svg';
 import { useAppSelector } from '@/hooks/store';
+import { useClientSideFetch } from '@/hooks/useClientSideFetch';
+import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
 import { generateIdFromText, unifiedProcessor, serializeMarkdown, getMarkdownImageURL, adjustNestedListsInMarkdownContent } from '@/utils/markdown';
 import ForAuthorsSidebar, { IForAuthorsHeader } from '@/components/Sidebars/ForAuthorsSidebar/ForAuthorsSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
+import '@/styles/transitions.scss';
 import './ForAuthors.scss';
 
 type ForAuthorsSectionType = 'editorialWorkflow' | 'ethicalCharter' | 'prepareSubmission';
@@ -28,6 +31,12 @@ interface IForAuthorsSection {
 interface ForAuthorsPage {
   title: Record<string, string>;
   content: Record<string, string>;
+}
+
+interface ForAuthorsData {
+  editorialWorkflowPage: ForAuthorsPage | null;
+  ethicalCharterPage: ForAuthorsPage | null;
+  prepareSubmissionPage: ForAuthorsPage | null;
 }
 
 interface ForAuthorsClientProps {
@@ -46,6 +55,33 @@ export default function ForAuthorsClient({
   const language = useAppSelector(state => state.i18nReducer.language);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
+
+  // Architecture hybride : fetch automatique des données fraîches pour les 3 pages
+  const initialData: ForAuthorsData = {
+    editorialWorkflowPage,
+    ethicalCharterPage,
+    prepareSubmissionPage
+  };
+
+  const { data: forAuthorsData, isUpdating } = useClientSideFetch({
+    fetchFn: async () => {
+      if (!rvcode) return initialData;
+
+      const [editorial, ethical, prepare] = await Promise.all([
+        fetchEditorialWorkflowPage(rvcode),
+        fetchEthicalCharterPage(rvcode),
+        fetchPrepareSubmissionPage(rvcode)
+      ]);
+
+      return {
+        editorialWorkflowPage: editorial,
+        ethicalCharterPage: ethical,
+        prepareSubmissionPage: prepare
+      };
+    },
+    initialData,
+    enabled: !!rvcode,
+  });
 
   const [pageSections, setPageSections] = useState<IForAuthorsSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IForAuthorsHeader[]>([]);
@@ -193,38 +229,32 @@ export default function ForAuthorsClient({
   };
 
   useEffect(() => {
-  //  console.log('Props received:', { editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage });
-  //  console.log('Current language:', language);
-    
-    // Si nous avons reçu une réponse (même si c'est null) pour toutes les pages
-    if (editorialWorkflowPage !== undefined && ethicalCharterPage !== undefined && prepareSubmissionPage !== undefined) {
+    // Si nous avons les données (statiques ou fraîches)
+    if (forAuthorsData) {
       setIsLoading(false);
-      
+
       const content: Record<ForAuthorsSectionType, { title: string | undefined; content: string | undefined }> = {
         'editorialWorkflow': {
-          title: editorialWorkflowPage?.title?.[language] ?? '',
-          content: editorialWorkflowPage?.content?.[language] ?? ''
+          title: forAuthorsData.editorialWorkflowPage?.title?.[language] ?? '',
+          content: forAuthorsData.editorialWorkflowPage?.content?.[language] ?? ''
         },
         'ethicalCharter': {
-          title: ethicalCharterPage?.title?.[language] ?? '',
-          content: ethicalCharterPage?.content?.[language] ?? ''
+          title: forAuthorsData.ethicalCharterPage?.title?.[language] ?? '',
+          content: forAuthorsData.ethicalCharterPage?.content?.[language] ?? ''
         },
         'prepareSubmission': {
-          title: prepareSubmissionPage?.title?.[language] ?? '',
-          content: prepareSubmissionPage?.content?.[language] ?? ''
+          title: forAuthorsData.prepareSubmissionPage?.title?.[language] ?? '',
+          content: forAuthorsData.prepareSubmissionPage?.content?.[language] ?? ''
         },
       };
 
-     // console.log('Content prepared:', content);
       const sections = parseContentSections(content);
-     // console.log('Sections parsed:', sections);
       setPageSections(sections);
 
       const headers = parseSidebarHeaders(content);
-     // console.log('Headers parsed:', headers);
       setSidebarHeaders(headers);
     }
-  }, [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage, language]);
+  }, [forAuthorsData, language]);
 
   // console.log('Render state:', { isLoading, pageSections, sidebarHeaders });
 
@@ -241,7 +271,7 @@ export default function ForAuthorsClient({
       ) : pageSections.length === 0 ? (
         <div>No content available</div>
       ) : (
-        <div className='forAuthors-content'>
+        <div className={`forAuthors-content content-transition ${isUpdating ? 'updating' : ''}`}>
           <ForAuthorsSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
           <div className='forAuthors-content-body'>
             {pageSections.map(section => (

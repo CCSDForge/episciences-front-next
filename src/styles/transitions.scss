@@ -1,0 +1,114 @@
+/**
+ * Transitions CSS pour l'architecture hybride
+ *
+ * Classes utilisées lors de la mise à jour dynamique du contenu
+ * via useClientSideFetch pour une expérience utilisateur fluide.
+ */
+
+/**
+ * Classe principale pour les contenus qui peuvent être mis à jour dynamiquement
+ * Applique une transition douce sur l'opacité pour éviter les "flashs" visuels
+ */
+.content-transition {
+  transition: opacity 0.3s ease-in-out;
+  will-change: opacity;
+
+  /**
+   * État pendant la mise à jour (fetch en cours)
+   * Opacité légèrement réduite pour indiquer subtilement un changement
+   *
+   * Note: Optionnel - peut être retiré pour une transition complètement invisible
+   */
+  &.updating {
+    opacity: 0.95;
+  }
+
+  /**
+   * État après la mise à jour
+   * Retour à l'opacité normale
+   */
+  &.updated {
+    opacity: 1;
+  }
+}
+
+/**
+ * Variante plus subtile (transition complètement invisible)
+ * Utilisée quand on ne veut aucune indication visuelle de mise à jour
+ */
+.content-transition-invisible {
+  transition: none;
+
+  &.updating {
+    /* Aucun changement visible */
+  }
+}
+
+/**
+ * Animation optionnelle : fade-in doux pour nouveau contenu
+ * Utilisée si le contenu change significativement
+ */
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content-fade-in {
+  animation: fadeInContent 0.4s ease-out;
+}
+
+/**
+ * Skeleton screen ultra-léger (optionnel)
+ * Peut être utilisé pendant le premier chargement si les données initiales sont null
+ */
+.skeleton-text {
+  background: linear-gradient(
+    90deg,
+    rgba(240, 240, 240, 1) 0%,
+    rgba(250, 250, 250, 1) 50%,
+    rgba(240, 240, 240, 1) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  height: 1em;
+  margin: 0.5em 0;
+
+  &.wide {
+    width: 100%;
+  }
+
+  &.medium {
+    width: 70%;
+  }
+
+  &.narrow {
+    width: 40%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/**
+ * Classe utilitaire pour désactiver toutes les transitions
+ * Utile pour les tests ou pour certains navigateurs/devices
+ */
+.no-transitions {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
