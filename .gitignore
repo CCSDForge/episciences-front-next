@@ -62,3 +62,6 @@ build.log
 /public/sitemap.xml
 /public/logos/logo-small.svg
 /public/logos/logo-big.svg
+/.claude/
+/.gemini/
+/.idea/
