@@ -33,7 +33,7 @@ export default async function CreditsPage() {
     return (
       <div className="main-container">
         <div className="error-container">
-          Une erreur s'est produite lors du chargement des crédits. Veuillez réessayer plus tard.
+          Une erreur s&apos;est produite lors du chargement des crédits. Veuillez réessayer plus tard.
         </div>
       </div>
     );

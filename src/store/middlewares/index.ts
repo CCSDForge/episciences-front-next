@@ -3,7 +3,6 @@ import { authorApi } from '@/store/features/author/author.query'
 import { boardApi } from '@/store/features/board/board.query'
 import { creditsApi } from '@/store/features/credits/credits.query'
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export const enhancedMiddleware = (getDefaultMiddleware: Function) => getDefaultMiddleware({ serializableCheck: false })
   .concat(articleApi.middleware)
   .concat(authorApi.middleware)

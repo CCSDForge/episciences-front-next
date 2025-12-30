@@ -41,7 +41,7 @@ export default async function NewsPage() {
     return (
       <div className="main-container">
         <div className="error-container">
-          Une erreur s'est produite lors du chargement des actualités. Veuillez réessayer plus tard.
+          Une erreur s&apos;est produite lors du chargement des actualités. Veuillez réessayer plus tard.
         </div>
       </div>
     );

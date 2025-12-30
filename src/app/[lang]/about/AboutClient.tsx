@@ -231,7 +231,7 @@ export default function AboutClient({ initialPage }: AboutClientProps): JSX.Elem
                 </div>
               ))
             ) : (
-              <p className="about-content-body-empty">Aucun contenu disponible pour la page "À propos".</p>
+              <p className="about-content-body-empty">Aucun contenu disponible pour la page &ldquo;À propos&rdquo;.</p>
             )}
           </div>
         )}
