@@ -2,19 +2,21 @@
 
 /**
  * Targeted resource rebuild script
- * Regenerates a specific resource (article, volume, section) or performs a full rebuild
+ * Regenerates a specific resource (article, volume, section, static-page) or performs a full rebuild
  * for a given journal without rebuilding the entire static site.
  *
  * Usage:
- *   node scripts/rebuild-resource.js --journal <code> --type <type> [--id <id>]
+ *   node scripts/rebuild-resource.js --journal <code> --type <type> [--id <id>] [--page <page>]
  *
  * Arguments:
  *   --journal <code>  Journal code (e.g., 'epijinfo', 'dmtcs')
- *   --type <type>     Resource type: 'article', 'volume', 'section', or 'full'
- *   --id <id>         Resource ID (required for article/volume/section, not for full)
+ *   --type <type>     Resource type: 'article', 'volume', 'section', 'static-page', or 'full'
+ *   --id <id>         Resource ID (required for article/volume/section, not for full/static-page)
+ *   --page <page>     Page name (required for static-page, e.g., 'about', 'news', 'home')
  *
  * Examples:
  *   node scripts/rebuild-resource.js --journal epijinfo --type article --id 12345
+ *   node scripts/rebuild-resource.js --journal dmtcs --type static-page --page about
  *   node scripts/rebuild-resource.js --journal dmtcs --type full
  *
  * Exit codes:
@@ -47,7 +49,7 @@ function parseArgs() {
 }
 
 const args = parseArgs();
-const { journal: journalCode, type: resourceType, id: resourceId } = args;
+const { journal: journalCode, type: resourceType, id: resourceId, page: pageName } = args;
 
 // Validate arguments
 if (!journalCode) {
@@ -70,7 +72,7 @@ if (!resourceType) {
   process.exit(3);
 }
 
-const validTypes = ['article', 'volume', 'section', 'full'];
+const validTypes = ['article', 'volume', 'section', 'static-page', 'full'];
 if (!validTypes.includes(resourceType)) {
   console.error(JSON.stringify({
     type: 'error',
@@ -80,7 +82,17 @@ if (!validTypes.includes(resourceType)) {
   process.exit(3);
 }
 
-if (resourceType !== 'full' && !resourceId) {
+if (resourceType === 'static-page' && !pageName) {
+  console.error(JSON.stringify({
+    type: 'error',
+    phase: 'validation',
+    message: `Page name is required for type 'static-page'`
+  }));
+  console.error('\nUsage: node scripts/rebuild-resource.js --journal <code> --type static-page --page <page>');
+  process.exit(3);
+}
+
+if (['article', 'volume', 'section'].includes(resourceType) && !resourceId) {
   console.error(JSON.stringify({
     type: 'error',
     phase: 'validation',
@@ -109,6 +121,7 @@ console.log(JSON.stringify({
   journalCode,
   resourceType,
   resourceId: resourceId || null,
+  pageName: pageName || null,
   timestamp: new Date().toISOString()
 }));
 
@@ -145,6 +158,8 @@ if (resourceType === 'article') {
   buildEnv.ONLY_BUILD_VOLUME_ID = resourceId;
 } else if (resourceType === 'section') {
   buildEnv.ONLY_BUILD_SECTION_ID = resourceId;
+} else if (resourceType === 'static-page') {
+  buildEnv.ONLY_BUILD_STATIC_PAGE = pageName;
 }
 // For 'full' type, no targeted env var is set
 
@@ -158,11 +173,14 @@ console.log(JSON.stringify({
   phase: 'preparation',
   message: resourceType === 'full'
     ? `Building complete journal: ${journalCode}`
+    : resourceType === 'static-page'
+    ? `Building static page ${pageName} for journal: ${journalCode}`
     : `Building ${resourceType} ${resourceId} for journal: ${journalCode}`,
   config: {
     journalCode,
     resourceType,
     resourceId: resourceId || 'N/A',
+    pageName: pageName || 'N/A',
     targetedBuild: resourceType !== 'full'
   }
 }));
@@ -218,9 +236,14 @@ childProcess.on('close', (code) => {
 
   if (code === 0) {
     // Build succeeded
-    const outputPath = resourceType === 'full'
-      ? `dist/${journalCode}`
-      : `dist/${journalCode}/${getResourcePath(resourceType)}/${resourceId}`;
+    let outputPath;
+    if (resourceType === 'full') {
+      outputPath = `dist/${journalCode}`;
+    } else if (resourceType === 'static-page') {
+      outputPath = `dist/${journalCode}/${pageName}`;
+    } else {
+      outputPath = `dist/${journalCode}/${getResourcePath(resourceType)}/${resourceId}`;
+    }
 
     console.log(JSON.stringify({
       type: 'build_success',
@@ -229,6 +252,7 @@ childProcess.on('close', (code) => {
       journalCode,
       resourceType,
       resourceId: resourceId || null,
+      pageName: pageName || null,
       duration: `${duration}s`,
       outputPath,
       timestamp: new Date().toISOString()
@@ -244,6 +268,7 @@ childProcess.on('close', (code) => {
       journalCode,
       resourceType,
       resourceId: resourceId || null,
+      pageName: pageName || null,
       duration: `${duration}s`,
       exitCode: code,
       timestamp: new Date().toISOString()

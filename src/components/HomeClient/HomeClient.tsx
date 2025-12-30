@@ -3,8 +3,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { HomeData } from '@/services/home';
+import { HomeData, fetchHomeData } from '@/services/home';
 import { useAppSelector } from '@/hooks/store';
+import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { HOMEPAGE_BLOCK, HOMEPAGE_LAST_INFORMATION_BLOCK, blocksConfiguration } from '@/config/homepage';
 import { PATHS } from '@/config/paths';
 import { VOLUME_TYPE } from '@/utils/volume';
@@ -17,6 +18,7 @@ import PresentationSection from '@/components/HomeSections/PresentationSection/P
 import StatisticsSection from '@/components/HomeSections/StatisticsSection/StatisticsSection';
 import Swiper from '@/components/Swiper/Swiper';
 import applyThemeVariables from '@/config/theme';
+import '@/styles/transitions.scss';
 import '@/styles/pages/Home.scss';
 
 interface HomeClientProps {
@@ -28,18 +30,32 @@ interface HomeClientProps {
 function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
   const { t, i18n } = useTranslation();
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
-  // Extraire les données nécessaires du homeData avec des valeurs par défaut sécurisées
-  const { 
-    aboutPage = { content: {} }, 
-    articles = { data: [] }, 
-    news = { data: [] }, 
-    members = [], 
-    stats = [], 
-    indexation = { content: {} }, 
-    issues = { data: [] }, 
+  // Architecture hybride : fetch automatique des données fraîches
+  const { data: freshHomeData, isUpdating } = useClientSideFetch({
+    fetchFn: async () => {
+      if (!rvcode) return homeData;
+      return await fetchHomeData(rvcode, language);
+    },
+    initialData: homeData,
+    enabled: !!rvcode,
+  });
+
+  // Utiliser freshHomeData si disponible, sinon homeData
+  const currentHomeData = freshHomeData || homeData;
+
+  // Extraire les données nécessaires avec des valeurs par défaut sécurisées
+  const {
+    aboutPage = { content: {} },
+    articles = { data: [] },
+    news = { data: [] },
+    members = [],
+    stats = [],
+    indexation = { content: {} },
+    issues = { data: [] },
     acceptedArticles = { data: [] }
-  } = homeData || {};
+  } = currentHomeData || {};
 
   // Vérifier si un bloc doit être affiché ou non
   const getBlockRendering = (blockKey: HOMEPAGE_BLOCK) => {
@@ -164,7 +180,7 @@ function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
   }, []);
 
   return (
-    <main className='home'>
+    <main className={`home content-transition ${isUpdating ? 'updating' : ''}`}>
       <h1 className='home-title'>{t('pages.home.title')}</h1>
       <PresentationSection
         language={language}

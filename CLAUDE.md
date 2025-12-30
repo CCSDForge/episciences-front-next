@@ -107,6 +107,28 @@ stage("Build with Cache") {
 
 ## Architecture Patterns
 
+### Hybrid Rendering Architecture
+
+**Problem Solved**: Static page rebuilds took 31s, creating poor UX when editors updated content.
+
+**Solution**: Hybrid architecture combining static HTML (SEO) + client-side hydration (freshness)
+- HTML generated at build time (SEO-friendly for AI bots)
+- Client automatically fetches fresh data via API (< 1s)
+- Webhook rebuilds HTML in background (transparent to users)
+
+**Pages Using Hybrid Rendering** (see `HYBRID_RENDERING.md` for details):
+- `/about` - AboutClient.tsx
+- `/for-authors` - ForAuthorsClient.tsx
+- `/boards` - BoardsClient.tsx
+- `/credits` - CreditsClient.tsx
+- `/news` - NewsClient.tsx
+- `/` (home) - HomeClient.tsx
+
+**Key Components**:
+- `src/hooks/useClientSideFetch.ts` - Reusable fetch hook with smooth transitions
+- `src/styles/transitions.scss` - CSS classes for invisible content updates
+- See `HYBRID_RENDERING.md` for complete documentation
+
 ### Static Build System
 - Uses `output: 'export'` in next.config.js
 - Routes in `src/app/[lang]/` with language prefix

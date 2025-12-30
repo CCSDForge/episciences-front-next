@@ -39,6 +39,7 @@ The webhook system enables **on-demand regeneration** of static site resources w
 | `article` | Individual article page | Article ID: 12345 |
 | `volume` | Individual volume page | Volume ID: 42 |
 | `section` | Individual section page | Section ID: 7 |
+| `static-page` | Individual static page | Page: about, news, home |
 | `full` | Complete journal rebuild | All pages regenerated |
 
 ---
@@ -104,6 +105,184 @@ The webhook system enables **on-demand regeneration** of static site resources w
 | T2 | Request: dmtcs volume 42 | → **Starts immediately** (202) |
 | T3 | Request: epijinfo full rebuild | → **Queued position 2** (203) |
 | T4 | epijinfo article 123 completes | → **article 456 starts** (auto) |
+
+---
+
+## Hybrid Rendering Architecture for Static Pages
+
+### Overview
+
+To optimize the user experience when updating static pages (like `/about`, `/for-authors`, `/boards`, etc.), the system now implements a **hybrid rendering architecture** that separates the user-perceived update time from the actual HTML rebuild time.
+
+### The Problem
+
+Previously, updating a static page from the back-office triggered a full `next build`, which took ~31 seconds. This created a frustrating experience for content editors who had to wait for the rebuild to complete before seeing their changes live.
+
+### The Solution
+
+**Dual-Layer Architecture:**
+
+1. **Static HTML Layer** (SEO)
+   - Full HTML generated at build time
+   - Served instantly by Apache (< 100ms)
+   - Perfect for search engines and AI bots
+   - Provides fallback if API fails
+
+2. **Dynamic Hydration Layer** (Freshness)
+   - Client automatically fetches latest data from API
+   - Updates content in < 1 second
+   - Smooth invisible transitions
+   - No visible loading states
+
+### How It Works
+
+```
+┌────────────────────────────────────────────────────────┐
+│  BACK-OFFICE: Editor updates /about page              │
+└───────────────────┬────────────────────────────────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │  API saves content   │ < 1s
+         └──────────┬───────────┘
+                    │
+          ┌─────────┴──────────┐
+          │                    │
+          ▼                    ▼
+   ┌────────────┐      ┌──────────────────┐
+   │ Response:  │      │  Webhook POST    │
+   │ "✓ Saved"  │      │  /rebuild        │
+   └────────────┘      │  (async)         │
+                       └──────┬───────────┘
+                              │
+                              ▼
+                    ┌──────────────────────┐
+                    │  HTML Rebuild        │ ~31s
+                    │  (transparent)       │ (background)
+                    └──────────────────────┘
+
+┌────────────────────────────────────────────────────────┐
+│  PUBLIC SITE: Visitor loads /about                     │
+└───────────────────┬────────────────────────────────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │  Apache serves       │ < 100ms
+         │  static HTML         │ ✅ SEO perfect
+         └──────────┬───────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │  Browser hydrates JS │
+         └──────────┬───────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │  Fetch fresh data    │ < 500ms
+         │  from API            │
+         └──────────┬───────────┘
+                    │
+              ┌─────┴──────┐
+              │            │
+              ▼            ▼
+         [Same data]  [New data]
+              │            │
+              ▼            ▼
+         No change    Smooth update
+```
+
+### Pages Using Hybrid Rendering
+
+The following static pages now use this architecture:
+
+- `/about` - About page
+- `/for-authors` - For authors page
+- `/boards` - Editorial boards
+- `/credits` - Credits page
+- `/news` - News listing
+- `/` - Homepage
+
+**Note:** Individual articles, volumes, and sections continue to use the standard targeted rebuild system and do NOT use hybrid rendering.
+
+### Webhook Integration
+
+**Key Point:** The webhook rebuild for these pages is now **transparent to end users**:
+
+1. **Content Update Flow:**
+   ```bash
+   # Editor saves changes in back-office
+   → API saves (< 1s)
+   → User sees "✓ Saved" immediately
+   → Webhook triggers background rebuild
+   → Public site shows fresh content via client-side fetch
+   → HTML rebuild completes ~31s later (for SEO cache)
+   ```
+
+2. **When to Trigger Webhook:**
+   - Still trigger webhook for all static page updates
+   - Webhook ensures SEO-friendly HTML is updated
+   - HTML rebuild happens in background
+   - Users don't wait for rebuild to complete
+
+3. **Example API Call:**
+   ```bash
+   # Back-office triggers this after saving content
+   curl -X POST http://localhost:3001/rebuild \
+     -H "Content-Type: application/json" \
+     -d '{
+       "journalCode": "epijinfo",
+       "resourceType": "static-page",
+       "pageName": "about"
+     }'
+   # Returns 202 (accepted) immediately
+   # Build runs in background
+   ```
+
+### Benefits
+
+| Metric | Before | After |
+|--------|--------|-------|
+| **Editor perceived time** | 31s | < 2s |
+| **Public visitor time** | Instant | < 1s |
+| **SEO impact** | ✅ | ✅ (preserved) |
+| **Content freshness** | After rebuild | Immediate |
+| **HTML static cache** | 31s | 31s (async) |
+
+### Technical Implementation
+
+**Client-Side Hook:**
+```javascript
+// src/hooks/useClientSideFetch.ts
+// Automatically fetches fresh data on page load
+// Falls back to static HTML if API fails
+```
+
+**Usage in Components:**
+```javascript
+const { data, isUpdating } = useClientSideFetch({
+  fetchFn: () => fetchAboutPage(rvcode),
+  initialData: staticHtmlData,
+  enabled: !!rvcode
+});
+```
+
+### Best Practices
+
+1. **Always trigger webhook rebuilds**: Even though users see updates immediately via API, the webhook ensures SEO-friendly HTML is updated for search engines and AI bots.
+
+2. **Don't wait for rebuild completion**: The back-office can return success immediately after API save without waiting for the webhook response.
+
+3. **Monitor both systems**:
+   - API health (for immediate updates)
+   - Webhook health (for SEO cache updates)
+
+4. **Graceful degradation**: If API fails, users still see the static HTML content (slightly outdated but functional).
+
+### Documentation
+
+For complete details on the hybrid rendering system:
+- **Implementation Guide**: `HYBRID_RENDERING.md`
+- **Project Instructions**: `CLAUDE.md` (section "Hybrid Rendering Architecture")
 
 ---
 
@@ -188,8 +367,9 @@ Trigger a rebuild for a specific resource or entire journal.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `journalCode` | string | ✅ Yes | Journal code (e.g., 'epijinfo', 'dmtcs') |
-| `resourceType` | string | ✅ Yes | Resource type: 'article', 'volume', 'section', 'full' |
-| `resourceId` | string | Conditional | Required for article/volume/section, not for full |
+| `resourceType` | string | ✅ Yes | Resource type: 'article', 'volume', 'section', 'static-page', 'full' |
+| `resourceId` | string | Conditional | Required for article/volume/section, not for static-page/full |
+| `pageName` | string | Conditional | Required for static-page (e.g., 'about', 'news', 'home') |
 | `deploy` | boolean | ❌ No | Trigger deployment script after build (default: false) |
 
 **Success Response (202 Accepted):**
@@ -531,6 +711,26 @@ curl -X POST http://localhost:3001/rebuild \
 
 ## Usage Examples
 
+### Available Static Pages
+
+The following static pages can be rebuilt individually using `resourceType: "static-page"`:
+
+| Page Name | Route | Description |
+|-----------|-------|-------------|
+| `home` | `/` | Homepage |
+| `about` | `/about` | About page |
+| `news` | `/news` | News page |
+| `credits` | `/credits` | Credits page |
+| `authors` | `/authors` | Authors list |
+| `boards` | `/boards` | Editorial boards |
+| `articles` | `/articles` | Articles list |
+| `articles-accepted` | `/articles-accepted` | Accepted articles |
+| `volumes` | `/volumes` | Volumes list |
+| `sections` | `/sections` | Sections list |
+| `for-authors` | `/for-authors` | For authors page |
+| `search` | `/search` | Search page |
+| `statistics` | `/statistics` | Statistics page |
+
 ### Basic Article Rebuild
 
 ```bash
@@ -556,6 +756,18 @@ curl -X POST http://localhost:3001/rebuild \
   }'
 ```
 
+### Static Page Rebuild
+
+```bash
+curl -X POST http://localhost:3001/rebuild \
+  -H "Content-Type: application/json" \
+  -d '{
+    "journalCode": "epijinfo",
+    "resourceType": "static-page",
+    "pageName": "about"
+  }'
+```
+
 ### Full Journal Rebuild
 
 ```bash
@@ -578,6 +790,30 @@ curl http://localhost:3001/rebuild/$BUILD_ID
 
 # Check every 5 seconds until completed
 watch -n 5 curl http://localhost:3001/rebuild/$BUILD_ID
+```
+
+### Command Line (CLI) Examples
+
+You can also trigger rebuilds directly from the command line using the rebuild script:
+
+```bash
+# Rebuild a specific article
+node scripts/rebuild-resource.js --journal epijinfo --type article --id 12345
+
+# Rebuild a specific volume
+node scripts/rebuild-resource.js --journal dmtcs --type volume --id 42
+
+# Rebuild a specific section
+node scripts/rebuild-resource.js --journal ops --type section --id 7
+
+# Rebuild a specific static page
+node scripts/rebuild-resource.js --journal epijinfo --type static-page --page about
+
+# Full journal rebuild
+node scripts/rebuild-resource.js --journal epijinfo --type full
+
+# Using npm scripts
+npm run rebuild -- --journal epijinfo --type static-page --page news
 ```
 
 ### Monitor Server Status

@@ -11,6 +11,7 @@ const listGrey = '/icons/list-grey.svg';
 const tileRed = '/icons/tile-red.svg';
 const tileGrey = '/icons/tile-grey.svg';
 import { useAppSelector } from '@/hooks/store';
+import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { RENDERING_MODE } from '@/utils/card';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
@@ -18,7 +19,8 @@ import NewsCard from '@/components/Cards/NewsCard/NewsCard';
 import NewsMobileModal from '@/components/Modals/NewsMobileModal/NewsMobileModal';
 import NewsSidebar, { INewsYearSelection } from '@/components/Sidebars/NewsSidebar/NewsSidebar';
 import Pagination from '@/components/Pagination/Pagination';
-import { INews, Range } from '@/services/news';
+import { INews, Range, fetchNews } from '@/services/news';
+import '@/styles/transitions.scss';
 
 interface NewsClientProps {
   initialNews: {
@@ -37,32 +39,52 @@ export default function NewsClient({ initialNews }: NewsClientProps): JSX.Elemen
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code)
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name)
 
+  // Architecture hybride : fetch automatique des données fraîches
+  const { data: newsData, isUpdating } = useClientSideFetch({
+    fetchFn: async () => {
+      if (!rvcode) return initialNews;
+
+      const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
+      const itemsPerPage = isStaticBuild ? 9999 : 10;
+
+      return await fetchNews({
+        rvcode,
+        page: 1,
+        itemsPerPage
+      });
+    },
+    initialData: initialNews,
+    enabled: !!rvcode,
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
   const [mode, setMode] = useState(RENDERING_MODE.LIST);
   const [years, setYears] = useState<INewsYearSelection[]>([]);
   const [fullNewsIndex, setFullNewsIndex] = useState(-1);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
-  const [news, setNews] = useState(initialNews);
+  const [news, setNews] = useState(newsData || initialNews);
   const [isLoading, setIsLoading] = useState(false);
 
   const getSelectedYears = (): number[] => years.filter(y => y.isSelected).map(y => y.year);
 
   useEffect(() => {
-    // Initialiser les années disponibles lorsque les données initiales sont chargées
-    if (initialNews?.range?.years && years.length === 0) {
-      const initYears = initialNews.range.years.map((y) => ({
+    // Initialiser les années disponibles lorsque les données sont chargées
+    if (newsData?.range?.years && years.length === 0) {
+      const initYears = newsData.range.years.map((y) => ({
         year: y,
         isSelected: false
       }));
 
       setYears(initYears);
     }
-  }, [initialNews, years.length]);
+  }, [newsData, years.length]);
 
   useEffect(() => {
-    // Mettre à jour l'état news lorsque les données initiales changent
-    setNews(initialNews);
-  }, [initialNews]);
+    // Mettre à jour l'état news lorsque les données changent
+    if (newsData) {
+      setNews(newsData);
+    }
+  }, [newsData]);
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
     setCurrentPage(selectedItem.selected + 1);
@@ -126,7 +148,7 @@ export default function NewsClient({ initialNews }: NewsClientProps): JSX.Elemen
         </div>
         {openedFiltersMobileModal && <NewsMobileModal t={t} years={years} onUpdateYearsCallback={setYears} onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}/>}
       </div>
-      <div className='news-content'>
+      <div className={`news-content content-transition ${isUpdating ? 'updating' : ''}`}>
         <div className='news-content-results'>
           <NewsSidebar t={t} years={years} onSelectYearCallback={onSelectYear} />
           {isLoading ? (

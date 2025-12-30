@@ -4,17 +4,24 @@ import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from "@/hooks/store";
+import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { IBoardMember } from '@/types/board';
-import { IBoardPage } from '@/services/board';
+import { IBoardPage, fetchBoardPages, fetchBoardMembers } from '@/services/board';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
 import BoardsSidebar from '@/components/Sidebars/BoardsSidebar/BoardsSidebar';
 import PageTitle from '@/components/PageTitle/PageTitle';
+import '@/styles/transitions.scss';
 import './Boards.scss';
 
 interface IBoardPerTitle {
   title: string;
   description: string;
+  members: IBoardMember[];
+}
+
+interface BoardsData {
+  pages: IBoardPage[];
   members: IBoardMember[];
 }
 
@@ -29,25 +36,47 @@ export default function BoardsClient({
 }: BoardsClientProps): JSX.Element {
   const { t } = useTranslation();
   const language = useAppSelector(state => state.i18nReducer.language);
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
+
+  // Architecture hybride : fetch automatique des données fraîches
+  const initialData: BoardsData = {
+    pages: initialPages,
+    members: initialMembers
+  };
+
+  const { data: boardsData, isUpdating } = useClientSideFetch({
+    fetchFn: async () => {
+      if (!rvcode) return initialData;
+
+      const [pages, members] = await Promise.all([
+        fetchBoardPages(rvcode),
+        fetchBoardMembers(rvcode)
+      ]);
+
+      return { pages, members };
+    },
+    initialData,
+    enabled: !!rvcode,
+  });
 
   const [activeGroupIndex, setActiveGroupIndex] = useState(0);
   const [fullMemberIndex, setFullMemberIndex] = useState(-1);
 
   const getPagesLabels = (): string[] => {
-    if (!initialPages || !initialPages.length) return [];
+    if (!boardsData?.pages || !boardsData.pages.length) return [];
 
-    return initialPages.map(page => page.title[language]);
+    return boardsData.pages.map(page => page.title[language]);
   };
 
   const getBoardsPerTitle = (): IBoardPerTitle[] => {
-    if (!initialPages || !initialPages.length) return [];
-    if (!initialMembers || !initialMembers.length) return [];
+    if (!boardsData?.pages || !boardsData.pages.length) return [];
+    if (!boardsData?.members || !boardsData.members.length) return [];
 
-    return initialPages.map(page => {
+    return boardsData.pages.map(page => {
       const title = page.title[language];
       const description = page.content[language];
 
-      const pageMembers = initialMembers.filter((member) => {
+      const pageMembers = boardsData.members.filter((member) => {
         const pluralRoles = member.roles.map((role) => `${role}s`);
         return member.roles.includes(page.page_code) || pluralRoles.includes(page.page_code);
       });
@@ -73,18 +102,18 @@ export default function BoardsClient({
       <PageTitle title={t('pages.boards.title')} />
 
       <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.boards.title')} />
-      
+
       <div className='boards-title'>
         <h1 className='boards-title-text'>{t('pages.boards.title')}</h1>
-        {initialMembers && initialMembers.length > 0 && (
-          initialMembers.length > 1 ? (
-            <div className='boards-title-count'>{initialMembers.length} {t('common.members')}</div>
+        {boardsData?.members && boardsData.members.length > 0 && (
+          boardsData.members.length > 1 ? (
+            <div className='boards-title-count'>{boardsData.members.length} {t('common.members')}</div>
           ) : (
-            <div className='boards-title-count'>{initialMembers.length} {t('common.member')}</div>
+            <div className='boards-title-count'>{boardsData.members.length} {t('common.member')}</div>
           ))}
       </div>
 
-      <div className='boards-content'>
+      <div className={`boards-content content-transition ${isUpdating ? 'updating' : ''}`}>
         <BoardsSidebar 
           t={t} 
           groups={getPagesLabels()} 

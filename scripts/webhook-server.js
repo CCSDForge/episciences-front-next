@@ -55,9 +55,9 @@ class BuildManager {
   /**
    * Generate unique build ID
    */
-  generateBuildId(journalCode, resourceType, resourceId) {
+  generateBuildId(journalCode, resourceType, resourceId, pageName) {
     const timestamp = Date.now();
-    const id = resourceId || 'full';
+    const id = resourceId || pageName || 'full';
     return `${journalCode}-${resourceType}-${id}-${timestamp}`;
   }
 
@@ -99,8 +99,8 @@ class BuildManager {
    * Add build to queue or execute immediately
    */
   async queueBuild(buildRequest) {
-    const { journalCode, resourceType, resourceId, deploy } = buildRequest;
-    const buildId = this.generateBuildId(journalCode, resourceType, resourceId);
+    const { journalCode, resourceType, resourceId, pageName, deploy } = buildRequest;
+    const buildId = this.generateBuildId(journalCode, resourceType, resourceId, pageName);
 
     // Create build info
     const buildInfo = {
@@ -108,6 +108,7 @@ class BuildManager {
       journalCode,
       resourceType,
       resourceId: resourceId || null,
+      pageName: pageName || null,
       deploy,
       status: 'queued',
       queuedAt: new Date(),
@@ -177,9 +178,10 @@ class BuildManager {
    * Execute a build
    */
   async executeBuild(buildInfo) {
-    const { buildId, journalCode, resourceType, resourceId, deploy } = buildInfo;
+    const { buildId, journalCode, resourceType, resourceId, pageName, deploy } = buildInfo;
 
-    log(`Executing build ${buildId}: ${resourceType} ${resourceId || 'full'} for ${journalCode}`);
+    const identifier = resourceId || pageName || 'full';
+    log(`Executing build ${buildId}: ${resourceType} ${identifier} for ${journalCode}`);
 
     this.stats.totalBuilds++;
 
@@ -192,6 +194,10 @@ class BuildManager {
 
     if (resourceId) {
       args.push('--id', resourceId);
+    }
+
+    if (pageName) {
+      args.push('--page', pageName);
     }
 
     // Spawn the rebuild process
@@ -243,7 +249,7 @@ class BuildManager {
           // Build succeeded
           buildInfo.status = 'completed';
           buildInfo.phase = 'completed';
-          buildInfo.outputPath = this.getOutputPath(journalCode, resourceType, resourceId);
+          buildInfo.outputPath = this.getOutputPath(journalCode, resourceType, resourceId, pageName);
           this.stats.successfulBuilds++;
 
           log(`Build ${buildId} completed successfully in ${(buildInfo.duration / 1000).toFixed(2)}s`);
@@ -437,9 +443,13 @@ class BuildManager {
   /**
    * Get output path for a build
    */
-  getOutputPath(journalCode, resourceType, resourceId) {
+  getOutputPath(journalCode, resourceType, resourceId, pageName) {
     if (resourceType === 'full') {
       return `dist/${journalCode}`;
+    }
+
+    if (resourceType === 'static-page') {
+      return `dist/${journalCode}/${pageName}`;
     }
 
     const resourcePaths = {
@@ -510,7 +520,7 @@ log('='.repeat(70));
  * POST /rebuild - Main endpoint for triggering builds
  */
 app.post('/rebuild', async (req, res) => {
-  const { journalCode, resourceType, resourceId, deploy } = req.body;
+  const { journalCode, resourceType, resourceId, pageName, deploy } = req.body;
 
   // Validate required parameters
   if (!journalCode) {
@@ -532,7 +542,7 @@ app.post('/rebuild', async (req, res) => {
   }
 
   // Validate resource type
-  const validTypes = ['article', 'volume', 'section', 'full'];
+  const validTypes = ['article', 'volume', 'section', 'static-page', 'full'];
   if (!validTypes.includes(resourceType)) {
     return res.status(400).json({
       status: 'error',
@@ -542,12 +552,22 @@ app.post('/rebuild', async (req, res) => {
     });
   }
 
-  // Validate resource ID for non-full builds
-  if (resourceType !== 'full' && !resourceId) {
+  // Validate resource ID for resource builds
+  if (['article', 'volume', 'section'].includes(resourceType) && !resourceId) {
     return res.status(400).json({
       status: 'error',
       statusCode: 400,
       message: `resourceId is required for resourceType '${resourceType}'`,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Validate page name for static-page builds
+  if (resourceType === 'static-page' && !pageName) {
+    return res.status(400).json({
+      status: 'error',
+      statusCode: 400,
+      message: `pageName is required for resourceType 'static-page'`,
       timestamp: new Date().toISOString()
     });
   }
@@ -569,6 +589,7 @@ app.post('/rebuild', async (req, res) => {
       journalCode,
       resourceType,
       resourceId,
+      pageName,
       deploy: deploy || false
     });
 
@@ -601,7 +622,7 @@ app.post('/rebuild', async (req, res) => {
     };
 
     if (status === 'processing') {
-      responseData.outputPath = buildManager.getOutputPath(journalCode, resourceType, resourceId);
+      responseData.outputPath = buildManager.getOutputPath(journalCode, resourceType, resourceId, pageName);
     }
 
     const queue = {

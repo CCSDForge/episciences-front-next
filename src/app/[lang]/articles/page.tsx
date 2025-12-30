@@ -1,4 +1,4 @@
-import { generateLanguageParams } from '@/utils/static-params-helper';
+import { generateLanguageParamsForPage } from '@/utils/static-params-helper';
 
 import type { Metadata } from 'next';
 
@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 
 
 export async function generateStaticParams() {
-  return generateLanguageParams();
+  return generateLanguageParamsForPage('articles');
 }
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
