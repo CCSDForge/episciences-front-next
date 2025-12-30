@@ -168,16 +168,16 @@ export default function AuthorsClient({
 
   const getAuthorsCount = (): JSX.Element | null => {
     if (totalAuthors > 1) {
-      if (searchValue) return <div className='authors-count'>{totalAuthors} {t('common.authorsFor')} "{searchValue}"</div>;
-      if (activeLetter) return <div className='authors-count'>{totalAuthors} {t('common.authorsFor')} "{activeLetter === 'others' ? t('pages.authors.others') : activeLetter}"</div>;
+      if (searchValue) return <div className='authors-count'>{totalAuthors} {t('common.authorsFor')} &ldquo;{searchValue}&rdquo;</div>;
+      if (activeLetter) return <div className='authors-count'>{totalAuthors} {t('common.authorsFor')} &ldquo;{activeLetter === 'others' ? t('pages.authors.others') : activeLetter}&rdquo;</div>;
 
       return <div className='authors-count'>{totalAuthors} {t('common.authors')}</div>;
     }
 
-    if (searchValue) return <div className='authors-count'>{totalAuthors} {t('common.authorFor')} "{searchValue}"</div>;
-    if (activeLetter) return <div className='authors-count'>{totalAuthors} {t('common.authorFor')} "{activeLetter === 'others' ? t('pages.authors.others') : activeLetter}"</div>;
+    if (searchValue) return <div className='authors-count'>{totalAuthors} {t('common.authorFor')} &ldquo;{searchValue}&rdquo;</div>;
+    if (activeLetter) return <div className='authors-count'>{totalAuthors} {t('common.authorFor')} &ldquo;{activeLetter === 'others' ? t('pages.authors.others') : activeLetter}&rdquo;</div>;
 
-    return <div className='authors-count'>{totalAuthors} {t('common.author')}</div>;  
+    return <div className='authors-count'>{totalAuthors} {t('common.author')}</div>;
   };
 
   const getPagination = (): JSX.Element => {

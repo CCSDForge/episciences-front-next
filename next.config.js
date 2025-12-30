@@ -2,6 +2,9 @@
 const path = require('path');
 const fs = require('fs-extra');
 
+// Detect CI environment
+const isCi = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+
 // Valider les variables d'environnement requises
 function validateEnv() {
   const requiredVars = [
@@ -10,7 +13,7 @@ function validateEnv() {
   ];
 
   for (const envVar of requiredVars) {
-    if (!process.env[envVar]) {
+    if (!process.env[envVar] && !isCi) {  // Only warn outside CI
       console.warn(`⚠️  La variable d'environnement ${envVar} n'est pas définie.`);
     }
   }
@@ -36,6 +39,11 @@ function generateSitemap(journalCode) {
 
 // Fonction pour copier les logos
 function copyLogos() {
+  // Skip in CI or development (lint/test)
+  if (isCi || isDev) {
+    return;
+  }
+
   const journalCode = validateEnv();
   const logoSourceDir = path.resolve(__dirname, 'external-assets/logos');
   const logoTargetDir = path.resolve(__dirname, 'public/logos');
@@ -232,7 +240,9 @@ Sitemap: https://${journalCode}.episciences.org/sitemap.xml`;
 
 // Mettre à jour le robots.txt et générer le sitemap après le build
 process.on('exit', () => {
-  updateRobotsTxt();
+  if (!isCi && !isDev) {  // Only for real builds
+    updateRobotsTxt();
+  }
 });
 
 module.exports = nextConfig; 

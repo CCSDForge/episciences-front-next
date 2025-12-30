@@ -560,9 +560,9 @@ export default function SearchClient({
         <h1 className='articles-title-text'>{t('pages.search.title')}</h1>
         <div className='articles-title-count'>
           {searchResults && searchResults.totalItems > 1 ? (
-            <div className='articles-title-count-text'>{searchResults.totalItems} {t('common.resultsFor')} "{search}"</div>
+            <div className='articles-title-count-text'>{searchResults.totalItems} {t('common.resultsFor')} &ldquo;{search}&rdquo;</div>
           ) : (
-            <div className='articles-title-count-text'>{searchResults?.totalItems ?? 0} {t('common.resultFor')} "{search}"</div>
+            <div className='articles-title-count-text'>{searchResults?.totalItems ?? 0} {t('common.resultFor')} &ldquo;{search}&rdquo;</div>
           )}
           <div className="articles-title-count-filtersMobile">
             <div className="articles-title-count-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>

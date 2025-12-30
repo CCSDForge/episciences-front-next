@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Script from 'next/script';
 
 // Importer l'intercepteur fetch pour logger toutes les requêtes
 import '@/utils/fetchInterceptor';
@@ -60,7 +61,7 @@ export default async function RootLayout({
         {/* Définir la base URL pour tous les liens relatifs */}
         <base href="/" />
         {/* Charger notre script uniquement en mode production statique */}
-        {isStaticBuild && <script src="/force-static.js" />}
+        {isStaticBuild && <Script src="/force-static.js" strategy="beforeInteractive" />}
       </head>
       <body>
         {/* Client providers for Redux, i18n, MathJax - wrapping all content */}

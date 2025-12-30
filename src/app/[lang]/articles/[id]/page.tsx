@@ -155,7 +155,7 @@ export default async function ArticleDetailsPage({ params }: ArticleDetailsPageP
       return (
         <div className="error-message">
           <h1>Aucun article disponible</h1>
-          <p>Page placeholder pour les détails d'articles</p>
+          <p>Page placeholder pour les détails d&apos;articles</p>
         </div>
       );
     }
@@ -215,8 +215,8 @@ export default async function ArticleDetailsPage({ params }: ArticleDetailsPageP
     console.error(`Erreur lors de la récupération de l'article ${params.id}:`, error);
     return (
       <div className="error-message">
-        <h1>Erreur lors du chargement de l'article</h1>
-        <p>Impossible de charger les données de l'article.</p>
+        <h1>Erreur lors du chargement de l&apos;article</h1>
+        <p>Impossible de charger les données de l&apos;article.</p>
       </div>
     );
   }

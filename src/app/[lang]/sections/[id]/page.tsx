@@ -145,7 +145,7 @@ export default async function SectionDetailsPage({
     return (
       <div className="error-message">
         <h1>Section not found</h1>
-        <p>The section you're looking for could not be found.</p>
+        <p>The section you&apos;re looking for could not be found.</p>
       </div>
     );
   }
