@@ -1,16 +1,8 @@
-import { generateLanguageParamsForPage } from '@/utils/static-params-helper';
-
 import type { Metadata } from 'next';
 
 import { fetchArticles } from '@/services/article';
 
 import dynamic from 'next/dynamic';
-
-
-
-export async function generateStaticParams() {
-  return generateLanguageParamsForPage('articles');
-}
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
 
@@ -28,25 +20,21 @@ interface ArticlesData {
   };
 }
 
-export default async function ArticlesPage({ params }: { params: { lang: string } }) {
+export default async function ArticlesPage({ params }: { params: { lang: string; journalId: string } }) {
   const lang = params.lang || 'en';
+  const { journalId } = params;
   try {
-    const ARTICLES_PER_PAGE = 10;
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+    const ARTICLES_PER_PAGE = 20; // Default page size for SSR
 
-    if (!rvcode) {
+    if (!journalId) {
       throw new Error('Journal code not available');
     }
 
-    // For static builds, fetch all articles for client-side pagination
-    const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
-    const itemsPerPage = isStaticBuild ? 9999 : ARTICLES_PER_PAGE;
-
-    // Récupération statique des articles pendant le build
+    // Récupération dynamique des articles
     const articles = await fetchArticles({
-      rvcode,
+      rvcode: journalId,
       page: 1,
-      itemsPerPage: itemsPerPage,
+      itemsPerPage: ARTICLES_PER_PAGE,
       onlyAccepted: false,
       types: []
     });
@@ -84,4 +72,5 @@ export default async function ArticlesPage({ params }: { params: { lang: string 
       />
     );
   }
-} 
+}
+ 

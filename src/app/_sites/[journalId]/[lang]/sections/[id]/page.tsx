@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import { fetchSection, fetchSections, fetchSectionArticles } from '@/services/section';
 import SectionDetailsClient from './SectionDetailsClient';
 import { getLanguageFromParams } from '@/utils/language-utils';
-import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { ISection, PartialSectionArticle } from '@/types/section';
 import { IArticle } from '@/types/article';
 
@@ -31,64 +30,14 @@ export async function generateMetadata({ params }: { params: { id: string; lang?
   }
 }
 
-export async function generateStaticParams() {
-  // Targeted section rebuild - only generate specific section if env var is set
-  if (process.env.ONLY_BUILD_SECTION_ID) {
-    return combineWithLanguageParams([{ id: process.env.ONLY_BUILD_SECTION_ID }]);
-  }
-
-  // Full build: generate all sections
-  try {
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-    if (!rvcode) {
-      console.error('NEXT_PUBLIC_JOURNAL_RVCODE is not defined');
-      return [{ id: 'no-sections-found' }];
-    }
-
-    // Fetch all sections to get their IDs (similar to volumes)
-    let allSections = [];
-    let page = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const sectionsData = await fetchSections({
-        rvcode,
-        page,
-        itemsPerPage: 100
-      });
-
-      allSections.push(...sectionsData.data);
-
-      // Check if there are more pages
-      hasMore = sectionsData.data.length === 100;
-      page++;
-
-      // Safety break to avoid infinite loop
-      if (page > 50) break;
-    }
-
-    if (!allSections || allSections.length === 0) {
-      return [{ id: 'no-sections-found' }];
-    }
-
-    // Generate params for each section ID
-    const sectionParams = allSections.map((section: any) => ({
-      id: section.id.toString(),
-    }));
-
-    return combineWithLanguageParams(sectionParams);
-  } catch (error) {
-    console.error('Error generating static params for sections:', error);
-    return combineWithLanguageParams([{ id: 'no-sections-found' }]);
-  }
-}
-
 export default async function SectionDetailsPage({
   params
 }: {
-  params: { id: string; lang?: string }
+  params: { id: string; lang?: string; journalId: string }
 }) {
   const language = getLanguageFromParams(params);
+  const { journalId } = params;
+
   try {
     // Check for placeholder ID
     if (params.id === 'no-sections-found') {
@@ -100,10 +49,8 @@ export default async function SectionDetailsPage({
       );
     }
     
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-    
-    if (!rvcode) {
-      throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE is not defined');
+    if (!journalId) {
+      throw new Error('journalId is not defined');
     }
     
     // Fetch section details by ID (like volumes do)
@@ -149,4 +96,5 @@ export default async function SectionDetailsPage({
       </div>
     );
   }
-} 
+}
+ 

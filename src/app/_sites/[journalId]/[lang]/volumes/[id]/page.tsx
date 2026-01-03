@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import { fetchVolume, fetchVolumes } from '@/services/volume';
 import { fetchArticle } from '@/services/article';
 import { getLanguageFromParams } from '@/utils/language-utils';
-import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { FetchedArticle } from '@/utils/article';
 import VolumeDetailsClient from './VolumeDetailsClient';
 
@@ -14,26 +13,26 @@ export const metadata: Metadata = {
 export default async function VolumeDetailsPage({
   params
 }: {
-  params: { id: string; lang?: string }
+  params: { id: string; lang?: string; journalId: string }
 }) {
   const language = getLanguageFromParams(params);
+  const { journalId } = params;
+
   try {
     // Vérifier si nous avons un ID factice
     if (params.id === 'no-volumes-found') {
       return {
-        title: "Aucun volume - Placeholder | " + process.env.NEXT_PUBLIC_JOURNAL_NAME,
+        title: "Aucun volume - Placeholder",
         description: "Page placeholder pour les volumes"
       };
     }
 
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-
-    if (!rvcode) {
-      throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE is not defined');
+    if (!journalId) {
+      throw new Error('journalId is not defined');
     }
 
     const volumeData = await fetchVolume({
-      rvcode,
+      rvcode: journalId,
       vid: params.id,
       language
     });
@@ -74,33 +73,4 @@ export default async function VolumeDetailsPage({
     );
   }
 }
-
-export async function generateStaticParams() {
-  // Targeted volume rebuild - only generate specific volume if env var is set
-  if (process.env.ONLY_BUILD_VOLUME_ID) {
-    return combineWithLanguageParams([{ id: process.env.ONLY_BUILD_VOLUME_ID }]);
-  }
-
-  // Full build: generate all volumes
-  try {
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
-    const { data: volumes } = await fetchVolumes({
-      page: 1,
-      itemsPerPage: 1000,
-      rvcode
-    });
-
-    if (!volumes || volumes.length === 0) {
-      return combineWithLanguageParams([{ id: 'no-volumes-found' }]);
-    }
-
-    const volumeParams = volumes.map((volume: { id: number }) => ({
-      id: volume.id.toString(),
-    }));
-
-    return combineWithLanguageParams(volumeParams);
-  } catch (error) {
-    console.error('Error generating static params for volumes:', error);
-    return combineWithLanguageParams([{ id: 'no-volumes-found' }]);
-  }
-} 
+ 

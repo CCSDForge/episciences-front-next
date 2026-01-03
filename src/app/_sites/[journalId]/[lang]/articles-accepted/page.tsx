@@ -1,15 +1,8 @@
-import { generateLanguageParamsForPage } from '@/utils/static-params-helper';
-
 import type { Metadata } from 'next';
 
 import { fetchArticles } from '@/services/article';
 
 import dynamic from 'next/dynamic';
-
-
-export async function generateStaticParams() {
-  return generateLanguageParamsForPage('articles-accepted');
-}
 
 const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'));
 
@@ -20,20 +13,19 @@ export const metadata: Metadata = {
   description: 'Articles acceptés',
 };
 
-export default async function ArticlesAcceptedPage({ params }: { params: { lang: string } }) {
+export default async function ArticlesAcceptedPage({ params }: { params: { lang: string; journalId: string } }) {
   const lang = params.lang || 'en';
+  const { journalId } = params;
   try {
     const ARTICLES_ACCEPTED_PER_PAGE = 10;
     
-    // Récupération statique des articles acceptés pendant le build
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-    
-    if (!rvcode) {
-      throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
+    // Récupération dynamique des articles acceptés
+    if (!journalId) {
+      throw new Error('journalId is not defined');
     }
 
     const articlesAccepted = await fetchArticles({
-      rvcode,
+      rvcode: journalId,
       page: 1,
       itemsPerPage: ARTICLES_ACCEPTED_PER_PAGE,
       onlyAccepted: true,
@@ -75,4 +67,5 @@ export default async function ArticlesAcceptedPage({ params }: { params: { lang:
       />
     );
   }
-} 
+}
+ 

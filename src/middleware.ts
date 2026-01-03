@@ -10,9 +10,10 @@ import {
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl;
-  // Utiliser nextUrl.hostname qui ne contient pas le port
   const hostname = request.nextUrl.hostname;
   const pathname = url.pathname;
+  
+  console.log(`[Middleware] Incoming request: ${pathname} (Host: ${hostname})`);
 
   // Ignorer les fichiers statiques avec extensions
   const staticExtensions = ['.js', '.css', '.woff', '.woff2', '.ttf', '.otf', '.eot', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.webp'];
@@ -28,8 +29,6 @@ export function middleware(request: NextRequest) {
     journalId = hostname.split('.')[0];
   } else {
     // localhost ou dev
-    // Si on accède via epijinfo.localhost -> epijinfo
-    // Si on accède via localhost -> utiliser la variable d'env ou fallback
     const subdomain = hostname.split('.')[0];
     if (subdomain !== 'localhost' && !Number.isInteger(Number(subdomain))) {
        journalId = subdomain;
@@ -37,6 +36,8 @@ export function middleware(request: NextRequest) {
        journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
     }
   }
+  
+  console.log(`[Middleware] Detected journalId: ${journalId}`);
 
   // 2. Gestion des langues (votre logique existante)
   const currentLang = getLanguageFromPathname(pathname);
@@ -47,6 +48,7 @@ export function middleware(request: NextRequest) {
     const pathWithoutLang = removeLanguagePrefix(pathname);
     const redirectUrl = new URL(pathWithoutLang || '/', request.url);
     redirectUrl.search = url.search;
+    console.log(`[Middleware] Redirecting to remove default lang prefix: ${redirectUrl.toString()}`);
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -57,6 +59,8 @@ export function middleware(request: NextRequest) {
   
   // Construction du chemin interne
   const internalPath = `/_sites/${journalId}/${targetLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
+  
+  console.log(`[Middleware] Rewriting to: ${internalPath}`);
   
   const rewriteUrl = new URL(internalPath, request.url);
   rewriteUrl.search = url.search;

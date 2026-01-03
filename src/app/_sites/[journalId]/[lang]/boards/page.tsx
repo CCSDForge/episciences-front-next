@@ -1,16 +1,8 @@
-import { generateLanguageParamsForPage } from '@/utils/static-params-helper';
-
 import { Metadata } from 'next';
 
 import { fetchBoardMembers, fetchBoardPages } from '@/services/board';
 
 import dynamic from 'next/dynamic';
-
-
-
-export async function generateStaticParams() {
-  return generateLanguageParamsForPage('boards');
-}
 
 const BoardsClient = dynamic(() => import('./BoardsClient'));
 
@@ -19,17 +11,17 @@ export const metadata: Metadata = {
   title: 'Boards',
 };
 
-export default async function BoardsPage() {
+export default async function BoardsPage({ params }: { params: { journalId: string } }) {
   try {
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+    const { journalId } = params;
     
-    if (!rvcode) {
-      throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE is not defined');
+    if (!journalId) {
+      throw new Error('journalId is not defined');
     }
     
     const [pages, members] = await Promise.all([
-      fetchBoardPages(rvcode),
-      fetchBoardMembers(rvcode)
+      fetchBoardPages(journalId),
+      fetchBoardMembers(journalId)
     ]);
     
     return (
@@ -42,4 +34,5 @@ export default async function BoardsPage() {
     console.error('Error fetching boards:', error);
     return <div>Failed to load boards</div>;
   }
-} 
+}
+ 

@@ -1,5 +1,3 @@
-import { generateLanguageParamsForPage } from '@/utils/static-params-helper';
-
 import { Metadata } from 'next';
 
 import { fetchHomeData } from '@/services/home';
@@ -9,12 +7,6 @@ import { getFormattedSiteTitle } from '@/utils/metadata';
 import dynamicImport from 'next/dynamic';
 
 import '@/styles/pages/Home.scss';
-
-
-
-export async function generateStaticParams() {
-  return generateLanguageParamsForPage('home');
-}
 
 const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'), );
 

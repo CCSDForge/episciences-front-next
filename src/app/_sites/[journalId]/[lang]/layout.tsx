@@ -33,13 +33,3 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
     </>
   );
 }
-
-/**
- * Generate static params for all accepted languages
- *
- * This generates all languages including the default.
- * The middleware will handle redirecting /en/... to /... for the default language.
- */
-export async function generateStaticParams() {
-  return acceptedLanguages.map(lang => ({ lang }));
-}
