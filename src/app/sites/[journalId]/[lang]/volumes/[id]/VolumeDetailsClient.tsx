@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from "react-device-detect";
 import ReactMarkdown from 'react-markdown';
@@ -70,7 +70,7 @@ export default function VolumeDetailsClient({
       // En mode développement, utiliser les données de l'API
       setRelatedVolumesData(reorderRelatedVolumes(relatedVolumes.data));
     }
-  }, [relatedVolumes, volume, isStaticBuild]);
+  }, [relatedVolumes, volume, isStaticBuild, reorderRelatedVolumes]);
 
   // Update articles when initialArticles changes (only needed in dev mode for client-side navigation)
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function VolumeDetailsClient({
     }
   }, [initialArticles]);
 
-  const reorderRelatedVolumes = (volumesToBeOrdered: IVolume[]): IVolume[] => {
+  const reorderRelatedVolumes = useCallback((volumesToBeOrdered: IVolume[]): IVolume[] => {
     if (!volume || !volumesToBeOrdered || !volumesToBeOrdered.length) return volumesToBeOrdered;
 
     const currentVolumeIndex = volumesToBeOrdered.findIndex(v => v.id === volume.id);
@@ -92,7 +92,7 @@ export default function VolumeDetailsClient({
     }
   
     return volumesToBeOrdered;
-  };
+  }, [volume]);
 
   const renderVolumeType = (): JSX.Element => {
     if (volume?.types && volume.types.length) {

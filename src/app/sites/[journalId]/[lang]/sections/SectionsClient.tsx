@@ -64,7 +64,7 @@ export default function SectionsClient({
     if (!isNaN(pageNum) && pageNum !== currentPage) {
       setCurrentPage(pageNum);
     }
-  }, [searchParams]);
+  }, [searchParams, currentPage]);
 
   // Pagination côté client
   useEffect(() => {

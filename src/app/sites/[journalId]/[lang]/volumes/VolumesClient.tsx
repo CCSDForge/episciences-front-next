@@ -91,7 +91,7 @@ export default function VolumesClient({
     if (!isNaN(pageNumber) && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
     }
-  }, [searchParams]);
+  }, [searchParams, currentPage]);
 
   useEffect(() => {
     if (types.length > 0 && !initQueryFilters) {

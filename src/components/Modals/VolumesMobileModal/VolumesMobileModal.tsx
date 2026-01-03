@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
@@ -84,7 +84,7 @@ export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallb
     setYears(updatedYears);
   }
 
-  const setAllTaggedFilters = (): void => {
+  const setAllTaggedFilters = useCallback((): void => {
     const initFilters: IVolumesFilter[] = []
 
     types.filter((t) => t.isChecked).forEach((t) => {
@@ -104,7 +104,7 @@ export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallb
     })
 
     setTaggedFilters(initFilters)
-  }
+  }, [types, years]);
 
   const onCloseTaggedFilter = (type: VolumesTypeFilter, value: string | number) => {
     if (type === 'type') {
@@ -130,25 +130,23 @@ export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallb
     }
   }
 
-  const clearTaggedFilters = (): void => {
-    const updatedTypes = types.map((t) => {
+  const clearTaggedFilters = useCallback((): void => {
+    setTypes(prev => prev.map((t) => {
       return { ...t, isChecked: false };
-    });
+    }));
 
-    const updatedYears = years.map((y) => {
+    setYears(prev => prev.map((y) => {
       return { ...y, isSelected: false };
-    });
+    }));
 
-    setTypes(updatedTypes);
-    setYears(updatedYears);
     setTaggedFilters([]);
-  }
+  }, []);
 
-  const onClose = (): void => {
+  const onClose = useCallback((): void => {
     clearTaggedFilters();
     onCloseCallback();
     dispatch(setFooterVisibility(true))
-  }
+  }, [clearTaggedFilters, onCloseCallback, dispatch]);
 
   const onApplyFilters = (): void => {
     onUpdateTypesCallback(types);
@@ -159,7 +157,7 @@ export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallb
 
   useEffect(() => {
     setAllTaggedFilters()
-  }, [types, years])
+  }, [setAllTaggedFilters])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -178,7 +176,7 @@ export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallb
     if (isFooterEnabled) {
       dispatch(setFooterVisibility(false))
     }
-  }, [isFooterEnabled]);
+  }, [isFooterEnabled, dispatch]);
 
   const toggleSection = (sectionKey: FILTERS_SECTION) => {
     const updatedSections = openedSections.map((section) => {

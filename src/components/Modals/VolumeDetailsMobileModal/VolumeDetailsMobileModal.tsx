@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 
 import close from '/public/icons/close-red.svg';
@@ -30,11 +30,11 @@ export default function VolumeDetailsMobileModal({ language, t, volume, relatedV
 
   const [chosenVolume, setChosenVolume] = useState<IVolume | undefined>(volume);
 
-  const onClose = (): void => {
+  const onClose = useCallback((): void => {
     setChosenVolume(undefined);
     onCloseCallback();
     dispatch(setFooterVisibility(true))
-  }
+  }, [onCloseCallback, dispatch]);
 
   const onApplyFilters = (): void => {
     if (!chosenVolume) return;
@@ -89,7 +89,7 @@ export default function VolumeDetailsMobileModal({ language, t, volume, relatedV
     if (isFooterEnabled) {
       dispatch(setFooterVisibility(false))
     }
-  }, [isFooterEnabled]);
+  }, [isFooterEnabled, dispatch]);
 
   return (
     <div className="volumeDetailsMobileModal" ref={modalRef}>

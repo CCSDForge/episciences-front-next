@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setFooterVisibility } from '@/store/features/footer/footer.slice';
@@ -25,11 +25,11 @@ export function VolumeDetailsMobile({ language, t, volume, relatedVolumes, onSel
   const modalRef = useRef<HTMLDivElement>(null);
   const [chosenVolume, setChosenVolume] = useState<IVolume | undefined>(volume);
 
-  const onClose = (): void => {
+  const onClose = useCallback((): void => {
     setChosenVolume(undefined);
     onCloseCallback();
     dispatch(setFooterVisibility(true))
-  }
+  }, [onCloseCallback, dispatch]);
 
   const onApplyFilters = (): void => {
     if (!chosenVolume) return;
@@ -84,7 +84,7 @@ export function VolumeDetailsMobile({ language, t, volume, relatedVolumes, onSel
     if (isFooterEnabled) {
       dispatch(setFooterVisibility(false))
     }
-  }, [isFooterEnabled]);
+  }, [isFooterEnabled, dispatch]);
 
   return (
     <div className="volumeDetailsMobile" ref={modalRef}>

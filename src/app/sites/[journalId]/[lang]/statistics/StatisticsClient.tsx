@@ -137,7 +137,7 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
         });
       });
     }
-  }, [stats?.data]);
+  }, [stats]);
 
   const selectedYearsStr = getSelectedYears().join(',');
 

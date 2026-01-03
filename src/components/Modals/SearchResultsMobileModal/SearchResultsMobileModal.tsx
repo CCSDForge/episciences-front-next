@@ -150,7 +150,7 @@ export default function SearchResultsMobileModal({ language, t, initialTypes, on
     setAuthors(updatedAuthors);
   }
 
-  const setAllTaggedFilters = (): void => {
+  const setAllTaggedFilters = useCallback((): void => {
     const initFilters: ISearchResultsFilter[] = []
 
     types.filter((t) => t.isChecked).forEach((t) => {
@@ -194,7 +194,7 @@ export default function SearchResultsMobileModal({ language, t, initialTypes, on
     })
 
     setTaggedFilters(initFilters)
-  }
+  }, [types, years, volumes, sections, authors]);
 
   const onCloseTaggedFilter = (type: SearchResultsTypeFilter, value: string | number) => {
     if (type === 'type') {

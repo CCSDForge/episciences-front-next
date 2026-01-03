@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setFooterVisibility } from '@/store/features/footer/footer.slice';
@@ -46,11 +46,11 @@ export default function NewsMobileModal({ t, years, onUpdateYearsCallback, onClo
     setFiltersYears(updatedYears);
   }
 
-  const onClose = (): void => {
+  const onClose = useCallback((): void => {
     setFiltersYears([]);
     onCloseCallback();
     dispatch(setFooterVisibility(true))
-  }
+  }, [onCloseCallback, dispatch]);
 
   const onApplyFilters = (): void => {
     onUpdateYearsCallback(filtersYears);
@@ -75,7 +75,7 @@ export default function NewsMobileModal({ t, years, onUpdateYearsCallback, onClo
     if (isFooterEnabled) {
       dispatch(setFooterVisibility(false))
     }
-  }, [isFooterEnabled]);
+  }, [isFooterEnabled, dispatch]);
 
   const toggleSection = (sectionKey: FILTERS_SECTION) => {
     const updatedSections = openedSections.map((section) => {
