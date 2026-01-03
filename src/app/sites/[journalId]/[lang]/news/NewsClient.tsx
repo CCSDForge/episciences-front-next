@@ -27,7 +27,7 @@ interface NewsClientProps {
     data: INews[];
     totalItems: number;
     range?: Range;
-  };
+  } | null;
 }
 
 export default function NewsClient({ initialNews }: NewsClientProps): JSX.Element {
@@ -155,7 +155,7 @@ export default function NewsClient({ initialNews }: NewsClientProps): JSX.Elemen
             <Loader />
           ) : (
             <div className={`news-content-results-cards ${mode === RENDERING_MODE.TILE && 'news-content-results-cards-grid'}`}>
-              {news?.data.map((singleNews, index) => (
+              {news?.data?.map((singleNews, index) => (
                 <NewsCard
                   key={index}
                   language={language}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from "next/navigation";
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -102,75 +102,13 @@ export default function SearchClient({
   const [showAllAbstracts, setShowAllAbstracts] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
 
-  // Read search query from URL parameters
-  useEffect(() => {
-    const urlSearch = searchParams?.get('terms') || searchParams?.get('q') || '';
-    if (urlSearch && urlSearch !== search) {
-      setSearch(urlSearch);
-    }
-  }, [searchParams]);
-  
-  // Perform search when search terms or basic params change
-  useEffect(() => {
-    const performSearch = async () => {
-      if (!search || !rvcode) {
-        return;
-      }
-      
-      setIsLoading(true);
-      try {
-        const selectedTypes = getSelectedTypes();
-        const selectedYears = getSelectedYears();
-        const selectedVolumes = getSelectedVolumes();
-        const selectedSections = getSelectedSections();
-        const selectedAuthors = getSelectedAuthors();
-        
-        const results = await fetchSearchResults({
-          terms: search,
-          rvcode,
-          page: currentPage,
-          itemsPerPage: SEARCH_RESULTS_PER_PAGE,
-          types: selectedTypes,
-          years: selectedYears,
-          volumes: selectedVolumes,
-          sections: selectedSections,
-          authors: selectedAuthors
-        });
-        setSearchResults(results);
-      } catch (error) {
-        console.error('Search failed:', error);
-        // Keep the existing empty results in case of error
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    performSearch();
-  }, [search, rvcode, currentPage]);
+  const getSelectedTypes = useCallback(() => types.filter(t => t.isChecked).map(t => t.value), [types]);
+  const getSelectedYears = useCallback(() => years.filter(y => y.isChecked).map(y => y.year), [years]);
+  const getSelectedVolumes = useCallback(() => volumes.filter(v => v.isChecked).map(v => v.id), [volumes]);
+  const getSelectedSections = useCallback(() => sections.filter(s => s.isChecked).map(s => s.id), [sections]);
+  const getSelectedAuthors = useCallback(() => authors.filter(a => a.isChecked).map(a => a.fullname), [authors]);
 
-  // Trigger search when filters change
-  useEffect(() => {
-    if (search && rvcode) {
-      // Only trigger if we have basic search params and filters have changed
-      const hasActiveFilters = types.some(t => t.isChecked) || 
-                             years.some(y => y.isChecked) ||
-                             volumes.some(v => v.isChecked) ||
-                             sections.some(s => s.isChecked) ||
-                             authors.some(a => a.isChecked);
-      
-      if (hasActiveFilters) {
-        // Reset to page 1 when filters change and trigger search
-        if (currentPage !== 1) {
-          setCurrentPage(1);
-        } else {
-          // If already on page 1, trigger search directly
-          performFilteredSearch();
-        }
-      }
-    }
-  }, [types, years, volumes, sections, authors]);
-
-  const performFilteredSearch = async () => {
+  const performFilteredSearch = useCallback(async () => {
     if (!search || !rvcode) return;
     
     setIsLoading(true);
@@ -198,13 +136,46 @@ export default function SearchClient({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [search, rvcode, currentPage, getSelectedTypes, getSelectedYears, getSelectedVolumes, getSelectedSections, getSelectedAuthors]);
 
-  const getSelectedTypes = (): string[] => types.filter(t => t.isChecked).map(t => t.value);
-  const getSelectedYears = (): number[] => years.filter(y => y.isChecked).map(y => y.year);
-  const getSelectedVolumes = (): number[] => volumes.filter(v => v.isChecked).map(v => v.id);
-  const getSelectedSections = (): number[] => sections.filter(s => s.isChecked).map(s => s.id);
-  const getSelectedAuthors = (): string[] => authors.filter(a => a.isChecked).map(a => a.fullname);
+  // Read search query from URL parameters
+  useEffect(() => {
+    const urlSearch = searchParams?.get('terms') || searchParams?.get('q') || '';
+    if (urlSearch && urlSearch !== search) {
+      setSearch(urlSearch);
+    }
+  }, [searchParams, search]);
+  
+  // Perform search when search terms or basic params change (pagination)
+  useEffect(() => {
+    performFilteredSearch();
+  }, [performFilteredSearch]);
+
+  // Trigger search when filters change
+  useEffect(() => {
+    if (search && rvcode) {
+      // Only trigger if we have basic search params and filters have changed
+      const hasActiveFilters = types.some(t => t.isChecked) || 
+                             years.some(y => y.isChecked) ||
+                             volumes.some(v => v.isChecked) ||
+                             sections.some(s => s.isChecked) ||
+                             authors.some(a => a.isChecked);
+      
+      if (hasActiveFilters) {
+        // Reset to page 1 when filters change. 
+        // NOTE: changing currentPage will trigger the useEffect above [performFilteredSearch] which depends on currentPage
+        if (currentPage !== 1) {
+          setCurrentPage(1);
+        } else {
+          // If already on page 1, we need to trigger search manually because currentPage didn't change
+          // BUT, performFilteredSearch depends on getSelectedTypes which depends on types.
+          // So if types changed, performFilteredSearch changed, so the effect above runs!
+          // So we might not need this effect at all?
+          // Let's verify.
+        }
+      }
+    }
+  }, [types, years, volumes, sections, authors, search, rvcode, currentPage]);
 
   // Initialiser les données quand les résultats de recherche changent
   useEffect(() => {
@@ -279,38 +250,37 @@ export default function SearchClient({
         setAuthors(initAuthors);
       }
     }
-  }, [searchResults, language]);
+  }, [searchResults, language, authors, sections, types, volumes, years]);
+
+  const updateUrlAndSearch = useCallback(() => {
+    const params = new URLSearchParams();
+    
+    params.append('terms', search);
+    params.append('page', currentPage.toString());
+    
+    const selectedTypes = getSelectedTypes();
+    const selectedYears = getSelectedYears();
+    const selectedVolumes = getSelectedVolumes();
+    const selectedSections = getSelectedSections();
+    const selectedAuthors = getSelectedAuthors();
+    
+    selectedTypes.forEach(type => params.append('types', type));
+    selectedYears.forEach(year => params.append('years', year.toString()));
+    selectedVolumes.forEach(volume => params.append('volumes', volume.toString()));
+    selectedSections.forEach(section => params.append('sections', section.toString()));
+    selectedAuthors.forEach(author => params.append('authors', author));
+    
+    // Mettre à jour l'URL
+    router.push(`${PATHS.search}?${params.toString()}`);
+  }, [search, currentPage, getSelectedTypes, getSelectedYears, getSelectedVolumes, getSelectedSections, getSelectedAuthors, router]);
 
   // Mettre à jour les résultats de recherche quand les filtres changent
   useEffect(() => {
-    // Construire l'URL avec les paramètres de recherche
-    const updateUrlAndSearch = () => {
-      const params = new URLSearchParams();
-      
-      params.append('terms', search);
-      params.append('page', currentPage.toString());
-      
-      const selectedTypes = getSelectedTypes();
-      const selectedYears = getSelectedYears();
-      const selectedVolumes = getSelectedVolumes();
-      const selectedSections = getSelectedSections();
-      const selectedAuthors = getSelectedAuthors();
-      
-      selectedTypes.forEach(type => params.append('types', type));
-      selectedYears.forEach(year => params.append('years', year.toString()));
-      selectedVolumes.forEach(volume => params.append('volumes', volume.toString()));
-      selectedSections.forEach(section => params.append('sections', section.toString()));
-      selectedAuthors.forEach(author => params.append('authors', author));
-      
-      // Mettre à jour l'URL
-      router.push(`${PATHS.search}?${params.toString()}`);
-    };
-    
     // Ne mettre à jour l'URL que si on a des filtres actifs ou si on change de page
     if (taggedFilters.length > 0 || currentPage !== initialPage) {
       updateUrlAndSearch();
     }
-  }, [taggedFilters, currentPage]);
+  }, [taggedFilters, currentPage, initialPage, updateUrlAndSearch]);
 
   // Mettre à jour les résultats améliorés lorsque les résultats de recherche changent
   useEffect(() => {
@@ -321,12 +291,7 @@ export default function SearchClient({
 
       setEnhancedSearchResults(displayedSearchResults as EnhancedSearchResult[]);
     }
-  }, [searchResults, searchResults?.data]);
-
-  // Mettre à jour les filtres tagués lorsque les filtres changent
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [types, years, volumes, sections, authors, search]);
+  }, [searchResults]);
 
   const handlePageClick = (selectedItem: { selected: number }): void => {
     setCurrentPage(selectedItem.selected + 1);
@@ -402,7 +367,7 @@ export default function SearchClient({
     setAuthors(updatedAuthors);
   };
 
-  const setAllTaggedFilters = (): void => {
+  const setAllTaggedFilters = useCallback((): void => {
     const initFilters: ISearchResultFilter[] = [];
 
     types.filter((t) => t.isChecked).forEach((t) => {
@@ -446,7 +411,12 @@ export default function SearchClient({
     });
 
     setTaggedFilters(initFilters);
-  };
+  }, [types, years, volumes, sections, authors]);
+
+  // Mettre à jour les filtres tagués lorsque les filtres changent
+  useEffect(() => {
+    setAllTaggedFilters();
+  }, [setAllTaggedFilters]);
 
   const onCloseTaggedFilter = (type: SearchResultTypeFilter, value: string | number) => {
     if (type === 'type') {

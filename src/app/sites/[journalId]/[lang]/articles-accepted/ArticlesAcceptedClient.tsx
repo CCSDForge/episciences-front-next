@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
@@ -143,7 +143,7 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange, 
     setTypes(updatedTypes);
   }
 
-  const setAllTaggedFilters = (): void => {
+  const setAllTaggedFilters = useCallback((): void => {
     const initFilters: IArticleAcceptedFilter[] = []
 
     types.filter((t) => t.isChecked).forEach((t) => {
@@ -154,7 +154,7 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange, 
     })
 
     setTaggedFilters(initFilters)
-  }
+  }, [types]);
 
   const onCloseTaggedFilter = (value: string | number) => {
     const updatedTypes = types.map((t) => {
@@ -179,7 +179,7 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange, 
 
   useEffect(() => {
     setAllTaggedFilters()
-  }, [types])
+  }, [setAllTaggedFilters])
 
   const toggleAbstract = (articleId?: number): void => {
     if (!articleId) return

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, Fragment, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -42,7 +42,7 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
   const [stats, setStats] = useState<IStatResponse | null>(initialStats || null);
   const [isLoading, setIsLoading] = useState(!initialStats);
 
-  const getSelectedYears = (): number[] => years.filter(y => y.isChecked).map(y => y.year);
+  const getSelectedYears = useCallback((): number[] => years.filter(y => y.isChecked).map(y => y.year), [years]);
 
   // Chargement initial des statistiques si pas de données pré-chargées
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
 
       setYears(initYears);
     }
-  }, [stats?.range?.years]);
+  }, [stats?.range?.years, years.length]);
 
   useEffect(() => {
     if (stats && stats.data) {
@@ -128,20 +128,22 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
         evaluationPublicationStats = evaluationPublicationStats.filter((stat) => stat.value !== null && !isIStatValueEvaluation(stat.value!));
       }
 
-      const updatedStatisticsPerLabel = statisticsPerLabel.map((statisticPerLabel) => {
-        return {
-          ...statisticPerLabel,
-          statistics: statisticPerLabel.labelKey === STAT_LABEL.GLANCE ? glanceStats : evaluationPublicationStats
-        };
+      setStatisticsPerLabel(prevStatisticsPerLabel => {
+        return prevStatisticsPerLabel.map((statisticPerLabel) => {
+          return {
+            ...statisticPerLabel,
+            statistics: statisticPerLabel.labelKey === STAT_LABEL.GLANCE ? glanceStats : evaluationPublicationStats
+          };
+        });
       });
-
-      setStatisticsPerLabel(updatedStatisticsPerLabel);
     }
   }, [stats?.data]);
 
+  const selectedYearsStr = getSelectedYears().join(',');
+
   useEffect(() => {
     const fetchUpdatedStatistics = async () => {
-      const selectedYears = getSelectedYears();
+      const selectedYears = selectedYearsStr ? selectedYearsStr.split(',').map(Number) : [];
 
       // Ne rien faire si le composant n'est pas initialisé (pas de journalCode ou years vide)
       if (!journalCode || years.length === 0) return;
@@ -174,7 +176,7 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
     };
 
     fetchUpdatedStatistics();
-  }, [getSelectedYears().join(','), journalCode, years.length]);
+  }, [selectedYearsStr, journalCode, years.length, stats?.range]);
 
   const onCheckYear = (year: number): void => {
     const updatedYears = years.map((y) => {

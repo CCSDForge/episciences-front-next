@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
@@ -58,7 +58,7 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
     setTypes(updatedTypes);
   }
 
-  const setAllTaggedFilters = (): void => {
+  const setAllTaggedFilters = useCallback((): void => {
     const initFilters: IArticlesAcceptedFilter[] = []
 
     types.filter((t) => t.isChecked).forEach((t) => {
@@ -69,34 +69,32 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
     })
 
     setTaggedFilters(initFilters)
-  }
+  }, [types]);
 
-  const onCloseTaggedFilter = (value: string | number) => {
+  const onCloseTaggedFilter = (value: string) => {
     const updatedTypes = types.map((t) => {
       if (t.value === value) {
         return { ...t, isChecked: false };
       }
-
       return t;
     });
 
     setTypes(updatedTypes);
   }
 
-  const clearTaggedFilters = (): void => {
-    const updatedTypes = types.map((t) => {
+  const clearTaggedFilters = useCallback((): void => {
+    setTypes(prev => prev.map((t) => {
       return { ...t, isChecked: false };
-    });
+    }));
 
-    setTypes(updatedTypes);
     setTaggedFilters([]);
-  }
+  }, []);
 
-  const onClose = (): void => {
+  const onClose = useCallback((): void => {
     clearTaggedFilters();
     onCloseCallback();
     dispatch(setFooterVisibility(true))
-  }
+  }, [clearTaggedFilters, onCloseCallback, dispatch]);
 
   const onApplyFilters = (): void => {
     onUpdateTypesCallback(types);
@@ -106,7 +104,7 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
 
   useEffect(() => {
     setAllTaggedFilters()
-  }, [types])
+  }, [setAllTaggedFilters])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -125,7 +123,7 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
     if (isFooterEnabled) {
       dispatch(setFooterVisibility(false))
     }
-  }, [isFooterEnabled]);
+  }, [isFooterEnabled, dispatch]);
 
   const toggleSection = (sectionKey: FILTERS_SECTION) => {
     const updatedSections = openedSections.map((section) => {

@@ -3,6 +3,8 @@ import './Search.scss';
 import dynamic from 'next/dynamic';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { fetchSearchResults } from '@/services/search';
+import { FetchedArticle } from '@/utils/article';
+import { SearchRange } from '@/utils/pagination';
 
 const SearchClient = dynamic(() => import('./SearchClient'), {
   loading: () => <div className="loader">Chargement...</div>,
@@ -40,11 +42,15 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   };
   
   // Optionally fetch initial results if search term is present
-  let initialSearchResults = {
+  let initialSearchResults: {
+    data: FetchedArticle[];
+    totalItems: number;
+    range?: SearchRange;
+  } = {
     data: [],
-    totalItems: 0,
+    totalItems: 0
   };
-  
+
   if (search && journalId) {
     try {
       initialSearchResults = await fetchSearchResults({
@@ -74,4 +80,3 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
     />
   );
 }
- 

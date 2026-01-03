@@ -1,10 +1,13 @@
-# CLAUDE.md
+# CLAUDE.md / GEMINI.md
 
-Instructions for Claude Code when working with this repository.
+Instructions for AI assistants (Claude, Gemini) when working with this repository.
 
 ## Project Overview
 
-Next.js 14 application for Episciences academic journals. Generates fully static sites for multiple journals, each with its own configuration and build output. Uses App Router with Server/Client component split pattern.
+Next.js 14 application for Episciences academic journals. 
+**Architecture:** Node.js Server with Incremental Static Regeneration (ISR).
+**Routing:** Multi-tenant using Middleware to map hostnames to journal codes.
+**Rendering:** Hybrid approach (Server Components for data/SEO, Client Components for interactivity).
 
 ## Essential Commands
 
@@ -13,121 +16,68 @@ Next.js 14 application for Episciences academic journals. Generates fully static
 npm install
 npm run dev
 
-# Build specific journal (preferred method)
-make <journal-name>          # e.g., make epijinfo
-make list                    # List available journals
-make all                     # Build all journals
+# Production Build (Standalone Node.js)
+npm run build
 
-# Test static build locally
-make serve JOURNAL=<journal> PORT=3000
+# Start Production Server
+npm run start
 
-# Docker testing (Apache integration)
-make docker-test JOURNAL=<journal> PORT=8080
-make docker-logs             # View Apache logs
-make docker-stop             # Stop test server
+# Test/Lint
+npm run test
+npm run lint
 ```
 
-## Multi-Journal System
+## Multi-Tenant ISR Architecture
 
-- **Environment Files**: `external-assets/.env.local.<journal-code>` - one per journal
-- **Journal Registry**: `external-assets/journals.txt` - list of valid journal codes
-- **Logos**: `external-assets/logos/logo-<journal>-{big,small}.svg` - journal-specific logos
-- **Build Output**: `dist/<journal-code>/` - separate directory per journal
-- **Language Routing**: Apache `.htaccess` generated at build time (see APACHE_INTEGRATION.md)
+### Routing & Middleware
+- **Middleware** (`src/middleware.ts`): Intercepts requests.
+- Maps `hostname` (e.g., `journal.episciences.org`) -> `journalId` (e.g., `journal`).
+- Rewrites URL to `/sites/[journalId]/[lang]/...`.
+- `[lang]` is determined from URL path (e.g., `/fr/...`) or default.
 
-## Build Performance & Caching
+### Data Fetching & Caching
+- **Server Components** (`page.tsx`): Fetch initial data (Articles, Volumes, Boards).
+- **ISR**: Pages use `revalidate = 3600` (1 hour) or similar.
+- **Client Components** (`*Client.tsx`): Receive initial data as props.
+- **Hydration**: Client components use `useClientSideFetch` (react-query-like) to fetch fresh data on mount, but display initial server data first.
 
-### Performance Optimizations
+### Hydration Strategy (CRITICAL)
+To prevent "Text content does not match" errors:
+1. **Translations**: Static labels (Titles, Breadcrumbs, Counters) MUST be translated on the Server (`page.tsx`) and passed as props to Client Components.
+   - Example: `breadcrumbLabels={{ home: t('home') }}` passed to `ArticlesClient`.
+2. **Language Consistency**: Client components must rely on the `lang` prop passed from the Server, NOT solely on `i18n.language` or Redux state during the first render.
+3. **Memoization**: All props passed to third-party libraries (like `ReactPaginate`) and event handlers in Client Components MUST be wrapped in `useMemo` / `useCallback` to prevent infinite render loops.
 
-**Webpack Filesystem Cache** (enabled by default)
-- Cache isolated per journal in `.next/cache-{journal}/`
-- Supports parallel builds via webhook without conflicts
-- Typical gains: 40-56% faster on warm cache
-- Clean all caches: `make clean`
+## Directory Structure
 
-**In-Memory Fetch Cache** (automatic during builds)
-- Prevents redundant API calls for article lists
-- Activated only during static builds (`NEXT_PUBLIC_STATIC_BUILD=true`)
-- Eliminates 100+ redundant fetches per build
-- Configurable limit: `MAX_ARTICLES_TO_GENERATE` (default: 2000)
+- `src/app/sites/[journalId]/[lang]/` - Dynamic routes for all journals.
+- `src/middleware.ts` - Core multi-tenant routing logic.
+- `src/components/` - Shared UI components.
+- `external-assets/` - Environment files and logos per journal.
 
-**Build Times** (epijinfo, 92 articles):
-- Cold cache: ~38s
-- Warm cache: ~21s
-- Targeted article rebuild: ~30s
+## Development Guidelines
 
-### CI/CD Cache Configuration
+### Adding New Pages
+1. Create `page.tsx` in `src/app/sites/[journalId]/[lang]/[newPage]`.
+2. Fetch data server-side.
+3. Pass data + translated labels to a `ClientComponent`.
+4. Ensure `ClientComponent` handles `initialData` correctly.
 
-**GitHub Actions:**
-```yaml
-- name: Cache Next.js build
-  uses: actions/cache@v4
-  with:
-    path: |
-      .next/cache-*
-      node_modules
-    key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.[jt]s', 'src/**/*.[jt]sx') }}
-    restore-keys: |
-      ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
-      ${{ runner.os }}-nextjs-
-```
+### Modifying Client Components
+- Always use `useCallback` for event handlers passed to children.
+- If using `useEffect` to update state based on props, ensure dependency arrays are stable.
+- Check for Hydration Mismatches by running `npm run dev` and viewing the console.
 
-**GitLab CI:**
-```yaml
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
-    - .next/cache-*/
-```
+## Git Workflow
 
-**Jenkins:**
-```groovy
-stage("Build with Cache") {
-  steps {
-    cache(caches: [
-      arbitraryFileCache(
-        path: ".next/cache-*",
-        includes: "**/*",
-        cacheValidityDecidingFile: "package-lock.json"
-      )
-    ]) {
-      sh "npm run build"
-    }
-  }
-}
-```
+- **Commits**: Use conventional commits (feat, fix, refactor).
+- **Specific Adds**: `git add <file>`, never `git add .` indiscriminately (though acceptable for massive refactors if carefully reviewed).
 
-### Environment Variables
+## Troubleshooting
 
-- `MAX_ARTICLES_TO_GENERATE` (default: 2000) - Max articles to fetch per build
-- `ONLY_BUILD_ARTICLE_ID` - Build single article (targeted rebuild)
-- `ONLY_BUILD_VOLUME_ID` - Build single volume
-- `ONLY_BUILD_SECTION_ID` - Build single section
+- **Hydration Error**: Check if text rendered on server (using `t` with default lang) differs from client (using `t` with detected lang). Fix by passing the translated string as a prop.
+- **Infinite Loop**: Check `useEffect` dependencies in Client Components. Ensure objects/arrays passed as props are memoized.
 
-## Architecture Patterns
-
-### Hybrid Rendering Architecture
-
-**Problem Solved**: Static page rebuilds took 31s, creating poor UX when editors updated content.
-
-**Solution**: Hybrid architecture combining static HTML (SEO) + client-side hydration (freshness)
-- HTML generated at build time (SEO-friendly for AI bots)
-- Client automatically fetches fresh data via API (< 1s)
-- Webhook rebuilds HTML in background (transparent to users)
-
-**Pages Using Hybrid Rendering** (see `HYBRID_RENDERING.md` for details):
-- `/about` - AboutClient.tsx
-- `/for-authors` - ForAuthorsClient.tsx
-- `/boards` - BoardsClient.tsx
-- `/credits` - CreditsClient.tsx
-- `/news` - NewsClient.tsx
-- `/` (home) - HomeClient.tsx
-
-**Key Components**:
-- `src/hooks/useClientSideFetch.ts` - Reusable fetch hook with smooth transitions
-- `src/styles/transitions.scss` - CSS classes for invisible content updates
-- See `HYBRID_RENDERING.md` for complete documentation
 
 ### Static Build System
 - Uses `output: 'export'` in next.config.js

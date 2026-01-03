@@ -19,11 +19,12 @@ export default async function CreditsPage() {
       const rawData = await fetchCreditsPage(rvcode);
       if (rawData?.['hydra:member']?.[0]) {
         pageData = rawData['hydra:member'][0];
-      }d
-    }
-  } catch (error) {
-    console.error('Error fetching credits page:', error);
-  }
-  
-  return <CreditsClient initialPage={pageData} />;
-}
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching credits page:', error);
+        }
+        
+        return <CreditsClient creditsPage={pageData} />;
+      }
+      

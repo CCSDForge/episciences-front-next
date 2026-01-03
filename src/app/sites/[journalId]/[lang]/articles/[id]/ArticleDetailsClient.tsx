@@ -152,7 +152,7 @@ export default function ArticleDetailsClient({
       setAuthors(allAuthors)
       setInstitutions(Array.from(allInstitutionsMap.values()))
     }
-  }, [article])
+  }, [article, authors.length, institutions.length])
 
   const renderArticleTitleAndAuthors = (isMobile: boolean): JSX.Element => {
     return (
@@ -207,7 +207,7 @@ export default function ArticleDetailsClient({
   const getGraphicalAbstractSection = (): JSX.Element | null => {
     const graphicalAbstractURL = (rvcode && article?.graphicalAbstract) ? `https://${rvcode}.episciences.org/public/documents/${article.id}/${article?.graphicalAbstract}` : null
     
-    return graphicalAbstractURL ? <img src={graphicalAbstractURL} className="articleDetails-content-article-section-content-graphicalAbstract" /> : null
+    return graphicalAbstractURL ? <img src={graphicalAbstractURL} className="articleDetails-content-article-section-content-graphicalAbstract" alt="Graphical abstract" /> : null
   }
 
   const getAbstractSection = (): JSX.Element | null => {

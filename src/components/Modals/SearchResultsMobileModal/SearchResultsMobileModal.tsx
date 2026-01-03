@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setFooterVisibility } from '@/store/features/footer/footer.slice';
@@ -245,40 +245,20 @@ export default function SearchResultsMobileModal({ language, t, initialTypes, on
     }
   }
 
-  const clearTaggedFilters = (): void => {
-    const updatedTypes = types.map((t) => {
-      return { ...t, isChecked: false };
-    });
-
-    const updatedYears = years.map((y) => {
-      return { ...y, isChecked: false };
-    });
-
-    const updatedVolumes = volumes.map((v) => {
-      return { ...v, isChecked: false };
-    });
-
-    const updatedSections = sections.map((s) => {
-      return { ...s, isChecked: false };
-    });
-
-    const updatedAuthors = authors.map((a) => {
-      return { ...a, isChecked: false };
-    });
-
-    setTypes(updatedTypes);
-    setYears(updatedYears);
-    setVolumes(updatedVolumes);
-    setSections(updatedSections);
-    setAuthors(updatedAuthors);
+  const clearTaggedFilters = useCallback((): void => {
+    setTypes(prev => prev.map((t) => ({ ...t, isChecked: false })));
+    setYears(prev => prev.map((y) => ({ ...y, isChecked: false })));
+    setVolumes(prev => prev.map((v) => ({ ...v, isChecked: false })));
+    setSections(prev => prev.map((s) => ({ ...s, isChecked: false })));
+    setAuthors(prev => prev.map((a) => ({ ...a, isChecked: false })));
     setTaggedFilters([]);
-  }
+  }, []);
 
-  const onClose = (): void => {
+  const onClose = useCallback((): void => {
     clearTaggedFilters();
     onCloseCallback();
     dispatch(setFooterVisibility(true))
-  }
+  }, [clearTaggedFilters, onCloseCallback, dispatch]);
 
   const onApplyFilters = (): void => {
     onUpdateTypesCallback(types);
@@ -292,7 +272,7 @@ export default function SearchResultsMobileModal({ language, t, initialTypes, on
 
   useEffect(() => {
     setAllTaggedFilters()
-  }, [types, years, volumes, sections, authors])
+  }, [setAllTaggedFilters])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -311,7 +291,7 @@ export default function SearchResultsMobileModal({ language, t, initialTypes, on
     if (isFooterEnabled) {
       dispatch(setFooterVisibility(false))
     }
-  }, [isFooterEnabled]);
+  }, [isFooterEnabled, dispatch]);
 
   const toggleSection = (sectionKey: FILTERS_SECTION) => {
     const updatedSections = openedSections.map((section) => {
