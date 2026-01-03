@@ -50,6 +50,20 @@ export default function VolumeDetailsClient({
   // Vérifier si on est en mode statique
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
 
+  const reorderRelatedVolumes = useCallback((volumesToBeOrdered: IVolume[]): IVolume[] => {
+    if (!volume || !volumesToBeOrdered || !volumesToBeOrdered.length) return volumesToBeOrdered;
+
+    const currentVolumeIndex = volumesToBeOrdered.findIndex(v => v.id === volume.id);
+    if (currentVolumeIndex > -1) {
+      const newVolumes = [...volumesToBeOrdered];
+      const [currentVolume] = newVolumes.splice(currentVolumeIndex, 1);
+      newVolumes.unshift(currentVolume);
+      return newVolumes;
+    }
+  
+    return volumesToBeOrdered;
+  }, [volume]);
+
   // Utiliser useFetchVolumesQuery uniquement en mode développement
   const { data: relatedVolumes, isFetching: isFetchingRelatedVolumes } = useFetchVolumesQuery({ 
     rvcode: rvcode!, 
@@ -79,20 +93,6 @@ export default function VolumeDetailsClient({
       setIsFetchingArticles(false);
     }
   }, [initialArticles]);
-
-  const reorderRelatedVolumes = useCallback((volumesToBeOrdered: IVolume[]): IVolume[] => {
-    if (!volume || !volumesToBeOrdered || !volumesToBeOrdered.length) return volumesToBeOrdered;
-
-    const currentVolumeIndex = volumesToBeOrdered.findIndex(v => v.id === volume.id);
-    if (currentVolumeIndex > -1) {
-      const newVolumes = [...volumesToBeOrdered];
-      const [currentVolume] = newVolumes.splice(currentVolumeIndex, 1);
-      newVolumes.unshift(currentVolume);
-      return newVolumes;
-    }
-  
-    return volumesToBeOrdered;
-  }, [volume]);
 
   const renderVolumeType = (): JSX.Element => {
     if (volume?.types && volume.types.length) {
