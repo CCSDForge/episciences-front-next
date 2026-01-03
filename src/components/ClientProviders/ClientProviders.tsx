@@ -12,10 +12,13 @@ import { JournalInitializer } from '@/components/JournalInitializer/JournalIniti
 import { LastVolumeInitializer } from '@/components/LastVolumeInitializer/LastVolumeInitializer';
 import ThemeStyleSwitch from '@/components/ThemeStyleSwitch/ThemeStyleSwitch';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
+import { setCurrentJournal } from '@/store/features/journal/journal.slice';
 import { IVolume } from '@/types/volume';
+import { IJournal } from '@/types/journal';
 
 interface ClientProvidersProps {
   initialVolume?: IVolume | null;
+  initialJournal?: IJournal | null;
   initialLanguage?: string;
   journalId?: string;
   children?: React.ReactNode;
@@ -26,7 +29,7 @@ interface ClientProvidersProps {
  * This component wraps the entire application to provide context
  * It ensures the store is only used client-side
  */
-const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initialLanguage, journalId, children }) => {
+const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initialJournal, initialLanguage, journalId, children }) => {
   // Detect language immediately, before first render
   const detectedLang = (() => {
     if (typeof window !== 'undefined') {
@@ -54,14 +57,20 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initia
 
     // Update Redux store with detected language
     store.dispatch(setLanguage(detectedLang as any));
-  }, [detectedLang]);
+    
+    // Initialize Journal if provided
+    if (initialJournal) {
+      store.dispatch(setCurrentJournal(initialJournal));
+    }
+  }, [detectedLang, initialJournal]);
 
   return (
     <Provider store={store}>
       <I18nextProvider i18n={i18n}>
         <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={2}>
           {isClient && <ThemeStyleSwitch />}
-          {isClient && <JournalInitializer journalId={journalId} />}
+          {/* JournalInitializer is no longer needed if we have initialJournal */}
+          {isClient && !initialJournal && <JournalInitializer journalId={journalId} />}
           {isClient && initialVolume && <LastVolumeInitializer initialVolume={initialVolume} />}
           {children}
         </MathJaxContext>

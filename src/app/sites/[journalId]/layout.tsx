@@ -1,4 +1,5 @@
 import { fetchVolumes } from '@/services/volume';
+import { getJournalByCode } from '@/services/journal';
 import { defaultLanguage } from '@/utils/language-utils';
 import ClientProviders from '@/components/ClientProviders/ClientProviders';
 
@@ -16,28 +17,39 @@ export default async function JournalLayout({
   const { journalId } = params;
   const currentLanguage = defaultLanguage;
 
-  // Précharger les données du dernier volume côté serveur pour cette revue spécifique
+  // Précharger les données du journal et du dernier volume côté serveur
   let initialVolume = null;
+  let initialJournal = null;
+
   try {
-    const volumesData = await fetchVolumes({
-      rvcode: journalId,
-      language: currentLanguage,
-      page: 1,
-      itemsPerPage: 1,
-      types: [],
-      years: []
-    });
+    // Parallel fetch for performance
+    const [volumesData, journalData] = await Promise.all([
+      fetchVolumes({
+        rvcode: journalId,
+        language: currentLanguage,
+        page: 1,
+        itemsPerPage: 1,
+        types: [],
+        years: []
+      }),
+      getJournalByCode(journalId)
+    ]);
 
     if (volumesData.data.length > 0) {
       initialVolume = volumesData.data[0];
     }
+    
+    if (journalData) {
+      initialJournal = journalData;
+    }
   } catch (error) {
-    console.error(`Error preloading last volume for journal ${journalId}:`, error);
+    console.error(`Error preloading data for journal ${journalId}:`, error);
   }
 
   return (
     <ClientProviders 
       initialVolume={initialVolume} 
+      initialJournal={initialJournal}
       initialLanguage={currentLanguage} 
       journalId={journalId}
     >
