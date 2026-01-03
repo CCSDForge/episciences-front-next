@@ -2,7 +2,7 @@ import { Link } from '@/components/Link/Link';
 import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
 import { getServerTranslations, t } from '@/utils/server-i18n';
-import { getJournal } from '@/services/journal';
+import { getJournalByCode } from '@/services/journal';
 import './Header.scss';
 
 const logoEpisciences = '/icons/logo-text.svg';
@@ -11,17 +11,21 @@ const logoSmall = '/logos/logo-small.svg';
 
 interface HeaderServerProps {
   lang?: string;
+  journalId?: string;
 }
 
-export default async function HeaderServer({ lang = 'en' }: HeaderServerProps): Promise<JSX.Element> {
-  const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+export default async function HeaderServer({ lang = 'en', journalId }: HeaderServerProps): Promise<JSX.Element> {
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 
   // Fetch journal info to get the name
   let journalName = 'Journal';
   try {
-    const journal = await getJournal();
-    journalName = journal?.name || journal?.title?.[lang as keyof typeof journal.title] || 'Journal';
+    // Si journalId est fourni, l'utiliser, sinon fallback (pour compatibilité)
+    const code = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+    if (code) {
+      const journal = await getJournalByCode(code);
+      journalName = journal?.name || journal?.title?.[lang as keyof typeof journal.title] || 'Journal';
+    }
   } catch (error) {
     console.error('Failed to fetch journal in HeaderServer:', error);
   }

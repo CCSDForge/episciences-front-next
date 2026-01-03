@@ -3,7 +3,7 @@
 import { ComponentProps, forwardRef } from 'react';
 import NextLink from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { getLocalizedPath } from '@/utils/language-utils';
+import { getLocalizedPath, defaultLanguage } from '@/utils/language-utils';
 
 type LinkProps = {
   href: string;
@@ -32,7 +32,8 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
   ...props
 }, ref) {
   const { i18n } = useTranslation();
-  const currentLanguage = lang || i18n.language;
+  // Ensure we always have a language, falling back to defaultLanguage
+  const currentLanguage = lang || i18n.language || defaultLanguage;
 
   // Normaliser le chemin
   const normalizedHref = normalizePath(href);
