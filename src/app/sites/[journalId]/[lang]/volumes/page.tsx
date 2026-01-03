@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 
 import { fetchVolumes } from '@/services/volume';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
 
@@ -14,21 +15,29 @@ export const metadata: Metadata = {
 };
 
 export default async function VolumesPage({ params }: { params: { lang: string; journalId: string } }) {
-  const lang = params.lang || 'en';
-  const { journalId } = params;
+  const { lang, journalId } = params;
   try {
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
 
-    const volumesData = await fetchVolumes({
-      rvcode: journalId,
-      language: lang,
-      page: 1,
-      itemsPerPage: VOLUMES_PER_PAGE,
-      types: [],
-      years: []
-    });
+    const [volumesData, translations] = await Promise.all([
+      fetchVolumes({
+        rvcode: journalId,
+        language: lang,
+        page: 1,
+        itemsPerPage: VOLUMES_PER_PAGE,
+        types: [],
+        years: []
+      }),
+      getServerTranslations(lang)
+    ]);
+
+    const breadcrumbLabels = {
+      home: t('pages.home.title', translations),
+      content: t('common.content', translations),
+      volumes: t('pages.volumes.title', translations),
+    };
     
     return (
       <VolumesClient
@@ -36,6 +45,8 @@ export default async function VolumesPage({ params }: { params: { lang: string; 
         initialPage={1}
         initialType=""
         lang={lang}
+        journalId={journalId}
+        breadcrumbLabels={breadcrumbLabels}
       />
     );
   } catch (error) {

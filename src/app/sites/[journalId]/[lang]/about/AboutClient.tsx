@@ -31,9 +31,13 @@ interface IAboutSection {
 interface AboutClientProps {
   initialPage: IPageData | null;
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    about: string;
+  };
 }
 
-export default function AboutClient({ initialPage, lang }: AboutClientProps): JSX.Element {
+export default function AboutClient({ initialPage, lang, breadcrumbLabels }: AboutClientProps): JSX.Element {
   const { t } = useTranslation();
 
   const language = useAppSelector(state => state.i18nReducer.language)
@@ -187,13 +191,22 @@ export default function AboutClient({ initialPage, lang }: AboutClientProps): JS
   }, [pageData, language]);
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} >` }
+    {
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} >` 
+        : `${t('pages.home.title')} >` 
+    }
   ];
 
   return (
     <main className='about'>
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.about.title')} lang={lang} />
-      <h1 className='about-title'>{t('pages.about.title')}</h1>
+      <Breadcrumb 
+        parents={breadcrumbItems} 
+        crumbLabel={breadcrumbLabels?.about || t('pages.about.title')} 
+        lang={lang} 
+      />
+      <h1 className='about-title'>{breadcrumbLabels?.about || t('pages.about.title')}</h1>
       <div className={`about-content content-transition ${isUpdating ? 'updating' : ''}`}>
         <AboutSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
         {isLoading ? (
@@ -239,4 +252,4 @@ export default function AboutClient({ initialPage, lang }: AboutClientProps): JS
       </div>
     </main>
   );
-} 
+}

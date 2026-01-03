@@ -3,6 +3,7 @@ import { fetchVolume, fetchVolumes } from '@/services/volume';
 import { fetchArticle } from '@/services/article';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { FetchedArticle } from '@/utils/article';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 import VolumeDetailsClient from './VolumeDetailsClient';
 
 
@@ -31,11 +32,14 @@ export default async function VolumeDetailsPage({
       throw new Error('journalId is not defined');
     }
 
-    const volumeData = await fetchVolume({
-      rvcode: journalId,
-      vid: params.id,
-      language
-    });
+    const [volumeData, translations] = await Promise.all([
+      fetchVolume({
+        rvcode: journalId,
+        vid: params.id,
+        language
+      }),
+      getServerTranslations(language)
+    ]);
 
     // Fetch all articles for the volume server-side
     let articles: FetchedArticle[] = [];
@@ -57,11 +61,20 @@ export default async function VolumeDetailsPage({
       articles = fetchedArticles.filter((article): article is FetchedArticle => article !== null && article !== undefined);
     }
 
+    const breadcrumbLabels = {
+      home: t('pages.home.title', translations),
+      content: t('common.content', translations),
+      volumes: t('pages.volumes.title', translations),
+      volumeDetails: t('pages.volumeDetails.title', translations),
+    };
+
     return (
       <VolumeDetailsClient
         initialVolume={volumeData}
         initialArticles={articles}
         lang={params.lang}
+        journalId={journalId}
+        breadcrumbLabels={breadcrumbLabels}
       />
     );
   } catch (error) {

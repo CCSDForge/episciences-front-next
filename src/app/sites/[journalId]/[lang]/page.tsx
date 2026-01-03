@@ -33,6 +33,6 @@ export default async function HomePage({ params }: { params: { journalId: string
   }
 
   return (
-    <HomeClient homeData={homeData} language={language} />
+    <HomeClient homeData={homeData} language={language} journalId={rvcode} />
   );
 }

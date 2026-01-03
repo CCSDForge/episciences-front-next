@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { fetchArticles } from '@/services/article';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
 
@@ -14,8 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ArticlesAcceptedPage({ params }: { params: { lang: string; journalId: string } }) {
-  const lang = params.lang || 'en';
-  const { journalId } = params;
+  const { lang, journalId } = params;
   try {
     const ARTICLES_ACCEPTED_PER_PAGE = 10;
     
@@ -24,13 +24,16 @@ export default async function ArticlesAcceptedPage({ params }: { params: { lang:
       throw new Error('journalId is not defined');
     }
 
-    const articlesAccepted = await fetchArticles({
-      rvcode: journalId,
-      page: 1,
-      itemsPerPage: ARTICLES_ACCEPTED_PER_PAGE,
-      onlyAccepted: true,
-      types: []
-    });
+    const [articlesAccepted, translations] = await Promise.all([
+      fetchArticles({
+        rvcode: journalId,
+        page: 1,
+        itemsPerPage: ARTICLES_ACCEPTED_PER_PAGE,
+        onlyAccepted: true,
+        types: []
+      }),
+      getServerTranslations(lang)
+    ]);
 
     // S'assurer que les données sont correctement formatées pour le client
     const formattedArticles = {
@@ -49,11 +52,18 @@ export default async function ArticlesAcceptedPage({ params }: { params: { lang:
       }
     };
 
+    const breadcrumbLabels = {
+      home: t('pages.home.title', translations),
+      content: t('common.content', translations),
+      articlesAccepted: t('pages.articlesAccepted.title', translations),
+    };
+
     return (
       <ArticlesAcceptedClient
         initialArticles={formattedArticles}
         initialRange={formattedArticles.range}
         lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
       />
     );
   } catch (error) {

@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { fetchNews } from '@/services/news';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 import './News.scss';
 
 const NewsClient = dynamic(() => import('./NewsClient'));
@@ -15,7 +16,7 @@ type Props = {
 };
 
 export default async function NewsPage({ params }: Props) {
-  const { journalId } = params;
+  const { journalId, lang } = params;
   
   let newsData = null;
   
@@ -25,6 +26,12 @@ export default async function NewsPage({ params }: Props) {
     console.error('Error fetching news:', error);
   }
 
-  return <NewsClient initialNews={newsData} lang={params.lang} />;
+  const translations = await getServerTranslations(lang);
+  const breadcrumbLabels = {
+    home: t('pages.home.title', translations),
+    news: t('pages.news.title', translations),
+  };
+
+  return <NewsClient initialNews={newsData} lang={lang} breadcrumbLabels={breadcrumbLabels} />;
 }
  

@@ -4,6 +4,7 @@ import SectionDetailsClient from './SectionDetailsClient';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { ISection, PartialSectionArticle } from '@/types/section';
 import { IArticle } from '@/types/article';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 
 export async function generateMetadata({ params }: { params: { id: string; lang?: string } }): Promise<Metadata> {
   try {
@@ -80,12 +81,20 @@ export default async function SectionDetailsPage({
       }
     }
     
+    const translations = await getServerTranslations(language);
+    const breadcrumbLabels = {
+      home: t('pages.home.title', translations),
+      content: t('common.content', translations),
+      sections: t('pages.sections.title', translations),
+    };
+    
     return (
       <SectionDetailsClient 
         section={section}
         articles={articles}
         sectionId={params.id}
         lang={params.lang}
+        breadcrumbLabels={breadcrumbLabels}
       />
     );
   } catch (error) {

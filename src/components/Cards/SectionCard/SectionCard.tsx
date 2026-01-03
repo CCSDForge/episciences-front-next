@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
-import { MathJax } from 'better-react-mathjax';
+import MathJax from '@/components/MathJax/MathJax';
 import './SectionCard.scss';
 
 import { PATHS } from '@/config/paths';

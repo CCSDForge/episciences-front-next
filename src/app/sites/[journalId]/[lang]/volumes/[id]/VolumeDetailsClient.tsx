@@ -25,6 +25,13 @@ interface VolumeDetailsClientProps {
   initialVolume: IVolume | null;
   initialArticles?: FetchedArticle[];
   lang?: string;
+  journalId?: string;
+  breadcrumbLabels?: {
+    home: string;
+    content: string;
+    volumes: string;
+    volumeDetails: string;
+  };
 }
 
 const MAX_MOBILE_DESCRIPTION_LENGTH = 200;
@@ -33,14 +40,19 @@ const RELATED_VOLUMES = 20;
 export default function VolumeDetailsClient({
   initialVolume,
   initialArticles = [],
-  lang
+  lang,
+  journalId,
+  breadcrumbLabels
 }: VolumeDetailsClientProps): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
   const language = useAppSelector(state => state.i18nReducer.language);
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
+  const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
+  
+  const rvcode = reduxRvcode || journalId;
 
   const [volume, setVolume] = useState(initialVolume);
   const [isFetchingArticles, setIsFetchingArticles] = useState(false);
@@ -51,6 +63,10 @@ export default function VolumeDetailsClient({
 
   // Vérifier si on est en mode statique
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const reorderRelatedVolumes = useCallback((volumesToBeOrdered: IVolume[]): IVolume[] => {
     if (!volume || !volumesToBeOrdered || !volumesToBeOrdered.length) return volumesToBeOrdered;
@@ -111,7 +127,7 @@ export default function VolumeDetailsClient({
   };
 
   const renderVolumeMobileRelatedVolumes = (): JSX.Element | null => {
-    if (!isMobileOnly) return null;
+    if (!isMounted || !isMobileOnly) return null;
 
     const caretIcon = <img 
       className='volumeDetails-id-mobileRelatedList-icon' 
@@ -174,7 +190,7 @@ export default function VolumeDetailsClient({
 
   const renderVolumeDescription = (): JSX.Element => {
     if (volume?.description && volume.description[language]) {
-      if (isMobileOnly) {
+      if (isMounted && isMobileOnly) {
         if (volume.description[language].length <= MAX_MOBILE_DESCRIPTION_LENGTH) {
           return (
             <div className='volumeDetails-content-results-content-description'>
@@ -251,15 +267,29 @@ export default function VolumeDetailsClient({
   if (!volume) return <div>Volume not found</div>;
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} > ${t('common.content')} >` },
-    { path: '/volumes', label: `${t('pages.volumes.title')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+        : `${t('pages.home.title')} > ${t('common.content')} >` 
+    },
+    { 
+      path: '/volumes', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.volumes} >` 
+        : `${t('pages.volumes.title')} >` 
+    }
   ];
 
   return (
     <main className='volumeDetails'>
-      <PageTitle title={`${t('pages.volumeDetails.title')} ${volume?.num}`} />
+      <PageTitle title={`${breadcrumbLabels?.volumeDetails || t('pages.volumeDetails.title')} ${volume?.num}`} />
       
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={`${t('pages.volumeDetails.title')} ${volume?.num}`} lang={lang} />
+      <Breadcrumb 
+        parents={breadcrumbItems} 
+        crumbLabel={`${breadcrumbLabels?.volumeDetails || t('pages.volumeDetails.title')} ${volume?.num}`} 
+        lang={lang} 
+      />
 
       {openedRelatedVolumesMobileModal && (
         <VolumeDetailsMobileModal 
@@ -294,6 +324,7 @@ export default function VolumeDetailsClient({
                 articles={articles as IArticle[]}
                 currentJournal={currentJournal}
                 relatedVolumes={relatedVolumesData}
+                journalId={journalId}
               />
               <div className="volumeDetails-content-results-content">
                 {renderVolumeTitle(false)}
@@ -336,7 +367,7 @@ export default function VolumeDetailsClient({
                       {getEdito()?.file && (
                         <div className="volumeDetails-content-results-content-edito-anchor-icons">
                           <a 
-                            href={`https://${currentJournal?.code}.episciences.org/public/volumes/${volume?.id}/${getEdito()!.file!}`} 
+                            href={`https://${journalId || currentJournal?.code}.episciences.org/public/volumes/${volume?.id}/${getEdito()!.file!}`} 
                             target='_blank' 
                             rel="noopener noreferrer"
                           >

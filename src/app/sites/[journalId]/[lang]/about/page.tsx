@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import './About.scss';
 import { fetchAboutPage } from '@/services/about';
 import { IPage } from '@/types/page';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 import { getLanguageFromParams } from "@/utils/language-utils";
@@ -15,48 +16,36 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage({ params }: { params: { journalId: string; lang: string } }) {
-
   let pageData = null;
-
-  const { journalId } = params;
-
-  
+  const { journalId, lang } = params;
 
   try {
-
     if (journalId) {
-
       // Récupérer les données
-
       const rawData = await fetchAboutPage(journalId);
-
-      
-
       if (!rawData?.['hydra:member']?.[0]) {
-
         throw new Error(`No about page data found for journal ${journalId}`);
-
       }
-
-      
-
       pageData = rawData['hydra:member'][0];
-
     }
-
   } catch (error) {
-
     console.error(`Error fetching about page for journal ${journalId}:`, error);
-
   }
 
-  
+  const translations = await getServerTranslations(lang);
+  const breadcrumbLabels = {
+    home: t('pages.home.title', translations),
+    about: t('pages.about.title', translations),
+  };
 
-    return <AboutClient initialPage={pageData} lang={params.lang} />;
-
-  
-
-  }
+  return (
+    <AboutClient 
+      initialPage={pageData} 
+      lang={lang} 
+      breadcrumbLabels={breadcrumbLabels}
+    />
+  );
+}
 
   
 

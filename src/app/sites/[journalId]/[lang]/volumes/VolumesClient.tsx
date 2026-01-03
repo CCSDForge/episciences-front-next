@@ -41,6 +41,12 @@ interface VolumesClientProps {
   initialPage: number;
   initialType: string;
   lang?: string;
+  journalId?: string;
+  breadcrumbLabels?: {
+    home: string;
+    content: string;
+    volumes: string;
+  };
 }
 
 const VOLUMES_PER_PAGE = 10;
@@ -49,7 +55,9 @@ export default function VolumesClient({
   initialVolumes,
   initialPage,
   initialType,
-  lang
+  lang,
+  journalId,
+  breadcrumbLabels
 }: VolumesClientProps): JSX.Element {
   const { t, i18n } = useTranslation();
 
@@ -64,9 +72,11 @@ export default function VolumesClient({
   const searchParams = useSearchParams();
 
   const language = useAppSelector(state => state.i18nReducer.language);
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
+  const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
+
+  const rvcode = reduxRvcode || journalId;
 
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [volumes, setVolumes] = useState(initialVolumes);
@@ -327,16 +337,25 @@ export default function VolumesClient({
   }, [types, years]);
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} > ${t('common.content')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+        : `${t('pages.home.title')} > ${t('common.content')} >` 
+    }
   ];
 
   return (
     <main className='volumes'>
-      <PageTitle title={t('pages.volumes.title')} />
+      <PageTitle title={breadcrumbLabels?.volumes || t('pages.volumes.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.volumes.title')} lang={lang} />
+      <Breadcrumb 
+        parents={breadcrumbItems} 
+        crumbLabel={breadcrumbLabels?.volumes || t('pages.volumes.title')} 
+        lang={lang} 
+      />
       <div className='volumes-title'>
-        <h1 className='volumes-title-text'>{t('pages.volumes.title')}</h1>
+        <h1 className='volumes-title-text'>{breadcrumbLabels?.volumes || t('pages.volumes.title')}</h1>
         <div className='volumes-title-count'>
           {mode === RENDERING_MODE.LIST ? (
             <div className='volumes-title-count-wrapper'>
@@ -428,6 +447,7 @@ export default function VolumesClient({
                   mode={mode}
                   volume={volume}
                   currentJournal={currentJournal}
+                  journalCode={journalId}
                 />
               ))}
             </div>
@@ -442,4 +462,4 @@ export default function VolumesClient({
       </div>
     </main>
   );
-} 
+}

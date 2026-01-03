@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import './Credits.scss';
 import { fetchCreditsPage } from '@/services/credits';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 
 const CreditsClient = dynamic(() => import('./CreditsClient'));
 
@@ -24,6 +25,18 @@ export default async function CreditsPage({ params }: { params: { journalId: str
   } catch (error) {
     console.error('Error fetching credits page:', error);
   }
+
+  const translations = await getServerTranslations(lang);
+  const breadcrumbLabels = {
+    home: t('pages.home.title', translations),
+    credits: t('pages.credits.title', translations),
+  };
   
-  return <CreditsClient creditsPage={pageData} lang={lang} />;
+  return (
+    <CreditsClient 
+      creditsPage={pageData} 
+      lang={lang} 
+      breadcrumbLabels={breadcrumbLabels}
+    />
+  );
 }

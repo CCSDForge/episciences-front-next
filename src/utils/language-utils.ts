@@ -10,7 +10,7 @@ export const defaultLanguage: string = process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_L
 
 export const acceptedLanguages: string[] = process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES
   ? process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES.split(',').map(lang => lang.trim())
-  : [defaultLanguage];
+  : ['en', 'fr']; // Default to both supported languages
 
 export type AvailableLanguage = typeof acceptedLanguages[number];
 

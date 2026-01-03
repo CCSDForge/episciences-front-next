@@ -28,9 +28,13 @@ interface ICreditsSection {
 interface CreditsClientProps {
   creditsPage: any;
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    credits: string;
+  };
 }
 
-export default function CreditsClient({ creditsPage, lang }: CreditsClientProps): JSX.Element {
+export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: CreditsClientProps): JSX.Element {
   const { t } = useTranslation();
 
   const language = useAppSelector(state => state.i18nReducer.language)
@@ -159,15 +163,24 @@ export default function CreditsClient({ creditsPage, lang }: CreditsClientProps)
   }, [pageData, language]);
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} >` },
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} >` 
+        : `${t('pages.home.title')} >` 
+    }
   ];
 
   return (
     <main className='credits'>
       <PageTitle title={t('pages.credits.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.credits.title')} lang={lang} />
-      <h1 className='credits-title'>{t('pages.credits.title')}</h1>
+      <Breadcrumb 
+        parents={breadcrumbItems} 
+        crumbLabel={breadcrumbLabels?.credits || t('pages.credits.title')} 
+        lang={lang} 
+      />
+      <h1 className='credits-title'>{breadcrumbLabels?.credits || t('pages.credits.title')}</h1>
       {isLoading ? (
         <Loader />
       ) : (

@@ -30,8 +30,10 @@ export default function Swiper({ id, type, language, t, slidesPerView, slidesPer
   // État pour stocker l'information si l'écran est mobile ou tablet
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   
   useEffect(() => {
+    setIsMounted(true);
     // Fonction pour déterminer si l'écran est mobile ou tablette
     const checkDevice = () => {
       const width = window.innerWidth;
@@ -52,6 +54,12 @@ export default function Swiper({ id, type, language, t, slidesPerView, slidesPer
   // Fonction pour filtrer les cartes comme dans la version d'origine
   const getRenderedCards = (): SwiperCardContent[] => {
     const filteredCards = cards.filter(Boolean);
+    
+    // Pendant le rendu initial (SSR + première passe client), on retourne toutes les cartes
+    // pour éviter les erreurs d'hydratation
+    if (!isMounted) {
+      return filteredCards;
+    }
     
     if (isMobile) {
       return filteredCards.slice(0, 4);

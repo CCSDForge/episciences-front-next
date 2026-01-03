@@ -189,57 +189,139 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
 
     
 
-        // Use server-side rendering for maximum pre-rendering
-
-        if (article) {
-
-          return (
-
-            <ArticleDetailsServer
-
-              article={article as IArticle}
-
-              id={id}
-
-              relatedVolume={relatedVolume}
-
-              metadataCSL={metadataCSL}
-
-              metadataBibTeX={metadataBibTeX}
-
-              translations={translations}
-
-              language={language}
-
-            />
-
-          );
-
-        }
+                // Use server-side rendering for maximum pre-rendering
 
     
 
-        // Fallback to client component if no article data
+                if (article) {
+
+    
+
+                  return (
+
+    
+
+                    <ArticleDetailsServer
+
+    
+
+                      article={article as IArticle}
+
+    
+
+                      id={id}
+
+    
+
+                      relatedVolume={relatedVolume}
+
+    
+
+                      metadataCSL={metadataCSL}
+
+    
+
+                      metadataBibTeX={metadataBibTeX}
+
+    
+
+                      translations={translations}
+
+    
+
+                      language={language}
+
+    
+
+                    />
+
+    
+
+                  );
+
+    
+
+                }
+
+    
+
+        
+
+    
+
+                const breadcrumbLabels = {
+
+    
+
+                  home: t('pages.home.title', translations),
+
+    
+
+                  content: t('common.content', translations),
+
+    
+
+                  articles: t('pages.articles.title', translations),
+
+    
+
+                };
+
+    
+
+        
+
+    
+
+                // Fallback to client component if no article data
+
+    
 
                 return (
 
+    
+
                   <ArticleDetailsClient
+
+    
 
                     article={null}
 
+    
+
                     id={id}
+
+    
 
                     initialRelatedVolume={relatedVolume}
 
+    
+
                     initialMetadataCSL={metadataCSL}
+
+    
 
                     initialMetadataBibTeX={metadataBibTeX}
 
+    
+
                     lang={language}
+
+    
+
+                    breadcrumbLabels={breadcrumbLabels}
+
+    
 
                   />
 
+    
+
                 );
+
+    
+
+        
 
         
 

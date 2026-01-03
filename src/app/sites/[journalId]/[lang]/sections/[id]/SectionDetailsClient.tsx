@@ -16,34 +16,62 @@ interface SectionDetailsClientProps {
   articles: IArticle[];
   sectionId: string;
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    content: string;
+    sections: string;
+  };
 }
 
-function SectionDetailsClientInner({
+export default function SectionDetailsClient({
   section,
   articles,
   sectionId,
-  lang
+  lang,
+  breadcrumbLabels
 }: SectionDetailsClientProps): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // Synchroniser la langue avec le paramètre de l'URL
+  useEffect(() => {
+    if (lang && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang, i18n]);
+
   const language = useAppSelector(state => state.i18nReducer.language);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
-  
-  const [displayedArticles] = useState<IArticle[]>(articles);
 
-  // Get section title and description based on language
-  const sectionTitle = section.title?.[language] || section.title?.en || section.title?.fr || `Section ${sectionId}`;
-  const sectionDescription = section.description?.[language] || section.description?.en || section.description?.fr;
+  const [displayedArticles, setDisplayedArticles] = useState<IArticle[]>(articles);
 
-  // Breadcrumb configuration
+  useEffect(() => {
+    if (articles) {
+      setDisplayedArticles(articles);
+    }
+  }, [articles]);
+
+  const sectionTitle = section?.title?.[language] || section?.title?.['en'] || '';
+  const sectionDescription = section?.description?.[language] || section?.description?.['en'] || '';
+
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} > ${t('common.content')} >` },
-    { path: '/sections', label: `${t('pages.sections.title')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+        : `${t('pages.home.title')} > ${t('common.content')} >` 
+    },
+    { 
+      path: '/sections', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.sections} >` 
+        : `${t('pages.sections.title')} >` 
+    }
   ];
 
   return (
-    <main className='sectionDetails'>
+    <main className='sections'>
       <PageTitle title={sectionTitle} />
-      
+
       <Breadcrumb parents={breadcrumbItems} crumbLabel={sectionTitle} lang={lang} />
 
       <div className="sectionDetails-section">
@@ -97,11 +125,5 @@ function SectionDetailsClientInner({
         </div>
       </div>
     </main>
-  );
-}
-
-export default function SectionDetailsClient(props: SectionDetailsClientProps) {
-  return (
-    <SectionDetailsClientInner {...props} />
   );
 }

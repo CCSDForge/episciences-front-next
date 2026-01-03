@@ -14,9 +14,10 @@ interface IIssuesSectionProps {
   t: TFunction<"translation", undefined>;
   issues: IIssue[];
   currentJournal: IJournal | null;
+  journalId?: string;
 }
 
-export default function IssuesSection({ language, t, issues = [], currentJournal }: IIssuesSectionProps): JSX.Element {
+export default function IssuesSection({ language, t, issues = [], currentJournal, journalId }: IIssuesSectionProps): JSX.Element {
   if (!issues || issues.length === 0) {
     return <></>;
   }
@@ -24,6 +25,8 @@ export default function IssuesSection({ language, t, issues = [], currentJournal
   const isValidIssue = (issue: IIssue) => {
     return !!issue && !!issue.id;
   };
+
+  const displayJournalCode = (journalId || currentJournal?.code || '').toUpperCase();
 
   return (
     <div className="issuesSection">
@@ -39,7 +42,7 @@ export default function IssuesSection({ language, t, issues = [], currentJournal
               <img className='issuesSection-card-tile' src={issue.tileImageURL} alt='Issue tile' />
             ) : (
               <div className="issuesSection-card-template">
-                <div className="issuesSection-card-template-jpe">{currentJournal?.code?.toUpperCase()}</div>
+                <div className="issuesSection-card-template-jpe">{displayJournalCode}</div>
                 <div className="issuesSection-card-template-volume">{t('common.volumeCard.specialIssue')}</div>
                 <div className="issuesSection-card-template-number">{issue.num}</div>
                 <div className="issuesSection-card-template-year">{issueYear}</div>

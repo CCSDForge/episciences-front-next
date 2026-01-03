@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { TFunction } from 'i18next';
 import { Link } from '@/components/Link/Link';
 import { isMobileOnly, isTablet } from 'react-device-detect';
@@ -18,7 +18,17 @@ interface INewsSectionProps {
 }
 
 export default function NewsSection({ language, t, news }: INewsSectionProps): JSX.Element {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const renderedNews = (): INews[] => {
+    if (!isMounted) {
+      return news;
+    }
+
     if (isMobileOnly) {
       return news.slice(0, 1)
     }

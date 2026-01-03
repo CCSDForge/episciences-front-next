@@ -2,7 +2,7 @@
 
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
-import { MathJax } from 'better-react-mathjax';
+import MathJax from '@/components/MathJax/MathJax';
 
 import { FetchedArticle, truncatedArticleAuthorsName } from '@/utils/article';
 import { articleTypes } from '@/utils/article';

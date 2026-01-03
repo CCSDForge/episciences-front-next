@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
-import { MathJax } from 'better-react-mathjax';
+import MathJax from '@/components/MathJax/MathJax';
 import { useRouter } from 'next/navigation';
 import { isMobileOnly } from "react-device-detect";
 
@@ -35,6 +35,11 @@ interface ArticleDetailsClientProps {
   initialMetadataCSL?: string | null;
   initialMetadataBibTeX?: string | null;
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    content: string;
+    articles: string;
+  };
 }
 
 interface EnhancedArticleAuthor extends IArticleAuthor {
@@ -59,10 +64,13 @@ export default function ArticleDetailsClient({
   initialRelatedVolume,
   initialMetadataCSL,
   initialMetadataBibTeX,
-  lang
+  lang,
+  breadcrumbLabels
 }: ArticleDetailsClientProps): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+  
   const language = useAppSelector(state => state.i18nReducer.language);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
@@ -87,6 +95,7 @@ export default function ArticleDetailsClient({
 
 
   useEffect(() => {
+    setIsMounted(true);
     async function fetchData() {
       // Skip client-side fetching if data was provided server-side
       if (initialRelatedVolume !== undefined && initialMetadataCSL !== undefined) {
@@ -352,8 +361,18 @@ export default function ArticleDetailsClient({
       )}
       <Breadcrumb
         parents={[
-          { path: BREADCRUMB_PATHS.home, label: `${t('pages.home.title')} > ${t('common.content')} >` },
-          { path: BREADCRUMB_PATHS.articles, label: `${t('pages.articles.title')} >` }
+          { 
+            path: BREADCRUMB_PATHS.home, 
+            label: breadcrumbLabels 
+              ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+              : `${t('pages.home.title')} > ${t('common.content')} >` 
+          },
+          { 
+            path: BREADCRUMB_PATHS.articles, 
+            label: breadcrumbLabels 
+              ? `${breadcrumbLabels.articles} >` 
+              : `${t('pages.articles.title')} >` 
+          }
         ]}
         crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''}
         lang={lang}
@@ -375,7 +394,7 @@ export default function ArticleDetailsClient({
               {renderSection(ARTICLE_SECTION.CITED_BY, t('pages.articleDetails.sections.citedBy'), getCitedBySection())}
               {renderSection(ARTICLE_SECTION.REFERENCES, t('pages.articleDetails.sections.references'), getReferencesSection())}
               {renderSection(ARTICLE_SECTION.PREVIEW, t('pages.articleDetails.sections.preview'), getPreviewSection())}
-              {isMobileOnly && renderMetrics()}
+              {isMounted && isMobileOnly && renderMetrics()}
             </div>
           </div>
         </>

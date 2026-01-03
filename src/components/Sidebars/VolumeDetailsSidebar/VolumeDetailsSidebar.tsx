@@ -18,10 +18,21 @@ interface IVolumeDetailsSidebarProps {
   articles?: IArticle[];
   currentJournal?: IJournal;
   relatedVolumes: IVolume[];
+  journalId?: string;
 }
 
-export default function VolumeDetailsSidebar({ language, t, volume, articles = [], currentJournal, relatedVolumes }: IVolumeDetailsSidebarProps): JSX.Element {
+export default function VolumeDetailsSidebar({ 
+  language, 
+  t, 
+  volume, 
+  articles = [], 
+  currentJournal, 
+  relatedVolumes,
+  journalId
+}: IVolumeDetailsSidebarProps): JSX.Element {
   const NOT_RENDERED_SIDEBAR_METADATAS = ['tile'];
+
+  const displayJournalCode = (journalId || currentJournal?.code || '').toUpperCase();
   
   // Utiliser les articles fournis ou les récupérer depuis le volume
   const volumeArticles = articles.length > 0 ? articles : (volume?.articles || []);
@@ -77,7 +88,7 @@ export default function VolumeDetailsSidebar({ language, t, volume, articles = [
         <img className='volumeDetailsSidebar-tile' src={volume.tileImageURL} alt='Volume tile' />
       ) : (
         <div className='volumeDetailsSidebar-template'>
-          <div className='volumeDetailsSidebar-template-jpe'>{currentJournal?.code.toUpperCase()}</div>
+          <div className='volumeDetailsSidebar-template-jpe'>{displayJournalCode}</div>
           {renderVolumeTemplateSpecial()}
           {renderVolumeTemplateNumber()}
           <div className='volumeDetailsSidebar-template-year'>{volume?.year}</div>
@@ -94,7 +105,7 @@ export default function VolumeDetailsSidebar({ language, t, volume, articles = [
           </Link>
         )}
         {renderMetadatas().map((metadata, index) => (
-          <Link key={index} className='volumeDetailsSidebar-actions-action' href={`https://${currentJournal?.code}.episciences.org/public/volumes/${volume?.id}/${metadata.file}`} target='_blank' rel="noopener noreferrer" lang={language}>
+          <Link key={index} className='volumeDetailsSidebar-actions-action' href={`https://${journalId || currentJournal?.code}.episciences.org/public/volumes/${volume?.id}/${metadata.file}`} target='_blank' rel="noopener noreferrer" lang={language}>
             <img src='/icons/download-blue.svg' alt='Download icon' />
             <span className='volumeDetailsSidebar-actions-action-text'>{metadata.title && metadata.title[language]}</span>
           </Link>

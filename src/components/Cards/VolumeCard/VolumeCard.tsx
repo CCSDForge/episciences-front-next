@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
-import { MathJax } from 'better-react-mathjax';
+import MathJax from '@/components/MathJax/MathJax';
 import './VolumeCard.scss';
 
 import { PATHS } from '@/config/paths';
@@ -19,13 +19,16 @@ interface IVolumeCardProps {
   mode: RENDERING_MODE;
   volume: IVolume;
   currentJournal?: IJournal;
+  journalCode?: string;
 }
 
-export default function VolumeCard({ language, t, mode, volume, currentJournal }: IVolumeCardProps): JSX.Element {
+export default function VolumeCard({ language, t, mode, volume, currentJournal, journalCode }: IVolumeCardProps): JSX.Element {
   const [openedDescription, setOpenedDescription] = useState(false);
   
   // Construire le chemin vers la page de détail du volume
   const volumeDetailPath = `/${PATHS.volumes}/${volume.id}`.replace(/\/\/+/g, '/');
+
+  const displayJournalCode = (journalCode || currentJournal?.code || '').toUpperCase();
 
   const toggleDescription = (): void => setOpenedDescription(!openedDescription);
 
@@ -83,7 +86,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal }
           </Link>
         ) : (
           <Link href={volumeDetailPath} prefetch={false} lang={language} className="volumeCard-tile-template">
-            <div className="volumeCard-tile-template-jpe">{currentJournal?.code.toUpperCase()}</div>
+            <div className="volumeCard-tile-template-jpe">{displayJournalCode}</div>
             <div className="volumeCard-tile-template-volume">{t('common.volumeCard.volume')}</div>
             {volume.types && volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE) && (
               <div className="volumeCard-tile-template-issue">{t('common.volumeCard.specialIssue')}</div>

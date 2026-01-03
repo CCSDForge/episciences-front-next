@@ -21,9 +21,17 @@ interface SectionsData {
 }
 
 interface SectionsClientProps {
-  initialSections: SectionsData | null;
+  initialSections: { 
+    data: ISection[];
+    totalItems: number;
+  } | null;
   initialPage: number;
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    content: string;
+    sections: string;
+  };
 }
 
 const SECTIONS_PER_PAGE = 10;
@@ -31,7 +39,8 @@ const SECTIONS_PER_PAGE = 10;
 export default function SectionsClient({
   initialSections,
   initialPage,
-  lang
+  lang,
+  breadcrumbLabels
 }: SectionsClientProps): JSX.Element {
   const { t, i18n } = useTranslation();
 
@@ -116,16 +125,25 @@ export default function SectionsClient({
   };
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} > ${t('common.content')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+        : `${t('pages.home.title')} > ${t('common.content')} >` 
+    }
   ];
 
   return (
     <main className='sections'>
-      <PageTitle title={t('pages.sections.title')} />
+      <PageTitle title={breadcrumbLabels?.sections || t('pages.sections.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.sections.title')} lang={lang} />
+      <Breadcrumb 
+        parents={breadcrumbItems} 
+        crumbLabel={breadcrumbLabels?.sections || t('pages.sections.title')} 
+        lang={lang} 
+      />
       <div className='sections-title'>
-        <h1 className='sections-title-text'>{t('pages.sections.title')}</h1>
+        <h1 className='sections-title-text'>{breadcrumbLabels?.sections || t('pages.sections.title')}</h1>
         <div className='sections-title-count'>
           {getSectionsCount()}
           {getArticlesCount()}

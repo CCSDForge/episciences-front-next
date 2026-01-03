@@ -163,15 +163,8 @@ export default function SearchClient({
       
       if (hasActiveFilters) {
         // Reset to page 1 when filters change. 
-        // NOTE: changing currentPage will trigger the useEffect above [performFilteredSearch] which depends on currentPage
         if (currentPage !== 1) {
           setCurrentPage(1);
-        } else {
-          // If already on page 1, we need to trigger search manually because currentPage didn't change
-          // BUT, performFilteredSearch depends on getSelectedTypes which depends on types.
-          // So if types changed, performFilteredSearch changed, so the effect above runs!
-          // So we might not need this effect at all?
-          // Let's verify.
         }
       }
     }
@@ -530,18 +523,20 @@ export default function SearchClient({
     setShowAllAbstracts(isShown);
   };
 
+  const breadcrumbItems = [
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+        : `${t('pages.home.title')} > ${t('common.content')} >` 
+    }
+  ];
+
   return (
     <main className='articles'>
       <PageTitle title={breadcrumbLabels?.search || t('pages.search.title')} />
 
-      <Breadcrumb parents={[
-        { 
-          path: '/', 
-          label: breadcrumbLabels 
-            ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
-            : `${t('pages.home.title')} > ${t('common.content')} >` 
-        }
-      ]} crumbLabel={breadcrumbLabels?.search || t('pages.search.title')} lang={lang} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.search || t('pages.search.title')} lang={lang} />
       <div className='articles-title'>
         <h1 className='articles-title-text'>{breadcrumbLabels?.search || t('pages.search.title')}</h1>
         <div className='articles-title-count'>
@@ -617,4 +612,4 @@ export default function SearchClient({
       </div>
     </main>
   );
-} 
+}

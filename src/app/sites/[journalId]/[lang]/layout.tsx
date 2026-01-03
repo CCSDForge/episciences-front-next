@@ -7,6 +7,7 @@ import ToastContainerWrapper from '@/components/ToastContainerWrapper/ToastConta
 import ClientProviders from '@/components/ClientProviders/ClientProviders';
 import { fetchVolumes } from '@/services/volume';
 import { getJournalByCode } from '@/services/journal';
+import { getServerTranslations } from '@/utils/server-i18n';
 
 interface LanguageLayoutProps {
   children: ReactNode;
@@ -21,13 +22,13 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
   const lang = getLanguageFromParams(params);
   const { journalId } = params;
 
-  // Précharger les données du journal et du dernier volume côté serveur
-  // Note: ces données sont également récupérées dans JournalLayout mais Next.js met en cache les appels fetch
+  // Précharger les données du journal, du dernier volume et les traductions côté serveur
   let initialVolume = null;
   let initialJournal = null;
+  let translations = {};
 
   try {
-    const [volumesData, journalData] = await Promise.all([
+    const [volumesData, journalData, translationsData] = await Promise.all([
       fetchVolumes({
         rvcode: journalId,
         language: lang,
@@ -36,7 +37,8 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
         types: [],
         years: []
       }),
-      getJournalByCode(journalId)
+      getJournalByCode(journalId),
+      getServerTranslations(lang)
     ]);
 
     if (volumesData.data.length > 0) {
@@ -45,6 +47,10 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
     
     if (journalData) {
       initialJournal = journalData;
+    }
+
+    if (translationsData) {
+      translations = translationsData;
     }
   } catch (error) {
     console.error(`Error preloading data for journal ${journalId} in LanguageLayout:`, error);
@@ -56,6 +62,7 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
       initialJournal={initialJournal}
       initialLanguage={lang} 
       journalId={journalId}
+      translations={translations}
     >
       <ToastContainerWrapper />
       {/* Header with scroll behavior */}

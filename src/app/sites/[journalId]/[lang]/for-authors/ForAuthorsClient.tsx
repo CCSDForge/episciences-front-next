@@ -40,17 +40,22 @@ interface ForAuthorsData {
 }
 
 interface ForAuthorsClientProps {
-  editorialWorkflowPage: ForAuthorsPage | null;
-  ethicalCharterPage: ForAuthorsPage | null;
-  prepareSubmissionPage: ForAuthorsPage | null;
+  editorialWorkflowPage: any;
+  ethicalCharterPage: any;
+  prepareSubmissionPage: any;
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    forAuthors: string;
+  };
 }
 
 export default function ForAuthorsClient({
   editorialWorkflowPage,
   ethicalCharterPage,
   prepareSubmissionPage,
-  lang
+  lang,
+  breadcrumbLabels
 }: ForAuthorsClientProps): JSX.Element {
   const { t } = useTranslation();
 
@@ -261,13 +266,22 @@ export default function ForAuthorsClient({
   // console.log('Render state:', { isLoading, pageSections, sidebarHeaders });
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} >` 
+        : `${t('pages.home.title')} >` 
+    }
   ];
 
   return (
     <main className='forAuthors'>
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.forAuthors.title')} lang={lang} />
-      <h1 className='forAuthors-title'>{t('pages.forAuthors.title')}</h1>
+      <Breadcrumb 
+        parents={breadcrumbItems} 
+        crumbLabel={breadcrumbLabels?.forAuthors || t('pages.forAuthors.title')} 
+        lang={lang} 
+      />
+      <h1 className='forAuthors-title'>{breadcrumbLabels?.forAuthors || t('pages.forAuthors.title')}</h1>
       {isLoading ? (
         <Loader />
       ) : pageSections.length === 0 ? (

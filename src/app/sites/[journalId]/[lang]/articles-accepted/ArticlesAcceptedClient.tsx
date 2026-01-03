@@ -28,7 +28,29 @@ type EnhancedArticleAccepted = FetchedArticle & {
   openedAbstract: boolean;
 }
 
-export default function ArticlesAcceptedClient({ initialArticles, initialRange, lang }: { initialArticles: any, initialRange: any, lang?: string }): JSX.Element {
+interface ArticlesAcceptedClientProps {
+  initialArticles: {
+    data: any[];
+    totalItems: number;
+  };
+  initialRange: {
+    types?: string[];
+    years?: number[];
+  };
+  lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    content: string;
+    articlesAccepted: string;
+  };
+}
+
+export default function ArticlesAcceptedClient({ 
+  initialArticles, 
+  initialRange, 
+  lang, 
+  breadcrumbLabels 
+}: ArticlesAcceptedClientProps): JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL
@@ -214,16 +236,25 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange, 
   const displayArticlesAccepted = articlesAccepted || initialArticles;
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} > ${t('common.content')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+        : `${t('pages.home.title')} > ${t('common.content')} >` 
+    }
   ];
 
   return (
     <main className='articlesAccepted'>
-      <PageTitle title={t('pages.articlesAccepted.title')} />
+      <PageTitle title={breadcrumbLabels?.articlesAccepted || t('pages.articlesAccepted.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.articlesAccepted.title')} lang={lang} />
+      <Breadcrumb 
+        parents={breadcrumbItems} 
+        crumbLabel={breadcrumbLabels?.articlesAccepted || t('pages.articlesAccepted.title')} 
+        lang={lang} 
+      />
       <div className='articlesAccepted-title'>
-        <h1 className='articlesAccepted-title-text'>{t('pages.articlesAccepted.title')}</h1>
+        <h1 className='articlesAccepted-title-text'>{breadcrumbLabels?.articlesAccepted || t('pages.articlesAccepted.title')}</h1>
         <div className='articlesAccepted-title-count'>
           {displayArticlesAccepted && displayArticlesAccepted.totalItems > 1 ? (
             <div className='articlesAccepted-title-count-text'>{displayArticlesAccepted.totalItems} {t('common.documents')}</div>
@@ -299,4 +330,4 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange, 
       </div>
     </main>
   )
-} 
+}

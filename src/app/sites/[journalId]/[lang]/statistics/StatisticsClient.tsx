@@ -25,9 +25,13 @@ import filter from '/public/icons/filter.svg';
 interface StatisticsClientProps {
   initialStats?: IStatResponse;
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    statistics: string;
+  };
 }
 
-export default function StatisticsClient({ initialStats, lang }: StatisticsClientProps = {}): JSX.Element {
+export default function StatisticsClient({ initialStats, lang, breadcrumbLabels }: StatisticsClientProps = {}): JSX.Element {
   const { t, i18n } = useTranslation();
   
   // Synchroniser la langue avec le paramètre de l'URL
@@ -245,27 +249,24 @@ export default function StatisticsClient({ initialStats, lang }: StatisticsClien
   const getBlockRendering = (statName: string) => statisticsBlocksConfiguration().find((config) => config.key === statName);
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} > ${t('common.about')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} >` 
+        : `${t('pages.home.title')} >` 
+    }
   ];
 
   return (
     <main className='statistics'>
-      <PageTitle title={t('pages.statistics.title')} />
+      <PageTitle title={breadcrumbLabels?.statistics || t('pages.statistics.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.statistics.title')} lang={lang} />
-      <div className='statistics-title'>
-        <h1 className='statistics-title-text'>{t('pages.statistics.title')}</h1>
-        <div className='statistics-title-year'>
-          <span>{renderSelectedYears()}</span>
-          <div className="statistics-title-year-filtersMobile">
-            <div className="statistics-title-year-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
-              <img className="statistics-title-year-filtersMobile-tile-icon" src={filter} alt='List icon' />
-              <div className="statistics-title-year-filtersMobile-tile-text">{getSelectedYears().length > 0 ? `${t('common.filters.editFilters')} (${getSelectedYears().length})` : `${t('common.filters.filter')}`}</div>
-            </div>
-            {openedFiltersMobileModal && <StatisticsMobileModal t={t} years={years} onUpdateYearsCallback={setYears} onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}/>}
-          </div>
-        </div>
-      </div>
+      <Breadcrumb 
+        parents={breadcrumbItems} 
+        crumbLabel={breadcrumbLabels?.statistics || t('pages.statistics.title')} 
+        lang={lang} 
+      />
+      <h1 className='statistics-title'>{breadcrumbLabels?.statistics || t('pages.statistics.title')}</h1>
       <div className='statistics-content'>
         <div className='statistics-content-results'>
           <StatisticsSidebar t={t} years={years} onCheckYearCallback={onCheckYear} />

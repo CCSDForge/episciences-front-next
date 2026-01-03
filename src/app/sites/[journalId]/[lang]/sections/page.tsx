@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 
 import { fetchSections } from '@/services/section';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
 
@@ -14,24 +15,33 @@ export const metadata: Metadata = {
 const SECTIONS_PER_PAGE = 10;
 
 export default async function SectionsPage({ params }: { params: { lang: string; journalId: string } }) {
-  const lang = params.lang || 'en';
-  const { journalId } = params;
+  const { lang, journalId } = params;
   try {
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
     
-    const sectionsData = await fetchSections({
-      rvcode: journalId,
-      page: 1,
-      itemsPerPage: SECTIONS_PER_PAGE
-    });
+    const [sectionsData, translations] = await Promise.all([
+      fetchSections({
+        rvcode: journalId,
+        page: 1,
+        itemsPerPage: SECTIONS_PER_PAGE
+      }),
+      getServerTranslations(lang)
+    ]);
+
+    const breadcrumbLabels = {
+      home: t('pages.home.title', translations),
+      content: t('common.content', translations),
+      sections: t('pages.sections.title', translations),
+    };
     
     return (
       <SectionsClient
         initialSections={sectionsData}
         initialPage={1}
         lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
       />
     );
   } catch (error) {

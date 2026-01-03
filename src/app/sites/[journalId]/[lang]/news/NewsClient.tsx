@@ -29,10 +29,21 @@ interface NewsClientProps {
     range?: Range;
   } | null;
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    news: string;
+  };
 }
 
-export default function NewsClient({ initialNews, lang }: NewsClientProps): JSX.Element {
-  const { t } = useTranslation();
+export default function NewsClient({ initialNews, lang, breadcrumbLabels }: NewsClientProps): JSX.Element {
+  const { t, i18n } = useTranslation();
+
+  // Synchroniser la langue avec le paramètre de l'URL
+  useEffect(() => {
+    if (lang && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang, i18n]);
 
   const NEWS_PER_PAGE = 10;
 
@@ -116,16 +127,25 @@ export default function NewsClient({ initialNews, lang }: NewsClientProps): JSX.
   const renderMobileSelectedYears = (): string => getSelectedYears().reverse().join(', ');
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} > ${t('common.about')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} > ${t('common.about')} >` 
+        : `${t('pages.home.title')} > ${t('common.about')} >` 
+    }
   ];
 
   return (
     <main className='news'>
-      <PageTitle title={t('pages.news.title')} />
+      <PageTitle title={breadcrumbLabels?.news || t('pages.news.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.news.title')} lang={lang} />
+      <Breadcrumb 
+        parents={breadcrumbItems} 
+        crumbLabel={breadcrumbLabels?.news || t('pages.news.title')} 
+        lang={lang} 
+      />
       <div className='news-title'>
-        <h1>{t('pages.news.title')}</h1>
+        <h1>{breadcrumbLabels?.news || t('pages.news.title')}</h1>
         <div className='news-title-icons'>
           <div className='news-title-icons-icon' onClick={(): void => setMode(RENDERING_MODE.TILE)}>
             <div className={`${mode === RENDERING_MODE.TILE ? 'news-title-icons-icon-row-red' : 'news-title-icons-icon-row'}`}>
@@ -180,4 +200,4 @@ export default function NewsClient({ initialNews, lang }: NewsClientProps): JSX.
       </div>
     </main>
   );
-} 
+}

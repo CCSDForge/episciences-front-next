@@ -6,6 +6,8 @@ import { I18nextProvider } from 'react-i18next';
 import { MathJaxContext } from 'better-react-mathjax';
 
 import store from '@/store';
+import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
 import i18n from '@/config/i18n';
 import { mathJaxConfig, mathJaxSrc } from '@/config/mathjax';
 import { JournalInitializer } from '@/components/JournalInitializer/JournalInitializer';
@@ -22,6 +24,7 @@ interface ClientProvidersProps {
   initialJournal?: IJournal | null;
   initialLanguage?: string;
   journalId?: string;
+  translations?: any;
   children?: React.ReactNode;
 }
 
@@ -30,7 +33,14 @@ interface ClientProvidersProps {
  * This component wraps the entire application to provide context
  * It ensures the store is only used client-side
  */
-const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initialJournal, initialLanguage, journalId, children }) => {
+const ClientProviders: React.FC<ClientProvidersProps> = ({ 
+  initialVolume, 
+  initialJournal, 
+  initialLanguage, 
+  journalId, 
+  translations,
+  children 
+}) => {
   // Detect language immediately, before first render
   const detectedLang = (() => {
     if (typeof window !== 'undefined') {
@@ -38,6 +48,42 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initia
     }
     return initialLanguage || 'en';
   })();
+
+  // Create a dedicated i18n instance for the server to avoid singleton issues
+  // On the client, we use the singleton from @/config/i18n
+  const [i18nInstance] = useState(() => {
+    if (typeof window === 'undefined') {
+      // SERVER SIDE
+      if (initialLanguage && translations) {
+        const inst = i18next.createInstance();
+        inst.use(initReactI18next).init({
+          lng: initialLanguage,
+          fallbackLng: 'en',
+          resources: {
+            [initialLanguage]: {
+              translation: translations
+            }
+          },
+          interpolation: {
+            escapeValue: false,
+          },
+        });
+        return inst;
+      }
+    } else {
+      // CLIENT SIDE
+      // Hydrate the singleton i18n immediately if translations are provided
+      if (initialLanguage && translations) {
+        if (!i18n.hasResourceBundle(initialLanguage, 'translation')) {
+          i18n.addResourceBundle(initialLanguage, 'translation', translations, true, true);
+        }
+        if (i18n.language !== initialLanguage) {
+          i18n.changeLanguage(initialLanguage);
+        }
+      }
+    }
+    return i18n;
+  });
 
   const [isClient, setIsClient] = useState(false);
 
@@ -61,7 +107,7 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initia
 
   return (
     <Provider store={store}>
-      <I18nextProvider i18n={i18n}>
+      <I18nextProvider i18n={i18nInstance}>
         <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={2}>
           {isClient && <ThemeStyleSwitch />}
           {/* JournalInitializer is no longer needed if we have initialJournal */}

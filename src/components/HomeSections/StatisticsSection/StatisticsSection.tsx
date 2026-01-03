@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { TFunction, i18n } from 'i18next';
 import { isMobileOnly } from 'react-device-detect';
 
@@ -15,8 +15,14 @@ interface IStatisticsSectionProps {
 }
 
 export default function StatisticsSection({ t, i18n, stats }: IStatisticsSectionProps): JSX.Element {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const renderedStats = (): IStat[] => {
-    if (isMobileOnly) {
+    if (isMounted && isMobileOnly) {
       return stats.slice(0, 2);
     }
 

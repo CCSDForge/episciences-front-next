@@ -24,13 +24,14 @@ import '@/styles/pages/Home.scss';
 interface HomeClientProps {
   homeData: HomeData;
   language: string;
+  journalId?: string;
 }
 
 // Internal component that uses Redux
-function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
+function HomeClientInner({ homeData, language, journalId }: HomeClientProps): JSX.Element {
   const { t, i18n } = useTranslation();
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code) || journalId;
 
   // Architecture hybride : fetch automatique des données fraîches
   const { data: freshHomeData, isUpdating } = useClientSideFetch({
@@ -270,6 +271,7 @@ function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
             t={t}
             issues={issues.data || []}
             currentJournal={currentJournal || null}
+            journalId={rvcode}
           />
         </>
       )}
