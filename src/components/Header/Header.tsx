@@ -52,8 +52,8 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
   const mobileMenuDropdownRef = useRef<HTMLDivElement | null>(null);
 
   const getLogoOfJournal = (size: 'small' | 'big'): string => {
-    const code = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
-    return `/logos/logo-${size}.svg`;
+    const code = currentJournal?.code || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
+    return `/logos/logo-${code.toLowerCase()}-${size}.svg`;
   };
 
   useEffect(() => {

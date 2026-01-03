@@ -81,20 +81,15 @@ episciences-front-next/
 └── config/            # Configuration files
 ```
 
-## 🔄 Technical Architecture
+### 🔄 Multi-Tenant Architecture
 
-### Hybrid Hydration Strategy
-To avoid SEO issues and hydration mismatches, we use a hybrid approach:
-1. **Server Rendering (SEO)**: Server Components fetch initial data and pre-translate labels (breadcrumbs, titles).
-2. **Client Hydration**: Client Components receive this data as props to ensure the first render matches the server exactly.
-3. **Freshness**: The `useClientSideFetch` hook automatically refreshes the data on the client side to show updates since the last ISR generation.
+This application uses a multi-tenant architecture where a single Next.js instance serves multiple journals.
 
-### MathJax & LaTeX
-LaTeX is rendered safely using a custom `MathJax` wrapper. It prevents hydration mismatches by delaying complex parsing until the component is fully mounted on the client.
-
-### State Management
-- **Redux Toolkit**: Used for global UI state (language, journal info).
-- **ISR**: Pages are cached for 1 hour (`revalidate = 3600`) to ensure high performance.
+- **Middleware**: `src/middleware.ts` intercepts requests and maps the hostname (e.g., `journal.episciences.org`) to a journal code (e.g., `journal`).
+- **Dynamic Routing**: Internal rewrites map requests to `/sites/[journalId]/[lang]/...`.
+- **CORS & API Proxy**: To avoid CORS issues when using subdomains (like `epijinfo.localhost`), all API requests should go through the local proxy `/api-proxy`. The `next.config.js` is configured to forward these to the pre-prod API.
+- **Logos**: Logos are loaded dynamically from `/public/logos/logo-[journalCode]-[size].svg`. Make sure all journal logos are present in the `public/logos` folder.
+- **Configurations**: Currently, journal-specific UI toggles (e.g., `NEXT_PUBLIC_JOURNAL_MENU_NEWS_RENDER`) are read from environment variables. In a full multi-tenant Node.js deployment, these should eventually be moved to a database or a dynamic configuration API, as `.env` files are global to the process.
 
 ## 🚀 Production Deployment
 

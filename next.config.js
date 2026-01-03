@@ -15,6 +15,15 @@ const nextConfig = {
     ],
   },
     
+  async rewrites() {
+    return [
+      {
+        source: '/api-proxy/:path*',
+        destination: 'https://api-preprod.episciences.org/api/:path*',
+      },
+    ];
+  },
+    
   webpack: (config, { dev, isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
