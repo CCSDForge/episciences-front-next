@@ -38,8 +38,13 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
     if (journal && !isLoading) {
       // Eviter les mises à jour infinies si l'objet journal n'est pas stable référentiellement
       // On compare l'ID ou le code pour savoir si c'est vraiment un changement
-      if (!currentJournal || currentJournal.code !== journal.code) {
+      const shouldUpdate = !currentJournal || currentJournal.code !== journal.code;
+      
+      if (shouldUpdate) {
+        console.log('[JournalInitializer] Updating journal in store:', journal.code);
         dispatch(setCurrentJournal(journal));
+      } else {
+        // console.log('[JournalInitializer] Journal already up to date:', journal.code);
       }
     }
   }, [journal, dispatch, isLoading, currentJournal]);

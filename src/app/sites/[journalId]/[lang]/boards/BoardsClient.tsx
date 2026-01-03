@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from "@/hooks/store";
@@ -28,14 +28,42 @@ interface BoardsData {
 interface BoardsClientProps {
   initialPages: IBoardPage[];
   initialMembers: IBoardMember[];
+  lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    boards: string;
+  };
+  membersCountLabels?: {
+    member: string;
+    members: string;
+  };
+  rolesLabels?: Record<string, string>;
+  tableOfContentsLabel?: string;
 }
 
 export default function BoardsClient({
   initialPages,
-  initialMembers
+  initialMembers,
+  lang,
+  breadcrumbLabels,
+  membersCountLabels,
+  rolesLabels,
+  tableOfContentsLabel
 }: BoardsClientProps): JSX.Element {
-  const { t } = useTranslation();
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const { t, i18n } = useTranslation();
+  
+  // Use the prop lang for rendering to ensure consistency with SSR
+  // Fallback to i18n language or Redux state if lang prop is missing (should not happen in proper usage)
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const currentLang = (lang || reduxLanguage || 'en') as 'en' | 'fr'; 
+
+  // Synchroniser la langue avec le paramètre de l'URL pour les futures interactions client
+  useEffect(() => {
+    if (lang && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang, i18n]);
+
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   // Architecture hybride : fetch automatique des données fraîches
@@ -65,7 +93,8 @@ export default function BoardsClient({
   const getPagesLabels = (): string[] => {
     if (!boardsData?.pages || !boardsData.pages.length) return [];
 
-    return boardsData.pages.map(page => page.title[language]);
+    // Use currentLang for consistent rendering
+    return boardsData.pages.map(page => page.title[currentLang] || page.title['en'] || '');
   };
 
   const getBoardsPerTitle = (): IBoardPerTitle[] => {
@@ -73,8 +102,9 @@ export default function BoardsClient({
     if (!boardsData?.members || !boardsData.members.length) return [];
 
     return boardsData.pages.map(page => {
-      const title = page.title[language];
-      const description = page.content[language];
+      // Use currentLang for consistent rendering
+      const title = page.title[currentLang] || page.title['en'] || '';
+      const description = page.content[currentLang] || page.content['en'] || '';
 
       const pageMembers = boardsData.members.filter((member) => {
         const pluralRoles = member.roles.map((role) => `${role}s`);
@@ -94,22 +124,27 @@ export default function BoardsClient({
   };
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} >` 
+        : `${t('pages.home.title')} >` 
+    }
   ];
 
   return (
     <main className='boards'>
-      <PageTitle title={t('pages.boards.title')} />
+      <PageTitle title={breadcrumbLabels?.boards || t('pages.boards.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.boards.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.boards || t('pages.boards.title')} />
 
       <div className='boards-title'>
-        <h1 className='boards-title-text'>{t('pages.boards.title')}</h1>
+        <h1 className='boards-title-text'>{breadcrumbLabels?.boards || t('pages.boards.title')}</h1>
         {boardsData?.members && boardsData.members.length > 0 && (
           boardsData.members.length > 1 ? (
-            <div className='boards-title-count'>{boardsData.members.length} {t('common.members')}</div>
+            <div className='boards-title-count'>{boardsData.members.length} {membersCountLabels?.members || t('common.members')}</div>
           ) : (
-            <div className='boards-title-count'>{boardsData.members.length} {t('common.member')}</div>
+            <div className='boards-title-count'>{boardsData.members.length} {membersCountLabels?.member || t('common.member')}</div>
           ))}
       </div>
 
@@ -118,7 +153,8 @@ export default function BoardsClient({
           t={t} 
           groups={getPagesLabels()} 
           activeGroupIndex={activeGroupIndex} 
-          onSetActiveGroupCallback={handleGroupToggle} 
+          onSetActiveGroupCallback={handleGroupToggle}
+          tableOfContentsLabel={tableOfContentsLabel}
         />
         <div className='boards-content-groups'>
           {getBoardsPerTitle().map((boardPerTitle, index) => (
@@ -142,12 +178,13 @@ export default function BoardsClient({
                   {boardPerTitle.members.map((member, index) => (
                     <BoardCard
                       key={index}
-                      language={language}
+                      language={currentLang}
                       t={t}
                       member={member}
                       fullCard={fullMemberIndex === index}
                       blurCard={fullMemberIndex !== -1 && fullMemberIndex !== index}
                       setFullMemberIndexCallback={(): void => fullMemberIndex !== index ? setFullMemberIndex(index) : setFullMemberIndex(-1)}
+                      rolesLabels={rolesLabels}
                     />
                   ))}
                 </div>

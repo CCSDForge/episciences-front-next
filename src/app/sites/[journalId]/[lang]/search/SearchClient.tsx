@@ -45,13 +45,24 @@ interface SearchClientProps {
   initialSearch: string;
   initialPage: number;
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    content: string;
+    search: string;
+  };
+  countLabels?: {
+    resultFor: string;
+    resultsFor: string;
+  };
 }
 
 export default function SearchClient({
   initialSearchResults,
   initialSearch,
   initialPage,
-  lang
+  lang,
+  breadcrumbLabels,
+  countLabels
 }: SearchClientProps): JSX.Element {
   const { t, i18n } = useTranslation();
 
@@ -551,18 +562,23 @@ export default function SearchClient({
 
   return (
     <main className='articles'>
-      <PageTitle title={t('pages.search.title')} />
+      <PageTitle title={breadcrumbLabels?.search || t('pages.search.title')} />
 
       <Breadcrumb parents={[
-        { path: 'home', label: `${t('pages.home.title')} > ${t('common.content')} >` }
-      ]} crumbLabel={t('pages.search.title')} />
+        { 
+          path: '/', 
+          label: breadcrumbLabels 
+            ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+            : `${t('pages.home.title')} > ${t('common.content')} >` 
+        }
+      ]} crumbLabel={breadcrumbLabels?.search || t('pages.search.title')} />
       <div className='articles-title'>
-        <h1 className='articles-title-text'>{t('pages.search.title')}</h1>
+        <h1 className='articles-title-text'>{breadcrumbLabels?.search || t('pages.search.title')}</h1>
         <div className='articles-title-count'>
           {searchResults && searchResults.totalItems > 1 ? (
-            <div className='articles-title-count-text'>{searchResults.totalItems} {t('common.resultsFor')} &ldquo;{search}&rdquo;</div>
+            <div className='articles-title-count-text'>{searchResults.totalItems} {countLabels?.resultsFor || t('common.resultsFor')} &ldquo;{search}&rdquo;</div>
           ) : (
-            <div className='articles-title-count-text'>{searchResults?.totalItems ?? 0} {t('common.resultFor')} &ldquo;{search}&rdquo;</div>
+            <div className='articles-title-count-text'>{searchResults?.totalItems ?? 0} {countLabels?.resultFor || t('common.resultFor')} &ldquo;{search}&rdquo;</div>
           )}
           <div className="articles-title-count-filtersMobile">
             <div className="articles-title-count-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>

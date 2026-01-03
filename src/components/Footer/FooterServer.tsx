@@ -61,7 +61,7 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
       {/* Journal section */}
       <div className="footer-journal">
         <div className="footer-journal-logo">
-          <Link href={`/${lang}`}>
+          <Link href={`/${lang}`} lang={lang}>
             <img src={logoSmall} alt="Journal logo" />
           </Link>
         </div>
@@ -69,17 +69,17 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
           <div className="footer-journal-links-journal">
             {journalNotice && (
               <>
-                <Link href={journalNotice} prefetch={false} target="_blank" rel="noopener noreferrer">
+                <Link href={journalNotice} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
                   {t('components.footer.links.notice', translations)}
                 </Link>
                 <div className="footer-journal-links-journal-divider">|</div>
               </>
             )}
-            <Link href={contactEmail} prefetch={false} target="_blank" rel="noopener noreferrer">
+            <Link href={contactEmail} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
               {t('components.footer.links.contact', translations)}
             </Link>
             <div className="footer-journal-links-journal-divider">|</div>
-            <Link href={`/${lang}/${PATHS.credits}`} prefetch={false}>
+            <Link href={`/${lang}/${PATHS.credits}`} prefetch={false} lang={lang}>
               {t('components.footer.links.credits', translations)}
             </Link>
           </div>
@@ -90,7 +90,7 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
                 <div className="footer-journal-links-rss-divider">|</div>
               </>
             )}
-            <Link href={rssUrl} prefetch={false} target="_blank" rel="noopener noreferrer">
+            <Link href={rssUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
               {t('components.footer.links.rss', translations)}
             </Link>
           </div>
@@ -100,34 +100,34 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
       {/* Episciences section */}
       <div className="footer-episciences">
         <div className="footer-episciences-logo">
-          <Link href={episciencesUrl}>
+          <Link href={episciencesUrl} lang={lang}>
             <img src={logoEpisciences} alt="Episciences" />
           </Link>
         </div>
         <div className="footer-episciences-links">
           <div className="footer-episciences-links-documentation">
-            <Link href={docUrl} prefetch={false} target="_blank" rel="noopener noreferrer">
+            <Link href={docUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
               {t('components.footer.links.documentation', translations)}
             </Link>
             <div className="footer-episciences-links-documentation-divider">|</div>
-            <Link href={partnersUrl} prefetch={false} target="_blank" rel="noopener noreferrer">
+            <Link href={partnersUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
               {t('components.footer.links.acknowledgements', translations)}
             </Link>
             <div className="footer-episciences-links-documentation-divider">|</div>
-            <Link href={publishingPolicyAnchor} prefetch={false}>
+            <Link href={publishingPolicyAnchor} prefetch={false} lang={lang}>
               {t('components.footer.links.publishingPolicy', translations)}
             </Link>
           </div>
           <div className="footer-episciences-links-legal">
-            <Link href={legalTermsUrl} prefetch={false} target="_blank" rel="noopener noreferrer">
+            <Link href={legalTermsUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
               {t('components.footer.links.legalMentions', translations)}
             </Link>
             <div className="footer-episciences-links-legal-divider">|</div>
-            <Link href={privacyUrl} prefetch={false} target="_blank" rel="noopener noreferrer">
+            <Link href={privacyUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
               {t('components.footer.links.privacyStatement', translations)}
             </Link>
             <div className="footer-episciences-links-legal-divider">|</div>
-            <Link href={termsOfUseUrl} prefetch={false} target="_blank" rel="noopener noreferrer">
+            <Link href={termsOfUseUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
               {t('components.footer.links.termsOfUse', translations)}
             </Link>
           </div>

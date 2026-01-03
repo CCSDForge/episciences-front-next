@@ -38,9 +38,18 @@ interface ArticlesClientProps {
     totalItems: number;
   };
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    content: string;
+    articles: string;
+  };
+  countLabels?: {
+    article: string;
+    articles: string;
+  };
 }
 
-export default function ArticlesClient({ initialArticles, lang }: ArticlesClientProps): JSX.Element {
+export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels, countLabels }: ArticlesClientProps): JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL
@@ -330,22 +339,27 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
   }
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} > ${t('common.content')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+        : `${t('pages.home.title')} > ${t('common.content')} >` 
+    }
   ];
 
   return (
     <main className='articles'>
-      <PageTitle title={t('pages.articles.title')} />
+      <PageTitle title={breadcrumbLabels?.articles || t('pages.articles.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.articles.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.articles || t('pages.articles.title')} />
 
       <div className='articles-title'>
-        <h1 className='articles-title-text'>{t('pages.articles.title')}</h1>
+        <h1 className='articles-title-text'>{breadcrumbLabels?.articles || t('pages.articles.title')}</h1>
         <div className='articles-title-count'>
           {totalArticlesCount > 1 ? (
-            <div className='articles-title-count-text'>{totalArticlesCount} {t('common.articles')}</div>
+            <div className='articles-title-count-text'>{totalArticlesCount} {countLabels?.articles || t('common.articles')}</div>
           ) : (
-            <div className='articles-title-count-text'>{totalArticlesCount} {t('common.article')}</div>
+            <div className='articles-title-count-text'>{totalArticlesCount} {countLabels?.article || t('common.article')}</div>
           )}
           <div className="articles-title-count-filtersMobile">
             <div className="articles-title-count-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>

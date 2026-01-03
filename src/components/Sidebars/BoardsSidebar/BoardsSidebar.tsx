@@ -9,12 +9,13 @@ interface IBoardsSidebarProps {
   groups: string[];
   activeGroupIndex: number;
   onSetActiveGroupCallback: (index: number) => void;
+  tableOfContentsLabel?: string;
 }
 
-export default function BoardsSidebar({ t, groups, activeGroupIndex, onSetActiveGroupCallback }: IBoardsSidebarProps): JSX.Element {
+export default function BoardsSidebar({ t, groups, activeGroupIndex, onSetActiveGroupCallback, tableOfContentsLabel }: IBoardsSidebarProps): JSX.Element {
   return (
     <div className='boardsSidebar'>
-      <div className='boardsSidebar-resume'>{t('pages.boards.tableOfContents')}</div>
+      <div className='boardsSidebar-resume'>{tableOfContentsLabel || t('pages.boards.tableOfContents')}</div>
       <div className='boardsSidebar-links'>
         {groups.map((group, index) => (
           <div

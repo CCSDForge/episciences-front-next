@@ -32,6 +32,18 @@ interface AuthorsClientProps {
     totalItems: number;
   };
   lang?: string;
+  breadcrumbLabels?: {
+    home: string;
+    content: string;
+    authors: string;
+  };
+  countLabels?: {
+    author: string;
+    authors: string;
+    authorFor: string;
+    authorsFor: string;
+    others: string;
+  };
 }
 
 const AUTHORS_PER_PAGE = 10;
@@ -41,7 +53,9 @@ export default function AuthorsClient({
   initialSearch,
   initialLetter = '',
   initialAuthorsData,
-  lang
+  lang,
+  breadcrumbLabels,
+  countLabels
 }: AuthorsClientProps) {
   const { t, i18n } = useTranslation();
 
@@ -162,16 +176,16 @@ export default function AuthorsClient({
 
   const getAuthorsCount = (): JSX.Element | null => {
     if (totalAuthors > 1) {
-      if (searchValue) return <div className='authors-count'>{totalAuthors} {t('common.authorsFor')} &ldquo;{searchValue}&rdquo;</div>;
-      if (activeLetter) return <div className='authors-count'>{totalAuthors} {t('common.authorsFor')} &ldquo;{activeLetter === 'others' ? t('pages.authors.others') : activeLetter}&rdquo;</div>;
+      if (searchValue) return <div className='authors-count'>{totalAuthors} {countLabels?.authorsFor || t('common.authorsFor')} &ldquo;{searchValue}&rdquo;</div>;
+      if (activeLetter) return <div className='authors-count'>{totalAuthors} {countLabels?.authorsFor || t('common.authorsFor')} &ldquo;{activeLetter === 'others' ? (countLabels?.others || t('pages.authors.others')) : activeLetter}&rdquo;</div>;
 
-      return <div className='authors-count'>{totalAuthors} {t('common.authors')}</div>;
+      return <div className='authors-count'>{totalAuthors} {countLabels?.authors || t('common.authors')}</div>;
     }
 
-    if (searchValue) return <div className='authors-count'>{totalAuthors} {t('common.authorFor')} &ldquo;{searchValue}&rdquo;</div>;
-    if (activeLetter) return <div className='authors-count'>{totalAuthors} {t('common.authorFor')} &ldquo;{activeLetter === 'others' ? t('pages.authors.others') : activeLetter}&rdquo;</div>;
+    if (searchValue) return <div className='authors-count'>{totalAuthors} {countLabels?.authorFor || t('common.authorFor')} &ldquo;{searchValue}&rdquo;</div>;
+    if (activeLetter) return <div className='authors-count'>{totalAuthors} {countLabels?.authorFor || t('common.authorFor')} &ldquo;{activeLetter === 'others' ? (countLabels?.others || t('pages.authors.others')) : activeLetter}&rdquo;</div>;
 
-    return <div className='authors-count'>{totalAuthors} {t('common.author')}</div>;
+    return <div className='authors-count'>{totalAuthors} {countLabels?.author || t('common.author')}</div>;
   };
 
   const setAllTaggedFilters = useCallback((): void => {
@@ -226,20 +240,25 @@ export default function AuthorsClient({
   }, [setAllTaggedFilters]);
 
   const breadcrumbItems = [
-    { path: '/', label: `${t('pages.home.title')} > ${t('common.content')} >` }
+    { 
+      path: '/', 
+      label: breadcrumbLabels 
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
+        : `${t('pages.home.title')} > ${t('common.content')} >` 
+    }
   ];
 
   return (
     <main className='authors'>
-      <PageTitle title={t('pages.authors.title')} />
+      <PageTitle title={breadcrumbLabels?.authors || t('pages.authors.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.authors.title')} />
-      <h1 className='authors-title'>{t('pages.authors.title')}</h1>
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.authors || t('pages.authors.title')} />
+      <h1 className='authors-title'>{breadcrumbLabels?.authors || t('pages.authors.title')}</h1>
       {getAuthorsCount()}
       <div className='authors-filters'>
           <div className="authors-filters-tags">
             {taggedFilters.map((filter, index) => (
-              <Tag key={index} text={filter.value === 'others' ? t('pages.authors.others') : filter.value} onCloseCallback={(): void => onCloseTaggedFilter(filter.type)}/>
+              <Tag key={index} text={filter.value === 'others' ? (countLabels?.others || t('pages.authors.others')) : filter.value} onCloseCallback={(): void => onCloseTaggedFilter(filter.type)}/>
             ))}
             {taggedFilters.length > 0 ? (
               <div className="authors-filters-tags-clear" onClick={clearTaggedFilters}>{t('common.filters.clearAll')}</div>

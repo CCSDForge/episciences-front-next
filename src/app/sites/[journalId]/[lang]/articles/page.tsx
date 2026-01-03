@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { fetchArticles } from '@/services/article';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
 
@@ -20,9 +21,22 @@ interface ArticlesData {
   };
 }
 
-export default async function ArticlesPage({ params }: { params: { lang: string; journalId: string } }) {
+export default async function ArticlesPage({ 
+  params, 
+  searchParams 
+}: { 
+  params: { lang: string; journalId: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   const lang = params.lang || 'en';
   const { journalId } = params;
+  
+  // Extract page number from searchParams
+  const page = searchParams?.page ? Math.max(1, parseInt(searchParams.page as string, 10)) : 1;
+
+  // Fetch translations server-side
+  const translations = await getServerTranslations(lang);
+
   try {
     const ARTICLES_PER_PAGE = 20; // Default page size for SSR
 
@@ -33,7 +47,7 @@ export default async function ArticlesPage({ params }: { params: { lang: string;
     // Récupération dynamique des articles
     const articles = await fetchArticles({
       rvcode: journalId,
-      page: 1,
+      page: page,
       itemsPerPage: ARTICLES_PER_PAGE,
       onlyAccepted: false,
       types: []
@@ -48,10 +62,23 @@ export default async function ArticlesPage({ params }: { params: { lang: string;
       }
     };
 
+    const breadcrumbLabels = {
+      home: t('pages.home.title', translations),
+      content: t('common.content', translations),
+      articles: t('pages.articles.title', translations),
+    };
+
+    const countLabels = {
+      article: t('common.article', translations),
+      articles: t('common.articles', translations),
+    };
+
     return (
       <ArticlesClient
         initialArticles={formattedArticles}
         lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+        countLabels={countLabels}
       />
     );
   } catch (error) {
@@ -65,10 +92,23 @@ export default async function ArticlesPage({ params }: { params: { lang: string;
       }
     };
     
+    // Fetch translations again for error case (or use cached ones if available, but here we just re-fetch to be safe or use what we have)
+    // Actually translations variable is available here because it's defined outside try block? 
+    // No, I put it before try block.
+    
     return (
       <ArticlesClient
         initialArticles={emptyState}
         lang={lang}
+        breadcrumbLabels={{
+          home: t('pages.home.title', translations),
+          content: t('common.content', translations),
+          articles: t('pages.articles.title', translations),
+        }}
+        countLabels={{
+          article: t('common.article', translations),
+          articles: t('common.articles', translations),
+        }}
       />
     );
   }

@@ -21,9 +21,27 @@ interface IBoardCardProps {
   fullCard: boolean;
   blurCard: boolean;
   setFullMemberIndexCallback: () => void;
+  rolesLabels?: Record<string, string>;
 }
 
-export default function BoardCard({ language, t, member, fullCard, blurCard, setFullMemberIndexCallback }: IBoardCardProps): JSX.Element {
+export default function BoardCard({ language, t, member, fullCard, blurCard, setFullMemberIndexCallback, rolesLabels }: IBoardCardProps): JSX.Element {
+  
+  const getRoleLabel = (role: string) => {
+    if (rolesLabels && rolesLabels[role]) return rolesLabels[role];
+    // Fallback to t if rolesLabels is missing (or try to map if keys differ)
+    // Actually getBoardRoles handles a list.
+    return null; 
+  };
+  
+  const displayRoles = (roles: string[]) => {
+    if (rolesLabels) {
+       return roles.map(role => rolesLabels[role] || role).filter(Boolean).join(', ');
+    }
+    return getBoardRoles(t, roles);
+  };
+
+  const defaultRoleLabel = rolesLabels ? rolesLabels['member'] : defaultBoardRole(t).label;
+
   if (fullCard) {
     return (
       <div className='boardCard boardCard-full' onClick={setFullMemberIndexCallback}>
@@ -46,9 +64,9 @@ export default function BoardCard({ language, t, member, fullCard, blurCard, set
                 )}
               </div>
               {member.roles && member.roles.length > 0 ? (
-                <div className='boardCard-full-initial-person-title-role'>{getBoardRoles(t, member.roles)}</div>
+                <div className='boardCard-full-initial-person-title-role'>{displayRoles(member.roles)}</div>
               ) : (
-                <div className='boardCard-full-initial-person-title-role'>{defaultBoardRole(t).label}</div>
+                <div className='boardCard-full-initial-person-title-role'>{defaultRoleLabel}</div>
               )}
             </div>
           </div>
@@ -114,9 +132,9 @@ export default function BoardCard({ language, t, member, fullCard, blurCard, set
             )}
           </div>
           {member.roles && member.roles.length > 0 ? (
-            <div className='boardCard-person-title-role'>{getBoardRoles(t, member.roles)}</div>
+            <div className='boardCard-person-title-role'>{displayRoles(member.roles)}</div>
           ) : (
-            <div className='boardCard-person-title-role'>{defaultBoardRole(t).label}</div>
+            <div className='boardCard-person-title-role'>{defaultRoleLabel}</div>
           )}
         </div>
       </div>
