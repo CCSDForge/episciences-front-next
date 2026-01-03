@@ -43,9 +43,8 @@ const MathJax: React.FC<MathJaxProps> = ({
   }
 
   return (
-    <BetterMathJax 
-      dynamic={dynamic} 
-      component={Component} 
+    <BetterMathJax
+      dynamic={dynamic}
       {...props}
     >
       {children}

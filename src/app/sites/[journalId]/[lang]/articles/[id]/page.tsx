@@ -8,7 +8,7 @@ import ArticleDetailsServer from './ArticleDetailsServer';
 import { FetchedArticle, METADATA_TYPE } from '@/utils/article';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
-import { getServerTranslations, defaultLanguage, availableLanguages } from '@/utils/server-i18n';
+import { getServerTranslations, t, defaultLanguage, availableLanguages } from '@/utils/server-i18n';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';

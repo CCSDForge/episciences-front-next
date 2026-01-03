@@ -157,6 +157,74 @@ export type { LinkedinIconProps } from './social/LinkedinIcon';
 export { default as MailIcon } from './social/MailIcon';
 export type { MailIconProps } from './social/MailIcon';
 
+// At Icon
+export { default as AtIcon } from './social/AtIcon';
+export type { AtIconProps } from './social/AtIcon';
+
+// Bluesky Icon
+export { default as BlueskyIcon } from './social/BlueskyIcon';
+export type { BlueskyIconProps } from './social/BlueskyIcon';
+
+// Mastodon Icon
+export { default as MastodonIcon } from './social/MastodonIcon';
+export type { MastodonIconProps } from './social/MastodonIcon';
+
+// WhatsApp Icon
+export { default as WhatsappIcon } from './social/WhatsappIcon';
+export type { WhatsappIconProps } from './social/WhatsappIcon';
+
+// ============================================================
+// UI ICONS (Additional)
+// ============================================================
+
+// Filter Icon
+export { default as FilterIcon } from './ui/FilterIcon';
+export type { FilterIconProps } from './ui/FilterIcon';
+
+// List Icon (2 variants)
+export { default as ListIcon } from './ui/ListIcon';
+export {
+  ListGreyIcon,
+  ListRedIcon,
+} from './ui/ListIcon';
+export type { ListIconProps } from './ui/ListIcon';
+
+// Tag Icon
+export { default as TagIcon } from './ui/TagIcon';
+export type { TagIconProps } from './ui/TagIcon';
+
+// Tile Icon (2 variants)
+export { default as TileIcon } from './ui/TileIcon';
+export {
+  TileGreyIcon,
+  TileRedIcon,
+} from './ui/TileIcon';
+export type { TileIconProps } from './ui/TileIcon';
+
+// Plus Circle Icon
+export { default as PlusCircleIcon } from './ui/PlusCircleIcon';
+export type { PlusCircleIconProps } from './ui/PlusCircleIcon';
+
+// Minus Circle Icon
+export { default as MinusCircleIcon } from './ui/MinusCircleIcon';
+export type { MinusCircleIconProps } from './ui/MinusCircleIcon';
+
+// ============================================================
+// BRAND ICONS
+// ============================================================
+
+// ROR Icon
+export { default as RorIcon } from './brand/RorIcon';
+export type { RorIconProps } from './brand/RorIcon';
+
+// Logo Text Icon (Episciences logo with text)
+export { default as LogoTextIcon } from './brand/LogoTextIcon';
+export type { LogoTextIconProps } from './brand/LogoTextIcon';
+
+// ORCID Icon
+export { default as OrcidIcon } from './brand/OrcidIcon';
+export type { OrcidIconProps } from './brand/OrcidIcon';
+
 /**
  * Icon Color Constants
  *

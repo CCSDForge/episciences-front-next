@@ -21,9 +21,10 @@ interface SectionsData {
 }
 
 interface SectionsClientProps {
-  initialSections: { 
+  initialSections: {
     data: ISection[];
     totalItems: number;
+    articlesCount?: number;
   } | null;
   initialPage: number;
   lang?: string;
