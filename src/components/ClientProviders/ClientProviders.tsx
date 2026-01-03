@@ -17,6 +17,7 @@ import { IVolume } from '@/types/volume';
 interface ClientProvidersProps {
   initialVolume?: IVolume | null;
   initialLanguage?: string;
+  journalId?: string;
   children?: React.ReactNode;
 }
 
@@ -25,7 +26,7 @@ interface ClientProvidersProps {
  * This component wraps the entire application to provide context
  * It ensures the store is only used client-side
  */
-const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initialLanguage, children }) => {
+const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initialLanguage, journalId, children }) => {
   // Detect language immediately, before first render
   const detectedLang = (() => {
     if (typeof window !== 'undefined') {
@@ -60,7 +61,7 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initia
       <I18nextProvider i18n={i18n}>
         <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={2}>
           {isClient && <ThemeStyleSwitch />}
-          {isClient && <JournalInitializer />}
+          {isClient && <JournalInitializer journalId={journalId} />}
           {isClient && initialVolume && <LastVolumeInitializer initialVolume={initialVolume} />}
           {children}
         </MathJaxContext>

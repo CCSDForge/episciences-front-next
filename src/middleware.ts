@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/request';
 import {
   acceptedLanguages,
   defaultLanguage,
@@ -9,7 +9,9 @@ import {
 } from '@/utils/language-utils';
 
 export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
+  const url = request.nextUrl;
+  const hostname = request.headers.get('host') || '';
+  const pathname = url.pathname;
 
   // Ignorer les fichiers statiques avec extensions
   const staticExtensions = ['.js', '.css', '.woff', '.woff2', '.ttf', '.otf', '.eot', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.webp'];
@@ -17,54 +19,45 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Intercepter les requêtes .txt
-  if (pathname.endsWith('.txt')) {
-    // Retourner une réponse vide pour éviter les erreurs 404
-    return NextResponse.json({ status: 'ok' });
+  // 1. Détection du Journal (Multi-tenancy)
+  // Logique de mapping : epijinfo.episciences.org -> epijinfo
+  // En local : epijinfo.localhost:3000 -> epijinfo
+  let journalId = '';
+  if (hostname.includes('episciences.org')) {
+    journalId = hostname.split('.')[0];
+  } else if (hostname.includes('localhost')) {
+    // Permet de tester en local avec journal.localhost:3000
+    journalId = hostname.split('.')[0];
+    // Si c'est juste localhost:3000, on peut mettre un journal par défaut pour le dev
+    if (journalId === 'localhost' || journalId === '127') journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
   }
 
-  // Handle language redirections
+  // 2. Gestion des langues (votre logique existante)
   const currentLang = getLanguageFromPathname(pathname);
   const hasPrefix = hasLanguagePrefix(pathname);
 
   // If URL has default language prefix (e.g., /en/about), redirect to path without prefix
   if (hasPrefix && currentLang === defaultLanguage) {
     const pathWithoutLang = removeLanguagePrefix(pathname);
-    const url = new URL(pathWithoutLang || '/', request.url);
-    url.search = request.nextUrl.search;
-    return NextResponse.redirect(url);
+    const redirectUrl = new URL(pathWithoutLang || '/', request.url);
+    redirectUrl.search = url.search;
+    return NextResponse.redirect(redirectUrl);
   }
 
-  // If URL has invalid language prefix, redirect to default language version without prefix
-  if (hasPrefix && !acceptedLanguages.includes(currentLang)) {
-    const pathWithoutLang = removeLanguagePrefix(pathname);
-    const url = new URL(pathWithoutLang || '/', request.url);
-    url.search = request.nextUrl.search;
-    return NextResponse.redirect(url);
-  }
-
-  // If URL has no language prefix and is not a static asset, rewrite to default language
-  if (!hasPrefix && !pathname.startsWith('/_next') && !pathname.startsWith('/api')) {
-    // Rewrite to /en/... for default language (internally, not visible to user)
-    const url = request.nextUrl.clone();
-    url.pathname = `/${defaultLanguage}${pathname === '/' ? '' : pathname}`;
-    return NextResponse.rewrite(url);
-  }
-
-  // Rediriger /forAuthors vers /for-authors (preserve language prefix if present)
-  if (pathname.includes('/forAuthors')) {
-    const pathWithoutLang = removeLanguagePrefix(pathname);
-    const newPath = pathWithoutLang.replace('/forAuthors', '/for-authors');
-    const localizedPath = hasPrefix ? `/${currentLang}${newPath}` : newPath;
-    const url = new URL(localizedPath, request.url);
-    url.search = request.nextUrl.search;
-    return NextResponse.redirect(url);
-  }
-
-  return NextResponse.next();
+  // 3. Réécriture Multi-tenant interne
+  // On réécrit vers /_sites/[journalId]/[lang]/...
+  const pathWithoutLang = removeLanguagePrefix(pathname);
+  const targetLang = hasPrefix ? currentLang : defaultLanguage;
+  
+  // Construction du chemin interne
+  const internalPath = `/_sites/${journalId}/${targetLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
+  
+  const rewriteUrl = new URL(internalPath, request.url);
+  rewriteUrl.search = url.search;
+  
+  return NextResponse.rewrite(rewriteUrl);
 }
 
-// Configuration du matcher pour appliquer le middleware sur toutes les routes sauf les ressources statiques
 export const config = {
   matcher: [
     /*
@@ -80,4 +73,4 @@ export const config = {
      */
     '/((?!api|_next/static|_next/image|favicon.ico|icons|logos|locales|fonts).*)',
   ],
-}; 
+};

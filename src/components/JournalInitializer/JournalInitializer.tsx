@@ -6,10 +6,12 @@ import { setCurrentJournal } from '@/store/features/journal/journal.slice';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { AvailableLanguage } from '@/utils/i18n';
 
-export function JournalInitializer() {
+export function JournalInitializer({ journalId }: { journalId?: string }) {
   const dispatch = useAppDispatch();
   const currentJournal = useAppSelector((state) => state.journalReducer.currentJournal);
-  const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || '';
+  
+  // Use the provided journalId, or fallback to env var (for backward compatibility during migration)
+  const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || '';
   
   // Utiliser RTK Query pour récupérer le journal
   const { data: journal, error, isLoading, refetch } = useFetchJournalQuery(rvcode, {

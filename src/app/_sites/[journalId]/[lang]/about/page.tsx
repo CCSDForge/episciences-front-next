@@ -14,29 +14,46 @@ export const metadata: Metadata = {
   description: 'À propos de la revue',
 };
 
-export async function generateStaticParams() {
-  return generateLanguageParamsForPage('about');
+export default async function AboutPage({ params }: { params: { journalId: string; lang: string } }) {
+
+  let pageData = null;
+
+  const { journalId } = params;
+
+  
+
+  try {
+
+    if (journalId) {
+
+      // Récupérer les données
+
+      const rawData = await fetchAboutPage(journalId);
+
+      
+
+      if (!rawData?.['hydra:member']?.[0]) {
+
+        throw new Error(`No about page data found for journal ${journalId}`);
+
+      }
+
+      
+
+      pageData = rawData['hydra:member'][0];
+
+    }
+
+  } catch (error) {
+
+    console.error(`Error fetching about page for journal ${journalId}:`, error);
+
+  }
+
+  
+
+  return <AboutClient initialPage={pageData} />;
+
 }
 
-export default async function AboutPage() {
-  let pageData = null;
-  
-  try {
-    const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-    
-    if (rvcode) {
-      // Récupérer les données
-      const rawData = await fetchAboutPage(rvcode);
-      
-      if (!rawData?.['hydra:member']?.[0]) {
-        throw new Error('No about page data found');
-      }
-      
-      pageData = rawData['hydra:member'][0];
-    }
-  } catch (error) {
-    console.error('Error fetching about page:', error);
-  }
-  
-  return <AboutClient initialPage={pageData} />;
-} 
+ 

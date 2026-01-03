@@ -7,35 +7,29 @@ import ToastContainerWrapper from '@/components/ToastContainerWrapper/ToastConta
 
 interface LanguageLayoutProps {
   children: ReactNode;
-  params: { lang: string };
+  params: { lang: string; journalId: string };
 }
 
 /**
- * Layout for handling language-prefixed routes
- *
- * This layout extracts the language from the URL params and makes it available
- * to all child components. It validates that the language is accepted.
- *
- * URLs:
- * - Default language (EN): /en/about (redirected to /about by middleware)
- * - Other languages (FR): /fr/about
+ * Layout for handling language-prefixed routes in a multi-tenant setup
  */
 export default async function LanguageLayout({ children, params }: LanguageLayoutProps) {
   // Extract and validate language from params
   const lang = getLanguageFromParams(params);
+  const { journalId } = params;
 
   return (
     <>
       <ToastContainerWrapper />
       {/* Header with scroll behavior */}
       <HeaderClientWrapper>
-        <HeaderServer lang={lang} />
+        <HeaderServer lang={lang} journalId={journalId} />
       </HeaderClientWrapper>
       {/* Server-rendered content - visible in static HTML */}
       <div className="main-content">
         {children}
       </div>
-      <FooterServer lang={lang} />
+      <FooterServer lang={lang} journalId={journalId} />
     </>
   );
 }

@@ -28,16 +28,16 @@ function getDefaultLanguage(): string {
   return process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE || 'fr';
 }
 
-export default async function HomePage() {
-  const language = getDefaultLanguage();
-  const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
+export default async function HomePage({ params }: { params: { journalId: string; lang: string } }) {
+  const language = params.lang || 'fr';
+  const rvcode = params.journalId;
   
   let homeData = {};
   
   try {
     homeData = await fetchHomeData(rvcode, language);
   } catch (error) {
-    console.error('Error fetching home data:', error);
+    console.error(`Error fetching home data for journal ${rvcode}:`, error);
   }
 
   return (
