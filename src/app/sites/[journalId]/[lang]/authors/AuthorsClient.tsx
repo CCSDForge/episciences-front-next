@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
@@ -56,24 +56,18 @@ export default function AuthorsClient({
   const params = useSearchParams();
   const i18nState = useAppSelector(state => state.i18nReducer);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
   
   // État local
   const [isLoading, setIsLoading] = useState(!initialAuthorsData);
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [selectedAuthor, setSelectedAuthor] = useState<IAuthor | null>(null);
   const [searchValue, setSearchValue] = useState(initialSearch);
   const [activeLetter, setActiveLetter] = useState(initialLetter);
   const [authors, setAuthors] = useState<IAuthor[]>(initialAuthorsData?.items || []);
   const [totalAuthors, setTotalAuthors] = useState(initialAuthorsData?.totalItems || 0);
-  const [activeFilter, setActiveFilter] = useState<IAuthorFilter | null>(
-    initialSearch ? { type: 'search', value: initialSearch } : 
-    initialLetter ? { type: 'activeLetter', value: initialLetter } : 
-    null
-  );
   const [taggedFilters, setTaggedFilters] = useState<IAuthorFilter[]>([]);
   const [expandedAuthorIndex, setExpandedAuthorIndex] = useState(-1);
 
+  // Memoize fetch dependencies to avoid infinite loops
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -103,7 +97,7 @@ export default function AuthorsClient({
     fetchData();
   }, [rvcode, currentPage, searchValue, activeLetter]);
 
-  const createQueryString = (name: string, value: string) => {
+  const createQueryString = useCallback((name: string, value: string) => {
     const newParams = new URLSearchParams(params?.toString() || '');
     if (value) {
       newParams.set(name, value);
@@ -111,9 +105,9 @@ export default function AuthorsClient({
       newParams.delete(name);
     }
     return newParams.toString();
-  };
+  }, [params]);
 
-  const onSearch = (newSearch: string): void => {
+  const onSearch = useCallback((newSearch: string): void => {
     const newParams = createQueryString('search', newSearch);
     if (activeLetter) {
       const paramsWithoutLetter = new URLSearchParams(newParams);
@@ -127,9 +121,9 @@ export default function AuthorsClient({
     setExpandedAuthorIndex(-1);
     setActiveLetter('');
     setSearchValue(newSearch);
-  };
+  }, [activeLetter, createQueryString, pathname, router]);
 
-  const onSetActiveLetter = (newActiveLetter: string): void => {
+  const onSetActiveLetter = useCallback((newActiveLetter: string): void => {
     const actualNewLetter = newActiveLetter !== activeLetter ? newActiveLetter : '';
     const newParams = createQueryString('letter', actualNewLetter);
     
@@ -145,26 +139,26 @@ export default function AuthorsClient({
     setExpandedAuthorIndex(-1);
     setSearchValue('');
     setActiveLetter(actualNewLetter);
-  };
+  }, [activeLetter, createQueryString, pathname, router, searchValue]);
 
-  const getExpandedAuthor = (): IAuthor | undefined => {
+  const getExpandedAuthor = useCallback((): IAuthor | undefined => {
     if (expandedAuthorIndex === -1 || !authors) {
       return undefined;
     }
 
     return authors.find((_, index) => expandedAuthorIndex === index);
-  };
+  }, [authors, expandedAuthorIndex]);
 
-  const onCloseDetails = (): void => {
+  const onCloseDetails = useCallback((): void => {
     setExpandedAuthorIndex(-1);
-  };
+  }, []);
 
-  const handlePageClick = (selectedItem: { selected: number }): void => {
+  const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
     const newParams = createQueryString('page', newPage.toString());
     router.push(`${pathname}?${newParams}`);
     setCurrentPage(newPage);
-  };
+  }, [createQueryString, pathname, router]);
 
   const getAuthorsCount = (): JSX.Element | null => {
     if (totalAuthors > 1) {
@@ -180,18 +174,7 @@ export default function AuthorsClient({
     return <div className='authors-count'>{totalAuthors} {t('common.author')}</div>;
   };
 
-  const getPagination = (): JSX.Element => {
-    return (
-      <Pagination
-        currentPage={currentPage}
-        itemsPerPage={AUTHORS_PER_PAGE}
-        totalItems={totalAuthors}
-        onPageChange={handlePageClick}
-      />
-    );
-  };
-
-  const setAllTaggedFilters = (): void => {
+  const setAllTaggedFilters = useCallback((): void => {
     const initFilters: IAuthorFilter[] = [];
 
     if (activeLetter) {
@@ -209,9 +192,9 @@ export default function AuthorsClient({
     }
 
     setTaggedFilters(initFilters);
-  };
+  }, [activeLetter, searchValue]);
 
-  const onCloseTaggedFilter = (type: AuthorTypeFilter) => {
+  const onCloseTaggedFilter = useCallback((type: AuthorTypeFilter) => {
     if (type === 'search') {
       const newParams = new URLSearchParams(params?.toString() || '');
       newParams.delete('search');
@@ -227,20 +210,20 @@ export default function AuthorsClient({
       }
       setActiveLetter('');
     }
-  };
+  }, [params, pathname, router]);
 
-  const clearTaggedFilters = (): void => {
+  const clearTaggedFilters = useCallback((): void => {
     if (pathname) {
       router.push(pathname);
     }
     setSearchValue('');
     setActiveLetter('');
     setTaggedFilters([]);
-  };
+  }, [pathname, router]);
 
   useEffect(() => {
     setAllTaggedFilters();
-  }, [activeLetter, searchValue]);
+  }, [setAllTaggedFilters]);
 
   const breadcrumbItems = [
     { path: '/', label: `${t('pages.home.title')} > ${t('common.content')} >` }
@@ -269,7 +252,12 @@ export default function AuthorsClient({
         <AuthorsSidebar t={t} search={searchValue} onSearchCallback={onSearch} activeLetter={activeLetter} onSetActiveLetterCallback={onSetActiveLetter} />
         <div className='authors-content-results'>
           <div className='authors-content-results-paginationTop'>
-            {getPagination()}
+            <Pagination
+              currentPage={currentPage}
+              itemsPerPage={AUTHORS_PER_PAGE}
+              totalItems={totalAuthors}
+              onPageChange={handlePageClick}
+            />
           </div>
           {isLoading ? (
             <div className='authors-content-loader'>
@@ -289,11 +277,16 @@ export default function AuthorsClient({
             </div>
           )}
           <div className='authors-content-results-paginationBottom'>
-            {getPagination()}
+            <Pagination
+              currentPage={currentPage}
+              itemsPerPage={AUTHORS_PER_PAGE}
+              totalItems={totalAuthors}
+              onPageChange={handlePageClick}
+            />
           </div>
         </div>
       </div>
       {expandedAuthorIndex >= 0 && <AuthorDetailsSidebar language={i18nState.language} t={t} rvcode={rvcode} expandedAuthor={getExpandedAuthor()} onCloseDetailsCallback={onCloseDetails} />}
     </main>
   );
-} 
+}
