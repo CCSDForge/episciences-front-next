@@ -60,8 +60,12 @@ build.log
 # journal-specific generated files
 /public/robots.txt
 /public/sitemap.xml
-/public/logos/logo-small.svg
-/public/logos/logo-big.svg
+
+# Journal logos (copied from external-assets during build/dev)
+# All logos are from external-assets repository (separate licenses)
+/public/logos/*.svg
+!/public/logos/logo-episciences.svg
+
 /.claude/
 /.gemini/
 /.idea/
