@@ -12,7 +12,7 @@ Next.js 14 (App Router) version of Episciences front-end. This version is config
 - Next.js 14/15 (App Router)
 - Node.js Server (Standalone)
 - TypeScript
-- SCSS
+- SCSS / Tailwind CSS
 - i18next for internationalization
 - Middleware for multi-tenancy
 
@@ -29,7 +29,7 @@ npm install
 # Copy environment file
 cp .env.example .env.local
 
-# Run development server (Multi-tenant mode via localhost subdomains or paths)
+# Run development server
 npm run dev
 
 # Production build (Standalone Node.js)
@@ -38,6 +38,30 @@ npm run build
 # Start production server
 npm run start
 ```
+
+## 🧪 Local Development & Multi-Tenancy
+
+The application uses Middleware to handle multiple journals (tenants) from a single instance.
+
+### Testing different journals locally
+
+There are two ways to switch journals during development:
+
+#### 1. Via Subdomains (Recommended)
+The middleware detects the journal ID from the subdomain. To test `epijinfo`, `jds`, etc., you can use:
+- `http://epijinfo.localhost:3000` (Works automatically in most modern browsers)
+- Or update your `/etc/hosts` (Linux/macOS) or `C:\Windows\System32\drivers\etc\hosts` (Windows):
+  ```text
+  127.0.0.1 epijinfo.localhost
+  127.0.0.1 jds.localhost
+  ```
+
+#### 2. Via Environment Variable
+Set the default journal ID in your `.env.local`:
+```env
+NEXT_PUBLIC_JOURNAL_RVCODE=epijinfo
+```
+When accessing `http://localhost:3000` directly, the middleware will fall back to this value.
 
 ## 📁 Project Structure
 ```
@@ -57,34 +81,20 @@ episciences-front-next/
 └── config/            # Configuration files
 ```
 
-## 🔧 Available Scripts
-- `npm run dev` : Start development server
-- `npm run build` : Build for production (Standalone)
-- `npm run start` : Run production version
-- `npm run lint` : Run ESLint checks
-- `npm run test` : Run tests in watch mode
-- `npm run test:ui` : Run tests with UI interface
-- `npm run test:run` : Run tests once (CI mode)
-- `npm run test:coverage` : Run tests with coverage report
+## 🔄 Technical Architecture
 
-## 🧪 Testing
+### Hybrid Hydration Strategy
+To avoid SEO issues and hydration mismatches, we use a hybrid approach:
+1. **Server Rendering (SEO)**: Server Components fetch initial data and pre-translate labels (breadcrumbs, titles).
+2. **Client Hydration**: Client Components receive this data as props to ensure the first render matches the server exactly.
+3. **Freshness**: The `useClientSideFetch` hook automatically refreshes the data on the client side to show updates since the last ISR generation.
 
-This project uses [Vitest](https://vitest.dev/) for unit testing.
+### MathJax & LaTeX
+LaTeX is rendered safely using a custom `MathJax` wrapper. It prevents hydration mismatches by delaying complex parsing until the component is fully mounted on the client.
 
-### Running Tests
-
-```bash
-# Run tests in watch mode
-npm run test
-```
-
-## 🔄 Multi-Tenant Architecture
-
-This application uses a multi-tenant architecture where a single Next.js instance serves multiple journals.
-
-- **Middleware**: `src/middleware.ts` intercepts requests and maps the hostname (e.g., `journal.episciences.org`) to a journal code (e.g., `journal`).
-- **Dynamic Routing**: The rewritten URL points to `/sites/[journalId]/[lang]/...`.
-- **ISR**: Pages are cached and revalidated on demand or after a timeout, ensuring performance similar to static sites with the flexibility of a dynamic server.
+### State Management
+- **Redux Toolkit**: Used for global UI state (language, journal info).
+- **ISR**: Pages are cached for 1 hour (`revalidate = 3600`) to ensure high performance.
 
 ## 🚀 Production Deployment
 
@@ -100,7 +110,6 @@ This creates a `.next/standalone` directory containing everything needed to run 
 ```bash
 node .next/standalone/server.js
 ```
-Ensure `public` and `.next/static` are correctly copied if moving the standalone folder (automatically handled by the build process usually, but check Dockerfile).
 
 ### Docker
 A `Dockerfile` is provided for containerized deployment.
@@ -111,5 +120,5 @@ docker run -p 3000:3000 episciences-front
 ```
 
 ## 🤝 Contributing
-Please follow the code conventions and migration rules defined in the documentation files.
- 
+Please follow the code conventions and migration rules defined in the documentation files (`CLAUDE.md` / `GEMINI.md`).
+ 3. Use `git add <file>` specifically. NEVER use `git add .` or `git add -A`.
