@@ -4,6 +4,9 @@ import HeaderServer from '@/components/Header/HeaderServer';
 import HeaderClientWrapper from '@/components/Header/HeaderClientWrapper';
 import FooterServer from '@/components/Footer/FooterServer';
 import ToastContainerWrapper from '@/components/ToastContainerWrapper/ToastContainerWrapper';
+import ClientProviders from '@/components/ClientProviders/ClientProviders';
+import { fetchVolumes } from '@/services/volume';
+import { getJournalByCode } from '@/services/journal';
 
 interface LanguageLayoutProps {
   children: ReactNode;
@@ -18,8 +21,42 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
   const lang = getLanguageFromParams(params);
   const { journalId } = params;
 
+  // Précharger les données du journal et du dernier volume côté serveur
+  // Note: ces données sont également récupérées dans JournalLayout mais Next.js met en cache les appels fetch
+  let initialVolume = null;
+  let initialJournal = null;
+
+  try {
+    const [volumesData, journalData] = await Promise.all([
+      fetchVolumes({
+        rvcode: journalId,
+        language: lang,
+        page: 1,
+        itemsPerPage: 1,
+        types: [],
+        years: []
+      }),
+      getJournalByCode(journalId)
+    ]);
+
+    if (volumesData.data.length > 0) {
+      initialVolume = volumesData.data[0];
+    }
+    
+    if (journalData) {
+      initialJournal = journalData;
+    }
+  } catch (error) {
+    console.error(`Error preloading data for journal ${journalId} in LanguageLayout:`, error);
+  }
+
   return (
-    <>
+    <ClientProviders 
+      initialVolume={initialVolume} 
+      initialJournal={initialJournal}
+      initialLanguage={lang} 
+      journalId={journalId}
+    >
       <ToastContainerWrapper />
       {/* Header with scroll behavior */}
       <HeaderClientWrapper>
@@ -30,6 +67,6 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
         {children}
       </div>
       <FooterServer lang={lang} journalId={journalId} />
-    </>
+    </ClientProviders>
   );
 }

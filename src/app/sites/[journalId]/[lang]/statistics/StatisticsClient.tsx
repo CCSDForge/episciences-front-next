@@ -24,10 +24,18 @@ import filter from '/public/icons/filter.svg';
 
 interface StatisticsClientProps {
   initialStats?: IStatResponse;
+  lang?: string;
 }
 
-export default function StatisticsClient({ initialStats }: StatisticsClientProps = {}): JSX.Element {
+export default function StatisticsClient({ initialStats, lang }: StatisticsClientProps = {}): JSX.Element {
   const { t, i18n } = useTranslation();
+  
+  // Synchroniser la langue avec le paramètre de l'URL
+  useEffect(() => {
+    if (lang && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang, i18n]);
   const router = useRouter();
 
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
@@ -244,7 +252,7 @@ export default function StatisticsClient({ initialStats }: StatisticsClientProps
     <main className='statistics'>
       <PageTitle title={t('pages.statistics.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.statistics.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.statistics.title')} lang={lang} />
       <div className='statistics-title'>
         <h1 className='statistics-title-text'>{t('pages.statistics.title')}</h1>
         <div className='statistics-title-year'>

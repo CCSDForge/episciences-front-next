@@ -136,7 +136,7 @@ export default function BoardsClient({
     <main className='boards'>
       <PageTitle title={breadcrumbLabels?.boards || t('pages.boards.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.boards || t('pages.boards.title')} />
+      <Breadcrumb parents={[        { path: '/', label: breadcrumbLabels?.home || t('pages.home.title') }      ]} crumbLabel={breadcrumbLabels?.boards || t('pages.boards.title')} lang={lang} />
 
       <div className='boards-title'>
         <h1 className='boards-title-text'>{breadcrumbLabels?.boards || t('pages.boards.title')}</h1>

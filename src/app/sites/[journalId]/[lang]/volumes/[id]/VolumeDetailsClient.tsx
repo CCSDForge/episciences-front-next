@@ -24,6 +24,7 @@ import './VolumeDetails.scss';
 interface VolumeDetailsClientProps {
   initialVolume: IVolume | null;
   initialArticles?: FetchedArticle[];
+  lang?: string;
 }
 
 const MAX_MOBILE_DESCRIPTION_LENGTH = 200;
@@ -31,7 +32,8 @@ const RELATED_VOLUMES = 20;
 
 export default function VolumeDetailsClient({
   initialVolume,
-  initialArticles = []
+  initialArticles = [],
+  lang
 }: VolumeDetailsClientProps): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
@@ -257,7 +259,7 @@ export default function VolumeDetailsClient({
     <main className='volumeDetails'>
       <PageTitle title={`${t('pages.volumeDetails.title')} ${volume?.num}`} />
       
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={`${t('pages.volumeDetails.title')} ${volume?.num}`} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={`${t('pages.volumeDetails.title')} ${volume?.num}`} lang={lang} />
 
       {openedRelatedVolumesMobileModal && (
         <VolumeDetailsMobileModal 

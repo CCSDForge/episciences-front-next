@@ -52,8 +52,14 @@ export default async function AboutPage({ params }: { params: { journalId: strin
 
   
 
-  return <AboutClient initialPage={pageData} />;
+    return <AboutClient initialPage={pageData} lang={params.lang} />;
 
-}
+  
+
+  }
+
+  
+
+  
 
  

@@ -103,7 +103,7 @@ export default function SearchResultCard({ language, rvcode, t, searchResult, to
           {t(articleTypes.find((tag) => tag.value === searchResult.tag)?.labelPath!)}
         </div>
       )}
-      <Link href={`/${PATHS.articles}/${searchResult.id}`}>
+      <Link href={`/${PATHS.articles}/${searchResult.id}`} lang={language}>
         <div className="searchResultCardTitle">
           <MathJax dynamic>{searchResult.title}</MathJax>
         </div>
@@ -137,7 +137,7 @@ export default function SearchResultCard({ language, rvcode, t, searchResult, to
         </div>
         <div className="searchResultCardAnchorIcons">
           {searchResult.pdfLink && (
-            <Link href={`/${PATHS.articles}/${searchResult.id}/download`}>
+            <Link href={`/${PATHS.articles}/${searchResult.id}/download`} lang={language}>
               <div className="searchResultCardAnchorIconsDownload">
                 <img 
                   className="searchResultCardAnchorIconsDownloadIcon" 

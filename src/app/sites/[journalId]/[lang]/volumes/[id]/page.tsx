@@ -61,6 +61,7 @@ export default async function VolumeDetailsPage({
       <VolumeDetailsClient
         initialVolume={volumeData}
         initialArticles={articles}
+        lang={params.lang}
       />
     );
   } catch (error) {

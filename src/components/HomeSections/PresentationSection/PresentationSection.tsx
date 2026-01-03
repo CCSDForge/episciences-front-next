@@ -54,7 +54,7 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
               {truncateText(content, MAX_NEWS_CONTENT_LENGTH)}
             </div>
           )}
-          <Link href={PATHS.news}>
+          <Link href={PATHS.news} lang={language}>
             <div className='presentationSection-new-seeMore'>
               <div className='presentationSection-new-seeMore-text'>{t('common.seeMore')}</div>
               <img className='presentationSection-new-seeMore-icon' src='/icons/caret-right-grey.svg' alt='Caret right icon' />
@@ -86,7 +86,7 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
               {truncateText(description, MAX_NEWS_CONTENT_LENGTH)}
             </div>
           )}
-          <Link href={lastInformation?.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME ? PATHS.volumes : `${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`}>
+          <Link href={lastInformation?.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME ? PATHS.volumes : `${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`} lang={language}>
             <div className='presentationSection-new-seeMore'>
               <div className='presentationSection-new-seeMore-text'>{t('common.seeMore')}</div>
               <img className='presentationSection-new-seeMore-icon' src='/icons/caret-right-grey.svg' alt='Caret right icon' />
@@ -119,7 +119,7 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
           <div className='presentationSection-about-content'>
             <ReactMarkdown>{`${aboutText?.substring(0, MAX_ABOUT_CONTENT_LENGTH) ?? ''}...`}</ReactMarkdown>
           </div>
-          <Link href={PATHS.about}>
+          <Link href={PATHS.about} lang={language}>
             <div className='presentationSection-about-seeMore'>
               <div className='presentationSection-about-seeMore-text'>{t('common.seeMore')}</div>
               <img className='presentationSection-about-seeMore-icon' src='/icons/caret-right-grey.svg' alt='Caret right icon' />

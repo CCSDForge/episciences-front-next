@@ -8,15 +8,16 @@ interface IBreadcrumbProps {
     label: string;
   }[];
   crumbLabel: string;
+  lang?: string;
 }
 
-export default function Breadcrumb({ parents, crumbLabel }: IBreadcrumbProps): JSX.Element {
+export default function Breadcrumb({ parents, crumbLabel, lang }: IBreadcrumbProps): JSX.Element {
   return (
     <div className="breadcrumb">
       {parents.map((parent, index) => (
         <Fragment key={index}>
           <span className="breadcrumb-parent">
-            <Link href={`${parent.path}`}>{parent.label}</Link>
+            <Link href={`${parent.path}`} lang={lang}>{parent.label}</Link>
           </span>
           {' '}
         </Fragment>

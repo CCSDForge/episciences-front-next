@@ -15,6 +15,7 @@ import { setLanguage } from '@/store/features/i18n/i18n.slice';
 import { setCurrentJournal } from '@/store/features/journal/journal.slice';
 import { IVolume } from '@/types/volume';
 import { IJournal } from '@/types/journal';
+import { getLanguageFromPathname } from '@/utils/language-utils';
 
 interface ClientProvidersProps {
   initialVolume?: IVolume | null;
@@ -33,13 +34,7 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initia
   // Detect language immediately, before first render
   const detectedLang = (() => {
     if (typeof window !== 'undefined') {
-      const pathname = window.location.pathname;
-      // Check if pathname starts with /fr/ or /en/
-      if (pathname.startsWith('/fr/') || pathname === '/fr') {
-        return 'fr';
-      } else if (pathname.startsWith('/en/') || pathname === '/en') {
-        return 'en';
-      }
+      return getLanguageFromPathname(window.location.pathname);
     }
     return initialLanguage || 'en';
   })();
@@ -62,7 +57,7 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({ initialVolume, initia
     if (initialJournal) {
       store.dispatch(setCurrentJournal(initialJournal));
     }
-  }, [detectedLang, initialJournal]);
+  }, [detectedLang, initialJournal, initialLanguage]);
 
   return (
     <Provider store={store}>

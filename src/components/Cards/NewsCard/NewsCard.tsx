@@ -90,6 +90,7 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
               <div className="newsCard-content-read newsCard-content-read-full">
                 <Link
                   href={news.link}
+                  lang={language}
                   target="_blank"
                   prefetch={false}
                   onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
@@ -123,59 +124,62 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
             <div className="newsCard-publicationDate newsCard-publicationDate-tile">
               {formatDate(news.publicationDate, language)}
             </div>
-            {news.link && (
-              <div className="newsCard-content-read">
-                <Link
-                  href={news.link}
-                  target="_blank"
-                  prefetch={false}
-                  onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
-                >
-                  <img 
-                    src={externalLink} 
-                    alt="External link icon" 
-                  />
-                  <div className="newsCard-content-read-text">
-                    {t('common.read')}
+                        {news.link && (
+                          <div className="newsCard-content-read">
+                            <Link
+                              href={news.link}
+                              lang={language}
+                              target="_blank"
+                              prefetch={false}
+                              onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
+                            >
+                              <img 
+                                src={externalLink} 
+                                alt="External link icon" 
+                              />
+                              <div className="newsCard-content-read-text">
+                                {t('common.read')}
+                              </div>
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div id={cardId()} className="newsCard">
-      <div className="newsCard-publicationDate">
-        {formatDate(news.publicationDate, language)}
-      </div>
-      <div className="newsCard-content">
-        <div className="newsCard-content-title">
-          {news.title[language]}
-        </div>
-        {renderContent()}
-        {news.link && (
-          <div className="newsCard-content-read">
-            <Link
-              href={news.link}
-              target="_blank"
-              prefetch={false}
-              onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
-            >
-              <img 
-                src={externalLink} 
-                alt="External link icon" 
-              />
-              <div className="newsCard-content-read-text">
-                {t('common.read')}
-              </div>
-            </Link>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-} 
+                );
+              }
+            
+              return (
+                <div id={cardId()} className="newsCard">
+                  <div className="newsCard-publicationDate">
+                    {formatDate(news.publicationDate, language)}
+                  </div>
+                  <div className="newsCard-content">
+                    <div className="newsCard-content-title">
+                      {news.title[language]}
+                    </div>
+                    {renderContent()}
+                    {news.link && (
+                      <div className="newsCard-content-read">
+                        <Link
+                          href={news.link}
+                          lang={language}
+                          target="_blank"
+                          prefetch={false}
+                          onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
+                        >
+                          <img 
+                            src={externalLink} 
+                            alt="External link icon" 
+                          />
+                          <div className="newsCard-content-read-text">
+                            {t('common.read')}
+                          </div>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+             

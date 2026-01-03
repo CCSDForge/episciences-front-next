@@ -15,12 +15,14 @@ interface SectionDetailsClientProps {
   section: ISection;
   articles: IArticle[];
   sectionId: string;
+  lang?: string;
 }
 
 function SectionDetailsClientInner({
   section,
   articles,
-  sectionId
+  sectionId,
+  lang
 }: SectionDetailsClientProps): JSX.Element {
   const { t } = useTranslation();
   const language = useAppSelector(state => state.i18nReducer.language);
@@ -42,7 +44,7 @@ function SectionDetailsClientInner({
     <main className='sectionDetails'>
       <PageTitle title={sectionTitle} />
       
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={sectionTitle} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={sectionTitle} lang={lang} />
 
       <div className="sectionDetails-section">
         <div className="sectionDetails-id">
@@ -98,20 +100,8 @@ function SectionDetailsClientInner({
   );
 }
 
-export default function SectionDetailsClient(props: SectionDetailsClientProps): JSX.Element {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (typeof window === 'undefined' || !mounted) {
-    return (
-      <main className='sectionDetails' style={{ minHeight: '100vh' }}>
-        <h1>Loading...</h1>
-      </main>
-    );
-  }
-
-  return <SectionDetailsClientInner {...props} />;
+export default function SectionDetailsClient(props: SectionDetailsClientProps) {
+  return (
+    <SectionDetailsClientInner {...props} />
+  );
 }

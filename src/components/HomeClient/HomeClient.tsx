@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/components/Link/Link';
 import { useTranslation } from 'react-i18next';
 import { HomeData, fetchHomeData } from '@/services/home';
 import { useAppSelector } from '@/hooks/store';
@@ -191,7 +191,7 @@ function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
         <>
           <div className='home-subtitle'>
             <h2>{t('pages.home.blocks.articles.subtitle')}</h2>
-            <Link href={PATHS.articles} prefetch={false}>
+            <Link href={PATHS.articles} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.articles.see')}</div>
                 <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
@@ -213,7 +213,7 @@ function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
         <>
           <div className='home-subtitle'>
             <h2>{t('pages.home.blocks.news.subtitle')}</h2>
-            <Link href={PATHS.news} prefetch={false}>
+            <Link href={PATHS.news} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.news.see')}</div>
                 <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
@@ -227,7 +227,7 @@ function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
         <>
           <div className='home-subtitle'>
             <h2>{t('pages.home.blocks.members.subtitle')}</h2>
-            <Link href={PATHS.boards} prefetch={false}>
+            <Link href={PATHS.boards} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.members.see')}</div>
                 <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
@@ -258,7 +258,7 @@ function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
         <>
           <div className='home-subtitle'>
             <h2>{t('pages.home.blocks.specialIssues.subtitle')}</h2>
-            <Link href={`${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`} prefetch={false}>
+            <Link href={`${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.specialIssues.see')}</div>
                 <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
@@ -277,7 +277,7 @@ function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
         <>
           <div className='home-subtitle'>
             <h2>{t('pages.home.blocks.articlesAccepted.subtitle')}</h2>
-            <Link href={PATHS.articlesAccepted} prefetch={false}>
+            <Link href={PATHS.articlesAccepted} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.articlesAccepted.see')}</div>
                 <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
@@ -299,23 +299,12 @@ function HomeClientInner({ homeData, language }: HomeClientProps): JSX.Element {
   );
 }
 
-// Wrapper component that only renders when mounted
+// Wrapper component
+
 export default function HomeClient(props: HomeClientProps): JSX.Element {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Ensure we're in the browser and component is mounted
-  // This is critical for static export builds
-  if (typeof window === 'undefined' || !mounted) {
-    return (
-      <main className='home' style={{ minHeight: '100vh' }}>
-        <h1 className='home-title'>Loading...</h1>
-      </main>
-    );
-  }
 
   return <HomeClientInner {...props} />;
+
 } 
+
+ 

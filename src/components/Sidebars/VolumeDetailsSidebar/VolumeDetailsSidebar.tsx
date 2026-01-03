@@ -88,13 +88,13 @@ export default function VolumeDetailsSidebar({ language, t, volume, articles = [
       </div>
       <div className='volumeDetailsSidebar-actions'>
         {volume && (
-          <Link href={volume.downloadLink} target='_blank' rel="noopener noreferrer" className='volumeDetailsSidebar-actions-action'>
+          <Link href={volume.downloadLink} target='_blank' rel="noopener noreferrer" className='volumeDetailsSidebar-actions-action' lang={language}>
             <img src='/icons/download-blue.svg' alt='Download icon' />
             <span className='volumeDetailsSidebar-actions-action-text'>{t('pages.volumeDetails.actions.downloadAll')}</span>
           </Link>
         )}
         {renderMetadatas().map((metadata, index) => (
-          <Link key={index} className='volumeDetailsSidebar-actions-action' href={`https://${currentJournal?.code}.episciences.org/public/volumes/${volume?.id}/${metadata.file}`} target='_blank' rel="noopener noreferrer">
+          <Link key={index} className='volumeDetailsSidebar-actions-action' href={`https://${currentJournal?.code}.episciences.org/public/volumes/${volume?.id}/${metadata.file}`} target='_blank' rel="noopener noreferrer" lang={language}>
             <img src='/icons/download-blue.svg' alt='Download icon' />
             <span className='volumeDetailsSidebar-actions-action-text'>{metadata.title && metadata.title[language]}</span>
           </Link>
@@ -109,6 +109,7 @@ export default function VolumeDetailsSidebar({ language, t, volume, articles = [
                 <Link
                   key={index}
                   href={`${PATHS.volumes}/${relatedVolume.id}`}
+                  lang={language}
                   className={`volumeDetailsSidebar-relatedVolumes-volumes-list-volume ${relatedVolume.id === volume?.id && 'volumeDetailsSidebar-relatedVolumes-volumes-list-volume-current'}`}
                 >
                   {relatedVolume.title ? relatedVolume.title[language] : ''}

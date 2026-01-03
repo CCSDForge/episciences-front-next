@@ -27,9 +27,10 @@ interface ICreditsSection {
 
 interface CreditsClientProps {
   creditsPage: any;
+  lang?: string;
 }
 
-export default function CreditsClient({ creditsPage }: CreditsClientProps): JSX.Element {
+export default function CreditsClient({ creditsPage, lang }: CreditsClientProps): JSX.Element {
   const { t } = useTranslation();
 
   const language = useAppSelector(state => state.i18nReducer.language)
@@ -165,7 +166,7 @@ export default function CreditsClient({ creditsPage }: CreditsClientProps): JSX.
     <main className='credits'>
       <PageTitle title={t('pages.credits.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.credits.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.credits.title')} lang={lang} />
       <h1 className='credits-title'>{t('pages.credits.title')}</h1>
       {isLoading ? (
         <Loader />

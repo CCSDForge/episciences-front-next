@@ -30,9 +30,10 @@ interface IAboutSection {
 
 interface AboutClientProps {
   initialPage: IPageData | null;
+  lang?: string;
 }
 
-export default function AboutClient({ initialPage }: AboutClientProps): JSX.Element {
+export default function AboutClient({ initialPage, lang }: AboutClientProps): JSX.Element {
   const { t } = useTranslation();
 
   const language = useAppSelector(state => state.i18nReducer.language)
@@ -191,7 +192,7 @@ export default function AboutClient({ initialPage }: AboutClientProps): JSX.Elem
 
   return (
     <main className='about'>
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.about.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.about.title')} lang={lang} />
       <h1 className='about-title'>{t('pages.about.title')}</h1>
       <div className={`about-content content-transition ${isUpdating ? 'updating' : ''}`}>
         <AboutSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />

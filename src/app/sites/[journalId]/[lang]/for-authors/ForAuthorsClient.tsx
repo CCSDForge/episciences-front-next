@@ -43,12 +43,14 @@ interface ForAuthorsClientProps {
   editorialWorkflowPage: ForAuthorsPage | null;
   ethicalCharterPage: ForAuthorsPage | null;
   prepareSubmissionPage: ForAuthorsPage | null;
+  lang?: string;
 }
 
 export default function ForAuthorsClient({
   editorialWorkflowPage,
   ethicalCharterPage,
-  prepareSubmissionPage
+  prepareSubmissionPage,
+  lang
 }: ForAuthorsClientProps): JSX.Element {
   const { t } = useTranslation();
 
@@ -264,7 +266,7 @@ export default function ForAuthorsClient({
 
   return (
     <main className='forAuthors'>
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.forAuthors.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.forAuthors.title')} lang={lang} />
       <h1 className='forAuthors-title'>{t('pages.forAuthors.title')}</h1>
       {isLoading ? (
         <Loader />

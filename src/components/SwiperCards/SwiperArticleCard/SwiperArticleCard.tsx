@@ -27,7 +27,7 @@ export default function SwiperArticleCard({ language, t, article }: ISwiperArtic
   return (
     <div className='swiperArticleCard'>
       {article?.tag && <div className='swiperArticleCard-tag'>{t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}</div>}
-      <Link href={`${PATHS.articles}/${article?.id}`}>
+      <Link href={`${PATHS.articles}/${article?.id}`} lang={language}>
         <div className='swiperArticleCard-title'>
           <MathJax dynamic>{article?.title}</MathJax>
         </div>

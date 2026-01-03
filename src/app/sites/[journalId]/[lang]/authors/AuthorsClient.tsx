@@ -252,7 +252,7 @@ export default function AuthorsClient({
     <main className='authors'>
       <PageTitle title={breadcrumbLabels?.authors || t('pages.authors.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.authors || t('pages.authors.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.authors || t('pages.authors.title')} lang={lang} />
       <h1 className='authors-title'>{breadcrumbLabels?.authors || t('pages.authors.title')}</h1>
       {getAuthorsCount()}
       <div className='authors-filters'>

@@ -226,6 +226,7 @@ export default function ArticleDetailsServer({
           }
         ]}
         crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''}
+        lang={language}
       />
 
       <div className="articleDetails-content">

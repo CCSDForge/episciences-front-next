@@ -334,7 +334,7 @@ export default function VolumesClient({
     <main className='volumes'>
       <PageTitle title={t('pages.volumes.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.volumes.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.volumes.title')} lang={lang} />
       <div className='volumes-title'>
         <h1 className='volumes-title-text'>{t('pages.volumes.title')}</h1>
         <div className='volumes-title-count'>

@@ -123,7 +123,7 @@ export default function SectionsClient({
     <main className='sections'>
       <PageTitle title={t('pages.sections.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.sections.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.sections.title')} lang={lang} />
       <div className='sections-title'>
         <h1 className='sections-title-text'>{t('pages.sections.title')}</h1>
         <div className='sections-title-count'>

@@ -43,7 +43,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal }
     }
 
     return (
-      <Link href={volumeDetailPath} prefetch={false} className='volumeCard-tile-text-volume'>
+      <Link href={volumeDetailPath} prefetch={false} lang={language} className='volumeCard-tile-text-volume'>
         {`${text} ${volume.num}`}
       </Link>
     );
@@ -66,6 +66,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal }
       <Link 
         href={volumeDetailPath} 
         prefetch={false}
+        lang={language}
         className={`volumeCard-content-num ${isMobile && 'volumeCard-content-num-mobile'}`}
       >
         {`${text} ${volume.num}`}
@@ -77,11 +78,11 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal }
     return (
       <div className='volumeCard volumeCard-tile'>
         {volume.tileImageURL ? (
-          <Link href={volumeDetailPath} prefetch={false}>
+          <Link href={volumeDetailPath} prefetch={false} lang={language}>
             <img className='volumeCard-tile-img' src={volume.tileImageURL} alt='Volume tile' />
           </Link>
         ) : (
-          <Link href={volumeDetailPath} prefetch={false} className="volumeCard-tile-template">
+          <Link href={volumeDetailPath} prefetch={false} lang={language} className="volumeCard-tile-template">
             <div className="volumeCard-tile-template-jpe">{currentJournal?.code.toUpperCase()}</div>
             <div className="volumeCard-tile-template-volume">{t('common.volumeCard.volume')}</div>
             {volume.types && volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE) && (
@@ -93,7 +94,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal }
         )}
         <div className="volumeCard-tile-text">
           {renderVolumeTileNum()}
-          <Link href={volumeDetailPath} prefetch={false} className="volumeCard-tile-text-title">
+          <Link href={volumeDetailPath} prefetch={false} lang={language} className="volumeCard-tile-text-title">
             {volume.title ? volume.title[language] : ''}
           </Link>
           <div className="volumeCard-tile-text-year">{volume.year}</div>
@@ -102,7 +103,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal }
             <div className="volumeCard-tile-text-count-text">{volume.articles.length > 1 ? `${volume.articles.length} ${t('common.articles')}`: `${volume.articles.length} ${t('common.article')}`}</div>
           </div>
           {volume.downloadLink && (
-            <Link href={volume.downloadLink} target='_blank' className="volumeCard-tile-text-download">
+            <Link href={volume.downloadLink} target='_blank' lang={language} className="volumeCard-tile-text-download">
               <img className="volumeCard-tile-text-download-icon" src="/icons/download-red.svg" alt='Download icon' />
               <div className="volumeCard-tile-text-download-text">{t('common.pdf')}</div>
             </Link>
@@ -124,7 +125,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal }
       </div>
       <div className='volumeCard-content'>
         {renderVolumeListNum(false)}
-        <Link href={volumeDetailPath} prefetch={false} className='volumeCard-content-title'>
+        <Link href={volumeDetailPath} prefetch={false} lang={language} className='volumeCard-content-title'>
           {volume.title ? volume.title[language] : ''}
         </Link>
         {volume.committee && volume.committee.length > 0 && (
@@ -148,7 +149,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal }
           </div>
         )}
         {volume.downloadLink && (
-          <Link href={volume.downloadLink} target='_blank' className="volumeCard-content-download">
+          <Link href={volume.downloadLink} target='_blank' lang={language} className="volumeCard-content-download">
             <img className="volumeCard-content-download-icon" src="/icons/download-red.svg" alt='Download icon' />
             <div className="volumeCard-content-download-text">{t('common.pdf')}</div>
           </Link>

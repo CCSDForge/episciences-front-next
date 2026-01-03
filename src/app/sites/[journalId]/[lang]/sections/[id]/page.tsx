@@ -85,6 +85,7 @@ export default async function SectionDetailsPage({
         section={section}
         articles={articles}
         sectionId={params.id}
+        lang={params.lang}
       />
     );
   } catch (error) {

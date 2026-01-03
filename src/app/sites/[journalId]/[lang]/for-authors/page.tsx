@@ -11,24 +11,46 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function ForAuthorsPage({ params }: { params: { journalId: string } }) {
-  const { journalId } = params;
+export default async function ForAuthorsPage({ params }: { params: { journalId: string; lang: string } }) {
+
+  const { journalId, lang } = params;
+
+
 
   if (!journalId) {
+
     throw new Error('journalId is not defined');
+
   }
 
+
+
   const [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage] = await Promise.all([
+
     fetchEditorialWorkflowPage(journalId),
+
     fetchEthicalCharterPage(journalId),
+
     fetchPrepareSubmissionPage(journalId)
+
   ]);
 
+
+
   return (
+
     <ForAuthorsClient
+
       editorialWorkflowPage={editorialWorkflowPage}
+
       ethicalCharterPage={ethicalCharterPage}
+
       prepareSubmissionPage={prepareSubmissionPage}
+
+      lang={lang}
+
     />
+
   );
+
 }

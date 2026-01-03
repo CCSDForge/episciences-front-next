@@ -25,6 +25,6 @@ export default async function NewsPage({ params }: Props) {
     console.error('Error fetching news:', error);
   }
 
-  return <NewsClient initialNews={newsData} />;
+  return <NewsClient initialNews={newsData} lang={params.lang} />;
 }
  

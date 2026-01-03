@@ -33,7 +33,7 @@ export default function SwiperBoardCard({ language, t, member }: ISwiperBoardCar
           <div className='swiperBoardCard-person-title-name'>
             <div className='swiperBoardCard-person-title-name-text'>{member.firstname} {member.lastname}</div>
             {member.orcid && member.orcid.length > 0 && (
-              <Link href={`${process.env.NEXT_PUBLIC_ORCID_HOMEPAGE}/${member.orcid}`} title={member.orcid} target='_blank' rel="noopener noreferrer" onClick={(e:any) => e.stopPropagation()}>
+              <Link href={`${process.env.NEXT_PUBLIC_ORCID_HOMEPAGE}/${member.orcid}`} title={member.orcid} target='_blank' rel="noopener noreferrer" onClick={(e:any) => e.stopPropagation()} lang={language}>
                 <img className='swiperBoardCard-person-title-name-orcid' src={orcid} alt='Orcid icon' />
               </Link>
             )}

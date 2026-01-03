@@ -541,7 +541,7 @@ export default function SearchClient({
             ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
             : `${t('pages.home.title')} > ${t('common.content')} >` 
         }
-      ]} crumbLabel={breadcrumbLabels?.search || t('pages.search.title')} />
+      ]} crumbLabel={breadcrumbLabels?.search || t('pages.search.title')} lang={lang} />
       <div className='articles-title'>
         <h1 className='articles-title-text'>{breadcrumbLabels?.search || t('pages.search.title')}</h1>
         <div className='articles-title-count'>

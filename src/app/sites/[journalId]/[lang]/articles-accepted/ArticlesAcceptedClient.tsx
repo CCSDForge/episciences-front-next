@@ -221,7 +221,7 @@ export default function ArticlesAcceptedClient({ initialArticles, initialRange, 
     <main className='articlesAccepted'>
       <PageTitle title={t('pages.articlesAccepted.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.articlesAccepted.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.articlesAccepted.title')} lang={lang} />
       <div className='articlesAccepted-title'>
         <h1 className='articlesAccepted-title-text'>{t('pages.articlesAccepted.title')}</h1>
         <div className='articlesAccepted-title-count'>

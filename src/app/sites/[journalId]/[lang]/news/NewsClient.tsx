@@ -28,9 +28,10 @@ interface NewsClientProps {
     totalItems: number;
     range?: Range;
   } | null;
+  lang?: string;
 }
 
-export default function NewsClient({ initialNews }: NewsClientProps): JSX.Element {
+export default function NewsClient({ initialNews, lang }: NewsClientProps): JSX.Element {
   const { t } = useTranslation();
 
   const NEWS_PER_PAGE = 10;
@@ -122,7 +123,7 @@ export default function NewsClient({ initialNews }: NewsClientProps): JSX.Elemen
     <main className='news'>
       <PageTitle title={t('pages.news.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.news.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={t('pages.news.title')} lang={lang} />
       <div className='news-title'>
         <h1>{t('pages.news.title')}</h1>
         <div className='news-title-icons'>

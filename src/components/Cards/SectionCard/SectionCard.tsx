@@ -23,7 +23,7 @@ export default function SectionCard({ language, t, section }: ISectionCardProps)
   return (
     <div className='sectionCard'>
       <div className='sectionCard-title'>
-        <Link href={`${PATHS.sections}/${section.id}`}>
+        <Link href={`${PATHS.sections}/${section.id}`} lang={language}>
           <div className='sectionCard-title-text'>{section.title ? section.title[language] : ''}</div>
         </Link>
         <div className='sectionCard-title-count'>{section.articles.length > 1 ? `${section.articles.length} ${t('common.articles')}`: `${section.articles.length} ${t('common.article')}`}</div>

@@ -99,7 +99,7 @@ export default function ArticleCard({ language, rvcode, t, article, toggleAbstra
           {t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}
         </div>
       )}
-      <Link href={getArticlePath()} className="articleCard-title" style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
+      <Link href={getArticlePath()} lang={language} className="articleCard-title" style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
         <MathJax dynamic>{article.title}</MathJax>
       </Link>
       <div className="articleCard-authors">
@@ -131,7 +131,7 @@ export default function ArticleCard({ language, rvcode, t, article, toggleAbstra
         </div>
         <div className="articleCard-anchor-icons">
           {article.pdfLink && (
-            <Link href={`${PATHS.articles}/${article.id}/download`} target="_blank" rel="noopener noreferrer">
+            <Link href={`${PATHS.articles}/${article.id}/download`} lang={language} target="_blank" rel="noopener noreferrer">
               <div className="articleCard-anchor-icons-download">
                 <img
                   className="articleCard-anchor-icons-download-icon"

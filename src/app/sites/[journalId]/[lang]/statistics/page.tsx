@@ -11,7 +11,10 @@ export const metadata: Metadata = {
   description: 'Statistiques de la revue',
 };
 
-export default function StatisticsPage() {
-  return <StatisticsClient />;
-} 
- 
+type Props = {
+  params: { journalId: string; lang: string };
+};
+
+export default function StatisticsPage({ params }: Props) {
+  return <StatisticsClient lang={params.lang} />;
+}

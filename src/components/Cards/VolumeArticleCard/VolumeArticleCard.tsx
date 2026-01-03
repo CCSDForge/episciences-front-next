@@ -25,7 +25,7 @@ export default function VolumeArticleCard({ language, t, article }: IVolumeArtic
 
   const navigateToArticle = () => {
     const path = `${PATHS.articles}/${article.id}`.replace(/^\//, '');
-    router.push(`/${path}`);
+    router.push(`/${language}/${path}`);
   };
 
   const toggleAbstract = (): void => setOpenedAbstract(!openedAbstract);
@@ -61,7 +61,7 @@ export default function VolumeArticleCard({ language, t, article }: IVolumeArtic
         </div>
         <div className="volumeArticleCard-anchor-icons">
           {article.pdfLink && (
-            <Link href={`${PATHS.articles}/${article.id}/download`} target="_blank" rel="noopener noreferrer">
+            <Link href={`${PATHS.articles}/${article.id}/download`} lang={language} target="_blank" rel="noopener noreferrer">
               <div className="volumeArticleCard-anchor-icons-download">
                 <img
                   className="volumeArticleCard-anchor-icons-download-icon"

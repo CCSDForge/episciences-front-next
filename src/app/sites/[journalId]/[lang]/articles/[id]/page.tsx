@@ -221,23 +221,27 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
 
         // Fallback to client component if no article data
 
-        return (
+                return (
 
-          <ArticleDetailsClient
+                  <ArticleDetailsClient
 
-            article={null}
+                    article={null}
 
-            id={id}
+                    id={id}
 
-            initialRelatedVolume={relatedVolume}
+                    initialRelatedVolume={relatedVolume}
 
-            initialMetadataCSL={metadataCSL}
+                    initialMetadataCSL={metadataCSL}
 
-            initialMetadataBibTeX={metadataBibTeX}
+                    initialMetadataBibTeX={metadataBibTeX}
 
-          />
+                    lang={language}
 
-        );
+                  />
+
+                );
+
+        
 
       } catch (error) {
 

@@ -34,6 +34,7 @@ interface ArticleDetailsClientProps {
   initialRelatedVolume?: IVolume | null;
   initialMetadataCSL?: string | null;
   initialMetadataBibTeX?: string | null;
+  lang?: string;
 }
 
 interface EnhancedArticleAuthor extends IArticleAuthor {
@@ -57,7 +58,8 @@ export default function ArticleDetailsClient({
   id, 
   initialRelatedVolume,
   initialMetadataCSL,
-  initialMetadataBibTeX 
+  initialMetadataBibTeX,
+  lang
 }: ArticleDetailsClientProps): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
@@ -354,6 +356,7 @@ export default function ArticleDetailsClient({
           { path: BREADCRUMB_PATHS.articles, label: `${t('pages.articles.title')} >` }
         ]}
         crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''}
+        lang={lang}
       />
       {isLoading ? (
         <Loader />

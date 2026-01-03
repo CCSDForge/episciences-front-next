@@ -351,7 +351,7 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
     <main className='articles'>
       <PageTitle title={breadcrumbLabels?.articles || t('pages.articles.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.articles || t('pages.articles.title')} />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.articles || t('pages.articles.title')} lang={lang} />
 
       <div className='articles-title'>
         <h1 className='articles-title-text'>{breadcrumbLabels?.articles || t('pages.articles.title')}</h1>
