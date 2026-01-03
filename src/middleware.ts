@@ -53,12 +53,13 @@ export function middleware(request: NextRequest) {
   }
 
   // 3. Réécriture Multi-tenant interne
-  // On réécrit vers /_sites/[journalId]/[lang]/...
+  // On réécrit vers /sites/[journalId]/[lang]/...
   const pathWithoutLang = removeLanguagePrefix(pathname);
   const targetLang = hasPrefix ? currentLang : defaultLanguage;
   
   // Construction du chemin interne
-  const internalPath = `/_sites/${journalId}/${targetLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
+  // NOTE: On utilise 'sites' et non '_sites' car les dossiers commençant par _ sont privés dans Next.js
+  const internalPath = `/sites/${journalId}/${targetLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
   
   console.log(`[Middleware] Rewriting to: ${internalPath}`);
   

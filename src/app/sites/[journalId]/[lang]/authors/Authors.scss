@@ -1,0 +1,80 @@
+@use "@/styles/breakpoints.scss" as breakpoints;
+
+.authors {
+  &-title {
+    @media (max-width: breakpoints.$sm) {
+      margin-bottom: 15px;
+    }
+  }
+
+  &-count {
+    color: var(--grey);
+    font-size: 21px;
+    font-weight: 300;
+    margin-bottom: 30px;
+  }
+
+  &-filters {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0px 0px 15px 320px;
+    padding-bottom: 28px;
+
+    @media (max-width: breakpoints.$xsm) {
+      margin: 0px;
+    }
+
+    &-tags {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      &-clear {
+        height: 32px;
+        align-content: center;
+        font-size: 14px;
+        color: var(--primary);
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+  }
+
+  &-content {
+    display: flex;
+    gap: 10px;
+
+    @media (max-width: breakpoints.$xsm) {
+      flex-direction: column;
+    }
+
+    &-loader {
+      position: relative;
+      margin-top: 40px;
+    }
+
+    &-results {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+
+      &-paginationTop {
+        height: 62px;
+        border-bottom: 1px solid var(--primary);
+      }
+
+      &-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        margin: 28px 0px 15px 0px;
+      }
+
+      &-paginationBottom {
+        margin-top: 50px;
+      }
+    }
+  }
+} 

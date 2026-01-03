@@ -1,0 +1,100 @@
+@use "@/styles/breakpoints.scss" as breakpoints;
+
+.news {
+  &-title {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 35px;
+
+    &-icons {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 30px;
+
+      &-icon {
+        cursor: pointer;
+
+        &-row, &-row-red {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+        }
+
+        &-row {
+          color: var(--grey);
+          
+          &-red {
+            color: var(--primary);
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+
+  &-filtersMobile {
+    display: none;
+
+    @media (max-width: breakpoints.$xsm) {
+      color: var(--primary);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    &-tile {
+      @media (max-width: breakpoints.$xsm) {
+        display: flex;
+        gap: 4px;
+        font-size: 14px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid var(--primary);
+        cursor: pointer;
+      }
+    }
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+
+    &-results {
+      display: flex;
+      margin-bottom: 150px;
+
+      &-cards {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding-left: 60px;
+        margin-top: 30px;
+
+        @media (max-width: breakpoints.$xsm) {
+          flex-direction: column;
+          padding-left: 0px;
+        }
+
+        &-grid {
+          display: grid;
+          gap: 15px;
+          grid-template-columns: repeat(3, 1fr);
+
+          @media (max-width: breakpoints.$sm) {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          @media (max-width: breakpoints.$xsm) {
+            display: flex;
+            flex-direction: column;
+            padding-left: 0px;
+          }
+        }
+      }
+    }
+  }
+} 

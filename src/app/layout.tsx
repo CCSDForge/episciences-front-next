@@ -29,7 +29,7 @@ export default async function RootLayout({
         <base href="/" />
       </head>
       <body>
-        {/* The JournalLayout at /_sites/[journalId]/layout.tsx will provide ClientProviders */}
+        {/* The JournalLayout at /sites/[journalId]/layout.tsx will provide ClientProviders */}
         {children}
       </body>
     </html>
