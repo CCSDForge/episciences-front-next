@@ -9,19 +9,22 @@ const logoSmall = '/logos/logo-small.svg';
 
 interface FooterServerProps {
   lang?: string;
+  journalId?: string;
 }
 
-export default async function FooterServer({ lang = 'en' }: FooterServerProps): Promise<JSX.Element> {
-  const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'journal';
+export default async function FooterServer({ lang = 'en', journalId }: FooterServerProps): Promise<JSX.Element> {
+  const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'journal';
   const apiEndpoint = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api.episciences.org/api';
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 
   // Fetch journal data
   let journal;
   try {
-    journal = await getJournalByCode(rvcode);
+    if (rvcode) {
+      journal = await getJournalByCode(rvcode);
+    }
   } catch (error) {
-    console.error('Failed to fetch journal data for footer:', error);
+    console.error(`Failed to fetch journal data for footer (${rvcode}):`, error);
   }
 
   // Extract journal-specific information

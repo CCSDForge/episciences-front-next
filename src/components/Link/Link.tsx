@@ -29,6 +29,10 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
   href,
   children,
   lang,
+  prefetch,
+  scroll,
+  replace,
+  shallow,
   ...props
 }, ref) {
   const { i18n } = useTranslation();
@@ -53,7 +57,15 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
   }
 
   return (
-    <NextLink ref={ref} href={finalHref} {...props}>
+    <NextLink 
+      ref={ref} 
+      href={finalHref} 
+      prefetch={prefetch}
+      scroll={scroll}
+      replace={replace}
+      shallow={shallow}
+      {...props}
+    >
       {children}
     </NextLink>
   );
