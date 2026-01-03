@@ -10,7 +10,8 @@ import {
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl;
-  const hostname = request.headers.get('host') || '';
+  // Utiliser nextUrl.hostname qui ne contient pas le port
+  const hostname = request.nextUrl.hostname;
   const pathname = url.pathname;
 
   // Ignorer les fichiers statiques avec extensions
@@ -20,16 +21,21 @@ export function middleware(request: NextRequest) {
   }
 
   // 1. Détection du Journal (Multi-tenancy)
-  // Logique de mapping : epijinfo.episciences.org -> epijinfo
-  // En local : epijinfo.localhost:3000 -> epijinfo
-  let journalId = '';
+  let journalId = 'epijinfo'; // Fallback par défaut
+
   if (hostname.includes('episciences.org')) {
+    // prod: epijinfo.episciences.org -> epijinfo
     journalId = hostname.split('.')[0];
-  } else if (hostname.includes('localhost')) {
-    // Permet de tester en local avec journal.localhost:3000
-    journalId = hostname.split('.')[0];
-    // Si c'est juste localhost:3000, on peut mettre un journal par défaut pour le dev
-    if (journalId === 'localhost' || journalId === '127') journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
+  } else {
+    // localhost ou dev
+    // Si on accède via epijinfo.localhost -> epijinfo
+    // Si on accède via localhost -> utiliser la variable d'env ou fallback
+    const subdomain = hostname.split('.')[0];
+    if (subdomain !== 'localhost' && !Number.isInteger(Number(subdomain))) {
+       journalId = subdomain;
+    } else {
+       journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
+    }
   }
 
   // 2. Gestion des langues (votre logique existante)
