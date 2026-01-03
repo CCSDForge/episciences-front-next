@@ -36,14 +36,13 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
   useEffect(() => {
     // Si nous avons les données du journal, les stocker dans Redux
     if (journal && !isLoading) {
-      dispatch(setCurrentJournal(journal));
+      // Eviter les mises à jour infinies si l'objet journal n'est pas stable référentiellement
+      // On compare l'ID ou le code pour savoir si c'est vraiment un changement
+      if (!currentJournal || currentJournal.code !== journal.code) {
+        dispatch(setCurrentJournal(journal));
+      }
     }
-    // Si nous sommes en build statique et n'avons pas de données, utiliser un fallback
-    else if (typeof window === 'undefined' && !journal && !isLoading) {
-      // Utiliser le journal par défaut pour le build statique
-      dispatch(setCurrentJournal(createDefaultJournal()));
-    }
-  }, [journal, dispatch, isLoading]);
+  }, [journal, dispatch, isLoading, currentJournal]);
 
   // Gérer les erreurs de récupération du journal
   useEffect(() => {
