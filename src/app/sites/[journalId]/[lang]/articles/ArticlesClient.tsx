@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
@@ -72,8 +72,9 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
   const [isLoading, setIsLoading] = useState(false);
   const [totalArticlesCount, setTotalArticlesCount] = useState<number>(0);
 
-  const getSelectedTypes = (): string[] => types.filter(t => t.isChecked).map(t => t.value);
-  const getSelectedYears = (): number[] => years.filter(y => y.isChecked).map(y => y.year);
+  // Memoize filters to prevent re-renders
+  const selectedTypes = useMemo(() => types.filter(t => t.isChecked).map(t => t.value), [types]);
+  const selectedYears = useMemo(() => years.filter(y => y.isChecked).map(y => y.year), [years]);
 
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
 
@@ -82,8 +83,8 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
       rvcode: rvcode!, 
       page: currentPage, 
       itemsPerPage: ARTICLES_PER_PAGE, 
-      types: getSelectedTypes(), 
-      years: getSelectedYears() 
+      types: selectedTypes, 
+      years: selectedYears 
     }, 
     { 
       skip: !rvcode || isStaticBuild, 
@@ -98,7 +99,7 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
     if (!isNaN(pageNumber) && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
     }
-  }, [searchParams]);
+  }, [searchParams, currentPage]);
 
   useEffect(() => {
     // En mode statique uniquement : filtrage et pagination côté client
@@ -106,19 +107,20 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
       const initialData = Array.isArray(initialArticles.data) ? initialArticles.data : [];
 
       let filteredData = initialData;
-      const selectedTypes = types.filter(t => t.isChecked).map(t => t.value);
-      const selectedYears = years.filter(y => y.isChecked).map(y => y.year);
+      // Use memoized values inside effect? No, we need types and years to be reactive
+      const currentSelectedTypes = types.filter(t => t.isChecked).map(t => t.value);
+      const currentSelectedYears = years.filter(y => y.isChecked).map(y => y.year);
 
-      if (selectedTypes.length > 0) {
+      if (currentSelectedTypes.length > 0) {
         filteredData = filteredData.filter((article: any) =>
-          selectedTypes.includes(article.tag || '')
+          currentSelectedTypes.includes(article.tag || '')
         );
       }
 
-      if (selectedYears.length > 0) {
+      if (currentSelectedYears.length > 0) {
         filteredData = filteredData.filter((article: any) => {
           const articleYear = new Date(article.publicationDate).getFullYear();
-          return selectedYears.includes(articleYear);
+          return currentSelectedYears.includes(articleYear);
         });
       }
 
@@ -148,7 +150,7 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
       setTotalArticlesCount(articles.totalItems || 0);
       setEnhancedArticles(displayedArticles as EnhancedArticle[]);
     }
-  }, [isStaticBuild, articles, articles?.data]);
+  }, [isStaticBuild, articles]);
 
   useEffect(() => {
     if (initialArticles?.data && types.length === 0) {
@@ -195,7 +197,7 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
     }
   }, [initialArticles, years]);
 
-  const handlePageClick = (selectedItem: { selected: number }): void => {
+  const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
     if (pathname) {
       router.push(`${pathname}?page=${newPage}`);
@@ -203,7 +205,7 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
     setCurrentPage(newPage);
     // Scroll vers le haut de la page
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [pathname, router]);
 
   const onCheckType = (value: string): void => {
     const updatedTypes = types.map((t) => {
@@ -425,4 +427,4 @@ export default function ArticlesClient({ initialArticles, lang }: ArticlesClient
       </div>
     </main>
   );
-} 
+}
