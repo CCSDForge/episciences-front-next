@@ -1,49 +1,46 @@
-FROM httpd:2.4
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Install required utilities
-RUN apt-get update && \
-    apt-get install -y \
-    apache2-utils \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Stage 2: Builder
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# Enable required Apache modules
-RUN sed -i \
-    -e 's/^#\(LoadModule rewrite_module .*\)/\1/' \
-    -e 's/^#\(LoadModule expires_module .*\)/\1/' \
-    -e 's/^#\(LoadModule headers_module .*\)/\1/' \
-    -e 's/^#\(LoadModule remoteip_module .*\)/\1/' \
-    -e 's/^#\(LoadModule macro_module .*\)/\1/' \
-    -e 's/^#\(LoadModule setenvif_module .*\)/\1/' \
-    -e 's/^#\(LoadModule alias_module .*\)/\1/' \
-    /usr/local/apache2/conf/httpd.conf
+# Disable static export for the multi-tenant build
+ENV NEXT_PUBLIC_STATIC_BUILD=false
+# Skip linting and type checking during build for speed (optional)
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Enable VirtualHosts configuration
-RUN echo "" >> /usr/local/apache2/conf/httpd.conf && \
-    echo "# Include virtual hosts configuration" >> /usr/local/apache2/conf/httpd.conf && \
-    echo "Include conf/extra/httpd-vhosts.conf" >> /usr/local/apache2/conf/httpd.conf
+RUN npm run build
 
-# Create directory structure simulating production environment
-RUN mkdir -p /sites/episciences-front/dist \
-    /sites/conf/episciences-front \
-    /data/epi/test \
-    /data/user_photo/test/uuid
+# Stage 3: Runner
+FROM node:20-alpine AS runner
+WORKDIR /app
 
-# Copy Apache configurations
-COPY docker/apache-config/episciences-macro.conf /usr/local/apache2/conf/extra/
-COPY docker/apache-config/episciences-hosts.conf /sites/conf/episciences-front/episciences-front-hosts.cnf
-COPY docker/apache-config/httpd-vhosts.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Copy mock data
-COPY docker/mock-data/ /data/
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Copy entrypoint script
-COPY docker/docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+COPY --from=builder /app/public ./public
 
-# Set proper permissions
-RUN chown -R www-data:www-data /data /sites
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-EXPOSE 80
+USER nextjs
 
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+EXPOSE 3000
+
+ENV PORT 3000
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "server.js"]
