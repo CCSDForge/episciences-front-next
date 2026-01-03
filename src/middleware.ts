@@ -43,14 +43,8 @@ export function middleware(request: NextRequest) {
   const currentLang = getLanguageFromPathname(pathname);
   const hasPrefix = hasLanguagePrefix(pathname);
 
-  // If URL has default language prefix (e.g., /en/about), redirect to path without prefix
-  if (hasPrefix && currentLang === defaultLanguage) {
-    const pathWithoutLang = removeLanguagePrefix(pathname);
-    const redirectUrl = new URL(pathWithoutLang || '/', request.url);
-    redirectUrl.search = url.search;
-    console.log(`[Middleware] Redirecting to remove default lang prefix: ${redirectUrl.toString()}`);
-    return NextResponse.redirect(redirectUrl);
-  }
+  // NOTE: On garde le préfixe même pour la langue par défaut pour le SEO multi-tenant
+  // If URL has default language prefix, WE KEEP IT.
 
   // 3. Réécriture Multi-tenant interne
   // On réécrit vers /sites/[journalId]/[lang]/...

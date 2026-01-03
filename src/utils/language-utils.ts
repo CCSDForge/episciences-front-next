@@ -46,23 +46,29 @@ export function validateLanguage(lang: string): string {
   return acceptedLanguages.includes(lang) ? lang : defaultLanguage;
 }
 
+// Configuration: Always show language prefix for better multi-tenant SEO and robot differentiation
+const ALWAYS_USE_PREFIX = true;
+
 /**
  * Get a localized path by adding or removing language prefix
  * @param path - The base path (e.g., '/about', '/articles/123')
  * @param lang - Target language code
- * @returns Localized path with or without language prefix
+ * @returns Localized path with language prefix (unless root)
  */
 export function getLocalizedPath(path: string, lang: string): string {
   // Remove any existing language prefix from the path
   const cleanPath = removeLanguagePrefix(path);
 
-  // If target language is default, return path without prefix
-  if (isDefaultLanguage(lang)) {
+  // If we are at root ('/'), we might want to keep it simple or redirect, 
+  // but generally links to specific pages should have the lang.
+  
+  // If explicitly disabled (e.g. for single-lang sites), use old logic
+  if (!ALWAYS_USE_PREFIX && isDefaultLanguage(lang)) {
     return cleanPath;
   }
 
-  // Otherwise, add the language prefix
-  return `/${lang}${cleanPath}`;
+  // Always add the language prefix
+  return `/${lang}${cleanPath === '/' ? '' : cleanPath}`;
 }
 
 /**
