@@ -1,14 +1,10 @@
 'use client';
 
+import { FilterIcon, ListRedIcon, ListGreyIcon, TileRedIcon, TileGreyIcon } from '@/components/icons';
 import { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTranslation } from 'react-i18next';
 
-import filter from '/public/icons/filter.svg';
-import listRed from '/public/icons/list-red.svg';
-import listGrey from '/public/icons/list-grey.svg';
-import tileRed from '/public/icons/tile-red.svg';
-import tileGrey from '/public/icons/tile-grey.svg';
 import { useAppSelector } from "@/hooks/store";
 import { RENDERING_MODE } from '@/utils/card';
 import { volumeTypes } from '@/utils/volume';
@@ -366,13 +362,21 @@ export default function VolumesClient({
           <div className='volumes-title-count-icons'>
             <div className='volumes-title-count-icons-icon' onClick={(): void => setMode(RENDERING_MODE.TILE)}>
               <div className={`${mode === RENDERING_MODE.TILE ? 'volumes-title-count-icons-icon-row-red' : 'volumes-title-count-icons-icon-row'}`}>
-                <img src={mode === RENDERING_MODE.TILE ? tileRed : tileGrey} alt='Tile icon' />
+                {mode === RENDERING_MODE.TILE ? (
+                  <TileRedIcon size={16} ariaLabel="Tile view" />
+                ) : (
+                  <TileGreyIcon size={16} ariaLabel="Tile view" />
+                )}
                 <span>{t('common.renderingMode.tile')}</span>
               </div>
             </div>
             <div className='volumes-title-count-icons-icon' onClick={(): void => setMode(RENDERING_MODE.LIST)}>
               <div className={`${mode === RENDERING_MODE.LIST ? 'volumes-title-count-icons-icon-row-red' : 'volumes-title-count-icons-icon-row'}`}>
-                <img src={mode === RENDERING_MODE.LIST ? listRed : listGrey} alt='List icon' />
+                {mode === RENDERING_MODE.LIST ? (
+                  <ListRedIcon size={16} ariaLabel="List view" />
+                ) : (
+                  <ListGreyIcon size={16} ariaLabel="List view" />
+                )}
                 <span>{t('common.renderingMode.list')}</span>
               </div>
             </div>
@@ -402,7 +406,7 @@ export default function VolumesClient({
         <div className='volumes-filters volumes-filters-tiles'>
           <div className="volumes-filters-tags">
             <div className="volumes-filters-tags-filterTile" onClick={(): void => toggleFiltersModal()}>
-              <img className="volumes-filters-tags-filterTile-icon" src={filter} alt='List icon' />
+              <FilterIcon size={16} className="volumes-filters-tags-filterTile-icon" ariaLabel="Filters" />
               <div className="volumes-filters-tags-filterTile-text">{taggedFilters.length > 0 ? `${t('common.filters.editFilters')} (${taggedFilters.length})` : `${t('common.filters.filter')}`}</div>
             </div>
             {taggedFilters.map((filter, index) => (
@@ -420,7 +424,7 @@ export default function VolumesClient({
           {getArticlesCount(mode)}
         </div>
         <div className="volumes-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
-          <img className="volumes-filtersMobile-tile-icon" src={filter} alt='List icon' />
+          <FilterIcon size={16} className="volumes-filtersMobile-tile-icon" ariaLabel="Filters" />
           <div className="volumes-filtersMobile-tile-text">{taggedFilters.length > 0 ? `${t('common.filters.editFilters')} (${taggedFilters.length})` : `${t('common.filters.filter')}`}</div>
         </div>
         {openedFiltersMobileModal && <VolumesMobileModal t={t} initialTypes={types} onUpdateTypesCallback={setTypes} initialYears={years} onUpdateYearsCallback={setYears} onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}/>}

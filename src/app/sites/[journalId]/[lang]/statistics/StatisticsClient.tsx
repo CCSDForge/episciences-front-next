@@ -1,5 +1,6 @@
 'use client';
 
+import { CaretUpRedIcon, CaretDownRedIcon, FilterIcon } from '@/components/icons';
 import { useState, useEffect, Fragment, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
@@ -14,13 +15,6 @@ import PieChart from '@/components/Charts/PieChart/PieChart';
 import StatisticsMobileModal from '@/components/Modals/StatisticsMobileModal/StatisticsMobileModal';
 import StatisticsSidebar, { IStatisticsYearSelection } from '@/components/Sidebars/StatisticsSidebar/StatisticsSidebar';
 import { statisticsBlocksConfiguration } from '@/config/statistics';
-
-// import caretUp from '/icons/caret-up-red.svg';
-// import caretDown from '/icons/caret-down-red.svg';
-// import filter from '/icons/filter.svg';
-import caretUp from '/public/icons/caret-up-red.svg';
-import caretDown from '/public/icons/caret-down-red.svg';
-import filter from '/public/icons/filter.svg';
 
 interface StatisticsClientProps {
   initialStats?: IStatResponse;
@@ -290,9 +284,9 @@ export default function StatisticsClient({ initialStats, lang, breadcrumbLabels 
                     <div className="statistics-content-results-cards-row-title" onClick={(): void => toggleStatisticsSection(statisticPerLabel.labelKey)}>
                       <div className="statistics-content-results-cards-row-title-text">{t(statisticPerLabel.labelPath)}</div>
                       {statisticPerLabel.isOpened ? (
-                      <img className='statistics-content-results-cards-row-title-caret' src={caretUp} alt='Caret up icon' />
+                      <CaretUpRedIcon size={16} className='statistics-content-results-cards-row-title-caret' ariaLabel="Collapse section" />
                     ) : (
-                      <img className='statistics-content-results-cards-row-title-caret' src={caretDown} alt='Caret down icon' />
+                      <CaretDownRedIcon size={16} className='statistics-content-results-cards-row-title-caret' ariaLabel="Expand section" />
                     )}
                     </div>
                     <div className={`statistics-content-results-cards-row-stats ${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION && "statistics-content-results-cards-row-stats-evaluation"} ${statisticPerLabel.isOpened && "statistics-content-results-cards-row-stats-active"}`}>

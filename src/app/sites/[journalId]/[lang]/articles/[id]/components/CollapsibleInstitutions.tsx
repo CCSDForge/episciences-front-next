@@ -1,12 +1,9 @@
 "use client";
 
+import { OrcidIcon, RorIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import {useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { IInstitution } from '@/types/article';
-import orcid from '/public/icons/orcid.svg';
-import ror from '/public/icons/ror.svg';
-import caretUpGrey from '/public/icons/caret-up-grey.svg';
-import caretDownGrey from '/public/icons/caret-down-grey.svg';
 
 interface Author {
   fullname: string;
@@ -31,7 +28,7 @@ export default function CollapsibleInstitutions({ authors, institutions, isMobil
           {author.orcid && (
             <Link href={`${author.orcid}`} title={author.orcid} target='_blank' rel="noopener noreferrer">
               {' '}
-              <img className='articleDetails-content-article-authors-author-orcid' src={orcid} alt='Orcid icon' />
+              <OrcidIcon size={16} className='articleDetails-content-article-authors-author-orcid' ariaLabel="ORCID" />
             </Link>
           )}
         </>
@@ -68,10 +65,10 @@ export default function CollapsibleInstitutions({ authors, institutions, isMobil
                 rel="noopener noreferrer"
               >
                 {' '}
-                <img
+                <RorIcon
+                  size={16}
                   className='articleDetails-content-article-institutions-ror'
-                  src={ror}
-                  alt='ROR icon'
+                  ariaLabel="ROR"
                 />
               </Link>
             )}
@@ -87,12 +84,21 @@ export default function CollapsibleInstitutions({ authors, institutions, isMobil
         <>
           <div className={`articleDetails-content-article-authors articleDetails-content-article-authors-withInstitutions ${isMobile && 'articleDetails-content-article-authors-withInstitutions-mobile'}`}>
             <div>{renderAuthors()}</div>
-            <img 
-              className='articleDetails-content-article-authors-withInstitutions-caret' 
-              src={openedInstitutions ? caretUpGrey : caretDownGrey} 
-              alt={openedInstitutions ? 'Caret up icon' : 'Caret down icon'} 
-              onClick={(): void => setOpenedInstitutions(!openedInstitutions)} 
-            />
+            {openedInstitutions ? (
+              <CaretUpGreyIcon
+                size={16}
+                className='articleDetails-content-article-authors-withInstitutions-caret'
+                ariaLabel="Collapse institutions"
+                onClick={(): void => setOpenedInstitutions(!openedInstitutions)}
+              />
+            ) : (
+              <CaretDownGreyIcon
+                size={16}
+                className='articleDetails-content-article-authors-withInstitutions-caret'
+                ariaLabel="Expand institutions"
+                onClick={(): void => setOpenedInstitutions(!openedInstitutions)}
+              />
+            )}
           </div>
           <div className={`articleDetails-content-article-institutions ${isMobile && 'articleDetails-content-article-institutions-mobile'}`}>
             {renderInstitutions()}

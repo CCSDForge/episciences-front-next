@@ -1,13 +1,12 @@
 "use client";
 
+import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import { useRouter } from 'next/navigation';
 import { isMobileOnly } from "react-device-detect";
 
-import caretUpRed from '/public/icons/caret-up-red.svg';
-import caretDownRed from '/public/icons/caret-down-red.svg';
 import { BREADCRUMB_PATHS } from '@/config/paths';
 import { useAppSelector } from "@/hooks/store";
 import { IArticle, IArticleAuthor, IInstitution } from "@/types/article";
@@ -194,9 +193,9 @@ export default function ArticleDetailsClient({
         <div className={`articleDetails-content-article-section-title ${!isOpenedSection && 'articleDetails-content-article-section-closed'}`} onClick={(): void => toggleSection(sectionKey)}>
           <div className='articleDetails-content-article-section-title-text'>{sectionTitle}</div>
           {isOpenedSection ? (
-            <img className='articleDetails-content-article-section-title-caret' src={caretUpRed} alt='Caret up icon' />
+            <CaretUpRedIcon size={16} className='articleDetails-content-article-section-title-caret' ariaLabel="Collapse section" />
           ) : (
-            <img className='articleDetails-content-article-section-title-caret' src={caretDownRed} alt='Caret down icon' />
+            <CaretDownRedIcon size={16} className='articleDetails-content-article-section-title-caret' ariaLabel="Expand section" />
           )}
         </div>
         <div className={`articleDetails-content-article-section-content ${isOpenedSection && 'articleDetails-content-article-section-content-opened'}`}>{sectionContent}</div>

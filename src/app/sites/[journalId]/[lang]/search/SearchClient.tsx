@@ -1,5 +1,6 @@
 'use client';
 
+import { FilterIcon } from '@/components/icons';
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from "next/navigation";
@@ -7,7 +8,6 @@ import PageTitle from '@/components/PageTitle/PageTitle';
 import { fetchSearchResults } from '@/services/search';
 
 // import filter from '/icons/filter.svg';
-import filter from '/public/icons/filter.svg';
 import { PATHS } from "@/config/paths";
 import { useAppSelector } from "@/hooks/store";
 import { FetchedArticle, articleTypes } from '@/utils/article';
@@ -547,7 +547,7 @@ export default function SearchClient({
           )}
           <div className="articles-title-count-filtersMobile">
             <div className="articles-title-count-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
-              <img className="articles-title-count-filtersMobile-tile-icon" src={filter} alt='List icon' />
+              <FilterIcon size={16} className="articles-title-count-filtersMobile-tile-icon" ariaLabel="Filters" />
               <div className="articles-title-count-filtersMobile-tile-text">{taggedFilters.length > 0 ? `${t('common.filters.editFilters')} (${taggedFilters.length})` : `${t('common.filters.filter')}`}</div>
             </div>
             {openedFiltersMobileModal && <SearchResultsMobileModal language={language} t={t} initialTypes={types} onUpdateTypesCallback={setTypes} initialYears={years} onUpdateYearsCallback={setYears} initialVolumes={volumes} onUpdateVolumesCallback={setVolumes} initialSections={sections} onUpdateSectionsCallback={setSections} initialAuthors={authors} onUpdateAuthorsCallback={setAuthors} onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}/>}

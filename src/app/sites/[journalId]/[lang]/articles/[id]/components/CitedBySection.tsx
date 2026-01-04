@@ -1,10 +1,10 @@
 "use client";
 
+import { OrcidIcon } from '@/components/icons';
 import { Fragment, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@/components/Link/Link';
 import { IArticleCitedBy } from '@/types/article';
-import orcid from '/public/icons/orcid.svg';
 
 interface CitedBySectionProps {
   citedBy: IArticleCitedBy[];
@@ -38,7 +38,7 @@ export default function CitedBySection({ citedBy }: CitedBySectionProps): JSX.El
                       {author.orcid && (
                         <Link href={`${process.env.NEXT_PUBLIC_VITE_ORCID_HOMEPAGE}/${author.orcid}`} title={author.orcid} target='_blank' rel="noopener noreferrer">
                           {' '}
-                          <img src={orcid} alt='ORCID icon' />
+                          <OrcidIcon size={16} ariaLabel="ORCID" />
                         </Link>
                       )}
                     </Fragment>

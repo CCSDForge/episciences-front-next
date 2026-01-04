@@ -6,13 +6,23 @@ const nextConfig = {
   
   // Configuration des images
   images: {
-    unoptimized: true,
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'api.episciences.org',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api-preprod.episciences.org',
+        pathname: '/**',
       },
     ],
+    minimumCacheTTL: 5184000, // 60 days
+    dangerouslyAllowSVG: false,
   },
     
   async rewrites() {
@@ -53,15 +63,6 @@ const nextConfig = {
         return loader;
       });
     }
-
-    // Traiter les SVG comme des fichiers statiques
-    config.module.rules.push({
-      test: /\.svg$/,
-      type: 'asset/resource',
-      generator: {
-        filename: 'static/icons/[name][ext]'
-      }
-    });
 
     return config;
   },

@@ -4,7 +4,6 @@ import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { TFunction } from 'i18next';
 
-import caretRight from '/public/icons/caret-right-grey.svg';
 import { HOMEPAGE_LAST_INFORMATION_BLOCK } from '@/config/homepage';
 import { PATHS } from '@/config/paths';
 import { INews } from '@/types/news';

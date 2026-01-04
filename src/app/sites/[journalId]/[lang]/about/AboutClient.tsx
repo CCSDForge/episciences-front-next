@@ -1,12 +1,11 @@
 'use client';
 
+import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
 
-import caretUp from '/public/icons/caret-up-red.svg';
-import caretDown from '/public/icons/caret-down-red.svg';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchAboutPage } from '@/services/about';
@@ -231,7 +230,11 @@ export default function AboutClient({ initialPage, lang, breadcrumbLabels }: Abo
                         {section.value.split('\n')[0]}
                       </ReactMarkdown>
                     </h2>
-                    <img className='about-content-body-section-subtitle-caret' src={section.opened ? caretUp : caretDown} alt='Caret icon' />
+                    {section.opened ? (
+                      <CaretUpRedIcon size={16} className='about-content-body-section-subtitle-caret' ariaLabel="Collapse section" />
+                    ) : (
+                      <CaretDownRedIcon size={16} className='about-content-body-section-subtitle-caret' ariaLabel="Expand section" />
+                    )}
                   </div>
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}

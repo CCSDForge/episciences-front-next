@@ -1,5 +1,6 @@
 'use client';
 
+import { QuoteBlackIcon, ShareIcon, BlueskyIcon, MailIcon, FacebookIcon, TwitterIcon, LinkedinIcon, WhatsappIcon } from '@/components/icons';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
@@ -9,16 +10,6 @@ import { ICitation, METADATA_TYPE, copyToClipboardCitation, getMetadataTypes, ge
 import { fetchArticleMetadata } from '@/services/article';
 import { toast } from 'react-toastify';
 import { useAppSelector } from '@/hooks/store';
-
-// Import des icônes
-import quote from '/public/icons/quote-black.svg';
-import share from '/public/icons/share.svg';
-import bluesky from '/public/icons/bluesky.svg';
-import mail from '/public/icons/mail.svg';
-import facebook from '/public/icons/facebook.svg';
-import twitter from '/public/icons/twitter.svg';
-import linkedin from '/public/icons/linkedin.svg';
-import whatsapp from '/public/icons/whatsapp.svg';
 
 interface InteractiveDropdownProps {
   type: 'cite' | 'metadata' | 'share';
@@ -168,27 +159,27 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
     return (
       <div className="articleDetailsSidebar-links-link-modal-content-links">
         <BlueskyShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={bluesky} alt="Bluesky icon" />
+          <BlueskyIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on Bluesky" />
           <span>{t('pages.articleDetails.actions.share.bluesky')}</span>
         </BlueskyShareButton>
         <FacebookShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={facebook} alt="Facebook icon" />
+          <FacebookIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on Facebook" />
           <span>{t('pages.articleDetails.actions.share.facebook')}</span>
         </FacebookShareButton>
         <LinkedinShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={linkedin} alt="Linkedin icon" />
+          <LinkedinIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on LinkedIn" />
           <span>{t('pages.articleDetails.actions.share.linkedin')}</span>
         </LinkedinShareButton>
         <EmailShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={mail} alt="Mail icon" />
+          <MailIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share via email" />
           <span>{t('pages.articleDetails.actions.share.email')}</span>
         </EmailShareButton>
         <WhatsappShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={whatsapp} alt="WhatsApp icon" />
+          <WhatsappIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on WhatsApp" />
           <span>{t('pages.articleDetails.actions.share.whatsapp')}</span>
         </WhatsappShareButton>
         <TwitterShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={twitter} alt="X icon" />
+          <TwitterIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on X (Twitter)" />
           <span>{t('pages.articleDetails.actions.share.twitter')}</span>
         </TwitterShareButton>
       </div>
@@ -196,14 +187,20 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
   };
 
   const getIcon = () => {
+    const iconProps = {
+      size: 20,
+      className: "articleDetailsSidebar-links-link-icon",
+      ariaLabel: `${type} icon`
+    };
+
     switch (type) {
       case 'cite':
       case 'metadata':
-        return quote;
+        return <QuoteBlackIcon {...iconProps} />;
       case 'share':
-        return share;
+        return <ShareIcon {...iconProps} />;
       default:
-        return quote;
+        return <QuoteBlackIcon {...iconProps} />;
     }
   };
 
@@ -249,7 +246,7 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
       onMouseLeave={(): void => setShowDropdown(false)}
       onTouchStart={(): void => setShowDropdown(!showDropdown)}
     >
-      <img className="articleDetailsSidebar-links-link-icon" src={getIcon()} alt={`${type} icon`} />
+      {getIcon()}
       <div className="articleDetailsSidebar-links-link-text">{getLabel()}</div>
       <div className={`articleDetailsSidebar-links-link-modal-content ${showDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}>
         {getDropdownContent()}

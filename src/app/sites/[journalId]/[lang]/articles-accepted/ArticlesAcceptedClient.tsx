@@ -1,11 +1,11 @@
 'use client';
 
+import { FilterIcon } from '@/components/icons';
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
 // import filter from '/icons/filter.svg';
-import filter from '/public/icons/filter.svg';
 import { useAppSelector } from '@/hooks/store';
 import { useFetchArticlesQuery } from '@/store/features/article/article.query';
 import { FetchedArticle, articleTypes } from '@/utils/article';
@@ -263,7 +263,7 @@ export default function ArticlesAcceptedClient({
           )}
           <div className="articlesAccepted-title-count-filtersMobile">
             <div className="articlesAccepted-title-count-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
-              <img className="articlesAccepted-title-count-filtersMobile-tile-icon" src={filter} alt='List icon' />
+              <FilterIcon size={16} className="articlesAccepted-title-count-filtersMobile-tile-icon" ariaLabel="Filters" />
               <div className="articlesAccepted-title-count-filtersMobile-tile-text">{taggedFilters.length > 0 ? `${t('common.filters.editFilters')} (${taggedFilters.length})` : `${t('common.filters.filter')}`}</div>
             </div>
             {openedFiltersMobileModal && <ArticlesAcceptedMobileModal t={t} initialTypes={types} onUpdateTypesCallback={setTypes} onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}/>}

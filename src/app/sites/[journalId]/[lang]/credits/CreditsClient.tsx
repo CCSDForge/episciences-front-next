@@ -1,5 +1,6 @@
 'use client';
 
+import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
@@ -8,8 +9,6 @@ import remarkGfm from 'remark-gfm';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
 
-import caretUp from '/public/icons/caret-up-red.svg';
-import caretDown from '/public/icons/caret-down-red.svg';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchCreditsPage } from '@/services/credits';
@@ -208,9 +207,9 @@ export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: C
                         <div className='credits-content-body-section-subtitle' onClick={(): void => toggleSectionHeader(id!)}>
                           <h2 id={id} className='credits-content-body-section-subtitle-text' {...props} />
                           {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
-                            <img className='credits-content-body-section-subtitle-caret' src={caretUp} alt='Caret up icon' />
+                            <CaretUpRedIcon size={16} className='credits-content-body-section-subtitle-caret' ariaLabel="Collapse section" />
                           ) : (
-                            <img className='credits-content-body-section-subtitle-caret' src={caretDown} alt='Caret down icon' />
+                            <CaretDownRedIcon size={16} className='credits-content-body-section-subtitle-caret' ariaLabel="Expand section" />
                           )}
                         </div>
                       )
