@@ -2,6 +2,8 @@
 
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
+import Image from 'next/image';
+import { DownloadBlueIcon } from '@/components/icons';
 
 import { PATHS } from '@/config/paths';
 import { IArticle } from '@/types/article';
@@ -9,6 +11,7 @@ import { IJournal } from '@/types/journal';
 import { IVolume, IVolumeMetadata } from '@/types/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
+import { VOLUME_COVER_BLUR } from '@/utils/image-placeholders';
 import './VolumeDetailsSidebar.scss';
 
 interface IVolumeDetailsSidebarProps {
@@ -85,7 +88,15 @@ export default function VolumeDetailsSidebar({
   return (
     <div className='volumeDetailsSidebar'>
       {volume?.tileImageURL ? (
-        <img className='volumeDetailsSidebar-tile' src={volume.tileImageURL} alt='Volume tile' />
+        <Image
+          className='volumeDetailsSidebar-tile'
+          src={volume.tileImageURL}
+          alt={`${t('common.volumeCard.volume')} ${volume.num} cover`}
+          width={300}
+          height={400}
+          placeholder="blur"
+          blurDataURL={VOLUME_COVER_BLUR}
+        />
       ) : (
         <div className='volumeDetailsSidebar-template'>
           <div className='volumeDetailsSidebar-template-jpe'>{displayJournalCode}</div>
@@ -100,13 +111,13 @@ export default function VolumeDetailsSidebar({
       <div className='volumeDetailsSidebar-actions'>
         {volume && (
           <Link href={volume.downloadLink} target='_blank' rel="noopener noreferrer" className='volumeDetailsSidebar-actions-action' lang={language}>
-            <img src='/icons/download-blue.svg' alt='Download icon' />
+            <DownloadBlueIcon size={16} ariaLabel="Download all articles" />
             <span className='volumeDetailsSidebar-actions-action-text'>{t('pages.volumeDetails.actions.downloadAll')}</span>
           </Link>
         )}
         {renderMetadatas().map((metadata, index) => (
           <Link key={index} className='volumeDetailsSidebar-actions-action' href={`https://${journalId || currentJournal?.code}.episciences.org/public/volumes/${volume?.id}/${metadata.file}`} target='_blank' rel="noopener noreferrer" lang={language}>
-            <img src='/icons/download-blue.svg' alt='Download icon' />
+            <DownloadBlueIcon size={16} ariaLabel={`Download ${metadata.title?.[language] || 'file'}`} />
             <span className='volumeDetailsSidebar-actions-action-text'>{metadata.title && metadata.title[language]}</span>
           </Link>
         ))}

@@ -3,6 +3,7 @@
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
+import { CloseRedIcon, CaretRightGreyIcon } from '@/components/icons';
 
 import './AuthorDetailsSidebar.scss';
 import { PATHS } from '@/config/paths';
@@ -24,7 +25,7 @@ export default function AuthorDetailsSidebar ({ language, t, rvcode, expandedAut
 
   return (
     <div className="authorDetailsSidebar">
-      <img className="authorDetailsSidebar-close" src="/icons/close-red.svg" alt='Close icon' onClick={onCloseDetailsCallback} />
+      <CloseRedIcon size={24} className="authorDetailsSidebar-close" ariaLabel="Close author details" onClick={onCloseDetailsCallback} />
       <div className="authorDetailsSidebar-content">
         <div className="authorDetailsSidebar-content-name">{expandedAuthor?.name}</div>
         {articles?.data.map((article, index) => (
@@ -42,7 +43,7 @@ export default function AuthorDetailsSidebar ({ language, t, rvcode, expandedAut
             <Link href={`${PATHS.articles}/${article.id}`}>
               <div className="authorDetailsSidebar-content-article-seeMore">
                 <div className="authorDetailsSidebar-content-article-seeMore-text">{t('common.seeMore')}</div>
-                <img className="authorDetailsSidebar-content-article-seeMore-icon" src="/icons/caret-right-grey.svg" alt='Caret right icon' />
+                <CaretRightGreyIcon size={16} className="authorDetailsSidebar-content-article-seeMore-icon" ariaLabel="See article details" />
               </div>
             </Link>
           </div>

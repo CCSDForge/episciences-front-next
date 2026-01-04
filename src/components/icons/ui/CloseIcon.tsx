@@ -15,6 +15,11 @@ export interface CloseIconProps {
   size?: number;
   className?: string;
   ariaLabel?: string;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onTouchStart?: () => void;
+  onTouchEnd?: () => void;
 }
 
 export default function CloseIcon({
@@ -22,6 +27,11 @@ export default function CloseIcon({
   size = 16,
   className = '',
   ariaLabel,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+  onTouchStart,
+  onTouchEnd,
 }: CloseIconProps): JSX.Element {
   return (
     <svg
@@ -33,6 +43,12 @@ export default function CloseIcon({
       aria-label={ariaLabel}
       aria-hidden={!ariaLabel}
       role={ariaLabel ? 'img' : undefined}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      style={onClick ? { cursor: 'pointer' } : undefined}
     >
       <path
         d="M14.888,6l-1-1L9.944,8.948,6,5,5,6,8.948,9.944,5,13.892l1,1L9.944,10.94l3.948,3.948,1-1L10.94,9.944Z"

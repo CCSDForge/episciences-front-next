@@ -6,6 +6,18 @@ import { useRouter } from 'next/navigation';
 import { TFunction } from 'i18next';
 import { EmailShareButton, FacebookShareButton, LinkedinShareButton, TwitterShareButton } from 'react-share';
 import { isMobileOnly } from 'react-device-detect';
+import {
+  ExternalLinkBlackIcon,
+  DownloadBlackIcon,
+  QuoteBlackIcon,
+  ShareIcon,
+  MailIcon,
+  FacebookIcon,
+  TwitterIcon,
+  LinkedinIcon,
+  CaretUpGreyIcon,
+  CaretDownGreyIcon
+} from '@/components/icons';
 
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
@@ -17,18 +29,6 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
-
-// Import des icônes
-import externalLink from '/public/icons/external-link-black.svg';
-import download from '/public/icons/download-black.svg';
-import quote from '/public/icons/quote-black.svg';
-import share from '/public/icons/share.svg';
-import mail from '/public/icons/mail.svg';
-import facebook from '/public/icons/facebook.svg';
-import twitter from '/public/icons/twitter.svg';
-import linkedin from '/public/icons/linkedin.svg';
-import caretUp from '/public/icons/caret-up-grey.svg';
-import caretDown from '/public/icons/caret-down-grey.svg';
 
 import './ArticleDetailsSidebar.scss';
 
@@ -238,7 +238,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
           <>
             <a href={article.pdfLink} target="_blank" rel="noopener noreferrer">
               <div className="articleDetailsSidebar-links-link">
-                <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
+                <DownloadBlackIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Download PDF" />
                 <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.download')}</div>
               </div>
             </a>
@@ -251,10 +251,10 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
             rel="noopener noreferrer"
             className="articleDetailsSidebar-links-link"
           >
-            <img
+            <ExternalLinkBlackIcon
+              size={20}
               className="articleDetailsSidebar-links-link-icon"
-              src={externalLink}
-              alt="External link icon"
+              ariaLabel="Open on repository"
             />
             <div className="articleDetailsSidebar-links-link-text">
               {t('pages.articleDetails.actions.openOn')} {article.repositoryName}
@@ -270,7 +270,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
             onMouseLeave={(): void => setShowCitationsDropdown(false)}
             onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
           >
-            <img className="articleDetailsSidebar-links-link-icon" src={quote} alt="Quote icon" />
+            <QuoteBlackIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Cite article" />
             <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.cite')}</div>
             <div className={`articleDetailsSidebar-links-link-modal-content ${showCitationsDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}>
               <div className="articleDetailsSidebar-links-link-modal-content-links">
@@ -295,7 +295,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
             onMouseLeave={(): void => setShowMetadatasDropdown(false)}
             onTouchStart={(): void => setShowMetadatasDropdown(!showMetadatasDropdown)}
           >
-            <img className="articleDetailsSidebar-links-link-icon" src={quote} alt="Quote icon" />
+            <QuoteBlackIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Download metadata" />
             <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.metadata')}</div>
             <div className={`articleDetailsSidebar-links-link-modal-content ${showMetadatasDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}>
               <div className="articleDetailsSidebar-links-link-modal-content-links">
@@ -319,21 +319,21 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
           onMouseLeave={(): void => setShowSharingDropdown(false)}
           onTouchStart={(): void => setShowSharingDropdown(!showSharingDropdown)}
         >
-          <img className="articleDetailsSidebar-links-link-icon" src={share} alt="Share icon" />
+          <ShareIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Share article" />
           <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.share.text')}</div>
           <div className={`articleDetailsSidebar-links-link-modal-content ${showSharingDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}>
             <div className="articleDetailsSidebar-links-link-modal-content-sharing">
               <EmailShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-                <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={mail} alt="Mail icon" />
+                <MailIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share via email" />
               </EmailShareButton>
               <FacebookShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-                <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={facebook} alt="Facebook icon" />
+                <FacebookIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on Facebook" />
               </FacebookShareButton>
               <TwitterShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-                <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={twitter} alt="X icon" />
+                <TwitterIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on X" />
               </TwitterShareButton>
               <LinkedinShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-                <img className="articleDetailsSidebar-links-link-modal-content-sharing-icon" src={linkedin} alt="Linkedin icon" />
+                <LinkedinIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on LinkedIn" />
               </LinkedinShareButton>
             </div>
           </div>
@@ -343,7 +343,11 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
       <div className="articleDetailsSidebar-publicationDetails">
         <div className="articleDetailsSidebar-publicationDetails-title" onClick={togglePublicationDetails}>
           <div className="articleDetailsSidebar-publicationDetails-title-text">{t('common.publicationDetails')}</div>
-          <img className="articleDetailsSidebar-publicationDetails-title-caret" src={openedPublicationDetails ? caretUp : caretDown} alt={openedPublicationDetails ? 'Caret up icon' : 'Caret down icon'} />
+          {openedPublicationDetails ? (
+            <CaretUpGreyIcon size={16} className="articleDetailsSidebar-publicationDetails-title-caret" ariaLabel="Collapse publication details" />
+          ) : (
+            <CaretDownGreyIcon size={16} className="articleDetailsSidebar-publicationDetails-title-caret" ariaLabel="Expand publication details" />
+          )}
         </div>
         <div className={`articleDetailsSidebar-publicationDetails-content ${openedPublicationDetails && 'articleDetailsSidebar-publicationDetails-content-opened'}`}>
           {article?.submissionDate && (
@@ -392,7 +396,11 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
         <div className="articleDetailsSidebar-funding">
           <div className="articleDetailsSidebar-funding-title" onClick={toggleFunding}>
             <div className="articleDetailsSidebar-funding-title-text">{t('pages.articleDetails.funding.title')}</div>
-            <img className="articleDetailsSidebar-funding-title-caret" src={openedFunding ? caretUp : caretDown} alt={openedFunding ? 'Caret up icon' : 'Caret down icon'} />
+            {openedFunding ? (
+              <CaretUpGreyIcon size={16} className="articleDetailsSidebar-funding-title-caret" ariaLabel="Collapse funding" />
+            ) : (
+              <CaretDownGreyIcon size={16} className="articleDetailsSidebar-funding-title-caret" ariaLabel="Expand funding" />
+            )}
           </div>
           <div className={`articleDetailsSidebar-funding-content ${openedFunding && 'articleDetailsSidebar-funding-content-opened'}`}>
             {article.fundings.map((fund: any, index: number) => (

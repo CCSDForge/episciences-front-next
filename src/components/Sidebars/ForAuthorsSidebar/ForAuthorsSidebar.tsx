@@ -3,6 +3,7 @@
 import { Link } from '@/components/Link/Link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
+import { CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import './ForAuthorsSidebar.scss';
 
 export interface IForAuthorsHeader {
@@ -48,7 +49,13 @@ export default function ForAuthorsSidebar({ headers, toggleHeaderCallback }: IFo
             >
               <div className='forAuthorsSidebar-header-title-text'>{header.value}</div>
             </a>
-            {header.children.length > 0 && <img className='forAuthorsSidebar-header-title-caret' src={header.opened ? '/icons/caret-up-grey.svg' : '/icons/caret-down-grey.svg'} alt={header.opened ? 'Caret up icon' : 'Caret down icon'} onClick={(): void => toggleHeaderCallback(header.id)} />}
+            {header.children.length > 0 && (
+              header.opened ? (
+                <CaretUpGreyIcon size={16} className='forAuthorsSidebar-header-title-caret' ariaLabel="Collapse section" onClick={(): void => toggleHeaderCallback(header.id)} />
+              ) : (
+                <CaretDownGreyIcon size={16} className='forAuthorsSidebar-header-title-caret' ariaLabel="Expand section" onClick={(): void => toggleHeaderCallback(header.id)} />
+              )
+            )}
           </div>
           {header.opened && (
             <div className='forAuthorsSidebar-header-subheaders'>

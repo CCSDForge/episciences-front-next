@@ -1,9 +1,7 @@
 'use client';
 
 import { Link } from '@/components/Link/Link';
-
-import caretUp from '../../../../public/icons/caret-up-grey.svg';
-import caretDown from '../../../../public/icons/caret-down-grey.svg';
+import { CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import './AboutSidebar.scss';
 
 export interface IAboutHeader {
@@ -30,7 +28,13 @@ export default function AboutSidebar({ headers, toggleHeaderCallback }: IAboutSi
             <Link href={`#${header.id}`}>
               <div className="aboutSidebar-header-title-text">{header.value}</div>
             </Link>
-            {header.children.length > 0 && <img className="aboutSidebar-header-title-caret" src={header.opened ? caretUp : caretDown} alt={header.opened ? 'Caret up icon' : 'Caret down icon'} onClick={(): void => toggleHeaderCallback(header.id)} />}
+            {header.children.length > 0 && (
+              header.opened ? (
+                <CaretUpGreyIcon size={16} className="aboutSidebar-header-title-caret" ariaLabel="Collapse section" onClick={(): void => toggleHeaderCallback(header.id)} />
+              ) : (
+                <CaretDownGreyIcon size={16} className="aboutSidebar-header-title-caret" ariaLabel="Expand section" onClick={(): void => toggleHeaderCallback(header.id)} />
+              )
+            )}
           </div>
           {header.opened && (
             <div className="aboutSidebar-header-subheaders">

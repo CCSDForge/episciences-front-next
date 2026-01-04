@@ -2,6 +2,7 @@
 
 import { Link } from '@/components/Link/Link';
 import Image from 'next/image';
+import { CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import './CreditsSidebar.scss';
 
 export interface ICreditsHeader {
@@ -28,7 +29,13 @@ export default function CreditsSidebar({ headers, toggleHeaderCallback }: ICredi
             <Link href={`#${header.id}`}>
               <div className='creditsSidebar-header-title-text'>{header.value}</div>
             </Link>
-            {header.children.length > 0 && <img className='creditsSidebar-header-title-caret' src={header.opened ? '/icons/caret-up-grey.svg' : '/icons/caret-down-grey.svg'} alt={header.opened ? 'Caret up icon' : 'Caret down icon'} onClick={(): void => toggleHeaderCallback(header.id)} />}
+            {header.children.length > 0 && (
+              header.opened ? (
+                <CaretUpGreyIcon size={16} className='creditsSidebar-header-title-caret' ariaLabel="Collapse section" onClick={(): void => toggleHeaderCallback(header.id)} />
+              ) : (
+                <CaretDownGreyIcon size={16} className='creditsSidebar-header-title-caret' ariaLabel="Expand section" onClick={(): void => toggleHeaderCallback(header.id)} />
+              )
+            )}
           </div>
           {header.opened && (
             <div className='creditsSidebar-header-subheaders'>

@@ -15,6 +15,11 @@ export interface CaretDownIconProps {
   size?: number;
   className?: string;
   ariaLabel?: string;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onTouchStart?: () => void;
+  onTouchEnd?: () => void;
 }
 
 export default function CaretDownIcon({
@@ -22,6 +27,11 @@ export default function CaretDownIcon({
   size = 16,
   className = '',
   ariaLabel,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+  onTouchStart,
+  onTouchEnd,
 }: CaretDownIconProps): JSX.Element {
   const height = (size * 7.5) / 13.632;
 
@@ -35,7 +45,15 @@ export default function CaretDownIcon({
       aria-label={ariaLabel}
       aria-hidden={!ariaLabel}
       role={ariaLabel ? 'img' : undefined}
-      style={{ transform: 'rotate(180deg)' }}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      style={{
+        transform: 'rotate(180deg)',
+        cursor: onClick ? 'pointer' : undefined,
+      }}
     >
       <g transform="translate(0 7.5) rotate(-90)">
         <path

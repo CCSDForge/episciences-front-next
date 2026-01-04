@@ -15,6 +15,11 @@ export interface CaretUpIconProps {
   size?: number;
   className?: string;
   ariaLabel?: string;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onTouchStart?: () => void;
+  onTouchEnd?: () => void;
 }
 
 export default function CaretUpIcon({
@@ -22,6 +27,11 @@ export default function CaretUpIcon({
   size = 16,
   className = '',
   ariaLabel,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+  onTouchStart,
+  onTouchEnd,
 }: CaretUpIconProps): JSX.Element {
   // Maintain original aspect ratio (13.632 / 7.5)
   const height = (size * 7.5) / 13.632;
@@ -36,6 +46,12 @@ export default function CaretUpIcon({
       aria-label={ariaLabel}
       aria-hidden={!ariaLabel}
       role={ariaLabel ? 'img' : undefined}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      style={onClick ? { cursor: 'pointer' } : undefined}
     >
       <g transform="translate(0 7.5) rotate(-90)">
         <path
