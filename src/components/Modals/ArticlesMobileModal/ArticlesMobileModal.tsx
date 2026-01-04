@@ -1,5 +1,6 @@
 'use client';
 
+import { CloseRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
@@ -204,12 +205,11 @@ export default function ArticlesMobileModal({ t, initialTypes, onUpdateTypesCall
         <div className='articlesMobileModal-filters-types'>
           <div className='articlesMobileModal-filters-types-title'>
             <div className='articlesMobileModal-filters-types-title-text' onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}>{t('common.filters.documentTypes')}</div>
-            <img 
-              className='articlesMobileModal-filters-types-title-caret' 
-              src={isOpenedSection(FILTERS_SECTION.TYPE) ? "/icons/caret-up-grey.svg" : "/icons/caret-down-grey.svg"} 
-              alt={isOpenedSection(FILTERS_SECTION.TYPE) ? 'Caret up icon' : 'Caret down icon'} 
-              onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} 
-            />
+            {isOpenedSection(FILTERS_SECTION.TYPE) ? (
+              <CaretUpGreyIcon size={16} className='articlesMobileModal-filters-types-title-caret' ariaLabel="Collapse" onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} />
+            ) : (
+              <CaretDownGreyIcon size={16} className='articlesMobileModal-filters-types-title-caret' ariaLabel="Expand" onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} />
+            )}
           </div>
           <div className={`articlesMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesMobileModal-filters-types-list-opened'}`}>
             {types.map((type, index) => (
@@ -233,12 +233,11 @@ export default function ArticlesMobileModal({ t, initialTypes, onUpdateTypesCall
         <div className='articlesMobileModal-filters-years'>
           <div className='articlesMobileModal-filters-years-title'>
             <div className='articlesMobileModal-filters-years-title-text' onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}>{t('common.filters.years')}</div>
-            <img 
-              className='articlesMobileModal-filters-years-title-caret' 
-              src={isOpenedSection(FILTERS_SECTION.YEAR) ? "/icons/caret-up-grey.svg" : "/icons/caret-down-grey.svg"} 
-              alt={isOpenedSection(FILTERS_SECTION.YEAR) ? 'Caret up icon' : 'Caret down icon'} 
-              onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} 
-            />
+            {isOpenedSection(FILTERS_SECTION.YEAR) ? (
+              <CaretUpGreyIcon size={16} className='articlesMobileModal-filters-years-title-caret' ariaLabel="Collapse" onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} />
+            ) : (
+              <CaretDownGreyIcon size={16} className='articlesMobileModal-filters-years-title-caret' ariaLabel="Expand" onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} />
+            )}
           </div>
           <div className={`articlesMobileModal-filters-years-list ${isOpenedSection(FILTERS_SECTION.YEAR) && 'articlesMobileModal-filters-years-list-opened'}`}>
             {years.map((y, index) => (

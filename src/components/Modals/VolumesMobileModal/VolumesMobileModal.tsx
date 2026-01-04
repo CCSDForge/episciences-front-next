@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
+import { CloseRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setFooterVisibility } from '@/store/features/footer/footer.slice';
@@ -196,7 +197,7 @@ export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallb
     <div className="volumesMobileModal" ref={modalRef}>
       <div className="title">
         <div>{t('common.filters.filter')}</div>
-        <img className="titleClose" src="/icons/close-red.svg" alt="Close icon" onClick={onClose} />
+        <CloseRedIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
       </div>
       {taggedFilters.length > 0 && (
         <div className="tags">
@@ -212,12 +213,11 @@ export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallb
         <div className="filtersTypes">
           <div className="filtersTypesTitle">
             <div onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}>{t('common.filters.documentTypes')}</div>
-            <img 
-              className="filtersTypesTitleCaret" 
-              src={isOpenedSection(FILTERS_SECTION.TYPE) ? "/icons/caret-up-grey.svg" : "/icons/caret-down-grey.svg"} 
-              alt={isOpenedSection(FILTERS_SECTION.TYPE) ? "Caret up icon" : "Caret down icon"} 
-              onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} 
-            />
+            {isOpenedSection(FILTERS_SECTION.TYPE) ? (
+              <CaretUpGreyIcon size={16} className="filtersTypesTitleCaret" ariaLabel="Collapse" onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} />
+            ) : (
+              <CaretDownGreyIcon size={16} className="filtersTypesTitleCaret" ariaLabel="Expand" onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} />
+            )}
           </div>
           <div className={`filtersTypesList ${isOpenedSection(FILTERS_SECTION.TYPE) ? 'filtersTypesListOpened' : ''}`}>
             {types.map((type, index) => (
@@ -241,12 +241,11 @@ export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallb
         <div className="filtersYears">
           <div className="filtersYearsTitle">
             <div onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}>{t('common.filters.years')}</div>
-            <img 
-              className="filtersYearsTitleCaret" 
-              src={isOpenedSection(FILTERS_SECTION.YEAR) ? "/icons/caret-up-grey.svg" : "/icons/caret-down-grey.svg"} 
-              alt={isOpenedSection(FILTERS_SECTION.YEAR) ? "Caret up icon" : "Caret down icon"} 
-              onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} 
-            />
+            {isOpenedSection(FILTERS_SECTION.YEAR) ? (
+              <CaretUpGreyIcon size={16} className="filtersYearsTitleCaret" ariaLabel="Collapse" onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} />
+            ) : (
+              <CaretDownGreyIcon size={16} className="filtersYearsTitleCaret" ariaLabel="Expand" onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} />
+            )}
           </div>
           <div className={`filtersYearsList ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'filtersYearsListOpened' : ''}`}>
             {years.map((y, index) => (

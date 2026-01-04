@@ -1,9 +1,9 @@
 'use client';
 
+import { CloseRedIcon } from '@/components/icons';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 
-import close from '/public/icons/close-red.svg';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setFooterVisibility } from '@/store/features/footer/footer.slice';
 import { IVolume } from '@/types/volume';
@@ -95,7 +95,7 @@ export default function VolumeDetailsMobileModal({ language, t, volume, relatedV
     <div className="volumeDetailsMobileModal" ref={modalRef}>
       <div className="volumeDetailsMobileModal-title">
         <div className="volumeDetailsMobileModal-title-text">{getTitle()}</div>
-        <img className="volumeDetailsMobileModal-title-close" src={close} alt='Close icon' onClick={onClose} />
+        <CloseRedIcon size={24} className="volumeDetailsMobileModal-title-close" ariaLabel="Close" onClick={onClose} />
       </div>
       <div className="volumeDetailsMobileModal-relatedVolumes">
         {relatedVolumes.map((relatedVolume, index) => (

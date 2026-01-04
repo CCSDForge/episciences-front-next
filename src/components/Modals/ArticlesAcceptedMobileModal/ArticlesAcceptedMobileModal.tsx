@@ -1,5 +1,6 @@
 'use client';
 
+import { CloseRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 
@@ -159,12 +160,11 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
         <div className='articlesAcceptedMobileModal-filters-types'>
           <div className='articlesAcceptedMobileModal-filters-types-title'>
             <div className='articlesAcceptedMobileModal-filters-types-title-text' onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}>{t('common.filters.documentTypes')}</div>
-            <img 
-              className='articlesAcceptedMobileModal-filters-types-title-caret' 
-              src={isOpenedSection(FILTERS_SECTION.TYPE) ? "/icons/caret-up-grey.svg" : "/icons/caret-down-grey.svg"} 
-              alt={isOpenedSection(FILTERS_SECTION.TYPE) ? 'Caret up icon' : 'Caret down icon'} 
-              onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} 
-            />
+            {isOpenedSection(FILTERS_SECTION.TYPE) ? (
+              <CaretUpGreyIcon size={16} className='articlesAcceptedMobileModal-filters-types-title-caret' ariaLabel="Collapse" onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} />
+            ) : (
+              <CaretDownGreyIcon size={16} className='articlesAcceptedMobileModal-filters-types-title-caret' ariaLabel="Expand" onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} />
+            )}
           </div>
           <div className={`articlesAcceptedMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesAcceptedMobileModal-filters-types-list-opened'}`}>
             {types.map((type, index) => (

@@ -1,5 +1,6 @@
 'use client';
 
+import { CloseRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
@@ -94,18 +95,17 @@ export default function NewsMobileModal({ t, years, onUpdateYearsCallback, onClo
     <div className='newsMobileModal' ref={modalRef}>
       <div className='newsMobileModal-title'>
         <div className='newsMobileModal-title-text'>{t('common.filters.filter')}</div>
-        <img className='newsMobileModal-title-close' src="/icons/close-red.svg" alt='Close icon' onClick={onClose} />
+        <CloseRedIcon size={24} className='newsMobileModal-title-close' ariaLabel="Close" onClick={onClose} />
       </div>
       <div className='newsMobileModal-filters'>
         <div className='newsMobileModal-filters-years'>
           <div className='newsMobileModal-filters-years-title'>
             <div className='newsMobileModal-filters-years-title-text' onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}>{t('common.filters.years')}</div>
-            <img 
-              className='newsMobileModal-filters-years-title-caret' 
-              src={isOpenedSection(FILTERS_SECTION.YEAR) ? "/icons/caret-up-grey.svg" : "/icons/caret-down-grey.svg"} 
-              alt={isOpenedSection(FILTERS_SECTION.YEAR) ? 'Caret up icon' : 'Caret down icon'} 
-              onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} 
-            />
+            {isOpenedSection(FILTERS_SECTION.YEAR) ? (
+              <CaretUpGreyIcon size={16} className='newsMobileModal-filters-years-title-caret' ariaLabel="Collapse" onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} />
+            ) : (
+              <CaretDownGreyIcon size={16} className='newsMobileModal-filters-years-title-caret' ariaLabel="Expand" onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} />
+            )}
           </div>
           <div className={`newsMobileModal-filters-years-list ${isOpenedSection(FILTERS_SECTION.YEAR) && 'newsMobileModal-filters-years-list-opened'}`}>
             {filtersYears.map((y, index) => (
