@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
+import { FileGreyIcon, DownloadRedIcon, CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
+import { VOLUME_COVER_BLUR } from '@/utils/image-placeholders';
 import './VolumeCard.scss';
 
 import { PATHS } from '@/config/paths';
@@ -82,7 +85,16 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal, 
       <div className='volumeCard volumeCard-tile'>
         {volume.tileImageURL ? (
           <Link href={volumeDetailPath} prefetch={false} lang={language}>
-            <img className='volumeCard-tile-img' src={volume.tileImageURL} alt='Volume tile' />
+            <Image
+              className='volumeCard-tile-img'
+              src={volume.tileImageURL}
+              alt={`${t('common.volumeCard.volume')} ${volume.num} cover`}
+              width={300}
+              height={400}
+              placeholder="blur"
+              blurDataURL={VOLUME_COVER_BLUR}
+              sizes="(max-width: 768px) 100vw, 300px"
+            />
           </Link>
         ) : (
           <Link href={volumeDetailPath} prefetch={false} lang={language} className="volumeCard-tile-template">
@@ -102,12 +114,12 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal, 
           </Link>
           <div className="volumeCard-tile-text-year">{volume.year}</div>
           <div className="volumeCard-tile-text-count">
-            <img className="volumeCard-tile-text-count-icon" src="/icons/file-grey.svg" alt='File icon' />
+            <FileGreyIcon size={16} className="volumeCard-tile-text-count-icon" ariaLabel="Articles" />
             <div className="volumeCard-tile-text-count-text">{volume.articles.length > 1 ? `${volume.articles.length} ${t('common.articles')}`: `${volume.articles.length} ${t('common.article')}`}</div>
           </div>
           {volume.downloadLink && (
             <Link href={volume.downloadLink} target='_blank' lang={language} className="volumeCard-tile-text-download">
-              <img className="volumeCard-tile-text-download-icon" src="/icons/download-red.svg" alt='Download icon' />
+              <DownloadRedIcon size={16} className="volumeCard-tile-text-download-icon" ariaLabel="Download PDF" />
               <div className="volumeCard-tile-text-download-text">{t('common.pdf')}</div>
             </Link>
           )}
@@ -122,7 +134,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal, 
         {volume.year && <div className='volumeCard-resume-year'>{volume.year}</div>}
         {renderVolumeListNum(true)}
         <div className='volumeCard-resume-count'>
-          <img className='volumeCard-resume-count-icon' src="/icons/file-grey.svg" alt='File icon' />
+          <FileGreyIcon size={16} className='volumeCard-resume-count-icon' ariaLabel="Articles" />
           <span className='volumeCard-resume-count-text'>{volume.articles.length > 1 ? `${volume.articles.length} ${t('common.articles')}`: `${volume.articles.length} ${t('common.article')}`}</span>
         </div>
       </div>
@@ -140,11 +152,11 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal, 
           <div className='volumeCard-content-description'>
             <div className={`volumeCard-content-description-title ${!openedDescription && 'volumeCard-content-description-title-closed'}`} onClick={toggleDescription}>
               <div className='volumeCard-content-description-title-text'>{t('common.about')}</div>
-              <img 
-                className='volumeCard-content-description-title-caret' 
-                src={openedDescription ? "/icons/caret-up-red.svg" : "/icons/caret-down-red.svg"}
-                alt={openedDescription ? 'Caret up icon' : 'Caret down icon'} 
-              />
+              {openedDescription ? (
+                <CaretUpRedIcon size={14} className='volumeCard-content-description-title-caret' ariaLabel="Collapse description" />
+              ) : (
+                <CaretDownRedIcon size={14} className='volumeCard-content-description-title-caret' ariaLabel="Expand description" />
+              )}
             </div>
             <div className={`volumeCard-content-description-content ${openedDescription && 'volumeCard-content-description-content-opened'}`}>
               <MathJax dynamic>{volume.description[language]}</MathJax>
@@ -153,7 +165,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal, 
         )}
         {volume.downloadLink && (
           <Link href={volume.downloadLink} target='_blank' lang={language} className="volumeCard-content-download">
-            <img className="volumeCard-content-download-icon" src="/icons/download-red.svg" alt='Download icon' />
+            <DownloadRedIcon size={16} className="volumeCard-content-download-icon" ariaLabel="Download PDF" />
             <div className="volumeCard-content-download-text">{t('common.pdf')}</div>
           </Link>
         )}

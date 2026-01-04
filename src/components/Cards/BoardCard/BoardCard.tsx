@@ -1,15 +1,12 @@
 'use client';
 
+import Image from 'next/image';
 import { TFunction } from 'i18next';
 import { Link } from '@/components/Link/Link';
+import { UserIcon, OrcidIcon, AtIcon, TwitterIcon, MastodonIcon, ExternalLinkRedIcon } from '@/components/icons';
+import { USER_PHOTO_BLUR } from '@/utils/image-placeholders';
 import './BoardCard.scss';
 
-import at from '../../../../public/icons/at.svg';
-import orcid from '../../../../public/icons/orcid.svg';
-import externalLink from '../../../../public/icons/external-link-red.svg';
-import twitter from '../../../../public/icons/twitter.svg';
-import mastodon from '../../../../public/icons/mastodon.svg';
-import user from '../../../../public/icons/user.svg';
 import { IBoardMember } from "@/types/board";
 import { AvailableLanguage } from '@/utils/i18n';
 import { defaultBoardRole, getBoardRoles } from '@/utils/board';
@@ -49,9 +46,16 @@ export default function BoardCard({ language, t, member, fullCard, blurCard, set
           <div className='boardCard-full-initial-person'>
             <div className='boardCard-full-initial-person-picture'>
               {member.picture ? (
-                <img src={member.picture} alt={`${member.firstname} ${member.lastname} picture`}/>
+                <Image
+                  src={member.picture}
+                  alt={`${member.firstname} ${member.lastname}`}
+                  width={80}
+                  height={80}
+                  placeholder="blur"
+                  blurDataURL={USER_PHOTO_BLUR}
+                />
               ) : (
-                <img className='boardCard-person-picture-placeholder' src={user} alt='User icon' />
+                <UserIcon size={80} className='boardCard-person-picture-placeholder' ariaLabel="User photo" />
               )}
             </div>
             <div className='boardCard-full-initial-person-title'>
@@ -59,7 +63,7 @@ export default function BoardCard({ language, t, member, fullCard, blurCard, set
                 <div className='boardCard-full-initial-person-title-name-text'>{member.firstname} {member.lastname}</div>
                 {member.orcid && member.orcid.length > 0 && (
                   <Link href={`${process.env.NEXT_PUBLIC_ORCID_HOMEPAGE}/${member.orcid}`} title={member.orcid} target='_blank' onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}>
-                    <img className='boardCard-full-initial-person-title-name-orcid' src={orcid} alt='Orcid icon' />
+                    <OrcidIcon size={16} className='boardCard-full-initial-person-title-name-orcid' ariaLabel="ORCID iD" />
                   </Link>
                 )}
               </div>
@@ -77,7 +81,7 @@ export default function BoardCard({ language, t, member, fullCard, blurCard, set
           {member.email && (
             <Link href={`mailto:${member.email}`} target='_blank' onClick={(e:any) => e.stopPropagation()}>
               <div className='boardCard-full-expanded-email'>
-                <img className='boardCard-full-expanded-email-at' src={at} alt={`At ${member.email} icon`}/>
+                <AtIcon size={16} className='boardCard-full-expanded-email-at' ariaLabel="Email" />
                 <div>{member.email}</div>
               </div>
             </Link>
@@ -88,12 +92,12 @@ export default function BoardCard({ language, t, member, fullCard, blurCard, set
               <div className='boardCard-full-expanded-social-networks'>
                 {member.twitter && (
                   <Link href={member.twitter} title={member.twitter} target='_blank' onClick={(e:any) => e.stopPropagation()}>
-                    <img className='boardCard-full-expanded-social-networks-icon' src={twitter} alt='Twitter icon' />
+                    <TwitterIcon size={20} className='boardCard-full-expanded-social-networks-icon' ariaLabel="Twitter" />
                   </Link>
                 )}
                 {member.mastodon && (
                   <Link href={member.mastodon} title={member.mastodon} target='_blank' onClick={(e:any) => e.stopPropagation()}>
-                    <img className='boardCard-full-expanded-social-networks-icon' src={mastodon} alt='Mastodon icon' />
+                    <MastodonIcon size={20} className='boardCard-full-expanded-social-networks-icon' ariaLabel="Mastodon" />
                   </Link>
                 )}
               </div>
@@ -102,7 +106,7 @@ export default function BoardCard({ language, t, member, fullCard, blurCard, set
               <Link href={member.website} title={member.website} target='_blank' onClick={(e:any) => e.stopPropagation()}>
                 <div className='boardCard-full-expanded-social-website'>
                   <div>Website</div>
-                  <img className='boardCard-full-expanded-social-website-img' src={externalLink} alt='Website link icon' />
+                  <ExternalLinkRedIcon size={16} className='boardCard-full-expanded-social-website-img' ariaLabel="External website" />
                 </div>
               </Link>
             )}
@@ -117,9 +121,16 @@ export default function BoardCard({ language, t, member, fullCard, blurCard, set
       <div className='boardCard-person'>
         <div className='boardCard-person-picture'>
           {member.picture ? (
-            <img src={member.picture} alt={`${member.firstname} ${member.lastname} picture`}/>
+            <Image
+              src={member.picture}
+              alt={`${member.firstname} ${member.lastname}`}
+              width={80}
+              height={80}
+              placeholder="blur"
+              blurDataURL={USER_PHOTO_BLUR}
+            />
           ) : (
-            <img className='boardCard-person-picture-placeholder' src={user} alt='User icon' />
+            <UserIcon size={80} className='boardCard-person-picture-placeholder' ariaLabel="User photo" />
           )}
         </div>
         <div className='boardCard-person-title'>
@@ -127,7 +138,7 @@ export default function BoardCard({ language, t, member, fullCard, blurCard, set
             <div className='boardCard-person-title-name-text'>{member.firstname} {member.lastname}</div>
             {member.orcid && member.orcid.length > 0 && (
               <Link href={`${process.env.NEXT_PUBLIC_ORCID_HOMEPAGE}/${member.orcid}`} title={member.orcid} target='_blank' onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}>
-                <img className='boardCard-person-title-name-orcid' src={orcid} alt='Orcid icon' />
+                <OrcidIcon size={16} className='boardCard-person-title-name-orcid' ariaLabel="ORCID iD" />
               </Link>
             )}
           </div>
