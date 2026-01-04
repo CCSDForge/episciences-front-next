@@ -1,7 +1,7 @@
 'use client';
 
+import { CloseBlackIcon } from '@/components/icons';
 import './Tag.scss';
-import closeIcon from '../../../public/icons/close-black.svg';
 
 interface ITagProps {
   text: string;
@@ -12,10 +12,10 @@ export default function Tag({ text, onCloseCallback }: ITagProps): JSX.Element {
   return (
     <div className="tag">
       <span className="tag-text">{text}</span>
-      <img 
-        className="tag-close" 
-        src={closeIcon.src} 
-        alt='Close icon' 
+      <CloseBlackIcon
+        size={12}
+        className="tag-close"
+        ariaLabel="Close tag"
         onClick={onCloseCallback}
       />
     </div>
