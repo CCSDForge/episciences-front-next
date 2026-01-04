@@ -3,11 +3,9 @@
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
+import { CaretUpRedIcon, CaretDownRedIcon, DownloadRedIcon } from '@/components/icons';
 import './ArticleAcceptedCard.scss';
 
-import caretUp from '../../../../public/icons/caret-up-red.svg';
-import caretDown from '../../../../public/icons/caret-down-red.svg';
-import download from '../../../../public/icons/download-red.svg';
 import { IArticle } from "@/types/article";
 import { articleTypes, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
@@ -41,9 +39,9 @@ export default function ArticleAcceptedCard({ language, t, article, toggleAbstra
           <div className={`articleAcceptedCard-abstract-title ${!article.openedAbstract && 'articleAcceptedCard-abstract-title-closed'}`} onClick={toggleAbstractCallback}>
             <div className='articleAcceptedCard-abstract-title-text'>{t('common.abstract')}</div>
             {article.openedAbstract ? (
-              <img className='articleAcceptedCard-abstract-title-caret' src={caretUp} alt='Caret up icon' />
+              <CaretUpRedIcon size={14} className='articleAcceptedCard-abstract-title-caret' ariaLabel="Collapse abstract" />
             ) : (
-              <img className='articleAcceptedCard-abstract-title-caret' src={caretDown} alt='Caret down icon' />
+              <CaretDownRedIcon size={14} className='articleAcceptedCard-abstract-title-caret' ariaLabel="Expand abstract" />
             )}
           </div>
           <div className={`articleAcceptedCard-abstract-content ${article.openedAbstract && 'articleAcceptedCard-abstract-content-opened'}`}>
@@ -61,7 +59,7 @@ export default function ArticleAcceptedCard({ language, t, article, toggleAbstra
           {article.docLink && (
             <Link href={article.docLink} target='_blank'>
               <div className="articleAcceptedCard-anchor-icons-download">
-                <img className="articleAcceptedCard-anchor-icons-download-download-icon" src={download} alt='Download icon' />
+                <DownloadRedIcon size={16} className="articleAcceptedCard-anchor-icons-download-download-icon" ariaLabel="Download" />
                 <div className="articleAcceptedCard-anchor-icons-download-text">{article.repositoryIdentifier}</div>
               </div>
             </Link>

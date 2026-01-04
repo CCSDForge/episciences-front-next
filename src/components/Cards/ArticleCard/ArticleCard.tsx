@@ -4,12 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import { Link } from '@/components/Link/Link';
+import { CaretUpRedIcon, CaretDownRedIcon, DownloadRedIcon, QuoteRedIcon } from '@/components/icons';
 import './ArticleCard.scss';
 
-import caretUpIcon from '../../../../public/icons/caret-up-red.svg';
-import caretDownIcon from '../../../../public/icons/caret-down-red.svg';
-import downloadIcon from '../../../../public/icons/download-red.svg';
-import quoteIcon from '../../../../public/icons/quote-red.svg';
 import { PATHS } from '@/config/paths';
 import { useFetchArticleMetadataQuery } from '@/store/features/article/article.query';
 import { IArticle } from "@/types/article";
@@ -107,18 +104,18 @@ export default function ArticleCard({ language, rvcode, t, article, toggleAbstra
       </div>
       {article.abstract && (
         <div className="articleCard-abstract">
-          <div 
-            className={`articleCard-abstract-title ${!article.openedAbstract ? 'articleCard-abstract-title-closed' : ''}`} 
+          <div
+            className={`articleCard-abstract-title ${!article.openedAbstract ? 'articleCard-abstract-title-closed' : ''}`}
             onClick={toggleAbstractCallback}
           >
             <div className="articleCard-abstract-title-text">
               {t('common.abstract')}
             </div>
-            <img 
-              className="articleCard-abstract-title-caret" 
-              src={article.openedAbstract ? caretUpIcon : caretDownIcon} 
-              alt={article.openedAbstract ? 'Caret up icon' : 'Caret down icon'} 
-            />
+            {article.openedAbstract ? (
+              <CaretUpRedIcon size={14} className="articleCard-abstract-title-caret" ariaLabel="Collapse abstract" />
+            ) : (
+              <CaretDownRedIcon size={14} className="articleCard-abstract-title-caret" ariaLabel="Expand abstract" />
+            )}
           </div>
           <div className={`articleCard-abstract-content ${article.openedAbstract ? 'articleCard-abstract-content-opened' : ''}`}>
             <MathJax dynamic>{getAbstractText(article.abstract, language)}</MathJax>
@@ -133,10 +130,10 @@ export default function ArticleCard({ language, rvcode, t, article, toggleAbstra
           {article.pdfLink && (
             <Link href={`${PATHS.articles}/${article.id}/download`} lang={language} target="_blank" rel="noopener noreferrer">
               <div className="articleCard-anchor-icons-download">
-                <img
+                <DownloadRedIcon
+                  size={16}
                   className="articleCard-anchor-icons-download-icon"
-                  src={downloadIcon}
-                  alt='Download icon'
+                  ariaLabel="Download PDF"
                 />
                 <div className="articleCard-anchor-icons-download-text">
                   {t('common.pdf')}
@@ -152,10 +149,10 @@ export default function ArticleCard({ language, rvcode, t, article, toggleAbstra
               onMouseLeave={(): void => setShowCitationsDropdown(false)}
               onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
             >
-              <img 
-                className="articleCard-anchor-icons-cite-icon" 
-                src={quoteIcon} 
-                alt='Cite icon' 
+              <QuoteRedIcon
+                size={16}
+                className="articleCard-anchor-icons-cite-icon"
+                ariaLabel="Cite article"
               />
               <div className="articleCard-anchor-icons-cite-text">
                 {t('common.cite')}
