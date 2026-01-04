@@ -6,15 +6,11 @@ import { Pagination, Navigation } from 'swiper/modules';
 import { useEffect, useState } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import Card, { SwiperCardType, SwiperCardContent } from '@/components/SwiperCards/SwiperCard';
+import { CaretLeftRedIcon, CaretRightRedIcon } from '@/components/icons';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import './Swiper.scss';
-
-// Importation des icônes comme dans la version originale
-// (mais avec le chemin ajusté pour Next.js)
-const caretLeft = '/icons/caret-left-red.svg';
-const caretRight = '/icons/caret-right-red.svg';
 
 interface ISwiperProps {
   id: string;
@@ -81,7 +77,7 @@ export default function Swiper({ id, type, language, t, slidesPerView, slidesPer
     <>
       <div className="swiper-page-wrapper">
         <div className={`${id}-button-prev swiper-button-prev`}>
-          <img className="swiper-button-prev-icon" src={caretLeft} alt="Caret left icon" />
+          <CaretLeftRedIcon size={16} className="swiper-button-prev-icon" ariaLabel="Previous" />
         </div>
         <SwiperReactLib
           slidesPerView={slidesPerView}
@@ -118,7 +114,7 @@ export default function Swiper({ id, type, language, t, slidesPerView, slidesPer
           ))}
         </SwiperReactLib>
         <div className={`${id}-button-next swiper-button-next`}>
-          <img className="swiper-button-next-icon" src={caretRight} alt="Caret right icon" />
+          <CaretRightRedIcon size={16} className="swiper-button-next-icon" ariaLabel="Next" />
         </div>
       </div>
       <div className={`${id}-pagination swiper-pagination`}></div>

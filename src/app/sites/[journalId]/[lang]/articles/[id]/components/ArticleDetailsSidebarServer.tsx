@@ -5,12 +5,9 @@ import { formatDate } from '@/utils/date';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
+import { ExternalLinkBlackIcon, DownloadBlackIcon } from '@/components/icons';
 import InteractiveDropdown from './InteractiveDropdown';
 import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
-
-// Import icon paths
-const externalLink = '/icons/external-link-black.svg';
-const download = '/icons/download-black.svg';
 
 import '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar.scss';
 
@@ -215,7 +212,7 @@ export default function ArticleDetailsSidebarServer({
         {article?.pdfLink && (
           <a href={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)} target="_blank" rel="noopener noreferrer">
             <div className="articleDetailsSidebar-links-link">
-              <img className="articleDetailsSidebar-links-link-icon" src={download} alt="Download icon" />
+              <DownloadBlackIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Download" />
               <div className="articleDetailsSidebar-links-link-text">
                 {t('pages.articleDetails.actions.download', translations)}
               </div>
@@ -229,10 +226,10 @@ export default function ArticleDetailsSidebarServer({
             rel="noopener noreferrer"
             className="articleDetailsSidebar-links-link"
           >
-            <img
+            <ExternalLinkBlackIcon
+              size={20}
               className="articleDetailsSidebar-links-link-icon"
-              src={externalLink}
-              alt="External link icon"
+              ariaLabel="External link"
             />
             <div className="articleDetailsSidebar-links-link-text">
               {t('pages.articleDetails.actions.openOn', translations, { repositoryName: article.repositoryName })} {article.repositoryName}

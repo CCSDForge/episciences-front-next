@@ -19,7 +19,7 @@ import VolumeArticleCard from "@/components/Cards/VolumeArticleCard/VolumeArticl
 import VolumeDetailsMobileModal from "@/components/Modals/VolumeDetailsMobileModal/VolumeDetailsMobileModal";
 import VolumeDetailsSidebar from "@/components/Sidebars/VolumeDetailsSidebar/VolumeDetailsSidebar";
 import PageTitle from "@/components/PageTitle/PageTitle";
-import { DownloadRedIcon } from '@/components/icons';
+import { DownloadRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import './VolumeDetails.scss';
 
 interface VolumeDetailsClientProps {
@@ -130,11 +130,11 @@ export default function VolumeDetailsClient({
   const renderVolumeMobileRelatedVolumes = (): JSX.Element | null => {
     if (!isMounted || !isMobileOnly) return null;
 
-    const caretIcon = <img 
-      className='volumeDetails-id-mobileRelatedList-icon' 
-      src={openedRelatedVolumesMobileModal ? "/icons/caret-up-grey.svg" : "/icons/caret-down-grey.svg"} 
-      alt={openedRelatedVolumesMobileModal ? "Caret up icon" : "Caret down icon"} 
-    />;
+    const caretIcon = openedRelatedVolumesMobileModal ? (
+      <CaretUpGreyIcon size={16} className='volumeDetails-id-mobileRelatedList-icon' ariaLabel="Collapse" />
+    ) : (
+      <CaretDownGreyIcon size={16} className='volumeDetails-id-mobileRelatedList-icon' ariaLabel="Expand" />
+    );
 
     if (volume?.types && volume.types.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {

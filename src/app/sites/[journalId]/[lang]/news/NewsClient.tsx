@@ -3,13 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
-
-// Use direct paths for static build compatibility
-const filter = '/icons/filter.svg';
-const listRed = '/icons/list-red.svg';
-const listGrey = '/icons/list-grey.svg';
-const tileRed = '/icons/tile-red.svg';
-const tileGrey = '/icons/tile-grey.svg';
+import { FilterIcon, ListRedIcon, ListGreyIcon, TileRedIcon, TileGreyIcon } from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { RENDERING_MODE } from '@/utils/card';
@@ -149,13 +143,21 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
         <div className='news-title-icons'>
           <div className='news-title-icons-icon' onClick={(): void => setMode(RENDERING_MODE.TILE)}>
             <div className={`${mode === RENDERING_MODE.TILE ? 'news-title-icons-icon-row-red' : 'news-title-icons-icon-row'}`}>
-              <img src={mode === RENDERING_MODE.TILE ? tileRed : tileGrey} alt='Tile icon' />
+              {mode === RENDERING_MODE.TILE ? (
+                <TileRedIcon size={16} ariaLabel="Tile view" />
+              ) : (
+                <TileGreyIcon size={16} ariaLabel="Tile view" />
+              )}
               <span>{t('common.renderingMode.tile')}</span>
             </div>
           </div>
           <div className='news-title-icons-icon' onClick={(): void => setMode(RENDERING_MODE.LIST)}>
             <div className={`${mode === RENDERING_MODE.LIST ? 'news-title-icons-icon-row-red' : 'news-title-icons-icon-row'}`}>
-              <img src={mode === RENDERING_MODE.LIST ? listRed : listGrey} alt='List icon' />
+              {mode === RENDERING_MODE.LIST ? (
+                <ListRedIcon size={16} ariaLabel="List view" />
+              ) : (
+                <ListGreyIcon size={16} ariaLabel="List view" />
+              )}
               <span>{t('common.renderingMode.list')}</span>
             </div>
           </div>
@@ -164,7 +166,7 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
       <div className="news-filtersMobile">
         <span>{renderMobileSelectedYears()}</span>
         <div className="news-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
-          <img className="news-filtersMobile-tile-icon" src={filter} alt='List icon' />
+          <FilterIcon size={16} className="news-filtersMobile-tile-icon" ariaLabel="Filter" />
           <div className="news-filtersMobile-tile-text">{getSelectedYears().length > 0 ? `${t('common.filters.editFilters')} (${getSelectedYears().length})` : `${t('common.filters.filter')}`}</div>
         </div>
         {openedFiltersMobileModal && <NewsMobileModal t={t} years={years} onUpdateYearsCallback={setYears} onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}/>}
