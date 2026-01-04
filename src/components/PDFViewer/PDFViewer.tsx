@@ -1,5 +1,6 @@
 "use client";
 
+import { DownloadBlueIcon, ExternalLinkBlueIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import './PDFViewer.scss';
@@ -44,7 +45,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): JSX.Elemen
             download
             className="pdf-viewer-action-btn"
           >
-            <img src="/icons/download-blue.svg" alt="Download icon" />
+            <DownloadBlueIcon size={16} ariaLabel="Download" />
             <span>{t('components.pdfViewer.downloadPDF')}</span>
           </a>
           <a
@@ -53,7 +54,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): JSX.Elemen
             rel="noopener noreferrer"
             className="pdf-viewer-action-btn"
           >
-            <img src="/icons/external-link-blue.svg" alt="Open icon" />
+            <ExternalLinkBlueIcon size={16} ariaLabel="Open in new tab" />
             <span>{t('components.pdfViewer.openInNewTab')}</span>
           </a>
           <button
@@ -90,7 +91,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): JSX.Elemen
                 download
                 className="pdf-viewer-action-btn"
               >
-                <img src="/icons/download-blue.svg" alt="Download icon" />
+                <DownloadBlueIcon size={16} ariaLabel="Download" />
                 <span>{t('components.pdfViewer.downloadPDF')}</span>
               </a>
               <a
@@ -99,7 +100,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): JSX.Elemen
                 rel="noopener noreferrer"
                 className="pdf-viewer-action-btn"
               >
-                <img src="/icons/external-link-blue.svg" alt="Open icon" />
+                <ExternalLinkBlueIcon size={16} ariaLabel="Open in new tab" />
                 <span>{t('components.pdfViewer.openInNewTab')}</span>
               </a>
             </div>

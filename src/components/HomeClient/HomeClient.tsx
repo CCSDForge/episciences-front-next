@@ -1,5 +1,6 @@
 'use client';
 
+import { CaretRightGreyIcon } from '@/components/icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { useTranslation } from 'react-i18next';
@@ -195,7 +196,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): JS
             <Link href={PATHS.articles} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.articles.see')}</div>
-                <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
+                <CaretRightGreyIcon size={16} ariaLabel="See more" />
               </div>
             </Link>
           </div>
@@ -217,7 +218,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): JS
             <Link href={PATHS.news} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.news.see')}</div>
-                <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
+                <CaretRightGreyIcon size={16} ariaLabel="See more" />
               </div>
             </Link>
           </div>
@@ -231,7 +232,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): JS
             <Link href={PATHS.boards} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.members.see')}</div>
-                <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
+                <CaretRightGreyIcon size={16} ariaLabel="See more" />
               </div>
             </Link>
           </div>
@@ -262,7 +263,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): JS
             <Link href={`${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.specialIssues.see')}</div>
-                <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
+                <CaretRightGreyIcon size={16} ariaLabel="See more" />
               </div>
             </Link>
           </div>
@@ -282,7 +283,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): JS
             <Link href={PATHS.articlesAccepted} prefetch={false} lang={language}>
               <div className='home-subtitle-all'>
                 <div className='home-subtitle-all-text'>{t('pages.home.blocks.articlesAccepted.see')}</div>
-                <img src='/icons/caret-right-grey.svg' alt='Caret right icon' />
+                <CaretRightGreyIcon size={16} ariaLabel="See more" />
               </div>
             </Link>
           </div>

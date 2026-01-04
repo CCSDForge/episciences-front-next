@@ -15,6 +15,13 @@ export interface CaretLeftIconProps {
   size?: number;
   className?: string;
   ariaLabel?: string;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onTouchStart?: () => void;
+  onTouchEnd?: () => void;
+  onMouseDown?: () => void;
+  onMouseUp?: () => void;
 }
 
 export default function CaretLeftIcon({
@@ -22,6 +29,13 @@ export default function CaretLeftIcon({
   size = 16,
   className = '',
   ariaLabel,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+  onTouchStart,
+  onTouchEnd,
+  onMouseDown,
+  onMouseUp,
 }: CaretLeftIconProps): JSX.Element {
   const height = (size * 7.5) / 13.632;
 
@@ -35,7 +49,14 @@ export default function CaretLeftIcon({
       aria-label={ariaLabel}
       aria-hidden={!ariaLabel}
       role={ariaLabel ? 'img' : undefined}
-      style={{ transform: 'rotate(-90deg)' }}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      style={onClick ? { cursor: 'pointer', transform: 'rotate(-90deg)' } : { transform: 'rotate(-90deg)' }}
     >
       <g transform="translate(0 7.5) rotate(-90)">
         <path

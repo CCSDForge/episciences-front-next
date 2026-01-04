@@ -1,5 +1,6 @@
 'use client';
 
+import { CaretLeftRedIcon, SearchIcon, CloseRedIcon } from '@/components/icons';
 import { ChangeEvent, KeyboardEvent, useState, useRef } from 'react';
 
 import './HeaderSearchInput.scss';
@@ -45,17 +46,17 @@ export default function HeaderSearchInput({ value, placeholder, isSearching, set
   return (
     <div className='headerSearchInput'>
       {isSearching ? (
-        <img 
-          className='headerSearchInput-icon headerSearchInput-icon-caretLeft' 
-          src="/icons/caret-left-red.svg" 
-          alt='Caret left icon' 
-          onClick={(): void => setIsSearchingCallback(false)} 
+        <CaretLeftRedIcon
+          size={16}
+          className='headerSearchInput-icon headerSearchInput-icon-caretLeft'
+          ariaLabel='Back'
+          onClick={(): void => setIsSearchingCallback(false)}
         />
       ) : (
-        <img 
-          className='headerSearchInput-icon headerSearchInput-icon-search' 
-          src="/icons/search.svg" 
-          alt='Search icon' 
+        <SearchIcon
+          size={16}
+          className='headerSearchInput-icon headerSearchInput-icon-search'
+          ariaLabel='Search'
         />
       )}
       <input
@@ -69,10 +70,10 @@ export default function HeaderSearchInput({ value, placeholder, isSearching, set
         onKeyDown={(e: KeyboardEvent<HTMLInputElement>): void => handleKeyDown(e)}
       />
       {isSearching && (
-        <img
+        <CloseRedIcon
+          size={16}
           className='headerSearchInput-icon headerSearchInput-icon-close'
-          src="/icons/close-red.svg"
-          alt='Close icon'
+          ariaLabel='Clear'
           onMouseDown={() => setPreventBlur(true)}
           onMouseUp={() => setPreventBlur(false)}
           onClick={(): void => emptySearch()}

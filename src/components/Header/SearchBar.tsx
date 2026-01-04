@@ -1,5 +1,6 @@
 'use client';
 
+import { SearchIcon, ExternalLinkWhiteIcon, CaretLeftGreyIcon, CloseBlackIcon } from '@/components/icons';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -79,7 +80,7 @@ export default function SearchBar({ lang }: SearchBarProps): JSX.Element {
         <div className="header-postheader-search-delimiter"></div>
         <form className="header-postheader-search-form">
           <div className="header-postheader-search-input">
-            <img src="/icons/search.svg" alt="Search" className="header-postheader-search-input-icon" />
+            <SearchIcon size={16} className="header-postheader-search-input-icon" ariaLabel="Search" />
             <input
               type="text"
               placeholder="search"
@@ -90,12 +91,12 @@ export default function SearchBar({ lang }: SearchBarProps): JSX.Element {
             {submitManagerLink ? (
               <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
                 Submit
-                <img src="/icons/external-link-white.svg" alt="" />
+                <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
               </a>
             ) : (
               <button type="submit" disabled>
                 Submit
-                <img src="/icons/external-link-white.svg" alt="" />
+                <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
               </button>
             )}
           </div>
@@ -119,12 +120,12 @@ export default function SearchBar({ lang }: SearchBarProps): JSX.Element {
             onClick={handleClose}
             aria-label={t('components.header.search.closeLabel')}
           >
-            <img src="/icons/caret-left-grey.svg" alt={t('components.header.search.backAlt')} />
+            <CaretLeftGreyIcon size={16} ariaLabel={t('components.header.search.backAlt')} />
           </button>
         )}
 
         <div className="header-postheader-search-input">
-          <img src="/icons/search.svg" alt={t('components.header.search.iconAlt')} className="header-postheader-search-input-icon" />
+          <SearchIcon size={16} className="header-postheader-search-input-icon" ariaLabel={t('components.header.search.iconAlt')} />
           <input
             type="text"
             placeholder={t('components.header.search.placeholder')}
@@ -141,7 +142,7 @@ export default function SearchBar({ lang }: SearchBarProps): JSX.Element {
             onClick={() => setSearchValue('')}
             aria-label={t('components.header.search.clearLabel')}
           >
-            <img src="/icons/close-black.svg" alt={t('components.header.search.clearAlt')} />
+            <CloseBlackIcon size={16} ariaLabel={t('components.header.search.clearAlt')} />
           </button>
         )}
 
@@ -154,12 +155,12 @@ export default function SearchBar({ lang }: SearchBarProps): JSX.Element {
             submitManagerLink ? (
               <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
                 {t('components.header.search.submitButton')}
-                <img src="/icons/external-link-white.svg" alt="" />
+                <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
               </a>
             ) : (
               <button type="button" disabled>
                 {t('components.header.search.submitButton')}
-                <img src="/icons/external-link-white.svg" alt="" />
+                <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
               </button>
             )
           )}

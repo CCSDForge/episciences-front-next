@@ -1,5 +1,6 @@
 'use client';
 
+import { CloseRedIcon } from '@/components/icons';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
@@ -90,7 +91,7 @@ export function VolumeDetailsMobile({ language, t, volume, relatedVolumes, onSel
     <div className="volumeDetailsMobile" ref={modalRef}>
       <div className="volumeDetailsMobile-title">
         <div className="volumeDetailsMobile-title-text">{getTitle()}</div>
-        <img className="volumeDetailsMobile-title-close" src="/icons/close-red.svg" alt='Close icon' onClick={onClose} />
+        <CloseRedIcon size={24} className="volumeDetailsMobile-title-close" ariaLabel="Close" onClick={onClose} />
       </div>
       <div className="volumeDetailsMobile-relatedVolumes">
         {relatedVolumes.map((relatedVolume, index) => (

@@ -19,6 +19,7 @@ import VolumeArticleCard from "@/components/Cards/VolumeArticleCard/VolumeArticl
 import VolumeDetailsMobileModal from "@/components/Modals/VolumeDetailsMobileModal/VolumeDetailsMobileModal";
 import VolumeDetailsSidebar from "@/components/Sidebars/VolumeDetailsSidebar/VolumeDetailsSidebar";
 import PageTitle from "@/components/PageTitle/PageTitle";
+import { DownloadRedIcon } from '@/components/icons';
 import './VolumeDetails.scss';
 
 interface VolumeDetailsClientProps {
@@ -372,10 +373,10 @@ export default function VolumeDetailsClient({
                             rel="noopener noreferrer"
                           >
                             <div className="volumeDetails-content-results-content-edito-anchor-icons-download">
-                              <img 
-                                className="volumeDetails-content-results-content-edito-anchor-icons-download-download-icon" 
-                                src="/icons/download-red.svg" 
-                                alt='Download icon' 
+                              <DownloadRedIcon
+                                size={16}
+                                className="volumeDetails-content-results-content-edito-anchor-icons-download-download-icon"
+                                ariaLabel="Download PDF"
                               />
                               <div className="volumeDetails-content-results-content-edito-anchor-icons-download-text">
                                 {t('common.pdf')}

@@ -20,6 +20,8 @@ export interface CloseIconProps {
   onMouseLeave?: () => void;
   onTouchStart?: () => void;
   onTouchEnd?: () => void;
+  onMouseDown?: () => void;
+  onMouseUp?: () => void;
 }
 
 export default function CloseIcon({
@@ -32,6 +34,8 @@ export default function CloseIcon({
   onMouseLeave,
   onTouchStart,
   onTouchEnd,
+  onMouseDown,
+  onMouseUp,
 }: CloseIconProps): JSX.Element {
   return (
     <svg
@@ -48,6 +52,8 @@ export default function CloseIcon({
       onMouseLeave={onMouseLeave}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
       style={onClick ? { cursor: 'pointer' } : undefined}
     >
       <path

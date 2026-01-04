@@ -189,7 +189,7 @@ export default function ArticlesMobileModal({ t, initialTypes, onUpdateTypesCall
     <div className='articlesMobileModal' ref={modalRef}>
       <div className='articlesMobileModal-title'>
         <div className='articlesMobileModal-title-text'>{t('common.filters.filter')}</div>
-        <img className='articlesMobileModal-title-close' src="/icons/close-red.svg" alt='Close icon' onClick={onClose} />
+        <CloseRedIcon size={24} className='articlesMobileModal-title-close' ariaLabel="Close" onClick={onClose} />
       </div>
       {taggedFilters.length > 0 && (
         <div className="articlesMobileModal-tags">

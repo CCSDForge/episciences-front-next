@@ -1,5 +1,6 @@
 'use client';
 
+import { FileGreyIcon, DownloadRedIcon } from '@/components/icons';
 import { Fragment } from 'react';
 import { TFunction } from 'i18next';
 import { Link } from '@/components/Link/Link';
@@ -55,16 +56,16 @@ export default function IssuesSection({ language, t, issues = [], currentJournal
               <div className="issuesSection-card-text-title">{issueTitle}</div>
               <div className="issuesSection-card-text-year">{issueYear}</div>
               <div className="issuesSection-card-text-count">
-                <img className="issuesSection-card-text-count-icon" src="/icons/file-grey.svg" alt='File icon' />
+                <FileGreyIcon size={16} className="issuesSection-card-text-count-icon" ariaLabel="Articles" />
                 <div className="issuesSection-card-text-count-text">
-                  {issue.articles?.length > 1 
+                  {issue.articles?.length > 1
                     ? `${issue.articles.length} ${t('common.articles')}`
                     : `${issue.articles?.length} ${t('common.article')}`}
                 </div>
               </div>
               {issue.downloadLink && (
                 <Link href={issue.downloadLink} target='_blank' className="issuesSection-card-text-download">
-                  <img className="issuesSection-card-text-download-icon" src="/icons/download-red.svg" alt='Download icon' />
+                  <DownloadRedIcon size={16} className="issuesSection-card-text-download-icon" ariaLabel="Download PDF" />
                   <div className="issuesSection-card-text-download-text">{t('common.pdf')}</div>
                 </Link>
               )}

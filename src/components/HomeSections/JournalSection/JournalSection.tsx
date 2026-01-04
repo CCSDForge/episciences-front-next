@@ -1,5 +1,6 @@
 'use client';
 
+import { ExternalLinkRedIcon } from '@/components/icons';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 
@@ -20,7 +21,7 @@ export default function JournalSection({ content, language }: IJournalSectionPro
               a: ({ ...props }) => (
                 <Link href={props.href!} target='_blank'>
                   <span>{props.children?.toString()}</span>
-                  <img src="/icons/external-link-red.svg" alt='Journal link icon' />
+                  <ExternalLinkRedIcon size={16} ariaLabel="External link" />
                 </Link>
               ),
             }}

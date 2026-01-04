@@ -1,5 +1,6 @@
 'use client';
 
+import { CaretRightGreyIcon } from '@/components/icons';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { TFunction } from 'i18next';
@@ -56,7 +57,7 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
           <Link href={PATHS.news} lang={language}>
             <div className='presentationSection-new-seeMore'>
               <div className='presentationSection-new-seeMore-text'>{t('common.seeMore')}</div>
-              <img className='presentationSection-new-seeMore-icon' src='/icons/caret-right-grey.svg' alt='Caret right icon' />
+              <CaretRightGreyIcon size={16} className='presentationSection-new-seeMore-icon' ariaLabel="See more" />
             </div>
           </Link>
         </div>
@@ -88,7 +89,7 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
           <Link href={lastInformation?.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME ? PATHS.volumes : `${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`} lang={language}>
             <div className='presentationSection-new-seeMore'>
               <div className='presentationSection-new-seeMore-text'>{t('common.seeMore')}</div>
-              <img className='presentationSection-new-seeMore-icon' src='/icons/caret-right-grey.svg' alt='Caret right icon' />
+              <CaretRightGreyIcon size={16} className='presentationSection-new-seeMore-icon' ariaLabel="See more" />
             </div>
           </Link>
         </div>
@@ -121,7 +122,7 @@ export default function PresentationSection({ language, t, aboutContent = {}, la
           <Link href={PATHS.about} lang={language}>
             <div className='presentationSection-about-seeMore'>
               <div className='presentationSection-about-seeMore-text'>{t('common.seeMore')}</div>
-              <img className='presentationSection-about-seeMore-icon' src='/icons/caret-right-grey.svg' alt='Caret right icon' />
+              <CaretRightGreyIcon size={16} className='presentationSection-about-seeMore-icon' ariaLabel="See more" />
             </div>
           </Link>
         </div>
