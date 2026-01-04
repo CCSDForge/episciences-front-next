@@ -225,16 +225,6 @@ export type { LogoTextIconProps } from './brand/LogoTextIcon';
 export { default as OrcidIcon } from './brand/OrcidIcon';
 export type { OrcidIconProps } from './brand/OrcidIcon';
 
-/**
- * Icon Color Constants
- *
- * Standard colors used across icon components for brand consistency
- */
-export const ICON_COLORS = {
-  red: '#C1002A',        // Episciences brand red
-  blue: '#2563EB',       // Primary blue
-  grey: '#6B7280',       // Grey 500
-  greyLight: '#D1D5DB',  // Grey 300
-  black: '#000000',
-  white: '#FFFFFF',
-} as const;
+// Re-export icon colors from utility
+export { ICON_COLORS } from '@/utils/icon-colors';
+export type { IconColor } from '@/utils/icon-colors';

@@ -1,24 +1,32 @@
-'use client'
+'use client';
 
-import './Button.scss'
+import React from 'react';
+import './Button.scss';
+
+interface IconProps {
+  size?: number;
+  className?: string;
+  ariaLabel?: string;
+}
 
 interface IButtonProps {
   text: string;
   onClickCallback: () => void;
-  icon?: string;
+  IconComponent?: React.ComponentType<IconProps>;
+  iconSize?: number;
 }
 
-export default function Button({ text, onClickCallback, icon }: IButtonProps): JSX.Element {
-  if (icon) {
+export default function Button({ text, onClickCallback, IconComponent, iconSize = 16 }: IButtonProps): JSX.Element {
+  if (IconComponent) {
     return (
       <button className='button button-withIcon' onClick={onClickCallback}>
         {text}
-        <img src={icon} className='button-withIcon-icon' aria-hidden='true' alt=""/>
+        <IconComponent size={iconSize} className='button-withIcon-icon' />
       </button>
-    )
+    );
   }
 
   return (
     <button className='button' onClick={onClickCallback}>{text}</button>
-  )
+  );
 } 

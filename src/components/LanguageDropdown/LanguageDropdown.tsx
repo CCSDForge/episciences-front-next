@@ -3,12 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import i18next from 'i18next';
+import { CaretUpBlueIcon, CaretDownBlueIcon, CaretUpWhiteIcon, CaretDownWhiteIcon } from '@/components/icons';
 import './LanguageDropdown.scss';
-
-import caretUpBlue from '/public/icons/caret-up-blue.svg';
-import caretDownBlue from '/public/icons/caret-down-blue.svg';
-import caretUpWhite from '/public/icons/caret-up-white.svg';
-import caretDownWhite from '/public/icons/caret-down-white.svg';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
@@ -94,17 +90,17 @@ export default function LanguageDropdown({ withWhiteCaret, initialLanguage }: IL
       <div className='languageDropdown-icon'>
         <div className='languageDropdown-icon-text'>{language.toUpperCase()}</div>
         {showDropdown ? (
-          <img
-            className='languageDropdown-icon-caret'
-            src={withWhiteCaret ? "/icons/caret-up-white.svg" : "/icons/caret-up-blue.svg"}
-            alt='Caret up icon'
-          />
+          withWhiteCaret ? (
+            <CaretUpWhiteIcon size={14} className='languageDropdown-icon-caret' ariaLabel="Collapse language menu" />
+          ) : (
+            <CaretUpBlueIcon size={14} className='languageDropdown-icon-caret' ariaLabel="Collapse language menu" />
+          )
         ) : (
-          <img
-            className='languageDropdown-icon-caret'
-            src={withWhiteCaret ? "/icons/caret-down-white.svg" : "/icons/caret-down-blue.svg"}
-            alt='Caret down icon'
-          />
+          withWhiteCaret ? (
+            <CaretDownWhiteIcon size={14} className='languageDropdown-icon-caret' ariaLabel="Expand language menu" />
+          ) : (
+            <CaretDownBlueIcon size={14} className='languageDropdown-icon-caret' ariaLabel="Expand language menu" />
+          )
         )}
       </div>
       <div className={`languageDropdown-content ${showDropdown && 'languageDropdown-content-displayed'}`}>

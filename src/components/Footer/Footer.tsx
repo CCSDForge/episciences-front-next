@@ -1,11 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
 import { useTranslation } from 'react-i18next';
-import './Footer.scss';
 import { useAppSelector } from '@/hooks/store';
 import { PATHS } from '@/config/paths';
-import logo from '/public/logo.svg';
+import './Footer.scss';
 
 export default function Footer(): JSX.Element {
   const { t } = useTranslation();
@@ -61,7 +61,14 @@ export default function Footer(): JSX.Element {
   return (
     <footer className={`footer ${!enabled && 'footer-disabled'}`}>
       <div className='footer-journal'>
-        <img src={getLogoOfJournal('small')} alt='Journal logo' className='footer-journal-logo' />
+        <Image
+          src={getLogoOfJournal('small')}
+          alt={currentJournal?.name || 'Journal logo'}
+          width={150}
+          height={50}
+          className='footer-journal-logo'
+          unoptimized
+        />
         <div className='footer-journal-links'>
           <div className='footer-journal-links-journal'>
             {getJournalNotice() && <Link href={getJournalNotice()!} prefetch={false} target='_blank' rel="noopener noreferrer">{t('components.footer.links.notice')}</Link>}
@@ -78,7 +85,14 @@ export default function Footer(): JSX.Element {
         </div>
       </div>
       <div className='footer-episciences'>
-        <img src={logo} alt='Episciences logo' className='footer-episciences-logo' />
+        <Image
+          src="/logo.svg"
+          alt="Episciences"
+          width={200}
+          height={60}
+          className='footer-episciences-logo'
+          unoptimized
+        />
         <div className='footer-episciences-links'>
           <div className='footer-episciences-links-documentation'>
             <Link href={getDocumentationLink()} prefetch={false} target='_blank' rel="noopener noreferrer">{t('components.footer.links.documentation')}</Link>

@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from 'react-device-detect';
+import { BurgerIcon, LogoTextIcon, ArrowRightBlueIcon, ExternalLinkWhiteIcon } from '@/components/icons';
 import './Header.scss';
 
 import { PATHS } from '@/config/paths';
@@ -217,7 +219,8 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
                   <Button
                     text={t('components.header.submit')}
                     onClickCallback={(): void => {}}
-                    icon="/icons/external-link-white.svg"
+                    IconComponent={ExternalLinkWhiteIcon}
+                    iconSize={16}
                   />
                 </Link>
               )}
@@ -293,7 +296,14 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
         <div className='header-reduced-journal'>
           <div className='header-reduced-journal-logo'>
             <Link href={PATHS.home}>
-              <img src={getLogoOfJournal('small')} alt='Reduced journal logo' />
+              <Image
+                src={getLogoOfJournal('small')}
+                alt={currentJournal?.name || 'Journal logo'}
+                width={150}
+                height={50}
+                priority
+                unoptimized
+              />
             </Link>
           </div>
           <div className='header-reduced-journal-blank'></div>
@@ -306,7 +316,7 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
         <div className='header-postheader' ref={mobileMenuDropdownRef}>
           {isMobileOnly && (
             <div className='header-postheader-burger' onClick={(): void => setShowMobileMenu(!showMobileMenu)}>
-              <img className='header-postheader-burger-icon' src="/icons/burger.svg" alt='Burger menu icon' />
+              <BurgerIcon size={24} className='header-postheader-burger-icon' ariaLabel="Menu" />
               {getPostHeaderBurgerLinks()}
             </div>
           )}
@@ -321,13 +331,13 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <Link href={getEpisciencesHomePageLink()} target="_blank" rel="noopener noreferrer">
-            <img src="/icons/logo-text.svg" alt="Episciences logo" />
+            <LogoTextIcon size={200} ariaLabel="Episciences" />
           </Link>
         </div>
         <div className="header-preheader-links">
           <div className="header-preheader-links-access-mobile">
             <Link href={getJournalAccessLink()} target="_blank" rel="noopener noreferrer">
-              <img src="/icons/arrow-right-blue.svg" alt="Arrow right icon" />
+              <ArrowRightBlueIcon size={16} ariaLabel="Access journals" />
             </Link>
           </div>
           <Link href={getJournalAccessLink()} className="header-preheader-links-access" target="_blank" rel="noopener noreferrer">
@@ -339,7 +349,14 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
       <div className="header-journal">
         <div className="header-journal-logo">
           <Link href={PATHS.home}>
-            <img src={getLogoOfJournal('big')} alt="Journal logo" />
+            <Image
+              src={getLogoOfJournal('big')}
+              alt={currentJournal?.name || 'Journal logo'}
+              width={300}
+              height={100}
+              priority
+              unoptimized
+            />
           </Link>
         </div>
         <div className="header-journal-title">
@@ -349,7 +366,7 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
       <div className="header-postheader" ref={mobileMenuDropdownRef}>
         {isMobileOnly && (
           <div className='header-postheader-burger' onClick={(): void => setShowMobileMenu(!showMobileMenu)}>
-            <img className='header-postheader-burger-icon' src="/icons/burger.svg" alt='Burger menu icon' />
+            <BurgerIcon size={24} className='header-postheader-burger-icon' ariaLabel="Menu" />
             {getPostHeaderBurgerLinks()}
           </div>
         )}

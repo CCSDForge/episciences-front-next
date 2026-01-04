@@ -1,22 +1,10 @@
 'use client';
 
 import React, { memo } from 'react';
-
 import ReactPaginate from 'react-paginate';
-
-import './Pagination.scss';
-
-
-
-import caretLeft from '../../../public/icons/caret-left-red.svg';
-
-import caretRight from '../../../public/icons/caret-right-red.svg';
-
-import caretLeftDisabled from '../../../public/icons/caret-left-grey-light.svg';
-
-import caretRightDisabled from '../../../public/icons/caret-right-grey-light.svg';
-
+import { CaretLeftRedIcon, CaretLeftGreyLightIcon, CaretRightRedIcon, CaretRightGreyLightIcon } from '@/components/icons';
 import { DEFAULT_ITEMS_PER_PAGE } from '@/utils/pagination';
+import './Pagination.scss';
 
 
 
@@ -79,19 +67,20 @@ const Pagination = memo(function Pagination({ currentPage, itemsPerPage, totalIt
       pageClassName="pagination-page"
 
       previousClassName="pagination-previous"
-
       previousLabel={
-
-        <img src={currentPage === 1 ? caretLeftDisabled : caretLeft} alt='Caret left icon' />
-
+        currentPage === 1 ? (
+          <CaretLeftGreyLightIcon size={16} ariaLabel="Previous page (disabled)" />
+        ) : (
+          <CaretLeftRedIcon size={16} ariaLabel="Previous page" />
+        )
       }
-
       nextClassName="pagination-next"
-
       nextLabel={
-
-        <img src={currentPage === pageCount ? caretRightDisabled : caretRight} alt='Caret right icon' />
-
+        currentPage === pageCount ? (
+          <CaretRightGreyLightIcon size={16} ariaLabel="Next page (disabled)" />
+        ) : (
+          <CaretRightRedIcon size={16} ariaLabel="Next page" />
+        )
       }
 
       activeClassName="pagination-page-active"
