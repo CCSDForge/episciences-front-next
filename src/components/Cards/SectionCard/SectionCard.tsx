@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
+import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 import './SectionCard.scss';
 
 import { PATHS } from '@/config/paths';
@@ -32,11 +33,11 @@ export default function SectionCard({ language, t, section }: ISectionCardProps)
         <div className='sectionCard-description'>
           <div className={`sectionCard-description-title ${!openedDescription && 'sectionCard-description-title-closed'}`} onClick={toggleDescription}>
             <div className='sectionCard-description-title-text'>{t('common.about')}</div>
-            <img 
-              className='sectionCard-description-title-caret' 
-              src={openedDescription ? "/icons/caret-up-red.svg" : "/icons/caret-down-red.svg"} 
-              alt={openedDescription ? 'Caret up icon' : 'Caret down icon'} 
-            />
+            {openedDescription ? (
+              <CaretUpRedIcon size={14} className='sectionCard-description-title-caret' ariaLabel="Collapse description" />
+            ) : (
+              <CaretDownRedIcon size={14} className='sectionCard-description-title-caret' ariaLabel="Expand description" />
+            )}
           </div>
           <div className={`sectionCard-description-content ${openedDescription && 'sectionCard-description-content-opened'}`}>
             <MathJax dynamic>{section.description[language]}</MathJax>
