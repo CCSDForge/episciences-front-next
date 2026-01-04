@@ -4,11 +4,9 @@ import { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
+import { CaretUpRedIcon, CaretDownRedIcon, DownloadRedIcon } from '@/components/icons';
 import './SectionArticleCard.scss';
 
-import caretUp from '../../../../public/icons/caret-up-red.svg';
-import caretDown from '../../../../public/icons/caret-down-red.svg';
-import download from '../../../../public/icons/download-red.svg';
 import { PATHS } from '@/config/paths';
 import { IArticle } from '@/types/article';
 import { articleTypes, getAbstractText } from '@/utils/article';
@@ -40,9 +38,9 @@ export default function SectionArticleCard({ language, t, article }: ISectionArt
           <div className={`sectionArticleCard-abstract-title ${!openedAbstract && 'sectionArticleCard-abstract-title-closed'}`} onClick={toggleAbstract}>
             <div className='sectionArticleCard-abstract-title-text'>{t('common.abstract')}</div>
             {openedAbstract ? (
-              <img className='sectionArticleCard-abstract-title-caret' src={caretUp} alt='Caret up icon' />
+              <CaretUpRedIcon size={14} className='sectionArticleCard-abstract-title-caret' ariaLabel="Collapse abstract" />
             ) : (
-              <img className='sectionArticleCard-abstract-title-caret' src={caretDown} alt='Caret down icon' />
+              <CaretDownRedIcon size={14} className='sectionArticleCard-abstract-title-caret' ariaLabel="Expand abstract" />
             )}
           </div>
           <div className={`sectionArticleCard-abstract-content ${openedAbstract && 'sectionArticleCard-abstract-content-opened'}`}>
@@ -56,7 +54,7 @@ export default function SectionArticleCard({ language, t, article }: ISectionArt
           {article.pdfLink && (
             <Link href={`${PATHS.articles}/${article.id}/download`} target='_blank' rel="noopener noreferrer">
               <div className="sectionArticleCard-anchor-icons-download">
-                <img className="sectionArticleCard-anchor-icons-download-icon" src={download} alt='Download icon' />
+                <DownloadRedIcon size={16} className="sectionArticleCard-anchor-icons-download-icon" ariaLabel="Download PDF" />
                 <div className="sectionArticleCard-anchor-icons-download-text">{t('common.pdf')}</div>
               </div>
             </Link>

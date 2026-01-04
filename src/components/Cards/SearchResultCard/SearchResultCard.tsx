@@ -4,12 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
+import { CaretUpRedIcon, CaretDownRedIcon, DownloadRedIcon, QuoteRedIcon } from '@/components/icons';
 import './SearchResultCard.scss';
 
-import caretUpIcon from '../../../../public/icons/caret-up-red.svg';
-import caretDownIcon from '../../../../public/icons/caret-down-red.svg';
-import downloadIcon from '../../../../public/icons/download-red.svg';
-import quoteIcon from '../../../../public/icons/quote-red.svg';
 import { PATHS } from '@/config/paths';
 import { useFetchArticleMetadataQuery } from '@/store/features/article/article.query';
 import { IArticle, IArticleAbstracts } from "@/types/article";
@@ -120,11 +117,11 @@ export default function SearchResultCard({ language, rvcode, t, searchResult, to
             <div className="searchResultCardAbstractTitleText">
               {t('common.abstract')}
             </div>
-            <img 
-              className="searchResultCardAbstractTitleCaret" 
-              src={searchResult.openedAbstract ? caretUpIcon : caretDownIcon} 
-              alt={searchResult.openedAbstract ? 'Caret up icon' : 'Caret down icon'} 
-            />
+            {searchResult.openedAbstract ? (
+              <CaretUpRedIcon size={14} className="searchResultCardAbstractTitleCaret" ariaLabel="Collapse abstract" />
+            ) : (
+              <CaretDownRedIcon size={14} className="searchResultCardAbstractTitleCaret" ariaLabel="Expand abstract" />
+            )}
           </div>
           <div className={`searchResultCardAbstractContent ${searchResult.openedAbstract ? 'searchResultCardAbstractContentOpened' : ''}`}>
             <MathJax dynamic>{getAbstractString(searchResult.abstract)}</MathJax>
@@ -139,10 +136,10 @@ export default function SearchResultCard({ language, rvcode, t, searchResult, to
           {searchResult.pdfLink && (
             <Link href={`/${PATHS.articles}/${searchResult.id}/download`} lang={language}>
               <div className="searchResultCardAnchorIconsDownload">
-                <img 
-                  className="searchResultCardAnchorIconsDownloadIcon" 
-                  src={downloadIcon} 
-                  alt='Download icon' 
+                <DownloadRedIcon
+                  size={16}
+                  className="searchResultCardAnchorIconsDownloadIcon"
+                  ariaLabel="Download PDF"
                 />
                 <div className="searchResultCardAnchorIconsDownloadText">
                   {t('common.pdf')}
@@ -158,10 +155,10 @@ export default function SearchResultCard({ language, rvcode, t, searchResult, to
               onMouseLeave={(): void => setShowCitationsDropdown(false)}
               onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
             >
-              <img 
-                className="searchResultCardAnchorIconsCiteIcon" 
-                src={quoteIcon} 
-                alt='Cite icon' 
+              <QuoteRedIcon
+                size={16}
+                className="searchResultCardAnchorIconsCiteIcon"
+                ariaLabel="Cite article"
               />
               <div className="searchResultCardAnchorIconsCiteText">
                 {t('common.cite')}

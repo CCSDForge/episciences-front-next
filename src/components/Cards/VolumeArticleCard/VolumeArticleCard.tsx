@@ -5,6 +5,7 @@ import { Link } from '@/components/Link/Link';
 import { useRouter } from 'next/navigation';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
+import { CaretUpRedIcon, CaretDownRedIcon, DownloadRedIcon } from '@/components/icons';
 import './VolumeArticleCard.scss';
 
 import { PATHS } from '@/config/paths';
@@ -39,16 +40,16 @@ export default function VolumeArticleCard({ language, t, article }: IVolumeArtic
       <div className="volumeArticleCard-authors">{article.authors.map(author => author.fullname).join(', ')}</div>
       {article.abstract && (
         <div className="volumeArticleCard-abstract">
-          <div 
-            className={`volumeArticleCard-abstract-title ${!openedAbstract && 'volumeArticleCard-abstract-title-closed'}`} 
+          <div
+            className={`volumeArticleCard-abstract-title ${!openedAbstract && 'volumeArticleCard-abstract-title-closed'}`}
             onClick={toggleAbstract}
           >
             <div className="volumeArticleCard-abstract-title-text">{t('common.abstract')}</div>
-            <img 
-              className="volumeArticleCard-abstract-title-caret" 
-              src={openedAbstract ? "/icons/caret-up-red.svg" : "/icons/caret-down-red.svg"} 
-              alt={openedAbstract ? 'Caret up icon' : 'Caret down icon'} 
-            />
+            {openedAbstract ? (
+              <CaretUpRedIcon size={14} className="volumeArticleCard-abstract-title-caret" ariaLabel="Collapse abstract" />
+            ) : (
+              <CaretDownRedIcon size={14} className="volumeArticleCard-abstract-title-caret" ariaLabel="Expand abstract" />
+            )}
           </div>
           <div className={`volumeArticleCard-abstract-content ${openedAbstract && 'volumeArticleCard-abstract-content-opened'}`}>
             <MathJax dynamic>{getAbstractText(article.abstract, language)}</MathJax>
@@ -63,10 +64,10 @@ export default function VolumeArticleCard({ language, t, article }: IVolumeArtic
           {article.pdfLink && (
             <Link href={`${PATHS.articles}/${article.id}/download`} lang={language} target="_blank" rel="noopener noreferrer">
               <div className="volumeArticleCard-anchor-icons-download">
-                <img
+                <DownloadRedIcon
+                  size={16}
                   className="volumeArticleCard-anchor-icons-download-icon"
-                  src="/icons/download-red.svg"
-                  alt="Download icon"
+                  ariaLabel="Download PDF"
                 />
                 <div className="volumeArticleCard-anchor-icons-download-text">{t('common.pdf')}</div>
               </div>

@@ -1,10 +1,9 @@
 'use client';
 
 import { TFunction } from 'i18next';
+import { CaretRightBlackIcon, CaretRightRedIcon } from '@/components/icons';
 import './AuthorCard.scss';
 
-import caretRightBlack from '../../../../public/icons/caret-right-black.svg';
-import caretRightRed from '../../../../public/icons/caret-right-red.svg';
 import { IAuthor } from "@/types/author";
 
 export interface IAuthorCardProps {
@@ -21,9 +20,9 @@ export default function AuthorCard({ t, author, expandedCard, setExpandedAuthorI
         <div className="authorCard-title-name" onClick={setExpandedAuthorIndexCallback}>
           <div className={`authorCard-title-name-text ${expandedCard ? 'authorCard-title-name-text-expanded' : ''}`}>{author.name}</div>
           {expandedCard ? (
-            <img className="authorCard-title-name-caret" src={caretRightRed} alt='Caret right icon' />
+            <CaretRightRedIcon size={16} className="authorCard-title-name-caret" ariaLabel="Collapse author" />
           ) : (
-            <img className="authorCard-title-name-caret" src={caretRightBlack} alt='Caret right icon' />
+            <CaretRightBlackIcon size={16} className="authorCard-title-name-caret" ariaLabel="Expand author" />
           )}
         </div>
         <div className="authorCard-title-count">{author.count > 1 ? `${author.count} ${t('common.articles')}` : `${author.count} ${t('common.article')}`}</div>

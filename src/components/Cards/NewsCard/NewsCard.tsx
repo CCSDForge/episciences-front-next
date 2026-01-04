@@ -4,9 +4,9 @@ import { MouseEvent, useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { TFunction } from 'i18next';
+import { ExternalLinkRedIcon } from '@/components/icons';
 import './NewsCard.scss';
 
-import externalLink from '../../../../public/icons/external-link-red.svg';
 import { INews } from "@/types/news";
 import { formatDate } from '@/utils/date';
 import { RENDERING_MODE } from '@/utils/card';
@@ -95,9 +95,10 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
                   prefetch={false}
                   onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
                 >
-                  <img
-                    src={externalLink}
-                    alt="External link icon"
+                  <ExternalLinkRedIcon
+                    size={16}
+                    className="newsCard-content-read-icon"
+                    ariaLabel="External link"
                   />
                   <div className="newsCard-content-read-text">
                     {t('common.read')}
@@ -133,9 +134,10 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
                               prefetch={false}
                               onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
                             >
-                              <img 
-                                src={externalLink} 
-                                alt="External link icon" 
+                              <ExternalLinkRedIcon
+                                size={16}
+                                className="newsCard-content-read-icon"
+                                ariaLabel="External link"
                               />
                               <div className="newsCard-content-read-text">
                                 {t('common.read')}
@@ -168,9 +170,10 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
                           prefetch={false}
                           onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
                         >
-                          <img 
-                            src={externalLink} 
-                            alt="External link icon" 
+                          <ExternalLinkRedIcon
+                            size={16}
+                            className="newsCard-content-read-icon"
+                            ariaLabel="External link"
                           />
                           <div className="newsCard-content-read-text">
                             {t('common.read')}
