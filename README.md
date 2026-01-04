@@ -9,7 +9,7 @@
 Next.js 14 (App Router) version of Episciences front-end. This version is configured for **Node.js Server rendering with Incremental Static Regeneration (ISR)** and Multi-tenant Middleware support.
 
 ## 🛠 Technologies
-- Next.js 14/15 (App Router)
+- Next.js 14 (App Router)
 - Node.js Server (Standalone)
 - TypeScript
 - SCSS / Tailwind CSS

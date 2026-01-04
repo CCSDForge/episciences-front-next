@@ -8,7 +8,7 @@ interface ITagProps {
   onCloseCallback: () => void;
 }
 
-export default function Tag({ text, onCloseCallback }: ITagProps): JSX.Element {
+export default function Tag({ text, onCloseCallback }: Readonly<ITagProps>): JSX.Element {
   return (
     <div className="tag">
       <span className="tag-text">{text}</span>

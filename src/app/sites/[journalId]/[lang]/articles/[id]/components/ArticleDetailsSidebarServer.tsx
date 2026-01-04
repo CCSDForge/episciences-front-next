@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import { formatDate } from '@/utils/date';
@@ -88,9 +89,9 @@ export default function ArticleDetailsSidebarServer({
 
     return (
       <>
-        <a href={getLocalizedPath(`${PATHS.volumes}/${relatedVolume.id}`)} className="articleDetailsSidebar-volumeDetails-number">
+        <Link href={getLocalizedPath(`${PATHS.volumes}/${relatedVolume.id}`)} className="articleDetailsSidebar-volumeDetails-number">
           {text} {relatedVolume.num}
-        </a>
+        </Link>
         {volumeTitle && (
           <div className="articleDetailsSidebar-volumeDetails-title">{volumeTitle}</div>
         )}
@@ -106,9 +107,9 @@ export default function ArticleDetailsSidebarServer({
     if (!sectionTitle) return null;
 
     return (
-      <a href={getLocalizedPath(`sections/${article.section.id}`)} className="articleDetailsSidebar-volumeDetails-section">
+      <Link href={getLocalizedPath(`sections/${article.section.id}`)} className="articleDetailsSidebar-volumeDetails-section">
         {sectionTitle}
-      </a>
+      </Link>
     );
   };
 

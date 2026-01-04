@@ -1,6 +1,11 @@
+import { Link } from '@/components/Link/Link';
 import './Header.scss';
 
-export default function HeaderServerSimple(): JSX.Element {
+interface HeaderServerSimpleProps {
+  lang?: string;
+}
+
+export default function HeaderServerSimple({ lang = 'en' }: HeaderServerSimpleProps): JSX.Element {
   return (
     <header className="header">
       <div className="header-preheader">
@@ -12,17 +17,17 @@ export default function HeaderServerSimple(): JSX.Element {
       </div>
       <div className="header-journal">
         <div className="header-journal-logo">
-          <a href="/">
+          <Link href="/" lang={lang}>
             <img src="/logos/logo-big.svg" alt="Journal logo" />
-          </a>
+          </Link>
         </div>
         <div className="header-journal-title">Journal</div>
       </div>
       <div className="header-postheader">
         <div className="header-postheader-links">
-          <a href="/articles">Articles</a>
-          <a href="/about">About</a>
-          <a href="/boards">Boards</a>
+          <Link href="/articles" lang={lang}>Articles</Link>
+          <Link href="/about" lang={lang}>About</Link>
+          <Link href="/boards" lang={lang}>Boards</Link>
         </div>
       </div>
     </header>
