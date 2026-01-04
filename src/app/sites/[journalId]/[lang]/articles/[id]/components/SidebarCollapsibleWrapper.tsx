@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, ReactNode } from 'react';
+import { CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 
 interface SidebarCollapsibleWrapperProps {
   title: string;
@@ -21,9 +22,6 @@ export default function SidebarCollapsibleWrapper({
 }: SidebarCollapsibleWrapperProps): JSX.Element {
   const [isOpen, setIsOpen] = useState(initialOpen);
 
-  const caretUpGrey = '/icons/caret-up-grey.svg';
-  const caretDownGrey = '/icons/caret-down-grey.svg';
-
   return (
     <div className={className}>
       <div
@@ -31,11 +29,19 @@ export default function SidebarCollapsibleWrapper({
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className={`${className}-title-text`}>{title}</div>
-        <img
-          className={`${className}-title-caret`}
-          src={isOpen ? caretUpGrey : caretDownGrey}
-          alt={isOpen ? 'Caret up icon' : 'Caret down icon'}
-        />
+        {isOpen ? (
+          <CaretUpGreyIcon
+            size={16}
+            className={`${className}-title-caret`}
+            ariaLabel="Collapse"
+          />
+        ) : (
+          <CaretDownGreyIcon
+            size={16}
+            className={`${className}-title-caret`}
+            ariaLabel="Expand"
+          />
+        )}
       </div>
       <div className={`${className}-content ${isOpen ? `${className}-content-opened` : ''}`}>
         {children}

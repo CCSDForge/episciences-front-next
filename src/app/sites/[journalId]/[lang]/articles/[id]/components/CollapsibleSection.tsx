@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import Image from 'next/image';
+import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 
 interface CollapsibleSectionProps {
   title: string;
@@ -14,18 +14,24 @@ export default function CollapsibleSection({ title, defaultOpen = true, children
 
   return (
     <div className='articleDetails-content-article-section'>
-      <div 
-        className={`articleDetails-content-article-section-title ${!isOpened && 'articleDetails-content-article-section-closed'}`} 
+      <div
+        className={`articleDetails-content-article-section-title ${!isOpened && 'articleDetails-content-article-section-closed'}`}
         onClick={() => setIsOpened(!isOpened)}
       >
         <div className='articleDetails-content-article-section-title-text'>{title}</div>
-        <Image 
-          className='articleDetails-content-article-section-title-caret' 
-          src={isOpened ? '/icons/caret-up-red.svg' : '/icons/caret-down-red.svg'} 
-          alt={isOpened ? 'Caret up icon' : 'Caret down icon'}
-          width={14}
-          height={14}
-        />
+        {isOpened ? (
+          <CaretUpRedIcon
+            size={14}
+            className='articleDetails-content-article-section-title-caret'
+            ariaLabel="Collapse section"
+          />
+        ) : (
+          <CaretDownRedIcon
+            size={14}
+            className='articleDetails-content-article-section-title-caret'
+            ariaLabel="Expand section"
+          />
+        )}
       </div>
       <div className={`articleDetails-content-article-section-content ${isOpened && 'articleDetails-content-article-section-content-opened'}`}>
         {children}

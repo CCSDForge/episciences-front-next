@@ -18,10 +18,6 @@ import PreviewSection from './components/PreviewSection';
 import CollapsibleSectionWrapper from './components/CollapsibleSectionWrapper';
 import './ArticleDetails.scss';
 
-// Icon paths
-const caretUpRed = '/icons/caret-up-red.svg';
-const caretDownRed = '/icons/caret-down-red.svg';
-
 interface ArticleDetailsServerProps {
   article: IArticle;
   id: string;
@@ -204,8 +200,6 @@ export default function ArticleDetailsServer({
         title={sectionTitle}
         sectionKey={sectionKey}
         initialOpen={true}
-        caretUpIcon={caretUpRed}
-        caretDownIcon={caretDownRed}
       >
         {sectionContent}
       </CollapsibleSectionWrapper>

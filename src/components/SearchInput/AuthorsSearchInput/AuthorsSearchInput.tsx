@@ -1,8 +1,8 @@
 'use client';
 
 import { ChangeEvent } from 'react';
+import { SearchIcon } from '@/components/icons';
 import './AuthorsSearchInput.scss';
-import searchIcon from '../../../../public/icons/search.svg';
 
 interface IAuthorsSearchInputProps {
   value: string;
@@ -13,16 +13,16 @@ interface IAuthorsSearchInputProps {
 export default function AuthorsSearchInput({ value, placeholder, onChangeCallback }: IAuthorsSearchInputProps): JSX.Element {
   return (
     <div className="authorsSearchInput">
-      <input 
-        className="authorsSearchInput-input" 
-        value={value} 
-        placeholder={placeholder} 
-        onChange={(e: ChangeEvent<HTMLInputElement>): void => onChangeCallback(e.target.value)} 
+      <input
+        className="authorsSearchInput-input"
+        value={value}
+        placeholder={placeholder}
+        onChange={(e: ChangeEvent<HTMLInputElement>): void => onChangeCallback(e.target.value)}
       />
-      <img 
-        className="authorsSearchInput-icon" 
-        src={searchIcon} 
-        alt='Search icon' 
+      <SearchIcon
+        size={16}
+        className="authorsSearchInput-icon"
+        ariaLabel="Search"
       />
     </div>
   )

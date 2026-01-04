@@ -19,7 +19,7 @@ import VolumeArticleCard from "@/components/Cards/VolumeArticleCard/VolumeArticl
 import VolumeDetailsMobileModal from "@/components/Modals/VolumeDetailsMobileModal/VolumeDetailsMobileModal";
 import VolumeDetailsSidebar from "@/components/Sidebars/VolumeDetailsSidebar/VolumeDetailsSidebar";
 import PageTitle from "@/components/PageTitle/PageTitle";
-import { DownloadRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
+import { DownloadRedIcon, CaretUpGreyIcon, CaretDownGreyIcon, CaretUpGreyLightIcon, CaretDownGreyLightIcon } from '@/components/icons';
 import './VolumeDetails.scss';
 
 interface VolumeDetailsClientProps {
@@ -209,10 +209,11 @@ export default function VolumeDetailsClient({
             )}
             <div onClick={(): void => setShowFullMobileDescription(!showFullMobileDescription)} className='volumeDetails-content-results-content-description-toggleMobile'>
               {showFullMobileDescription ? t('common.seeLess') : t('common.seeMore')}
-              <img 
-                src={showFullMobileDescription ? "/icons/caret-up-grey-light.svg" : "/icons/caret-down-grey-light.svg"} 
-                alt={showFullMobileDescription ? "See less" : "See more"} 
-              />
+              {showFullMobileDescription ? (
+                <CaretUpGreyLightIcon size={16} ariaLabel="See less" />
+              ) : (
+                <CaretDownGreyLightIcon size={16} ariaLabel="See more" />
+              )}
             </div>
           </div>
         );

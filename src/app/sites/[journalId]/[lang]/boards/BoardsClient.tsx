@@ -7,6 +7,7 @@ import { useAppSelector } from "@/hooks/store";
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { IBoardMember } from '@/types/board';
 import { IBoardPage, fetchBoardPages, fetchBoardMembers } from '@/services/board';
+import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
 import BoardsSidebar from '@/components/Sidebars/BoardsSidebar/BoardsSidebar';
@@ -159,16 +160,24 @@ export default function BoardsClient({
         <div className='boards-content-groups'>
           {getBoardsPerTitle().map((boardPerTitle, index) => (
             <div key={index} className='boards-content-groups-group'>
-              <div 
-                className='boards-content-groups-group-title' 
+              <div
+                className='boards-content-groups-group-title'
                 onClick={(): void => activeGroupIndex === index ? handleGroupToggle(-1) : handleGroupToggle(index)}
               >
                 <h2>{boardPerTitle.title}</h2>
-                <img 
-                  className='boards-content-groups-group-caret' 
-                  src={activeGroupIndex === index ? '/icons/caret-up-red.svg' : '/icons/caret-down-red.svg'} 
-                  alt={activeGroupIndex === index ? 'Caret up icon' : 'Caret down icon'} 
-                />
+                {activeGroupIndex === index ? (
+                  <CaretUpRedIcon
+                    size={16}
+                    className='boards-content-groups-group-caret'
+                    ariaLabel="Collapse group"
+                  />
+                ) : (
+                  <CaretDownRedIcon
+                    size={16}
+                    className='boards-content-groups-group-caret'
+                    ariaLabel="Expand group"
+                  />
+                )}
               </div>
               <div className={`boards-content-groups-group-content ${activeGroupIndex === index && 'boards-content-groups-group-content-active'}`}>
                 <div className='boards-content-groups-group-content-description'>

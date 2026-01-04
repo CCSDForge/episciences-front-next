@@ -5,10 +5,7 @@ import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
-
-// Use direct paths for static build compatibility
-const caretUp = '/icons/caret-up-red.svg';
-const caretDown = '/icons/caret-down-red.svg';
+import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
@@ -322,16 +319,16 @@ export default function ForAuthorsClient({
                         <div className='forAuthors-content-body-section-subtitle' onClick={(): void => toggleSectionHeader(id!)}>
                           <h2 id={id} className='forAuthors-content-body-section-subtitle-text' {...props} />
                           {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
-                            <img 
-                              className='forAuthors-content-body-section-subtitle-caret' 
-                              src={caretUp} 
-                              alt='Caret up icon'
+                            <CaretUpRedIcon
+                              size={16}
+                              className='forAuthors-content-body-section-subtitle-caret'
+                              ariaLabel="Collapse section"
                             />
                           ) : (
-                            <img 
-                              className='forAuthors-content-body-section-subtitle-caret' 
-                              src={caretDown} 
-                              alt='Caret down icon'
+                            <CaretDownRedIcon
+                              size={16}
+                              className='forAuthors-content-body-section-subtitle-caret'
+                              ariaLabel="Expand section"
                             />
                           )}
                         </div>

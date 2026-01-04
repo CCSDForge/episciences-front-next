@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState, ReactNode } from 'react';
+import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 
 interface CollapsibleSectionWrapperProps {
   title: string;
   children: ReactNode;
   initialOpen?: boolean;
   sectionKey: string;
-  caretUpIcon?: string;
-  caretDownIcon?: string;
 }
 
 /**
@@ -20,8 +19,6 @@ export default function CollapsibleSectionWrapper({
   children,
   initialOpen = true,
   sectionKey,
-  caretUpIcon = '/icons/caret-up-red.svg',
-  caretDownIcon = '/icons/caret-down-red.svg'
 }: CollapsibleSectionWrapperProps): JSX.Element {
   const [isOpen, setIsOpen] = useState(initialOpen);
 
@@ -32,11 +29,19 @@ export default function CollapsibleSectionWrapper({
         onClick={(): void => setIsOpen(!isOpen)}
       >
         <div className='articleDetails-content-article-section-title-text'>{title}</div>
-        <img
-          className='articleDetails-content-article-section-title-caret'
-          src={isOpen ? caretUpIcon : caretDownIcon}
-          alt={isOpen ? 'Caret up icon' : 'Caret down icon'}
-        />
+        {isOpen ? (
+          <CaretUpRedIcon
+            size={16}
+            className='articleDetails-content-article-section-title-caret'
+            ariaLabel="Collapse section"
+          />
+        ) : (
+          <CaretDownRedIcon
+            size={16}
+            className='articleDetails-content-article-section-title-caret'
+            ariaLabel="Expand section"
+          />
+        )}
       </div>
       <div className={`articleDetails-content-article-section-content ${isOpen && 'articleDetails-content-article-section-content-opened'}`}>
         {children}
