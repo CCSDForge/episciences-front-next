@@ -97,7 +97,8 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
     setCurrentPage(selectedItem.selected + 1);
     // Pour un comportement Full Static, la navigation entre les pages
     // serait gérée par le rechargement de la page avec des paramètres d'URL
-    window.location.href = `/news?page=${selectedItem.selected + 1}${getSelectedYears().length > 0 ? `&years=${getSelectedYears().join(',')}` : ''}`;
+    const selectedYears = years.filter(y => y.isSelected).map(y => y.year);
+    window.location.href = `/news?page=${selectedItem.selected + 1}${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`;
   }, [years]);
 
   const onSelectYear = (year: number): void => {

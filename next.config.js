@@ -3,6 +3,12 @@ const path = require('path');
 
 const nextConfig = {
   reactStrictMode: true,
+
+  // Configuration SASS (supportée par Webpack et Turbopack)
+  sassOptions: {
+    includePaths: [path.join(__dirname, 'src/styles')],
+    quietDeps: true,
+  },
   
   // Configuration des images
   images: {
@@ -34,42 +40,13 @@ const nextConfig = {
     ];
   },
     
-      webpack: (config, { dev, isServer }) => {
-      if (!isServer) {
-        config.resolve.fallback = {
-          ...config.resolve.fallback,
-          fs: false,
-        };
-      }
-  
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@': path.join(__dirname, 'src'),
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
       };
-      // Configuration SASS
-    const rules = config.module.rules;
-    const sassRule = rules.find(
-      (rule) => rule.test && rule.test.toString().includes('scss')
-    );
-
-    if (sassRule) {
-      sassRule.use = sassRule.use.map((loader) => {
-        if (loader.loader && loader.loader.includes('sass-loader')) {
-          return {
-            ...loader,
-            options: {
-              ...loader.options,
-              sassOptions: {
-                includePaths: [path.join(__dirname, 'src/styles')],
-                quietDeps: true,
-              },
-            }
-          };
-        }
-        return loader;
-      });
     }
-
     return config;
   },
 };

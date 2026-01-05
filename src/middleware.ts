@@ -7,7 +7,12 @@ import {
   hasLanguagePrefix,
   removeLanguagePrefix,
 } from '@/utils/language-utils';
-import { journalExists } from '@/utils/static-paths';
+// import { journalExists } from '@/utils/static-paths'; // REMOVE: Uses fs, incompatible with Edge
+import { journals } from '@/config/journals-generated';
+
+function journalExists(journalId: string): boolean {
+  return journals.includes(journalId);
+}
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl;
