@@ -6,6 +6,8 @@ import { FetchedArticle } from '@/utils/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import VolumeDetailsClient from './VolumeDetailsClient';
 
+// Volume details - revalidate every hour (3600 seconds)
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Volume Details',

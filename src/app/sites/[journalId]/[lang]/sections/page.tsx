@@ -7,6 +7,8 @@ import dynamic from 'next/dynamic';
 
 const SectionsClient = dynamic(() => import('./SectionsClient'));
 
+// Dynamic list - revalidate every 10 minutes (600 seconds)
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: 'Sections',

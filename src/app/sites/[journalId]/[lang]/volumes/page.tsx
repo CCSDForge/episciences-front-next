@@ -7,6 +7,8 @@ import dynamic from 'next/dynamic';
 
 const VolumesClient = dynamic(() => import('./VolumesClient'));
 
+// Dynamic list - revalidate every 10 minutes (600 seconds)
+export const revalidate = 600;
 
 const VOLUMES_PER_PAGE = 20;
 

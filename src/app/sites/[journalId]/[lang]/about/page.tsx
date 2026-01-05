@@ -9,6 +9,8 @@ import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 import { getLanguageFromParams } from "@/utils/language-utils";
 const AboutClient = dynamic(() => import('./AboutClient'));
 
+// Static content - revalidate once per day (86400 seconds = 24 hours)
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: 'À propos',

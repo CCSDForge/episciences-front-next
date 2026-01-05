@@ -34,22 +34,20 @@ export default function ArticleCard({ language, rvcode, t, article, toggleAbstra
     return `${PATHS.articles}/${article.id}`;
   };
 
-  const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
-
-  const { data: metadataCSL } = useFetchArticleMetadataQuery({ 
-    rvcode: rvcode!, 
-    paperid: article.id.toString(), 
-    type: METADATA_TYPE.CSL 
-  }, { 
-    skip: !article.id || !rvcode || isStaticBuild 
+  const { data: metadataCSL } = useFetchArticleMetadataQuery({
+    rvcode: rvcode!,
+    paperid: article.id.toString(),
+    type: METADATA_TYPE.CSL
+  }, {
+    skip: !article.id || !rvcode
   });
 
-  const { data: metadataBibTeX } = useFetchArticleMetadataQuery({ 
-    rvcode: rvcode!, 
-    paperid: article.id.toString(), 
-    type: METADATA_TYPE.BIBTEX 
-  }, { 
-    skip: !article.id || !rvcode || isStaticBuild 
+  const { data: metadataBibTeX } = useFetchArticleMetadataQuery({
+    rvcode: rvcode!,
+    paperid: article.id.toString(),
+    type: METADATA_TYPE.BIBTEX
+  }, {
+    skip: !article.id || !rvcode
   });
 
   const citationsDropdownRef = useRef<HTMLDivElement | null>(null);

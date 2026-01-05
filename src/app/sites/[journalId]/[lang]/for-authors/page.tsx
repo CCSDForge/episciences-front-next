@@ -5,6 +5,9 @@ import { getServerTranslations, t } from '@/utils/server-i18n';
 
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
 
+// Static content - revalidate once per day (86400 seconds = 24 hours)
+export const revalidate = 86400;
+
 // Cette fonction est aussi appelée au build time
 export async function generateMetadata(): Promise<Metadata> {
   return {

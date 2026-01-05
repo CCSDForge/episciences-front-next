@@ -8,6 +8,7 @@ import ClientProviders from '@/components/ClientProviders/ClientProviders';
 import { fetchVolumes } from '@/services/volume';
 import { getJournalByCode } from '@/services/journal';
 import { getServerTranslations } from '@/utils/server-i18n';
+import { getJournalApiUrl } from '@/utils/env-loader';
 
 interface LanguageLayoutProps {
   children: ReactNode;
@@ -26,6 +27,9 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
   let initialVolume = null;
   let initialJournal = null;
   let translations = {};
+  
+  // Charger l'URL de l'API spécifique au journal
+  const apiEndpoint = getJournalApiUrl(journalId);
 
   try {
     const [volumesData, journalData, translationsData] = await Promise.all([
@@ -63,6 +67,7 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
       initialLanguage={lang} 
       journalId={journalId}
       translations={translations}
+      apiEndpoint={apiEndpoint}
     >
       <ToastContainerWrapper />
       {/* Header with scroll behavior */}

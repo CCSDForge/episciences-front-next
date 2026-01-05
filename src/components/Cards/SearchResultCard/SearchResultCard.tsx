@@ -30,8 +30,6 @@ export default function SearchResultCard({ language, rvcode, t, searchResult, to
   const [citations, setCitations] = useState<ICitation[]>([]);
   const [showCitationsDropdown, setShowCitationsDropdown] = useState(false);
 
-  const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
-
   // Helper to extract abstract string from union type
   const getAbstractString = (abstract: string | IArticleAbstracts | undefined): string | undefined => {
     if (!abstract) return undefined;
@@ -40,20 +38,20 @@ export default function SearchResultCard({ language, rvcode, t, searchResult, to
     return abstract[language] || abstract.en || abstract.fr || Object.values(abstract)[0];
   };
 
-  const { data: metadataCSL } = useFetchArticleMetadataQuery({ 
-    rvcode: rvcode!, 
-    paperid: searchResult.id.toString(), 
-    type: METADATA_TYPE.CSL 
-  }, { 
-    skip: !searchResult.id || !rvcode || isStaticBuild 
+  const { data: metadataCSL } = useFetchArticleMetadataQuery({
+    rvcode: rvcode!,
+    paperid: searchResult.id.toString(),
+    type: METADATA_TYPE.CSL
+  }, {
+    skip: !searchResult.id || !rvcode
   });
 
-  const { data: metadataBibTeX } = useFetchArticleMetadataQuery({ 
-    rvcode: rvcode!, 
-    paperid: searchResult.id.toString(), 
-    type: METADATA_TYPE.BIBTEX 
-  }, { 
-    skip: !searchResult.id || !rvcode || isStaticBuild 
+  const { data: metadataBibTeX } = useFetchArticleMetadataQuery({
+    rvcode: rvcode!,
+    paperid: searchResult.id.toString(),
+    type: METADATA_TYPE.BIBTEX
+  }, {
+    skip: !searchResult.id || !rvcode
   });
 
   const citationsDropdownRef = useRef<HTMLDivElement | null>(null);

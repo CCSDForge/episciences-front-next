@@ -6,7 +6,10 @@ import { ISection, PartialSectionArticle } from '@/types/section';
 import { IArticle } from '@/types/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
-export async function generateMetadata({ params }: { params: { id: string; lang?: string } }): Promise<Metadata> {
+// Section details - revalidate every hour (3600 seconds)
+export const revalidate = 3600;
+
+export async function generateMetadata({ params }: { params: { id: string; lang?: string; journalId: string } }): Promise<Metadata> {
   try {
     if (params.id === 'no-sections-found') {
       return {
@@ -15,7 +18,7 @@ export async function generateMetadata({ params }: { params: { id: string; lang?
       };
     }
 
-    const section = await fetchSection({ sid: params.id });
+    const section = await fetchSection({ sid: params.id, rvcode: params.journalId });
     const sectionTitle = section.title?.en || section.title?.fr || `Section ${params.id}`;
     
     return {
@@ -55,7 +58,7 @@ export default async function SectionDetailsPage({
     }
     
     // Fetch section details by ID (like volumes do)
-    const rawSection = await fetchSection({ sid: params.id });
+    const rawSection = await fetchSection({ sid: params.id, rvcode: journalId });
 
     // Format section data (similar to fetchSections formatting)
     const section: ISection = {
@@ -75,7 +78,7 @@ export default async function SectionDetailsPage({
       ).filter(Boolean);
 
       if (paperIds.length > 0) {
-        const fetchedArticles = await fetchSectionArticles(paperIds.map((id: number) => id.toString()));
+        const fetchedArticles = await fetchSectionArticles(paperIds.map((id: number) => id.toString()), journalId);
         // Filter out null values
         articles = fetchedArticles.filter((article): article is IArticle => article !== null);
       }

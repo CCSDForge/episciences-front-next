@@ -1,7 +1,7 @@
 'use client';
 
 import { FilterIcon } from '@/components/icons';
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from "next/navigation";
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -83,10 +83,6 @@ export default function SearchClient({
   
   // Use rvcode from Redux or fallback to environment variable
   const rvcode = reduxRvcode || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-  
-  // Check if we're in static build mode
-  const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
-  
 
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [search, setSearch] = useState(initialSearch);
@@ -102,33 +98,47 @@ export default function SearchClient({
   const [showAllAbstracts, setShowAllAbstracts] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
 
-  const getSelectedTypes = useCallback(() => types.filter(t => t.isChecked).map(t => t.value), [types]);
-  const getSelectedYears = useCallback(() => years.filter(y => y.isChecked).map(y => y.year), [years]);
-  const getSelectedVolumes = useCallback(() => volumes.filter(v => v.isChecked).map(v => v.id), [volumes]);
-  const getSelectedSections = useCallback(() => sections.filter(s => s.isChecked).map(s => s.id), [sections]);
-  const getSelectedAuthors = useCallback(() => authors.filter(a => a.isChecked).map(a => a.fullname), [authors]);
+  // Memoize selected values to stabilize dependencies
+  const selectedTypeValues = useMemo(() => types.filter(t => t.isChecked).map(t => t.value).sort(), [types]);
+  const selectedYearValues = useMemo(() => years.filter(y => y.isChecked).map(y => y.year).sort(), [years]);
+  const selectedVolumeValues = useMemo(() => volumes.filter(v => v.isChecked).map(v => v.id).sort(), [volumes]);
+  const selectedSectionValues = useMemo(() => sections.filter(s => s.isChecked).map(s => s.id).sort(), [sections]);
+  const selectedAuthorValues = useMemo(() => authors.filter(a => a.isChecked).map(a => a.fullname).sort(), [authors]);
+
+  // Create a stable string key representing the search state
+  // This will only change when search params *value* changes, not when array references change
+  const searchParamsKey = JSON.stringify({
+    search,
+    rvcode,
+    currentPage,
+    selectedTypeValues,
+    selectedYearValues,
+    selectedVolumeValues,
+    selectedSectionValues,
+    selectedAuthorValues
+  });
+
+  const getSelectedTypes = useCallback(() => selectedTypeValues, [selectedTypeValues]);
+  const getSelectedYears = useCallback(() => selectedYearValues, [selectedYearValues]);
+  const getSelectedVolumes = useCallback(() => selectedVolumeValues, [selectedVolumeValues]);
+  const getSelectedSections = useCallback(() => selectedSectionValues, [selectedSectionValues]);
+  const getSelectedAuthors = useCallback(() => selectedAuthorValues, [selectedAuthorValues]);
 
   const performFilteredSearch = useCallback(async () => {
     if (!search || !rvcode) return;
     
     setIsLoading(true);
     try {
-      const selectedTypes = getSelectedTypes();
-      const selectedYears = getSelectedYears();
-      const selectedVolumes = getSelectedVolumes();
-      const selectedSections = getSelectedSections();
-      const selectedAuthors = getSelectedAuthors();
-      
       const results = await fetchSearchResults({
         terms: search,
         rvcode,
         page: currentPage,
         itemsPerPage: SEARCH_RESULTS_PER_PAGE,
-        types: selectedTypes,
-        years: selectedYears,
-        volumes: selectedVolumes,
-        sections: selectedSections,
-        authors: selectedAuthors
+        types: selectedTypeValues,
+        years: selectedYearValues,
+        volumes: selectedVolumeValues,
+        sections: selectedSectionValues,
+        authors: selectedAuthorValues
       });
       setSearchResults(results);
     } catch (error) {
@@ -136,7 +146,16 @@ export default function SearchClient({
     } finally {
       setIsLoading(false);
     }
-  }, [search, rvcode, currentPage, getSelectedTypes, getSelectedYears, getSelectedVolumes, getSelectedSections, getSelectedAuthors]);
+  }, [
+    search,
+    rvcode,
+    currentPage,
+    selectedTypeValues,
+    selectedYearValues,
+    selectedVolumeValues,
+    selectedSectionValues,
+    selectedAuthorValues
+  ]);
 
   // Read search query from URL parameters
   useEffect(() => {
@@ -146,10 +165,10 @@ export default function SearchClient({
     }
   }, [searchParams, search]);
   
-  // Perform search when search terms or basic params change (pagination)
+  // Perform search when search params change (debounced by the key)
   useEffect(() => {
     performFilteredSearch();
-  }, [performFilteredSearch]);
+  }, [performFilteredSearch]); // Only fetch when the *content* of params changes
 
   // Trigger search when filters change
   useEffect(() => {
@@ -181,69 +200,79 @@ export default function SearchClient({
   useEffect(() => {
     if (searchResults?.range) {
       if (searchResults?.range.types) {
-        const initTypes = searchResults.range.types
-          .filter((t) => articleTypes.find((at) => at.value === t.value))
-          .map((t) => {
-            const matchingType = articleTypes.find((at) => at.value === t.value);
-            return {
-              labelPath: matchingType!.labelPath,
-              value: matchingType!.value,
-              count: t.count,
-              isChecked: types.find((type) => type.value === matchingType!.value)?.isChecked || false,
-            };
-          });
-        setTypes(initTypes);
+        setTypes(prevTypes => {
+          const initTypes = searchResults.range!.types
+            .filter((t) => articleTypes.find((at) => at.value === t.value))
+            .map((t) => {
+              const matchingType = articleTypes.find((at) => at.value === t.value);
+              return {
+                labelPath: matchingType!.labelPath,
+                value: matchingType!.value,
+                count: t.count,
+                isChecked: prevTypes.find((type) => type.value === matchingType!.value)?.isChecked || false,
+              };
+            });
+          return initTypes;
+        });
       }
 
       if (searchResults?.range.years) {
-        const initYears = searchResults.range.years.map((y) => ({
-          year: y.value,
-          count: y.count,
-          isChecked: years.find((year) => year.year === y.value)?.isChecked || false,
-        }));
-        setYears(initYears);
+        setYears(prevYears => {
+          const initYears = searchResults.range!.years.map((y) => ({
+            year: y.value,
+            count: y.count,
+            isChecked: prevYears.find((year) => year.year === y.value)?.isChecked || false,
+          }));
+          return initYears;
+        });
       }
   
       if (searchResults?.range.volumes) {
-        const initVolumes = searchResults.range.volumes[language]?.map((v) => {
-          const id = parseInt(Object.keys(v)[0]);
-          return {
-            id,
-            label: {
-              en: searchResults.range?.volumes?.en?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] || '',
-              fr: searchResults.range?.volumes?.fr?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] || '',
-            },
-            isChecked: volumes.find((volume) => volume.id === id)?.isChecked || false,
-          };
-        }) ?? [];
-        setVolumes(initVolumes);
+        setVolumes(prevVolumes => {
+          const initVolumes = searchResults.range!.volumes[language]?.map((v) => {
+            const id = parseInt(Object.keys(v)[0]);
+            return {
+              id,
+              label: {
+                en: searchResults.range?.volumes?.en?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] || '',
+                fr: searchResults.range?.volumes?.fr?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] || '',
+              },
+              isChecked: prevVolumes.find((volume) => volume.id === id)?.isChecked || false,
+            };
+          }) ?? [];
+          return initVolumes;
+        });
       }
 
       if (searchResults?.range.sections) {
-        const initSections = searchResults.range.sections[language]?.map((s) => {
-          const id = parseInt(Object.keys(s)[0]);
-          return {
-            id,
-            label: {
-              en: searchResults.range?.sections?.en?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] || '',
-              fr: searchResults.range?.sections?.fr?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] || '',
-            },
-            isChecked: sections.find((section) => section.id === id)?.isChecked || false,
-          };
-        }) ?? [];
-        setSections(initSections);
+        setSections(prevSections => {
+          const initSections = searchResults.range!.sections[language]?.map((s) => {
+            const id = parseInt(Object.keys(s)[0]);
+            return {
+              id,
+              label: {
+                en: searchResults.range?.sections?.en?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] || '',
+                fr: searchResults.range?.sections?.fr?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] || '',
+              },
+              isChecked: prevSections.find((section) => section.id === id)?.isChecked || false,
+            };
+          }) ?? [];
+          return initSections;
+        });
       }
 
       if (searchResults?.range.authors) {
-        const initAuthors = searchResults.range.authors.map((a) => ({
-          fullname: a.value,
-          count: a.count,
-          isChecked: authors.find((author) => author.fullname === a.value)?.isChecked || false,
-        }));
-        setAuthors(initAuthors);
+        setAuthors(prevAuthors => {
+          const initAuthors = searchResults.range!.authors.map((a) => ({
+            fullname: a.value,
+            count: a.count,
+            isChecked: prevAuthors.find((author) => author.fullname === a.value)?.isChecked || false,
+          }));
+          return initAuthors;
+        });
       }
     }
-  }, [searchResults, language, authors, sections, types, volumes, years]);
+  }, [searchResults, language]);
 
   const updateUrlAndSearch = useCallback(() => {
     const params = new URLSearchParams();

@@ -16,6 +16,9 @@ import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMe
 import { AvailableLanguage } from '@/utils/i18n';
 import { cachedFetch } from '@/utils/fetch-cache';
 
+// Article details - revalidate every hour (3600 seconds)
+export const revalidate = 3600;
+
 interface ArticleDetailsPageProps {
   params: {
     id: string;
@@ -34,7 +37,7 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
       };
     }
 
-    const article = await fetchArticle(id);
+    const article = await fetchArticle(id, journalId);
     if (!article) {
       return {
         title: 'Article non trouvé',
@@ -147,17 +150,31 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
 
     
 
-        // Fetch all data server-side for complete pre-rendering
+            // Fetch all data server-side for complete pre-rendering
 
-        const [article, metadataCSL, metadataBibTeX] = await Promise.all([
+    
 
-          fetchArticle(id),
+            const [article, metadataCSL, metadataBibTeX] = await Promise.all([
 
-          fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.CSL }).catch(() => null),
+    
 
-          fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.BIBTEX }).catch(() => null)
+              fetchArticle(id, journalId),
 
-        ]);
+    
+
+              fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.CSL }).catch(() => null),
+
+    
+
+              fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.BIBTEX }).catch(() => null)
+
+    
+
+            ]);
+
+    
+
+        
 
     
 
@@ -165,21 +182,23 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
 
         let relatedVolume: IVolume | null = null;
 
-        if (article?.volumeId && journalId) {
+                if (article?.volumeId && journalId) {
 
-          try {
+                  try {
 
-            relatedVolume = await fetchVolume({
+                    relatedVolume = await fetchVolume(
 
-              rvcode: journalId,
+                      journalId,
 
-              vid: article.volumeId.toString(),
+                      Number(article.volumeId),
 
-              language
+                      language
 
-            });
+                    );
 
-          } catch (error) {
+                  } catch (error) {
+
+        
 
             console.error('Error fetching volume:', error);
 

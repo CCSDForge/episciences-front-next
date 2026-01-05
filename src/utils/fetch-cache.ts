@@ -1,6 +1,8 @@
 /**
- * Simple in-memory cache for fetch requests during build time
- * Prevents redundant API calls when generateStaticParams is called multiple times
+ * Simple pass-through wrapper for fetch functions
+ * Next.js 14 ISR handles caching via `next: { revalidate }` options in fetch()
+ * This file is kept for backward compatibility but no longer caches
+ * TODO: Remove this file and replace all usages with direct fetch calls
  */
 
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -9,35 +11,16 @@ const cache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_TTL = 10 * 60 * 1000;
 
 /**
- * Cache wrapper for fetch functions during build time
- * Only caches during static builds, not in dev or at runtime
+ * Pass-through wrapper - no longer caches
+ * Caching is handled by Next.js ISR natively
  */
 export async function cachedFetch<T>(
   cacheKey: string,
   fetchFn: () => Promise<T>
 ): Promise<T> {
-  // Only cache during static builds
-  const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
-
-  if (!isStaticBuild) {
-    return fetchFn();
-  }
-
-  // Check cache
-  const cached = cache.get(cacheKey);
-  const now = Date.now();
-
-  if (cached && (now - cached.timestamp) < CACHE_TTL) {
-    console.log(`[fetchCache] HIT: ${cacheKey}`);
-    return cached.data as T;
-  }
-
-  // Fetch and cache
-  console.log(`[fetchCache] MISS: ${cacheKey}`);
-  const data = await fetchFn();
-  cache.set(cacheKey, { data, timestamp: now });
-
-  return data;
+  // Next.js 14 ISR handles caching automatically via fetch() options
+  // No need for manual in-memory cache
+  return fetchFn();
 }
 
 /**

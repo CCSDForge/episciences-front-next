@@ -6,6 +6,9 @@ import { getServerTranslations, t } from '@/utils/server-i18n';
 
 const CreditsClient = dynamic(() => import('./CreditsClient'));
 
+// Static content - revalidate once per day (86400 seconds = 24 hours)
+export const revalidate = 86400;
+
 export const metadata: Metadata = {
   title: 'Crédits',
   description: 'Crédits et mentions légales',

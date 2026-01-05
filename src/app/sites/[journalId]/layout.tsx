@@ -3,7 +3,10 @@ interface JournalLayoutProps {
   params: { journalId: string };
 }
 
-export const revalidate = 60; // Revalidate every minute
+// Revalidate strategy moved to individual pages for granular control
+// Static pages (about, credits): revalidate = 86400 (24h)
+// Dynamic pages (articles list): revalidate = 600 (10min)
+// Article details: revalidate = 3600 (1h)
 
 export default async function JournalLayout({
   children,
