@@ -19,6 +19,20 @@ import { cachedFetch } from '@/utils/fetch-cache';
 // Article details - revalidate every hour (3600 seconds)
 export const revalidate = 3600;
 
+// Enable On-Demand ISR: pages generated on first visit, then cached
+export const dynamicParams = true;
+
+/**
+ * generateStaticParams for On-Demand ISR
+ * Returns empty array - pages will be generated on-demand when visited
+ * This approach is optimal for multi-tenant with 40+ journals and thousands of articles
+ */
+export async function generateStaticParams() {
+  // On-Demand ISR: generate nothing at build time
+  // Pages are generated on first request and cached with revalidate=3600
+  return [];
+}
+
 interface ArticleDetailsPageProps {
   params: {
     id: string;

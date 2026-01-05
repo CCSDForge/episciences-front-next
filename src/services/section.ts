@@ -1,9 +1,11 @@
 import { ISection } from '@/types/section';
 import { formatArticle } from '@/utils/article';
 import { API_URL, API_PATHS } from '@/config/api';
+import { getJournalApiUrl } from '@/utils/env-loader';
 
 interface FetchSectionParams {
   sid: string;
+  rvcode?: string;
 }
 
 interface FetchSectionsParams {
@@ -12,15 +14,19 @@ interface FetchSectionsParams {
   itemsPerPage?: number;
 }
 
-export async function fetchSection({ sid }: FetchSectionParams): Promise<ISection> {
-  const response = await fetch(`${API_URL}${API_PATHS.sections}/${sid}`, {
-    next: { revalidate: false }
+export async function fetchSection({ sid, rvcode }: FetchSectionParams): Promise<ISection> {
+  const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
+  const response = await fetch(`${apiRoot}${API_PATHS.sections}/${sid}`, {
+    next: {
+      revalidate: 3600, // Section details - revalidate every hour
+      tags: ['sections'] // Tag for on-demand revalidation
+    }
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to fetch section: ${response.statusText}`);
   }
-  
+
   return await response.json();
 }
 
@@ -31,8 +37,12 @@ export async function fetchSection({ sid }: FetchSectionParams): Promise<ISectio
  */
 export async function fetchSections({ rvcode, page = 1, itemsPerPage = 10 }: FetchSectionsParams): Promise<{ data: ISection[], totalItems: number, articlesCount: number }> {
   try {
-    const response = await fetch(`${API_URL}${API_PATHS.sections}?page=${page}&itemsPerPage=${itemsPerPage}&rvcode=${rvcode}`, {
-      next: { revalidate: false }
+    const apiUrl = getJournalApiUrl(rvcode);
+    const response = await fetch(`${apiUrl}${API_PATHS.sections}?page=${page}&itemsPerPage=${itemsPerPage}&rvcode=${rvcode}`, {
+      next: {
+        revalidate: 600, // Sections list - revalidate every 10 minutes
+        tags: ['sections'] // Tag for on-demand revalidation
+      }
     });
     
     if (!response.ok) {
@@ -62,10 +72,14 @@ export async function fetchSections({ rvcode, page = 1, itemsPerPage = 10 }: Fet
   }
 }
 
-export async function fetchSectionArticles(paperIds: string[]) {
+export async function fetchSectionArticles(paperIds: string[], rvcode?: string) {
+  const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
   const articlesPromises = paperIds.map(async (docid) => {
-    const response = await fetch(`${API_URL}${API_PATHS.papers}${docid}`, {
-      next: { revalidate: false }
+    const response = await fetch(`${apiRoot}${API_PATHS.papers}${docid}`, {
+      next: {
+        revalidate: 3600, // Article data - revalidate every hour
+        tags: ['articles'] // Tag for on-demand revalidation
+      }
     });
     
     if (!response.ok) {

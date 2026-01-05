@@ -1,9 +1,12 @@
 import { API_URL } from '@/config/api'
+import { getJournalApiUrl } from '@/utils/env-loader'
 
 export async function fetchAboutPage(rvcode: string) {
-  const response = await fetch(`${API_URL}/pages?page_code=about&rvcode=${rvcode}`, {
+  const apiUrl = getJournalApiUrl(rvcode);
+  const response = await fetch(`${apiUrl}/pages?page_code=about&rvcode=${rvcode}`, {
     next: {
-      revalidate: false
+      revalidate: 86400, // Static content - revalidate once per day (24 hours)
+      tags: ['about'] // Tag for on-demand revalidation
     }
   })
 
@@ -11,6 +14,6 @@ export async function fetchAboutPage(rvcode: string) {
     throw new Error('Failed to fetch about page')
   }
 
-  // Retourner directement la réponse complète pour traitement ultérieur
+  // Return the complete response for later processing
   return await response.json()
 } 

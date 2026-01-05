@@ -1,4 +1,5 @@
 import { API_URL } from '@/config/api'
+import { getJournalApiUrl } from '@/utils/env-loader'
 
 interface FetchStatsParams {
   rvcode: string
@@ -12,9 +13,11 @@ export async function fetchStats({ rvcode, page, itemsPerPage }: FetchStatsParam
     itemsPerPage: itemsPerPage.toString()
   })
 
-  const response = await fetch(`${API_URL}/journals/${rvcode}/stats?${params}`, {
+  const apiUrl = getJournalApiUrl(rvcode);
+  const response = await fetch(`${apiUrl}/journals/${rvcode}/stats?${params}`, {
     next: {
-      revalidate: false
+      revalidate: 3600, // Stats - revalidate every hour
+      tags: ['stats'] // Tag for on-demand revalidation
     }
   })
 

@@ -1,5 +1,6 @@
 import { API_URL } from '@/config/api'
 import { IStat, IStatResponse } from '@/types/stat'
+import { getJournalApiUrl } from '@/utils/env-loader'
 
 interface StatisticsParams {
   rvcode: string
@@ -20,13 +21,15 @@ export async function fetchStatistics({ rvcode, page = 1, itemsPerPage = 7, year
   }
   // Si years est undefined ou vide, on ne passe pas le paramètre (toutes les années)
 
-  const response = await fetch(`${API_URL}/statistics/?${params}`, {
+  const apiUrl = getJournalApiUrl(rvcode);
+  const response = await fetch(`${apiUrl}/statistics/?${params}`, {
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
     next: {
-      revalidate: false
+      revalidate: 3600, // Statistics - revalidate every hour
+      tags: ['statistics'] // Tag for on-demand revalidation
     }
   })
 
