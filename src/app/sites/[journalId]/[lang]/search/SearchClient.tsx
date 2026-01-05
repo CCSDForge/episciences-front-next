@@ -315,9 +315,10 @@ export default function SearchClient({
     }
   }, [searchResults]);
 
-  const handlePageClick = (selectedItem: { selected: number }): void => {
+  // Memoize handlePageClick to prevent Pagination re-renders
+  const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
     setCurrentPage(selectedItem.selected + 1);
-  };
+  }, []);
 
   const onCheckType = (value: string): void => {
     setCurrentPage(1);

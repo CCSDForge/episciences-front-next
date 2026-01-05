@@ -14,7 +14,7 @@ import { JournalInitializer } from '@/components/JournalInitializer/JournalIniti
 import { LastVolumeInitializer } from '@/components/LastVolumeInitializer/LastVolumeInitializer';
 import ThemeStyleSwitch from '@/components/ThemeStyleSwitch/ThemeStyleSwitch';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
-import { setCurrentJournal } from '@/store/features/journal/journal.slice';
+import { setCurrentJournal, setApiEndpoint } from '@/store/features/journal/journal.slice';
 import { IVolume } from '@/types/volume';
 import { IJournal } from '@/types/journal';
 import { getLanguageFromPathname } from '@/utils/language-utils';
@@ -25,6 +25,7 @@ interface ClientProvidersProps {
   initialLanguage?: string;
   journalId?: string;
   translations?: any;
+  apiEndpoint?: string;
   children?: React.ReactNode;
 }
 
@@ -39,15 +40,12 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
   initialLanguage, 
   journalId, 
   translations,
+  apiEndpoint,
   children 
 }) => {
-  // Detect language immediately, before first render
-  const detectedLang = (() => {
-    if (typeof window !== 'undefined') {
-      return getLanguageFromPathname(window.location.pathname);
-    }
-    return initialLanguage || 'en';
-  })();
+  // Use initialLanguage from server for hydration consistency
+  // Client-side detection happens in useEffect to avoid mismatch
+  const initialLang = initialLanguage || 'en';
 
   // Create a dedicated i18n instance for the server to avoid singleton issues
   // On the client, we use the singleton from @/config/i18n
@@ -87,23 +85,33 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
 
   const [isClient, setIsClient] = useState(false);
 
-  // Initialize Redux and i18next immediately with detected language
+  // Initialize Redux and i18next after hydration
   useEffect(() => {
     setIsClient(true);
 
-    // Update both i18next and Redux store
-    if (i18n.language !== detectedLang) {
-      i18n.changeLanguage(detectedLang);
+    // Detect language from pathname on client-side (after hydration)
+    const clientLang = typeof window !== 'undefined'
+      ? getLanguageFromPathname(window.location.pathname)
+      : initialLang;
+
+    // Update i18next and Redux store with client-detected language
+    if (i18n.language !== clientLang) {
+      i18n.changeLanguage(clientLang);
     }
 
-    // Update Redux store with detected language
-    store.dispatch(setLanguage(detectedLang as any));
-    
+    // Update Redux store
+    store.dispatch(setLanguage(clientLang as any));
+
     // Initialize Journal if provided
     if (initialJournal) {
       store.dispatch(setCurrentJournal(initialJournal));
     }
-  }, [detectedLang, initialJournal, initialLanguage]);
+
+    // Initialize API Endpoint if provided
+    if (apiEndpoint) {
+      store.dispatch(setApiEndpoint(apiEndpoint));
+    }
+  }, [initialLang, initialJournal, apiEndpoint]);
 
   return (
     <Provider store={store}>

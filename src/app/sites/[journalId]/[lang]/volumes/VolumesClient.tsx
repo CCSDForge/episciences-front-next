@@ -1,7 +1,7 @@
 'use client';
 
 import { FilterIcon, ListRedIcon, ListGreyIcon, TileRedIcon, TileGreyIcon } from '@/components/icons';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTranslation } from 'react-i18next';
 
@@ -187,7 +187,8 @@ export default function VolumesClient({
     }
   }, [initialVolumes, types, years, currentPage]);
 
-  const handlePageClick = (selectedItem: { selected: number }): void => {
+  // Memoize handlePageClick to prevent Pagination re-renders
+  const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
     const newPage = selectedItem.selected + 1;
     if (pathname) {
       router.push(`${pathname}?page=${newPage}`);
@@ -195,7 +196,7 @@ export default function VolumesClient({
     setCurrentPage(newPage);
     // Scroll vers le haut de la page
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [pathname, router]);
 
   const getVolumesCount = (mode: RENDERING_MODE): JSX.Element | null => {
     if (volumes) {

@@ -14,7 +14,6 @@ import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
 import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 import { AvailableLanguage } from '@/utils/i18n';
-import { cachedFetch } from '@/utils/fetch-cache';
 
 // Article details - revalidate every hour (3600 seconds)
 export const revalidate = 3600;

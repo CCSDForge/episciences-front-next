@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import { FilterIcon, ListRedIcon, ListGreyIcon, TileRedIcon, TileGreyIcon } from '@/components/icons';
@@ -92,12 +92,13 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
     }
   }, [newsData]);
 
-  const handlePageClick = (selectedItem: { selected: number }): void => {
+  // Memoize handlePageClick to prevent Pagination re-renders
+  const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
     setCurrentPage(selectedItem.selected + 1);
-    // Pour un comportement Full Static, la navigation entre les pages 
+    // Pour un comportement Full Static, la navigation entre les pages
     // serait gérée par le rechargement de la page avec des paramètres d'URL
     window.location.href = `/news?page=${selectedItem.selected + 1}${getSelectedYears().length > 0 ? `&years=${getSelectedYears().join(',')}` : ''}`;
-  };
+  }, [years]);
 
   const onSelectYear = (year: number): void => {
     setCurrentPage(1);
