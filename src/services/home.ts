@@ -7,6 +7,7 @@ import { FetchedArticle, formatArticle } from '@/utils/article';
 import { transformArticleForDisplay } from './article';
 import { formatVolume } from '@/utils/volume';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getJournalApiUrl } from '@/utils/env-loader';
 
 // Paramètres pour les retries
 const MAX_RETRIES = 3;
@@ -129,7 +130,7 @@ function transformBoardMembers(members: any[]): IBoardMember[] {
 
 export async function fetchHomeData(rvcode: string, language: string): Promise<HomeData> {
   try {
-    const apiBaseUrl = ensureApiEndpoint(process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '');
+    const apiBaseUrl = ensureApiEndpoint(getJournalApiUrl(rvcode));
 
     // Créer les promesses pour tous les appels API en parallèle
     const aboutPagePromise = fetch(`${apiBaseUrl}${API_PATHS.pages}?page_code=about&rvcode=${rvcode}`, {

@@ -1,4 +1,5 @@
 import { apiCall, fetchPaginatedResults } from './api.helper';
+import { getJournalApiUrl } from '@/utils/env-loader';
 
 export interface IFacetAuthor {
   '@id': string;
@@ -78,10 +79,13 @@ export async function fetchAuthors({
     
     const endpoint = `${baseUrl}${queryParams}`;
     
+    const apiRoot = getJournalApiUrl(rvcode);
+    
     // Utiliser le helper API pour faire l'appel
     const response = await apiCall<PaginatedResponseWithAuthorsRange<IFacetAuthor>>(
       endpoint,
       {
+        apiRoot,
         headers: {
           'Accept': 'application/ld+json'
         }
@@ -122,10 +126,13 @@ export async function fetchAuthorArticles({
     // Construction de l'URL comme dans la version originale
     const endpoint = `browse/authors-search/${fullname}?pagination=false&code=${rvcode}`;
     
+    const apiRoot = getJournalApiUrl(rvcode);
+
     // Utiliser le helper API
     const response = await apiCall<PaginatedResponse<RawAuthorArticle>>(
       endpoint,
       {
+        apiRoot,
         headers: {
           'Accept': 'application/ld+json'
         }

@@ -1,4 +1,5 @@
 import { AvailableLanguage } from "@/utils/i18n";
+import { getJournalApiUrl } from "@/utils/env-loader";
 
 export interface IPage {
   id: number;
@@ -9,8 +10,9 @@ export interface IPage {
 }
 
 export async function fetchPage(pageCode: string, rvcode: string): Promise<IPage | undefined> {
+  const apiUrl = getJournalApiUrl(rvcode);
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/pages?page_code=${pageCode}&rvcode=${rvcode}`
+    `${apiUrl}/pages?page_code=${pageCode}&rvcode=${rvcode}`
   );
   
   if (!response.ok) {

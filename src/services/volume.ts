@@ -3,6 +3,7 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { PaginatedResponseWithCount, Range } from '@/utils/pagination';
 import { API_URL } from '@/config/api';
 import { getJournalCode } from './journal';
+import { getJournalApiUrl } from '@/utils/env-loader';
 
 export const formatVolume = (rvcode: string, language: AvailableLanguage, volume: RawVolume): IVolume => {
   let metadatas: IVolumeMetadata[] = [];
@@ -73,10 +74,11 @@ export async function fetchVolumes({
   years,
   types 
 }: FetchVolumesParams): Promise<{ data: IVolume[], totalItems: number, articlesCount?: number, range?: Range }> {
-  const params = new URLSearchParams({
-    page: page.toString(),
-    itemsPerPage: itemsPerPage.toString(),
-  });
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      itemsPerPage: itemsPerPage.toString(),
+    });
 
   if (language) {
     params.append('language', language);
@@ -86,30 +88,33 @@ export async function fetchVolumes({
     params.append('types', types.join(','));
   }
 
-  if (years && years.length > 0) {
-    params.append('years', years.join(','));
+  if (years.length > 0) {
+    years.forEach(year => params.append('years[]', year));
   }
 
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/volumes?${params.toString()}&rvcode=${rvcode}`, {
-      next: {
-        revalidate: false
-      }
-    });
+  const apiUrl = getJournalApiUrl(rvcode);
+  const response = await fetch(`${apiUrl}/volumes?${params.toString()}&rvcode=${rvcode}`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+    }
+  });
 
-    if (!response.ok) {
+  if (!response.ok) {
       throw new Error('Failed to fetch volumes');
     }
 
     const data = await response.json();
+    const members = Array.isArray(data) ? data : (data['hydra:member'] || []);
+    
     const formattedRange = data['hydra:range'] ? {
       types: Array.isArray(data['hydra:range'].types) ? data['hydra:range'].types : [],
       years: Array.isArray(data['hydra:range'].year) ? data['hydra:range'].year : []
     } : undefined;
 
     return {
-      data: data['hydra:member'].map((volume: RawVolume) => formatVolume(rvcode, language || 'fr', volume)),
-      totalItems: data['hydra:totalItems'],
+      data: members.map((volume: RawVolume) => formatVolume(rvcode, language || 'fr', volume)),
+      totalItems: data['hydra:totalItems'] || members.length,
       articlesCount: data['hydra:totalPublishedArticles'],
       range: formattedRange
     };
@@ -151,11 +156,13 @@ export interface FetchVolumeParams {
   language?: string;
 }
 
-export const fetchVolume = async ({ rvcode, vid, language = 'fr' }: FetchVolumeParams): Promise<IVolume | null> => {
+export async function fetchVolume(rvcode: string, vid: number, language: string = 'fr'): Promise<IVolume | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/volumes/${vid}?language=${language}&rvcode=${rvcode}`, {
-      next: {
-        revalidate: false
+    const apiUrl = getJournalApiUrl(rvcode);
+    const response = await fetch(`${apiUrl}/volumes/${vid}?language=${language}&rvcode=${rvcode}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
       }
     });
     

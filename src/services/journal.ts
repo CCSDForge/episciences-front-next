@@ -1,5 +1,6 @@
 import { API_URL } from '@/config/api';
 import { IJournal } from '@/types/journal';
+import { getJournalApiUrl } from '@/utils/env-loader';
 
 interface Journal {
   code: string;
@@ -37,8 +38,9 @@ export const fetchJournalWithoutCode = async (): Promise<IJournal | null> => {
 
 export async function getJournalByCode(rvcode: string): Promise<IJournal> {
  // console.log('getJournalByCode', rvcode);
- // console.log(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/journals/${rvcode}`);
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/journals/${rvcode}`, {
+  const apiUrl = getJournalApiUrl(rvcode);
+ // console.log(`${apiUrl}/journals/${rvcode}`);
+  const response = await fetch(`${apiUrl}/journals/${rvcode}`, {
     headers: {
       'Accept': 'application/json'
     }
@@ -57,7 +59,8 @@ export async function getJournalByCode(rvcode: string): Promise<IJournal> {
 
 export async function fetchJournal(rvcode: string): Promise<IJournal> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/journals/${rvcode}`, {
+    const apiUrl = getJournalApiUrl(rvcode);
+    const response = await fetch(`${apiUrl}/journals/${rvcode}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',

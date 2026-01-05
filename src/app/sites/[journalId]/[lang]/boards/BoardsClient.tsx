@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from "@/hooks/store";
@@ -68,10 +68,10 @@ export default function BoardsClient({
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   // Architecture hybride : fetch automatique des données fraîches
-  const initialData: BoardsData = {
+  const initialData: BoardsData = useMemo(() => ({
     pages: initialPages,
     members: initialMembers
-  };
+  }), [initialPages, initialMembers]);
 
   const { data: boardsData, isUpdating } = useClientSideFetch({
     fetchFn: async () => {

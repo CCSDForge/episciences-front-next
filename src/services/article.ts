@@ -1,17 +1,9 @@
 import { API_URL, API_PATHS } from '@/config/api'
-import { FetchedArticle, METADATA_TYPE, formatArticle } from '@/utils/article'
-import { RawArticle } from '@/types/article'
+import { IArticle, IArticleMetadata } from '@/types/article'
+import { AvailableLanguage } from '@/utils/i18n'
+import { getJournalApiUrl } from '@/utils/env-loader'
 
-interface FetchArticlesParams {
-  rvcode: string
-  page: number
-  itemsPerPage: number
-  onlyAccepted?: boolean
-  types?: string[]
-  years?: number[]
-  articleIds?: string[]
-}
-
+// Paramètres pour les retries
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 seconde
 
@@ -56,7 +48,8 @@ export async function fetchArticles({ rvcode, page, itemsPerPage, onlyAccepted =
   }
 
   try {
-    const response = await fetchWithRetry(`${API_URL}${API_PATHS.papers}?${params}`)
+    const apiRoot = getJournalApiUrl(rvcode);
+    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}?${params}`)
 
     const data = await response.json()
     
@@ -101,6 +94,7 @@ export interface ArticleAcceptedFilter {
 }
 
 export async function fetchAcceptedArticles(
+  rvcode: string,
   page: number = 1,
   filters: ArticleAcceptedFilter = {}
 ): Promise<{
@@ -121,9 +115,14 @@ export async function fetchAcceptedArticles(
     });
   }
   
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/articles/accepted?${queryParams.toString()}`
-  );
+  const apiUrl = getJournalApiUrl(rvcode);
+  const response = await fetch(`${apiUrl}/articles/accepted?${queryParams.toString()}`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+    }
+  });
+
   
   if (!response.ok) {
     throw new Error('Failed to fetch accepted articles');
@@ -149,9 +148,10 @@ async function fetchRawArticle(paperid: string | number): Promise<RawArticle> {
 /**
  * Récupère un article formaté par son ID
  */
-export async function fetchArticle(paperid: string): Promise<FetchedArticle | null> {
+export async function fetchArticle(paperid: string, rvcode?: string): Promise<FetchedArticle | null> {
   try {
-    const response = await fetchWithRetry(`${API_URL}${API_PATHS.papers}${paperid}`);
+    const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
+    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`);
     const rawArticle: RawArticle = await response.json();
     return formatArticle(rawArticle);
   } catch (error) {
@@ -163,15 +163,24 @@ export async function fetchArticle(paperid: string): Promise<FetchedArticle | nu
 /**
  * Récupère les métadonnées d'un article dans un format spécifique
  */
-export async function fetchArticleMetadata({ rvcode, paperid, type }: { rvcode: string, paperid: string, type: string }): Promise<string | null> {
+export async function fetchExportLink(paperid: number, type: 'bibtex' | 'endnote', rvcode: string = ''): Promise<string | null> {
   try {
-    const response = await fetchWithRetry(
-      `${API_URL}${API_PATHS.papers}export/${paperid}/${type}?code=${process.env.NEXT_PUBLIC_JOURNAL_RVCODE || rvcode}`
-    );
+    const journalCode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || rvcode;
+    const apiUrl = getJournalApiUrl(journalCode);
     
-    return response.text();
+    // Pour l'export, on construit l'URL mais on ne fait pas le fetch nous-mêmes si c'est pour un lien href
+    // Mais ici la fonction semble retourner le contenu ?
+    // "fetchExportLink" -> retourne le texte
+    
+    const response = await fetch(`${apiUrl}${API_PATHS.papers}export/${paperid}/${type}?code=${journalCode}`);
+    
+    if (!response.ok) {
+      return null;
+    }
+    
+    return await response.text();
   } catch (error) {
-    console.error(`Erreur lors de la récupération des métadonnées de l'article ${paperid}:`, error);
+    console.error(`Error fetching export link for paper ${paperid}:`, error);
     return null;
   }
 }

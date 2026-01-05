@@ -23,6 +23,7 @@ export interface ApiOptions {
   next?: NextFetchRequestConfig;
   revalidate?: number | false;
   tags?: string[];
+  apiRoot?: string;
 }
 
 // Interface pour les paramètres de pagination
@@ -36,7 +37,7 @@ export async function apiCall<T>(
   endpoint: string, 
   options: ApiOptions = {}
 ): Promise<T> {
-  const apiRootEndpoint = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT;
+  const apiRootEndpoint = options.apiRoot || process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT;
   
   if (!apiRootEndpoint) {
     throw new Error('API root endpoint not defined');
@@ -75,7 +76,8 @@ export async function apiCall<T>(
 export async function fetchPaginatedResults<T, R>(
   endpoint: string,
   params: PaginationParams & Record<string, any> = {},
-  transformer?: (data: T) => R
+  transformer?: (data: T) => R,
+  apiRoot?: string
 ): Promise<PaginatedResponse<R | T>> {
   // Construire les paramètres de requête pour la pagination
   const queryParams = new URLSearchParams();
@@ -94,7 +96,7 @@ export async function fetchPaginatedResults<T, R>(
   const fullEndpoint = `${endpoint}${queryString ? '?' + queryString : ''}`;
   
   // Effectuer l'appel API
-  const response = await apiCall<ApiResponse<T>>(fullEndpoint, {});
+  const response = await apiCall<ApiResponse<T>>(fullEndpoint, { apiRoot });
   
   // Transformer les données si nécessaire
   const data = transformer 

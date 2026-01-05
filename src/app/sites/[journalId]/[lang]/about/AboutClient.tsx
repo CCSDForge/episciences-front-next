@@ -220,39 +220,41 @@ export default function AboutClient({ initialPage, lang, breadcrumbLabels }: Abo
                 >
                   <div className='about-content-body-section-subtitle' onClick={(): void => toggleSectionHeader(section.id)}>
                     <h2 id={section.id} className='about-content-body-section-subtitle-text'>
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          img: ({ src, alt }) => <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />,
-                          a: ({ href, children }) => <a href={href} target='_blank' rel='noreferrer'>{children}</a>
-                        }}
-                      >
-                        {section.value.split('\n')[0]}
-                      </ReactMarkdown>
-                    </h2>
-                    {section.opened ? (
-                      <CaretUpRedIcon size={16} className='about-content-body-section-subtitle-caret' ariaLabel="Collapse section" />
-                    ) : (
-                      <CaretDownRedIcon size={16} className='about-content-body-section-subtitle-caret' ariaLabel="Expand section" />
-                    )}
-                  </div>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      img: ({ src, alt }) => <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />,
-                      a: ({ href, children }) => <a href={href} target='_blank' rel='noreferrer' className='about-content-body-section-link'>{children}</a>
-                    }}
-                  >
-                    {section.value.split('\n').slice(1).join('\n')}
-                  </ReactMarkdown>
-                </div>
-              ))
-            ) : (
-              <p className="about-content-body-empty">Aucun contenu disponible pour la page &ldquo;À propos&rdquo;.</p>
-            )}
-          </div>
-        )}
-      </div>
-    </main>
-  );
-}
+                                            <ReactMarkdown
+                                              remarkPlugins={[remarkGfm]}
+                                              components={{
+                                                img: ({ src, alt }) => <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />,
+                                                a: ({ href, children }) => <a href={href} target='_blank' rel='noreferrer' className='about-content-body-section-link'>{children}</a>,
+                                                h2: ({ children }) => <>{children}</>, // Render h2 children directly
+                                              }}
+                                            >
+                                              {section.value.split('\n')[0]}
+                                            </ReactMarkdown>
+                                          </h2>
+                                          {section.opened ? (
+                                            <CaretUpRedIcon size={16} className='about-content-body-section-subtitle-caret' ariaLabel="Collapse section" />
+                                          ) : (
+                                            <CaretDownRedIcon size={16} className='about-content-body-section-subtitle-caret' ariaLabel="Expand section" />
+                                          )}
+                                        </div>
+                                        <ReactMarkdown
+                                          remarkPlugins={[remarkGfm]}
+                                          components={{
+                                            img: ({ src, alt }) => <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />,
+                                            a: ({ href, children }) => <a href={href} target='_blank' rel='noreferrer' className='about-content-body-section-link'>{children}</a>
+                                          }}
+                                        >
+                                          {section.value.split('\n').slice(1).join('\n')}
+                                        </ReactMarkdown>
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <p className="about-content-body-empty">Aucun contenu disponible pour la page &ldquo;À propos&rdquo;.</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </main>
+                        );
+                      }
+                      

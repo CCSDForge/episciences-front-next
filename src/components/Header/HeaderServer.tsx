@@ -3,6 +3,8 @@ import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
+import fs from 'fs';
+import path from 'path';
 import './Header.scss';
 
 const logoEpisciences = '/icons/logo-text.svg';
@@ -17,17 +19,62 @@ interface HeaderServerProps {
 export default async function HeaderServer({ lang = 'en', journalId }: HeaderServerProps): Promise<JSX.Element> {
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 
-  // Fetch journal info to get the name
+  // Fetch journal info to get the name and logo
   let journalName = 'Journal';
+  let journalLogoFilename: string | undefined = undefined; // To store the journal's logo filename
+  const code = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+
   try {
-    // Si journalId est fourni, l'utiliser, sinon fallback (pour compatibilité)
-    const code = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
     if (code) {
-      const journal = await getJournalByCode(code);
+      const journal = await getJournalByCode(code); // This journal object should contain logo
       journalName = journal?.name || journal?.title?.[lang as keyof typeof journal.title] || 'Journal';
+      journalLogoFilename = journal?.logo; // Get the logo filename if available
     }
   } catch (error) {
     console.error('Failed to fetch journal in HeaderServer:', error);
+  }
+
+  // Construct the final logo URLs
+  // Strategy: 
+  // 1. Check for logo-{code}-big.svg and logo-{code}-small.svg in public/logos
+  // 2. If not found, use journal.logo from API
+  // 3. Fallback to default episciences logo
+  
+  let mainLogoSrc = logoEpisciences;
+  let reducedLogoSrc = logoEpisciences;
+
+  if (code) {
+    try {
+      const publicLogosDir = path.join(process.cwd(), 'public/logos');
+      const bigLogoName = `logo-${code}-big.svg`;
+      const smallLogoName = `logo-${code}-small.svg`;
+      
+      const bigLogoPath = path.join(publicLogosDir, bigLogoName);
+      const smallLogoPath = path.join(publicLogosDir, smallLogoName);
+      
+      // Check if files exist (synchronous check is fine in Server Component)
+      const hasBig = fs.existsSync(bigLogoPath);
+      const hasSmall = fs.existsSync(smallLogoPath);
+      
+      if (hasBig) {
+        mainLogoSrc = `/logos/${bigLogoName}`;
+      } else if (journalLogoFilename) {
+        mainLogoSrc = `/logos/${journalLogoFilename}`;
+      }
+      
+      if (hasSmall) {
+        reducedLogoSrc = `/logos/${smallLogoName}`;
+      } else if (journalLogoFilename) {
+        reducedLogoSrc = `/logos/${journalLogoFilename}`;
+      }
+    } catch (e) {
+      console.warn('Error checking logo files:', e);
+      // Fallback to API logo if fs check fails
+      if (journalLogoFilename) {
+        mainLogoSrc = `/logos/${journalLogoFilename}`;
+        reducedLogoSrc = `/logos/${journalLogoFilename}`;
+      }
+    }
   }
 
   // Load translations for the current language
@@ -56,7 +103,7 @@ export default async function HeaderServer({ lang = 'en', journalId }: HeaderSer
       <div className="header-journal">
         <div className="header-journal-logo">
           <Link href="/" lang={lang}>
-            <img src={logoBig} alt="Journal logo" />
+            <img src={mainLogoSrc} alt="Journal logo" />
           </Link>
         </div>
         <div className="header-journal-title">{journalName}</div>
@@ -66,7 +113,7 @@ export default async function HeaderServer({ lang = 'en', journalId }: HeaderSer
       <div className="header-reduced-journal">
         <div className="header-reduced-journal-logo">
           <Link href="/" lang={lang}>
-            <img src={logoSmall} alt="Journal logo" />
+            <img src={reducedLogoSrc} alt="Journal logo" />
           </Link>
         </div>
         <div className="header-reduced-journal-blank">{journalName}</div>

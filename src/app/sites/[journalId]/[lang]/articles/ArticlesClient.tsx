@@ -72,14 +72,26 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
   const pageFromUrl = searchParams?.get('page');
   const initialPage = pageFromUrl ? Math.max(1, parseInt(pageFromUrl, 10)) : 1;
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [enhancedArticles, setEnhancedArticles] = useState<EnhancedArticle[]>([])
+  const [enhancedArticles, setEnhancedArticles] = useState<EnhancedArticle[]>(() => {
+    if (initialArticles?.data) {
+      return initialArticles.data
+        .filter((article) => article && article.title)
+        .map((article) => ({ ...article, openedAbstract: false }));
+    }
+    return [];
+  });
   const [types, setTypes] = useState<IArticleTypeSelection[]>([])
   const [years, setYears] = useState<IArticleYearSelection[]>([]);
   const [taggedFilters, setTaggedFilters] = useState<IArticleFilter[]>([]);
   const [showAllAbstracts, setShowAllAbstracts] = useState(false)
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false);
-  const [totalArticlesCount, setTotalArticlesCount] = useState<number>(0);
+  const [totalArticlesCount, setTotalArticlesCount] = useState<number>(initialArticles?.totalItems || 0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Memoize filters to prevent re-renders
   const selectedTypes = useMemo(() => types.filter(t => t.isChecked).map(t => t.value), [types]);
@@ -180,7 +192,9 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
           };
         });
       
-      setTypes(initTypes);
+      if (initTypes.length > 0) {
+        setTypes(initTypes);
+      }
     }
   }, [initialArticles, types]);
 
@@ -202,7 +216,9 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
         isChecked: false
       }));
       
-      setYears(initYears);
+      if (initYears.length > 0) {
+        setYears(initYears);
+      }
     }
   }, [initialArticles, years]);
 
@@ -415,7 +431,7 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
             years={years} 
             onCheckYearCallback={onCheckYear} 
           />
-          {isFetchingArticles ? (
+          {isMounted && isFetchingArticles && enhancedArticles.length === 0 ? (
             <Loader />
           ) : (
             <div className='articles-content-results-cards'>

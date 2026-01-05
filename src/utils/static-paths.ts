@@ -1,43 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import { loadJournalConfig, getJournalsList, JournalConfig } from './env-loader';
 
-interface JournalConfig {
-  code: string;
-  env: Record<string, string>;
-}
-
-/**
- * Lit la liste des journaux depuis le fichier journals.txt
- */
-export function getJournalsList(): string[] {
-  const journalsPath = path.join(process.cwd(), 'external-assets/journals.txt');
-  const content = fs.readFileSync(journalsPath, 'utf-8');
-  return content.split('\n').filter(Boolean);
-}
-
-/**
- * Charge la configuration d'un journal
- */
-export function loadJournalConfig(journalCode: string): JournalConfig {
-  const envPath = path.join(process.cwd(), `external-assets/.env.local.${journalCode}`);
-  const envContent = fs.readFileSync(envPath, 'utf-8');
-  
-  const env = envContent
-    .split('\n')
-    .filter(line => line && !line.startsWith('#'))
-    .reduce((acc, line) => {
-      const [key, value] = line.split('=').map(part => part.trim());
-      if (key && value) {
-        acc[key] = value.replace(/["']/g, '');
-      }
-      return acc;
-    }, {} as Record<string, string>);
-
-  return {
-    code: journalCode,
-    env
-  };
-}
+export { loadJournalConfig, getJournalsList };
+export type { JournalConfig };
 
 /**
  * Génère les chemins statiques pour un journal

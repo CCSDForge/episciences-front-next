@@ -3,6 +3,7 @@ import { FetchedArticle, formatArticle } from '@/utils/article'
 import { PaginatedResponseWithRange, SearchRange } from '@/utils/pagination'
 import { formatSearchRange } from '@/utils/search'
 import { ISearchResult } from '@/types/search'
+import { getJournalApiUrl } from '@/utils/env-loader'
 
 interface SearchParams {
   terms: string;
@@ -36,7 +37,8 @@ export async function fetchSearchResults({
 }> {
   try {
     // Construct the full URL by concatenating API_URL and search path
-    const fullUrl = `${API_URL}${API_PATHS.search}`;
+    const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
+    const fullUrl = `${apiRoot}${API_PATHS.search}`;
     const apiUrl = new URL(fullUrl);
     
     // Ajout des paramètres à l'URL
@@ -106,7 +108,8 @@ export async function fetchSearchResults({
     const fullResults = await Promise.all(
       searchResults.map(async (searchResult) => {
         const articleId = searchResult.docid;
-        const rawArticle = await fetch(`${API_URL}${API_PATHS.papers}${articleId}`, {
+        const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
+        const rawArticle = await fetch(`${apiRoot}${API_PATHS.papers}${articleId}`, {
           next: {
             tags: ['article', `article-${articleId}`],
           }

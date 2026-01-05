@@ -1,4 +1,5 @@
 import { API_URL } from '@/config/api';
+import { getJournalApiUrl } from '@/utils/env-loader';
 
 interface ForAuthorsPage {
   title: Record<string, string>;
@@ -11,7 +12,8 @@ interface ForAuthorsPage {
  * @returns Editorial workflow page data
  */
 export const fetchEditorialWorkflowPage = async (rvcode: string): Promise<ForAuthorsPage | null> => {
-  const url = `${API_URL}/pages?page_code=editorial-workflow&rvcode=${rvcode}`;
+  const apiUrl = getJournalApiUrl(rvcode);
+  const url = `${apiUrl}/pages?page_code=editorial-workflow&rvcode=${rvcode}`;
   //console.log('Fetching editorial workflow page from:', url);
   
   try {
@@ -38,7 +40,8 @@ export const fetchEditorialWorkflowPage = async (rvcode: string): Promise<ForAut
  * @returns Ethical charter page data
  */
 export const fetchEthicalCharterPage = async (rvcode: string): Promise<ForAuthorsPage | null> => {
-  const url = `${API_URL}/pages?page_code=ethical-charter&rvcode=${rvcode}`;
+  const apiUrl = getJournalApiUrl(rvcode);
+  const url = `${apiUrl}/pages?page_code=ethical-charter&rvcode=${rvcode}`;
 //  console.log('Fetching ethical charter page from:', url);
   
   try {
@@ -65,7 +68,8 @@ export const fetchEthicalCharterPage = async (rvcode: string): Promise<ForAuthor
  * @returns Prepare submission page data
  */
 export const fetchPrepareSubmissionPage = async (rvcode: string): Promise<ForAuthorsPage | null> => {
-  const url = `${API_URL}/pages?page_code=prepare-submission&rvcode=${rvcode}`;
+  const apiUrl = getJournalApiUrl(rvcode);
+  const url = `${apiUrl}/pages?page_code=prepare-submission&rvcode=${rvcode}`;
  // console.log('Fetching prepare submission page from:', url);
   
   try {
@@ -84,4 +88,5 @@ export const fetchPrepareSubmissionPage = async (rvcode: string): Promise<ForAut
     console.error('Error fetching prepare submission page:', error);
     return null;
   }
-}; 
+};
+ 

@@ -1,4 +1,5 @@
 import { AvailableLanguage } from "@/utils/i18n";
+import { getJournalApiUrl } from "@/utils/env-loader";
 
 export interface INews {
   id: number;
@@ -43,7 +44,8 @@ export async function fetchNews({
   itemsPerPage?: number;
   years?: number[];
 }): Promise<{ data: INews[]; totalItems: number; range?: Range }> {
-  let url = `${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/news/?page=${page}&itemsPerPage=${itemsPerPage}&rvcode=${rvcode}`;
+  const apiUrl = getJournalApiUrl(rvcode);
+  let url = `${apiUrl}/news/?page=${page}&itemsPerPage=${itemsPerPage}&rvcode=${rvcode}`;
   
   if (years && years.length > 0) {
     const yearsQuery = years.map(year => `year[]=${year}`).join('&');

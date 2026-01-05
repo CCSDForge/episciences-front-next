@@ -2,6 +2,8 @@ import { Link } from '@/components/Link/Link';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
 import { PATHS } from '@/config/paths';
+import fs from 'fs';
+import path from 'path';
 import './Footer.scss';
 
 const logoEpisciences = '/logos/logo-episciences.svg';
@@ -56,13 +58,36 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
   // Load translations for the current language
   const translations = await getServerTranslations(lang);
 
+  // Construct the final logo URL
+  // Use logo-{rvcode}-small.svg if it exists, otherwise use journal.logo from API, fallback to default logoSmall
+  let footerLogoSrc = logoSmall;
+  
+  if (rvcode) {
+    try {
+      const publicLogosDir = path.join(process.cwd(), 'public/logos');
+      const smallLogoName = `logo-${rvcode}-small.svg`;
+      const smallLogoPath = path.join(publicLogosDir, smallLogoName);
+      
+      if (fs.existsSync(smallLogoPath)) {
+        footerLogoSrc = `/logos/${smallLogoName}`;
+      } else if (journal?.logo) {
+        footerLogoSrc = `/logos/${journal.logo}`;
+      }
+    } catch (e) {
+      console.warn('Error checking footer logo file:', e);
+      if (journal?.logo) {
+        footerLogoSrc = `/logos/${journal.logo}`;
+      }
+    }
+  }
+
   return (
     <footer className="footer">
       {/* Journal section */}
       <div className="footer-journal">
         <div className="footer-journal-logo">
           <Link href={`/${lang}`} lang={lang}>
-            <img src={logoSmall} alt="Journal logo" />
+            <img src={footerLogoSrc} alt="Journal logo" />
           </Link>
         </div>
         <div className="footer-journal-links">

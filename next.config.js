@@ -34,13 +34,19 @@ const nextConfig = {
     ];
   },
     
-  webpack: (config, { dev, isServer }) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': path.join(__dirname, 'src'),
-    };
-
-    // Configuration SASS
+      webpack: (config, { dev, isServer }) => {
+      if (!isServer) {
+        config.resolve.fallback = {
+          ...config.resolve.fallback,
+          fs: false,
+        };
+      }
+  
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@': path.join(__dirname, 'src'),
+      };
+      // Configuration SASS
     const rules = config.module.rules;
     const sassRule = rules.find(
       (rule) => rule.test && rule.test.toString().includes('scss')

@@ -1,5 +1,6 @@
 import { API_URL } from '@/config/api'
 import { AvailableLanguage } from '@/utils/i18n';
+import { getJournalApiUrl } from '@/utils/env-loader';
 
 export interface IBoardMemberAffiliation {
   label: string;
@@ -112,7 +113,8 @@ interface RawBoardMember {
 
 export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/pages?pagination=false&rvcode=${rvcode}`, {
+    const apiUrl = getJournalApiUrl(rvcode);
+    const response = await fetch(`${apiUrl}/pages?pagination=false&rvcode=${rvcode}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -123,7 +125,9 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
       throw new Error(`Failed to fetch board pages: ${response.status}`);
     }
 
-    const data = await response.json();
+    const json = await response.json();
+    const data = Array.isArray(json) ? json : (json['hydra:member'] || []);
+    
     return data.filter((page: IBoardPage) => boardTypes.includes(page.page_code as BOARD_TYPE));
   } catch (error) {
     console.error('Error fetching board pages:', error);
@@ -131,24 +135,22 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
   }
 }
 
-export async function fetchBoardMembers(rvcode: string): Promise<IBoardMember[]> {
+export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]> => {
   try {
-    const url = `${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/journals/boards/${rvcode}`;
-   // console.log(`Fetching board members from URL: ${url}`);
-    
+    const apiUrl = getJournalApiUrl(rvcode);
+    const url = `${apiUrl}/journals/boards/${rvcode}`;
     const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      }
+      next: { tags: ['members'] }
     });
+
 
     if (!response.ok) {
      // console.log(`API returned status ${response.status} for board members.`);
       throw new Error(`Failed to fetch board members: ${response.status}`);
     }
 
-    const data: RawBoardMember[] = await response.json();
+    const json = await response.json();
+    const data: RawBoardMember[] = Array.isArray(json) ? json : (json['hydra:member'] || []);
   //  console.log(`Successfully fetched ${data.length} board members`);
     
     return data.map(board => {
