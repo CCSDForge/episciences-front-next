@@ -62,7 +62,9 @@ export default async function VolumeDetailsPage(
     // Fetch all articles for the volume server-side
     let articles: FetchedArticle[] = [];
     if (volumeData && volumeData.articles && volumeData.articles.length > 0) {
-      const paperIds = volumeData.articles.map(article => article['@id'].replace(/\D/g, ''));
+      const paperIds = volumeData.articles
+        .filter(article => article['@id'])
+        .map(article => article['@id'].replace(/\D/g, ''));
 
       // Fetch articles in parallel with error handling
       const articlePromises = paperIds.map(async (docid) => {
