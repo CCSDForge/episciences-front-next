@@ -70,13 +70,11 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
       }
     } else {
       // CLIENT SIDE
-      // Hydrate the singleton i18n immediately if translations are provided
+      // Hydrate the singleton i18n with translations
+      // Language change happens in useEffect to avoid React 19 render-time mutation error
       if (initialLanguage && translations) {
         if (!i18n.hasResourceBundle(initialLanguage, 'translation')) {
           i18n.addResourceBundle(initialLanguage, 'translation', translations, true, true);
-        }
-        if (i18n.language !== initialLanguage) {
-          i18n.changeLanguage(initialLanguage);
         }
       }
     }
@@ -94,13 +92,15 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
       ? getLanguageFromPathname(window.location.pathname)
       : initialLang;
 
-    // Update i18next and Redux store with client-detected language
-    if (i18n.language !== clientLang) {
-      i18n.changeLanguage(clientLang);
+    // Update i18next language (moved here from useState to fix React 19 render-time mutation error)
+    // Use initialLanguage for initial hydration, then clientLang for subsequent updates
+    const targetLang = initialLanguage || clientLang;
+    if (i18n.language !== targetLang) {
+      i18n.changeLanguage(targetLang);
     }
 
     // Update Redux store
-    store.dispatch(setLanguage(clientLang as any));
+    store.dispatch(setLanguage(targetLang as any));
 
     // Initialize Journal if provided
     if (initialJournal) {
@@ -111,7 +111,7 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
     if (apiEndpoint) {
       store.dispatch(setApiEndpoint(apiEndpoint));
     }
-  }, [initialLang, initialJournal, apiEndpoint]);
+  }, [initialLang, initialLanguage, initialJournal, apiEndpoint]);
 
   return (
     <Provider store={store}>

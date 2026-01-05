@@ -158,17 +158,22 @@ export default function SearchClient({
   ]);
 
   // Read search query from URL parameters
+  // Note: 'search' intentionally omitted from deps to avoid infinite loop
+  // We only want to sync from URL → state, not trigger on every state change
   useEffect(() => {
     const urlSearch = searchParams?.get('terms') || searchParams?.get('q') || '';
     if (urlSearch && urlSearch !== search) {
       setSearch(urlSearch);
     }
-  }, [searchParams, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
   
   // Perform search when search params change (debounced by the key)
+  // Use searchParamsKey to prevent infinite loops from reference changes
   useEffect(() => {
     performFilteredSearch();
-  }, [performFilteredSearch]); // Only fetch when the *content* of params changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParamsKey]); // Only fetch when the *content* of params changes, not references
 
   // Trigger search when filters change
   useEffect(() => {
