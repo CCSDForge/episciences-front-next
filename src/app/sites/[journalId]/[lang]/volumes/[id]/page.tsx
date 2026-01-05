@@ -62,23 +62,36 @@ export default async function VolumeDetailsPage(
     // Fetch all articles for the volume server-side
     let articles: FetchedArticle[] = [];
     if (volumeData && volumeData.articles && volumeData.articles.length > 0) {
+      console.log(`[Volume ${params.id}] Found ${volumeData.articles.length} articles in volume data`);
+
       const paperIds = volumeData.articles
-        .filter(article => article['@id'])
-        .map(article => article['@id'].replace(/\D/g, ''));
+        .filter(article => article.paperid)
+        .map(article => String(article.paperid));
+
+      console.log(`[Volume ${params.id}] Extracted ${paperIds.length} paper IDs:`, paperIds);
 
       // Fetch articles in parallel with error handling
       const articlePromises = paperIds.map(async (docid) => {
         try {
           const article = await fetchArticle(docid);
+          if (article) {
+            console.log(`[Volume ${params.id}] Successfully fetched article ${docid}`);
+          } else {
+            console.warn(`[Volume ${params.id}] Article ${docid} returned null`);
+          }
           return article;
         } catch (error) {
-          console.error(`Error fetching article ${docid}:`, error);
+          console.error(`[Volume ${params.id}] Error fetching article ${docid}:`, error);
           return null;
         }
       });
 
       const fetchedArticles = await Promise.all(articlePromises);
       articles = fetchedArticles.filter((article: FetchedArticle | null): article is FetchedArticle => article !== null && article !== undefined);
+
+      console.log(`[Volume ${params.id}] Final articles count: ${articles.length}`);
+    } else {
+      console.log(`[Volume ${params.id}] No articles in volume data`);
     }
 
     const breadcrumbLabels = {
