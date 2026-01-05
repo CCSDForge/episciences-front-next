@@ -289,7 +289,13 @@ export async function fetchArticleMetadata({
     const response = await fetch(`${apiRoot}${API_PATHS.papers}/export/${paperid}/${type}?code=${rvcode}`);
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch article metadata. Status: ${response.status}`);
+      // Les métadonnées peuvent ne pas être disponibles pour tous les articles
+      // Retourner null au lieu de lancer une erreur
+      if (response.status === 404) {
+        return null;
+      }
+      console.warn(`Failed to fetch article metadata. Status: ${response.status}`);
+      return null;
     }
 
     return await response.text();
