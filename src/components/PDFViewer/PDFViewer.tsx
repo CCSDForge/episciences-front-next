@@ -67,7 +67,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): React.JSX.
       </div>
 
       <div className="pdf-viewer-content">
-        {!showFallback ? (
+        {!showFallback && viewerUrl ? (
           <iframe
             src={viewerUrl}
             className="pdf-viewer-iframe"
