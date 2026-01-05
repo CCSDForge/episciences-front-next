@@ -2,7 +2,7 @@ import { API_URL, API_PATHS } from '@/config/api'
 import { IArticle, RawArticle } from '@/types/article'
 import { AvailableLanguage } from '@/utils/i18n'
 import { getJournalApiUrl } from '@/utils/env-loader'
-import { METADATA_TYPE, FetchedArticle } from '@/utils/article'
+import { METADATA_TYPE, FetchedArticle, formatArticle } from '@/utils/article'
 
 // Paramètres pour les retries
 const MAX_RETRIES = 3;
@@ -211,7 +211,7 @@ export function transformArticleForDisplay(rawArticle: any): FetchedArticle {
   if (rawArticle && typeof rawArticle === 'object' && rawArticle['@id']) {
     try {
       // Utilise la fonction formatArticle du utils/article.ts
-      const formattedArticle = transformArticleForDisplay(rawArticle);
+      const formattedArticle = formatArticle(rawArticle);
       if (formattedArticle) {
         return formattedArticle;
       } else {
