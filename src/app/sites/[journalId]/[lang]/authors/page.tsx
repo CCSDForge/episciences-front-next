@@ -13,13 +13,15 @@ export const metadata: Metadata = {
 };
 
 interface AuthorsPageProps {
-  params: { lang: string; journalId: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  params: Promise<{ lang: string; journalId: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function AuthorsPage({ params, searchParams }: AuthorsPageProps) {
+export default async function AuthorsPage(props: AuthorsPageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const { lang } = params;
-  
+
   // Extract initial params
   const page = searchParams?.page ? Math.max(1, parseInt(searchParams.page as string, 10)) : 1;
   const search = searchParams?.search as string || '';
@@ -27,7 +29,7 @@ export default async function AuthorsPage({ params, searchParams }: AuthorsPageP
 
   // Fetch translations
   const translations = await getServerTranslations(lang);
-  
+
   const breadcrumbLabels = {
     home: t('pages.home.title', translations),
     content: t('common.content', translations),

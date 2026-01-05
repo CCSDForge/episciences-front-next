@@ -23,7 +23,7 @@ interface IVolumesSidebarProps {
   onSelectYearCallback: (year: number) => void;
 }
 
-export default function VolumesSidebar({ t, types, onCheckTypeCallback, years, onSelectYearCallback }: IVolumesSidebarProps): JSX.Element {
+export default function VolumesSidebar({ t, types, onCheckTypeCallback, years, onSelectYearCallback }: IVolumesSidebarProps): React.JSX.Element {
   return (
     <div className="volumesSidebar">
       <div className="volumesSidebar-typesSection">

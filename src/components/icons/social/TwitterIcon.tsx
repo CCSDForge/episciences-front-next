@@ -22,7 +22,7 @@ export default function TwitterIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: TwitterIconProps): JSX.Element {
+}: TwitterIconProps): React.JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

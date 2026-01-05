@@ -19,7 +19,7 @@ export default function SidebarCollapsibleWrapper({
   children,
   initialOpen = true,
   className = 'articleDetailsSidebar-publicationDetails'
-}: SidebarCollapsibleWrapperProps): JSX.Element {
+}: SidebarCollapsibleWrapperProps): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(initialOpen);
 
   return (

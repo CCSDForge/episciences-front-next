@@ -65,7 +65,7 @@ export default function ArticleDetailsClient({
   initialMetadataBibTeX,
   lang,
   breadcrumbLabels
-}: ArticleDetailsClientProps): JSX.Element {
+}: ArticleDetailsClientProps): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -113,11 +113,11 @@ export default function ArticleDetailsClient({
         
         // Only fetch volume if not provided server-side
         if (!initialRelatedVolume && article?.volumeId && rvcode) {
-          const volumeData = await fetchVolume({ 
-            rvcode, 
-            vid: article.volumeId.toString(), 
-            language 
-          });
+          const volumeData = await fetchVolume(
+            rvcode,
+            article.volumeId,
+            language
+          );
           setRelatedVolume(volumeData || undefined);
         }
         
@@ -164,7 +164,7 @@ export default function ArticleDetailsClient({
     }
   }, [article, authors.length, institutions.length])
 
-  const renderArticleTitleAndAuthors = (isMobile: boolean): JSX.Element => {
+  const renderArticleTitleAndAuthors = (isMobile: boolean): React.JSX.Element => {
     return (
       <>
         <h1 className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}>
@@ -183,7 +183,7 @@ export default function ArticleDetailsClient({
     )
   }
 
-  const renderSection = (sectionKey: ARTICLE_SECTION, sectionTitle: string, sectionContent: JSX.Element | null): JSX.Element | null => {
+  const renderSection = (sectionKey: ARTICLE_SECTION, sectionTitle: string, sectionContent: React.JSX.Element | null): React.JSX.Element | null => {
     if (!sectionContent) return null
 
     const isOpenedSection = openedSections.find(section => section.key === sectionKey)?.isOpened
@@ -214,13 +214,13 @@ export default function ArticleDetailsClient({
     setOpenedSections(updatedSections);
   }
 
-  const getGraphicalAbstractSection = (): JSX.Element | null => {
+  const getGraphicalAbstractSection = (): React.JSX.Element | null => {
     const graphicalAbstractURL = (rvcode && article?.graphicalAbstract) ? `https://${rvcode}.episciences.org/public/documents/${article.id}/${article?.graphicalAbstract}` : null
     
     return graphicalAbstractURL ? <img src={graphicalAbstractURL} className="articleDetails-content-article-section-content-graphicalAbstract" alt="Graphical abstract" /> : null
   }
 
-  const getAbstractSection = (): JSX.Element | null => {
+  const getAbstractSection = (): React.JSX.Element | null => {
     if (!article?.abstract) {
       return null;
     }
@@ -233,7 +233,7 @@ export default function ArticleDetailsClient({
     );
   }
 
-  const getKeywordsSection = (): JSX.Element | null => {
+  const getKeywordsSection = (): React.JSX.Element | null => {
     if (!article?.keywords) {
       return null;
     }
@@ -262,7 +262,7 @@ export default function ArticleDetailsClient({
     );
   }
 
-  const getLinkedPublicationsSection = (): JSX.Element | null => {
+  const getLinkedPublicationsSection = (): React.JSX.Element | null => {
     if (!article?.relatedItems || article.relatedItems.length === 0) {
       return null;
     }
@@ -282,19 +282,19 @@ export default function ArticleDetailsClient({
     return <LinkedPublicationsSection relatedItems={article.relatedItems} />;
   }
 
-  const getReferencesSection = (): JSX.Element | null => {
+  const getReferencesSection = (): React.JSX.Element | null => {
     return article?.references ? (
       <ReferencesSection references={article.references} />
     ) : null;
   }
 
-  const getCitedBySection = (): JSX.Element | null => {
+  const getCitedBySection = (): React.JSX.Element | null => {
     return article?.citedBy ? (
       <CitedBySection citedBy={article.citedBy} />
     ) : null;
   }
 
-  const getPreviewSection = (): JSX.Element | null => {
+  const getPreviewSection = (): React.JSX.Element | null => {
     if (!article?.pdfLink) {
       return null;
     }
@@ -303,7 +303,7 @@ export default function ArticleDetailsClient({
     return <PreviewSection pdfLink={article.pdfLink} />;
   }
 
-  const renderMetrics = (): JSX.Element | undefined => {
+  const renderMetrics = (): React.JSX.Element | undefined => {
     if (article?.metrics && (article.metrics.views > 0 || article.metrics.downloads > 0)) {
       return (
         <div className="articleDetailsSidebar-metrics">

@@ -22,7 +22,7 @@ export default function FacebookIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: FacebookIconProps): JSX.Element {
+}: FacebookIconProps): React.JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

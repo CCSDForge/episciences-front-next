@@ -9,7 +9,9 @@ interface ExtendedJournalState extends IJournalState {
   apiEndpoint?: string;
 }
 
-const initialState: ExtendedJournalState = {};
+const initialState: ExtendedJournalState = {
+  journals: []
+};
 
 const journalSlice = createSlice({
   name: 'journal',

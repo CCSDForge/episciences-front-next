@@ -14,7 +14,7 @@ interface IStatisticsSectionProps {
   stats: IStat[];
 }
 
-export default function StatisticsSection({ t, i18n, stats }: IStatisticsSectionProps): JSX.Element {
+export default function StatisticsSection({ t, i18n, stats }: IStatisticsSectionProps): React.JSX.Element {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {

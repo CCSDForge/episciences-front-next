@@ -22,7 +22,7 @@ export default function BlueskyIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: BlueskyIconProps): JSX.Element {
+}: BlueskyIconProps): React.JSX.Element {
   const height = size; // Square aspect ratio for viewBox 0 0 24 24
 
   return (

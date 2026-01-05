@@ -22,7 +22,7 @@ interface ISwiperProps {
   cards: SwiperCardContent[];
 }
 
-export default function Swiper({ id, type, language, t, slidesPerView, slidesPerGroup, cards }: ISwiperProps): JSX.Element {
+export default function Swiper({ id, type, language, t, slidesPerView, slidesPerGroup, cards }: ISwiperProps): React.JSX.Element {
   // État pour stocker l'information si l'écran est mobile ou tablet
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);

@@ -33,14 +33,15 @@ export async function generateStaticParams() {
 }
 
 interface ArticleDetailsPageProps {
-  params: {
+  params: Promise<{
     id: string;
     lang: string;
     journalId: string;
-  };
+  }>;
 }
 
-export async function generateMetadata({ params }: ArticleDetailsPageProps): Promise<Metadata> {
+export async function generateMetadata(props: ArticleDetailsPageProps): Promise<Metadata> {
+  const params = await props.params;
   try {
     const { id, journalId } = params;
     // Vérifier si nous avons un ID factice
@@ -112,12 +113,12 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
         };
 
       }
-
-    }
+}
 
     
 
-    export default async function ArticleDetailsPage({ params }: ArticleDetailsPageProps) {
+    export default async function ArticleDetailsPage(props: ArticleDetailsPageProps) {
+      const params = await props.params;
 
       try {
 
@@ -374,7 +375,6 @@ export async function generateMetadata({ params }: ArticleDetailsPageProps): Pro
         );
 
       }
-
     } 
 
      

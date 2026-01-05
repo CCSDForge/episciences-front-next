@@ -38,10 +38,10 @@ interface IArticleDetailsSidebarProps {
   article?: IArticle;
   relatedVolume?: IVolume;
   citations: ICitation[];
-  metrics?: JSX.Element;
+  metrics?: React.JSX.Element;
 }
 
-export default function ArticleDetailsSidebar({ language, t, article, relatedVolume, citations, metrics }: IArticleDetailsSidebarProps): JSX.Element {
+export default function ArticleDetailsSidebar({ language, t, article, relatedVolume, citations, metrics }: IArticleDetailsSidebarProps): React.JSX.Element {
   const router = useRouter();
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
@@ -117,7 +117,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
     return '';
   };
 
-  const renderRelatedVolume = (relatedVolume?: IVolume): JSX.Element | null => {
+  const renderRelatedVolume = (relatedVolume?: IVolume): React.JSX.Element | null => {
     if (!relatedVolume) return null;
 
     let text = '';
@@ -139,7 +139,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
     );
   };
 
-  const renderRelatedSection = (): JSX.Element | null => {
+  const renderRelatedSection = (): React.JSX.Element | null => {
     if (!article?.section) return null;
 
     const sectionTitle = getMultilingualTitle(article.section.title);
@@ -151,7 +151,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
     );
   };
 
-  const renderLicenseContent = (): JSX.Element | null => {
+  const renderLicenseContent = (): React.JSX.Element | null => {
     if (!article?.license) return null;
 
     const licenseTranslations = getLicenseTranslations(t);

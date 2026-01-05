@@ -45,7 +45,7 @@ interface IVolumesMobileModalProps {
   onCloseCallback: () => void;
 }
 
-export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallback, initialYears, onUpdateYearsCallback, onCloseCallback }: IVolumesMobileModalProps): JSX.Element {
+export default function VolumesMobileModal({ t, initialTypes, onUpdateTypesCallback, initialYears, onUpdateYearsCallback, onCloseCallback }: IVolumesMobileModalProps): React.JSX.Element {
   const dispatch = useAppDispatch();
 
   const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);

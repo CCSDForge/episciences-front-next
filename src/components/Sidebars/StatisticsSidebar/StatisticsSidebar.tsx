@@ -15,7 +15,7 @@ interface IStatisticsSidebarProps {
   onCheckYearCallback: (year: number) => void;
 }
 
-export default function StatisticsSidebar({ t, years, onCheckYearCallback }: IStatisticsSidebarProps): JSX.Element {
+export default function StatisticsSidebar({ t, years, onCheckYearCallback }: IStatisticsSidebarProps): React.JSX.Element {
   return (
     <div className="statisticsSidebar">
       <div className="statisticsSidebar-title">{t('common.filters.years')}</div>

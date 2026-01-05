@@ -19,7 +19,7 @@ export default function CollapsibleSectionWrapper({
   children,
   initialOpen = true,
   sectionKey,
-}: CollapsibleSectionWrapperProps): JSX.Element {
+}: CollapsibleSectionWrapperProps): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(initialOpen);
 
   return (

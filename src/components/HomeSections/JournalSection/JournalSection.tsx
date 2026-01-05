@@ -12,7 +12,7 @@ interface IJournalSectionProps {
   content?: Record<AvailableLanguage, string>;
 }
 
-export default function JournalSection({ content, language }: IJournalSectionProps): JSX.Element {
+export default function JournalSection({ content, language }: IJournalSectionProps): React.JSX.Element {
   return (
     <div className="journalSection">
         {content && (

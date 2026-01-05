@@ -9,7 +9,7 @@ interface SearchBarProps {
   lang?: string;
 }
 
-export default function SearchBar({ lang }: SearchBarProps): JSX.Element {
+export default function SearchBar({ lang }: SearchBarProps): React.JSX.Element {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);

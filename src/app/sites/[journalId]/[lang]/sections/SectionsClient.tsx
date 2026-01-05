@@ -42,7 +42,7 @@ export default function SectionsClient({
   initialPage,
   lang,
   breadcrumbLabels
-}: SectionsClientProps): JSX.Element {
+}: SectionsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL
@@ -102,7 +102,7 @@ export default function SectionsClient({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [pathname, router]);
 
-  const getSectionsCount = (): JSX.Element | null => {
+  const getSectionsCount = (): React.JSX.Element | null => {
     if (sections) {
       if (sections.totalItems > 1) {
         return <div className='sections-title-count-text sections-title-count-text-sections'>{sections.totalItems} {t('common.sections')}</div>;
@@ -114,7 +114,7 @@ export default function SectionsClient({
     return null;
   };
 
-  const getArticlesCount = (): JSX.Element | null => {
+  const getArticlesCount = (): React.JSX.Element | null => {
     if (sections && sections.articlesCount) {
       if (sections.articlesCount > 1) {
         return <div className='sections-title-count-text sections-title-count-text-articles'>{sections.articlesCount} {t('common.articles')}</div>;

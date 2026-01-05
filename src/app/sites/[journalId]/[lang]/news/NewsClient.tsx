@@ -29,7 +29,7 @@ interface NewsClientProps {
   };
 }
 
-export default function NewsClient({ initialNews, lang, breadcrumbLabels }: NewsClientProps): JSX.Element {
+export default function NewsClient({ initialNews, lang, breadcrumbLabels }: NewsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL

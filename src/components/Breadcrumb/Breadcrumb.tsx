@@ -11,7 +11,7 @@ interface IBreadcrumbProps {
   lang?: string;
 }
 
-export default function Breadcrumb({ parents, crumbLabel, lang }: IBreadcrumbProps): JSX.Element {
+export default function Breadcrumb({ parents, crumbLabel, lang }: IBreadcrumbProps): React.JSX.Element {
   return (
     <div className="breadcrumb">
       {parents.map((parent, index) => (

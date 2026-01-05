@@ -20,7 +20,7 @@ export interface IAuthorDetailsSidebarProps {
   onCloseDetailsCallback: () => void;
 }
 
-export default function AuthorDetailsSidebar ({ language, t, rvcode, expandedAuthor, onCloseDetailsCallback }: IAuthorDetailsSidebarProps): JSX.Element {
+export default function AuthorDetailsSidebar ({ language, t, rvcode, expandedAuthor, onCloseDetailsCallback }: IAuthorDetailsSidebarProps): React.JSX.Element {
   const { data: articles } = useFetchAuthorArticlesQuery({ rvcode: rvcode!, fullname: expandedAuthor?.name! }, { skip: !rvcode })
 
   return (

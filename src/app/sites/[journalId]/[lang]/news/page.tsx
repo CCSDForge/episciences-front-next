@@ -12,14 +12,15 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  params: { journalId: string; lang: string };
+  params: Promise<{ journalId: string; lang: string }>;
 };
 
-export default async function NewsPage({ params }: Props) {
+export default async function NewsPage(props: Props) {
+  const params = await props.params;
   const { journalId, lang } = params;
-  
+
   let newsData = null;
-  
+
   try {
     newsData = await fetchNews({ rvcode: journalId });
   } catch (error) {

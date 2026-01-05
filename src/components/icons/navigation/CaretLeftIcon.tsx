@@ -36,7 +36,7 @@ export default function CaretLeftIcon({
   onTouchEnd,
   onMouseDown,
   onMouseUp,
-}: CaretLeftIconProps): JSX.Element {
+}: CaretLeftIconProps): React.JSX.Element {
   const height = (size * 7.5) / 13.632;
 
   return (

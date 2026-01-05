@@ -14,7 +14,7 @@ interface FooterServerProps {
   journalId?: string;
 }
 
-export default async function FooterServer({ lang = 'en', journalId }: FooterServerProps): Promise<JSX.Element> {
+export default async function FooterServer({ lang = 'en', journalId }: FooterServerProps): Promise<React.JSX.Element> {
   const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'journal';
   const apiEndpoint = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api.episciences.org/api';
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';

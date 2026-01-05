@@ -19,7 +19,7 @@ interface ISectionArticleCardProps {
   article: IArticle;
 }
 
-export default function SectionArticleCard({ language, t, article }: ISectionArticleCardProps): JSX.Element {
+export default function SectionArticleCard({ language, t, article }: ISectionArticleCardProps): React.JSX.Element {
   const [openedAbstract, setOpenedAbstract] = useState(false);
 
   const toggleAbstract = (): void => setOpenedAbstract(!openedAbstract);

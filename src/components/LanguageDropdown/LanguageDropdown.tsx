@@ -16,7 +16,7 @@ interface ILanguageDropdownProps {
   initialLanguage?: string;
 }
 
-export default function LanguageDropdown({ withWhiteCaret, initialLanguage }: ILanguageDropdownProps): JSX.Element | null {
+export default function LanguageDropdown({ withWhiteCaret, initialLanguage }: ILanguageDropdownProps): React.JSX.Element | null {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();

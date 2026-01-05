@@ -1,11 +1,22 @@
 import { API_URL, API_PATHS } from '@/config/api'
-import { IArticle, IArticleMetadata } from '@/types/article'
+import { IArticle, RawArticle } from '@/types/article'
 import { AvailableLanguage } from '@/utils/i18n'
 import { getJournalApiUrl } from '@/utils/env-loader'
+import { METADATA_TYPE, FetchedArticle } from '@/utils/article'
 
 // Paramètres pour les retries
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 seconde
+
+interface FetchArticlesParams {
+  rvcode: string;
+  page: number;
+  itemsPerPage: number;
+  onlyAccepted?: boolean;
+  types?: string[];
+  years?: number[];
+  articleIds?: string[];
+}
 
 async function fetchWithRetry(url: string, options: RequestInit = {}, retries = MAX_RETRIES): Promise<Response> {
   try {
@@ -59,7 +70,7 @@ export async function fetchArticles({ rvcode, page, itemsPerPage, onlyAccepted =
         try {
           const articleId = partialArticle.paperid
           const rawArticle = await fetchRawArticle(articleId)
-          return formatArticle(rawArticle)
+          return transformArticleForDisplay(rawArticle)
         } catch (error) {
           console.error(`Erreur lors de la récupération de l'article ${partialArticle.paperid}:`, error)
           return null
@@ -131,7 +142,7 @@ export async function fetchAcceptedArticles(
   const data = await response.json();
   
   return {
-    articles: data.articles.map(formatArticle),
+    articles: data.articles.map(transformArticleForDisplay),
     total: data.total,
     types: data.types || [],
   };
@@ -153,7 +164,7 @@ export async function fetchArticle(paperid: string, rvcode?: string): Promise<Fe
     const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
     const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`);
     const rawArticle: RawArticle = await response.json();
-    return formatArticle(rawArticle);
+    return transformArticleForDisplay(rawArticle);
   } catch (error) {
     console.error(`Erreur lors de la récupération de l'article ${paperid}:`, error);
     return null;
@@ -200,7 +211,7 @@ export function transformArticleForDisplay(rawArticle: any): FetchedArticle {
   if (rawArticle && typeof rawArticle === 'object' && rawArticle['@id']) {
     try {
       // Utilise la fonction formatArticle du utils/article.ts
-      const formattedArticle = formatArticle(rawArticle);
+      const formattedArticle = transformArticleForDisplay(rawArticle);
       if (formattedArticle) {
         return formattedArticle;
       } else {
@@ -259,4 +270,31 @@ export async function getArticleById(id: string | number): Promise<FetchedArticl
     console.error('Error fetching article:', error);
     return undefined;
   }
-} 
+}
+
+/**
+ * Récupère les métadonnées d'un article dans un format spécifique (BibTeX, CSL, etc.)
+ */
+export async function fetchArticleMetadata({
+  rvcode,
+  paperid,
+  type
+}: {
+  rvcode: string;
+  paperid: string;
+  type: METADATA_TYPE
+}): Promise<string | null> {
+  try {
+    const apiRoot = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '';
+    const response = await fetch(`${apiRoot}${API_PATHS.papers}/export/${paperid}/${type}?code=${rvcode}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch article metadata. Status: ${response.status}`);
+    }
+
+    return await response.text();
+  } catch (error) {
+    console.error('Error fetching article metadata:', error);
+    return null;
+  }
+}

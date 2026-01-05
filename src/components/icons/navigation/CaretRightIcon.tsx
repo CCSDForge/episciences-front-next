@@ -22,7 +22,7 @@ export default function CaretRightIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: CaretRightIconProps): JSX.Element {
+}: CaretRightIconProps): React.JSX.Element {
   const height = (size * 7.5) / 13.632;
 
   return (

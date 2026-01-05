@@ -12,7 +12,8 @@ export const metadata: Metadata = {
   title: 'Boards',
 };
 
-export default async function BoardsPage({ params }: { params: { journalId: string; lang: string } }) {
+export default async function BoardsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+  const params = await props.params;
   try {
     const { journalId, lang } = params;
     

@@ -12,7 +12,7 @@ interface IBoardsSidebarProps {
   tableOfContentsLabel?: string;
 }
 
-export default function BoardsSidebar({ t, groups, activeGroupIndex, onSetActiveGroupCallback, tableOfContentsLabel }: IBoardsSidebarProps): JSX.Element {
+export default function BoardsSidebar({ t, groups, activeGroupIndex, onSetActiveGroupCallback, tableOfContentsLabel }: IBoardsSidebarProps): React.JSX.Element {
   return (
     <div className='boardsSidebar'>
       <div className='boardsSidebar-resume'>{tableOfContentsLabel || t('pages.boards.tableOfContents')}</div>

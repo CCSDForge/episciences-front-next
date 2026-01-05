@@ -10,7 +10,7 @@ interface HeaderClientWrapperProps {
  * Client wrapper that adds scroll behavior to the header
  * This component adds the "header-reduced" class when scrolling down
  */
-export default function HeaderClientWrapper({ children }: HeaderClientWrapperProps): JSX.Element {
+export default function HeaderClientWrapper({ children }: HeaderClientWrapperProps): React.JSX.Element {
   const [isReduced, setIsReduced] = useState(false);
   const reducedScrollPosition = 100;
 

@@ -36,7 +36,7 @@ export default function CloseIcon({
   onTouchEnd,
   onMouseDown,
   onMouseUp,
-}: CloseIconProps): JSX.Element {
+}: CloseIconProps): React.JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

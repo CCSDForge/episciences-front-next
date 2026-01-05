@@ -22,7 +22,7 @@ export default function SearchIcon({
   size = 24,
   className = '',
   ariaLabel,
-}: SearchIconProps): JSX.Element {
+}: SearchIconProps): React.JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

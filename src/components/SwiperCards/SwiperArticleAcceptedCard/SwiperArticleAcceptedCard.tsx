@@ -18,7 +18,7 @@ interface ISwiperArticleAcceptedCardProps {
   article: FetchedArticle;
 }
 
-export default function SwiperArticleAcceptedCard({ language, t, article }: ISwiperArticleAcceptedCardProps): JSX.Element {
+export default function SwiperArticleAcceptedCard({ language, t, article }: ISwiperArticleAcceptedCardProps): React.JSX.Element {
   if (!article) {
     return <></>;
   }

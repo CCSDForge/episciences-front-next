@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { TailSpin } from "react-loader-spinner"
 import './Loader.scss'
 
-export default function Loader(): JSX.Element {
+export default function Loader(): React.JSX.Element {
     const [primaryColor, setPrimaryColor] = useState("#000000");
 
     useEffect(() => {

@@ -20,7 +20,7 @@ interface IVolumeArticleCardProps {
   article: IArticle;
 }
 
-export default function VolumeArticleCard({ language, t, article }: IVolumeArticleCardProps): JSX.Element {
+export default function VolumeArticleCard({ language, t, article }: IVolumeArticleCardProps): React.JSX.Element {
   const router = useRouter();
   const [openedAbstract, setOpenedAbstract] = useState(false);
 

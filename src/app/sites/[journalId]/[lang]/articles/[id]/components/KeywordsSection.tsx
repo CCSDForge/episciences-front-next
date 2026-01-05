@@ -8,7 +8,7 @@ interface KeywordsSectionProps {
   currentLanguage: AvailableLanguage;
 }
 
-export default function KeywordsSection({ keywordsData, currentLanguage }: KeywordsSectionProps): JSX.Element | null {
+export default function KeywordsSection({ keywordsData, currentLanguage }: KeywordsSectionProps): React.JSX.Element | null {
 
   if (!keywordsData) {
     return null;

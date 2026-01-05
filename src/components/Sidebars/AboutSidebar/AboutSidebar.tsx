@@ -16,7 +16,7 @@ interface IAboutSidebarProps {
   toggleHeaderCallback: (id: string) => void;
 }
 
-export default function AboutSidebar({ headers, toggleHeaderCallback }: IAboutSidebarProps): JSX.Element {
+export default function AboutSidebar({ headers, toggleHeaderCallback }: IAboutSidebarProps): React.JSX.Element {
   return (
     <div className="aboutSidebar">
       {headers.map((header, index) => (

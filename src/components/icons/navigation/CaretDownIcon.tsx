@@ -32,7 +32,7 @@ export default function CaretDownIcon({
   onMouseLeave,
   onTouchStart,
   onTouchEnd,
-}: CaretDownIconProps): JSX.Element {
+}: CaretDownIconProps): React.JSX.Element {
   const height = (size * 7.5) / 13.632;
 
   return (

@@ -24,7 +24,7 @@ export default function OrcidIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: OrcidIconProps): JSX.Element {
+}: OrcidIconProps): React.JSX.Element {
   return (
     <Image
       src="/icons/orcid.svg"

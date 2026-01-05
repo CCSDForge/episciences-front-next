@@ -22,7 +22,7 @@ export default function TagIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: TagIconProps): JSX.Element {
+}: TagIconProps): React.JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

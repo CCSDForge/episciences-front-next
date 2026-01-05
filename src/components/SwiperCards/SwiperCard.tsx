@@ -18,7 +18,7 @@ export interface ISwiperCardProps {
   content: SwiperCardContent;
 }
 
-export default function Card({ type, language, t, content }: ISwiperCardProps): JSX.Element {
+export default function Card({ type, language, t, content }: ISwiperCardProps): React.JSX.Element {
   if (type === 'board') {
     return <SwiperBoardCard language={language} t={t} member={content as SwiperBoardCardProps} />
   }

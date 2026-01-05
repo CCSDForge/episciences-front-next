@@ -24,7 +24,7 @@ interface IArticlesSidebarProps {
   onCheckYearCallback: (year: number) => void;
 }
 
-export default function ArticlesSidebar({ t, types, onCheckTypeCallback, years, onCheckYearCallback }: IArticlesSidebarProps): JSX.Element {
+export default function ArticlesSidebar({ t, types, onCheckTypeCallback, years, onCheckYearCallback }: IArticlesSidebarProps): React.JSX.Element {
   return (
     <div className="articlesSidebar">
       <div className="articlesSidebar-typesSection">

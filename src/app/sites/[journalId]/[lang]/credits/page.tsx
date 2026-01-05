@@ -14,10 +14,11 @@ export const metadata: Metadata = {
   description: 'Crédits et mentions légales',
 };
 
-export default async function CreditsPage({ params }: { params: { journalId: string; lang: string } }) {
+export default async function CreditsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+  const params = await props.params;
   let pageData = null;
   const { journalId, lang } = params;
-  
+
   try {
     if (journalId) {
       const rawData = await fetchCreditsPage(journalId);
@@ -34,7 +35,7 @@ export default async function CreditsPage({ params }: { params: { journalId: str
     home: t('pages.home.title', translations),
     credits: t('pages.credits.title', translations),
   };
-  
+
   return (
     <CreditsClient 
       creditsPage={pageData} 

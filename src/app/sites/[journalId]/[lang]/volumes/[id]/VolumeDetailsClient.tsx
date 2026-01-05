@@ -44,7 +44,7 @@ export default function VolumeDetailsClient({
   lang,
   journalId,
   breadcrumbLabels
-}: VolumeDetailsClientProps): JSX.Element {
+}: VolumeDetailsClientProps): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -113,7 +113,7 @@ export default function VolumeDetailsClient({
     }
   }, [initialArticles]);
 
-  const renderVolumeType = (): JSX.Element => {
+  const renderVolumeType = (): React.JSX.Element => {
     if (volume?.types && volume.types.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return <h1 className='volumeDetails-id-text'>{t('pages.volumeDetails.titleProceeding')} {volume?.num}</h1>;
@@ -127,7 +127,7 @@ export default function VolumeDetailsClient({
     return <h1 className='volumeDetails-id-text'>{t('pages.volumeDetails.title')} {volume?.num}</h1>;
   };
 
-  const renderVolumeMobileRelatedVolumes = (): JSX.Element | null => {
+  const renderVolumeMobileRelatedVolumes = (): React.JSX.Element | null => {
     if (!isMounted || !isMobileOnly) return null;
 
     const caretIcon = openedRelatedVolumesMobileModal ? (
@@ -158,7 +158,7 @@ export default function VolumeDetailsClient({
     </div>;
   };
 
-  const renderVolumeTitle = (isMobile: boolean): JSX.Element => {
+  const renderVolumeTitle = (isMobile: boolean): React.JSX.Element => {
     const className = isMobile ? 'volumeDetails-content-results-content-title volumeDetails-content-results-content-title-mobile' : 'volumeDetails-content-results-content-title';
 
     if (volume?.types && volume.types.length && volume.types.includes(VOLUME_TYPE.PROCEEDINGS) && volume.settingsProceeding && volume.settingsProceeding.length) {
@@ -172,7 +172,7 @@ export default function VolumeDetailsClient({
     return <div className={className}>{volume?.title ? volume?.title[language] : ''}</div>;
   };
 
-  const renderVolumeCommittee = (isMobile: boolean): JSX.Element | null => {
+  const renderVolumeCommittee = (isMobile: boolean): React.JSX.Element | null => {
     const className = isMobile ? 'volumeDetails-content-results-content-committee volumeDetails-content-results-content-committee-mobile' : 'volumeDetails-content-results-content-committee';
 
     if (volume?.committee && volume.committee.length > 0) {
@@ -189,7 +189,7 @@ export default function VolumeDetailsClient({
     return null;
   };
 
-  const renderVolumeDescription = (): JSX.Element => {
+  const renderVolumeDescription = (): React.JSX.Element => {
     if (volume?.description && volume.description[language]) {
       if (isMounted && isMobileOnly) {
         if (volume.description[language].length <= MAX_MOBILE_DESCRIPTION_LENGTH) {

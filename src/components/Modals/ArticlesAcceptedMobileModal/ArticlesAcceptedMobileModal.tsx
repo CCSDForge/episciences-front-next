@@ -33,7 +33,7 @@ interface IArticlesAcceptedMobileModalProps {
   onCloseCallback: () => void;
 }
 
-export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateTypesCallback, onCloseCallback }: IArticlesAcceptedMobileModalProps): JSX.Element {
+export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateTypesCallback, onCloseCallback }: IArticlesAcceptedMobileModalProps): React.JSX.Element {
   const dispatch = useAppDispatch();
 
   const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);

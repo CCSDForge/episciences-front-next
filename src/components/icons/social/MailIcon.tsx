@@ -22,7 +22,7 @@ export default function MailIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: MailIconProps): JSX.Element {
+}: MailIconProps): React.JSX.Element {
   const height = (size * 13.431) / 16.881;
 
   return (

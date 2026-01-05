@@ -12,7 +12,7 @@ interface LinkedPublicationsSectionProps {
   relatedItems: IArticleRelatedItem[];
 }
 
-export default function LinkedPublicationsSection({ relatedItems }: LinkedPublicationsSectionProps): JSX.Element | null {
+export default function LinkedPublicationsSection({ relatedItems }: LinkedPublicationsSectionProps): React.JSX.Element | null {
   const { t } = useTranslation();
 
   if (!relatedItems?.length) return null;
@@ -27,7 +27,7 @@ export default function LinkedPublicationsSection({ relatedItems }: LinkedPublic
   // If no items remain after filtering, return null
   if (filteredItems.length === 0) return null;
 
-  const getLinkedPublicationRow = (relatedItem: IArticleRelatedItem): JSX.Element => {
+  const getLinkedPublicationRow = (relatedItem: IArticleRelatedItem): React.JSX.Element => {
     const relationship = interworkRelationShipTypes.find(relationship => relationship.value === relatedItem.relationshipType)?.labelPath;
 
     if (relatedItem.citation) {

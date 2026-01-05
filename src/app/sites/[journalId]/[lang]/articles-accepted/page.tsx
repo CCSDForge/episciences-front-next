@@ -14,7 +14,8 @@ export const metadata: Metadata = {
   description: 'Articles acceptés',
 };
 
-export default async function ArticlesAcceptedPage({ params }: { params: { lang: string; journalId: string } }) {
+export default async function ArticlesAcceptedPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
+  const params = await props.params;
   const { lang, journalId } = params;
   try {
     const ARTICLES_ACCEPTED_PER_PAGE = 10;

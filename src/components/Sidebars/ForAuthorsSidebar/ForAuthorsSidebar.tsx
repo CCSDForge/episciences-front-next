@@ -18,7 +18,7 @@ interface IForAuthorsSidebarProps {
   toggleHeaderCallback: (id: string) => void;
 }
 
-export default function ForAuthorsSidebar({ headers, toggleHeaderCallback }: IForAuthorsSidebarProps): JSX.Element {
+export default function ForAuthorsSidebar({ headers, toggleHeaderCallback }: IForAuthorsSidebarProps): React.JSX.Element {
   const pathname = usePathname();
   
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, anchorId: string) => {

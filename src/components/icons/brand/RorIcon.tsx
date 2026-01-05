@@ -22,7 +22,7 @@ export default function RorIcon({
   size = 164,
   className = '',
   ariaLabel,
-}: RorIconProps): JSX.Element {
+}: RorIconProps): React.JSX.Element {
   const height = (size * 118) / 164;
 
   return (

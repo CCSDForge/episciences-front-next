@@ -44,7 +44,7 @@ interface IArticlesMobileModalProps {
   onCloseCallback: () => void;
 }
 
-export default function ArticlesMobileModal({ t, initialTypes, onUpdateTypesCallback, initialYears, onUpdateYearsCallback, onCloseCallback }: IArticlesMobileModalProps): JSX.Element {
+export default function ArticlesMobileModal({ t, initialTypes, onUpdateTypesCallback, initialYears, onUpdateYearsCallback, onCloseCallback }: IArticlesMobileModalProps): React.JSX.Element {
   const dispatch = useAppDispatch();
   const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);
   const modalRef = useRef<HTMLDivElement>(null);

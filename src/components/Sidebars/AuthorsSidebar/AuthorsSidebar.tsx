@@ -16,8 +16,8 @@ interface IAuthorsSidebarProps {
   lettersRange?: Record<string, number>;
 }
 
-export default function AuthorsSidebar({ t, search, onSearchCallback, activeLetter, onSetActiveLetterCallback, lettersRange }: IAuthorsSidebarProps): JSX.Element {
-  const renderLetter = (value: string, label: string, customClassName?: string): JSX.Element => {
+export default function AuthorsSidebar({ t, search, onSearchCallback, activeLetter, onSetActiveLetterCallback, lettersRange }: IAuthorsSidebarProps): React.JSX.Element {
+  const renderLetter = (value: string, label: string, customClassName?: string): React.JSX.Element => {
     let className = 'authorsSidebar-letters-letter';
 
     if (activeLetter === value) {

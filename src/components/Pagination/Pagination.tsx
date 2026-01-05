@@ -22,7 +22,7 @@ interface IPaginationProps {
 
 
 
-const Pagination = memo(function Pagination({ currentPage, itemsPerPage, totalItems, onPageChange }: IPaginationProps): JSX.Element {
+const Pagination = memo(function Pagination({ currentPage, itemsPerPage, totalItems, onPageChange }: IPaginationProps): React.JSX.Element {
 
   const perPage = itemsPerPage ?? DEFAULT_ITEMS_PER_PAGE;
 

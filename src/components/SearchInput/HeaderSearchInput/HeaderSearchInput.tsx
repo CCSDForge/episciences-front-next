@@ -14,7 +14,7 @@ interface IHeaderSearchInputProps {
   onSubmitCallback: () => void;
 }
 
-export default function HeaderSearchInput({ value, placeholder, isSearching, setIsSearchingCallback, onChangeCallback, onSubmitCallback }: IHeaderSearchInputProps): JSX.Element {
+export default function HeaderSearchInput({ value, placeholder, isSearching, setIsSearchingCallback, onChangeCallback, onSubmitCallback }: IHeaderSearchInputProps): React.JSX.Element {
   const [preventBlur, setPreventBlur] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 

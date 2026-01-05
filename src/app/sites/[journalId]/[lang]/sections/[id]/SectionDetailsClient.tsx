@@ -29,7 +29,7 @@ export default function SectionDetailsClient({
   sectionId,
   lang,
   breadcrumbLabels
-}: SectionDetailsClientProps): JSX.Element {
+}: SectionDetailsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL

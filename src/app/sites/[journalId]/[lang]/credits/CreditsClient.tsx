@@ -33,7 +33,7 @@ interface CreditsClientProps {
   };
 }
 
-export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: CreditsClientProps): JSX.Element {
+export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: CreditsClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
   const language = useAppSelector(state => state.i18nReducer.language)

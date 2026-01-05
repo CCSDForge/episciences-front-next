@@ -8,7 +8,7 @@ interface AbstractSectionProps {
   currentLanguage: string;
 }
 
-export default function AbstractSection({ abstractData, currentLanguage }: AbstractSectionProps): JSX.Element | null {
+export default function AbstractSection({ abstractData, currentLanguage }: AbstractSectionProps): React.JSX.Element | null {
 
   // If abstractData is empty or null, return null
   if (!abstractData) {

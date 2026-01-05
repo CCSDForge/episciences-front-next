@@ -26,7 +26,7 @@ interface IVolumesModalProps {
   onCloseCallback: () => void;
 }
 
-export default function VolumesModal({ t, types, onCheckTypeCallback, years, onSelectYearCallback, onCloseCallback }: IVolumesModalProps): JSX.Element {
+export default function VolumesModal({ t, types, onCheckTypeCallback, years, onSelectYearCallback, onCloseCallback }: IVolumesModalProps): React.JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

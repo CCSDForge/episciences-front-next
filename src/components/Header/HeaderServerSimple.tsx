@@ -5,7 +5,7 @@ interface HeaderServerSimpleProps {
   lang?: string;
 }
 
-export default function HeaderServerSimple({ lang = 'en' }: HeaderServerSimpleProps): JSX.Element {
+export default function HeaderServerSimple({ lang = 'en' }: HeaderServerSimpleProps): React.JSX.Element {
   return (
     <header className="header">
       <div className="header-preheader">

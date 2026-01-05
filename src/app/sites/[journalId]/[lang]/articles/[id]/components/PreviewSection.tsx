@@ -27,7 +27,7 @@ interface PreviewSectionProps {
  * - Uses PDF.js viewer for problematic sources (Zenodo) that force download
  * - Uses standard iframe for other sources (HAL, arXiv) for better performance
  */
-export default function PreviewSection({ pdfLink }: PreviewSectionProps): JSX.Element | null {
+export default function PreviewSection({ pdfLink }: PreviewSectionProps): React.JSX.Element | null {
   if (!pdfLink) return null;
 
   // Check if this source requires PDF.js viewer (e.g., Zenodo)

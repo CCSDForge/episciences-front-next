@@ -17,7 +17,7 @@ interface ArticleDetailsSidebarServerProps {
   relatedVolume?: IVolume | null;
   metadataCSL?: string | null;
   metadataBibTeX?: string | null;
-  metrics?: JSX.Element;
+  metrics?: React.JSX.Element;
   translations: Translations;
   language?: string;
 }
@@ -30,7 +30,7 @@ export default function ArticleDetailsSidebarServer({
   metrics,
   translations,
   language = 'en'
-}: ArticleDetailsSidebarServerProps): JSX.Element {
+}: ArticleDetailsSidebarServerProps): React.JSX.Element {
 
   /**
    * Get localized path for server-side rendering
@@ -68,7 +68,7 @@ export default function ArticleDetailsSidebarServer({
     return '';
   };
 
-  const renderRelatedVolume = (relatedVolume?: IVolume | null): JSX.Element | null => {
+  const renderRelatedVolume = (relatedVolume?: IVolume | null): React.JSX.Element | null => {
     if (!relatedVolume) return null;
 
     let text = '';
@@ -99,7 +99,7 @@ export default function ArticleDetailsSidebarServer({
     );
   };
 
-  const renderRelatedSection = (): JSX.Element | null => {
+  const renderRelatedSection = (): React.JSX.Element | null => {
     if (!article?.section) return null;
 
     const sectionTitle = getMultilingualTitle(article.section.title);
@@ -113,7 +113,7 @@ export default function ArticleDetailsSidebarServer({
     );
   };
 
-  const renderLicenseContent = (): JSX.Element | null => {
+  const renderLicenseContent = (): React.JSX.Element | null => {
     if (!article?.license) return null;
 
     return (
@@ -124,7 +124,7 @@ export default function ArticleDetailsSidebarServer({
     );
   };
 
-  const renderPublicationDetails = (): JSX.Element => {
+  const renderPublicationDetails = (): React.JSX.Element => {
     return (
       <>
         {article?.submissionDate && (
@@ -157,7 +157,7 @@ export default function ArticleDetailsSidebarServer({
     );
   };
 
-  const renderFunding = (): JSX.Element | null => {
+  const renderFunding = (): React.JSX.Element | null => {
     if (!article?.fundings || article.fundings.length === 0) {
       return null;
     }
@@ -178,7 +178,7 @@ export default function ArticleDetailsSidebarServer({
     );
   };
 
-  const renderMetrics = (): JSX.Element | null => {
+  const renderMetrics = (): React.JSX.Element | null => {
     if (!article?.metrics || (article.metrics.views === 0 && article.metrics.downloads === 0)) {
       return null;
     }

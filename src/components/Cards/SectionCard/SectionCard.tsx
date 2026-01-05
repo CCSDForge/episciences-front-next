@@ -17,7 +17,7 @@ interface ISectionCardProps {
   section: ISection;
 }
 
-export default function SectionCard({ language, t, section }: ISectionCardProps): JSX.Element {
+export default function SectionCard({ language, t, section }: ISectionCardProps): React.JSX.Element {
   const [openedDescription, setOpenedDescription] = useState(false);
   const toggleDescription = (): void => setOpenedDescription(!openedDescription);
 

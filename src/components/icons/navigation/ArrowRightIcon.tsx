@@ -22,7 +22,7 @@ export default function ArrowRightIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: ArrowRightIconProps): JSX.Element {
+}: ArrowRightIconProps): React.JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

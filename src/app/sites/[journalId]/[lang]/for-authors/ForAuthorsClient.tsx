@@ -53,7 +53,7 @@ export default function ForAuthorsClient({
   prepareSubmissionPage,
   lang,
   breadcrumbLabels
-}: ForAuthorsClientProps): JSX.Element {
+}: ForAuthorsClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
   const language = useAppSelector(state => state.i18nReducer.language);

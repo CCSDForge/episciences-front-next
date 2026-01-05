@@ -28,7 +28,7 @@ interface INewsCardProps extends INewsCardTile {
   news: INews;
 }
 
-export default function NewsCard({ language, t, mode, fullCard, blurCard, setFullNewsIndexCallback, news }: INewsCardProps): JSX.Element {
+export default function NewsCard({ language, t, mode, fullCard, blurCard, setFullNewsIndexCallback, news }: INewsCardProps): React.JSX.Element {
   const [showFullContent, setShowFullContent] = useState(false);
 
   const toggleFullContent = (e: MouseEvent): void => {
@@ -36,7 +36,7 @@ export default function NewsCard({ language, t, mode, fullCard, blurCard, setFul
     setShowFullContent(!showFullContent);
   }
 
-  const renderContent = (): JSX.Element | null => {
+  const renderContent = (): React.JSX.Element | null => {
     if (!news.content || !news.content[language]) return null;
     
     if (news.content[language].length <= MAX_CONTENT_LENGTH) {

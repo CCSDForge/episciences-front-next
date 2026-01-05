@@ -23,7 +23,7 @@ interface ArticleDetailsDownloadClientProps {
 export default function ArticleDetailsDownloadClient({
   pdfUrl,
   articleTitle
-}: ArticleDetailsDownloadClientProps): JSX.Element {
+}: ArticleDetailsDownloadClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
   // Check if the PDF source is from a repository that might need special handling

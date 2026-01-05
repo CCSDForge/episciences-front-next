@@ -50,7 +50,7 @@ export default function BoardsClient({
   membersCountLabels,
   rolesLabels,
   tableOfContentsLabel
-}: BoardsClientProps): JSX.Element {
+}: BoardsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
   
   // Use the prop lang for rendering to ensure consistency with SSR

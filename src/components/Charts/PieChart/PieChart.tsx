@@ -15,7 +15,7 @@ interface IPieChartProps {
     data: IStatValueDetailsAsPieChart[];
 }
 
-export default function PieChart({ t, data }: IPieChartProps): JSX.Element {
+export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element {
     // Dynamically load the chart colors from the environment
     const CHART_COLORS = [
         process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_0 || '#9A312C',
@@ -24,7 +24,7 @@ export default function PieChart({ t, data }: IPieChartProps): JSX.Element {
         process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_3 || '#FFC9C7',
     ];
 
-    const getLegend = (): JSX.Element => {
+    const getLegend = (): React.JSX.Element => {
         const notBeingToPublishStatuses = data.filter(singleData => !singleData.isBeingToPublishStatus);
         const beingToPublishStatuses = data.filter(singleData => singleData.isBeingToPublishStatus);
 
@@ -41,7 +41,7 @@ export default function PieChart({ t, data }: IPieChartProps): JSX.Element {
         );
     };
 
-    const getLegendRow = (singleData: IStatValueDetailsAsPieChart, index: number, colors: string[]): JSX.Element => {
+    const getLegendRow = (singleData: IStatValueDetailsAsPieChart, index: number, colors: string[]): React.JSX.Element => {
         return (
             <div key={index} className='pieChart-legend-rows-row'>
                 <div className='pieChart-legend-rows-row-square' style={{ backgroundColor: colors[index % colors.length]}}></div>

@@ -16,7 +16,8 @@ export const metadata: Metadata = {
   title: 'Volumes',
 };
 
-export default async function VolumesPage({ params }: { params: { lang: string; journalId: string } }) {
+export default async function VolumesPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
+  const params = await props.params;
   const { lang, journalId } = params;
   try {
     if (!journalId) {

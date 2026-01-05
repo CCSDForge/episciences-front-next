@@ -25,7 +25,7 @@ interface IVolumeCardProps {
   journalCode?: string;
 }
 
-export default function VolumeCard({ language, t, mode, volume, currentJournal, journalCode }: IVolumeCardProps): JSX.Element {
+export default function VolumeCard({ language, t, mode, volume, currentJournal, journalCode }: IVolumeCardProps): React.JSX.Element {
   const [openedDescription, setOpenedDescription] = useState(false);
   
   // Construire le chemin vers la page de détail du volume
@@ -35,7 +35,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal, 
 
   const toggleDescription = (): void => setOpenedDescription(!openedDescription);
 
-  const renderVolumeTileNum = (): JSX.Element => {
+  const renderVolumeTileNum = (): React.JSX.Element => {
     let text = '';
 
     if (volume.types && volume.types.length) {
@@ -55,7 +55,7 @@ export default function VolumeCard({ language, t, mode, volume, currentJournal, 
     );
   };
 
-  const renderVolumeListNum = (isMobile: boolean): JSX.Element | null => {
+  const renderVolumeListNum = (isMobile: boolean): React.JSX.Element | null => {
     let text = '';
 
     if (volume.types && volume.types.length) {

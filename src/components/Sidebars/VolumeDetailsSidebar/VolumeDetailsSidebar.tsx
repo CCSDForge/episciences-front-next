@@ -32,7 +32,7 @@ export default function VolumeDetailsSidebar({
   currentJournal, 
   relatedVolumes,
   journalId
-}: IVolumeDetailsSidebarProps): JSX.Element {
+}: IVolumeDetailsSidebarProps): React.JSX.Element {
   const NOT_RENDERED_SIDEBAR_METADATAS = ['tile'];
 
   const displayJournalCode = (journalId || currentJournal?.code || '').toUpperCase();
@@ -46,7 +46,7 @@ export default function VolumeDetailsSidebar({
     return volume.metadatas.filter((metadata) => metadata.file && metadata.title && metadata.title[language] && !NOT_RENDERED_SIDEBAR_METADATAS.includes(metadata.title[language].replace(/[\u0300-\u036f]/g, '').toLowerCase()));
   };
 
-  const renderVolumeTemplateSpecial = (): JSX.Element => {
+  const renderVolumeTemplateSpecial = (): React.JSX.Element => {
     if (volume?.types && volume.types.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return <div className='volumeDetailsSidebar-template-volume'>{t('common.volumeCard.proceeding')}</div>;
@@ -58,7 +58,7 @@ export default function VolumeDetailsSidebar({
     return <div className='volumeDetailsSidebar-template-volume'>{t('common.volumeCard.volume')}</div>;
   };
 
-  const renderVolumeTemplateNumber = (): JSX.Element => {
+  const renderVolumeTemplateNumber = (): React.JSX.Element => {
     if (volume?.types && volume?.types.includes(VOLUME_TYPE.PROCEEDINGS) && volume.settingsProceeding && volume.settingsProceeding.length) {
       const conferenceAcronym = volume!.settingsProceeding!.find((setting) => setting.setting === "conference_acronym");
       const conferenceNumber = volume!.settingsProceeding!.find((setting) => setting.setting === "conference_number");

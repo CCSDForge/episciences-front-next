@@ -54,7 +54,7 @@ export default function VolumesClient({
   lang,
   journalId,
   breadcrumbLabels
-}: VolumesClientProps): JSX.Element {
+}: VolumesClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL
@@ -198,7 +198,7 @@ export default function VolumesClient({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [pathname, router]);
 
-  const getVolumesCount = (mode: RENDERING_MODE): JSX.Element | null => {
+  const getVolumesCount = (mode: RENDERING_MODE): React.JSX.Element | null => {
     if (volumes) {
       if (volumes.totalItems > 1) {
         return <div className={`volumes-title-count-text volumes-title-count-text-volumes ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}>{volumes.totalItems} {t('common.volumes')}</div>;
@@ -210,7 +210,7 @@ export default function VolumesClient({
     return null;
   };
 
-  const getArticlesCount = (mode: RENDERING_MODE): JSX.Element | null => {
+  const getArticlesCount = (mode: RENDERING_MODE): React.JSX.Element | null => {
     if (volumes) {
       if (volumes.articlesCount && volumes.articlesCount > 1) {
         return <div className={`volumes-title-count-text volumes-title-count-text-articles ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}>{volumes.articlesCount} {t('common.articles')}</div>;

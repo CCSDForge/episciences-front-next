@@ -10,7 +10,7 @@ interface MainLayoutProps {
   children: React.ReactNode;
 }
 
-export default function MainLayout({ children }: MainLayoutProps): JSX.Element { 
+export default function MainLayout({ children }: MainLayoutProps): React.JSX.Element { 
   return (
     <>
       <ToastContainer bodyClassName='toast-message' />

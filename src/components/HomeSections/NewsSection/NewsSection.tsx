@@ -17,7 +17,7 @@ interface INewsSectionProps {
   news: INews[];
 }
 
-export default function NewsSection({ language, t, news }: INewsSectionProps): JSX.Element {
+export default function NewsSection({ language, t, news }: INewsSectionProps): React.JSX.Element {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {

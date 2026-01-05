@@ -14,7 +14,7 @@ interface PDFViewerProps {
  * Simple PDF Viewer using Mozilla's PDF.js viewer
  * This is more reliable than react-pdf for repositories like Zenodo
  */
-export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): JSX.Element {
+export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): React.JSX.Element {
   const { t } = useTranslation();
   const [viewerUrl, setViewerUrl] = useState<string>('');
   const [showFallback, setShowFallback] = useState<boolean>(false);

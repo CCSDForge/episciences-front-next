@@ -17,7 +17,7 @@ interface ICreditsSidebarProps {
   toggleHeaderCallback: (id: string) => void;
 }
 
-export default function CreditsSidebar({ headers, toggleHeaderCallback }: ICreditsSidebarProps): JSX.Element {
+export default function CreditsSidebar({ headers, toggleHeaderCallback }: ICreditsSidebarProps): React.JSX.Element {
   return (
     <div className='creditsSidebar'>
       {headers.map((header, index) => (

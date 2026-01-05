@@ -76,7 +76,7 @@ interface ISearchResultsMobileModalProps {
   onCloseCallback: () => void;
 }
 
-export default function SearchResultsMobileModal({ language, t, initialTypes, onUpdateTypesCallback, initialYears, onUpdateYearsCallback, initialVolumes, onUpdateVolumesCallback, initialSections, onUpdateSectionsCallback, initialAuthors, onUpdateAuthorsCallback, onCloseCallback }: ISearchResultsMobileModalProps): JSX.Element {
+export default function SearchResultsMobileModal({ language, t, initialTypes, onUpdateTypesCallback, initialYears, onUpdateYearsCallback, initialVolumes, onUpdateVolumesCallback, initialSections, onUpdateSectionsCallback, initialAuthors, onUpdateAuthorsCallback, onCloseCallback }: ISearchResultsMobileModalProps): React.JSX.Element {
   const dispatch = useAppDispatch();
   const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);
   const modalRef = useRef<HTMLDivElement>(null);

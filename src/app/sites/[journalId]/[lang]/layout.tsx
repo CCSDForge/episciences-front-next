@@ -12,13 +12,19 @@ import { getJournalApiUrl } from '@/utils/env-loader';
 
 interface LanguageLayoutProps {
   children: ReactNode;
-  params: { lang: string; journalId: string };
+  params: Promise<{ lang: string; journalId: string }>;
 }
 
 /**
  * Layout for handling language-prefixed routes in a multi-tenant setup
  */
-export default async function LanguageLayout({ children, params }: LanguageLayoutProps) {
+export default async function LanguageLayout(props: LanguageLayoutProps) {
+  const params = await props.params;
+
+  const {
+    children
+  } = props;
+
   // Extract and validate language from params
   const lang = getLanguageFromParams(params);
   const { journalId } = params;
@@ -27,7 +33,7 @@ export default async function LanguageLayout({ children, params }: LanguageLayou
   let initialVolume = null;
   let initialJournal = null;
   let translations = {};
-  
+
   // Charger l'URL de l'API spécifique au journal
   const apiEndpoint = getJournalApiUrl(journalId);
 

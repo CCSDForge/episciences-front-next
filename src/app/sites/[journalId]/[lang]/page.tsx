@@ -20,12 +20,13 @@ function getDefaultLanguage(): string {
   return process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE || 'fr';
 }
 
-export default async function HomePage({ params }: { params: { journalId: string; lang: string } }) {
+export default async function HomePage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+  const params = await props.params;
   const language = params.lang || 'fr';
   const rvcode = params.journalId;
-  
+
   let homeData = {};
-  
+
   try {
     homeData = await fetchHomeData(rvcode, language);
   } catch (error) {

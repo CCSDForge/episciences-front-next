@@ -22,7 +22,7 @@ export default function FileIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: FileIconProps): JSX.Element {
+}: FileIconProps): React.JSX.Element {
   const height = (size * 15.567) / 12.6;
 
   return (

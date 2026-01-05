@@ -21,7 +21,7 @@ interface IBoardCardProps {
   rolesLabels?: Record<string, string>;
 }
 
-export default function BoardCard({ language, t, member, fullCard, blurCard, setFullMemberIndexCallback, rolesLabels }: IBoardCardProps): JSX.Element {
+export default function BoardCard({ language, t, member, fullCard, blurCard, setFullMemberIndexCallback, rolesLabels }: IBoardCardProps): React.JSX.Element {
   
   const getRoleLabel = (role: string) => {
     if (rolesLabels && rolesLabels[role]) return rolesLabels[role];

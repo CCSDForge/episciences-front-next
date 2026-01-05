@@ -17,7 +17,7 @@ interface IArticlesAcceptedSidebarProps {
   onCheckTypeCallback: (value: string) => void;
 }
 
-export default function ArticlesAcceptedSidebar({ t, types, onCheckTypeCallback }: IArticlesAcceptedSidebarProps): JSX.Element {
+export default function ArticlesAcceptedSidebar({ t, types, onCheckTypeCallback }: IArticlesAcceptedSidebarProps): React.JSX.Element {
   return (
     <div className='articlesAcceptedSidebar'>
       <div className='articlesAcceptedSidebar-typesSection'>

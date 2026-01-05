@@ -50,7 +50,7 @@ export default function ArticlesAcceptedClient({
   initialRange, 
   lang, 
   breadcrumbLabels 
-}: ArticlesAcceptedClientProps): JSX.Element {
+}: ArticlesAcceptedClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL

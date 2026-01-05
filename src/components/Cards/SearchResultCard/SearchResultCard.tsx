@@ -26,7 +26,7 @@ interface ISearchResultCardProps {
   toggleAbstractCallback: () => void;
 }
 
-export default function SearchResultCard({ language, rvcode, t, searchResult, toggleAbstractCallback }: ISearchResultCardProps): JSX.Element {
+export default function SearchResultCard({ language, rvcode, t, searchResult, toggleAbstractCallback }: ISearchResultCardProps): React.JSX.Element {
   const [citations, setCitations] = useState<ICitation[]>([]);
   const [showCitationsDropdown, setShowCitationsDropdown] = useState(false);
 

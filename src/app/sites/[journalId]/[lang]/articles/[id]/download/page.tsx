@@ -6,13 +6,14 @@ import { logArticleProgress } from '@/utils/build-progress';
 import ArticleDetailsDownloadClient from './ArticleDetailsDownloadClient';
 
 interface DownloadPageProps {
-  params: {
+  params: Promise<{
     lang: AvailableLanguage;
     id: string;
-  };
+  }>;
 }
 
-export async function generateMetadata({ params }: DownloadPageProps): Promise<Metadata> {
+export async function generateMetadata(props: DownloadPageProps): Promise<Metadata> {
+  const params = await props.params;
   const article = await fetchArticle(params.id);
 
   if (!article) {
@@ -27,7 +28,8 @@ export async function generateMetadata({ params }: DownloadPageProps): Promise<M
   };
 }
 
-export default async function DownloadPage({ params }: DownloadPageProps) {
+export default async function DownloadPage(props: DownloadPageProps) {
+  const params = await props.params;
   // Log build progress
   logArticleProgress(params.id, params.lang, 'download');
 

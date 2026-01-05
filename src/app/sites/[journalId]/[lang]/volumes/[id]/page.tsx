@@ -26,21 +26,24 @@ export const metadata: Metadata = {
   title: 'Volume Details',
 };
 
-export default async function VolumeDetailsPage({
-  params
-}: {
-  params: { id: string; lang?: string; journalId: string }
-}) {
+export default async function VolumeDetailsPage(
+  props: {
+    params: Promise<{ id: string; lang?: string; journalId: string }>
+  }
+) {
+  const params = await props.params;
   const language = getLanguageFromParams(params);
   const { journalId } = params;
 
   try {
     // Vérifier si nous avons un ID factice
     if (params.id === 'no-volumes-found') {
-      return {
-        title: "Aucun volume - Placeholder",
-        description: "Page placeholder pour les volumes"
-      };
+      return (
+        <div className="error-message">
+          <h1>Aucun volume - Placeholder</h1>
+          <p>Page placeholder pour les volumes</p>
+        </div>
+      );
     }
 
     if (!journalId) {
@@ -48,11 +51,11 @@ export default async function VolumeDetailsPage({
     }
 
     const [volumeData, translations] = await Promise.all([
-      fetchVolume({
-        rvcode: journalId,
-        vid: params.id,
+      fetchVolume(
+        journalId,
+        parseInt(params.id, 10),
         language
-      }),
+      ),
       getServerTranslations(language)
     ]);
 
@@ -73,7 +76,7 @@ export default async function VolumeDetailsPage({
       });
 
       const fetchedArticles = await Promise.all(articlePromises);
-      articles = fetchedArticles.filter((article): article is FetchedArticle => article !== null && article !== undefined);
+      articles = fetchedArticles.filter((article: FetchedArticle | null): article is FetchedArticle => article !== null && article !== undefined);
     }
 
     const breadcrumbLabels = {

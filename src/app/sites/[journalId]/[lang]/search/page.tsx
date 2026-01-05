@@ -16,20 +16,22 @@ export const metadata: Metadata = {
 };
 
 interface SearchPageProps {
-  params: { lang: string; journalId: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  params: Promise<{ lang: string; journalId: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function SearchPage({ params, searchParams }: SearchPageProps) {
+export default async function SearchPage(props: SearchPageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const { lang, journalId } = params;
-  
+
   // Extract search params
   const search = searchParams?.terms as string || searchParams?.q as string || '';
   const page = searchParams?.page ? Math.max(1, parseInt(searchParams.page as string, 10)) : 1;
-  
+
   // Fetch translations
   const translations = await getServerTranslations(lang);
-  
+
   const breadcrumbLabels = {
     home: t('pages.home.title', translations),
     content: t('common.content', translations),
@@ -40,7 +42,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
     resultFor: t('common.resultFor', translations),
     resultsFor: t('common.resultsFor', translations),
   };
-  
+
   // Optionally fetch initial results if search term is present
   let initialSearchResults: {
     data: FetchedArticle[];

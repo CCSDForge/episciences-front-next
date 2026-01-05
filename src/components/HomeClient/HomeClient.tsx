@@ -29,7 +29,7 @@ interface HomeClientProps {
 }
 
 // Internal component that uses Redux
-function HomeClientInner({ homeData, language, journalId }: HomeClientProps): JSX.Element {
+function HomeClientInner({ homeData, language, journalId }: HomeClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code) || journalId;
@@ -304,7 +304,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): JS
 
 // Wrapper component
 
-export default function HomeClient(props: HomeClientProps): JSX.Element {
+export default function HomeClient(props: HomeClientProps): React.JSX.Element {
 
   return <HomeClientInner {...props} />;
 

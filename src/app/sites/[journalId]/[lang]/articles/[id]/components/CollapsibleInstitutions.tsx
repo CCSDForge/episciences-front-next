@@ -17,7 +17,7 @@ interface CollapsibleInstitutionsProps {
   isMobile: boolean;
 }
 
-export default function CollapsibleInstitutions({ authors, institutions, isMobile }: CollapsibleInstitutionsProps): JSX.Element {
+export default function CollapsibleInstitutions({ authors, institutions, isMobile }: CollapsibleInstitutionsProps): React.JSX.Element {
   const [openedInstitutions, setOpenedInstitutions] = useState(true);
 
   const renderAuthors = () => {

@@ -25,7 +25,7 @@ interface INewsMobileModalProps {
   onCloseCallback: () => void;
 }
 
-export default function NewsMobileModal({ t, years, onUpdateYearsCallback, onCloseCallback }: INewsMobileModalProps): JSX.Element {
+export default function NewsMobileModal({ t, years, onUpdateYearsCallback, onCloseCallback }: INewsMobileModalProps): React.JSX.Element {
   const dispatch = useAppDispatch();
   const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);
   const modalRef = useRef<HTMLDivElement>(null);

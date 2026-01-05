@@ -5,7 +5,7 @@ interface ReferencesSectionProps {
   references: IArticleReference[];
 }
 
-export default function ReferencesSection({ references }: ReferencesSectionProps): JSX.Element | null {
+export default function ReferencesSection({ references }: ReferencesSectionProps): React.JSX.Element | null {
   if (!references?.length) return null;
 
   const doiHomepage = process.env.NEXT_PUBLIC_VITE_DOI_HOMEPAGE || 'https://doi.org';

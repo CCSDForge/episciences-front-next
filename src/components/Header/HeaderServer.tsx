@@ -16,7 +16,7 @@ interface HeaderServerProps {
   journalId?: string;
 }
 
-export default async function HeaderServer({ lang = 'en', journalId }: HeaderServerProps): Promise<JSX.Element> {
+export default async function HeaderServer({ lang = 'en', journalId }: HeaderServerProps): Promise<React.JSX.Element> {
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 
   // Fetch journal info to get the name and logo

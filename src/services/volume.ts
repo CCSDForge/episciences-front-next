@@ -88,8 +88,8 @@ export async function fetchVolumes({
     params.append('types', types.join(','));
   }
 
-  if (years.length > 0) {
-    years.forEach(year => params.append('years[]', year));
+  if (years && years.length > 0) {
+    years.forEach(year => params.append('years[]', year.toString()));
   }
 
   const apiUrl = getJournalApiUrl(rvcode);

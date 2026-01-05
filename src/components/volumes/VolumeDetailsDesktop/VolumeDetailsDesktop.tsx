@@ -11,7 +11,7 @@ interface IVolumeDetailsDesktopProps {
   volume: IVolume;
 }
 
-export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): JSX.Element {
+export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): React.JSX.Element {
   const language = useAppSelector(state => state.i18nReducer.language);
 
   const getEdito = (): IVolumeMetadata | null => {
@@ -54,7 +54,7 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): JS
       : null;
   };
 
-  const renderTitle = (): JSX.Element => {
+  const renderTitle = (): React.JSX.Element => {
     if (volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) && volume.settingsProceeding?.length) {
       const conferenceName = volume.settingsProceeding.find((setting) => setting.setting === "conference_name");
       if (conferenceName?.value) {
@@ -73,7 +73,7 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): JS
     );
   };
 
-  const renderCommittee = (): JSX.Element | null => {
+  const renderCommittee = (): React.JSX.Element | null => {
     if (!volume?.committee?.length) return null;
 
     return (

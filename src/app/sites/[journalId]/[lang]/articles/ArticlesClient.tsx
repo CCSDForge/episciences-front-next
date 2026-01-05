@@ -49,7 +49,7 @@ interface ArticlesClientProps {
   };
 }
 
-export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels, countLabels }: ArticlesClientProps): JSX.Element {
+export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels, countLabels }: ArticlesClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL

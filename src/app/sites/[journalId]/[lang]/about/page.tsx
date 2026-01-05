@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   description: 'À propos de la revue',
 };
 
-export default async function AboutPage({ params }: { params: { journalId: string; lang: string } }) {
+export default async function AboutPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+  const params = await props.params;
   let pageData = null;
   const { journalId, lang } = params;
 

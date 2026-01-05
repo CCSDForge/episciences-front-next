@@ -26,7 +26,7 @@ interface IStatisticsMobileModalProps {
   onCloseCallback: () => void;
 }
 
-export default function StatisticsMobileModal({ t, years, onUpdateYearsCallback, onCloseCallback }: IStatisticsMobileModalProps): JSX.Element {
+export default function StatisticsMobileModal({ t, years, onUpdateYearsCallback, onCloseCallback }: IStatisticsMobileModalProps): React.JSX.Element {
   const dispatch = useAppDispatch();
 
   const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);

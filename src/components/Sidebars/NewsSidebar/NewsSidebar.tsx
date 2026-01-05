@@ -15,7 +15,7 @@ interface INewsSidebarProps {
   onSelectYearCallback: (year: number) => void;
 }
 
-export default function NewsSidebar({ t, years, onSelectYearCallback }: INewsSidebarProps): JSX.Element {
+export default function NewsSidebar({ t, years, onSelectYearCallback }: INewsSidebarProps): React.JSX.Element {
   return (
     <div className='newsSidebar'>
       <div className='newsSidebar-title'>{t('common.filters.years')}</div>

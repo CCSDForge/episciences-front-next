@@ -7,7 +7,7 @@ interface ICheckboxProps {
   onChangeCallback: () => void;
 }
 
-export default function Checkbox({ checked, onChangeCallback }: ICheckboxProps): JSX.Element {
+export default function Checkbox({ checked, onChangeCallback }: ICheckboxProps): React.JSX.Element {
   return (
     <input
       type="checkbox"

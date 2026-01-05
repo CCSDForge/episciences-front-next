@@ -13,7 +13,7 @@ interface LinkedPublicationsSectionServerProps {
   language?: string;
 }
 
-export default function LinkedPublicationsSectionServer({ relatedItems, translations }: LinkedPublicationsSectionServerProps): JSX.Element | null {
+export default function LinkedPublicationsSectionServer({ relatedItems, translations }: LinkedPublicationsSectionServerProps): React.JSX.Element | null {
   if (!relatedItems?.length) return null;
 
   // Filter out specific relationship types
@@ -26,7 +26,7 @@ export default function LinkedPublicationsSectionServer({ relatedItems, translat
   // If no items remain after filtering, return null
   if (filteredItems.length === 0) return null;
 
-  const getLinkedPublicationRow = (relatedItem: IArticleRelatedItem): JSX.Element => {
+  const getLinkedPublicationRow = (relatedItem: IArticleRelatedItem): React.JSX.Element => {
     const relationship = interworkRelationShipTypes.find(relationship => relationship.value === relatedItem.relationshipType)?.labelPath;
 
     if (relatedItem.citation) {

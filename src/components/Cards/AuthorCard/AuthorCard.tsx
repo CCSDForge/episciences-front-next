@@ -13,7 +13,7 @@ export interface IAuthorCardProps {
   setExpandedAuthorIndexCallback: () => void;
 }
 
-export default function AuthorCard({ t, author, expandedCard, setExpandedAuthorIndexCallback }: IAuthorCardProps): JSX.Element {
+export default function AuthorCard({ t, author, expandedCard, setExpandedAuthorIndexCallback }: IAuthorCardProps): React.JSX.Element {
   return (
     <div className="authorCard">
       <div className="authorCard-title">

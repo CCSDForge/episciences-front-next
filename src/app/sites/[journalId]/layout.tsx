@@ -1,6 +1,6 @@
 interface JournalLayoutProps {
   children: React.ReactNode;
-  params: { journalId: string };
+  params: Promise<{ journalId: string }>;
 }
 
 // Revalidate strategy moved to individual pages for granular control
@@ -8,10 +8,10 @@ interface JournalLayoutProps {
 // Dynamic pages (articles list): revalidate = 600 (10min)
 // Article details: revalidate = 3600 (1h)
 
-export default async function JournalLayout({
-  children,
-  params,
-}: JournalLayoutProps) {
+export default async function JournalLayout(props: JournalLayoutProps) {
+  const params = await props.params;
+  const { children } = props;
+
   return (
     <>
       {children}

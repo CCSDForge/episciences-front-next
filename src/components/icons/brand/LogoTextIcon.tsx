@@ -24,7 +24,7 @@ export default function LogoTextIcon({
   size = 200,
   className = '',
   ariaLabel,
-}: LogoTextIconProps): JSX.Element {
+}: LogoTextIconProps): React.JSX.Element {
   return (
     <Image
       src="/icons/logo-text.svg"

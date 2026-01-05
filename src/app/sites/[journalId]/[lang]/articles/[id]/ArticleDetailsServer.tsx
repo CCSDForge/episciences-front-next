@@ -52,7 +52,7 @@ export default function ArticleDetailsServer({
   metadataBibTeX,
   translations,
   language
-}: ArticleDetailsServerProps): JSX.Element {
+}: ArticleDetailsServerProps): React.JSX.Element {
 
   // Process authors and institutions
   const allAuthors: EnhancedArticleAuthor[] = [];
@@ -80,7 +80,7 @@ export default function ArticleDetailsServer({
 
   const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || process.env.NEXT_PUBLIC_RVCODE || '';
 
-  const renderArticleTitleAndAuthors = (isMobile: boolean): JSX.Element => {
+  const renderArticleTitleAndAuthors = (isMobile: boolean): React.JSX.Element => {
     return (
       <>
         <h1 className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}>
@@ -97,7 +97,7 @@ export default function ArticleDetailsServer({
     );
   };
 
-  const getGraphicalAbstractSection = (): JSX.Element | null => {
+  const getGraphicalAbstractSection = (): React.JSX.Element | null => {
     const graphicalAbstractURL = (rvcode && article?.graphicalAbstract)
       ? `https://${rvcode}.episciences.org/public/documents/${article.id}/${article?.graphicalAbstract}`
       : null;
@@ -107,7 +107,7 @@ export default function ArticleDetailsServer({
     ) : null;
   };
 
-  const getAbstractSection = (): JSX.Element | null => {
+  const getAbstractSection = (): React.JSX.Element | null => {
     if (!article?.abstract) {
       return null;
     }
@@ -120,7 +120,7 @@ export default function ArticleDetailsServer({
     );
   };
 
-  const getKeywordsSection = (): JSX.Element | null => {
+  const getKeywordsSection = (): React.JSX.Element | null => {
     if (!article?.keywords) {
       return null;
     }
@@ -149,7 +149,7 @@ export default function ArticleDetailsServer({
     );
   };
 
-  const getLinkedPublicationsSection = (): JSX.Element | null => {
+  const getLinkedPublicationsSection = (): React.JSX.Element | null => {
     if (!article?.relatedItems || article.relatedItems.length === 0) {
       return null;
     }
@@ -169,19 +169,19 @@ export default function ArticleDetailsServer({
     return <LinkedPublicationsSectionServer relatedItems={article.relatedItems} translations={translations} language={language} />;
   };
 
-  const getReferencesSection = (): JSX.Element | null => {
+  const getReferencesSection = (): React.JSX.Element | null => {
     return article?.references && article.references.length > 0 ? (
       <ReferencesSection references={article.references} />
     ) : null;
   };
 
-  const getCitedBySection = (): JSX.Element | null => {
+  const getCitedBySection = (): React.JSX.Element | null => {
     return article?.citedBy && article.citedBy.length > 0 ? (
       <CitedBySection citedBy={article.citedBy} />
     ) : null;
   };
 
-  const getPreviewSection = (): JSX.Element | null => {
+  const getPreviewSection = (): React.JSX.Element | null => {
     if (!article?.pdfLink || !supportsInlinePreview(article.pdfLink)) {
       return null;
     }
@@ -190,7 +190,7 @@ export default function ArticleDetailsServer({
   };
 
   // Helper to render sections with collapsible wrapper
-  const renderSection = (sectionKey: ARTICLE_SECTION, sectionTitle: string, sectionContent: JSX.Element | null): JSX.Element | null => {
+  const renderSection = (sectionKey: ARTICLE_SECTION, sectionTitle: string, sectionContent: React.JSX.Element | null): React.JSX.Element | null => {
     if (!sectionContent) {
       return null;
     }

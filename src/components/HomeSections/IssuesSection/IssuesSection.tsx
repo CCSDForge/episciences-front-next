@@ -18,7 +18,7 @@ interface IIssuesSectionProps {
   journalId?: string;
 }
 
-export default function IssuesSection({ language, t, issues = [], currentJournal, journalId }: IIssuesSectionProps): JSX.Element {
+export default function IssuesSection({ language, t, issues = [], currentJournal, journalId }: IIssuesSectionProps): React.JSX.Element {
   if (!issues || issues.length === 0) {
     return <></>;
   }

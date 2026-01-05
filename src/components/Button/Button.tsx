@@ -16,7 +16,7 @@ interface IButtonProps {
   iconSize?: number;
 }
 
-export default function Button({ text, onClickCallback, IconComponent, iconSize = 16 }: IButtonProps): JSX.Element {
+export default function Button({ text, onClickCallback, IconComponent, iconSize = 16 }: IButtonProps): React.JSX.Element {
   if (IconComponent) {
     return (
       <button className='button button-withIcon' onClick={onClickCallback}>

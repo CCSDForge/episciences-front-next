@@ -32,7 +32,7 @@ export default function CaretUpIcon({
   onMouseLeave,
   onTouchStart,
   onTouchEnd,
-}: CaretUpIconProps): JSX.Element {
+}: CaretUpIconProps): React.JSX.Element {
   // Maintain original aspect ratio (13.632 / 7.5)
   const height = (size * 7.5) / 13.632;
 

@@ -22,7 +22,7 @@ export default function ListIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: ListIconProps): JSX.Element {
+}: ListIconProps): React.JSX.Element {
   const height = (size * 15.5) / 15;
 
   return (

@@ -16,7 +16,7 @@ interface ISwiperBoardCardProps {
   member: IBoardMember;
 }
 
-export default function SwiperBoardCard({ language, t, member }: ISwiperBoardCardProps): JSX.Element {
+export default function SwiperBoardCard({ language, t, member }: ISwiperBoardCardProps): React.JSX.Element {
   return (
     <div className='swiperBoardCard'>
       <div className='swiperBoardCard-person'>

@@ -52,7 +52,7 @@ interface ISearchResultsSidebarProps {
   onCheckAuthorCallback: (fullname: string) => void;
 }
 
-export default function SearchResultsSidebar({ language, t, types, onCheckTypeCallback, years, onCheckYearCallback, volumes, onCheckVolumeCallback, sections, onCheckSectionCallback, authors, onCheckAuthorCallback }: ISearchResultsSidebarProps): JSX.Element {
+export default function SearchResultsSidebar({ language, t, types, onCheckTypeCallback, years, onCheckYearCallback, volumes, onCheckVolumeCallback, sections, onCheckSectionCallback, authors, onCheckAuthorCallback }: ISearchResultsSidebarProps): React.JSX.Element {
   return (
     <div className='searchResultsSidebar'>
       {types.length > 0 && (

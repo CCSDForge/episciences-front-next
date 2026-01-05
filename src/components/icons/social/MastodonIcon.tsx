@@ -22,7 +22,7 @@ export default function MastodonIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: MastodonIconProps): JSX.Element {
+}: MastodonIconProps): React.JSX.Element {
   const height = (size * 15.582) / 14.536;
 
   return (

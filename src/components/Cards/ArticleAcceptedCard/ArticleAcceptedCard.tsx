@@ -22,7 +22,7 @@ interface IArticleAcceptedCardProps {
   toggleAbstractCallback: () => void;
 }
 
-export default function ArticleAcceptedCard({ language, t, article, toggleAbstractCallback }: IArticleAcceptedCardProps): JSX.Element {
+export default function ArticleAcceptedCard({ language, t, article, toggleAbstractCallback }: IArticleAcceptedCardProps): React.JSX.Element {
   return (
     <div className="articleAcceptedCard">
       {article.tag && <div className='articleAcceptedCard-tag'>{t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}</div>}

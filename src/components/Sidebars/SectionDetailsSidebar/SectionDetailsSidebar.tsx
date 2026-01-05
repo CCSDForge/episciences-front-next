@@ -24,7 +24,7 @@ export default function SectionDetailsSidebar({
   articles = [], 
   currentJournal,
   sectionId 
-}: ISectionDetailsSidebarProps): JSX.Element {
+}: ISectionDetailsSidebarProps): React.JSX.Element {
   
   return (
     <div className='sectionDetailsSidebar'>

@@ -22,7 +22,7 @@ export default function AtIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: AtIconProps): JSX.Element {
+}: AtIconProps): React.JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

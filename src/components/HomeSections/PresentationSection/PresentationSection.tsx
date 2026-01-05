@@ -31,7 +31,7 @@ const truncateText = (text: string | undefined | null, maxLength: number): strin
   return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
 
-export default function PresentationSection({ language, t, aboutContent = {}, lastInformation }: IPresentationSectionProps): JSX.Element {
+export default function PresentationSection({ language, t, aboutContent = {}, lastInformation }: IPresentationSectionProps): React.JSX.Element {
   // Si aucune carte à afficher, ne rien rendre
   const renderNewsContent = (news: INews) => {
     try {

@@ -22,7 +22,10 @@ export async function generateStaticParams() {
   return [];
 }
 
-export async function generateMetadata({ params }: { params: { id: string; lang?: string; journalId: string } }): Promise<Metadata> {
+export async function generateMetadata(
+  props: { params: Promise<{ id: string; lang?: string; journalId: string }> }
+): Promise<Metadata> {
+  const params = await props.params;
   try {
     if (params.id === 'no-sections-found') {
       return {
@@ -47,11 +50,12 @@ export async function generateMetadata({ params }: { params: { id: string; lang?
   }
 }
 
-export default async function SectionDetailsPage({
-  params
-}: {
-  params: { id: string; lang?: string; journalId: string }
-}) {
+export default async function SectionDetailsPage(
+  props: {
+    params: Promise<{ id: string; lang?: string; journalId: string }>
+  }
+) {
+  const params = await props.params;
   const language = getLanguageFromParams(params);
   const { journalId } = params;
 

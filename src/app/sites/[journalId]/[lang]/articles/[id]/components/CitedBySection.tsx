@@ -10,7 +10,7 @@ interface CitedBySectionProps {
   citedBy: IArticleCitedBy[];
 }
 
-export default function CitedBySection({ citedBy }: CitedBySectionProps): JSX.Element | null {
+export default function CitedBySection({ citedBy }: CitedBySectionProps): React.JSX.Element | null {
   const { t } = useTranslation();
 
   if (!citedBy?.length) return null;

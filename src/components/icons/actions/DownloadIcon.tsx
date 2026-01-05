@@ -22,7 +22,7 @@ export default function DownloadIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: DownloadIconProps): JSX.Element {
+}: DownloadIconProps): React.JSX.Element {
   // Maintain original aspect ratio (12.6 / 15.567)
   const height = (size * 15.567) / 12.6;
 

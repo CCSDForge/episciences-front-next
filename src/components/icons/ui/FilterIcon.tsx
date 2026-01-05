@@ -22,7 +22,7 @@ export default function FilterIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: FilterIconProps): JSX.Element {
+}: FilterIconProps): React.JSX.Element {
   const height = (size * 13.072) / 13;
 
   return (

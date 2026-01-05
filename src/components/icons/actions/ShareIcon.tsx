@@ -22,7 +22,7 @@ export default function ShareIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: ShareIconProps): JSX.Element {
+}: ShareIconProps): React.JSX.Element {
   // Maintain original aspect ratio (13.23 / 14.656)
   const height = (size * 14.656) / 13.23;
 

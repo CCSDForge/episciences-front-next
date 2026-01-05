@@ -22,7 +22,7 @@ export default function QuoteIcon({
   size = 16,
   className = '',
   ariaLabel,
-}: QuoteIconProps): JSX.Element {
+}: QuoteIconProps): React.JSX.Element {
   const height = (size * 12.228) / 13.187;
 
   return (

@@ -11,10 +11,11 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  params: { journalId: string; lang: string };
+  params: Promise<{ journalId: string; lang: string }>;
 };
 
-export default async function StatisticsPage({ params }: Props) {
+export default async function StatisticsPage(props: Props) {
+  const params = await props.params;
   const { lang } = params;
   const translations = await getServerTranslations(lang);
   const breadcrumbLabels = {

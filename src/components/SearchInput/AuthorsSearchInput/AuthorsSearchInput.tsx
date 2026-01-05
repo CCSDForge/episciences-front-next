@@ -10,7 +10,7 @@ interface IAuthorsSearchInputProps {
   onChangeCallback: (search: string) => void;
 }
 
-export default function AuthorsSearchInput({ value, placeholder, onChangeCallback }: IAuthorsSearchInputProps): JSX.Element {
+export default function AuthorsSearchInput({ value, placeholder, onChangeCallback }: IAuthorsSearchInputProps): React.JSX.Element {
   return (
     <div className="authorsSearchInput">
       <input

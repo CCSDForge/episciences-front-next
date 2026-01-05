@@ -2,7 +2,7 @@
 
 import './SectionsSidebar.scss';
 
-export default function SectionsSidebar(): JSX.Element {
+export default function SectionsSidebar(): React.JSX.Element {
   return (
     <div className='sectionsSidebar'></div>
   )

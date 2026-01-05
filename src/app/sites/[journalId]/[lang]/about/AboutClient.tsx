@@ -36,7 +36,7 @@ interface AboutClientProps {
   };
 }
 
-export default function AboutClient({ initialPage, lang, breadcrumbLabels }: AboutClientProps): JSX.Element {
+export default function AboutClient({ initialPage, lang, breadcrumbLabels }: AboutClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
   const language = useAppSelector(state => state.i18nReducer.language)

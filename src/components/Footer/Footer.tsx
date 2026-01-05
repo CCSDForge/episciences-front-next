@@ -7,7 +7,7 @@ import { useAppSelector } from '@/hooks/store';
 import { PATHS } from '@/config/paths';
 import './Footer.scss';
 
-export default function Footer(): JSX.Element {
+export default function Footer(): React.JSX.Element {
   const { t } = useTranslation();
 
   const language = useAppSelector(state => state.i18nReducer.language);

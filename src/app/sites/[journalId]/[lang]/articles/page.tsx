@@ -23,16 +23,17 @@ interface ArticlesData {
   };
 }
 
-export default async function ArticlesPage({ 
-  params, 
-  searchParams 
-}: { 
-  params: { lang: string; journalId: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+export default async function ArticlesPage(
+  props: { 
+    params: Promise<{ lang: string; journalId: string }>;
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const lang = params.lang || 'en';
   const { journalId } = params;
-  
+
   // Extract page number from searchParams
   const page = searchParams?.page ? Math.max(1, parseInt(searchParams.page as string, 10)) : 1;
 

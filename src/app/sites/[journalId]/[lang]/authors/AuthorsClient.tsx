@@ -174,7 +174,7 @@ export default function AuthorsClient({
     setCurrentPage(newPage);
   }, [createQueryString, pathname, router]);
 
-  const getAuthorsCount = (): JSX.Element | null => {
+  const getAuthorsCount = (): React.JSX.Element | null => {
     if (totalAuthors > 1) {
       if (searchValue) return <div className='authors-count'>{totalAuthors} {countLabels?.authorsFor || t('common.authorsFor')} &ldquo;{searchValue}&rdquo;</div>;
       if (activeLetter) return <div className='authors-count'>{totalAuthors} {countLabels?.authorsFor || t('common.authorsFor')} &ldquo;{activeLetter === 'others' ? (countLabels?.others || t('pages.authors.others')) : activeLetter}&rdquo;</div>;

@@ -30,7 +30,7 @@ interface HeaderProps {
   };
 }
 
-export default function Header({ currentJournal }: HeaderProps): JSX.Element {
+export default function Header({ currentJournal }: HeaderProps): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
@@ -128,7 +128,7 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
 
   const submitManagerLink = getSubmitManagerLink();
 
-  const getPostHeaderLinks = (): JSX.Element => {
+  const getPostHeaderLinks = (): React.JSX.Element => {
     return (
       <>
         <div className='header-postheader-links'>
@@ -231,7 +231,7 @@ export default function Header({ currentJournal }: HeaderProps): JSX.Element {
     );
   };
 
-  const getPostHeaderBurgerLinks = (): JSX.Element => {
+  const getPostHeaderBurgerLinks = (): React.JSX.Element => {
     if (showMobileMenu) {
       return (
         <div className={`header-postheader-burger-content ${showMobileMenu ? 'header-postheader-burger-content-displayed' : ''}`}>

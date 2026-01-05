@@ -26,7 +26,7 @@ interface IArticleCardProps {
   toggleAbstractCallback: () => void;
 }
 
-export default function ArticleCard({ language, rvcode, t, article, toggleAbstractCallback }: IArticleCardProps): JSX.Element {
+export default function ArticleCard({ language, rvcode, t, article, toggleAbstractCallback }: IArticleCardProps): React.JSX.Element {
   const [citations, setCitations] = useState<ICitation[]>([]);
   const [showCitationsDropdown, setShowCitationsDropdown] = useState(false);
 

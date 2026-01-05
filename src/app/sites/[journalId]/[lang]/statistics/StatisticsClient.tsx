@@ -25,7 +25,7 @@ interface StatisticsClientProps {
   };
 }
 
-export default function StatisticsClient({ initialStats, lang, breadcrumbLabels }: StatisticsClientProps = {}): JSX.Element {
+export default function StatisticsClient({ initialStats, lang, breadcrumbLabels }: StatisticsClientProps = {}): React.JSX.Element {
   const { t, i18n } = useTranslation();
   
   // Synchroniser la langue avec le paramètre de l'URL
