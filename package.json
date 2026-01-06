@@ -41,7 +41,6 @@
     "react": "^19.0.0",
     "react-device-detect": "^2.2.3",
     "react-dom": "^19.0.0",
-    "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.50.0",
     "react-i18next": "^14.1.1",
     "react-loader-spinner": "^6.1.6",
