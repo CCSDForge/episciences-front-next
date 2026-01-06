@@ -5,7 +5,7 @@ import { getLanguageFromParams } from '@/utils/language-utils';
 import { FetchedArticle } from '@/utils/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import VolumeDetailsClient from './VolumeDetailsClient';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 export const metadata: Metadata = {
   title: 'Volume Details',
@@ -16,8 +16,6 @@ export default async function VolumeDetailsPage(
     params: Promise<{ id: string; lang?: string; journalId: string }>
   }
 ) {
-  'use cache';
-  cacheLife('hours'); // Volume details - revalidate every hour
 
   const params = await props.params;
   const language = getLanguageFromParams(params);

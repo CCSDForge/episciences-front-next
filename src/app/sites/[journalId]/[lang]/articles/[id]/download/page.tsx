@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { fetchArticle } from '@/services/article';
 import { AvailableLanguage } from '@/utils/i18n';
 import { logArticleProgress } from '@/utils/build-progress';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 import ArticleDetailsDownloadClient from './ArticleDetailsDownloadClient';
 
 interface DownloadPageProps {
@@ -30,8 +30,7 @@ export async function generateMetadata(props: DownloadPageProps): Promise<Metada
 }
 
 export default async function DownloadPage(props: DownloadPageProps) {
-  'use cache';
-  cacheLife('hours'); // Article download page - revalidate every hour
+  await connection();
 
   const params = await props.params;
   // Log build progress

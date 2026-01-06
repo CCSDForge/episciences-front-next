@@ -5,7 +5,7 @@ import { getLanguageFromParams } from '@/utils/language-utils';
 import { ISection, PartialSectionArticle } from '@/types/section';
 import { IArticle } from '@/types/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 export async function generateMetadata(
   props: { params: Promise<{ id: string; lang?: string; journalId: string }> }
@@ -40,8 +40,6 @@ export default async function SectionDetailsPage(
     params: Promise<{ id: string; lang?: string; journalId: string }>
   }
 ) {
-  'use cache';
-  cacheLife('hours'); // Section details - revalidate every hour
 
   const params = await props.params;
   const language = getLanguageFromParams(params);

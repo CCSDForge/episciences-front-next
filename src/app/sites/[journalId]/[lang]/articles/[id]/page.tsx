@@ -14,7 +14,7 @@ import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
 import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 import { AvailableLanguage } from '@/utils/i18n';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 interface ArticleDetailsPageProps {
   params: Promise<{
