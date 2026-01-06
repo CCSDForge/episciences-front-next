@@ -4,13 +4,11 @@ import './About.scss';
 import { fetchAboutPage } from '@/services/about';
 import { IPage } from '@/types/page';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { cacheLife } from 'next/cache';
 
 import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 import { getLanguageFromParams } from "@/utils/language-utils";
 const AboutClient = dynamic(() => import('./AboutClient'));
-
-// Static content - revalidate once per day (86400 seconds = 24 hours)
-export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: 'À propos',
@@ -18,6 +16,9 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+  'use cache';
+  cacheLife('days'); // Static content - revalidate once per day
+
   const params = await props.params;
   let pageData = null;
   const { journalId, lang } = params;

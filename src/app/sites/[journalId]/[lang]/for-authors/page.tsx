@@ -2,11 +2,9 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { cacheLife } from 'next/cache';
 
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
-
-// Static content - revalidate once per day (86400 seconds = 24 hours)
-export const revalidate = 86400;
 
 // Cette fonction est aussi appelée au build time
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,6 +14,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ForAuthorsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+  'use cache';
+  cacheLife('days'); // Static content - revalidate once per day
+
   const params = await props.params;
   const { journalId, lang } = params;
 
