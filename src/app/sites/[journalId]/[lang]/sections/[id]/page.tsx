@@ -55,6 +55,9 @@ export default async function SectionDetailsPage(
     params: Promise<{ id: string; lang?: string; journalId: string }>
   }
 ) {
+  'use cache';
+  cacheLife('hours'); // Section details - revalidate every hour
+
   const params = await props.params;
   const language = getLanguageFromParams(params);
   const { journalId } = params;

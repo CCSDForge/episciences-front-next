@@ -5,12 +5,7 @@ import { getLanguageFromParams } from '@/utils/language-utils';
 import { FetchedArticle } from '@/utils/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import VolumeDetailsClient from './VolumeDetailsClient';
-
-// Volume details - revalidate every hour (3600 seconds)
-export const revalidate = 3600;
-
-// Enable On-Demand ISR: pages generated on first visit, then cached
-export const dynamicParams = true;
+import { cacheLife } from 'next/cache';
 
 /**
  * generateStaticParams for On-Demand ISR
@@ -31,6 +26,9 @@ export default async function VolumeDetailsPage(
     params: Promise<{ id: string; lang?: string; journalId: string }>
   }
 ) {
+  'use cache';
+  cacheLife('hours'); // Volume details - revalidate every hour
+
   const params = await props.params;
   const language = getLanguageFromParams(params);
   const { journalId } = params;

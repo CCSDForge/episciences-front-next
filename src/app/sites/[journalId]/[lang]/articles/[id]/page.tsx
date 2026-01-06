@@ -14,12 +14,7 @@ import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
 import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 import { AvailableLanguage } from '@/utils/i18n';
-
-// Article details - revalidate every hour (3600 seconds)
-export const revalidate = 3600;
-
-// Enable On-Demand ISR: pages generated on first visit, then cached
-export const dynamicParams = true;
+import { cacheLife } from 'next/cache';
 
 /**
  * generateStaticParams for On-Demand ISR
@@ -118,6 +113,9 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
     
 
     export default async function ArticleDetailsPage(props: ArticleDetailsPageProps) {
+      'use cache';
+      cacheLife('hours'); // Article details - revalidate every hour
+
       const params = await props.params;
 
       try {
