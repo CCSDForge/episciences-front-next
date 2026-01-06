@@ -16,17 +16,6 @@ import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMe
 import { AvailableLanguage } from '@/utils/i18n';
 import { cacheLife } from 'next/cache';
 
-/**
- * generateStaticParams for On-Demand ISR
- * Returns empty array - pages will be generated on-demand when visited
- * This approach is optimal for multi-tenant with 40+ journals and thousands of articles
- */
-export async function generateStaticParams() {
-  // On-Demand ISR: generate nothing at build time
-  // Pages are generated on first request and cached with revalidate=3600
-  return [];
-}
-
 interface ArticleDetailsPageProps {
   params: Promise<{
     id: string;

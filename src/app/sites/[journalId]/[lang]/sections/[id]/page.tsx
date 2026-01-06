@@ -7,16 +7,6 @@ import { IArticle } from '@/types/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { cacheLife } from 'next/cache';
 
-/**
- * generateStaticParams for On-Demand ISR
- * Returns empty array - pages will be generated on-demand when visited
- */
-export async function generateStaticParams() {
-  // On-Demand ISR: generate nothing at build time
-  // Pages are generated on first request and cached with revalidate=3600
-  return [];
-}
-
 export async function generateMetadata(
   props: { params: Promise<{ id: string; lang?: string; journalId: string }> }
 ): Promise<Metadata> {
