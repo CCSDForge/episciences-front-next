@@ -258,7 +258,7 @@ function createMinimalArticle(rawArticle: any): FetchedArticle {
 export async function getArticleById(id: string | number): Promise<FetchedArticle> {
   try {
     const apiRoot = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '';
-    const response = await fetch(`${apiRoot}${API_PATHS.papers}/${id}`);
+    const response = await fetch(`${apiRoot}${API_PATHS.papers}${id}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch article. Status: ${response.status}`);
@@ -286,7 +286,7 @@ export async function fetchArticleMetadata({
 }): Promise<string | null> {
   try {
     const apiRoot = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '';
-    const response = await fetch(`${apiRoot}${API_PATHS.papers}/export/${paperid}/${type}?code=${rvcode}`);
+    const response = await fetch(`${apiRoot}${API_PATHS.papers}export/${paperid}/${type}?code=${rvcode}`);
 
     if (!response.ok) {
       // Les métadonnées peuvent ne pas être disponibles pour tous les articles
