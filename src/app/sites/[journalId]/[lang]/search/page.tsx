@@ -5,6 +5,7 @@ import { getServerTranslations, t } from '@/utils/server-i18n';
 import { fetchSearchResults } from '@/services/search';
 import { FetchedArticle } from '@/utils/article';
 import { SearchRange } from '@/utils/pagination';
+import { connection } from 'next/server';
 
 const SearchClient = dynamic(() => import('./SearchClient'), {
   loading: () => <div className="loader">Chargement...</div>,
@@ -21,6 +22,9 @@ interface SearchPageProps {
 }
 
 export default async function SearchPage(props: SearchPageProps) {
+  // Déférer au runtime, pas de cache (résultats de recherche dynamiques par utilisateur)
+  await connection();
+
   const searchParams = await props.searchParams;
   const params = await props.params;
   const { lang, journalId } = params;

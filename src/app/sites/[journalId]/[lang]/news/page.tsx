@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { fetchNews } from '@/services/news';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { cacheLife } from 'next/cache';
 import './News.scss';
 
 const NewsClient = dynamic(() => import('./NewsClient'));
@@ -16,6 +17,9 @@ type Props = {
 };
 
 export default async function NewsPage(props: Props) {
+  'use cache';
+  cacheLife('hours'); // News - mises à jour plusieurs fois par jour
+
   const params = await props.params;
   const { journalId, lang } = params;
 

@@ -5,6 +5,7 @@ import { fetchHomeData } from '@/services/home';
 import { getFormattedSiteTitle } from '@/utils/metadata';
 
 import dynamicImport from 'next/dynamic';
+import { cacheLife } from 'next/cache';
 
 import '@/styles/pages/Home.scss';
 
@@ -21,6 +22,9 @@ function getDefaultLanguage(): string {
 }
 
 export default async function HomePage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+  'use cache';
+  cacheLife('hours'); // Home page - agrégat de données dynamiques
+
   const params = await props.params;
   const language = params.lang || 'fr';
   const rvcode = params.journalId;
