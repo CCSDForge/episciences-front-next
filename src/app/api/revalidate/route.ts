@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
     // Revalidate by tag or path
     if (tag) {
       console.log(`[Revalidate API] Revalidating tag: ${tag}`);
-      revalidateTag(tag);
+      // Next.js 16 requires a second argument: cacheLife profile or { expire: 0 } for immediate expiration
+      revalidateTag(tag, { expire: 0 });
     } else if (path) {
       console.log(`[Revalidate API] Revalidating path: ${path}`);
       revalidatePath(path);
