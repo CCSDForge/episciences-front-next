@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
@@ -58,12 +58,12 @@ export default function ForAuthorsClient({
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
-  // Use initial data from Server Component (ISR handles freshness via Cache Components)
-  const forAuthorsData: ForAuthorsData = {
+  // Use initial data from Server Component - memoized to prevent infinite loop
+  const forAuthorsData: ForAuthorsData = useMemo(() => ({
     editorialWorkflowPage,
     ethicalCharterPage,
     prepareSubmissionPage
-  };
+  }), [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage]);
 
   const [pageSections, setPageSections] = useState<IForAuthorsSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IForAuthorsHeader[]>([]);
