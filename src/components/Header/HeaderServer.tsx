@@ -3,6 +3,7 @@ import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
+import { cacheLife } from 'next/cache';
 import fs from 'fs';
 import path from 'path';
 import './Header.scss';
@@ -17,6 +18,9 @@ interface HeaderServerProps {
 }
 
 export default async function HeaderServer({ lang = 'en', journalId }: HeaderServerProps): Promise<React.JSX.Element> {
+  'use cache';
+  cacheLife('days'); // Header data (journal info, logos) changes infrequently
+
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 
   // Fetch journal info to get the name and logo
