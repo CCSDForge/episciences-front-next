@@ -101,11 +101,10 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
 
     
 
-    export default async function ArticleDetailsPage(props: ArticleDetailsPageProps) {
-      'use cache';
-      cacheLife('hours'); // Article details - revalidate every hour
+export default async function ArticleDetailsPage(props: ArticleDetailsPageProps) {
+  await connection();
 
-      const params = await props.params;
+  const params = await props.params;
 
       try {
 
