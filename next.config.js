@@ -21,6 +21,10 @@ const nextConfig = {
     },
   },
 
+  // Turbopack activé par défaut en Next.js 16
+  // La config webpack ci-dessous (fs: false) est gérée automatiquement par Turbopack
+  turbopack: {},
+
   // Configuration SASS (supportée par Webpack et Turbopack)
   sassOptions: {
     includePaths: [path.join(__dirname, 'src/styles')],
