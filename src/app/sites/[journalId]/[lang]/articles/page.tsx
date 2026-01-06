@@ -4,11 +4,9 @@ import { fetchArticles } from '@/services/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
+import { cacheLife } from 'next/cache';
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
-
-// Dynamic list - revalidate every 10 minutes (600 seconds)
-export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: 'Articles',
@@ -24,11 +22,14 @@ interface ArticlesData {
 }
 
 export default async function ArticlesPage(
-  props: { 
+  props: {
     params: Promise<{ lang: string; journalId: string }>;
     searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
   }
 ) {
+  'use cache';
+  cacheLife('minutes'); // Dynamic lists - revalidate every 10 minutes
+
   const searchParams = await props.searchParams;
   const params = await props.params;
   const lang = params.lang || 'en';

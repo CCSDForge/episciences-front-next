@@ -4,11 +4,9 @@ import { fetchVolumes } from '@/services/volume';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
+import { cacheLife } from 'next/cache';
 
 const VolumesClient = dynamic(() => import('./VolumesClient'));
-
-// Dynamic list - revalidate every 10 minutes (600 seconds)
-export const revalidate = 600;
 
 const VOLUMES_PER_PAGE = 20;
 
@@ -17,6 +15,9 @@ export const metadata: Metadata = {
 };
 
 export default async function VolumesPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
+  'use cache';
+  cacheLife('minutes'); // Dynamic list - revalidate every 10 minutes
+
   const params = await props.params;
   const { lang, journalId } = params;
   try {
