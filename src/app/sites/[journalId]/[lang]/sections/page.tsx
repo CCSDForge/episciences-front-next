@@ -4,7 +4,7 @@ import { fetchSections } from '@/services/section';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 const SectionsClient = dynamic(() => import('./SectionsClient'));
 
@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 const SECTIONS_PER_PAGE = 10;
 
 export default async function SectionsPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
-  'use cache';
-  cacheLife('minutes'); // Dynamic list - revalidate every 10 minutes
+  // Dynamic rendering: client-side pagination
+  await connection();
 
   const params = await props.params;
   const { lang, journalId } = params;

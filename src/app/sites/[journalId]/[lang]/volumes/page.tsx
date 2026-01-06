@@ -4,7 +4,7 @@ import { fetchVolumes } from '@/services/volume';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 const VolumesClient = dynamic(() => import('./VolumesClient'));
 
@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 };
 
 export default async function VolumesPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
-  'use cache';
-  cacheLife('minutes'); // Dynamic list - revalidate every 10 minutes
+  // Dynamic rendering: client-side filters and pagination
+  await connection();
 
   const params = await props.params;
   const { lang, journalId } = params;

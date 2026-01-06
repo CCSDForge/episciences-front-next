@@ -4,7 +4,7 @@ import { fetchArticles } from '@/services/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
 
@@ -27,8 +27,8 @@ export default async function ArticlesPage(
     searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
   }
 ) {
-  'use cache';
-  cacheLife('minutes'); // Dynamic lists - revalidate every 10 minutes
+  // Dynamic rendering: uses searchParams (filters, pagination)
+  await connection();
 
   const searchParams = await props.searchParams;
   const params = await props.params;
