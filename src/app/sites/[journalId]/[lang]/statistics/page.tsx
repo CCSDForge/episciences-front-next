@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { cacheLife } from 'next/cache';
 import './Statistics.scss';
 
 const StatisticsClient = dynamic(() => import('./StatisticsClient'));
@@ -15,6 +16,9 @@ type Props = {
 };
 
 export default async function StatisticsPage(props: Props) {
+  'use cache';
+  cacheLife('hours'); // Statistics page - revalidate every hour
+
   const params = await props.params;
   const { lang } = params;
   const translations = await getServerTranslations(lang);

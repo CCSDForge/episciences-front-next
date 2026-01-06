@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { connection } from 'next/server';
 import './Authors.scss';
 
 const AuthorsClient = dynamic(() => import('./AuthorsClient'), {
@@ -18,6 +19,9 @@ interface AuthorsPageProps {
 }
 
 export default async function AuthorsPage(props: AuthorsPageProps) {
+  // Dynamic rendering: uses searchParams (search, letter, pagination)
+  await connection();
+
   const searchParams = await props.searchParams;
   const params = await props.params;
   const { lang } = params;
