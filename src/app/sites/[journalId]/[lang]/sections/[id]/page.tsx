@@ -5,12 +5,7 @@ import { getLanguageFromParams } from '@/utils/language-utils';
 import { ISection, PartialSectionArticle } from '@/types/section';
 import { IArticle } from '@/types/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
-
-// Section details - revalidate every hour (3600 seconds)
-export const revalidate = 3600;
-
-// Enable On-Demand ISR: pages generated on first visit, then cached
-export const dynamicParams = true;
+import { cacheLife } from 'next/cache';
 
 /**
  * generateStaticParams for On-Demand ISR
