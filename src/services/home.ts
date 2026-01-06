@@ -1,3 +1,5 @@
+"use server";
+
 import { API_PATHS } from '@/config/api';
 import { IBoardMember } from '@/types/board';
 import { INews } from '@/types/news';
@@ -8,8 +10,6 @@ import { transformArticleForDisplay } from './article';
 import { formatVolume } from '@/utils/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
-
-"use server";
 import { cacheLife, cacheTag } from 'next/cache';
 
 // Paramètres pour les retries

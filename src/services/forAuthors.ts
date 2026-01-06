@@ -1,8 +1,8 @@
+"use server";
+
 import { API_URL } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { cacheLife } from 'next/cache';
-
-"use server";
 
 interface ForAuthorsPage {
   title: Record<string, string>;
