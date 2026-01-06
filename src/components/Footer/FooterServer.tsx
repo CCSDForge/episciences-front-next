@@ -2,7 +2,6 @@ import { Link } from '@/components/Link/Link';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
 import { PATHS } from '@/config/paths';
-import { cacheLife } from 'next/cache';
 import fs from 'fs';
 import path from 'path';
 import './Footer.scss';
@@ -16,9 +15,6 @@ interface FooterServerProps {
 }
 
 export default async function FooterServer({ lang = 'en', journalId }: FooterServerProps): Promise<React.JSX.Element> {
-  'use cache';
-  cacheLife('days'); // Footer data (journal settings, logos) changes infrequently
-
   const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'journal';
   const apiEndpoint = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api.episciences.org/api';
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
