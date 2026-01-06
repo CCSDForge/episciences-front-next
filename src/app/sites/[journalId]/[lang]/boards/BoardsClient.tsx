@@ -4,9 +4,8 @@ import { useState, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from "@/hooks/store";
-import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { IBoardMember } from '@/types/board';
-import { IBoardPage, fetchBoardPages, fetchBoardMembers } from '@/services/board';
+import { IBoardPage } from '@/services/board';
 import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
@@ -65,28 +64,11 @@ export default function BoardsClient({
     }
   }, [lang, i18n]);
 
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-
-  // Architecture hybride : fetch automatique des données fraîches
-  const initialData: BoardsData = useMemo(() => ({
+  // Use initial data from Server Component (ISR handles freshness via Cache Components)
+  const boardsData: BoardsData = useMemo(() => ({
     pages: initialPages,
     members: initialMembers
   }), [initialPages, initialMembers]);
-
-  const { data: boardsData, isUpdating } = useClientSideFetch({
-    fetchFn: async () => {
-      if (!rvcode) return initialData;
-
-      const [pages, members] = await Promise.all([
-        fetchBoardPages(rvcode),
-        fetchBoardMembers(rvcode)
-      ]);
-
-      return { pages, members };
-    },
-    initialData,
-    enabled: !!rvcode,
-  });
 
   const [activeGroupIndex, setActiveGroupIndex] = useState(0);
   const [fullMemberIndex, setFullMemberIndex] = useState(-1);
@@ -149,7 +131,7 @@ export default function BoardsClient({
           ))}
       </div>
 
-      <div className={`boards-content content-transition ${isUpdating ? 'updating' : ''}`}>
+      <div className="boards-content">
         <BoardsSidebar 
           t={t} 
           groups={getPagesLabels()} 

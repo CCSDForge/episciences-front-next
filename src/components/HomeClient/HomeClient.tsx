@@ -4,9 +4,8 @@ import { CaretRightGreyIcon } from '@/components/icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { useTranslation } from 'react-i18next';
-import { HomeData, fetchHomeData } from '@/services/home';
+import { HomeData } from '@/services/home';
 import { useAppSelector } from '@/hooks/store';
-import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { HOMEPAGE_BLOCK, HOMEPAGE_LAST_INFORMATION_BLOCK, blocksConfiguration } from '@/config/homepage';
 import { PATHS } from '@/config/paths';
 import { VOLUME_TYPE } from '@/utils/volume';
@@ -34,18 +33,8 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code) || journalId;
 
-  // Architecture hybride : fetch automatique des données fraîches
-  const { data: freshHomeData, isUpdating } = useClientSideFetch({
-    fetchFn: async () => {
-      if (!rvcode) return homeData;
-      return await fetchHomeData(rvcode, language);
-    },
-    initialData: homeData,
-    enabled: !!rvcode,
-  });
-
-  // Utiliser freshHomeData si disponible, sinon homeData
-  const currentHomeData = freshHomeData || homeData;
+  // Use initial data from Server Component (ISR handles freshness via Cache Components)
+  const currentHomeData = homeData;
 
   // Extraire les données nécessaires avec des valeurs par défaut sécurisées
   const {
@@ -182,7 +171,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
   }, []);
 
   return (
-    <main className={`home content-transition ${isUpdating ? 'updating' : ''}`}>
+    <main className="home">
       <h1 className='home-title'>{t('pages.home.title')}</h1>
       <PresentationSection
         language={language}

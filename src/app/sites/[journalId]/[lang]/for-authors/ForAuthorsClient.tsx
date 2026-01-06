@@ -7,8 +7,6 @@ import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
 import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
-import { useClientSideFetch } from '@/hooks/useClientSideFetch';
-import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
 import { generateIdFromText, unifiedProcessor, serializeMarkdown, getMarkdownImageURL, adjustNestedListsInMarkdownContent } from '@/utils/markdown';
 import ForAuthorsSidebar, { IForAuthorsHeader } from '@/components/Sidebars/ForAuthorsSidebar/ForAuthorsSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
@@ -60,32 +58,12 @@ export default function ForAuthorsClient({
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
-  // Architecture hybride : fetch automatique des données fraîches pour les 3 pages
-  const initialData: ForAuthorsData = {
+  // Use initial data from Server Component (ISR handles freshness via Cache Components)
+  const forAuthorsData: ForAuthorsData = {
     editorialWorkflowPage,
     ethicalCharterPage,
     prepareSubmissionPage
   };
-
-  const { data: forAuthorsData, isUpdating } = useClientSideFetch({
-    fetchFn: async () => {
-      if (!rvcode) return initialData;
-
-      const [editorial, ethical, prepare] = await Promise.all([
-        fetchEditorialWorkflowPage(rvcode),
-        fetchEthicalCharterPage(rvcode),
-        fetchPrepareSubmissionPage(rvcode)
-      ]);
-
-      return {
-        editorialWorkflowPage: editorial,
-        ethicalCharterPage: ethical,
-        prepareSubmissionPage: prepare
-      };
-    },
-    initialData,
-    enabled: !!rvcode,
-  });
 
   const [pageSections, setPageSections] = useState<IForAuthorsSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IForAuthorsHeader[]>([]);
@@ -284,7 +262,7 @@ export default function ForAuthorsClient({
       ) : pageSections.length === 0 ? (
         <div>No content available</div>
       ) : (
-        <div className={`forAuthors-content content-transition ${isUpdating ? 'updating' : ''}`}>
+        <div className="forAuthors-content">
           <ForAuthorsSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
           <div className='forAuthors-content-body'>
             {pageSections.map(section => (
