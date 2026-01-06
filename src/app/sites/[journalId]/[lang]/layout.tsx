@@ -9,6 +9,7 @@ import { fetchVolumes } from '@/services/volume';
 import { getJournalByCode } from '@/services/journal';
 import { getServerTranslations } from '@/utils/server-i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { cacheLife } from 'next/cache';
 
 interface LanguageLayoutProps {
   children: ReactNode;
@@ -19,6 +20,9 @@ interface LanguageLayoutProps {
  * Layout for handling language-prefixed routes in a multi-tenant setup
  */
 export default async function LanguageLayout(props: LanguageLayoutProps) {
+  'use cache';
+  cacheLife('hours'); // Layout data changes infrequently
+
   const params = await props.params;
 
   const {
