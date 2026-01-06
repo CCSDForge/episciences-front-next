@@ -4,6 +4,23 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
 
+  // Activation de Cache Components (Next.js 16)
+  cacheComponents: true,
+
+  // Profils de cache personnalisés pour journaux académiques
+  cacheLife: {
+    'academic-content': {
+      stale: 300,        // 5 minutes
+      revalidate: 7200,  // 2 heures
+      expire: 86400,     // 1 jour
+    },
+    'administrative': {
+      stale: 300,        // 5 minutes
+      revalidate: 2592000, // 30 jours
+      expire: 31536000,  // 1 an
+    },
+  },
+
   // Configuration SASS (supportée par Webpack et Turbopack)
   sassOptions: {
     includePaths: [path.join(__dirname, 'src/styles')],
