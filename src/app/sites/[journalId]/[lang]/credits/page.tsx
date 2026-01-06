@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import './Credits.scss';
 import { fetchCreditsPage } from '@/services/credits';
 import { getServerTranslations, t } from '@/utils/server-i18n';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 const CreditsClient = dynamic(() => import('./CreditsClient'));
 
@@ -13,8 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CreditsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  'use cache';
-  cacheLife('days'); // Static content - revalidate once per day
+  await connection();
 
   const params = await props.params;
   let pageData = null;

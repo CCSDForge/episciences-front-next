@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
 import { getServerTranslations, t } from '@/utils/server-i18n';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
 
@@ -14,8 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ForAuthorsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  'use cache';
-  cacheLife('days'); // Static content - revalidate once per day
+  await connection();
 
   const params = await props.params;
   const { journalId, lang } = params;

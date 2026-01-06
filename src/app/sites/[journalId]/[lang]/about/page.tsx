@@ -4,7 +4,7 @@ import './About.scss';
 import { fetchAboutPage } from '@/services/about';
 import { IPage } from '@/types/page';
 import { getServerTranslations, t } from '@/utils/server-i18n';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 import { getLanguageFromParams } from "@/utils/language-utils";
@@ -16,8 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  'use cache';
-  cacheLife('days'); // Static content - revalidate once per day
+  await connection();
 
   const params = await props.params;
   let pageData = null;

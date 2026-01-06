@@ -4,7 +4,7 @@ import { fetchBoardMembers, fetchBoardPages } from '@/services/board';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
 
 const BoardsClient = dynamic(() => import('./BoardsClient'));
 
@@ -14,8 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BoardsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  'use cache';
-  cacheLife('hours'); // Board members changent rarement
+  await connection();
 
   const params = await props.params;
   try {
