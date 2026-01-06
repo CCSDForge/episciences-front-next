@@ -1,7 +1,6 @@
 import { API_URL } from '@/config/api'
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
-import { cacheLife, cacheTag } from 'next/cache';
 
 export interface IBoardMemberAffiliation {
   label: string;
@@ -137,10 +136,6 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
 }
 
 export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]> => {
-  'use cache';
-  cacheLife('days'); // Board members changent rarement
-  cacheTag(`members-${rvcode}`, 'members');
-
   try {
     const apiUrl = getJournalApiUrl(rvcode);
     const url = `${apiUrl}/journals/boards/${rvcode}`;

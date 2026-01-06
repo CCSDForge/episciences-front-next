@@ -10,7 +10,6 @@ import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 import { getLanguageFromParams } from "@/utils/language-utils";
 const AboutClient = dynamic(() => import('./AboutClient'));
 
-export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'À propos',
   description: 'À propos de la revue',

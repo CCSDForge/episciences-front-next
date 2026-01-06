@@ -8,7 +8,6 @@ import { transformArticleForDisplay } from './article';
 import { formatVolume } from '@/utils/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
-import { cacheLife, cacheTag } from 'next/cache';
 
 // Paramètres pour les retries
 const MAX_RETRIES = 3;
@@ -130,15 +129,10 @@ function transformBoardMembers(members: any[]): IBoardMember[] {
 }
 
 export async function fetchHomeData(rvcode: string, language: string): Promise<HomeData> {
-  'use cache';
-  cacheLife('hours'); // Données home mises à jour plusieurs fois par jour
-  cacheTag(`home-${rvcode}`, `home-${rvcode}-${language}`);
-
   try {
     const apiBaseUrl = ensureApiEndpoint(getJournalApiUrl(rvcode));
 
     // Créer les promesses pour tous les appels API en parallèle
-    // Les fetch n'ont plus besoin de next: { tags: [...] } - le cacheTag() au niveau de la fonction suffit
     const aboutPagePromise = fetch(`${apiBaseUrl}${API_PATHS.pages}?page_code=about&rvcode=${rvcode}`)
       .then(res => res.ok ? res.json() : null);
 

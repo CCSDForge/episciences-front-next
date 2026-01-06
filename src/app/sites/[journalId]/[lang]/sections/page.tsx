@@ -8,7 +8,6 @@ import { connection } from 'next/server';
 
 const SectionsClient = dynamic(() => import('./SectionsClient'));
 
-export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Sections',
 };

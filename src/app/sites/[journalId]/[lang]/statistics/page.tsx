@@ -6,7 +6,6 @@ import './Statistics.scss';
 
 const StatisticsClient = dynamic(() => import('./StatisticsClient'));
 
-export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Statistiques',
   description: 'Statistiques de la revue',
