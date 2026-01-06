@@ -136,12 +136,14 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
 }
 
 export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]> => {
+  'use cache';
+  cacheLife('days'); // Board members changent rarement
+  cacheTag(`members-${rvcode}`, 'members');
+
   try {
     const apiUrl = getJournalApiUrl(rvcode);
     const url = `${apiUrl}/journals/boards/${rvcode}`;
-    const response = await fetch(url, {
-      next: { tags: ['members'] }
-    });
+    const response = await fetch(url);
 
 
     if (!response.ok) {
