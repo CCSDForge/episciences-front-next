@@ -4,6 +4,7 @@ import { fetchArticles } from '@/services/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
+import { cacheLife } from 'next/cache';
 
 const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'));
 
@@ -15,6 +16,9 @@ export const metadata: Metadata = {
 };
 
 export default async function ArticlesAcceptedPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
+  'use cache';
+  cacheLife('hours'); // Accepted articles list - revalidate every hour
+
   const params = await props.params;
   const { lang, journalId } = params;
   try {
