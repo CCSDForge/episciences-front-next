@@ -1,5 +1,3 @@
-"use server";
-
 import { API_PATHS } from '@/config/api';
 import { IBoardMember } from '@/types/board';
 import { INews } from '@/types/news';

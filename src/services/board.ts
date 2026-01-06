@@ -1,5 +1,3 @@
-"use server";
-
 import { API_URL } from '@/config/api'
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';

@@ -1,5 +1,3 @@
-"use server";
-
 import { API_URL } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { cacheLife } from 'next/cache';
