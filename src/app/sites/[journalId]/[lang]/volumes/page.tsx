@@ -10,6 +10,7 @@ const VolumesClient = dynamic(() => import('./VolumesClient'));
 
 const VOLUMES_PER_PAGE = 20;
 
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Volumes',
 };

@@ -10,6 +10,7 @@ const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'))
 
 
 // Métadonnées pour la page
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Articles acceptés',
   description: 'Articles acceptés',

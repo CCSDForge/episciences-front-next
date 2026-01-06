@@ -11,6 +11,7 @@ const SearchClient = dynamic(() => import('./SearchClient'), {
   loading: () => <div className="loader">Chargement...</div>,
 });
 
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Recherche',
   description: 'Rechercher des articles dans la revue',

@@ -9,6 +9,7 @@ import { connection } from 'next/server';
 const BoardsClient = dynamic(() => import('./BoardsClient'));
 
 
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Boards',
 };

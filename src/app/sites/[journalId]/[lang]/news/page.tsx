@@ -7,6 +7,7 @@ import './News.scss';
 
 const NewsClient = dynamic(() => import('./NewsClient'));
 
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Actualités',
   description: 'Dernières actualités de la revue',

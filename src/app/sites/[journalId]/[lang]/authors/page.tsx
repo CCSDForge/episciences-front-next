@@ -8,6 +8,7 @@ const AuthorsClient = dynamic(() => import('./AuthorsClient'), {
   loading: () => <div className="loader">Chargement...</div>,
 });
 
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Auteurs',
   description: 'Liste des auteurs',

@@ -7,6 +7,7 @@ import { connection } from 'next/server';
 
 const CreditsClient = dynamic(() => import('./CreditsClient'));
 
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Crédits',
   description: 'Crédits et mentions légales',
