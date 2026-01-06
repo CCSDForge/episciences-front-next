@@ -8,6 +8,8 @@ import { transformArticleForDisplay } from './article';
 import { formatVolume } from '@/utils/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
+
+"use server";
 import { cacheLife, cacheTag } from 'next/cache';
 
 // Paramètres pour les retries
