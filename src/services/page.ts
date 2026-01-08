@@ -12,7 +12,8 @@ export interface IPage {
 export async function fetchPage(pageCode: string, rvcode: string): Promise<IPage | undefined> {
   const apiUrl = getJournalApiUrl(rvcode);
   const response = await fetch(
-    `${apiUrl}/pages?page_code=${pageCode}&rvcode=${rvcode}`
+    `${apiUrl}/pages?page_code=${pageCode}&rvcode=${rvcode}`,
+    { next: { tags: ['pages', `page-${pageCode}`, `page-${pageCode}-${rvcode}`] } }
   );
   
   if (!response.ok) {

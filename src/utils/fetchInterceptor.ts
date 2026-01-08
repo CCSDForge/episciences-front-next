@@ -33,14 +33,18 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
   let url = input.toString();
   const method = init?.method || 'GET';
 
-  const journalCode = getJournalCode();
-  if (!journalCode) {
-    throw new Error('Journal code is not defined in environment variables');
+  let journalCode = '';
+  try {
+    journalCode = getJournalCode();
+  } catch (e) {
+    // Ignore error if env var is missing (Multi-tenant build)
   }
 
-  // Remplacer toutes les occurrences de 'default' par le code de revue actuel dans l'URL
-  if (url.includes('rvcode=default')) {
-    url = url.replace('rvcode=default', `rvcode=${journalCode}`);
+  if (journalCode) {
+    // Remplacer toutes les occurrences de 'default' par le code de revue actuel dans l'URL
+    if (url.includes('rvcode=default')) {
+      url = url.replace('rvcode=default', `rvcode=${journalCode}`);
+    }
   }
   
   // Gérer la redirection des requêtes vers /default

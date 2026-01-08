@@ -142,10 +142,10 @@ export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]>
     const response = await fetch(url);
 
 
-    if (!response.ok) {
-     // console.log(`API returned status ${response.status} for board members.`);
-      throw new Error(`Failed to fetch board members: ${response.status}`);
-    }
+  if (!response.ok) {
+    console.warn(`[API] Board members not found or error ${response.status} for journal ${rvcode}`);
+    return []; // Return empty instead of throwing to avoid breaking the build
+  }
 
     const json = await response.json();
     const data: RawBoardMember[] = Array.isArray(json) ? json : (json['hydra:member'] || []);

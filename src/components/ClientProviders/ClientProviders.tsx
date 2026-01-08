@@ -14,7 +14,7 @@ import { JournalInitializer } from '@/components/JournalInitializer/JournalIniti
 import { LastVolumeInitializer } from '@/components/LastVolumeInitializer/LastVolumeInitializer';
 import ThemeStyleSwitch from '@/components/ThemeStyleSwitch/ThemeStyleSwitch';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
-import { setCurrentJournal, setApiEndpoint } from '@/store/features/journal/journal.slice';
+import { setCurrentJournal, setApiEndpoint, setJournalConfig } from '@/store/features/journal/journal.slice';
 import { IVolume } from '@/types/volume';
 import { IJournal } from '@/types/journal';
 import { getLanguageFromPathname } from '@/utils/language-utils';
@@ -26,6 +26,7 @@ interface ClientProvidersProps {
   journalId?: string;
   translations?: any;
   apiEndpoint?: string;
+  journalConfig?: Record<string, string>;
   children?: React.ReactNode;
 }
 
@@ -41,6 +42,7 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
   journalId, 
   translations,
   apiEndpoint,
+  journalConfig,
   children 
 }) => {
   // Use initialLanguage from server for hydration consistency
@@ -111,7 +113,12 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
     if (apiEndpoint) {
       store.dispatch(setApiEndpoint(apiEndpoint));
     }
-  }, [initialLang, initialLanguage, initialJournal, apiEndpoint]);
+
+    // Initialize Journal Configuration if provided
+    if (journalConfig) {
+      store.dispatch(setJournalConfig(journalConfig));
+    }
+  }, [initialLang, initialLanguage, initialJournal, apiEndpoint, journalConfig]);
 
   return (
     <Provider store={store}>

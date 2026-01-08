@@ -69,3 +69,4 @@ build.log
 /.claude/
 /.gemini/
 /.idea/
+/docs/

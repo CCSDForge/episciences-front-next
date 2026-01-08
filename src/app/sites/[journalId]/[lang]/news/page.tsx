@@ -17,7 +17,7 @@ type Props = {
 };
 
 export default async function NewsPage(props: Props) {
-  await connection();
+  
 
   const params = await props.params;
   const { journalId, lang } = params;

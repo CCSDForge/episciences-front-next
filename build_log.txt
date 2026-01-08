@@ -1,0 +1,99 @@
+
+> episciences-front-next@0.1.0 prebuild
+> npm run preflight
+
+
+> episciences-front-next@0.1.0 preflight
+> node scripts/copy-logos.js && node scripts/generate-journals.js
+
+✅ Copied 92 journal logos to public/logos/
+Successfully generated /home/tournoy/WebstormProjects/episciences-front-next/src/config/journals-generated.ts with 41 journals.
+
+> episciences-front-next@0.1.0 build
+> next build
+
+▲ Next.js 16.1.1 (Turbopack)
+- Environments: .env.local, .env
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 11.0s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/315) ...
+Error fetching about page for journal cm: Error: No about page data found for journal cm
+    at h (.next/server/chunks/ssr/[root-of-the-server]__18ee1211._.js:1:3112)
+Error fetching about page for journal cm: Error: No about page data found for journal cm
+    at h (.next/server/chunks/ssr/[root-of-the-server]__18ee1211._.js:1:3112)
+Error fetching about page for journal dmtcs: Error: No about page data found for journal dmtcs
+    at h (.next/server/chunks/ssr/[root-of-the-server]__18ee1211._.js:1:3112)
+Error fetching about page for journal dmtcs: Error: No about page data found for journal dmtcs
+    at h (.next/server/chunks/ssr/[root-of-the-server]__18ee1211._.js:1:3112)
+  Generating static pages using 7 workers (78/315) 
+Error fetching board members: Error: Failed to fetch board members: 500
+    at h (.next/server/chunks/ssr/[root-of-the-server]__c4f6d703._.js:1:3569)
+    at async k (.next/server/chunks/ssr/[root-of-the-server]__c4f6d703._.js:1:4959)
+Error fetching board members: Error: Failed to fetch board members: 500
+    at h (.next/server/chunks/ssr/[root-of-the-server]__c4f6d703._.js:1:3569)
+    at async k (.next/server/chunks/ssr/[root-of-the-server]__c4f6d703._.js:1:4959)
+  Generating static pages using 7 workers (157/315) 
+  Generating static pages using 7 workers (236/315) 
+✓ Generating static pages using 7 workers (315/315) in 5.6s
+  Finalizing page optimization ...
+
+Route (app)                                           Revalidate  Expire
+┌ ○ /_not-found
+├ ƒ /api/revalidate
+├ ● /sites/[journalId]/[lang]                                 1h      1y
+│ ├ /sites/cm/en                                              1h      1y
+│ ├ /sites/cm/fr                                              1h      1y
+│ ├ /sites/dc/en                                              1h      1y
+│ └ [+21 more paths]
+├ ● /sites/[journalId]/[lang]/about                           1h      1y
+│ ├ /sites/cm/en/about                                        1h      1y
+│ ├ /sites/cm/fr/about                                        1h      1y
+│ ├ /sites/dc/en/about                                        1h      1y
+│ └ [+21 more paths]
+├ ƒ /sites/[journalId]/[lang]/articles
+├ ƒ /sites/[journalId]/[lang]/articles-accepted
+├ ● /sites/[journalId]/[lang]/articles/[id]
+├ ƒ /sites/[journalId]/[lang]/articles/[id]/download
+├ ƒ /sites/[journalId]/[lang]/authors
+├ ● /sites/[journalId]/[lang]/boards                          1h      1y
+│ ├ /sites/cm/en/boards                                       1h      1y
+│ ├ /sites/cm/fr/boards                                       1h      1y
+│ ├ /sites/dc/en/boards                                       1h      1y
+│ └ [+21 more paths]
+├ ● /sites/[journalId]/[lang]/credits                         1h      1y
+│ ├ /sites/cm/en/credits                                      1h      1y
+│ ├ /sites/cm/fr/credits                                      1h      1y
+│ ├ /sites/dc/en/credits                                      1h      1y
+│ └ [+21 more paths]
+├ ● /sites/[journalId]/[lang]/for-authors                     1h      1y
+│ ├ /sites/cm/en/for-authors                                  1h      1y
+│ ├ /sites/cm/fr/for-authors                                  1h      1y
+│ ├ /sites/dc/en/for-authors                                  1h      1y
+│ └ [+21 more paths]
+├ ● /sites/[journalId]/[lang]/news                            1h      1y
+│ ├ /sites/cm/en/news                                         1h      1y
+│ ├ /sites/cm/fr/news                                         1h      1y
+│ ├ /sites/dc/en/news                                         1h      1y
+│ └ [+21 more paths]
+├ ƒ /sites/[journalId]/[lang]/search
+├ ƒ /sites/[journalId]/[lang]/sections
+├ ● /sites/[journalId]/[lang]/sections/[id]
+├ ƒ /sites/[journalId]/[lang]/statistics
+├ ● /sites/[journalId]/[lang]/volumes                         1h      1y
+│ ├ /sites/cm/en/volumes                                      1h      1y
+│ ├ /sites/cm/fr/volumes                                      1h      1y
+│ ├ /sites/dc/en/volumes                                      1h      1y
+│ └ [+21 more paths]
+└ ● /sites/[journalId]/[lang]/volumes/[id]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

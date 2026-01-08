@@ -36,10 +36,14 @@ const nextConfig = {
   },
     
   async rewrites() {
+    // Default to preprod if API_PROXY_TARGET is not set in .env
+    const apiTarget = process.env.API_PROXY_TARGET || 'https://api-preprod.episciences.org/api';
+    console.log(`[Next.js] Proxying /api-proxy to: ${apiTarget}`);
+
     return [
       {
         source: '/api-proxy/:path*',
-        destination: 'https://api-preprod.episciences.org/api/:path*',
+        destination: `${apiTarget}/:path*`,
       },
     ];
   },

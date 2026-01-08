@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ForAuthorsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  await connection();
+  
 
   const params = await props.params;
   const { journalId, lang } = params;

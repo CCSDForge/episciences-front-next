@@ -97,7 +97,8 @@ export async function fetchVolumes({
     method: 'GET',
     headers: {
       'Accept': 'application/json',
-    }
+    },
+    next: { tags: ['volumes', `volumes-${rvcode}`] }
   });
 
   if (!response.ok) {
@@ -163,7 +164,8 @@ export async function fetchVolume(rvcode: string, vid: number, language: string 
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-      }
+      },
+      next: { tags: ['volumes', `volume-${vid}`, `volumes-${rvcode}`] }
     });
     
     if (!response.ok) {

@@ -8,8 +8,23 @@ import ClientProviders from '@/components/ClientProviders/ClientProviders';
 import { fetchVolumes } from '@/services/volume';
 import { getJournalByCode } from '@/services/journal';
 import { getServerTranslations } from '@/utils/server-i18n';
-import { getJournalApiUrl } from '@/utils/env-loader';
-import { connection } from 'next/server';
+import { getJournalApiUrl, getPublicJournalConfig } from '@/utils/env-loader';
+import { getFilteredJournals } from '@/utils/journal-filter';
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 interface LanguageLayoutProps {
   children: ReactNode;
@@ -20,9 +35,6 @@ interface LanguageLayoutProps {
  * Layout for handling language-prefixed routes in a multi-tenant setup
  */
 export default async function LanguageLayout(props: LanguageLayoutProps) {
-  // Dynamic layout: allows child pages to have their own cache strategies
-  await connection();
-
   const params = await props.params;
 
   const {
@@ -40,6 +52,8 @@ export default async function LanguageLayout(props: LanguageLayoutProps) {
 
   // Charger l'URL de l'API spécifique au journal
   const apiEndpoint = getJournalApiUrl(journalId);
+  // Charger la configuration dynamique (couleurs, flags) spécifique au journal
+  const journalConfig = getPublicJournalConfig(journalId);
 
   try {
     const [volumesData, journalData, translationsData] = await Promise.all([
@@ -78,6 +92,7 @@ export default async function LanguageLayout(props: LanguageLayoutProps) {
       journalId={journalId}
       translations={translations}
       apiEndpoint={apiEndpoint}
+      journalConfig={journalConfig}
     >
       <ToastContainerWrapper />
       {/* Header with scroll behavior */}

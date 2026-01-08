@@ -60,7 +60,7 @@ export async function fetchArticles({ rvcode, page, itemsPerPage, onlyAccepted =
 
   try {
     const apiRoot = getJournalApiUrl(rvcode);
-    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}?${params}`)
+    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}?${params}`, { next: { tags: ['articles', `articles-${rvcode}`] } })
 
     const data = await response.json()
     
@@ -69,7 +69,7 @@ export async function fetchArticles({ rvcode, page, itemsPerPage, onlyAccepted =
       data['hydra:member'].map(async (partialArticle: any) => {
         try {
           const articleId = partialArticle.paperid
-          const rawArticle = await fetchRawArticle(articleId)
+          const rawArticle = await fetchRawArticle(articleId, rvcode)
           return transformArticleForDisplay(rawArticle)
         } catch (error) {
           console.error(`Erreur lors de la récupération de l'article ${partialArticle.paperid}:`, error)
@@ -151,8 +151,11 @@ export async function fetchAcceptedArticles(
 /**
  * Récupère un article brut par son ID
  */
-async function fetchRawArticle(paperid: string | number): Promise<RawArticle> {
-  const response = await fetchWithRetry(`${API_URL}${API_PATHS.papers}${paperid}`)
+async function fetchRawArticle(paperid: string | number, rvcode: string = ''): Promise<RawArticle> {
+  const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
+  const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, { 
+    next: { tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] } 
+  })
   return response.json()
 }
 
@@ -162,7 +165,9 @@ async function fetchRawArticle(paperid: string | number): Promise<RawArticle> {
 export async function fetchArticle(paperid: string, rvcode?: string): Promise<FetchedArticle | null> {
   try {
     const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
-    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`);
+    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, { 
+      next: { tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] } 
+    });
     const rawArticle: RawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
   } catch (error) {

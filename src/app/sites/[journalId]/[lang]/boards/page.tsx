@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BoardsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  await connection();
+  
 
   const params = await props.params;
   try {
@@ -68,8 +68,8 @@ export default async function BoardsPage(props: { params: Promise<{ journalId: s
       />
     );
   } catch (error) {
-    console.error('Error fetching boards:', error);
-    return <div>Failed to load boards</div>;
+    console.warn(`[Build] Boards data could not be fully loaded for journal "${params.journalId}" (API mismatch or error).`);
+    return <div>Content currently unavailable for this journal.</div>;
   }
 }
  

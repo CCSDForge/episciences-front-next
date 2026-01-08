@@ -4,9 +4,12 @@ import { fetchArticles } from '@/services/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
-import { connection } from 'next/server';
+import { Suspense } from 'react';
+import Loader from '@/components/Loader/Loader';
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Articles',
@@ -27,9 +30,6 @@ export default async function ArticlesPage(
     searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
   }
 ) {
-  // Dynamic rendering: uses searchParams (filters, pagination)
-  await connection();
-
   const searchParams = await props.searchParams;
   const params = await props.params;
   const lang = params.lang || 'en';
@@ -78,12 +78,14 @@ export default async function ArticlesPage(
     };
 
     return (
-      <ArticlesClient
-        initialArticles={formattedArticles}
-        lang={lang}
-        breadcrumbLabels={breadcrumbLabels}
-        countLabels={countLabels}
-      />
+      <Suspense fallback={<Loader />}>
+        <ArticlesClient
+          initialArticles={formattedArticles}
+          lang={lang}
+          breadcrumbLabels={breadcrumbLabels}
+          countLabels={countLabels}
+        />
+      </Suspense>
     );
   } catch (error) {
     console.error('Error fetching articles:', error);
@@ -101,19 +103,21 @@ export default async function ArticlesPage(
     // No, I put it before try block.
     
     return (
-      <ArticlesClient
-        initialArticles={emptyState}
-        lang={lang}
-        breadcrumbLabels={{
-          home: t('pages.home.title', translations),
-          content: t('common.content', translations),
-          articles: t('pages.articles.title', translations),
-        }}
-        countLabels={{
-          article: t('common.article', translations),
-          articles: t('common.articles', translations),
-        }}
-      />
+      <Suspense fallback={<Loader />}>
+        <ArticlesClient
+          initialArticles={emptyState}
+          lang={lang}
+          breadcrumbLabels={{
+            home: t('pages.home.title', translations),
+            content: t('common.content', translations),
+            articles: t('pages.articles.title', translations),
+          }}
+          countLabels={{
+            article: t('common.article', translations),
+            articles: t('common.articles', translations),
+          }}
+        />
+      </Suspense>
     );
   }
 }

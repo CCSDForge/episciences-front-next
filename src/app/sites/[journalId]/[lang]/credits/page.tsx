@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CreditsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  await connection();
+  
 
   const params = await props.params;
   let pageData = null;

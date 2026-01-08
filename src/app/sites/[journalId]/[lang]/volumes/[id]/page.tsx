@@ -5,7 +5,12 @@ import { getLanguageFromParams } from '@/utils/language-utils';
 import { FetchedArticle } from '@/utils/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import VolumeDetailsClient from './VolumeDetailsClient';
-import { connection } from 'next/server';
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return [];
+}
 
 export const metadata: Metadata = {
   title: 'Volume Details',

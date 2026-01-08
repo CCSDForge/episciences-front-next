@@ -14,7 +14,6 @@ import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
 import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 import { AvailableLanguage } from '@/utils/i18n';
-import { connection } from 'next/server';
 
 interface ArticleDetailsPageProps {
   params: Promise<{
@@ -22,6 +21,12 @@ interface ArticleDetailsPageProps {
     lang: string;
     journalId: string;
   }>;
+}
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata(props: ArticleDetailsPageProps): Promise<Metadata> {
@@ -102,8 +107,6 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
     
 
 export default async function ArticleDetailsPage(props: ArticleDetailsPageProps) {
-  await connection();
-
   const params = await props.params;
 
       try {

@@ -3,6 +3,8 @@ import { Metadata } from 'next';
 import { fetchHomeData } from '@/services/home';
 
 import { getFormattedSiteTitle } from '@/utils/metadata';
+import { acceptedLanguages } from '@/utils/language-utils';
+import { getFilteredJournals } from '@/utils/journal-filter';
 
 import dynamicImport from 'next/dynamic';
 import { connection } from 'next/server';
@@ -10,6 +12,21 @@ import { connection } from 'next/server';
 import '@/styles/pages/Home.scss';
 
 const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'), );
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 export const metadata: Metadata = {
   title: getFormattedSiteTitle('Accueil'),
@@ -22,8 +39,6 @@ function getDefaultLanguage(): string {
 }
 
 export default async function HomePage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  await connection();
-
   const params = await props.params;
   const language = params.lang || 'fr';
   const rvcode = params.journalId;

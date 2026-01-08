@@ -5,7 +5,12 @@ import { getLanguageFromParams } from '@/utils/language-utils';
 import { ISection, PartialSectionArticle } from '@/types/section';
 import { IArticle } from '@/types/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
-import { connection } from 'next/server';
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata(
   props: { params: Promise<{ id: string; lang?: string; journalId: string }> }

@@ -4,20 +4,20 @@ import { fetchVolumes } from '@/services/volume';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
-import { connection } from 'next/server';
+import { Suspense } from 'react';
+import Loader from '@/components/Loader/Loader';
 
 const VolumesClient = dynamic(() => import('./VolumesClient'));
 
 const VOLUMES_PER_PAGE = 20;
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Volumes',
 };
 
 export default async function VolumesPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
-  // Dynamic rendering: client-side filters and pagination
-  await connection();
-
   const params = await props.params;
   const { lang, journalId } = params;
   try {
@@ -44,14 +44,16 @@ export default async function VolumesPage(props: { params: Promise<{ lang: strin
     };
     
     return (
-      <VolumesClient
-        initialVolumes={volumesData}
-        initialPage={1}
-        initialType=""
-        lang={lang}
-        journalId={journalId}
-        breadcrumbLabels={breadcrumbLabels}
-      />
+      <Suspense fallback={<Loader />}>
+        <VolumesClient
+          initialVolumes={volumesData}
+          initialPage={1}
+          initialType=""
+          lang={lang}
+          journalId={journalId}
+          breadcrumbLabels={breadcrumbLabels}
+        />
+      </Suspense>
     );
   } catch (error) {
     console.error('Error fetching volumes:', error);

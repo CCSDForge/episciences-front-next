@@ -112,6 +112,25 @@ export function loadJournalConfig(journalCode: string): JournalConfig {
 }
 
 /**
+ * Get only public configuration (safe for client-side)
+ * Filters variables starting with NEXT_PUBLIC_
+ */
+export function getPublicJournalConfig(journalCode: string): Record<string, string> {
+  if (typeof window !== 'undefined') return {};
+
+  const config = loadJournalConfig(journalCode);
+  const publicConfig: Record<string, string> = {};
+
+  Object.keys(config.env).forEach(key => {
+    if (key.startsWith('NEXT_PUBLIC_')) {
+      publicConfig[key] = config.env[key];
+    }
+  });
+
+  return publicConfig;
+}
+
+/**
  * Get API URL for a journal
  * Server-side: loads from journal-specific config file
  * Client-side: uses global env var (API endpoint should be set via server props)
@@ -122,6 +141,12 @@ export function loadJournalConfig(journalCode: string): JournalConfig {
 export function getJournalApiUrl(journalCode: string): string {
   // Server-side: load from journal-specific config
   if (typeof window === 'undefined') {
+    // 1. Force Override (Local Dev / Special CI)
+    if (process.env.NEXT_PUBLIC_API_URL_FORCE) {
+      return process.env.NEXT_PUBLIC_API_URL_FORCE;
+    }
+
+    // 2. Journal Specific Config
     const config = loadJournalConfig(journalCode);
     const url = config.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ||
                 process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ||
