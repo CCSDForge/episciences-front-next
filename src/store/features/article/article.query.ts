@@ -4,6 +4,7 @@ import { IArticle, IPartialArticle, RawArticle } from '@/types/article'
 import { formatArticle, METADATA_TYPE } from '@/utils/article'
 import { PaginatedResponseWithRange, Range } from '@/utils/pagination'
 import { createBaseQueryWithLdJsonAccept } from '../../utils'
+import { API_URL } from '@/config/api'
 
 export const articleApi = createApi({
   baseQuery: createBaseQueryWithLdJsonAccept,
@@ -57,7 +58,7 @@ export const articleApi = createApi({
         const { data: articles } = await queryFulfilled;
         const fullArticles: IArticle[] = await Promise.all(
           articles.data.map(async (article: IArticle) => {
-            const rawArticle: RawArticle = await (await fetch(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/papers/${article?.id}`)).json();
+            const rawArticle: RawArticle = await (await fetch(`${API_URL}/papers/${article?.id}`)).json();
             const formattedArticle = formatArticle(rawArticle);
             if (!formattedArticle) {
               throw new Error(`Article ${article?.id} not found`);

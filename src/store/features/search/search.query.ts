@@ -6,6 +6,7 @@ import { PaginatedResponseWithSearchRange, SearchRange } from '@/utils/paginatio
 import { formatSearchRange } from '@/utils/search'
 import { createBaseQueryWithLdJsonAccept } from '@/store/utils'
 import { ISearchResult } from '@/types/search'
+import { API_URL } from '@/config/api'
 
 export const searchApi = createApi({
   baseQuery: createBaseQueryWithLdJsonAccept,
@@ -58,7 +59,7 @@ export const searchApi = createApi({
         const { data: searchResults } = await queryFulfilled;
         const fullResults: FetchedArticle[] = await Promise.all(
           searchResults.data.map(async (searchResult: FetchedArticle) => {
-            const rawArticle: RawArticle = await (await fetch(`${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/papers/${searchResult?.id}`)).json();
+            const rawArticle: RawArticle = await (await fetch(`${API_URL}/papers/${searchResult?.id}`)).json();
             return formatArticle(rawArticle);
           })
         );

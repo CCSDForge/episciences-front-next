@@ -105,24 +105,31 @@ export async function fetchSearchResults({
     const range = formatSearchRange(data['hydra:range']);
 
     // Récupérer les articles complets pour chaque résultat de recherche
-    const fullResults = await Promise.all(
-      searchResults.map(async (searchResult) => {
-        const articleId = searchResult.docid;
+    const fullResultsPromises = searchResults.map(async (searchResult) => {
+      const articleId = searchResult.docid;
+      try {
         const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
-        const rawArticle = await fetch(`${apiRoot}${API_PATHS.papers}${articleId}`, {
+        const response = await fetch(`${apiRoot}${API_PATHS.papers}${articleId}`, {
           next: {
             tags: ['article', `article-${articleId}`],
           }
-        }).then(res => {
-          if (!res.ok) {
-            throw new Error(`Failed to fetch article with ID ${articleId}`);
-          }
-          return res.json();
         });
-        
+
+        if (!response.ok) {
+          console.warn(`Failed to fetch article with ID ${articleId}: ${response.status}`);
+          return null;
+        }
+
+        const rawArticle = await response.json();
         return formatArticle(rawArticle);
-      })
-    );
+      } catch (error) {
+        console.warn(`Error fetching article ${articleId}`, error);
+        return null;
+      }
+    });
+
+    const results = await Promise.all(fullResultsPromises);
+    const fullResults = results.filter((item): item is FetchedArticle => item !== null);
 
     return {
       data: fullResults,
