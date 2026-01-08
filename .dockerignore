@@ -34,8 +34,8 @@ build.log
 # Documentation (except TESTING.md)
 *.md
 !README.md
-!TESTING.md
-!APACHE_INTEGRATION.md
+!docs/TESTING.md
+!docs/APACHE_INTEGRATION.md
 
 # Temporary files
 tmp/
