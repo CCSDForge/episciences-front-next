@@ -7,9 +7,10 @@ Instructions for AI assistants (Claude, Gemini) when working with this repositor
 ## Project Overview
 
 Next.js 16 application for Episciences academic journals.
-- Architecture: Node.js server with **Hybrid ISR (Incremental Static Regeneration)**.
+- Architecture: Node.js server with Incremental Static Regeneration (ISR).
 - Routing: Multi-tenant using Middleware to map hostnames to journal codes.
 - Rendering: Hybrid (Server Components for data/SEO, Client Components for interactivity).
+- Deployment: Standalone Docker build with multi-tenant support (45+ journals).
 
 ---
 
@@ -18,11 +19,7 @@ Next.js 16 application for Episciences academic journals.
 ```bash
 npm install          # Install dependencies
 npm run dev          # Start development server
-
-# 🏗️ Production Build (Environment Aware)
-BUILD_ENV=prod npm run build    # Build production journals
-BUILD_ENV=preprod npm run build # Build pre-production journals
-
+npm run build        # Production build (standalone Node.js)
 npm run start        # Start production server
 npm run test         # Run tests
 npm run lint         # Run linter
@@ -40,18 +37,20 @@ npm run lint         # Run linter
    - `[lang]` is extracted from the URL path or defaults to a predefined language.
 
 ### Data Fetching & Caching
-- **Server Components (`page.tsx`)**: Fetch initial data with **Cache Tags**.
-- **ISR Strategy**:
-    - **Homepages**: Pre-generated at build time (Selective SSG).
-    - **Articles/Volumes**: Generated on first visit (Just-in-Time ISR) using empty `generateStaticParams`.
-    - **Revalidation**: `revalidate = 3600` (1 hour) or On-Demand via Webhook.
-- **Cache Tags**: All `fetch` calls MUST include `next: { tags: [...] }` (e.g., `['articles', 'article-123']`).
+- Server Components (`page.tsx`): Fetch initial data (Articles, Volumes, Boards).
+- ISR: Pages use differentiated revalidation strategies based on content type (see `docs/ISR_STRATEGY.md`).
+  - Static pages (about, credits): `revalidate = false`
+  - Moderately dynamic (home, volumes): `revalidate = 86400` (24h)
+  - Frequently updated (news): `revalidate = 3600` (1h)
+  - Detail pages (articles, volumes, sections): `revalidate = 604800` (7d) + on-demand revalidation
+- Client Components: Receive initial data as props.
+- Hydration: Client components use `useClientSideFetch` to fetch fresh data on mount, displaying server data first.
 
 ### Hydration Strategy (CRITICAL)
 To prevent "Text content does not match" errors:
 - Translations: Static labels (Titles, Breadcrumbs) MUST be translated server-side and passed as props.
 - Language Consistency: Client components must use the `lang` prop from the server for the first render.
-- **Suspense**: Wrap Client Components using `useSearchParams` in `<Suspense>` to avoid build errors.
+- Memoization: Use `useMemo`/`useCallback` for props and event handlers to prevent infinite loops.
 
 ---
 
@@ -61,9 +60,8 @@ To prevent "Text content does not match" errors:
 |------|-------------|
 | `src/app/sites/[journalId]/[lang]/` | Dynamic routes for all journals |
 | `src/middleware.ts` | Core multi-tenant routing logic |
-| `src/services/` | Data fetching logic with Cache Tags |
-| `src/app/api/revalidate/` | Webhook endpoint for cache purging |
-| `src/utils/journal-filter.ts` | Logic for filtering journals by environment |
+| `src/components/` | Shared UI components |
+| `external-assets/` | Environment files and logos per journal |
 
 ---
 
@@ -71,14 +69,63 @@ To prevent "Text content does not match" errors:
 
 ### Language
 - Use English for code, comments, and documentation.
-- Store plans in `docs/`.
+- Store plans in `./tmp/`.
 
 ### Adding New Pages
 1. Create `page.tsx` in `src/app/sites/[journalId]/[lang]/[newPage]`.
-2. Add `export const revalidate = 3600;`.
-3. Add `export async function generateStaticParams() { return []; }` for JIT ISR.
-4. Fetch data server-side using `fetch` with appropriate **Cache Tags**.
-5. Pass data and translated labels to a `ClientComponent`.
+2. Fetch data server-side.
+3. Pass data and translated labels to a `ClientComponent`.
+4. Ensure `ClientComponent` handles `initialData` correctly.
+
+---
+
+## Resilience Architecture
+
+### Graceful Degradation Strategy
+The application is designed to render pages even when the API is unavailable, ensuring continuity of service.
+
+### Error Handling Patterns
+
+**API Services:**
+- All API services use `safeFetch()` utility that returns valid fallback values instead of throwing exceptions
+- Services NEVER throw errors - they always return usable data (empty arrays, null objects, etc.)
+- Failed requests are logged with `console.warn()` for monitoring
+
+**Server Components (Pages):**
+- All data fetches are wrapped in try/catch blocks
+- Pages pass `null` or empty values to client components when API fails
+- Client components are designed to handle null initialData gracefully
+
+**Retry Mechanism:**
+- Network requests use `fetchWithRetry()` utility with exponential backoff (1s, 2s, 4s, 8s)
+- Automatic retry with jitter to prevent thundering herd
+- Timeout of 15 seconds per request (enforced by global fetch interceptor)
+
+### Security Measures
+
+**Input Validation:**
+- `journalId` format validation: `/^[a-z0-9-]{2,50}$/` (prevents path traversal)
+- Revalidation API path validation: `/^\/sites\/[a-z0-9-]+\/[a-z]{2}(\/.*)?$/`
+- All user inputs sanitized before usage in file paths or API calls
+
+**Rate Limiting:**
+- Revalidation API: 10 requests/minute per IP address
+- In-memory sliding window implementation
+- Returns HTTP 429 when limit exceeded
+
+**Security Headers:**
+- X-Frame-Options: SAMEORIGIN
+- X-Content-Type-Options: nosniff
+- Referrer-Policy: strict-origin-when-cross-origin
+- Permissions-Policy: Restrictive (camera, microphone, geolocation blocked)
+
+### Monitoring
+
+All resilience-related events are logged:
+- `[SafeFetch]` - API failures with fallback usage
+- `[FetchRetry]` - Retry attempts and delays
+- `[Revalidate API]` - On-demand revalidation requests
+- `[Middleware]` - Invalid journalId detection
 
 ---
 
@@ -87,8 +134,9 @@ To prevent "Text content does not match" errors:
 | Issue | Solution |
 |-------|----------|
 | Hydration Error | Ensure server and client text match by passing translated strings as props. |
-| Build Error `useSearchParams` | Wrap the Client Component in `<Suspense>`. |
-| API Down | ISR will serve the last cached version. |
+| Infinite Loop | Check `useEffect` dependencies and memoize props. |
+| Pages Not Rendering (API Down) | Verify services use `safeFetch()` and pages have try/catch blocks. |
+| ISR Not Revalidating | Check `revalidate` is exported at page level, not in layout. See `docs/ISR_STRATEGY.md`. |
 
 ---
 

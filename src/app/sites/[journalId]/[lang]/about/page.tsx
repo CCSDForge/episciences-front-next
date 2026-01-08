@@ -9,7 +9,8 @@ import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
 import { getLanguageFromParams } from "@/utils/language-utils";
 const AboutClient = dynamic(() => import('./AboutClient'));
 
-export const revalidate = 3600;
+// Stable editorial content - no ISR, fully static at build time
+export const revalidate = false;
 
 export const metadata: Metadata = {
   title: 'À propos',

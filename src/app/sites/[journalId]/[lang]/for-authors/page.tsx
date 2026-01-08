@@ -6,6 +6,9 @@ import { connection } from 'next/server';
 
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
 
+// Stable editorial content - no ISR, fully static at build time
+export const revalidate = false;
+
 // Cette fonction est aussi appelée au build time
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -14,8 +17,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ForAuthorsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  
-
   const params = await props.params;
   const { journalId, lang } = params;
 
@@ -23,12 +24,23 @@ export default async function ForAuthorsPage(props: { params: Promise<{ journalI
     throw new Error('journalId is not defined');
   }
 
-  const [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage, translations] = await Promise.all([
-    fetchEditorialWorkflowPage(journalId),
-    fetchEthicalCharterPage(journalId),
-    fetchPrepareSubmissionPage(journalId),
-    getServerTranslations(lang)
-  ]);
+  let editorialWorkflowPage = null;
+  let ethicalCharterPage = null;
+  let prepareSubmissionPage = null;
+  let translations = {};
+
+  try {
+    // Fetch all pages and translations in parallel
+    [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage, translations] = await Promise.all([
+      fetchEditorialWorkflowPage(journalId),
+      fetchEthicalCharterPage(journalId),
+      fetchPrepareSubmissionPage(journalId),
+      getServerTranslations(lang)
+    ]);
+  } catch (error) {
+    console.warn('[ForAuthorsPage] Failed to fetch data:', error);
+    // Data remains at fallback values (null/empty)
+  }
 
   const breadcrumbLabels = {
     home: t('pages.home.title', translations),

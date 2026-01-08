@@ -11,7 +11,9 @@ import { getServerTranslations } from '@/utils/server-i18n';
 import { getJournalApiUrl, getPublicJournalConfig } from '@/utils/env-loader';
 import { getFilteredJournals } from '@/utils/journal-filter';
 
-export const revalidate = 3600;
+// NOTE: No global revalidate defined here
+// Each child page defines its own ISR strategy based on content update frequency
+// See docs/ISR_STRATEGY.md for details
 
 export async function generateStaticParams() {
   const journals = getFilteredJournals();

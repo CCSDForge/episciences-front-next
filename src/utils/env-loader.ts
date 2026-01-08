@@ -1,4 +1,5 @@
 import path from 'path';
+import { isValidJournalId } from './validation';
 // On évite l'import statique de fs pour ne pas casser le build client
 // import fs from 'fs';
 
@@ -58,6 +59,14 @@ export function getJournalsList(): string[] {
 export function loadJournalConfig(journalCode: string): JournalConfig {
   if (typeof window !== 'undefined') {
     return { code: journalCode, env: {} };
+  }
+
+  // Validate journal code format to prevent path traversal attacks
+  if (!isValidJournalId(journalCode)) {
+    console.warn(`[env-loader] Invalid journal code format: ${journalCode}`);
+    const emptyConfig = { code: journalCode, env: {} };
+    configCache.set(journalCode, emptyConfig);
+    return emptyConfig;
   }
 
   // Return cached config if available

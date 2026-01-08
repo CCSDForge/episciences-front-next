@@ -8,28 +8,8 @@ import { transformArticleForDisplay } from './article';
 import { formatVolume } from '@/utils/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
-
-// Paramètres pour les retries
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 seconde
-
-// Fonction fetchWithRetry pour les appels API
-async function fetchWithRetry(url: string, options: RequestInit = {}, retries = MAX_RETRIES): Promise<Response> {
-  try {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response;
-  } catch (error) {
-    if (retries > 0) {
-    //  console.log(`Tentative de reconnexion pour ${url}, ${retries} tentatives restantes`);
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-      return fetchWithRetry(url, options, retries - 1);
-    }
-    throw error;
-  }
-}
+import { fetchWithRetry } from '@/utils/fetch-with-retry';
+import { transformBoardMembers, RawBoardMember } from '@/utils/board-transforms';
 
 // Interface PageContent pour les pages about et indexation
 interface PageContent {
@@ -86,47 +66,7 @@ function ensureApiEndpoint(baseUrl: string): string {
   return url;
 }
 
-// Transformation des membres du board pour normaliser la structure des rôles
-function transformBoardMembers(members: any[]): IBoardMember[] {
-  return members.map((member: any) => {
-    // Transformer les rôles comme dans RTK Query: aplatir les tableaux imbriqués et remplacer _ par -
-    const roles = (member.roles && member.roles.length > 0) 
-      ? member.roles[0].map((role: string) => role.replace(/_/g, '-')) 
-      : [];
-    
-    // Traiter les autres propriétés comme dans fetchBoardMembers et board.query.ts
-    let twitter, mastodon;
-    if (member.additionalProfileInformation?.socialMedias) {
-      const atCount = (member.additionalProfileInformation?.socialMedias.match(/@/g) || []).length;
-      
-      if (atCount === 1) {
-        twitter = `${process.env.NEXT_PUBLIC_TWITTER_HOMEPAGE}/${member.additionalProfileInformation?.socialMedias.slice(1)}`;
-      }
-      else if (atCount > 1) {
-        const parts = member.additionalProfileInformation?.socialMedias.split('@');
-        mastodon = `https://${parts[2]}/@${parts[1]}`;
-      }
-    }
-
-    return {
-      ...member,
-      id: member.id || member.uid || 0,
-      biography: member.additionalProfileInformation?.biography || '',
-      roles,
-      affiliations: member.additionalProfileInformation?.affiliations || [],
-      assignedSections: (member.assignedSections || []).map((section: any) => ({
-        sid: section.sid,
-        title: section.titles || { en: '', fr: '' },
-        titles: section.titles || { en: '', fr: '' }
-      })),
-      twitter,
-      mastodon,
-      website: member.additionalProfileInformation?.webSites 
-        ? member.additionalProfileInformation.webSites[0] 
-        : undefined
-    };
-  });
-}
+// Board member transformation is now handled by utils/board-transforms.ts
 
 export async function fetchHomeData(rvcode: string, language: string): Promise<HomeData> {
   try {
@@ -252,8 +192,9 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
       })
     );
 
-    // Transformer les membres du board
-    const transformedMembers = transformBoardMembers(membersResponse?.['hydra:member'] || []);
+    // Transform board members using centralized utility
+    const rawMembers: RawBoardMember[] = membersResponse?.['hydra:member'] || [];
+    const transformedMembers = transformBoardMembers(rawMembers);
     
   //  console.log('Home data fetched successfully. Articles count:', formattedArticles.length);
   //  console.log('First 3 articles from API:', formattedArticles.slice(0, 3));

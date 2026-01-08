@@ -4,9 +4,11 @@ import { fetchBoardMembers, fetchBoardPages } from '@/services/board';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
 import dynamic from 'next/dynamic';
-import { connection } from 'next/server';
 
 const BoardsClient = dynamic(() => import('./BoardsClient'));
+
+// Board membership changes infrequently - daily revalidation is appropriate
+export const revalidate = 86400; // 24 hours
 
 export const metadata: Metadata = {
   title: 'Boards',

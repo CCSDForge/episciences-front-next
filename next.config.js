@@ -4,6 +4,10 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
 
+  // Standalone output for optimized Docker deployments
+  // Creates a standalone build in .next/standalone with minimal dependencies
+  output: 'standalone',
+
   // Turbopack activé par défaut en Next.js 16
   // La config webpack ci-dessous (fs: false) est gérée automatiquement par Turbopack
   turbopack: {},
@@ -47,7 +51,34 @@ const nextConfig = {
       },
     ];
   },
-    
+
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()'
+          }
+        ]
+      }
+    ];
+  },
+
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {

@@ -7,6 +7,7 @@ import {
   hasLanguagePrefix,
   removeLanguagePrefix,
 } from '@/utils/language-utils';
+import { isValidJournalId } from '@/utils/validation';
 // import { journalExists } from '@/utils/static-paths'; // REMOVE: Uses fs, incompatible with Edge
 import { journals } from '@/config/journals-generated';
 
@@ -32,22 +33,36 @@ export function middleware(request: NextRequest) {
 
   if (hostname.includes('episciences.org')) {
     // production: epijinfo.episciences.org -> epijinfo
-    journalId = hostname.split('.')[0];
+    const extractedId = hostname.split('.')[0];
+
+    // Validate format before usage to prevent injection attacks
+    if (isValidJournalId(extractedId)) {
+      journalId = extractedId;
+    } else {
+      console.warn(`[Middleware] Invalid journalId format from hostname: ${extractedId}`);
+      journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
+    }
   } else {
     // localhost or dev environment
     const subdomain = hostname.split('.')[0];
     if (subdomain !== 'localhost' && !Number.isInteger(Number(subdomain))) {
-       journalId = subdomain;
+      // Validate format before usage
+      if (isValidJournalId(subdomain)) {
+        journalId = subdomain;
+      } else {
+        console.warn(`[Middleware] Invalid journalId format from subdomain: ${subdomain}`);
+        journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
+      }
     } else {
-       journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
+      journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
     }
   }
 
   console.log(`[Middleware] Detected journalId: ${journalId}`);
 
-  // 2. Validate journalId exists
+  // 2. Validate journalId exists in registry
   if (!journalExists(journalId)) {
-    console.warn(`[Middleware] Invalid journalId: ${journalId}, redirecting to default`);
+    console.warn(`[Middleware] Unknown journalId: ${journalId}, redirecting to default`);
     // Redirect to default journal instead of showing error page
     journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
   }

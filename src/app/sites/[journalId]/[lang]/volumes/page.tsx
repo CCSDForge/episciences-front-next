@@ -11,7 +11,8 @@ const VolumesClient = dynamic(() => import('./VolumesClient'));
 
 const VOLUMES_PER_PAGE = 20;
 
-export const revalidate = 3600;
+// Volume list updates moderately - daily revalidation is appropriate
+export const revalidate = 86400; // 24 hours
 
 export const metadata: Metadata = {
   title: 'Volumes',

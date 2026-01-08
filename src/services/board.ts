@@ -1,6 +1,7 @@
 import { API_URL } from '@/config/api'
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { transformBoardMembers, RawBoardMember } from '@/utils/board-transforms';
 
 export interface IBoardMemberAffiliation {
   label: string;
@@ -91,25 +92,7 @@ export const getBoardRoles = (t: (key: string) => string, roles: string[]): stri
     .join(', ');
 };
 
-interface RawBoardMember {
-  id: number;
-  firstname: string;
-  lastname: string;
-  email?: string;
-  roles: string[][];
-  orcid?: string;
-  picture?: string;
-  assignedSections?: {
-    sid: number;
-    titles: Record<AvailableLanguage, string>
-  }[];
-  additionalProfileInformation?: {
-    biography?: string;
-    affiliations: IBoardMemberAffiliation[];
-    socialMedias?: string;
-    webSites: string[];
-  };
-}
+// RawBoardMember interface is now defined in utils/board-transforms.ts
 
 export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
   try {
@@ -150,53 +133,9 @@ export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]>
     const json = await response.json();
     const data: RawBoardMember[] = Array.isArray(json) ? json : (json['hydra:member'] || []);
   //  console.log(`Successfully fetched ${data.length} board members`);
-    
-    return data.map(board => {
-      const roles = (board.roles && board.roles.length > 0) 
-        ? board.roles[0].map(role => role.replace(/_/g, '-')) 
-        : [];
 
-      let twitter, mastodon;
-      if (board.additionalProfileInformation?.socialMedias) {
-        const atCount = (board.additionalProfileInformation?.socialMedias.match(/@/g) || []).length;
-        
-        if (atCount === 1) {
-          twitter = `${process.env.NEXT_PUBLIC_TWITTER_HOMEPAGE}/${board.additionalProfileInformation?.socialMedias.slice(1)}`;
-        }
-        else if (atCount > 1) {
-          const parts = board.additionalProfileInformation?.socialMedias.split('@');
-          mastodon = `https://${parts[2]}/@${parts[1]}`;
-        }
-      }
-
-      const memberWithDefaults: IBoardMember = {
-        id: board.id || 0,
-        firstname: board.firstname || '',
-        lastname: board.lastname || '',
-        email: board.email,
-        biography: board.additionalProfileInformation?.biography || '',
-        roles: roles,
-        affiliations: (board.additionalProfileInformation?.affiliations || []).map(aff => ({
-          label: aff.label || '',
-          rorId: aff.rorId || ''
-        })),
-        assignedSections: (board.assignedSections || []).map(section => {
-          return {
-            sid: section.sid,
-            titles: section.titles || { en: '', fr: '' }
-          };
-        }),
-        orcid: board.orcid || '',
-        picture: board.picture || '',
-        twitter,
-        mastodon,
-        website: board.additionalProfileInformation?.webSites 
-          ? board.additionalProfileInformation.webSites[0] 
-          : undefined
-      };
-
-      return memberWithDefaults;
-    });
+    // Use centralized transformation utility
+    return transformBoardMembers(data);
   } catch (error) {
     console.error('Error fetching board members:', error);
     return [];

@@ -1,34 +1,46 @@
 /**
- * Intercepteur pour le fetch API qui enregistre les requêtes
+ * Global Fetch Interceptor
+ *
+ * This module automatically intercepts all fetch() calls in the application (server-side only)
+ * and applies the following transformations:
+ *
+ * Features:
+ * - Global timeout: 15 seconds for all requests
+ * - Journal code substitution: Replaces rvcode=default with rvcode={JOURNAL_CODE}
+ * - Redirect handling: Converts /default paths to /
+ * - Error logging: Logs failed requests for debugging
+ *
+ * Note: This interceptor is applied globally on module import and affects all fetch()
+ * calls in the application. It does not need to be explicitly invoked.
  */
 
 import { getJournalCode } from './static-build';
 
-// Sauvegarde de la fonction fetch originale
+// Save original fetch function before overriding
 const originalFetch = globalThis.fetch;
 
-// Configuration globale pour l'API
+// Global API configuration
 const API_CONFIG = {
   baseUrl: process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '',
-  timeout: 15000 // Timeout en ms
+  timeout: 15000 // Timeout in milliseconds
 };
 
-// Fonction pour journaliser la requête
+// Function to log requests (currently disabled)
 const logRequest = (method: string, url: string): void => {
  // console.log(`🚀 Fetch: ${method} ${url}`);
 };
 
-// Fonction pour journaliser la réponse
+// Function to log responses (currently disabled)
 const logResponse = (status: number, url: string): void => {
  // console.log(`✅ Response: ${status} from ${url}`);
 };
 
-// Fonction pour journaliser les erreurs
+// Function to log errors (currently disabled)
 const logError = (error: Error, url: string): void => {
  // console.error(`❌ Error: ${error.message} for ${url}`);
 };
 
-// Remplacement de la fonction fetch globale
+// Global fetch function replacement
 globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   let url = input.toString();
   const method = init?.method || 'GET';
@@ -41,19 +53,19 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
   }
 
   if (journalCode) {
-    // Remplacer toutes les occurrences de 'default' par le code de revue actuel dans l'URL
+    // Replace all occurrences of 'default' with the current journal code in the URL
     if (url.includes('rvcode=default')) {
       url = url.replace('rvcode=default', `rvcode=${journalCode}`);
     }
   }
-  
-  // Gérer la redirection des requêtes vers /default
+
+  // Handle redirection of requests to /default
   if (url.endsWith('/default') || url === 'default') {
    // console.log(`🔀 Redirecting request from /default to /`);
     url = url.replace('/default', '/').replace('default', '/');
   }
 
-  // Log de la requête
+  // Log the request
   logRequest(method, url);
 
   try {
@@ -64,54 +76,16 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
       ),
     ]) as Response;
 
-    // Log de la réponse
+    // Log the response
     logResponse(response.status, url);
 
     return response;
   } catch (error) {
-    // Log de l'erreur
+    // Log the error
     logError(error as Error, url);
     throw error;
   }
 };
 
-export function createFetchInterceptor() {
-  const originalFetch = global.fetch;
-
-  global.fetch = async function(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    let url = input instanceof Request ? input.url : input.toString();
-    const method = init?.method || 'GET';
-    
-    // Gérer la redirection des requêtes vers /default
-    if (url.endsWith('/default') || url === 'default') {
-     // console.log(`🔀 Redirecting request from /default to /`);
-      url = url.replace('/default', '/').replace('default', '/');
-      
-      // Mettre à jour l'input si nécessaire
-      if (input instanceof Request) {
-        input = new Request(url, input);
-      } else if (typeof input === 'string') {
-        input = url;
-      } else {
-        // Si c'est une URL, créer une nouvelle URL
-        input = new URL(url);
-      }
-    }
-    
-    try {
-      const response = await originalFetch(input, init);
-      const status = response.status;
-      
-      // Cloner la réponse pour pouvoir la retourner
-      return response.clone();
-    } catch (error) {
-      // En cas d'erreur de fetch, la propager
-      console.error(`Fetch error for ${method} ${url}:`, error);
-      throw error;
-    }
-  };
-
-  return () => {
-    global.fetch = originalFetch;
-  };
-} 
+// The fetch interceptor is automatically active on module import
+// No additional setup required 

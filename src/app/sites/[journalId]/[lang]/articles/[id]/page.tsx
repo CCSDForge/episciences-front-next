@@ -23,7 +23,9 @@ interface ArticleDetailsPageProps {
   }>;
 }
 
-export const revalidate = 3600;
+// Article details rarely change after publication - long revalidation time
+// Use on-demand revalidation API for critical updates
+export const revalidate = 604800; // 7 days
 
 export async function generateStaticParams() {
   return [];

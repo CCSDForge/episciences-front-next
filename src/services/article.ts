@@ -3,10 +3,8 @@ import { IArticle, RawArticle } from '@/types/article'
 import { AvailableLanguage } from '@/utils/i18n'
 import { getJournalApiUrl } from '@/utils/env-loader'
 import { METADATA_TYPE, FetchedArticle, formatArticle } from '@/utils/article'
-
-// Paramètres pour les retries
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 seconde
+import { fetchWithRetry } from '@/utils/fetch-with-retry'
+import { batchFetchWithFallback } from '@/utils/batch-fetch'
 
 interface FetchArticlesParams {
   rvcode: string;
@@ -16,23 +14,6 @@ interface FetchArticlesParams {
   types?: string[];
   years?: number[];
   articleIds?: string[];
-}
-
-async function fetchWithRetry(url: string, options: RequestInit = {}, retries = MAX_RETRIES): Promise<Response> {
-  try {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response;
-  } catch (error) {
-    if (retries > 0) {
-    //  console.log(`Tentative de reconnexion pour ${url}, ${retries} tentatives restantes`);
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-      return fetchWithRetry(url, options, retries - 1);
-    }
-    throw error;
-  }
 }
 
 export async function fetchArticles({ rvcode, page, itemsPerPage, onlyAccepted = false, types, years, articleIds }: FetchArticlesParams) {
@@ -63,27 +44,22 @@ export async function fetchArticles({ rvcode, page, itemsPerPage, onlyAccepted =
     const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}?${params}`, { next: { tags: ['articles', `articles-${rvcode}`] } })
 
     const data = await response.json()
-    
-    // Récupérer les articles complets avec gestion des erreurs
-    const fullArticles = await Promise.allSettled(
-      data['hydra:member'].map(async (partialArticle: any) => {
-        try {
-          const articleId = partialArticle.paperid
-          const rawArticle = await fetchRawArticle(articleId, rvcode)
-          return transformArticleForDisplay(rawArticle)
-        } catch (error) {
-          console.error(`Erreur lors de la récupération de l'article ${partialArticle.paperid}:`, error)
-          return null
-        }
-      })
+
+    // Fetch complete articles using centralized batch fetch utility
+    const partialArticles = data['hydra:member'] || [];
+    const fullArticles = await batchFetchWithFallback(
+      partialArticles,
+      async (partialArticle: any) => {
+        const articleId = partialArticle.paperid
+        const rawArticle = await fetchRawArticle(articleId, rvcode)
+        return transformArticleForDisplay(rawArticle)
+      },
+      null, // Fallback to null for failed articles
+      `Articles(${rvcode})` // Context for logging
     )
 
     return {
-      data: fullArticles
-        .filter((result): result is PromiseFulfilledResult<FetchedArticle> => 
-          result.status === 'fulfilled' && result.value !== null
-        )
-        .map(result => result.value),
+      data: fullArticles,
       totalItems: data['hydra:totalItems'],
       range: data['hydra:range'] ? {
         years: data['hydra:range'].publicationYears

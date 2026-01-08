@@ -6,7 +6,9 @@ import { FetchedArticle } from '@/utils/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import VolumeDetailsClient from './VolumeDetailsClient';
 
-export const revalidate = 3600;
+// Volume details rarely change after publication - long revalidation time
+// Use on-demand revalidation API for updates
+export const revalidate = 604800; // 7 days
 
 export async function generateStaticParams() {
   return [];

@@ -7,13 +7,14 @@ import { acceptedLanguages } from '@/utils/language-utils';
 import { getFilteredJournals } from '@/utils/journal-filter';
 
 import dynamicImport from 'next/dynamic';
-import { connection } from 'next/server';
 
 import '@/styles/pages/Home.scss';
 
 const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'), );
 
-export const revalidate = 3600;
+// Home page content (latest volume + journal info) updates approximately weekly
+// Daily revalidation is sufficient
+export const revalidate = 86400; // 24 hours
 
 export async function generateStaticParams() {
   const journals = getFilteredJournals();

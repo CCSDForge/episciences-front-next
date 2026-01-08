@@ -35,6 +35,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy journal-specific assets (env files and logos for multi-tenant)
+COPY --from=builder --chown=nextjs:nodejs /app/external-assets ./external-assets
+
 USER nextjs
 
 EXPOSE 3000

@@ -6,7 +6,9 @@ import { ISection, PartialSectionArticle } from '@/types/section';
 import { IArticle } from '@/types/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
-export const revalidate = 3600;
+// Section details change infrequently - long revalidation time
+// Use on-demand revalidation API for updates
+export const revalidate = 604800; // 7 days
 
 export async function generateStaticParams() {
   return [];
