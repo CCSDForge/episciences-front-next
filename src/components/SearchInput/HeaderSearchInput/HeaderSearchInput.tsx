@@ -14,7 +14,14 @@ interface IHeaderSearchInputProps {
   onSubmitCallback: () => void;
 }
 
-export default function HeaderSearchInput({ value, placeholder, isSearching, setIsSearchingCallback, onChangeCallback, onSubmitCallback }: IHeaderSearchInputProps): React.JSX.Element {
+export default function HeaderSearchInput({
+  value,
+  placeholder,
+  isSearching,
+  setIsSearchingCallback,
+  onChangeCallback,
+  onSubmitCallback,
+}: IHeaderSearchInputProps): React.JSX.Element {
   const [preventBlur, setPreventBlur] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -23,45 +30,45 @@ export default function HeaderSearchInput({ value, placeholder, isSearching, set
       onSubmitCallback();
       loseInputFocus();
     }
-  }
+  };
 
   const handleBlur = (): void => {
     if (!preventBlur) {
-      setTimeout(() => setIsSearchingCallback(false), 200)
+      setTimeout(() => setIsSearchingCallback(false), 200);
     }
-  }
+  };
 
   const emptySearch = (): void => {
     onChangeCallback('');
     setIsSearchingCallback(false);
     loseInputFocus();
-  }
+  };
 
   const loseInputFocus = (): void => {
     if (inputRef.current) {
       inputRef.current.blur();
     }
-  }
+  };
 
   return (
-    <div className='headerSearchInput'>
+    <div className="headerSearchInput">
       {isSearching ? (
         <CaretLeftRedIcon
           size={16}
-          className='headerSearchInput-icon headerSearchInput-icon-caretLeft'
-          ariaLabel='Back'
+          className="headerSearchInput-icon headerSearchInput-icon-caretLeft"
+          ariaLabel="Back"
           onClick={(): void => setIsSearchingCallback(false)}
         />
       ) : (
         <SearchIcon
           size={16}
-          className='headerSearchInput-icon headerSearchInput-icon-search'
-          ariaLabel='Search'
+          className="headerSearchInput-icon headerSearchInput-icon-search"
+          ariaLabel="Search"
         />
       )}
       <input
         ref={inputRef}
-        className='headerSearchInput-input'
+        className="headerSearchInput-input"
         value={value}
         placeholder={placeholder}
         onFocus={(): void => setIsSearchingCallback(true)}
@@ -72,13 +79,13 @@ export default function HeaderSearchInput({ value, placeholder, isSearching, set
       {isSearching && (
         <CloseRedIcon
           size={16}
-          className='headerSearchInput-icon headerSearchInput-icon-close'
-          ariaLabel='Clear'
+          className="headerSearchInput-icon headerSearchInput-icon-close"
+          ariaLabel="Clear"
           onMouseDown={() => setPreventBlur(true)}
           onMouseUp={() => setPreventBlur(false)}
           onClick={(): void => emptySearch()}
         />
       )}
     </div>
-  )
-} 
+  );
+}

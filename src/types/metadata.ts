@@ -12,4 +12,4 @@ export interface IArticleMetadata {
     }>;
     relationType: string;
   }>;
-} 
+}

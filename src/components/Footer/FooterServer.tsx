@@ -14,9 +14,13 @@ interface FooterServerProps {
   journalId?: string;
 }
 
-export default async function FooterServer({ lang = 'en', journalId }: FooterServerProps): Promise<React.JSX.Element> {
+export default async function FooterServer({
+  lang = 'en',
+  journalId,
+}: FooterServerProps): Promise<React.JSX.Element> {
   const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'journal';
-  const apiEndpoint = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api.episciences.org/api';
+  const apiEndpoint =
+    process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api.episciences.org/api';
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 
   // Fetch journal data
@@ -30,30 +34,42 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
   }
 
   // Extract journal-specific information
-  const journalNotice = journal?.settings?.find((s: any) => s.setting === 'contactJournalNotice')?.value;
+  const journalNotice = journal?.settings?.find(
+    (s: any) => s.setting === 'contactJournalNotice'
+  )?.value;
   const issn = journal?.settings?.find((s: any) => s.setting === 'ISSN')?.value;
   const contactEmail = `mailto:${rvcode}@episciences.org`;
   const rssUrl = `${apiEndpoint}/feed/rss/${rvcode}`;
 
   // Episciences links (language-aware)
-  const docUrl = lang === 'fr'
-    ? (process.env.NEXT_PUBLIC_EPISCIENCES_DOCUMENTATION_PAGE_FR || 'https://doc.episciences.org/fr')
-    : (process.env.NEXT_PUBLIC_EPISCIENCES_DOCUMENTATION_PAGE || 'https://doc.episciences.org');
-  const partnersUrl = lang === 'fr'
-    ? `${episciencesUrl}/fr/partenaires`
-    : `${episciencesUrl}/partners`;
-  const legalTermsUrl = lang === 'fr'
-    ? (process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_TERMS_PAGE_FR || `${episciencesUrl}/fr/mentions-legales`)
-    : (process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_TERMS_PAGE || `${episciencesUrl}/legal-terms`);
-  const privacyUrl = lang === 'fr'
-    ? (process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_PRIVACY_STATEMENT_PAGE_FR || `${episciencesUrl}/fr/donnees-personnelles`)
-    : (process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_PRIVACY_STATEMENT_PAGE || `${episciencesUrl}/privacy-and-personal-data`);
-  const termsOfUseUrl = lang === 'fr'
-    ? (process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_PRIVACY_TERMS_OF_USE_PAGE_FR || `${episciencesUrl}/fr/cgu`)
-    : (process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_PRIVACY_TERMS_OF_USE_PAGE || `${episciencesUrl}/terms-of-use`);
-  const publishingPolicyAnchor = lang === 'fr'
-    ? `/${lang}${PATHS.about}#politiques-de-publication`
-    : `/${lang}${PATHS.about}#publishing-policies`;
+  const docUrl =
+    lang === 'fr'
+      ? process.env.NEXT_PUBLIC_EPISCIENCES_DOCUMENTATION_PAGE_FR ||
+        'https://doc.episciences.org/fr'
+      : process.env.NEXT_PUBLIC_EPISCIENCES_DOCUMENTATION_PAGE || 'https://doc.episciences.org';
+  const partnersUrl =
+    lang === 'fr' ? `${episciencesUrl}/fr/partenaires` : `${episciencesUrl}/partners`;
+  const legalTermsUrl =
+    lang === 'fr'
+      ? process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_TERMS_PAGE_FR ||
+        `${episciencesUrl}/fr/mentions-legales`
+      : process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_TERMS_PAGE || `${episciencesUrl}/legal-terms`;
+  const privacyUrl =
+    lang === 'fr'
+      ? process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_PRIVACY_STATEMENT_PAGE_FR ||
+        `${episciencesUrl}/fr/donnees-personnelles`
+      : process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_PRIVACY_STATEMENT_PAGE ||
+        `${episciencesUrl}/privacy-and-personal-data`;
+  const termsOfUseUrl =
+    lang === 'fr'
+      ? process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_PRIVACY_TERMS_OF_USE_PAGE_FR ||
+        `${episciencesUrl}/fr/cgu`
+      : process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_PRIVACY_TERMS_OF_USE_PAGE ||
+        `${episciencesUrl}/terms-of-use`;
+  const publishingPolicyAnchor =
+    lang === 'fr'
+      ? `/${lang}${PATHS.about}#politiques-de-publication`
+      : `/${lang}${PATHS.about}#publishing-policies`;
 
   // Load translations for the current language
   const translations = await getServerTranslations(lang);
@@ -61,13 +77,13 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
   // Construct the final logo URL
   // Use logo-{rvcode}-small.svg if it exists, otherwise use journal.logo from API, fallback to default logoSmall
   let footerLogoSrc = logoSmall;
-  
+
   if (rvcode) {
     try {
       const publicLogosDir = path.join(process.cwd(), 'public/logos');
       const smallLogoName = `logo-${rvcode}-small.svg`;
       const smallLogoPath = path.join(publicLogosDir, smallLogoName);
-      
+
       if (fs.existsSync(smallLogoPath)) {
         footerLogoSrc = `/logos/${smallLogoName}`;
       } else if (journal?.logo) {
@@ -94,13 +110,25 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
           <div className="footer-journal-links-journal">
             {journalNotice && (
               <>
-                <Link href={journalNotice} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
+                <Link
+                  href={journalNotice}
+                  prefetch={false}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  lang={lang}
+                >
                   {t('components.footer.links.notice', translations)}
                 </Link>
                 <div className="footer-journal-links-journal-divider">|</div>
               </>
             )}
-            <Link href={contactEmail} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
+            <Link
+              href={contactEmail}
+              prefetch={false}
+              target="_blank"
+              rel="noopener noreferrer"
+              lang={lang}
+            >
               {t('components.footer.links.contact', translations)}
             </Link>
             <div className="footer-journal-links-journal-divider">|</div>
@@ -115,7 +143,13 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
                 <div className="footer-journal-links-rss-divider">|</div>
               </>
             )}
-            <Link href={rssUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
+            <Link
+              href={rssUrl}
+              prefetch={false}
+              target="_blank"
+              rel="noopener noreferrer"
+              lang={lang}
+            >
               {t('components.footer.links.rss', translations)}
             </Link>
           </div>
@@ -131,11 +165,23 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
         </div>
         <div className="footer-episciences-links">
           <div className="footer-episciences-links-documentation">
-            <Link href={docUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
+            <Link
+              href={docUrl}
+              prefetch={false}
+              target="_blank"
+              rel="noopener noreferrer"
+              lang={lang}
+            >
               {t('components.footer.links.documentation', translations)}
             </Link>
             <div className="footer-episciences-links-documentation-divider">|</div>
-            <Link href={partnersUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
+            <Link
+              href={partnersUrl}
+              prefetch={false}
+              target="_blank"
+              rel="noopener noreferrer"
+              lang={lang}
+            >
               {t('components.footer.links.acknowledgements', translations)}
             </Link>
             <div className="footer-episciences-links-documentation-divider">|</div>
@@ -144,15 +190,33 @@ export default async function FooterServer({ lang = 'en', journalId }: FooterSer
             </Link>
           </div>
           <div className="footer-episciences-links-legal">
-            <Link href={legalTermsUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
+            <Link
+              href={legalTermsUrl}
+              prefetch={false}
+              target="_blank"
+              rel="noopener noreferrer"
+              lang={lang}
+            >
               {t('components.footer.links.legalMentions', translations)}
             </Link>
             <div className="footer-episciences-links-legal-divider">|</div>
-            <Link href={privacyUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
+            <Link
+              href={privacyUrl}
+              prefetch={false}
+              target="_blank"
+              rel="noopener noreferrer"
+              lang={lang}
+            >
               {t('components.footer.links.privacyStatement', translations)}
             </Link>
             <div className="footer-episciences-links-legal-divider">|</div>
-            <Link href={termsOfUseUrl} prefetch={false} target="_blank" rel="noopener noreferrer" lang={lang}>
+            <Link
+              href={termsOfUseUrl}
+              prefetch={false}
+              target="_blank"
+              rel="noopener noreferrer"
+              lang={lang}
+            >
               {t('components.footer.links.termsOfUse', translations)}
             </Link>
           </div>

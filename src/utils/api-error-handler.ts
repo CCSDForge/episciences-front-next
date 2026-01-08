@@ -62,7 +62,7 @@ export async function safeFetch<T>(
     return {
       data: fallback,
       error: err,
-      source: 'fallback'
+      source: 'fallback',
     };
   }
 }

@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 
 .volumeDetailsMobile {
   &-id {
@@ -123,13 +123,13 @@
           &-anchor {
             display: flex;
             justify-content: space-between;
-        
+
             &-publicationDate {
               color: var(--grey-light);
               font-size: 14px;
               font-style: italic;
             }
-        
+
             &-icons {
               &-download {
                 display: flex;
@@ -153,4 +153,4 @@
       }
     }
   }
-} 
+}

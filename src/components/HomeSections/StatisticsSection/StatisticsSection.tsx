@@ -9,12 +9,16 @@ import { statTypes } from '@/utils/stat';
 import './StatisticsSection.scss';
 
 interface IStatisticsSectionProps {
-  t: TFunction<"translation", undefined>;
+  t: TFunction<'translation', undefined>;
   i18n: i18n;
   stats: IStat[];
 }
 
-export default function StatisticsSection({ t, i18n, stats }: IStatisticsSectionProps): React.JSX.Element {
+export default function StatisticsSection({
+  t,
+  i18n,
+  stats,
+}: IStatisticsSectionProps): React.JSX.Element {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -31,27 +35,34 @@ export default function StatisticsSection({ t, i18n, stats }: IStatisticsSection
 
   return (
     <div className="statisticsSection">
-      {renderedStats().map((singleStat, index) => (
-        singleStat.value && isIStatValueDetails(singleStat.value) ? <></> : (
+      {renderedStats().map((singleStat, index) =>
+        singleStat.value && isIStatValueDetails(singleStat.value) ? (
+          <></>
+        ) : (
           <Fragment key={index}>
-            <div className='statisticsSection-row'>
+            <div className="statisticsSection-row">
               {singleStat.unit ? (
                 <div className="statisticsSection-row-stat">
-                  {singleStat.value} {i18n.exists(`common.${singleStat.unit}`) ? (
-                    singleStat.value && singleStat.value > 1 ? t(`common.${singleStat.unit}s`) : t(`common.${singleStat.unit}`)
-                  ) : (
-                    singleStat.unit
-                  )}
+                  {singleStat.value}{' '}
+                  {i18n.exists(`common.${singleStat.unit}`)
+                    ? singleStat.value && singleStat.value > 1
+                      ? t(`common.${singleStat.unit}s`)
+                      : t(`common.${singleStat.unit}`)
+                    : singleStat.unit}
                 </div>
               ) : (
                 <div className="statisticsSection-row-stat">{singleStat.value}</div>
               )}
-              <div className="statisticsSection-row-title">{t(statTypes.find(stat => stat.value === singleStat.name)?.labelPath!)}</div>
+              <div className="statisticsSection-row-title">
+                {t(statTypes.find(stat => stat.value === singleStat.name)?.labelPath!)}
+              </div>
             </div>
-            <div className={`${index !== renderedStats().length - 1 && 'statisticsSection-divider'}`}></div>
+            <div
+              className={`${index !== renderedStats().length - 1 && 'statisticsSection-divider'}`}
+            ></div>
           </Fragment>
         )
-      ))}
+      )}
     </div>
   );
-} 
+}

@@ -14,7 +14,11 @@ import { JournalInitializer } from '@/components/JournalInitializer/JournalIniti
 import { LastVolumeInitializer } from '@/components/LastVolumeInitializer/LastVolumeInitializer';
 import ThemeStyleSwitch from '@/components/ThemeStyleSwitch/ThemeStyleSwitch';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
-import { setCurrentJournal, setApiEndpoint, setJournalConfig } from '@/store/features/journal/journal.slice';
+import {
+  setCurrentJournal,
+  setApiEndpoint,
+  setJournalConfig,
+} from '@/store/features/journal/journal.slice';
 import { IVolume } from '@/types/volume';
 import { IJournal } from '@/types/journal';
 import { getLanguageFromPathname } from '@/utils/language-utils';
@@ -35,15 +39,15 @@ interface ClientProvidersProps {
  * This component wraps the entire application to provide context
  * It ensures the store is only used client-side
  */
-const ClientProviders: React.FC<ClientProvidersProps> = ({ 
-  initialVolume, 
-  initialJournal, 
-  initialLanguage, 
-  journalId, 
+const ClientProviders: React.FC<ClientProvidersProps> = ({
+  initialVolume,
+  initialJournal,
+  initialLanguage,
+  journalId,
   translations,
   apiEndpoint,
   journalConfig,
-  children 
+  children,
 }) => {
   // Use initialLanguage from server for hydration consistency
   // Client-side detection happens in useEffect to avoid mismatch
@@ -61,8 +65,8 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
           fallbackLng: 'en',
           resources: {
             [initialLanguage]: {
-              translation: translations
-            }
+              translation: translations,
+            },
           },
           interpolation: {
             escapeValue: false,
@@ -90,9 +94,10 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
     setIsClient(true);
 
     // Detect language from pathname on client-side (after hydration)
-    const clientLang = typeof window !== 'undefined'
-      ? getLanguageFromPathname(window.location.pathname)
-      : initialLang;
+    const clientLang =
+      typeof window !== 'undefined'
+        ? getLanguageFromPathname(window.location.pathname)
+        : initialLang;
 
     // Update i18next language (moved here from useState to fix React 19 render-time mutation error)
     // Use initialLanguage for initial hydration, then clientLang for subsequent updates

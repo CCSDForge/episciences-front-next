@@ -3,7 +3,7 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import resourcesToBackend from 'i18next-resources-to-backend';
-import { availableLanguages, defaultLanguage } from "@/utils/i18n";
+import { availableLanguages, defaultLanguage } from '@/utils/i18n';
 
 // Detect initial language from URL (client-side only)
 function getInitialLanguage(): string {
@@ -42,11 +42,14 @@ const i18nConfig = {
 // Utilisation de l'instance globale d'i18next comme dans l'original
 if (!i18next.isInitialized) {
   i18next
-    .use(resourcesToBackend((language: string, namespace: string) =>
-      import(`../../public/locales/${language}/${namespace}.json`)
-    ))
+    .use(
+      resourcesToBackend(
+        (language: string, namespace: string) =>
+          import(`../../public/locales/${language}/${namespace}.json`)
+      )
+    )
     .use(initReactI18next)
     .init(i18nConfig);
 }
 
-export default i18next; 
+export default i18next;

@@ -8,13 +8,18 @@ import { AvailableLanguage } from '@/utils/i18n';
 
 export function JournalInitializer({ journalId }: { journalId?: string }) {
   const dispatch = useAppDispatch();
-  const currentJournal = useAppSelector((state) => state.journalReducer.currentJournal);
-  
+  const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
+
   // Use the provided journalId, or fallback to env var (for backward compatibility during migration)
   const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || '';
-  
+
   // Utiliser RTK Query pour récupérer le journal
-  const { data: journal, error, isLoading, refetch } = useFetchJournalQuery(rvcode, {
+  const {
+    data: journal,
+    error,
+    isLoading,
+    refetch,
+  } = useFetchJournalQuery(rvcode, {
     // Réessayer jusqu'à 3 fois en cas d'erreur
     pollingInterval: 0,
     refetchOnMountOrArgChange: true,
@@ -22,7 +27,9 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
 
   // Créer un journal par défaut pour le build statique
   const createDefaultJournal = () => {
-    const journalName = process.env.NEXT_PUBLIC_JOURNAL_NAME || '[Pre-Production] Journal Epijinfo fake journalInitializer';
+    const journalName =
+      process.env.NEXT_PUBLIC_JOURNAL_NAME ||
+      '[Pre-Production] Journal Epijinfo fake journalInitializer';
     return {
       id: parseInt(process.env.NEXT_PUBLIC_JOURNAL_ID || '3'),
       code: process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo',
@@ -39,7 +46,7 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
       // Eviter les mises à jour infinies si l'objet journal n'est pas stable référentiellement
       // On compare l'ID ou le code pour savoir si c'est vraiment un changement
       const shouldUpdate = !currentJournal || currentJournal.code !== journal.code;
-      
+
       if (shouldUpdate) {
         console.log('[JournalInitializer] Updating journal in store:', journal.code);
         dispatch(setCurrentJournal(journal));
@@ -56,15 +63,15 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
       if (!currentJournal) {
         dispatch(setCurrentJournal(createDefaultJournal()));
       }
-      
+
       // Attendre 2 secondes et réessayer
       const timer = setTimeout(() => {
         refetch();
       }, 2000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [error, refetch, currentJournal, dispatch]);
 
   return null;
-} 
+}

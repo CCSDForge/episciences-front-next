@@ -7,8 +7,16 @@ import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
 import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
-import { generateIdFromText, unifiedProcessor, serializeMarkdown, getMarkdownImageURL, adjustNestedListsInMarkdownContent } from '@/utils/markdown';
-import ForAuthorsSidebar, { IForAuthorsHeader } from '@/components/Sidebars/ForAuthorsSidebar/ForAuthorsSidebar';
+import {
+  generateIdFromText,
+  unifiedProcessor,
+  serializeMarkdown,
+  getMarkdownImageURL,
+  adjustNestedListsInMarkdownContent,
+} from '@/utils/markdown';
+import ForAuthorsSidebar, {
+  IForAuthorsHeader,
+} from '@/components/Sidebars/ForAuthorsSidebar/ForAuthorsSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import '@/styles/transitions.scss';
@@ -50,7 +58,7 @@ export default function ForAuthorsClient({
   ethicalCharterPage,
   prepareSubmissionPage,
   lang,
-  breadcrumbLabels
+  breadcrumbLabels,
 }: ForAuthorsClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
@@ -59,20 +67,28 @@ export default function ForAuthorsClient({
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Use initial data from Server Component - memoized to prevent infinite loop
-  const forAuthorsData: ForAuthorsData = useMemo(() => ({
-    editorialWorkflowPage,
-    ethicalCharterPage,
-    prepareSubmissionPage
-  }), [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage]);
+  const forAuthorsData: ForAuthorsData = useMemo(
+    () => ({
+      editorialWorkflowPage,
+      ethicalCharterPage,
+      prepareSubmissionPage,
+    }),
+    [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage]
+  );
 
   const [pageSections, setPageSections] = useState<IForAuthorsSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IForAuthorsHeader[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const parseContentSections = (toBeParsed: Record<ForAuthorsSectionType, { title: string | undefined; content: string | undefined }>): IForAuthorsSection[] => {
+  const parseContentSections = (
+    toBeParsed: Record<
+      ForAuthorsSectionType,
+      { title: string | undefined; content: string | undefined }
+    >
+  ): IForAuthorsSection[] => {
     const sections: IForAuthorsSection[] = [];
 
-    Object.entries(toBeParsed).forEach((toBeParsedEntry) => {
+    Object.entries(toBeParsed).forEach(toBeParsedEntry => {
       const withNumerotation = toBeParsedEntry[0] === 'prepareSubmission';
       const title = toBeParsedEntry[1].title ?? '';
       const content = toBeParsedEntry[1].content ?? '';
@@ -81,15 +97,19 @@ export default function ForAuthorsClient({
       const parsedContent = `## ${title} \n\n\n ${adjustedContent}`;
       const tree = unifiedProcessor.parse(parsedContent);
 
-      let currentSection: IForAuthorsSection = withNumerotation ? { id: '', value: '', opened: true, cards: [] } : { id: '', value: '', opened: true };
+      let currentSection: IForAuthorsSection = withNumerotation
+        ? { id: '', value: '', opened: true, cards: [] }
+        : { id: '', value: '', opened: true };
       let h3Counter = 0;
       let currentCardContent = '';
 
-      tree.children.forEach((node) => {
+      tree.children.forEach(node => {
         if (node.type === 'heading' && node.depth === 2) {
           if (currentSection.id) {
             sections.push(currentSection);
-            currentSection = withNumerotation ? { id: '', value: '', opened: true, cards: [] } : { id: '', value: '', opened: true };
+            currentSection = withNumerotation
+              ? { id: '', value: '', opened: true, cards: [] }
+              : { id: '', value: '', opened: true };
           }
 
           const titleText = node.children
@@ -103,9 +123,11 @@ export default function ForAuthorsClient({
           if (node.type === 'heading' && node.depth === 3) {
             h3Counter += 1;
 
-            const h3Id = generateIdFromText(node.children.map(child => (child as { value: string }).value).join(''));
+            const h3Id = generateIdFromText(
+              node.children.map(child => (child as { value: string }).value).join('')
+            );
             const h3Title = node.children.map(child => (child as { value: string }).value).join('');
-            
+
             if (currentCardContent) {
               const lastCard = currentSection.cards![currentSection.cards!.length - 1];
               lastCard.content = currentCardContent.trim();
@@ -117,11 +139,11 @@ export default function ForAuthorsClient({
             currentCardContent += serializeMarkdown(node);
           } else {
             currentSection.value += serializeMarkdown(node);
-            currentSection.value += '\n'
+            currentSection.value += '\n';
           }
         } else {
           currentSection.value += serializeMarkdown(node);
-          currentSection.value += '\n'
+          currentSection.value += '\n';
         }
       });
 
@@ -138,10 +160,15 @@ export default function ForAuthorsClient({
     return sections;
   };
 
-  const parseSidebarHeaders = (toBeParsed: Record<ForAuthorsSectionType, { title: string | undefined; content: string | undefined }>): IForAuthorsHeader[] => {
+  const parseSidebarHeaders = (
+    toBeParsed: Record<
+      ForAuthorsSectionType,
+      { title: string | undefined; content: string | undefined }
+    >
+  ): IForAuthorsHeader[] => {
     const headings: IForAuthorsHeader[] = [];
 
-    Object.entries(toBeParsed).map((toBeParsedEntry) => {
+    Object.entries(toBeParsed).map(toBeParsedEntry => {
       const withNumerotation = toBeParsedEntry[0] === 'prepareSubmission';
       const title = toBeParsedEntry[1].title ?? '';
       const content = toBeParsedEntry[1].content ?? '';
@@ -170,7 +197,7 @@ export default function ForAuthorsClient({
               id,
               value,
               opened: true,
-              children: []
+              children: [],
             };
 
             if (node.depth === 2) {
@@ -215,18 +242,21 @@ export default function ForAuthorsClient({
     if (forAuthorsData) {
       setIsLoading(false);
 
-      const content: Record<ForAuthorsSectionType, { title: string | undefined; content: string | undefined }> = {
-        'editorialWorkflow': {
+      const content: Record<
+        ForAuthorsSectionType,
+        { title: string | undefined; content: string | undefined }
+      > = {
+        editorialWorkflow: {
           title: forAuthorsData.editorialWorkflowPage?.title?.[language] ?? '',
-          content: forAuthorsData.editorialWorkflowPage?.content?.[language] ?? ''
+          content: forAuthorsData.editorialWorkflowPage?.content?.[language] ?? '',
         },
-        'ethicalCharter': {
+        ethicalCharter: {
           title: forAuthorsData.ethicalCharterPage?.title?.[language] ?? '',
-          content: forAuthorsData.ethicalCharterPage?.content?.[language] ?? ''
+          content: forAuthorsData.ethicalCharterPage?.content?.[language] ?? '',
         },
-        'prepareSubmission': {
+        prepareSubmission: {
           title: forAuthorsData.prepareSubmissionPage?.title?.[language] ?? '',
-          content: forAuthorsData.prepareSubmissionPage?.content?.[language] ?? ''
+          content: forAuthorsData.prepareSubmissionPage?.content?.[language] ?? '',
         },
       };
 
@@ -241,22 +271,22 @@ export default function ForAuthorsClient({
   // console.log('Render state:', { isLoading, pageSections, sidebarHeaders });
 
   const breadcrumbItems = [
-    { 
-      path: '/', 
-      label: breadcrumbLabels 
-        ? `${breadcrumbLabels.home} >` 
-        : `${t('pages.home.title')} >` 
-    }
+    {
+      path: '/',
+      label: breadcrumbLabels ? `${breadcrumbLabels.home} >` : `${t('pages.home.title')} >`,
+    },
   ];
 
   return (
-    <main className='forAuthors'>
-      <Breadcrumb 
-        parents={breadcrumbItems} 
-        crumbLabel={breadcrumbLabels?.forAuthors || t('pages.forAuthors.title')} 
-        lang={lang} 
+    <main className="forAuthors">
+      <Breadcrumb
+        parents={breadcrumbItems}
+        crumbLabel={breadcrumbLabels?.forAuthors || t('pages.forAuthors.title')}
+        lang={lang}
       />
-      <h1 className='forAuthors-title'>{breadcrumbLabels?.forAuthors || t('pages.forAuthors.title')}</h1>
+      <h1 className="forAuthors-title">
+        {breadcrumbLabels?.forAuthors || t('pages.forAuthors.title')}
+      </h1>
       {isLoading ? (
         <Loader />
       ) : pageSections.length === 0 ? (
@@ -264,7 +294,7 @@ export default function ForAuthorsClient({
       ) : (
         <div className="forAuthors-content">
           <ForAuthorsSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
-          <div className='forAuthors-content-body'>
+          <div className="forAuthors-content-body">
             {pageSections.map(section => (
               <div
                 key={section.id}
@@ -272,19 +302,24 @@ export default function ForAuthorsClient({
               >
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
-                  urlTransform={uri => uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri}
+                  urlTransform={uri =>
+                    uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
+                  }
                   components={{
                     a: ({ ...props }) => {
                       const href = props.href!;
-                      const isExternal = href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:');
+                      const isExternal =
+                        href.startsWith('http') ||
+                        href.startsWith('//') ||
+                        href.startsWith('mailto:');
                       const isAnchor = href.startsWith('#');
-                      
+
                       return (
-                        <Link 
-                          href={href} 
+                        <Link
+                          href={href}
                           target={isExternal ? '_blank' : undefined}
                           rel={isExternal ? 'noopener noreferrer' : undefined}
-                          className='forAuthors-content-body-section-link'
+                          className="forAuthors-content-body-section-link"
                         >
                           {props.children?.toString()}
                         </Link>
@@ -294,35 +329,54 @@ export default function ForAuthorsClient({
                       const id = generateIdFromText(props.children?.toString()!);
 
                       return (
-                        <div className='forAuthors-content-body-section-subtitle' onClick={(): void => toggleSectionHeader(id!)}>
-                          <h2 id={id} className='forAuthors-content-body-section-subtitle-text' {...props} />
+                        <div
+                          className="forAuthors-content-body-section-subtitle"
+                          onClick={(): void => toggleSectionHeader(id!)}
+                        >
+                          <h2
+                            id={id}
+                            className="forAuthors-content-body-section-subtitle-text"
+                            {...props}
+                          />
                           {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
                             <CaretUpRedIcon
                               size={16}
-                              className='forAuthors-content-body-section-subtitle-caret'
+                              className="forAuthors-content-body-section-subtitle-caret"
                               ariaLabel="Collapse section"
                             />
                           ) : (
                             <CaretDownRedIcon
                               size={16}
-                              className='forAuthors-content-body-section-subtitle-caret'
+                              className="forAuthors-content-body-section-subtitle-caret"
                               ariaLabel="Expand section"
                             />
                           )}
                         </div>
                       );
                     },
-                    h3: ({ ...props }) => <h3 id={generateIdFromText(props.children?.toString()!)} {...props} />,
+                    h3: ({ ...props }) => (
+                      <h3 id={generateIdFromText(props.children?.toString()!)} {...props} />
+                    ),
                   }}
                 >
                   {section.value}
                 </ReactMarkdown>
-                <div className='forAuthors-content-body-section-cards'>
+                <div className="forAuthors-content-body-section-cards">
                   {section.cards?.map((card, index) => (
-                    <div key={index} className={`forAuthors-content-body-section-cards-card ${!section.opened && 'forAuthors-content-body-section-cards-card-hidden'}`}>
-                      <div className='forAuthors-content-body-section-cards-card-index'>{card.index}</div>
-                      <div className='forAuthors-content-body-section-cards-card-content'>
-                        <h3 id={card.id} className='forAuthors-content-body-section-cards-card-content-title'>{card.title}</h3>
+                    <div
+                      key={index}
+                      className={`forAuthors-content-body-section-cards-card ${!section.opened && 'forAuthors-content-body-section-cards-card-hidden'}`}
+                    >
+                      <div className="forAuthors-content-body-section-cards-card-index">
+                        {card.index}
+                      </div>
+                      <div className="forAuthors-content-body-section-cards-card-content">
+                        <h3
+                          id={card.id}
+                          className="forAuthors-content-body-section-cards-card-content-title"
+                        >
+                          {card.title}
+                        </h3>
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{card.content}</ReactMarkdown>
                       </div>
                     </div>
@@ -335,4 +389,4 @@ export default function ForAuthorsClient({
       )}
     </main>
   );
-} 
+}

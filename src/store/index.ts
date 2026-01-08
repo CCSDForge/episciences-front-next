@@ -60,7 +60,7 @@ export const store = configureStore({
   // @ts-ignore - Temporarily ignore type issues with redux-persist
   reducer: persistedReducer,
   // @ts-ignore - Temporarily ignore type issues with middleware concatenation
-  middleware: (getDefaultMiddleware) => {
+  middleware: getDefaultMiddleware => {
     const middleware = getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
@@ -107,4 +107,4 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<AppState> = useSelector;
 
-export default store; 
+export default store;

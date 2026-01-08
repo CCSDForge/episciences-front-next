@@ -1,12 +1,12 @@
 import React from 'react';
-import { IArticle, IArticleAuthor, IInstitution } from "@/types/article";
-import { IVolume } from "@/types/volume";
+import { IArticle, IArticleAuthor, IInstitution } from '@/types/article';
+import { IVolume } from '@/types/volume';
 import { INTER_WORK_RELATIONSHIP } from '@/utils/article';
 import { BREADCRUMB_PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
 import { supportsInlinePreview } from '@/utils/pdf-preview';
-import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
+import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServer';
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
 import AbstractSection from './components/AbstractSection';
@@ -41,7 +41,7 @@ enum ARTICLE_SECTION {
   REFERENCES = 'references',
   LINKED_PUBLICATIONS = 'linkedPublications',
   CITED_BY = 'citedBy',
-  PREVIEW = 'preview'
+  PREVIEW = 'preview',
 }
 
 export default function ArticleDetailsServer({
@@ -51,17 +51,16 @@ export default function ArticleDetailsServer({
   metadataCSL,
   metadataBibTeX,
   translations,
-  language
+  language,
 }: ArticleDetailsServerProps): React.JSX.Element {
-
   // Process authors and institutions
   const allAuthors: EnhancedArticleAuthor[] = [];
   const allInstitutionsMap = new Map<string, IInstitution>();
 
-  article.authors.forEach((author) => {
+  article.authors.forEach(author => {
     const enhancedAuthor: EnhancedArticleAuthor = { ...author, institutionsKeys: [] };
 
-    author.institutions?.forEach((institution) => {
+    author.institutions?.forEach(institution => {
       if (!allInstitutionsMap.has(institution.name)) {
         allInstitutionsMap.set(institution.name, institution);
       }
@@ -83,7 +82,9 @@ export default function ArticleDetailsServer({
   const renderArticleTitleAndAuthors = (isMobile: boolean): React.JSX.Element => {
     return (
       <>
-        <h1 className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}>
+        <h1
+          className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}
+        >
           {article?.title}
         </h1>
         {allAuthors.length > 0 && (
@@ -98,12 +99,17 @@ export default function ArticleDetailsServer({
   };
 
   const getGraphicalAbstractSection = (): React.JSX.Element | null => {
-    const graphicalAbstractURL = (rvcode && article?.graphicalAbstract)
-      ? `https://${rvcode}.episciences.org/public/documents/${article.id}/${article?.graphicalAbstract}`
-      : null;
+    const graphicalAbstractURL =
+      rvcode && article?.graphicalAbstract
+        ? `https://${rvcode}.episciences.org/public/documents/${article.id}/${article?.graphicalAbstract}`
+        : null;
 
     return graphicalAbstractURL ? (
-      <img src={graphicalAbstractURL} className="articleDetails-content-article-section-content-graphicalAbstract" alt="Graphical Abstract" />
+      <img
+        src={graphicalAbstractURL}
+        className="articleDetails-content-article-section-content-graphicalAbstract"
+        alt="Graphical Abstract"
+      />
     ) : null;
   };
 
@@ -156,7 +162,7 @@ export default function ArticleDetailsServer({
 
     // Filter out specific relationship types to match LinkedPublicationsSectionServer logic
     const filteredItems = article.relatedItems.filter(
-      (relatedItem) =>
+      relatedItem =>
         relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
         relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.HAS_PREPRINT
     );
@@ -166,7 +172,13 @@ export default function ArticleDetailsServer({
       return null;
     }
 
-    return <LinkedPublicationsSectionServer relatedItems={article.relatedItems} translations={translations} language={language} />;
+    return (
+      <LinkedPublicationsSectionServer
+        relatedItems={article.relatedItems}
+        translations={translations}
+        language={language}
+      />
+    );
   };
 
   const getReferencesSection = (): React.JSX.Element | null => {
@@ -190,36 +202,42 @@ export default function ArticleDetailsServer({
   };
 
   // Helper to render sections with collapsible wrapper
-  const renderSection = (sectionKey: ARTICLE_SECTION, sectionTitle: string, sectionContent: React.JSX.Element | null): React.JSX.Element | null => {
+  const renderSection = (
+    sectionKey: ARTICLE_SECTION,
+    sectionTitle: string,
+    sectionContent: React.JSX.Element | null
+  ): React.JSX.Element | null => {
     if (!sectionContent) {
       return null;
     }
 
     return (
-      <CollapsibleSectionWrapper
-        title={sectionTitle}
-        sectionKey={sectionKey}
-        initialOpen={true}
-      >
+      <CollapsibleSectionWrapper title={sectionTitle} sectionKey={sectionKey} initialOpen={true}>
         {sectionContent}
       </CollapsibleSectionWrapper>
     );
   };
 
   return (
-    <main className='articleDetails'>
+    <main className="articleDetails">
       <Breadcrumb
         parents={[
           {
             path: BREADCRUMB_PATHS.home,
-            label: `${t('pages.home.title', translations)} > ${t('common.content', translations)} >`
+            label: `${t('pages.home.title', translations)} > ${t('common.content', translations)} >`,
           },
           {
             path: BREADCRUMB_PATHS.articles,
-            label: `${t('pages.articles.title', translations)} >`
-          }
+            label: `${t('pages.articles.title', translations)} >`,
+          },
         ]}
-        crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''}
+        crumbLabel={
+          article?.title.length
+            ? article.title.length > MAX_BREADCRUMB_TITLE
+              ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...`
+              : article.title
+            : ''
+        }
         lang={language}
       />
 

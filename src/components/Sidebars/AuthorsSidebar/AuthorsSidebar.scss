@@ -1,10 +1,10 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 .authorsSidebar {
   min-width: 310px;
   max-width: 310px;
   margin-top: 20px;
 
-  @media (max-width:  breakpoints.$xsm) {
+  @media (max-width: breakpoints.$xsm) {
     min-width: unset;
     max-width: none;
     width: 100%;
@@ -25,7 +25,7 @@
     column-gap: 12px;
     margin: 0px 25px 0px 15px;
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       grid-template-columns: repeat(6, 1fr);
       margin: auto;
     }

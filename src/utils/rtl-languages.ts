@@ -10,17 +10,17 @@
  * Based on the comprehensive list of RTL languages
  */
 export const RTL_LANGUAGE_CODES: readonly string[] = [
-  'ar',  // Arabic - Used in many countries (Middle East and North Africa)
-  'fa',  // Persian (Farsi) - Primary language of Iran
-  'ur',  // Urdu - Primary language of Pakistan and widely used in India
-  'he',  // Hebrew - Official language of Israel
-  'yi',  // Yiddish - Germanic language written in Hebrew alphabet
-  'sd',  // Sindhi - Regional language of Pakistan and India
-  'ps',  // Pashto - Major language in Afghanistan and Pakistan
-  'ks',  // Kashmiri - Can be written in Arabic or Devanagari depending on context
-  'ug',  // Uyghur - Turkic language written in modified Arabic alphabet
+  'ar', // Arabic - Used in many countries (Middle East and North Africa)
+  'fa', // Persian (Farsi) - Primary language of Iran
+  'ur', // Urdu - Primary language of Pakistan and widely used in India
+  'he', // Hebrew - Official language of Israel
+  'yi', // Yiddish - Germanic language written in Hebrew alphabet
+  'sd', // Sindhi - Regional language of Pakistan and India
+  'ps', // Pashto - Major language in Afghanistan and Pakistan
+  'ks', // Kashmiri - Can be written in Arabic or Devanagari depending on context
+  'ug', // Uyghur - Turkic language written in modified Arabic alphabet
   'ckb', // Kurdish (Sorani) - Kurdish variant written in Arabic alphabet
-  'dv',  // Dhivehi (Maldivian) - Language of Maldives using Thaana alphabet
+  'dv', // Dhivehi (Maldivian) - Language of Maldives using Thaana alphabet
 ] as const;
 
 /**
@@ -67,17 +67,14 @@ export function getTextDirection(langCode: string): 'ltr' | 'rtl' {
  * getLanguageLabel('ar', 'en') // returns 'Arabic'
  * getLanguageLabel('ar', 'fr') // returns 'arabe'
  */
-export function getLanguageLabel(
-  langCode: string,
-  displayLang: string = 'en'
-): string {
+export function getLanguageLabel(langCode: string, displayLang: string = 'en'): string {
   if (!langCode) return '';
 
   try {
     // Use Intl.DisplayNames for native language name display
     if (typeof Intl !== 'undefined' && Intl.DisplayNames) {
       const displayNames = new Intl.DisplayNames([displayLang], {
-        type: 'language'
+        type: 'language',
       });
       return displayNames.of(langCode) || langCode.toUpperCase();
     }
@@ -92,7 +89,7 @@ export function getLanguageLabel(
 /**
  * Type guard to check if a value is a valid RTL language code
  */
-export type RTLLanguageCode = typeof RTL_LANGUAGE_CODES[number];
+export type RTLLanguageCode = (typeof RTL_LANGUAGE_CODES)[number];
 
 export function isRTLLanguageCode(code: string): code is RTLLanguageCode {
   return RTL_LANGUAGE_CODES.includes(code as any);

@@ -22,22 +22,22 @@ const originalFetch = globalThis.fetch;
 // Global API configuration
 const API_CONFIG = {
   baseUrl: process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '',
-  timeout: 15000 // Timeout in milliseconds
+  timeout: 15000, // Timeout in milliseconds
 };
 
 // Function to log requests (currently disabled)
 const logRequest = (method: string, url: string): void => {
- // console.log(`🚀 Fetch: ${method} ${url}`);
+  // console.log(`🚀 Fetch: ${method} ${url}`);
 };
 
 // Function to log responses (currently disabled)
 const logResponse = (status: number, url: string): void => {
- // console.log(`✅ Response: ${status} from ${url}`);
+  // console.log(`✅ Response: ${status} from ${url}`);
 };
 
 // Function to log errors (currently disabled)
 const logError = (error: Error, url: string): void => {
- // console.error(`❌ Error: ${error.message} for ${url}`);
+  // console.error(`❌ Error: ${error.message} for ${url}`);
 };
 
 // Global fetch function replacement
@@ -61,7 +61,7 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
 
   // Handle redirection of requests to /default
   if (url.endsWith('/default') || url === 'default') {
-   // console.log(`🔀 Redirecting request from /default to /`);
+    // console.log(`🔀 Redirecting request from /default to /`);
     url = url.replace('/default', '/').replace('default', '/');
   }
 
@@ -69,12 +69,12 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
   logRequest(method, url);
 
   try {
-    const response = await Promise.race([
+    const response = (await Promise.race([
       originalFetch(url, init),
       new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Request timeout')), API_CONFIG.timeout)
       ),
-    ]) as Response;
+    ])) as Response;
 
     // Log the response
     logResponse(response.status, url);
@@ -88,4 +88,4 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
 };
 
 // The fetch interceptor is automatically active on module import
-// No additional setup required 
+// No additional setup required

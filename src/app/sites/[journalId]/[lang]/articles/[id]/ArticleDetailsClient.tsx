@@ -1,21 +1,28 @@
-"use client";
+'use client';
 
 import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import { useRouter } from 'next/navigation';
-import { isMobileOnly } from "react-device-detect";
+import { isMobileOnly } from 'react-device-detect';
 
 import { BREADCRUMB_PATHS } from '@/config/paths';
-import { useAppSelector } from "@/hooks/store";
-import { IArticle, IArticleAuthor, IInstitution } from "@/types/article";
-import { IVolume } from "@/types/volume";
-import { articleTypes, CITATION_TEMPLATE, getCitations, ICitation, METADATA_TYPE, INTER_WORK_RELATIONSHIP } from '@/utils/article';
+import { useAppSelector } from '@/hooks/store';
+import { IArticle, IArticleAuthor, IInstitution } from '@/types/article';
+import { IVolume } from '@/types/volume';
+import {
+  articleTypes,
+  CITATION_TEMPLATE,
+  getCitations,
+  ICitation,
+  METADATA_TYPE,
+  INTER_WORK_RELATIONSHIP,
+} from '@/utils/article';
 import { AvailableLanguage } from '@/utils/i18n';
-import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
-import Loader from "@/components/Loader/Loader";
-import ArticleDetailsSidebar from "@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar";
+import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
+import Loader from '@/components/Loader/Loader';
+import ArticleDetailsSidebar from '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar';
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
 import AbstractSection from './components/AbstractSection';
 import KeywordsSection from './components/KeywordsSection';
@@ -52,46 +59,51 @@ enum ARTICLE_SECTION {
   REFERENCES = 'references',
   LINKED_PUBLICATIONS = 'linkedPublications',
   CITED_BY = 'citedBy',
-  PREVIEW = 'preview'
+  PREVIEW = 'preview',
 }
 
 const MAX_BREADCRUMB_TITLE = 20;
 
-export default function ArticleDetailsClient({ 
-  article, 
-  id, 
+export default function ArticleDetailsClient({
+  article,
+  id,
   initialRelatedVolume,
   initialMetadataCSL,
   initialMetadataBibTeX,
   lang,
-  breadcrumbLabels
+  breadcrumbLabels,
 }: ArticleDetailsClientProps): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
-  
+
   const language = useAppSelector(state => state.i18nReducer.language);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
-  
-  const [relatedVolume, setRelatedVolume] = useState<IVolume | undefined>(initialRelatedVolume || undefined);
+
+  const [relatedVolume, setRelatedVolume] = useState<IVolume | undefined>(
+    initialRelatedVolume || undefined
+  );
   const [metadataCSL, setMetadataCSL] = useState<string | null>(initialMetadataCSL || null);
-  const [metadataBibTeX, setMetadataBibTeX] = useState<string | null>(initialMetadataBibTeX || null);
+  const [metadataBibTeX, setMetadataBibTeX] = useState<string | null>(
+    initialMetadataBibTeX || null
+  );
   const [isLoading, setIsLoading] = useState(!initialRelatedVolume && !initialMetadataCSL);
 
-  const [openedSections, setOpenedSections] = useState<{ key: ARTICLE_SECTION, isOpened: boolean }[]>([
+  const [openedSections, setOpenedSections] = useState<
+    { key: ARTICLE_SECTION; isOpened: boolean }[]
+  >([
     { key: ARTICLE_SECTION.GRAPHICAL_ABSTRACT, isOpened: true },
     { key: ARTICLE_SECTION.ABSTRACT, isOpened: true },
     { key: ARTICLE_SECTION.KEYWORDS, isOpened: true },
     { key: ARTICLE_SECTION.REFERENCES, isOpened: true },
     { key: ARTICLE_SECTION.LINKED_PUBLICATIONS, isOpened: true },
     { key: ARTICLE_SECTION.CITED_BY, isOpened: true },
-    { key: ARTICLE_SECTION.PREVIEW, isOpened: true }
+    { key: ARTICLE_SECTION.PREVIEW, isOpened: true },
   ]);
   const [authors, setAuthors] = useState<EnhancedArticleAuthor[]>([]);
   const [institutions, setInstitutions] = useState<IInstitution[]>([]);
   const [citations, setCitations] = useState<ICitation[]>([]);
-
 
   useEffect(() => {
     setIsMounted(true);
@@ -104,28 +116,24 @@ export default function ArticleDetailsClient({
 
       try {
         setIsLoading(true);
-        
+
         // Si nous sommes en mode statique, ne pas effectuer d'appels API
         if (process.env.NEXT_PUBLIC_STATIC_BUILD === 'true') {
           setIsLoading(false);
           return;
         }
-        
+
         // Only fetch volume if not provided server-side
         if (!initialRelatedVolume && article?.volumeId && rvcode) {
-          const volumeData = await fetchVolume(
-            rvcode,
-            article.volumeId,
-            language
-          );
+          const volumeData = await fetchVolume(rvcode, article.volumeId, language);
           setRelatedVolume(volumeData || undefined);
         }
-        
+
         // Only fetch metadata if not provided server-side
         if (!initialMetadataCSL && !initialMetadataBibTeX && id && rvcode) {
           const [cslData, bibtexData] = await Promise.all([
             fetchArticleMetadata({ rvcode, paperid: id, type: METADATA_TYPE.CSL }),
-            fetchArticleMetadata({ rvcode, paperid: id, type: METADATA_TYPE.BIBTEX })
+            fetchArticleMetadata({ rvcode, paperid: id, type: METADATA_TYPE.BIBTEX }),
           ]);
           setMetadataCSL(cslData);
           setMetadataBibTeX(bibtexData);
@@ -137,17 +145,25 @@ export default function ArticleDetailsClient({
       }
     }
     fetchData();
-  }, [article, id, rvcode, language, initialRelatedVolume, initialMetadataCSL, initialMetadataBibTeX]);
+  }, [
+    article,
+    id,
+    rvcode,
+    language,
+    initialRelatedVolume,
+    initialMetadataCSL,
+    initialMetadataBibTeX,
+  ]);
 
   useEffect(() => {
     if (article && article.authors && authors.length === 0 && institutions.length === 0) {
       const allAuthors: EnhancedArticleAuthor[] = [];
       const allInstitutionsMap = new Map<string, IInstitution>();
 
-      article.authors.forEach((author) => {
+      article.authors.forEach(author => {
         const enhancedAuthor: EnhancedArticleAuthor = { ...author, institutionsKeys: [] };
 
-        author.institutions?.forEach((institution) => {
+        author.institutions?.forEach(institution => {
           if (!allInstitutionsMap.has(institution.name)) {
             allInstitutionsMap.set(institution.name, institution);
           }
@@ -159,52 +175,73 @@ export default function ArticleDetailsClient({
         allAuthors.push(enhancedAuthor);
       });
 
-      setAuthors(allAuthors)
-      setInstitutions(Array.from(allInstitutionsMap.values()))
+      setAuthors(allAuthors);
+      setInstitutions(Array.from(allInstitutionsMap.values()));
     }
-  }, [article, authors.length, institutions.length])
+  }, [article, authors.length, institutions.length]);
 
   const renderArticleTitleAndAuthors = (isMobile: boolean): React.JSX.Element => {
     return (
       <>
-        <h1 className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}>
+        <h1
+          className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}
+        >
           <MathJax dynamic>{article?.title}</MathJax>
         </h1>
         {authors.length > 0 ? (
-          <CollapsibleInstitutions 
-            authors={authors} 
-            institutions={institutions} 
-            isMobile={isMobile} 
+          <CollapsibleInstitutions
+            authors={authors}
+            institutions={institutions}
+            isMobile={isMobile}
           />
         ) : (
           <div>No authors processed yet</div>
         )}
       </>
-    )
-  }
+    );
+  };
 
-  const renderSection = (sectionKey: ARTICLE_SECTION, sectionTitle: string, sectionContent: React.JSX.Element | null): React.JSX.Element | null => {
-    if (!sectionContent) return null
+  const renderSection = (
+    sectionKey: ARTICLE_SECTION,
+    sectionTitle: string,
+    sectionContent: React.JSX.Element | null
+  ): React.JSX.Element | null => {
+    if (!sectionContent) return null;
 
-    const isOpenedSection = openedSections.find(section => section.key === sectionKey)?.isOpened
+    const isOpenedSection = openedSections.find(section => section.key === sectionKey)?.isOpened;
 
     return (
-      <div className='articleDetails-content-article-section'>
-        <div className={`articleDetails-content-article-section-title ${!isOpenedSection && 'articleDetails-content-article-section-closed'}`} onClick={(): void => toggleSection(sectionKey)}>
-          <div className='articleDetails-content-article-section-title-text'>{sectionTitle}</div>
+      <div className="articleDetails-content-article-section">
+        <div
+          className={`articleDetails-content-article-section-title ${!isOpenedSection && 'articleDetails-content-article-section-closed'}`}
+          onClick={(): void => toggleSection(sectionKey)}
+        >
+          <div className="articleDetails-content-article-section-title-text">{sectionTitle}</div>
           {isOpenedSection ? (
-            <CaretUpRedIcon size={16} className='articleDetails-content-article-section-title-caret' ariaLabel="Collapse section" />
+            <CaretUpRedIcon
+              size={16}
+              className="articleDetails-content-article-section-title-caret"
+              ariaLabel="Collapse section"
+            />
           ) : (
-            <CaretDownRedIcon size={16} className='articleDetails-content-article-section-title-caret' ariaLabel="Expand section" />
+            <CaretDownRedIcon
+              size={16}
+              className="articleDetails-content-article-section-title-caret"
+              ariaLabel="Expand section"
+            />
           )}
         </div>
-        <div className={`articleDetails-content-article-section-content ${isOpenedSection && 'articleDetails-content-article-section-content-opened'}`}>{sectionContent}</div>
+        <div
+          className={`articleDetails-content-article-section-content ${isOpenedSection && 'articleDetails-content-article-section-content-opened'}`}
+        >
+          {sectionContent}
+        </div>
       </div>
-    )
-  }
+    );
+  };
 
   const toggleSection = (sectionKey: ARTICLE_SECTION) => {
-    const updatedSections = openedSections.map((section) => {
+    const updatedSections = openedSections.map(section => {
       if (section.key === sectionKey) {
         return { ...section, isOpened: !section.isOpened };
       }
@@ -212,26 +249,30 @@ export default function ArticleDetailsClient({
     });
 
     setOpenedSections(updatedSections);
-  }
+  };
 
   const getGraphicalAbstractSection = (): React.JSX.Element | null => {
-    const graphicalAbstractURL = (rvcode && article?.graphicalAbstract) ? `https://${rvcode}.episciences.org/public/documents/${article.id}/${article?.graphicalAbstract}` : null
-    
-    return graphicalAbstractURL ? <img src={graphicalAbstractURL} className="articleDetails-content-article-section-content-graphicalAbstract" alt="Graphical abstract" /> : null
-  }
+    const graphicalAbstractURL =
+      rvcode && article?.graphicalAbstract
+        ? `https://${rvcode}.episciences.org/public/documents/${article.id}/${article?.graphicalAbstract}`
+        : null;
+
+    return graphicalAbstractURL ? (
+      <img
+        src={graphicalAbstractURL}
+        className="articleDetails-content-article-section-content-graphicalAbstract"
+        alt="Graphical abstract"
+      />
+    ) : null;
+  };
 
   const getAbstractSection = (): React.JSX.Element | null => {
     if (!article?.abstract) {
       return null;
     }
 
-    return (
-      <AbstractSection
-        abstractData={article.abstract}
-        currentLanguage={language}
-      />
-    );
-  }
+    return <AbstractSection abstractData={article.abstract} currentLanguage={language} />;
+  };
 
   const getKeywordsSection = (): React.JSX.Element | null => {
     if (!article?.keywords) {
@@ -260,7 +301,7 @@ export default function ArticleDetailsClient({
         currentLanguage={language as AvailableLanguage}
       />
     );
-  }
+  };
 
   const getLinkedPublicationsSection = (): React.JSX.Element | null => {
     if (!article?.relatedItems || article.relatedItems.length === 0) {
@@ -269,7 +310,7 @@ export default function ArticleDetailsClient({
 
     // Filter out specific relationship types to match LinkedPublicationsSection logic
     const filteredItems = article.relatedItems.filter(
-      (relatedItem) =>
+      relatedItem =>
         relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
         relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.HAS_PREPRINT
     );
@@ -280,19 +321,15 @@ export default function ArticleDetailsClient({
     }
 
     return <LinkedPublicationsSection relatedItems={article.relatedItems} />;
-  }
+  };
 
   const getReferencesSection = (): React.JSX.Element | null => {
-    return article?.references ? (
-      <ReferencesSection references={article.references} />
-    ) : null;
-  }
+    return article?.references ? <ReferencesSection references={article.references} /> : null;
+  };
 
   const getCitedBySection = (): React.JSX.Element | null => {
-    return article?.citedBy ? (
-      <CitedBySection citedBy={article.citedBy} />
-    ) : null;
-  }
+    return article?.citedBy ? <CitedBySection citedBy={article.citedBy} /> : null;
+  };
 
   const getPreviewSection = (): React.JSX.Element | null => {
     if (!article?.pdfLink) {
@@ -301,43 +338,57 @@ export default function ArticleDetailsClient({
 
     // PreviewSection handles the viewer choice (iframe vs PDF.js) internally
     return <PreviewSection pdfLink={article.pdfLink} />;
-  }
+  };
 
   const renderMetrics = (): React.JSX.Element | undefined => {
     if (article?.metrics && (article.metrics.views > 0 || article.metrics.downloads > 0)) {
       return (
         <div className="articleDetailsSidebar-metrics">
-          <div className="articleDetailsSidebar-metrics-title">{t('pages.articleDetails.metrics.title')}</div>
+          <div className="articleDetailsSidebar-metrics-title">
+            {t('pages.articleDetails.metrics.title')}
+          </div>
           <div className="articleDetailsSidebar-metrics-data">
             <div className="articleDetailsSidebar-metrics-data-row">
-              <div className="articleDetailsSidebar-metrics-data-row-number">{article.metrics.views}</div>
-              <div className="articleDetailsSidebar-metrics-data-row-text">{t('pages.articleDetails.metrics.views')}</div>
+              <div className="articleDetailsSidebar-metrics-data-row-number">
+                {article.metrics.views}
+              </div>
+              <div className="articleDetailsSidebar-metrics-data-row-text">
+                {t('pages.articleDetails.metrics.views')}
+              </div>
             </div>
             <div className="articleDetailsSidebar-metrics-data-divider"></div>
             <div className="articleDetailsSidebar-metrics-data-row">
-              <div className="articleDetailsSidebar-metrics-data-row-number">{article.metrics.downloads}</div>
-              <div className="articleDetailsSidebar-metrics-data-row-text">{t('pages.articleDetails.metrics.downloads')}</div>
+              <div className="articleDetailsSidebar-metrics-data-row-number">
+                {article.metrics.downloads}
+              </div>
+              <div className="articleDetailsSidebar-metrics-data-row-text">
+                {t('pages.articleDetails.metrics.downloads')}
+              </div>
             </div>
           </div>
         </div>
-      )
+      );
     }
 
     return;
-  }
+  };
 
   useEffect(() => {
     const fetchCitations = async () => {
       const fetchedCitations = await getCitations(metadataCSL as string);
 
       // Update the BibTeX citation with the proper content
-      const bibtexIndex = fetchedCitations.findIndex(citation => citation.key === CITATION_TEMPLATE.BIBTEX);
+      const bibtexIndex = fetchedCitations.findIndex(
+        citation => citation.key === CITATION_TEMPLATE.BIBTEX
+      );
       if (bibtexIndex !== -1 && metadataBibTeX) {
         fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
       }
 
       // Filter out citations with empty content
-      const validCitations = fetchedCitations.filter(citation => citation.citation && citation.citation.trim() !== '');
+      const validCitations = fetchedCitations.filter(
+        citation => citation.citation && citation.citation.trim() !== ''
+      );
 
       setCitations(validCitations);
     };
@@ -346,7 +397,7 @@ export default function ArticleDetailsClient({
   }, [metadataCSL, metadataBibTeX]);
 
   return (
-    <main className='articleDetails'>
+    <main className="articleDetails">
       {/* Tracking pixel for article views - appears in Apache logs as /articles/[id]/preview */}
       {article?.id && (
         <img
@@ -360,44 +411,89 @@ export default function ArticleDetailsClient({
       )}
       <Breadcrumb
         parents={[
-          { 
-            path: BREADCRUMB_PATHS.home, 
-            label: breadcrumbLabels 
-              ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
-              : `${t('pages.home.title')} > ${t('common.content')} >` 
+          {
+            path: BREADCRUMB_PATHS.home,
+            label: breadcrumbLabels
+              ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >`
+              : `${t('pages.home.title')} > ${t('common.content')} >`,
           },
-          { 
-            path: BREADCRUMB_PATHS.articles, 
-            label: breadcrumbLabels 
-              ? `${breadcrumbLabels.articles} >` 
-              : `${t('pages.articles.title')} >` 
-          }
+          {
+            path: BREADCRUMB_PATHS.articles,
+            label: breadcrumbLabels
+              ? `${breadcrumbLabels.articles} >`
+              : `${t('pages.articles.title')} >`,
+          },
         ]}
-        crumbLabel={article?.title.length ? article.title.length > MAX_BREADCRUMB_TITLE ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...` : article.title : ''}
+        crumbLabel={
+          article?.title.length
+            ? article.title.length > MAX_BREADCRUMB_TITLE
+              ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...`
+              : article.title
+            : ''
+        }
         lang={lang}
       />
       {isLoading ? (
         <Loader />
       ) : (
         <>
-          {article?.tag && <div className='articleDetails-tag'>{t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}</div>}
+          {article?.tag && (
+            <div className="articleDetails-tag">
+              {t(articleTypes.find(tag => tag.value === article.tag)?.labelPath!)}
+            </div>
+          )}
           <div className="articleDetails-content">
             {renderArticleTitleAndAuthors(true)}
-            <ArticleDetailsSidebar language={language} t={t} article={article as IArticle | undefined} relatedVolume={relatedVolume} citations={citations} metrics={renderMetrics()} />
+            <ArticleDetailsSidebar
+              language={language}
+              t={t}
+              article={article as IArticle | undefined}
+              relatedVolume={relatedVolume}
+              citations={citations}
+              metrics={renderMetrics()}
+            />
             <div className="articleDetails-content-article">
               {renderArticleTitleAndAuthors(false)}
-              {renderSection(ARTICLE_SECTION.GRAPHICAL_ABSTRACT, t('pages.articleDetails.sections.graphicalAbstract'), getGraphicalAbstractSection())}
-              {renderSection(ARTICLE_SECTION.ABSTRACT, t('pages.articleDetails.sections.abstract'), getAbstractSection())}
-              {renderSection(ARTICLE_SECTION.KEYWORDS, t('pages.articleDetails.sections.keywords'), getKeywordsSection())}
-              {renderSection(ARTICLE_SECTION.LINKED_PUBLICATIONS, t('pages.articleDetails.sections.linkedPublications'), getLinkedPublicationsSection())}
-              {renderSection(ARTICLE_SECTION.CITED_BY, t('pages.articleDetails.sections.citedBy'), getCitedBySection())}
-              {renderSection(ARTICLE_SECTION.REFERENCES, t('pages.articleDetails.sections.references'), getReferencesSection())}
-              {renderSection(ARTICLE_SECTION.PREVIEW, t('pages.articleDetails.sections.preview'), getPreviewSection())}
+              {renderSection(
+                ARTICLE_SECTION.GRAPHICAL_ABSTRACT,
+                t('pages.articleDetails.sections.graphicalAbstract'),
+                getGraphicalAbstractSection()
+              )}
+              {renderSection(
+                ARTICLE_SECTION.ABSTRACT,
+                t('pages.articleDetails.sections.abstract'),
+                getAbstractSection()
+              )}
+              {renderSection(
+                ARTICLE_SECTION.KEYWORDS,
+                t('pages.articleDetails.sections.keywords'),
+                getKeywordsSection()
+              )}
+              {renderSection(
+                ARTICLE_SECTION.LINKED_PUBLICATIONS,
+                t('pages.articleDetails.sections.linkedPublications'),
+                getLinkedPublicationsSection()
+              )}
+              {renderSection(
+                ARTICLE_SECTION.CITED_BY,
+                t('pages.articleDetails.sections.citedBy'),
+                getCitedBySection()
+              )}
+              {renderSection(
+                ARTICLE_SECTION.REFERENCES,
+                t('pages.articleDetails.sections.references'),
+                getReferencesSection()
+              )}
+              {renderSection(
+                ARTICLE_SECTION.PREVIEW,
+                t('pages.articleDetails.sections.preview'),
+                getPreviewSection()
+              )}
               {isMounted && isMobileOnly && renderMetrics()}
             </div>
           </div>
         </>
       )}
     </main>
-  )
+  );
 }

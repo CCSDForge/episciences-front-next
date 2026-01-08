@@ -5,7 +5,9 @@ interface ReferencesSectionProps {
   references: IArticleReference[];
 }
 
-export default function ReferencesSection({ references }: ReferencesSectionProps): React.JSX.Element | null {
+export default function ReferencesSection({
+  references,
+}: ReferencesSectionProps): React.JSX.Element | null {
   if (!references?.length) return null;
 
   const doiHomepage = process.env.NEXT_PUBLIC_VITE_DOI_HOMEPAGE || 'https://doi.org';
@@ -13,7 +15,10 @@ export default function ReferencesSection({ references }: ReferencesSectionProps
   return (
     <ol className="articleDetails-content-article-section-content-references">
       {references.map((reference, index) => (
-        <li key={index} className="articleDetails-content-article-section-content-references-reference">
+        <li
+          key={index}
+          className="articleDetails-content-article-section-content-references-reference"
+        >
           <p>{reference.citation}</p>
           {reference.doi && (
             <Link
@@ -29,4 +34,4 @@ export default function ReferencesSection({ references }: ReferencesSectionProps
       ))}
     </ol>
   );
-} 
+}

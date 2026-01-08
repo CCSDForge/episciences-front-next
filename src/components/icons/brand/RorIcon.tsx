@@ -35,7 +35,12 @@ export default function RorIcon({
       aria-label={ariaLabel || 'ROR logo'}
       aria-hidden={!ariaLabel}
       role={ariaLabel ? 'img' : undefined}
-      style={{ fillRule: 'evenodd', clipRule: 'evenodd', strokeLinejoin: 'round', strokeMiterlimit: 2 }}
+      style={{
+        fillRule: 'evenodd',
+        clipRule: 'evenodd',
+        strokeLinejoin: 'round',
+        strokeMiterlimit: 2,
+      }}
     >
       <g transform="matrix(0.994301,0,0,0.989352,0,0)">
         <rect x="0" y="0" width="164.94" height="119.27" style={{ fill: 'white' }} />

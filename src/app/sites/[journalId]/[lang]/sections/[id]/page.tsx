@@ -14,9 +14,9 @@ export async function generateStaticParams() {
   return [];
 }
 
-export async function generateMetadata(
-  props: { params: Promise<{ id: string; lang?: string; journalId: string }> }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ id: string; lang?: string; journalId: string }>;
+}): Promise<Metadata> {
   const params = await props.params;
   try {
     if (params.id === 'no-sections-found') {
@@ -28,10 +28,11 @@ export async function generateMetadata(
 
     const section = await fetchSection({ sid: params.id, rvcode: params.journalId });
     const sectionTitle = section.title?.en || section.title?.fr || `Section ${params.id}`;
-    
+
     return {
       title: `${sectionTitle} | Episciences`,
-      description: section.description?.en || section.description?.fr || `Articles in ${sectionTitle}`,
+      description:
+        section.description?.en || section.description?.fr || `Articles in ${sectionTitle}`,
     };
   } catch (error) {
     console.error(`Error generating metadata for section ${params.id}:`, error);
@@ -42,12 +43,9 @@ export async function generateMetadata(
   }
 }
 
-export default async function SectionDetailsPage(
-  props: {
-    params: Promise<{ id: string; lang?: string; journalId: string }>
-  }
-) {
-
+export default async function SectionDetailsPage(props: {
+  params: Promise<{ id: string; lang?: string; journalId: string }>;
+}) {
   const params = await props.params;
   const language = getLanguageFromParams(params);
   const { journalId } = params;
@@ -62,11 +60,11 @@ export default async function SectionDetailsPage(
         </div>
       );
     }
-    
+
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
-    
+
     // Fetch section details by ID (like volumes do)
     const rawSection = await fetchSection({ sid: params.id, rvcode: journalId });
 
@@ -76,33 +74,36 @@ export default async function SectionDetailsPage(
       title: rawSection.title,
       description: rawSection.description,
       committee: rawSection.committee,
-      articles: rawSection.articles || []
+      articles: rawSection.articles || [],
     };
 
     // Fetch articles for this section
     let articles: IArticle[] = [];
     if (section.articles && section.articles.length > 0) {
       // Extract paper IDs from the articles array
-      const paperIds = section.articles.map((article: PartialSectionArticle) =>
-        article.paperid
-      ).filter(Boolean);
+      const paperIds = section.articles
+        .map((article: PartialSectionArticle) => article.paperid)
+        .filter(Boolean);
 
       if (paperIds.length > 0) {
-        const fetchedArticles = await fetchSectionArticles(paperIds.map((id: number) => id.toString()), journalId);
+        const fetchedArticles = await fetchSectionArticles(
+          paperIds.map((id: number) => id.toString()),
+          journalId
+        );
         // Filter out null values
         articles = fetchedArticles.filter((article): article is IArticle => article !== null);
       }
     }
-    
+
     const translations = await getServerTranslations(language);
     const breadcrumbLabels = {
       home: t('pages.home.title', translations),
       content: t('common.content', translations),
       sections: t('pages.sections.title', translations),
     };
-    
+
     return (
-      <SectionDetailsClient 
+      <SectionDetailsClient
         section={section}
         articles={articles}
         sectionId={params.id}
@@ -120,4 +121,3 @@ export default async function SectionDetailsPage(
     );
   }
 }
- 

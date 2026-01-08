@@ -28,4 +28,4 @@ export const ICON_COLORS = {
 /**
  * Type for icon color values
  */
-export type IconColor = typeof ICON_COLORS[keyof typeof ICON_COLORS];
+export type IconColor = (typeof ICON_COLORS)[keyof typeof ICON_COLORS];

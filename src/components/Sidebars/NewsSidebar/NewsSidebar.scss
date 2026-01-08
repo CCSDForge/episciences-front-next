@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss" as breakpoints;
+@use '@/styles/breakpoints.scss' as breakpoints;
 
 .news-sidebar {
   width: 100%;
@@ -15,11 +15,11 @@
   min-width: 265px;
   font-size: 16px;
 
-  @media (max-width:  breakpoints.$sm) {
+  @media (max-width: breakpoints.$sm) {
     min-width: 115px;
   }
 
-  @media (max-width:  breakpoints.$xsm) {
+  @media (max-width: breakpoints.$xsm) {
     display: none;
   }
 
@@ -115,4 +115,4 @@
       }
     }
   }
-} 
+}

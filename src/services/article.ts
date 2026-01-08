@@ -1,10 +1,10 @@
-import { API_URL, API_PATHS } from '@/config/api'
-import { IArticle, RawArticle } from '@/types/article'
-import { AvailableLanguage } from '@/utils/i18n'
-import { getJournalApiUrl } from '@/utils/env-loader'
-import { METADATA_TYPE, FetchedArticle, formatArticle } from '@/utils/article'
-import { fetchWithRetry } from '@/utils/fetch-with-retry'
-import { batchFetchWithFallback } from '@/utils/batch-fetch'
+import { API_URL, API_PATHS } from '@/config/api';
+import { IArticle, RawArticle } from '@/types/article';
+import { AvailableLanguage } from '@/utils/i18n';
+import { getJournalApiUrl } from '@/utils/env-loader';
+import { METADATA_TYPE, FetchedArticle, formatArticle } from '@/utils/article';
+import { fetchWithRetry } from '@/utils/fetch-with-retry';
+import { batchFetchWithFallback } from '@/utils/batch-fetch';
 
 interface FetchArticlesParams {
   rvcode: string;
@@ -16,62 +16,74 @@ interface FetchArticlesParams {
   articleIds?: string[];
 }
 
-export async function fetchArticles({ rvcode, page, itemsPerPage, onlyAccepted = false, types, years, articleIds }: FetchArticlesParams) {
+export async function fetchArticles({
+  rvcode,
+  page,
+  itemsPerPage,
+  onlyAccepted = false,
+  types,
+  years,
+  articleIds,
+}: FetchArticlesParams) {
   const params = new URLSearchParams({
     page: page.toString(),
     itemsPerPage: itemsPerPage.toString(),
-    rvcode: process.env.NEXT_PUBLIC_JOURNAL_RVCODE || rvcode
-  })
+    rvcode: process.env.NEXT_PUBLIC_JOURNAL_RVCODE || rvcode,
+  });
 
   if (onlyAccepted) {
-    params.append('only_accepted', 'true')
+    params.append('only_accepted', 'true');
   }
 
   if (types && types.length > 0) {
-    types.forEach(type => params.append('type[]', type))
+    types.forEach(type => params.append('type[]', type));
   }
-  
+
   if (years && years.length > 0) {
-    years.forEach(year => params.append('year[]', year.toString()))
+    years.forEach(year => params.append('year[]', year.toString()));
   }
 
   if (articleIds && articleIds.length > 0) {
-    articleIds.forEach(id => params.append('id[]', id))
+    articleIds.forEach(id => params.append('id[]', id));
   }
 
   try {
     const apiRoot = getJournalApiUrl(rvcode);
-    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}?${params}`, { next: { tags: ['articles', `articles-${rvcode}`] } })
+    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}?${params}`, {
+      next: { tags: ['articles', `articles-${rvcode}`] },
+    });
 
-    const data = await response.json()
+    const data = await response.json();
 
     // Fetch complete articles using centralized batch fetch utility
     const partialArticles = data['hydra:member'] || [];
     const fullArticles = await batchFetchWithFallback(
       partialArticles,
       async (partialArticle: any) => {
-        const articleId = partialArticle.paperid
-        const rawArticle = await fetchRawArticle(articleId, rvcode)
-        return transformArticleForDisplay(rawArticle)
+        const articleId = partialArticle.paperid;
+        const rawArticle = await fetchRawArticle(articleId, rvcode);
+        return transformArticleForDisplay(rawArticle);
       },
       null, // Fallback to null for failed articles
       `Articles(${rvcode})` // Context for logging
-    )
+    );
 
     return {
       data: fullArticles,
       totalItems: data['hydra:totalItems'],
-      range: data['hydra:range'] ? {
-        years: data['hydra:range'].publicationYears
-      } : undefined
-    }
+      range: data['hydra:range']
+        ? {
+            years: data['hydra:range'].publicationYears,
+          }
+        : undefined,
+    };
   } catch (error) {
-    console.error('Erreur lors de la récupération des articles:', error)
+    console.error('Erreur lors de la récupération des articles:', error);
     return {
       data: [],
       totalItems: 0,
-      range: undefined
-    }
+      range: undefined,
+    };
   }
 }
 
@@ -91,32 +103,31 @@ export async function fetchAcceptedArticles(
 }> {
   const queryParams = new URLSearchParams();
   queryParams.append('page', page.toString());
-  
+
   if (filters.type) {
     queryParams.append('type', filters.type);
   }
-  
+
   if (filters.tagged && filters.tagged.length > 0) {
     filters.tagged.forEach(tag => {
       queryParams.append('tagged[]', tag);
     });
   }
-  
+
   const apiUrl = getJournalApiUrl(rvcode);
   const response = await fetch(`${apiUrl}/articles/accepted?${queryParams.toString()}`, {
     method: 'GET',
     headers: {
-      'Accept': 'application/json',
-    }
+      Accept: 'application/json',
+    },
   });
 
-  
   if (!response.ok) {
     throw new Error('Failed to fetch accepted articles');
   }
-  
+
   const data = await response.json();
-  
+
   return {
     articles: data.articles.map(transformArticleForDisplay),
     total: data.total,
@@ -129,20 +140,23 @@ export async function fetchAcceptedArticles(
  */
 async function fetchRawArticle(paperid: string | number, rvcode: string = ''): Promise<RawArticle> {
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
-  const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, { 
-    next: { tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] } 
-  })
-  return response.json()
+  const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, {
+    next: { tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] },
+  });
+  return response.json();
 }
 
 /**
  * Récupère un article formaté par son ID
  */
-export async function fetchArticle(paperid: string, rvcode?: string): Promise<FetchedArticle | null> {
+export async function fetchArticle(
+  paperid: string,
+  rvcode?: string
+): Promise<FetchedArticle | null> {
   try {
     const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
-    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, { 
-      next: { tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] } 
+    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, {
+      next: { tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] },
     });
     const rawArticle: RawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
@@ -155,21 +169,27 @@ export async function fetchArticle(paperid: string, rvcode?: string): Promise<Fe
 /**
  * Récupère les métadonnées d'un article dans un format spécifique
  */
-export async function fetchExportLink(paperid: number, type: 'bibtex' | 'endnote', rvcode: string = ''): Promise<string | null> {
+export async function fetchExportLink(
+  paperid: number,
+  type: 'bibtex' | 'endnote',
+  rvcode: string = ''
+): Promise<string | null> {
   try {
     const journalCode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || rvcode;
     const apiUrl = getJournalApiUrl(journalCode);
-    
+
     // Pour l'export, on construit l'URL mais on ne fait pas le fetch nous-mêmes si c'est pour un lien href
     // Mais ici la fonction semble retourner le contenu ?
     // "fetchExportLink" -> retourne le texte
-    
-    const response = await fetch(`${apiUrl}${API_PATHS.papers}export/${paperid}/${type}?code=${journalCode}`);
-    
+
+    const response = await fetch(
+      `${apiUrl}${API_PATHS.papers}export/${paperid}/${type}?code=${journalCode}`
+    );
+
     if (!response.ok) {
       return null;
     }
-    
+
     return await response.text();
   } catch (error) {
     console.error(`Error fetching export link for paper ${paperid}:`, error);
@@ -201,7 +221,7 @@ export function transformArticleForDisplay(rawArticle: any): FetchedArticle {
       }
     } catch (error) {
       console.error('Error formatting article:', error);
-      
+
       // Création d'un article minimal si le formatage échoue
       return createMinimalArticle(rawArticle);
     }
@@ -216,11 +236,12 @@ export function transformArticleForDisplay(rawArticle: any): FetchedArticle {
  */
 function createMinimalArticle(rawArticle: any): FetchedArticle {
   if (!rawArticle) return undefined;
-  
+
   return {
     id: Number(rawArticle.paperid) || rawArticle.docid,
-    title: rawArticle.document?.journal?.journal_article?.titles?.title || 
-           `Article ${rawArticle.paperid || rawArticle.docid}`,
+    title:
+      rawArticle.document?.journal?.journal_article?.titles?.title ||
+      `Article ${rawArticle.paperid || rawArticle.docid}`,
     authors: [],
     publicationDate: '',
     tag: '',
@@ -229,7 +250,7 @@ function createMinimalArticle(rawArticle: any): FetchedArticle {
     doi: rawArticle.doi || '',
     abstract: '',
     pdfLink: '',
-    metrics: { views: 0, downloads: 0 }
+    metrics: { views: 0, downloads: 0 },
   };
 }
 
@@ -240,11 +261,11 @@ export async function getArticleById(id: string | number): Promise<FetchedArticl
   try {
     const apiRoot = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '';
     const response = await fetch(`${apiRoot}${API_PATHS.papers}${id}`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch article. Status: ${response.status}`);
     }
-    
+
     const rawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
   } catch (error) {
@@ -259,15 +280,17 @@ export async function getArticleById(id: string | number): Promise<FetchedArticl
 export async function fetchArticleMetadata({
   rvcode,
   paperid,
-  type
+  type,
 }: {
   rvcode: string;
   paperid: string;
-  type: METADATA_TYPE
+  type: METADATA_TYPE;
 }): Promise<string | null> {
   try {
     const apiRoot = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '';
-    const response = await fetch(`${apiRoot}${API_PATHS.papers}export/${paperid}/${type}?code=${rvcode}`);
+    const response = await fetch(
+      `${apiRoot}${API_PATHS.papers}export/${paperid}/${type}?code=${rvcode}`
+    );
 
     if (!response.ok) {
       // Les métadonnées peuvent ne pas être disponibles pour tous les articles

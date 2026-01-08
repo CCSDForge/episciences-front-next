@@ -29,7 +29,7 @@ export default async function NewsPage(props: Props) {
     // Fetch news and translations in parallel
     [newsData, translations] = await Promise.all([
       fetchNews({ rvcode: journalId }),
-      getServerTranslations(lang)
+      getServerTranslations(lang),
     ]);
   } catch (error) {
     console.warn('[NewsPage] Failed to fetch data:', error);
@@ -43,4 +43,3 @@ export default async function NewsPage(props: Props) {
 
   return <NewsClient initialNews={newsData} lang={lang} breadcrumbLabels={breadcrumbLabels} />;
 }
- 

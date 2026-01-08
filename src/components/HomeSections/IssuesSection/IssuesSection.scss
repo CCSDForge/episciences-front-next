@@ -1,10 +1,10 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 .issuesSection {
   width: 100%;
   display: flex;
   gap: 16px;
 
-  @media (max-width:  breakpoints.$xsm) {
+  @media (max-width: breakpoints.$xsm) {
     flex-direction: column;
   }
 
@@ -17,7 +17,7 @@
     border: 1px solid var(--grey);
     border-bottom: 4px solid var(--primary);
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       width: auto;
     }
 
@@ -88,7 +88,6 @@
         text-overflow: ellipsis;
         line-clamp: 3;
         -webkit-line-clamp: 3;
-
       }
 
       &-year {
@@ -102,7 +101,7 @@
         color: var(--grey);
         font-size: 13px;
       }
-      
+
       &-download {
         display: flex;
         justify-content: flex-end;
@@ -114,4 +113,4 @@
       }
     }
   }
-} 
+}

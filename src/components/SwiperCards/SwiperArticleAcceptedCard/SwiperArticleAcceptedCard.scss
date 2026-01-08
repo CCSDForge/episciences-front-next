@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 
 .swiperArticleAcceptedCard {
   height: 180px;
@@ -8,7 +8,7 @@
   border: 1px solid var(--grey);
   border-bottom: 4px solid var(--primary);
 
-  @media (max-width:  breakpoints.$sm) {
+  @media (max-width: breakpoints.$sm) {
     padding: 30px 24px 20px 24px;
   }
 

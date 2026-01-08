@@ -16,7 +16,10 @@ interface HeaderServerProps {
   journalId?: string;
 }
 
-export default async function HeaderServer({ lang = 'en', journalId }: HeaderServerProps): Promise<React.JSX.Element> {
+export default async function HeaderServer({
+  lang = 'en',
+  journalId,
+}: HeaderServerProps): Promise<React.JSX.Element> {
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 
   // Fetch journal info to get the name and logo
@@ -27,7 +30,8 @@ export default async function HeaderServer({ lang = 'en', journalId }: HeaderSer
   try {
     if (code) {
       const journal = await getJournalByCode(code); // This journal object should contain logo
-      journalName = journal?.name || journal?.title?.[lang as keyof typeof journal.title] || 'Journal';
+      journalName =
+        journal?.name || journal?.title?.[lang as keyof typeof journal.title] || 'Journal';
       journalLogoFilename = journal?.logo; // Get the logo filename if available
     }
   } catch (error) {
@@ -35,11 +39,11 @@ export default async function HeaderServer({ lang = 'en', journalId }: HeaderSer
   }
 
   // Construct the final logo URLs
-  // Strategy: 
+  // Strategy:
   // 1. Check for logo-{code}-big.svg and logo-{code}-small.svg in public/logos
   // 2. If not found, use journal.logo from API
   // 3. Fallback to default episciences logo
-  
+
   let mainLogoSrc = logoEpisciences;
   let reducedLogoSrc = logoEpisciences;
 
@@ -48,20 +52,20 @@ export default async function HeaderServer({ lang = 'en', journalId }: HeaderSer
       const publicLogosDir = path.join(process.cwd(), 'public/logos');
       const bigLogoName = `logo-${code}-big.svg`;
       const smallLogoName = `logo-${code}-small.svg`;
-      
+
       const bigLogoPath = path.join(publicLogosDir, bigLogoName);
       const smallLogoPath = path.join(publicLogosDir, smallLogoName);
-      
+
       // Check if files exist (synchronous check is fine in Server Component)
       const hasBig = fs.existsSync(bigLogoPath);
       const hasSmall = fs.existsSync(smallLogoPath);
-      
+
       if (hasBig) {
         mainLogoSrc = `/logos/${bigLogoName}`;
       } else if (journalLogoFilename) {
         mainLogoSrc = `/logos/${journalLogoFilename}`;
       }
-      
+
       if (hasSmall) {
         reducedLogoSrc = `/logos/${smallLogoName}`;
       } else if (journalLogoFilename) {
@@ -91,7 +95,9 @@ export default async function HeaderServer({ lang = 'en', journalId }: HeaderSer
         </div>
         <div className="header-preheader-links">
           <div className="header-preheader-links-left">
-            <Link href={episciencesUrl} lang={lang}>{t('components.header.links.openAccessJournals', translations)}</Link>
+            <Link href={episciencesUrl} lang={lang}>
+              {t('components.header.links.openAccessJournals', translations)}
+            </Link>
           </div>
           <div className="header-preheader-links-right">
             <LanguageDropdownWrapper lang={lang} />
@@ -127,35 +133,65 @@ export default async function HeaderServer({ lang = 'en', journalId }: HeaderSer
         <div className="header-postheader-links">
           {/* Articles & Issues dropdown */}
           <div className="header-postheader-links-dropdown">
-            <Link href="/articles" lang={lang}>{t('components.header.links.articlesAndIssues', translations)}</Link>
+            <Link href="/articles" lang={lang}>
+              {t('components.header.links.articlesAndIssues', translations)}
+            </Link>
             <div className="header-postheader-links-dropdown-content">
               <div className="header-postheader-links-dropdown-content-links header-postheader-links-dropdown-content-links-large-fr">
-                <Link href="/articles" lang={lang}>{t('components.header.links.allArticles', translations)}</Link>
-                <Link href="/articles-accepted" lang={lang}>{t('components.header.links.allAcceptedArticles', translations)}</Link>
-                <Link href="/volumes" lang={lang}>{t('components.header.links.allVolumes', translations)}</Link>
-                <Link href="/volumes" lang={lang}>{t('components.header.links.lastVolume', translations)}</Link>
-                <Link href="/sections" lang={lang}>{t('components.header.links.sections', translations)}</Link>
-                <Link href="/volumes" lang={lang}>{t('components.header.links.specialIssues', translations)}</Link>
-                <Link href="/volumes" lang={lang}>{t('components.header.links.proceedings', translations)}</Link>
-                <Link href="/authors" lang={lang}>{t('components.header.links.authors', translations)}</Link>
+                <Link href="/articles" lang={lang}>
+                  {t('components.header.links.allArticles', translations)}
+                </Link>
+                <Link href="/articles-accepted" lang={lang}>
+                  {t('components.header.links.allAcceptedArticles', translations)}
+                </Link>
+                <Link href="/volumes" lang={lang}>
+                  {t('components.header.links.allVolumes', translations)}
+                </Link>
+                <Link href="/volumes" lang={lang}>
+                  {t('components.header.links.lastVolume', translations)}
+                </Link>
+                <Link href="/sections" lang={lang}>
+                  {t('components.header.links.sections', translations)}
+                </Link>
+                <Link href="/volumes" lang={lang}>
+                  {t('components.header.links.specialIssues', translations)}
+                </Link>
+                <Link href="/volumes" lang={lang}>
+                  {t('components.header.links.proceedings', translations)}
+                </Link>
+                <Link href="/authors" lang={lang}>
+                  {t('components.header.links.authors', translations)}
+                </Link>
               </div>
             </div>
           </div>
 
           {/* About dropdown */}
           <div className="header-postheader-links-dropdown">
-            <Link href="/about" lang={lang}>{t('components.header.links.about', translations)}</Link>
+            <Link href="/about" lang={lang}>
+              {t('components.header.links.about', translations)}
+            </Link>
             <div className="header-postheader-links-dropdown-content">
               <div className="header-postheader-links-dropdown-content-links">
-                <Link href="/about" lang={lang}>{t('components.header.links.theJournal', translations)}</Link>
-                <Link href="/news" lang={lang}>{t('components.header.links.news', translations)}</Link>
-                <Link href="/statistics" lang={lang}>{t('components.header.links.statistics', translations)}</Link>
+                <Link href="/about" lang={lang}>
+                  {t('components.header.links.theJournal', translations)}
+                </Link>
+                <Link href="/news" lang={lang}>
+                  {t('components.header.links.news', translations)}
+                </Link>
+                <Link href="/statistics" lang={lang}>
+                  {t('components.header.links.statistics', translations)}
+                </Link>
               </div>
             </div>
           </div>
 
-          <Link href="/boards" lang={lang}>{t('components.header.links.boards', translations)}</Link>
-          <Link href="/for-authors" lang={lang}>{t('components.header.links.forAuthors', translations)}</Link>
+          <Link href="/boards" lang={lang}>
+            {t('components.header.links.boards', translations)}
+          </Link>
+          <Link href="/for-authors" lang={lang}>
+            {t('components.header.links.forAuthors', translations)}
+          </Link>
         </div>
 
         {/* Search form */}

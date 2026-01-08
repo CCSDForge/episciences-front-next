@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 .volumeDetails {
   &-id {
     display: flex;
@@ -8,7 +8,7 @@
     &-mobileRelatedList {
       display: none;
 
-      @media (max-width:  breakpoints.$xsm) {
+      @media (max-width: breakpoints.$xsm) {
         display: flex;
         align-items: center;
         gap: 6px;
@@ -25,4 +25,4 @@
   }
 
   // ... existing code ...
-} 
+}

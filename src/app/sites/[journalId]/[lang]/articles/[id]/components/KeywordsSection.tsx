@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { AvailableLanguage } from '@/utils/i18n';
 import { getTextDirection, getLanguageLabel } from '@/utils/rtl-languages';
@@ -8,8 +8,10 @@ interface KeywordsSectionProps {
   currentLanguage: AvailableLanguage;
 }
 
-export default function KeywordsSection({ keywordsData, currentLanguage }: KeywordsSectionProps): React.JSX.Element | null {
-
+export default function KeywordsSection({
+  keywordsData,
+  currentLanguage,
+}: KeywordsSectionProps): React.JSX.Element | null {
   if (!keywordsData) {
     return null;
   }
@@ -70,7 +72,7 @@ export default function KeywordsSection({ keywordsData, currentLanguage }: Keywo
     if (keywordSet.size > 0) {
       keywordsByLanguage.push({
         lang,
-        keywords: Array.from(keywordSet)
+        keywords: Array.from(keywordSet),
       });
     }
   });
@@ -108,7 +110,10 @@ export default function KeywordsSection({ keywordsData, currentLanguage }: Keywo
             <div className="language-badge">{languageLabel}</div>
             <ul className="keywords-list">
               {keywords.map((keyword: string, index: number) => (
-                <li className="articleDetails-content-article-section-content-keywords-tag" key={index}>
+                <li
+                  className="articleDetails-content-article-section-content-keywords-tag"
+                  key={index}
+                >
                   {keyword}
                 </li>
               ))}
@@ -119,4 +124,4 @@ export default function KeywordsSection({ keywordsData, currentLanguage }: Keywo
       })}
     </div>
   );
-} 
+}

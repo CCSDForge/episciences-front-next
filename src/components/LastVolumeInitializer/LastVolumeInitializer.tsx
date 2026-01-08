@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from "react";
-import { setLastVolume } from "@/store/features/volume/volume.slice";
-import { useAppDispatch, useAppSelector } from "@/hooks/store";
-import { IVolume } from "@/types/volume";
+import { useEffect } from 'react';
+import { setLastVolume } from '@/store/features/volume/volume.slice';
+import { useAppDispatch, useAppSelector } from '@/hooks/store';
+import { IVolume } from '@/types/volume';
 
 interface LastVolumeInitializerProps {
   initialVolume?: IVolume;
@@ -22,4 +22,4 @@ export function LastVolumeInitializer({ initialVolume }: LastVolumeInitializerPr
   }, [dispatch, initialVolume, currentJournal, lastVolume]);
 
   return null;
-} 
+}

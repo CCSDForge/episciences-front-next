@@ -9,11 +9,6 @@ interface ICheckboxProps {
 
 export default function Checkbox({ checked, onChangeCallback }: ICheckboxProps): React.JSX.Element {
   return (
-    <input
-      type="checkbox"
-      className="checkbox"
-      checked={checked}
-      onChange={onChangeCallback}
-    />
-  )
-} 
+    <input type="checkbox" className="checkbox" checked={checked} onChange={onChangeCallback} />
+  );
+}

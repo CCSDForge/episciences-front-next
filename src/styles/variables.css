@@ -3,15 +3,15 @@
   --primary-text: var(--journal-primary-text-color);
   --grey: #757575;
   --grey-light: #717193;
-  --grey-dark: #4E4E5F;
+  --grey-dark: #4e4e5f;
   --grey-darker: #363642;
-  --white: #FFFFFF;
+  --white: #ffffff;
   --black: #000000;
-  --black-shadow: #0000001F;
-  --blue-navy: #04005F;
-  --blue-navy-dark: #00005E;
+  --black-shadow: #0000001f;
+  --blue-navy: #04005f;
+  --blue-navy-dark: #00005e;
 
   /* Journal specific variables - will be overridden by env variables */
-  --journal-primary-color: #7A020D;
+  --journal-primary-color: #7a020d;
   --journal-primary-text-color: #ffffff;
-} 
+}

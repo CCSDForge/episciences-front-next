@@ -24,12 +24,10 @@ interface ArticlesData {
   };
 }
 
-export default async function ArticlesPage(
-  props: {
-    params: Promise<{ lang: string; journalId: string }>;
-    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-  }
-) {
+export default async function ArticlesPage(props: {
+  params: Promise<{ lang: string; journalId: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const searchParams = await props.searchParams;
   const params = await props.params;
   const lang = params.lang || 'en';
@@ -54,7 +52,7 @@ export default async function ArticlesPage(
       page: page,
       itemsPerPage: ARTICLES_PER_PAGE,
       onlyAccepted: false,
-      types: []
+      types: [],
     });
 
     // S'assurer que les données sont dans le bon format
@@ -62,8 +60,8 @@ export default async function ArticlesPage(
       data: Array.isArray(articles.data) ? articles.data : [],
       totalItems: articles.totalItems || 0,
       range: {
-        years: Array.isArray(articles.range?.years) ? articles.range.years : []
-      }
+        years: Array.isArray(articles.range?.years) ? articles.range.years : [],
+      },
     };
 
     const breadcrumbLabels = {
@@ -94,14 +92,14 @@ export default async function ArticlesPage(
       data: [],
       totalItems: 0,
       range: {
-        years: []
-      }
+        years: [],
+      },
     };
-    
+
     // Fetch translations again for error case (or use cached ones if available, but here we just re-fetch to be safe or use what we have)
-    // Actually translations variable is available here because it's defined outside try block? 
+    // Actually translations variable is available here because it's defined outside try block?
     // No, I put it before try block.
-    
+
     return (
       <Suspense fallback={<Loader />}>
         <ArticlesClient
@@ -121,4 +119,3 @@ export default async function ArticlesPage(
     );
   }
 }
- 

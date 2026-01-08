@@ -58,9 +58,12 @@ function isValidRevalidatePath(path: string, journalId?: string): boolean {
 export async function POST(request: NextRequest) {
   try {
     // 1. IP Whitelist Check
-    const allowedIps = process.env.ALLOWED_IPS ? process.env.ALLOWED_IPS.split(',').map(ip => ip.trim()) : [];
+    const allowedIps = process.env.ALLOWED_IPS
+      ? process.env.ALLOWED_IPS.split(',').map(ip => ip.trim())
+      : [];
     // Cast to any because NextRequest.ip might be missing in some type definitions despite existing at runtime
-    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0] || (request as any).ip || '';
+    const clientIp =
+      request.headers.get('x-forwarded-for')?.split(',')[0] || (request as any).ip || '';
 
     if (allowedIps.length > 0 && !allowedIps.includes(clientIp)) {
       console.warn(`[Revalidate API] Blocked unauthorized IP: ${clientIp}`);
@@ -87,7 +90,8 @@ export async function POST(request: NextRequest) {
 
     if (journalId) {
       // Check for journal-specific token: REVALIDATION_TOKEN_EPIJINFO
-      const journalToken = process.env[`REVALIDATION_TOKEN_${journalId.toUpperCase().replace(/-/g, '_')}`];
+      const journalToken =
+        process.env[`REVALIDATION_TOKEN_${journalId.toUpperCase().replace(/-/g, '_')}`];
       if (journalToken && headerToken === journalToken) {
         isAuthorized = true;
       }
@@ -127,9 +131,8 @@ export async function POST(request: NextRequest) {
       revalidated: true,
       now: Date.now(),
       journalId: journalId || 'global',
-      tag: tag || undefined
+      tag: tag || undefined,
     });
-
   } catch (error) {
     console.error('[Revalidate API] Error:', error);
     return NextResponse.json({ message: 'Error revalidating' }, { status: 500 });
@@ -140,6 +143,6 @@ export async function GET() {
   return NextResponse.json({
     message: 'Revalidation API is secure',
     usage: 'POST with x-episciences-token header',
-    security: ['IP Whitelist', 'Header Token', 'Journal-specific tokens']
+    security: ['IP Whitelist', 'Header Token', 'Journal-specific tokens'],
   });
 }

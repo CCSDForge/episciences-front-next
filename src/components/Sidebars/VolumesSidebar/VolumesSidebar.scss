@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 
 .volumesSidebar {
   min-width: 265px;
@@ -12,7 +12,8 @@
     display: none;
   }
 
-  &-typesSection-title, &-yearsSection-title {
+  &-typesSection-title,
+  &-yearsSection-title {
     font-weight: bold;
     border-bottom: 1px solid var(--grey-light);
     padding-bottom: 8px;

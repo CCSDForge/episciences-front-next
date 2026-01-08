@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment } from 'react'
+import { Fragment } from 'react';
 import { TFunction } from 'i18next';
 
 import './AuthorsSidebar.scss';
@@ -8,7 +8,7 @@ import { alphabet } from '@/utils/filter';
 import AuthorsSearchInput from '@/components/SearchInput/AuthorsSearchInput/AuthorsSearchInput';
 
 interface IAuthorsSidebarProps {
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   search: string;
   onSearchCallback: (search: string) => void;
   activeLetter: string;
@@ -16,8 +16,19 @@ interface IAuthorsSidebarProps {
   lettersRange?: Record<string, number>;
 }
 
-export default function AuthorsSidebar({ t, search, onSearchCallback, activeLetter, onSetActiveLetterCallback, lettersRange }: IAuthorsSidebarProps): React.JSX.Element {
-  const renderLetter = (value: string, label: string, customClassName?: string): React.JSX.Element => {
+export default function AuthorsSidebar({
+  t,
+  search,
+  onSearchCallback,
+  activeLetter,
+  onSetActiveLetterCallback,
+  lettersRange,
+}: IAuthorsSidebarProps): React.JSX.Element {
+  const renderLetter = (
+    value: string,
+    label: string,
+    customClassName?: string
+  ): React.JSX.Element => {
     let className = 'authorsSidebar-letters-letter';
 
     if (activeLetter === value) {
@@ -30,19 +41,27 @@ export default function AuthorsSidebar({ t, search, onSearchCallback, activeLett
 
     if (lettersRange) {
       const lettersRangeKey = value === 'others' ? 'Others' : value;
-      
+
       if (!lettersRange[lettersRangeKey]) {
         className += ` authorsSidebar-letters-letter-disabled`;
       }
     }
 
-    return <div className={className} onClick={(): void => onSetActiveLetterCallback(value)}>{label}</div>;
+    return (
+      <div className={className} onClick={(): void => onSetActiveLetterCallback(value)}>
+        {label}
+      </div>
+    );
   };
 
   return (
     <div className="authorsSidebar">
       <div className="authorsSidebar-search">
-        <AuthorsSearchInput value={search} placeholder={t('pages.authors.searchName')} onChangeCallback={onSearchCallback} />
+        <AuthorsSearchInput
+          value={search}
+          placeholder={t('pages.authors.searchName')}
+          onChangeCallback={onSearchCallback}
+        />
       </div>
       <div className="authorsSidebar-letters">
         {alphabet.map((letter, index) => (
@@ -52,4 +71,4 @@ export default function AuthorsSidebar({ t, search, onSearchCallback, activeLett
       </div>
     </div>
   );
-} 
+}

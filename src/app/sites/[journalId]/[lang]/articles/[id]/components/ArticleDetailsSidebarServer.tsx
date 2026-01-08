@@ -29,9 +29,8 @@ export default function ArticleDetailsSidebarServer({
   metadataBibTeX,
   metrics,
   translations,
-  language = 'en'
+  language = 'en',
 }: ArticleDetailsSidebarServerProps): React.JSX.Element {
-
   /**
    * Get localized path for server-side rendering
    */
@@ -89,7 +88,10 @@ export default function ArticleDetailsSidebarServer({
 
     return (
       <>
-        <Link href={getLocalizedPath(`${PATHS.volumes}/${relatedVolume.id}`)} className="articleDetailsSidebar-volumeDetails-number">
+        <Link
+          href={getLocalizedPath(`${PATHS.volumes}/${relatedVolume.id}`)}
+          className="articleDetailsSidebar-volumeDetails-number"
+        >
           {text} {relatedVolume.num}
         </Link>
         {volumeTitle && (
@@ -107,7 +109,10 @@ export default function ArticleDetailsSidebarServer({
     if (!sectionTitle) return null;
 
     return (
-      <Link href={getLocalizedPath(`sections/${article.section.id}`)} className="articleDetailsSidebar-volumeDetails-section">
+      <Link
+        href={getLocalizedPath(`sections/${article.section.id}`)}
+        className="articleDetailsSidebar-volumeDetails-section"
+      >
         {sectionTitle}
       </Link>
     );
@@ -190,14 +195,18 @@ export default function ArticleDetailsSidebarServer({
         </div>
         <div className="articleDetailsSidebar-metrics-data">
           <div className="articleDetailsSidebar-metrics-data-item">
-            <div className="articleDetailsSidebar-metrics-data-item-number">{article.metrics.views}</div>
+            <div className="articleDetailsSidebar-metrics-data-item-number">
+              {article.metrics.views}
+            </div>
             <div className="articleDetailsSidebar-metrics-data-item-label">
               {t('pages.articleDetails.metrics.views', translations)}
             </div>
           </div>
           <div className="articleDetailsSidebar-metrics-data-divider"></div>
           <div className="articleDetailsSidebar-metrics-data-item">
-            <div className="articleDetailsSidebar-metrics-data-item-number">{article.metrics.downloads}</div>
+            <div className="articleDetailsSidebar-metrics-data-item-number">
+              {article.metrics.downloads}
+            </div>
             <div className="articleDetailsSidebar-metrics-data-item-label">
               {t('pages.articleDetails.metrics.downloads', translations)}
             </div>
@@ -211,9 +220,17 @@ export default function ArticleDetailsSidebarServer({
     <div className="articleDetailsSidebar">
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
-          <a href={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)} target="_blank" rel="noopener noreferrer">
+          <a
+            href={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <div className="articleDetailsSidebar-links-link">
-              <DownloadBlackIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Download" />
+              <DownloadBlackIcon
+                size={20}
+                className="articleDetailsSidebar-links-link-icon"
+                ariaLabel="Download"
+              />
               <div className="articleDetailsSidebar-links-link-text">
                 {t('pages.articleDetails.actions.download', translations)}
               </div>
@@ -233,7 +250,10 @@ export default function ArticleDetailsSidebarServer({
               ariaLabel="External link"
             />
             <div className="articleDetailsSidebar-links-link-text">
-              {t('pages.articleDetails.actions.openOn', translations, { repositoryName: article.repositoryName })} {article.repositoryName}
+              {t('pages.articleDetails.actions.openOn', translations, {
+                repositoryName: article.repositoryName,
+              })}{' '}
+              {article.repositoryName}
             </div>
           </a>
         )}
@@ -273,7 +293,12 @@ export default function ArticleDetailsSidebarServer({
       {article?.doi && article.doi.trim() !== '' && (
         <div className="articleDetailsSidebar-doi">
           <div className="articleDetailsSidebar-doi-label">{t('common.doi', translations)}</div>
-          <a href={`https://doi.org/${article.doi}`} className="articleDetailsSidebar-doi-link" target="_blank" rel="noopener noreferrer">
+          <a
+            href={`https://doi.org/${article.doi}`}
+            className="articleDetailsSidebar-doi-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {article.doi}
           </a>
         </div>

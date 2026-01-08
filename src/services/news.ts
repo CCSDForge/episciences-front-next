@@ -1,6 +1,6 @@
-import { AvailableLanguage } from "@/utils/i18n";
-import { getJournalApiUrl } from "@/utils/env-loader";
-import { safeFetchData } from "@/utils/api-error-handler";
+import { AvailableLanguage } from '@/utils/i18n';
+import { getJournalApiUrl } from '@/utils/env-loader';
+import { safeFetchData } from '@/utils/api-error-handler';
 
 export interface INews {
   id: number;
@@ -21,8 +21,8 @@ export type RawNews = {
   };
   link?: {
     und: string;
-  }
-}
+  };
+};
 
 export interface Range {
   years?: number[];
@@ -38,7 +38,7 @@ export async function fetchNews({
   rvcode,
   page = 1,
   itemsPerPage = 10,
-  years = []
+  years = [],
 }: {
   rvcode: string;
   page?: number;
@@ -58,8 +58,8 @@ export async function fetchNews({
     async () => {
       const response = await fetch(url, {
         headers: {
-          'Accept': 'application/ld+json'
-        }
+          Accept: 'application/ld+json',
+        },
       });
 
       if (!response.ok) {
@@ -70,19 +70,19 @@ export async function fetchNews({
       const range = data['hydra:range'];
       const totalItems = data['hydra:totalItems'];
 
-      const formattedData = (data['hydra:member']).map((news) => ({
+      const formattedData = data['hydra:member'].map(news => ({
         id: news.id,
         title: news.title,
         content: news.content,
         publicationDate: news.date_creation,
         author: news.creator.screenName,
-        link: news.link ? news.link.und : undefined
+        link: news.link ? news.link.und : undefined,
       }));
 
       return {
         data: formattedData,
         totalItems,
-        range
+        range,
       };
     },
     // Fallback to empty news list if API fails
@@ -91,4 +91,4 @@ export async function fetchNews({
   );
 
   return result;
-} 
+}

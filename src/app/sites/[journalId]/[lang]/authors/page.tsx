@@ -28,8 +28,8 @@ export default async function AuthorsPage(props: AuthorsPageProps) {
 
   // Extract initial params
   const page = searchParams?.page ? Math.max(1, parseInt(searchParams.page as string, 10)) : 1;
-  const search = searchParams?.search as string || '';
-  const letter = searchParams?.letter as string || '';
+  const search = (searchParams?.search as string) || '';
+  const letter = (searchParams?.letter as string) || '';
 
   // Fetch translations
   const translations = await getServerTranslations(lang);
@@ -49,7 +49,7 @@ export default async function AuthorsPage(props: AuthorsPageProps) {
   };
 
   return (
-    <AuthorsClient 
+    <AuthorsClient
       initialPage={page}
       initialSearch={search}
       initialLetter={letter}
@@ -59,4 +59,3 @@ export default async function AuthorsPage(props: AuthorsPageProps) {
     />
   );
 }
- 

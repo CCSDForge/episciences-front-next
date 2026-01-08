@@ -8,12 +8,19 @@ import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
-
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchCreditsPage } from '@/services/credits';
-import { generateIdFromText, unifiedProcessor, serializeMarkdown, getMarkdownImageURL, adjustNestedListsInMarkdownContent } from '@/utils/markdown';
-import CreditsSidebar, { ICreditsHeader } from '@/components/Sidebars/CreditsSidebar/CreditsSidebar';
+import {
+  generateIdFromText,
+  unifiedProcessor,
+  serializeMarkdown,
+  getMarkdownImageURL,
+  adjustNestedListsInMarkdownContent,
+} from '@/utils/markdown';
+import CreditsSidebar, {
+  ICreditsHeader,
+} from '@/components/Sidebars/CreditsSidebar/CreditsSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import '@/styles/transitions.scss';
@@ -33,12 +40,16 @@ interface CreditsClientProps {
   };
 }
 
-export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: CreditsClientProps): React.JSX.Element {
+export default function CreditsClient({
+  creditsPage,
+  lang,
+  breadcrumbLabels,
+}: CreditsClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
-  const language = useAppSelector(state => state.i18nReducer.language)
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code)
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name)
+  const language = useAppSelector(state => state.i18nReducer.language);
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
+  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Architecture hybride : fetch automatique des données fraîches
   const { data: pageData, isUpdating } = useClientSideFetch({
@@ -58,8 +69,8 @@ export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: C
     const tree = unifiedProcessor.parse(toBeParsed);
     const sections: ICreditsSection[] = [];
     let currentSection: ICreditsSection | null = null;
-  
-    tree.children.forEach((node) => {
+
+    tree.children.forEach(node => {
       if (node.type === 'heading' && node.depth === 2) {
         if (currentSection) {
           sections.push(currentSection);
@@ -71,24 +82,24 @@ export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: C
         currentSection = {
           id: generateIdFromText(titleText),
           value: serializeMarkdown(node),
-          opened: true
+          opened: true,
         };
       } else {
         if (!currentSection) {
           currentSection = {
             id: 'intro',
             value: '',
-            opened: true
+            opened: true,
           };
         }
         currentSection.value += serializeMarkdown(node) + '\n';
       }
     });
-  
+
     if (currentSection) {
       sections.push(currentSection);
     }
-  
+
     return sections;
   };
 
@@ -96,19 +107,19 @@ export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: C
     const tree = unifiedProcessor.parse(toBeParsed);
     const headings = [];
     let lastH2 = null;
-  
+
     for (const node of tree.children) {
       if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
         const textNode = node.children.find(child => child.type === 'text') as { value: string };
-        
+
         if (textNode) {
           const header: ICreditsHeader = {
             id: generateIdFromText(textNode.value),
             value: textNode.value,
             opened: true,
-            children: []
+            children: [],
           };
-  
+
           if (node.depth === 2) {
             lastH2 = header;
             headings.push(header);
@@ -118,7 +129,7 @@ export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: C
         }
       }
     }
-  
+
     return headings;
   };
 
@@ -162,30 +173,28 @@ export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: C
   }, [pageData, language]);
 
   const breadcrumbItems = [
-    { 
-      path: '/', 
-      label: breadcrumbLabels 
-        ? `${breadcrumbLabels.home} >` 
-        : `${t('pages.home.title')} >` 
-    }
+    {
+      path: '/',
+      label: breadcrumbLabels ? `${breadcrumbLabels.home} >` : `${t('pages.home.title')} >`,
+    },
   ];
 
   return (
-    <main className='credits'>
+    <main className="credits">
       <PageTitle title={t('pages.credits.title')} />
 
-      <Breadcrumb 
-        parents={breadcrumbItems} 
-        crumbLabel={breadcrumbLabels?.credits || t('pages.credits.title')} 
-        lang={lang} 
+      <Breadcrumb
+        parents={breadcrumbItems}
+        crumbLabel={breadcrumbLabels?.credits || t('pages.credits.title')}
+        lang={lang}
       />
-      <h1 className='credits-title'>{breadcrumbLabels?.credits || t('pages.credits.title')}</h1>
+      <h1 className="credits-title">{breadcrumbLabels?.credits || t('pages.credits.title')}</h1>
       {isLoading ? (
         <Loader />
       ) : (
         <div className={`credits-content content-transition ${isUpdating ? 'updating' : ''}`}>
           <CreditsSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
-            <div className='credits-content-body'>
+          <div className="credits-content-body">
             {pageSections.map(section => (
               <div
                 key={section.id}
@@ -193,37 +202,60 @@ export default function CreditsClient({ creditsPage, lang, breadcrumbLabels }: C
               >
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
-                  urlTransform={uri => uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri}
+                  urlTransform={uri =>
+                    uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
+                  }
                   components={{
                     a: ({ ...props }) => (
-                      <Link href={props.href!} target='_blank' className='credits-content-body-section-link'>
+                      <Link
+                        href={props.href!}
+                        target="_blank"
+                        className="credits-content-body-section-link"
+                      >
                         {props.children?.toString()}
                       </Link>
                     ),
                     h2: ({ ...props }) => {
-                      const id = generateIdFromText(props.children?.toString()!)
+                      const id = generateIdFromText(props.children?.toString()!);
 
                       return (
-                        <div className='credits-content-body-section-subtitle' onClick={(): void => toggleSectionHeader(id!)}>
-                          <h2 id={id} className='credits-content-body-section-subtitle-text' {...props} />
+                        <div
+                          className="credits-content-body-section-subtitle"
+                          onClick={(): void => toggleSectionHeader(id!)}
+                        >
+                          <h2
+                            id={id}
+                            className="credits-content-body-section-subtitle-text"
+                            {...props}
+                          />
                           {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
-                            <CaretUpRedIcon size={16} className='credits-content-body-section-subtitle-caret' ariaLabel="Collapse section" />
+                            <CaretUpRedIcon
+                              size={16}
+                              className="credits-content-body-section-subtitle-caret"
+                              ariaLabel="Collapse section"
+                            />
                           ) : (
-                            <CaretDownRedIcon size={16} className='credits-content-body-section-subtitle-caret' ariaLabel="Expand section" />
+                            <CaretDownRedIcon
+                              size={16}
+                              className="credits-content-body-section-subtitle-caret"
+                              ariaLabel="Expand section"
+                            />
                           )}
                         </div>
-                      )
+                      );
                     },
-                    h3: ({ ...props }) => <h3 id={generateIdFromText(props.children?.toString()!)} {...props} />,
+                    h3: ({ ...props }) => (
+                      <h3 id={generateIdFromText(props.children?.toString()!)} {...props} />
+                    ),
                   }}
                 >
                   {section.value}
                 </ReactMarkdown>
               </div>
             ))}
-            </div>
+          </div>
         </div>
       )}
     </main>
   );
-} 
+}

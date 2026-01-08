@@ -1,4 +1,4 @@
-import { AvailableLanguage } from "./i18n";
+import { AvailableLanguage } from './i18n';
 
 export const DEFAULT_ITEMS_PER_PAGE = 30;
 
@@ -21,7 +21,7 @@ export interface PaginatedResponseWithCount<T> extends PaginatedResponseWithRang
 }
 
 export interface PaginatedResponseWithAuthorsRange<T> extends PaginatedResponse<T> {
-  'hydra:range'?: Record<string, number>
+  'hydra:range'?: Record<string, number>;
 }
 
 export interface PaginatedResponseWithSearchRange<T> extends PaginatedResponse<T> {
@@ -34,4 +34,4 @@ export interface SearchRange {
   volumes?: Record<AvailableLanguage, Record<number, string>[]>;
   sections?: Record<AvailableLanguage, Record<number, string>[]>;
   authors?: { value: string; count: number }[];
-} 
+}

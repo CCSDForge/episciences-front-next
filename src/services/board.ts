@@ -1,4 +1,4 @@
-import { API_URL } from '@/config/api'
+import { API_URL } from '@/config/api';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { transformBoardMembers, RawBoardMember } from '@/utils/board-transforms';
@@ -47,14 +47,14 @@ export enum BOARD_TYPE {
   EDITORIAL_BOARD = 'editorial-board',
   TECHNICAL_BOARD = 'technical-board',
   SCIENTIFIC_ADVISORY_BOARD = 'scientific-advisory-board',
-  FORMER_MEMBERS = 'former-members'
+  FORMER_MEMBERS = 'former-members',
 }
 
 export const boardTypes = [
   BOARD_TYPE.EDITORIAL_BOARD,
   BOARD_TYPE.TECHNICAL_BOARD,
   BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD,
-  BOARD_TYPE.FORMER_MEMBERS
+  BOARD_TYPE.FORMER_MEMBERS,
 ];
 
 export enum BOARD_ROLE {
@@ -63,13 +63,13 @@ export enum BOARD_ROLE {
   EDITOR = 'editor',
   CHIEF_EDITOR = 'chief-editor',
   SECRETARY = 'secretary',
-  FORMER_MEMBER = 'former-member'
+  FORMER_MEMBER = 'former-member',
 }
 
 export const defaultBoardRole = (t: (key: string) => string) => {
   return {
     key: BOARD_ROLE.MEMBER,
-    label: t('pages.boards.roles.member')
+    label: t('pages.boards.roles.member'),
   };
 };
 
@@ -77,13 +77,16 @@ export const getBoardRoles = (t: (key: string) => string, roles: string[]): stri
   const rolesWithLabels = [
     { key: BOARD_TYPE.TECHNICAL_BOARD, label: t('pages.boards.types.technicalBoard') },
     { key: BOARD_TYPE.EDITORIAL_BOARD, label: t('pages.boards.types.editorialBoard') },
-    { key: BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD, label: t('pages.boards.types.scientificAdvisoryBoard') },
+    {
+      key: BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD,
+      label: t('pages.boards.types.scientificAdvisoryBoard'),
+    },
     { key: BOARD_TYPE.FORMER_MEMBERS, label: t('pages.boards.types.formerMember') },
     { key: BOARD_ROLE.GUEST_EDITOR, label: t('pages.boards.roles.guestEditor') },
     { key: BOARD_ROLE.EDITOR, label: t('pages.boards.roles.editor') },
     { key: BOARD_ROLE.CHIEF_EDITOR, label: t('pages.boards.roles.chiefEditor') },
     { key: BOARD_ROLE.SECRETARY, label: t('pages.boards.roles.secretary') },
-    { key: BOARD_ROLE.FORMER_MEMBER, label: t('pages.boards.roles.formerMember') }
+    { key: BOARD_ROLE.FORMER_MEMBER, label: t('pages.boards.roles.formerMember') },
   ];
 
   return rolesWithLabels
@@ -100,8 +103,8 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
     const response = await fetch(`${apiUrl}/pages?pagination=false&rvcode=${rvcode}`, {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
-      }
+        Accept: 'application/json',
+      },
     });
 
     if (!response.ok) {
@@ -109,8 +112,8 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
     }
 
     const json = await response.json();
-    const data = Array.isArray(json) ? json : (json['hydra:member'] || []);
-    
+    const data = Array.isArray(json) ? json : json['hydra:member'] || [];
+
     return data.filter((page: IBoardPage) => boardTypes.includes(page.page_code as BOARD_TYPE));
   } catch (error) {
     console.error('Error fetching board pages:', error);
@@ -124,15 +127,16 @@ export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]>
     const url = `${apiUrl}/journals/boards/${rvcode}`;
     const response = await fetch(url);
 
-
-  if (!response.ok) {
-    console.warn(`[API] Board members not found or error ${response.status} for journal ${rvcode}`);
-    return []; // Return empty instead of throwing to avoid breaking the build
-  }
+    if (!response.ok) {
+      console.warn(
+        `[API] Board members not found or error ${response.status} for journal ${rvcode}`
+      );
+      return []; // Return empty instead of throwing to avoid breaking the build
+    }
 
     const json = await response.json();
-    const data: RawBoardMember[] = Array.isArray(json) ? json : (json['hydra:member'] || []);
-  //  console.log(`Successfully fetched ${data.length} board members`);
+    const data: RawBoardMember[] = Array.isArray(json) ? json : json['hydra:member'] || [];
+    //  console.log(`Successfully fetched ${data.length} board members`);
 
     // Use centralized transformation utility
     return transformBoardMembers(data);
@@ -140,7 +144,7 @@ export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]>
     console.error('Error fetching board members:', error);
     return [];
   }
-}
+};
 
 // Mock data for development/testing when API isn't available
-// ... existing code ... 
+// ... existing code ...

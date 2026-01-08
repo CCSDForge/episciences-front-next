@@ -4,5 +4,5 @@ export interface ISectionState {
   sections: {
     data: ISection[];
     totalItems: number;
-  }
-} 
+  };
+}

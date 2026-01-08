@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 
 .statisticsSection {
   display: flex;
@@ -6,12 +6,12 @@
   justify-content: space-between;
   margin: 45px 0px 5px 120px;
 
-  @media (max-width:  breakpoints.$sm) {
+  @media (max-width: breakpoints.$sm) {
     gap: 30px;
     margin: 45px 0px 5px 0px;
   }
 
-  @media (max-width:  breakpoints.$xsm) {
+  @media (max-width: breakpoints.$xsm) {
     gap: 15px;
   }
 
@@ -22,7 +22,7 @@
     text-align: center;
     gap: 5px;
 
-    @media (max-width:  breakpoints.$sm) {
+    @media (max-width: breakpoints.$sm) {
       flex: 20%;
     }
 
@@ -30,7 +30,7 @@
       font-size: 40px;
       color: var(--primary);
 
-      @media (max-width:  breakpoints.$sm) {
+      @media (max-width: breakpoints.$sm) {
         font-size: 34px;
       }
     }
@@ -39,7 +39,7 @@
       font-size: 22px;
       max-width: 300px;
 
-      @media (max-width:  breakpoints.$sm) {
+      @media (max-width: breakpoints.$sm) {
         font-size: 16px;
         max-width: 200px;
       }
@@ -50,8 +50,8 @@
     width: 4px;
     background: var(--primary);
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       width: 2px;
     }
   }
-} 
+}

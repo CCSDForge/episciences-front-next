@@ -8,11 +8,11 @@ import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 const ThemeStyleSwitch: React.FC = () => {
   const theme = useAppSelector(state => state.themeReducer?.theme || 'light');
   const journalConfig = useAppSelector(selectJournalConfig);
-  
+
   useEffect(() => {
     // Appliquer les variables de couleur du journal avec la config dynamique
     applyThemeVariables(journalConfig);
-    
+
     // Appliquer le thème au body
     if (theme === 'dark') {
       document.body.classList.add('dark-theme');

@@ -11,7 +11,7 @@ import Checkbox from '@/components/Checkbox/Checkbox';
 import './StatisticsMobileModal.scss';
 
 enum FILTERS_SECTION {
-  YEAR = 'year'
+  YEAR = 'year',
 }
 
 interface IStatisticYearSelection {
@@ -20,27 +20,32 @@ interface IStatisticYearSelection {
 }
 
 interface IStatisticsMobileModalProps {
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   years: IStatisticYearSelection[];
   onUpdateYearsCallback: (years: IStatisticYearSelection[]) => void;
   onCloseCallback: () => void;
 }
 
-export default function StatisticsMobileModal({ t, years, onUpdateYearsCallback, onCloseCallback }: IStatisticsMobileModalProps): React.JSX.Element {
+export default function StatisticsMobileModal({
+  t,
+  years,
+  onUpdateYearsCallback,
+  onCloseCallback,
+}: IStatisticsMobileModalProps): React.JSX.Element {
   const dispatch = useAppDispatch();
 
   const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);
 
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const [openedSections, setOpenedSections] = useState<{ key: FILTERS_SECTION, isOpened: boolean }[]>([
-    { key: FILTERS_SECTION.YEAR, isOpened: true }
-  ]);
+  const [openedSections, setOpenedSections] = useState<
+    { key: FILTERS_SECTION; isOpened: boolean }[]
+  >([{ key: FILTERS_SECTION.YEAR, isOpened: true }]);
 
   const [filtersYears, setFiltersYears] = useState<IStatisticYearSelection[]>(years);
 
   const onCheckYear = (year: number): void => {
-    const updatedYears = filtersYears.map((y) => {
+    const updatedYears = filtersYears.map(y => {
       if (y.year === year) {
         return { ...y, isChecked: !y.isChecked };
       }
@@ -49,19 +54,19 @@ export default function StatisticsMobileModal({ t, years, onUpdateYearsCallback,
     });
 
     setFiltersYears(updatedYears);
-  }
+  };
 
   const onClose = useCallback((): void => {
     setFiltersYears([]);
     onCloseCallback();
-    dispatch(setFooterVisibility(true))
+    dispatch(setFooterVisibility(true));
   }, [onCloseCallback, dispatch]);
 
   const onApplyFilters = (): void => {
     onUpdateYearsCallback(filtersYears);
     onCloseCallback();
-    dispatch(setFooterVisibility(true))
-  }
+    dispatch(setFooterVisibility(true));
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -78,12 +83,12 @@ export default function StatisticsMobileModal({ t, years, onUpdateYearsCallback,
 
   useEffect(() => {
     if (isFooterEnabled) {
-      dispatch(setFooterVisibility(false))
+      dispatch(setFooterVisibility(false));
     }
   }, [isFooterEnabled, dispatch]);
 
   const toggleSection = (sectionKey: FILTERS_SECTION) => {
-    const updatedSections = openedSections.map((section) => {
+    const updatedSections = openedSections.map(section => {
       if (section.key === sectionKey) {
         return { ...section, isOpened: !section.isOpened };
       }
@@ -92,9 +97,10 @@ export default function StatisticsMobileModal({ t, years, onUpdateYearsCallback,
     });
 
     setOpenedSections(updatedSections);
-  }
+  };
 
-  const isOpenedSection = (sectionKey: FILTERS_SECTION): boolean | undefined => openedSections.find(section => section.key === sectionKey)?.isOpened
+  const isOpenedSection = (sectionKey: FILTERS_SECTION): boolean | undefined =>
+    openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
     <div className="statisticsMobileModal" ref={modalRef}>
@@ -105,21 +111,35 @@ export default function StatisticsMobileModal({ t, years, onUpdateYearsCallback,
       <div className="filters">
         <div className="filtersYears">
           <div className="filtersYearsTitle">
-            <div onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}>{t('common.filters.years')}</div>
+            <div onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}>
+              {t('common.filters.years')}
+            </div>
             {isOpenedSection(FILTERS_SECTION.YEAR) ? (
-              <CaretUpGreyIcon size={16} className="filtersYearsTitleCaret" ariaLabel="Collapse" onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} />
+              <CaretUpGreyIcon
+                size={16}
+                className="filtersYearsTitleCaret"
+                ariaLabel="Collapse"
+                onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+              />
             ) : (
-              <CaretDownGreyIcon size={16} className="filtersYearsTitleCaret" ariaLabel="Expand" onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)} />
+              <CaretDownGreyIcon
+                size={16}
+                className="filtersYearsTitleCaret"
+                ariaLabel="Expand"
+                onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+              />
             )}
           </div>
-          <div className={`filtersYearsList ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'filtersYearsListOpened' : ''}`}>
+          <div
+            className={`filtersYearsList ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'filtersYearsListOpened' : ''}`}
+          >
             {filtersYears.map((y, index) => (
-              <div
-                key={index}
-                className="filtersYearsListChoice"
-              >
+              <div key={index} className="filtersYearsListChoice">
                 <div>
-                  <Checkbox checked={y.isChecked} onChangeCallback={(): void => onCheckYear(y.year)}/>
+                  <Checkbox
+                    checked={y.isChecked}
+                    onChangeCallback={(): void => onCheckYear(y.year)}
+                  />
                 </div>
                 <span
                   className={`filtersYearsListChoiceLabel ${y.isChecked ? 'filtersYearsListChoiceLabelChecked' : ''}`}
@@ -133,8 +153,11 @@ export default function StatisticsMobileModal({ t, years, onUpdateYearsCallback,
         </div>
       </div>
       <div className="submit">
-        <Button text={t('common.filters.applyFilters')} onClickCallback={(): void => onApplyFilters()} />
+        <Button
+          text={t('common.filters.applyFilters')}
+          onClickCallback={(): void => onApplyFilters()}
+        />
       </div>
     </div>
-  )
-} 
+  );
+}

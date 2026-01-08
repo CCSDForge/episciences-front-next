@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import i18next from 'i18next';
-import { CaretUpBlueIcon, CaretDownBlueIcon, CaretUpWhiteIcon, CaretDownWhiteIcon } from '@/components/icons';
+import {
+  CaretUpBlueIcon,
+  CaretDownBlueIcon,
+  CaretUpWhiteIcon,
+  CaretDownWhiteIcon,
+} from '@/components/icons';
 import './LanguageDropdown.scss';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
@@ -16,7 +21,10 @@ interface ILanguageDropdownProps {
   initialLanguage?: string;
 }
 
-export default function LanguageDropdown({ withWhiteCaret, initialLanguage }: ILanguageDropdownProps): React.JSX.Element | null {
+export default function LanguageDropdown({
+  withWhiteCaret,
+  initialLanguage,
+}: ILanguageDropdownProps): React.JSX.Element | null {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
@@ -37,8 +45,8 @@ export default function LanguageDropdown({ withWhiteCaret, initialLanguage }: IL
 
   const acceptedLanguagesStr = process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES || '';
   const acceptedLanguages = acceptedLanguagesStr ? acceptedLanguagesStr.split(',') : [];
-  const filteredLanguages = availableLanguages.filter(lang =>
-    acceptedLanguages.length === 0 || acceptedLanguages.includes(lang)
+  const filteredLanguages = availableLanguages.filter(
+    lang => acceptedLanguages.length === 0 || acceptedLanguages.includes(lang)
   );
 
   useEffect(() => {
@@ -82,29 +90,45 @@ export default function LanguageDropdown({ withWhiteCaret, initialLanguage }: IL
   return (
     <div
       ref={dropdownRef}
-      className='languageDropdown'
+      className="languageDropdown"
       onMouseEnter={(): void => setShowDropdown(true)}
       onMouseLeave={(): void => setShowDropdown(false)}
       onTouchStart={(): void => setShowDropdown(!showDropdown)}
     >
-      <div className='languageDropdown-icon'>
-        <div className='languageDropdown-icon-text'>{language.toUpperCase()}</div>
+      <div className="languageDropdown-icon">
+        <div className="languageDropdown-icon-text">{language.toUpperCase()}</div>
         {showDropdown ? (
           withWhiteCaret ? (
-            <CaretUpWhiteIcon size={14} className='languageDropdown-icon-caret' ariaLabel="Collapse language menu" />
+            <CaretUpWhiteIcon
+              size={14}
+              className="languageDropdown-icon-caret"
+              ariaLabel="Collapse language menu"
+            />
           ) : (
-            <CaretUpBlueIcon size={14} className='languageDropdown-icon-caret' ariaLabel="Collapse language menu" />
+            <CaretUpBlueIcon
+              size={14}
+              className="languageDropdown-icon-caret"
+              ariaLabel="Collapse language menu"
+            />
           )
+        ) : withWhiteCaret ? (
+          <CaretDownWhiteIcon
+            size={14}
+            className="languageDropdown-icon-caret"
+            ariaLabel="Expand language menu"
+          />
         ) : (
-          withWhiteCaret ? (
-            <CaretDownWhiteIcon size={14} className='languageDropdown-icon-caret' ariaLabel="Expand language menu" />
-          ) : (
-            <CaretDownBlueIcon size={14} className='languageDropdown-icon-caret' ariaLabel="Expand language menu" />
-          )
+          <CaretDownBlueIcon
+            size={14}
+            className="languageDropdown-icon-caret"
+            ariaLabel="Expand language menu"
+          />
         )}
       </div>
-      <div className={`languageDropdown-content ${showDropdown && 'languageDropdown-content-displayed'}`}>
-        <div className='languageDropdown-content-links'>
+      <div
+        className={`languageDropdown-content ${showDropdown && 'languageDropdown-content-displayed'}`}
+      >
+        <div className="languageDropdown-content-links">
           {filteredLanguages.map((availableLanguage: AvailableLanguage, index: number) => (
             <span
               key={index}
@@ -118,4 +142,4 @@ export default function LanguageDropdown({ withWhiteCaret, initialLanguage }: IL
       </div>
     </div>
   );
-} 
+}

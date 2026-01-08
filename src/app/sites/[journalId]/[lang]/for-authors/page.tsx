@@ -1,6 +1,10 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
-import { fetchEditorialWorkflowPage, fetchEthicalCharterPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
+import {
+  fetchEditorialWorkflowPage,
+  fetchEthicalCharterPage,
+  fetchPrepareSubmissionPage,
+} from '@/services/forAuthors';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { connection } from 'next/server';
 
@@ -16,7 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function ForAuthorsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+export default async function ForAuthorsPage(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}) {
   const params = await props.params;
   const { journalId, lang } = params;
 
@@ -31,12 +37,13 @@ export default async function ForAuthorsPage(props: { params: Promise<{ journalI
 
   try {
     // Fetch all pages and translations in parallel
-    [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage, translations] = await Promise.all([
-      fetchEditorialWorkflowPage(journalId),
-      fetchEthicalCharterPage(journalId),
-      fetchPrepareSubmissionPage(journalId),
-      getServerTranslations(lang)
-    ]);
+    [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage, translations] =
+      await Promise.all([
+        fetchEditorialWorkflowPage(journalId),
+        fetchEthicalCharterPage(journalId),
+        fetchPrepareSubmissionPage(journalId),
+        getServerTranslations(lang),
+      ]);
   } catch (error) {
     console.warn('[ForAuthorsPage] Failed to fetch data:', error);
     // Data remains at fallback values (null/empty)

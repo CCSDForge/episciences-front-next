@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss" as breakpoints;
+@use '@/styles/breakpoints.scss' as breakpoints;
 
 .volumeDetails {
   &-id {
@@ -17,7 +17,7 @@
     &-mobileRelatedList {
       display: none;
 
-      @media (max-width:  breakpoints.$xsm) {
+      @media (max-width: breakpoints.$xsm) {
         display: flex;
         align-items: center;
         gap: 6px;
@@ -42,7 +42,7 @@
       font-size: 20px;
       margin-bottom: 15px;
 
-      @media (max-width:  breakpoints.$xsm) {
+      @media (max-width: breakpoints.$xsm) {
         font-size: 14px;
       }
     }
@@ -50,7 +50,7 @@
     &-results {
       display: flex;
 
-      @media (max-width:  breakpoints.$xsm) {
+      @media (max-width: breakpoints.$xsm) {
         flex-direction: column;
       }
 
@@ -65,14 +65,14 @@
           font-weight: bold;
           margin-bottom: 16px;
 
-          @media (max-width:  breakpoints.$xsm) {
+          @media (max-width: breakpoints.$xsm) {
             display: none;
           }
 
           &-mobile {
             display: none;
 
-            @media (max-width:  breakpoints.$xsm) {
+            @media (max-width: breakpoints.$xsm) {
               display: block;
               font-size: 18px;
             }
@@ -84,14 +84,14 @@
           margin-bottom: 16px;
           font-size: 20px;
 
-          @media (max-width:  breakpoints.$xsm) {
+          @media (max-width: breakpoints.$xsm) {
             display: none;
           }
 
           &-mobile {
             display: none;
 
-            @media (max-width:  breakpoints.$xsm) {
+            @media (max-width: breakpoints.$xsm) {
               display: block;
               font-size: 16px;
             }
@@ -108,7 +108,7 @@
           gap: 4px;
           margin-bottom: 24px;
 
-          @media (max-width:  breakpoints.$xsm) {
+          @media (max-width: breakpoints.$xsm) {
             margin-top: 16px;
             margin-bottom: 8px;
           }
@@ -117,7 +117,7 @@
             color: var(--grey-dark);
             font-size: 16px;
 
-            @media (max-width:  breakpoints.$xsm) {
+            @media (max-width: breakpoints.$xsm) {
               color: var(--grey);
               font-size: 13px;
             }
@@ -127,7 +127,7 @@
             }
           }
         }
-  
+
         &-description {
           color: var(--grey-dark);
           font-size: 16px;
@@ -135,7 +135,7 @@
           margin-bottom: 20px;
           border-bottom: 1px solid var(--grey-light);
 
-          @media (max-width:  breakpoints.$xsm) {
+          @media (max-width: breakpoints.$xsm) {
             padding-bottom: 0px;
             border-bottom: none;
           }
@@ -147,7 +147,7 @@
           &-toggleMobile {
             display: none;
 
-            @media (max-width:  breakpoints.$xsm) {
+            @media (max-width: breakpoints.$xsm) {
               display: flex;
               align-items: center;
               gap: 6px;
@@ -160,7 +160,7 @@
         &-mobileCount {
           display: none;
 
-          @media (max-width:  breakpoints.$xsm) {
+          @media (max-width: breakpoints.$xsm) {
             display: block;
             font-size: 18px;
             color: var(--grey);
@@ -193,13 +193,13 @@
           &-anchor {
             display: flex;
             justify-content: space-between;
-        
+
             &-publicationDate {
               color: var(--grey-light);
               font-size: 14px;
               font-style: italic;
             }
-        
+
             &-icons {
               &-download {
                 display: flex;
@@ -223,4 +223,4 @@
       }
     }
   }
-} 
+}

@@ -14,14 +14,21 @@ import './VolumeDetailsMobileModal.scss';
 
 interface IVolumeDetailsMobileModalProps {
   language: AvailableLanguage;
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   volume?: IVolume;
   relatedVolumes: IVolume[];
   onSelectRelatedVolumeCallback: (id: number) => void;
   onCloseCallback: () => void;
 }
 
-export default function VolumeDetailsMobileModal({ language, t, volume, relatedVolumes, onSelectRelatedVolumeCallback, onCloseCallback }: IVolumeDetailsMobileModalProps): React.JSX.Element {
+export default function VolumeDetailsMobileModal({
+  language,
+  t,
+  volume,
+  relatedVolumes,
+  onSelectRelatedVolumeCallback,
+  onCloseCallback,
+}: IVolumeDetailsMobileModalProps): React.JSX.Element {
   const dispatch = useAppDispatch();
 
   const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);
@@ -33,7 +40,7 @@ export default function VolumeDetailsMobileModal({ language, t, volume, relatedV
   const onClose = useCallback((): void => {
     setChosenVolume(undefined);
     onCloseCallback();
-    dispatch(setFooterVisibility(true))
+    dispatch(setFooterVisibility(true));
   }, [onCloseCallback, dispatch]);
 
   const onApplyFilters = (): void => {
@@ -41,8 +48,8 @@ export default function VolumeDetailsMobileModal({ language, t, volume, relatedV
 
     onSelectRelatedVolumeCallback(chosenVolume.id);
     onCloseCallback();
-    dispatch(setFooterVisibility(true))
-  }
+    dispatch(setFooterVisibility(true));
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -60,34 +67,34 @@ export default function VolumeDetailsMobileModal({ language, t, volume, relatedV
   const getTitle = (): string => {
     if (volume?.types && volume.types.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
-          return t('pages.volumeDetails.relatedVolumes.proceedings')
+        return t('pages.volumeDetails.relatedVolumes.proceedings');
       }
 
       if (volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
-        return t('pages.volumeDetails.relatedVolumes.specialIssues')
+        return t('pages.volumeDetails.relatedVolumes.specialIssues');
       }
     }
 
-    return t('pages.volumeDetails.relatedVolumes.volumes')
-  }
+    return t('pages.volumeDetails.relatedVolumes.volumes');
+  };
 
   const getSubmitText = (): string => {
     if (volume?.types && volume.types.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
-          return t('pages.volumeDetails.relatedVolumes.lookAtSelectedProceedings')
+        return t('pages.volumeDetails.relatedVolumes.lookAtSelectedProceedings');
       }
 
       if (volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
-        return t('pages.volumeDetails.relatedVolumes.lookAtSelectedIssue')
+        return t('pages.volumeDetails.relatedVolumes.lookAtSelectedIssue');
       }
     }
 
-    return t('pages.volumeDetails.relatedVolumes.lookAtSelectedVolume')
-  }
+    return t('pages.volumeDetails.relatedVolumes.lookAtSelectedVolume');
+  };
 
   useEffect(() => {
     if (isFooterEnabled) {
-      dispatch(setFooterVisibility(false))
+      dispatch(setFooterVisibility(false));
     }
   }, [isFooterEnabled, dispatch]);
 
@@ -95,14 +102,21 @@ export default function VolumeDetailsMobileModal({ language, t, volume, relatedV
     <div className="volumeDetailsMobileModal" ref={modalRef}>
       <div className="volumeDetailsMobileModal-title">
         <div className="volumeDetailsMobileModal-title-text">{getTitle()}</div>
-        <CloseRedIcon size={24} className="volumeDetailsMobileModal-title-close" ariaLabel="Close" onClick={onClose} />
+        <CloseRedIcon
+          size={24}
+          className="volumeDetailsMobileModal-title-close"
+          ariaLabel="Close"
+          onClick={onClose}
+        />
       </div>
       <div className="volumeDetailsMobileModal-relatedVolumes">
         {relatedVolumes.map((relatedVolume, index) => (
           <div
             key={index}
             className={`volumeDetailsMobileModal-relatedVolumes-volume ${relatedVolume.id === chosenVolume?.id ? 'volumeDetailsMobileModal-relatedVolumes-volume-current' : ''}`}
-            onClick={(): void => setChosenVolume(chosenVolume?.id !== relatedVolume.id ? relatedVolume : undefined)}
+            onClick={(): void =>
+              setChosenVolume(chosenVolume?.id !== relatedVolume.id ? relatedVolume : undefined)
+            }
           >
             {relatedVolume.title ? relatedVolume.title[language] : ''}
           </div>
@@ -112,5 +126,5 @@ export default function VolumeDetailsMobileModal({ language, t, volume, relatedV
         <Button text={getSubmitText()} onClickCallback={(): void => onApplyFilters()} />
       </div>
     </div>
-  )
-} 
+  );
+}

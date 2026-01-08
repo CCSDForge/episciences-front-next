@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import dynamic from 'next/dynamic';
 import { needsPdfJsViewer } from '@/utils/pdf-preview';
@@ -15,7 +15,7 @@ const PDFViewer = dynamic(() => import('@/components/PDFViewer/PDFViewer'), {
         <p>Loading PDF viewer...</p>
       </div>
     );
-  }
+  },
 });
 
 interface PreviewSectionProps {
@@ -52,4 +52,4 @@ export default function PreviewSection({ pdfLink }: PreviewSectionProps): React.
       allow="fullscreen"
     />
   );
-} 
+}

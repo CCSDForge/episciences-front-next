@@ -10,13 +10,13 @@ export type { JournalConfig };
  */
 export async function generateStaticPaths(journalCode: string) {
   const config = loadJournalConfig(journalCode);
-  
+
   // TODO: Implémenter la logique de génération des chemins
   // Cette fonction sera utilisée dans getStaticPaths de chaque page
-  
+
   return {
     paths: [],
-    fallback: false
+    fallback: false,
   };
 }
 
@@ -37,4 +37,4 @@ export function getStaticJournalCodes(): string[] {
     throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
   }
   return [journalCode];
-} 
+}

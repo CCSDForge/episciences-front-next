@@ -10,24 +10,28 @@ export interface IStatisticsYearSelection {
 }
 
 interface IStatisticsSidebarProps {
-  t: TFunction<"translation", undefined>;
+  t: TFunction<'translation', undefined>;
   years: IStatisticsYearSelection[];
   onCheckYearCallback: (year: number) => void;
 }
 
-export default function StatisticsSidebar({ t, years, onCheckYearCallback }: IStatisticsSidebarProps): React.JSX.Element {
+export default function StatisticsSidebar({
+  t,
+  years,
+  onCheckYearCallback,
+}: IStatisticsSidebarProps): React.JSX.Element {
   return (
     <div className="statisticsSidebar">
       <div className="statisticsSidebar-title">{t('common.filters.years')}</div>
       <div className="statisticsSidebar-years">
         <div className="statisticsSidebar-years-list">
           {years.map((y, index) => (
-            <div
-              key={index}
-              className="statisticsSidebar-years-list-choice"
-            >
+            <div key={index} className="statisticsSidebar-years-list-choice">
               <div className="statisticsSidebar-years-list-choice-checkbox">
-                <Checkbox checked={y.isChecked} onChangeCallback={(): void => onCheckYearCallback(y.year)} />
+                <Checkbox
+                  checked={y.isChecked}
+                  onChangeCallback={(): void => onCheckYearCallback(y.year)}
+                />
               </div>
               <span
                 className={`statisticsSidebar-years-list-choice-label ${y.isChecked && 'statisticsSidebar-years-list-choice-label-checked'}`}
@@ -41,4 +45,4 @@ export default function StatisticsSidebar({ t, years, onCheckYearCallback }: ISt
       </div>
     </div>
   );
-} 
+}

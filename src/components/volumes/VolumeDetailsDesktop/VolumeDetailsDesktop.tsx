@@ -17,10 +17,11 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
   const getEdito = (): IVolumeMetadata | null => {
     if (!volume?.metadatas || !volume.metadatas.length) return null;
 
-    const edito = volume.metadatas.find((metadata) => 
-      metadata.title && 
-      metadata.title[language] && 
-      metadata.title[language].replace(/[\u0300-\u036f]/g, '').toLowerCase() === 'edito'
+    const edito = volume.metadatas.find(
+      metadata =>
+        metadata.title &&
+        metadata.title[language] &&
+        metadata.title[language].replace(/[\u0300-\u036f]/g, '').toLowerCase() === 'edito'
     );
 
     return edito || null;
@@ -28,35 +29,47 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
 
   const renderProceedingTheme = (): string | null => {
     if (!volume.settingsProceeding) return null;
-    const proceedingTheme = volume.settingsProceeding.find((setting) => setting.setting === "conference_theme");
+    const proceedingTheme = volume.settingsProceeding.find(
+      setting => setting.setting === 'conference_theme'
+    );
     return proceedingTheme?.value || null;
   };
 
   const renderProceedingDOI = (): string | null => {
     if (!volume.settingsProceeding) return null;
-    const proceedingDOI = volume.settingsProceeding.find((setting) => setting.setting === "conference_proceedings_doi");
+    const proceedingDOI = volume.settingsProceeding.find(
+      setting => setting.setting === 'conference_proceedings_doi'
+    );
     return proceedingDOI?.value || null;
   };
 
   const renderProceedingLocation = (): string | null => {
     if (!volume.settingsProceeding) return null;
-    const conferenceLocation = volume.settingsProceeding.find((setting) => setting.setting === "conference_location");
+    const conferenceLocation = volume.settingsProceeding.find(
+      setting => setting.setting === 'conference_location'
+    );
     return conferenceLocation?.value || null;
   };
 
   const renderProceedingDates = (): string | null => {
     if (!volume.settingsProceeding) return null;
-    const conferenceStart = volume.settingsProceeding.find((setting) => setting.setting === "conference_start");
-    const conferenceEnd = volume.settingsProceeding.find((setting) => setting.setting === "conference_end");
+    const conferenceStart = volume.settingsProceeding.find(
+      setting => setting.setting === 'conference_start'
+    );
+    const conferenceEnd = volume.settingsProceeding.find(
+      setting => setting.setting === 'conference_end'
+    );
 
-    return conferenceStart?.value && conferenceEnd?.value 
-      ? `${formatDate(conferenceStart.value, language)} - ${formatDate(conferenceEnd.value, language)}` 
+    return conferenceStart?.value && conferenceEnd?.value
+      ? `${formatDate(conferenceStart.value, language)} - ${formatDate(conferenceEnd.value, language)}`
       : null;
   };
 
   const renderTitle = (): React.JSX.Element => {
     if (volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) && volume.settingsProceeding?.length) {
-      const conferenceName = volume.settingsProceeding.find((setting) => setting.setting === "conference_name");
+      const conferenceName = volume.settingsProceeding.find(
+        setting => setting.setting === 'conference_name'
+      );
       if (conferenceName?.value) {
         return (
           <div className="volumeDetailsDesktop-title">
@@ -78,10 +91,10 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
 
     return (
       <div className="volumeDetailsDesktop-committee">
-        {(!volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS)) && (
+        {!volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) && (
           <span className="volumeDetailsDesktop-committee-note">Volume committee :</span>
         )}
-        {volume?.committee.map((member) => member.screenName).join(', ')}
+        {volume?.committee.map(member => member.screenName).join(', ')}
       </div>
     );
   };
@@ -92,7 +105,7 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
     <div className="volumeDetailsDesktop">
       {renderTitle()}
       {renderCommittee()}
-      
+
       {volume?.description && volume.description[language] && (
         <div className="volumeDetailsDesktop-description">
           <ReactMarkdown>{volume.description[language]}</ReactMarkdown>
@@ -102,21 +115,15 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
       {volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) && volume.settingsProceeding && (
         <div className="volumeDetailsDesktop-proceeding">
           {renderProceedingTheme() && (
-            <div className="volumeDetailsDesktop-proceeding-theme">
-              {renderProceedingTheme()}
-            </div>
+            <div className="volumeDetailsDesktop-proceeding-theme">{renderProceedingTheme()}</div>
           )}
           <div className="volumeDetailsDesktop-proceeding-info">
-            {renderProceedingLocation() && (
-              <div>{renderProceedingLocation()}</div>
-            )}
-            {renderProceedingDates() && (
-              <div>{renderProceedingDates()}</div>
-            )}
+            {renderProceedingLocation() && <div>{renderProceedingLocation()}</div>}
+            {renderProceedingDates() && <div>{renderProceedingDates()}</div>}
             {renderProceedingDOI() && (
-              <a 
-                href={renderProceedingDOI()!} 
-                target="_blank" 
+              <a
+                href={renderProceedingDOI()!}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="volumeDetailsDesktop-proceeding-doi"
               >
@@ -129,9 +136,7 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
 
       {edito && (
         <div className="volumeDetailsDesktop-edito">
-          <div className="volumeDetailsDesktop-edito-title">
-            {edito.title?.[language]}
-          </div>
+          <div className="volumeDetailsDesktop-edito-title">{edito.title?.[language]}</div>
           <div className="volumeDetailsDesktop-edito-content">
             <ReactMarkdown>{edito.content?.[language] || ''}</ReactMarkdown>
           </div>
@@ -139,4 +144,4 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
       )}
     </div>
   );
-} 
+}

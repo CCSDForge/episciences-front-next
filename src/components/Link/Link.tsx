@@ -18,23 +18,22 @@ type LinkProps = {
 
 // Fonction utilitaire pour normaliser les chemins
 function normalizePath(path: string): string {
-  if (path.startsWith('http') || path.startsWith('//') || path.startsWith('mailto:') || path.startsWith('#')) {
+  if (
+    path.startsWith('http') ||
+    path.startsWith('//') ||
+    path.startsWith('mailto:') ||
+    path.startsWith('#')
+  ) {
     return path;
   }
   const normalizedPath = path.startsWith('/') ? path : '/' + path;
   return normalizedPath.replace(/\/+/g, '/');
 }
 
-export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
-  href,
-  children,
-  lang,
-  prefetch,
-  scroll,
-  replace,
-  shallow,
-  ...props
-}, ref) {
+export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
+  { href, children, lang, prefetch, scroll, replace, shallow, ...props },
+  ref
+) {
   const { i18n } = useTranslation();
   // Ensure we always have a language, falling back to defaultLanguage
   const currentLanguage = lang || i18n.language || defaultLanguage;
@@ -43,8 +42,12 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
   const normalizedHref = normalizePath(href);
 
   // Détecter si lien externe
-  const isExternal = normalizedHref.startsWith('http') || normalizedHref.startsWith('//') || normalizedHref.startsWith('mailto:') || normalizedHref.startsWith('#');
-  
+  const isExternal =
+    normalizedHref.startsWith('http') ||
+    normalizedHref.startsWith('//') ||
+    normalizedHref.startsWith('mailto:') ||
+    normalizedHref.startsWith('#');
+
   // Localiser le chemin interne
   const finalHref = isExternal ? normalizedHref : getLocalizedPath(normalizedHref, currentLanguage);
 
@@ -57,9 +60,9 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
   }
 
   return (
-    <NextLink 
-      ref={ref} 
-      href={finalHref} 
+    <NextLink
+      ref={ref}
+      href={finalHref}
       prefetch={prefetch}
       scroll={scroll}
       replace={replace}
@@ -70,4 +73,3 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
     </NextLink>
   );
 });
- 

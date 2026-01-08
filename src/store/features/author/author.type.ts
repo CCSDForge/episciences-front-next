@@ -4,5 +4,5 @@ export interface IAuthorState {
   authors: {
     data: IAuthor[];
     totalItems: number;
-  }
-} 
+  };
+}

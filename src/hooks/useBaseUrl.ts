@@ -19,4 +19,4 @@ export function useBaseUrl() {
 
   // Valeur par défaut pour le rendu côté serveur
   return '/';
-} 
+}

@@ -1,5 +1,5 @@
-import { AvailableLanguage } from "@/utils/i18n";
-import { IPage } from "./page";
+import { AvailableLanguage } from '@/utils/i18n';
+import { IPage } from './page';
 
 export type BoardPage = IPage;
 
@@ -34,15 +34,15 @@ export type RawBoardMember = IBoardMember & {
   roles: string[][];
   assignedSections?: {
     sid: number;
-    titles: Record<AvailableLanguage, string>
+    titles: Record<AvailableLanguage, string>;
   }[];
   additionalProfileInformation?: {
     biography?: string;
     affiliations: IBoardMemberAffiliation[];
     socialMedias?: string;
     webSites: string[];
-  }
-}
+  };
+};
 
 export interface IBoard {
   id: number;
@@ -63,4 +63,4 @@ export interface IBoardSection {
   order?: number;
   createdAt?: string;
   updatedAt?: string;
-} 
+}

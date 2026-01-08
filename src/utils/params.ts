@@ -7,7 +7,7 @@
  */
 export function getFormatParams(searchParams: { [key: string]: string | string[] | undefined }) {
   const result: { [key: string]: string } = {};
-  
+
   Object.entries(searchParams).forEach(([key, value]) => {
     if (typeof value === 'string') {
       result[key] = value;
@@ -15,6 +15,6 @@ export function getFormatParams(searchParams: { [key: string]: string | string[]
       result[key] = value[0];
     }
   });
-  
+
   return result;
-} 
+}

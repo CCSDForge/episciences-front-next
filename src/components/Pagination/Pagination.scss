@@ -5,7 +5,9 @@
   align-items: center;
   list-style: none;
 
-  &-previous, &-next, &-page {
+  &-previous,
+  &-next,
+  &-page {
     cursor: pointer;
   }
 
@@ -20,11 +22,11 @@
   }
 
   &-disabled {
-    
     cursor: default;
   }
 
-  &-page, &-break {
+  &-page,
+  &-break {
     cursor: pointer;
     color: var(--grey-light);
   }
@@ -44,4 +46,4 @@
       background: var(--primary);
     }
   }
-} 
+}

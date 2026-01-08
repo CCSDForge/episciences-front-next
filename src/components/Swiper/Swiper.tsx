@@ -16,18 +16,26 @@ interface ISwiperProps {
   id: string;
   type: SwiperCardType;
   language: AvailableLanguage;
-  t: TFunction<"translation", undefined>;
+  t: TFunction<'translation', undefined>;
   slidesPerView: number;
   slidesPerGroup: number;
   cards: SwiperCardContent[];
 }
 
-export default function Swiper({ id, type, language, t, slidesPerView, slidesPerGroup, cards }: ISwiperProps): React.JSX.Element {
+export default function Swiper({
+  id,
+  type,
+  language,
+  t,
+  slidesPerView,
+  slidesPerGroup,
+  cards,
+}: ISwiperProps): React.JSX.Element {
   // État pour stocker l'information si l'écran est mobile ou tablet
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  
+
   useEffect(() => {
     setIsMounted(true);
     // Fonction pour déterminer si l'écran est mobile ou tablette
@@ -36,13 +44,13 @@ export default function Swiper({ id, type, language, t, slidesPerView, slidesPer
       setIsMobile(width < 768);
       setIsTablet(width >= 768 && width < 1024);
     };
-    
+
     // Initialiser
     checkDevice();
-    
+
     // Écouter les redimensionnements
     window.addEventListener('resize', checkDevice);
-    
+
     // Nettoyage
     return () => window.removeEventListener('resize', checkDevice);
   }, []);
@@ -50,13 +58,13 @@ export default function Swiper({ id, type, language, t, slidesPerView, slidesPer
   // Fonction pour filtrer les cartes comme dans la version d'origine
   const getRenderedCards = (): SwiperCardContent[] => {
     const filteredCards = cards.filter(Boolean);
-    
+
     // Pendant le rendu initial (SSR + première passe client), on retourne toutes les cartes
     // pour éviter les erreurs d'hydratation
     if (!isMounted) {
       return filteredCards;
     }
-    
+
     if (isMobile) {
       return filteredCards.slice(0, 4);
     }
@@ -86,7 +94,7 @@ export default function Swiper({ id, type, language, t, slidesPerView, slidesPer
           modules={[Pagination, Navigation]}
           pagination={{
             el: `.${id}-pagination`,
-            clickable: true
+            clickable: true,
           }}
           navigation={{
             prevEl: `.${id}-button-prev`,
@@ -99,12 +107,12 @@ export default function Swiper({ id, type, language, t, slidesPerView, slidesPer
             },
             480: {
               slidesPerView: 2,
-              slidesPerGroup: 2
+              slidesPerGroup: 2,
             },
             1368: {
               slidesPerView: slidesPerView,
-              slidesPerGroup: slidesPerGroup
-            }
+              slidesPerGroup: slidesPerGroup,
+            },
           }}
         >
           {getRenderedCards().map((content: SwiperCardContent, key: number) => (
@@ -120,4 +128,4 @@ export default function Swiper({ id, type, language, t, slidesPerView, slidesPer
       <div className={`${id}-pagination swiper-pagination`}></div>
     </>
   );
-} 
+}

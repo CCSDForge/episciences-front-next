@@ -23,4 +23,4 @@ export default function ClientLayout({ children, currentJournal }: ClientLayoutP
       {children}
     </Provider>
   );
-} 
+}

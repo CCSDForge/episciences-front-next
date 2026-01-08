@@ -7,10 +7,7 @@ const TARGET_DIR = path.resolve(__dirname, '../external-assets');
 
 // Vérifier que les dossiers existent
 function ensureDirectories() {
-  const dirs = [
-    TARGET_DIR,
-    path.join(TARGET_DIR, 'logos')
-  ];
+  const dirs = [TARGET_DIR, path.join(TARGET_DIR, 'logos')];
 
   dirs.forEach(dir => {
     if (!fs.existsSync(dir)) {
@@ -24,13 +21,13 @@ function ensureDirectories() {
 function convertEnvContent(content) {
   // Remplacer VITE_ par NEXT_PUBLIC_
   let converted = content.replace(/VITE_/g, 'NEXT_PUBLIC_');
-  
+
   // Supprimer les commentaires de type ###> ###
   converted = converted.replace(/###>.*?###/gs, '');
-  
+
   // Supprimer les lignes vides multiples
   converted = converted.replace(/\n\s*\n\s*\n/g, '\n\n');
-  
+
   return converted.trim();
 }
 
@@ -48,7 +45,7 @@ function copyAndConvertEnv(journal) {
 
     const content = fs.readFileSync(sourceFile, 'utf8');
     const convertedContent = convertEnvContent(content);
-    
+
     // Vérifier que le contenu converti n'est pas vide
     if (!convertedContent.trim()) {
       console.error(`❌ Contenu vide après conversion pour ${journal}`);
@@ -76,7 +73,7 @@ function copyLogos() {
 
     // Lire la liste des logos
     const logos = fs.readdirSync(sourceLogoDir);
-    
+
     if (logos.length === 0) {
       console.warn(`⚠️ Aucun logo trouvé dans ${sourceLogoDir}`);
       return;
@@ -86,7 +83,7 @@ function copyLogos() {
     logos.forEach(logo => {
       const sourcePath = path.join(sourceLogoDir, logo);
       const targetPath = path.join(targetLogoDir, logo);
-      
+
       // Vérifier que c'est bien un fichier SVG
       if (!logo.endsWith('.svg')) {
         console.warn(`⚠️ Ignoré ${logo} (pas un SVG)`);
@@ -107,7 +104,7 @@ function copyLogos() {
 async function main() {
   try {
     console.log('🚀 Début de la conversion...');
-    
+
     // Vérifier que le dossier des assets existe
     if (!fs.existsSync(ASSETS_DIR)) {
       throw new Error(`Dossier des assets non trouvé: ${ASSETS_DIR}`);
@@ -117,14 +114,12 @@ async function main() {
     ensureDirectories();
 
     // Copier le fichier journals.txt
-    fs.copyFileSync(
-      path.join(ASSETS_DIR, 'journals.txt'),
-      path.join(TARGET_DIR, 'journals.txt')
-    );
+    fs.copyFileSync(path.join(ASSETS_DIR, 'journals.txt'), path.join(TARGET_DIR, 'journals.txt'));
     console.log('✅ Copié journals.txt');
 
     // Lire la liste des journaux
-    const journals = fs.readFileSync(path.join(ASSETS_DIR, 'journals.txt'), 'utf8')
+    const journals = fs
+      .readFileSync(path.join(ASSETS_DIR, 'journals.txt'), 'utf8')
       .split('\n')
       .map(j => j.trim())
       .filter(Boolean);
@@ -149,4 +144,4 @@ async function main() {
 }
 
 // Lancer le script
-main(); 
+main();

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { DownloadBlueIcon, ExternalLinkBlueIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
@@ -40,11 +40,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): React.JSX.
         <div className="pdf-viewer-toolbar-title">{title}</div>
 
         <div className="pdf-viewer-toolbar-controls">
-          <a
-            href={pdfUrl}
-            download
-            className="pdf-viewer-action-btn"
-          >
+          <a href={pdfUrl} download className="pdf-viewer-action-btn">
             <DownloadBlueIcon size={16} ariaLabel="Download" />
             <span>{t('components.pdfViewer.downloadPDF')}</span>
           </a>
@@ -61,7 +57,11 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): React.JSX.
             onClick={() => setShowFallback(!showFallback)}
             className="pdf-viewer-action-btn pdf-viewer-toggle-btn"
           >
-            <span>{showFallback ? t('components.pdfViewer.showViewer') : t('components.pdfViewer.showInfo')}</span>
+            <span>
+              {showFallback
+                ? t('components.pdfViewer.showViewer')
+                : t('components.pdfViewer.showInfo')}
+            </span>
           </button>
         </div>
       </div>
@@ -77,20 +77,14 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): React.JSX.
         ) : (
           <div className="pdf-viewer-fallback">
             <h2>{t('components.pdfViewer.fallback.title')}</h2>
-            <p>
-              {t('components.pdfViewer.fallback.description')}
-            </p>
+            <p>{t('components.pdfViewer.fallback.description')}</p>
             <ul>
               <li>{t('components.pdfViewer.fallback.useViewer')}</li>
               <li>{t('components.pdfViewer.fallback.downloadLocal')}</li>
               <li>{t('components.pdfViewer.fallback.openNewTab')}</li>
             </ul>
             <div className="pdf-viewer-fallback-actions">
-              <a
-                href={pdfUrl}
-                download
-                className="pdf-viewer-action-btn"
-              >
+              <a href={pdfUrl} download className="pdf-viewer-action-btn">
                 <DownloadBlueIcon size={16} ariaLabel="Download" />
                 <span>{t('components.pdfViewer.downloadPDF')}</span>
               </a>

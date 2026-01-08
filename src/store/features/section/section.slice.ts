@@ -8,18 +8,15 @@ const sectionSlice = createSlice({
   initialState: {
     sections: {
       data: [],
-      totalItems: 0
-    }
+      totalItems: 0,
+    },
   } as ISectionState,
   reducers: {},
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      sectionApi.endpoints.fetchSections.matchFulfilled,
-      (state, { payload }) => {
-        state.sections = payload;
-      },
-    )
-  }
+  extraReducers: builder => {
+    builder.addMatcher(sectionApi.endpoints.fetchSections.matchFulfilled, (state, { payload }) => {
+      state.sections = payload;
+    });
+  },
 });
 
-export default sectionSlice.reducer; 
+export default sectionSlice.reducer;

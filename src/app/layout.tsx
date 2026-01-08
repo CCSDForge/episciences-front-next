@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 // Importer l'intercepteur fetch pour logger toutes les requêtes
 import '@/utils/fetchInterceptor';
 import { defaultLanguage } from '@/utils/language-utils';
-import "@/styles/index.scss";
+import '@/styles/index.scss';
 
 export const metadata: Metadata = {
   title: {
@@ -16,11 +16,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const currentLanguage = defaultLanguage;
 
   return (

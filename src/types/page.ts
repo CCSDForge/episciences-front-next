@@ -1,4 +1,4 @@
-import { AvailableLanguage } from "@/utils/i18n";
+import { AvailableLanguage } from '@/utils/i18n';
 
 export interface IPage {
   id: number;
@@ -6,4 +6,4 @@ export interface IPage {
   content: Record<AvailableLanguage, string>;
   rvcode: string;
   page_code: string;
-} 
+}

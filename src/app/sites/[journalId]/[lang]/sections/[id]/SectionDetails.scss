@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss" as breakpoints;
+@use '@/styles/breakpoints.scss' as breakpoints;
 
 .sectionDetails {
   &-id {
@@ -75,16 +75,16 @@
   &-empty {
     text-align: center;
     padding: 3rem 1rem;
-    
+
     &-content {
       max-width: 400px;
       margin: 0 auto;
-      
+
       h3 {
         margin-bottom: 1rem;
         color: var(--text-primary);
       }
-      
+
       p {
         color: var(--text-secondary);
         line-height: 1.6;

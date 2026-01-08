@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
 import { OrcidIcon, RorIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
-import {useState } from 'react';
+import { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { IInstitution } from '@/types/article';
 
@@ -17,7 +17,11 @@ interface CollapsibleInstitutionsProps {
   isMobile: boolean;
 }
 
-export default function CollapsibleInstitutions({ authors, institutions, isMobile }: CollapsibleInstitutionsProps): React.JSX.Element {
+export default function CollapsibleInstitutions({
+  authors,
+  institutions,
+  isMobile,
+}: CollapsibleInstitutionsProps): React.JSX.Element {
   const [openedInstitutions, setOpenedInstitutions] = useState(true);
 
   const renderAuthors = () => {
@@ -26,16 +30,28 @@ export default function CollapsibleInstitutions({ authors, institutions, isMobil
         <>
           {author.fullname}
           {author.orcid && (
-            <Link href={`${author.orcid}`} title={author.orcid} target='_blank' rel="noopener noreferrer">
+            <Link
+              href={`${author.orcid}`}
+              title={author.orcid}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {' '}
-              <OrcidIcon size={16} className='articleDetails-content-article-authors-author-orcid' ariaLabel="ORCID" />
+              <OrcidIcon
+                size={16}
+                className="articleDetails-content-article-authors-author-orcid"
+                ariaLabel="ORCID"
+              />
             </Link>
           )}
         </>
       );
 
       const authorInstitutions = author.institutionsKeys.map((key, i) => (
-        <sup key={i} className="articleDetails-content-article-authors-institution-key">{' '}({key + 1})</sup>
+        <sup key={i} className="articleDetails-content-article-authors-institution-key">
+          {' '}
+          ({key + 1})
+        </sup>
       ));
 
       return (
@@ -61,13 +77,13 @@ export default function CollapsibleInstitutions({ authors, institutions, isMobil
               <Link
                 href={institution.rorId}
                 title="Research Organization Registry"
-                target='_blank'
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 {' '}
                 <RorIcon
                   size={16}
-                  className='articleDetails-content-article-institutions-ror'
+                  className="articleDetails-content-article-institutions-ror"
                   ariaLabel="ROR"
                 />
               </Link>
@@ -82,33 +98,39 @@ export default function CollapsibleInstitutions({ authors, institutions, isMobil
     <>
       {institutions.length > 0 ? (
         <>
-          <div className={`articleDetails-content-article-authors articleDetails-content-article-authors-withInstitutions ${isMobile && 'articleDetails-content-article-authors-withInstitutions-mobile'}`}>
+          <div
+            className={`articleDetails-content-article-authors articleDetails-content-article-authors-withInstitutions ${isMobile && 'articleDetails-content-article-authors-withInstitutions-mobile'}`}
+          >
             <div>{renderAuthors()}</div>
             {openedInstitutions ? (
               <CaretUpGreyIcon
                 size={16}
-                className='articleDetails-content-article-authors-withInstitutions-caret'
+                className="articleDetails-content-article-authors-withInstitutions-caret"
                 ariaLabel="Collapse institutions"
                 onClick={(): void => setOpenedInstitutions(!openedInstitutions)}
               />
             ) : (
               <CaretDownGreyIcon
                 size={16}
-                className='articleDetails-content-article-authors-withInstitutions-caret'
+                className="articleDetails-content-article-authors-withInstitutions-caret"
                 ariaLabel="Expand institutions"
                 onClick={(): void => setOpenedInstitutions(!openedInstitutions)}
               />
             )}
           </div>
-          <div className={`articleDetails-content-article-institutions ${isMobile && 'articleDetails-content-article-institutions-mobile'}`}>
+          <div
+            className={`articleDetails-content-article-institutions ${isMobile && 'articleDetails-content-article-institutions-mobile'}`}
+          >
             {renderInstitutions()}
           </div>
         </>
       ) : (
-        <div className={`articleDetails-content-article-authors ${isMobile && 'articleDetails-content-article-authors-mobile'}`}>
+        <div
+          className={`articleDetails-content-article-authors ${isMobile && 'articleDetails-content-article-authors-mobile'}`}
+        >
           {renderAuthors()}
         </div>
       )}
     </>
   );
-} 
+}

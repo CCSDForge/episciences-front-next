@@ -47,9 +47,7 @@ export async function batchFetchWithFallback<T, R>(
   context: string = 'BatchFetch'
 ): Promise<R[]> {
   // Execute all fetches in parallel
-  const results = await Promise.allSettled(
-    items.map(item => fetchFn(item))
-  );
+  const results = await Promise.allSettled(items.map(item => fetchFn(item)));
 
   // Process results: extract successful values, log failures
   return results
@@ -57,10 +55,7 @@ export async function batchFetchWithFallback<T, R>(
       if (result.status === 'fulfilled') {
         return result.value;
       } else {
-        console.warn(
-          `[${context}] Item ${index} failed:`,
-          result.reason?.message || result.reason
-        );
+        console.warn(`[${context}] Item ${index} failed:`, result.reason?.message || result.reason);
         return fallback;
       }
     })
@@ -103,11 +98,7 @@ export async function batchFetchWithTracking<T, R>(
   failureCount: number;
   total: number;
 }> {
-  const {
-    fallback = null,
-    context = 'BatchFetch',
-    logProgress = false
-  } = options;
+  const { fallback = null, context = 'BatchFetch', logProgress = false } = options;
 
   const total = items.length;
   let successCount = 0;
@@ -117,9 +108,7 @@ export async function batchFetchWithTracking<T, R>(
     console.log(`[${context}] Starting batch fetch of ${total} items`);
   }
 
-  const results = await Promise.allSettled(
-    items.map(item => fetchFn(item))
-  );
+  const results = await Promise.allSettled(items.map(item => fetchFn(item)));
 
   const processedResults = results
     .map((result, index) => {
@@ -131,10 +120,7 @@ export async function batchFetchWithTracking<T, R>(
         return result.value;
       } else {
         failureCount++;
-        console.warn(
-          `[${context}] Item ${index} failed:`,
-          result.reason?.message || result.reason
-        );
+        console.warn(`[${context}] Item ${index} failed:`, result.reason?.message || result.reason);
         return fallback;
       }
     })
@@ -150,7 +136,7 @@ export async function batchFetchWithTracking<T, R>(
     results: processedResults,
     successCount,
     failureCount,
-    total
+    total,
   };
 }
 
@@ -181,9 +167,7 @@ export async function batchFetchWithRetry<T, R>(
   context: string = 'BatchFetch'
 ): Promise<R[]> {
   // First attempt: fetch all items
-  const firstAttempt = await Promise.allSettled(
-    items.map(item => fetchFn(item))
-  );
+  const firstAttempt = await Promise.allSettled(items.map(item => fetchFn(item)));
 
   // Identify failed items for retry
   const failedIndices: number[] = [];
@@ -198,9 +182,7 @@ export async function batchFetchWithRetry<T, R>(
 
   // Retry failed items
   if (failedIndices.length > 0) {
-    console.warn(
-      `[${context}] Retrying ${failedIndices.length} failed items...`
-    );
+    console.warn(`[${context}] Retrying ${failedIndices.length} failed items...`);
 
     const retryResults = await Promise.allSettled(
       failedIndices.map(index => fetchFn(items[index]))

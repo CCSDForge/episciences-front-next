@@ -1,22 +1,31 @@
 'use client';
 
-import { FilterIcon, ListRedIcon, ListGreyIcon, TileRedIcon, TileGreyIcon } from '@/components/icons';
-import { useState, useEffect, useCallback } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import {
+  FilterIcon,
+  ListRedIcon,
+  ListGreyIcon,
+  TileRedIcon,
+  TileGreyIcon,
+} from '@/components/icons';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
-import { useAppSelector } from "@/hooks/store";
+import { useAppSelector } from '@/hooks/store';
 import { RENDERING_MODE } from '@/utils/card';
 import { volumeTypes } from '@/utils/volume';
-import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
+import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
-import VolumeCard from "@/components/Cards/VolumeCard/VolumeCard";
+import VolumeCard from '@/components/Cards/VolumeCard/VolumeCard';
 import VolumesMobileModal from '@/components/Modals/VolumesMobileModal/VolumesMobileModal';
-import VolumesSidebar, { IVolumeTypeSelection, IVolumeYearSelection } from "@/components/Sidebars/VolumesSidebar/VolumesSidebar";
-import VolumesModal from "@/components/Modals/VolumesModal/VolumesModal";
-import Pagination from "@/components/Pagination/Pagination";
-import Tag from "@/components/Tag/Tag";
-import PageTitle from "@/components/PageTitle/PageTitle";
+import VolumesSidebar, {
+  IVolumeTypeSelection,
+  IVolumeYearSelection,
+} from '@/components/Sidebars/VolumesSidebar/VolumesSidebar';
+import VolumesModal from '@/components/Modals/VolumesModal/VolumesModal';
+import Pagination from '@/components/Pagination/Pagination';
+import Tag from '@/components/Tag/Tag';
+import PageTitle from '@/components/PageTitle/PageTitle';
 import './Volumes.scss';
 import { IVolume } from '@/types/volume';
 
@@ -53,7 +62,7 @@ export default function VolumesClient({
   initialType,
   lang,
   journalId,
-  breadcrumbLabels
+  breadcrumbLabels,
 }: VolumesClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
@@ -103,10 +112,10 @@ export default function VolumesClient({
     if (types.length > 0 && !initQueryFilters) {
       setTypes(currentTypes => {
         const newTypes = currentTypes.map(type => ({
-            ...type,
-            isChecked: initialType === type.value
+          ...type,
+          isChecked: initialType === type.value,
         }));
-  
+
         return newTypes;
       });
 
@@ -118,15 +127,15 @@ export default function VolumesClient({
     if (volumes?.range?.types && types.length === 0) {
       const typesArray = Array.isArray(volumes.range.types) ? volumes.range.types : [];
       const initTypes = typesArray
-        .filter((t) => volumeTypes.find((vt) => vt.value === t))
-        .map((t) => {
-          const matchingType = volumeTypes.find((vt) => vt.value === t);
+        .filter(t => volumeTypes.find(vt => vt.value === t))
+        .map(t => {
+          const matchingType = volumeTypes.find(vt => vt.value === t);
           if (!matchingType) return null;
-          
+
           return {
             labelPath: matchingType.labelPath,
             value: matchingType.value,
-            isChecked: initialType === matchingType.value
+            isChecked: initialType === matchingType.value,
           };
         })
         .filter((t): t is NonNullable<typeof t> => t !== null);
@@ -138,9 +147,9 @@ export default function VolumesClient({
   useEffect(() => {
     if (volumes?.range?.years && years.length === 0) {
       const yearsArray = Array.isArray(volumes.range.years) ? volumes.range.years : [];
-      const initYears = yearsArray.map((y) => ({
+      const initYears = yearsArray.map(y => ({
         year: y,
-        isSelected: false
+        isSelected: false,
       }));
 
       setYears(initYears);
@@ -160,11 +169,13 @@ export default function VolumesClient({
       if (selectedTypes.length > 0 || selectedYears.length > 0) {
         filteredArray = initialVolumes.data.filter(vol => {
           // Filtrer par type
-          const typeMatch = selectedTypes.length === 0 ||
+          const typeMatch =
+            selectedTypes.length === 0 ||
             (Array.isArray(vol.types) && vol.types.some(t => selectedTypes.includes(t)));
 
           // Filtrer par année
-          const yearMatch = selectedYears.length === 0 ||
+          const yearMatch =
+            selectedYears.length === 0 ||
             (typeof vol.year === 'number' && selectedYears.includes(vol.year));
 
           return typeMatch && yearMatch;
@@ -180,7 +191,7 @@ export default function VolumesClient({
       const filteredData = {
         ...initialVolumes,
         data: paginatedArray,
-        totalItems: totalFiltered
+        totalItems: totalFiltered,
       };
 
       setVolumesData(filteredData);
@@ -188,23 +199,38 @@ export default function VolumesClient({
   }, [initialVolumes, types, years, currentPage]);
 
   // Memoize handlePageClick to prevent Pagination re-renders
-  const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
-    const newPage = selectedItem.selected + 1;
-    if (pathname) {
-      router.push(`${pathname}?page=${newPage}`);
-    }
-    setCurrentPage(newPage);
-    // Scroll vers le haut de la page
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [pathname, router]);
+  const handlePageClick = useCallback(
+    (selectedItem: { selected: number }): void => {
+      const newPage = selectedItem.selected + 1;
+      if (pathname) {
+        router.push(`${pathname}?page=${newPage}`);
+      }
+      setCurrentPage(newPage);
+      // Scroll vers le haut de la page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    [pathname, router]
+  );
 
   const getVolumesCount = (mode: RENDERING_MODE): React.JSX.Element | null => {
     if (volumes) {
       if (volumes.totalItems > 1) {
-        return <div className={`volumes-title-count-text volumes-title-count-text-volumes ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}>{volumes.totalItems} {t('common.volumes')}</div>;
+        return (
+          <div
+            className={`volumes-title-count-text volumes-title-count-text-volumes ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}
+          >
+            {volumes.totalItems} {t('common.volumes')}
+          </div>
+        );
       }
-    
-      return <div className={`volumes-title-count-text volumes-title-count-text-volumes ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}>{volumes?.totalItems ?? 0} {t('common.volume')}</div>;
+
+      return (
+        <div
+          className={`volumes-title-count-text volumes-title-count-text-volumes ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}
+        >
+          {volumes?.totalItems ?? 0} {t('common.volume')}
+        </div>
+      );
     }
 
     return null;
@@ -213,17 +239,29 @@ export default function VolumesClient({
   const getArticlesCount = (mode: RENDERING_MODE): React.JSX.Element | null => {
     if (volumes) {
       if (volumes.articlesCount && volumes.articlesCount > 1) {
-        return <div className={`volumes-title-count-text volumes-title-count-text-articles ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}>{volumes.articlesCount} {t('common.articles')}</div>;
+        return (
+          <div
+            className={`volumes-title-count-text volumes-title-count-text-articles ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}
+          >
+            {volumes.articlesCount} {t('common.articles')}
+          </div>
+        );
       }
 
-      return <div className={`volumes-title-count-text volumes-title-count-text-articles ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}>{volumes.articlesCount} {t('common.article')}</div>;  
+      return (
+        <div
+          className={`volumes-title-count-text volumes-title-count-text-articles ${mode === RENDERING_MODE.TILE && 'volumes-title-count-text-tiles'}`}
+        >
+          {volumes.articlesCount} {t('common.article')}
+        </div>
+      );
     }
 
     return null;
   };
 
   const onCheckType = (value: string): void => {
-    const updatedTypes = types.map((t) => {
+    const updatedTypes = types.map(t => {
       if (t.value === value) {
         return { ...t, isChecked: !t.isChecked };
       }
@@ -239,7 +277,7 @@ export default function VolumesClient({
   };
 
   const onSelectYear = (year: number): void => {
-    const updatedYears = years.map((y) => {
+    const updatedYears = years.map(y => {
       if (y.year === year) {
         return { ...y, isSelected: !y.isSelected };
       }
@@ -254,10 +292,9 @@ export default function VolumesClient({
     }
   };
 
-
   const onCloseTaggedFilter = (type: VolumeTypeFilter, value: string | number) => {
     if (type === 'type') {
-      const updatedTypes = types.map((t) => {
+      const updatedTypes = types.map(t => {
         if (t.value === value) {
           return { ...t, isChecked: false };
         }
@@ -271,7 +308,7 @@ export default function VolumesClient({
         router.push(pathname); // Retour à la page 1
       }
     } else if (type === 'year') {
-      const updatedYears = years.map((y) => {
+      const updatedYears = years.map(y => {
         if (y.year === value) {
           return { ...y, isSelected: false };
         }
@@ -288,11 +325,11 @@ export default function VolumesClient({
   };
 
   const clearTaggedFilters = (): void => {
-    const updatedTypes = types.map((t) => {
+    const updatedTypes = types.map(t => {
       return { ...t, isChecked: false };
     });
 
-    const updatedYears = years.map((y) => {
+    const updatedYears = years.map(y => {
       return { ...y, isSelected: false };
     });
 
@@ -314,55 +351,68 @@ export default function VolumesClient({
   useEffect(() => {
     const initFilters: IVolumeFilter[] = [];
 
-    types.filter((type) => type.isChecked).forEach((type) => {
-      initFilters.push({
-        type: 'type',
-        value: type.value,
-        labelPath: type.labelPath
+    types
+      .filter(type => type.isChecked)
+      .forEach(type => {
+        initFilters.push({
+          type: 'type',
+          value: type.value,
+          labelPath: type.labelPath,
+        });
       });
-    });
 
-    years.filter((y) => y.isSelected).forEach((y) => {
-      initFilters.push({
-        type: 'year',
-        value: y.year,
-        label: y.year
+    years
+      .filter(y => y.isSelected)
+      .forEach(y => {
+        initFilters.push({
+          type: 'year',
+          value: y.year,
+          label: y.year,
+        });
       });
-    });
 
     setTaggedFilters(initFilters);
   }, [types, years]);
 
   const breadcrumbItems = [
-    { 
-      path: '/', 
-      label: breadcrumbLabels 
-        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
-        : `${t('pages.home.title')} > ${t('common.content')} >` 
-    }
+    {
+      path: '/',
+      label: breadcrumbLabels
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >`
+        : `${t('pages.home.title')} > ${t('common.content')} >`,
+    },
   ];
 
   return (
-    <main className='volumes'>
+    <main className="volumes">
       <PageTitle title={breadcrumbLabels?.volumes || t('pages.volumes.title')} />
 
-      <Breadcrumb 
-        parents={breadcrumbItems} 
-        crumbLabel={breadcrumbLabels?.volumes || t('pages.volumes.title')} 
-        lang={lang} 
+      <Breadcrumb
+        parents={breadcrumbItems}
+        crumbLabel={breadcrumbLabels?.volumes || t('pages.volumes.title')}
+        lang={lang}
       />
-      <div className='volumes-title'>
-        <h1 className='volumes-title-text'>{breadcrumbLabels?.volumes || t('pages.volumes.title')}</h1>
-        <div className='volumes-title-count'>
+      <div className="volumes-title">
+        <h1 className="volumes-title-text">
+          {breadcrumbLabels?.volumes || t('pages.volumes.title')}
+        </h1>
+        <div className="volumes-title-count">
           {mode === RENDERING_MODE.LIST ? (
-            <div className='volumes-title-count-wrapper'>
+            <div className="volumes-title-count-wrapper">
               {getVolumesCount(RENDERING_MODE.LIST)}
               {getArticlesCount(RENDERING_MODE.LIST)}
             </div>
-          ) : <div className='volumes-title-count-text'></div>}
-          <div className='volumes-title-count-icons'>
-            <div className='volumes-title-count-icons-icon' onClick={(): void => setMode(RENDERING_MODE.TILE)}>
-              <div className={`${mode === RENDERING_MODE.TILE ? 'volumes-title-count-icons-icon-row-red' : 'volumes-title-count-icons-icon-row'}`}>
+          ) : (
+            <div className="volumes-title-count-text"></div>
+          )}
+          <div className="volumes-title-count-icons">
+            <div
+              className="volumes-title-count-icons-icon"
+              onClick={(): void => setMode(RENDERING_MODE.TILE)}
+            >
+              <div
+                className={`${mode === RENDERING_MODE.TILE ? 'volumes-title-count-icons-icon-row-red' : 'volumes-title-count-icons-icon-row'}`}
+              >
                 {mode === RENDERING_MODE.TILE ? (
                   <TileRedIcon size={16} ariaLabel="Tile view" />
                 ) : (
@@ -371,8 +421,13 @@ export default function VolumesClient({
                 <span>{t('common.renderingMode.tile')}</span>
               </div>
             </div>
-            <div className='volumes-title-count-icons-icon' onClick={(): void => setMode(RENDERING_MODE.LIST)}>
-              <div className={`${mode === RENDERING_MODE.LIST ? 'volumes-title-count-icons-icon-row-red' : 'volumes-title-count-icons-icon-row'}`}>
+            <div
+              className="volumes-title-count-icons-icon"
+              onClick={(): void => setMode(RENDERING_MODE.LIST)}
+            >
+              <div
+                className={`${mode === RENDERING_MODE.LIST ? 'volumes-title-count-icons-icon-row-red' : 'volumes-title-count-icons-icon-row'}`}
+              >
                 {mode === RENDERING_MODE.LIST ? (
                   <ListRedIcon size={16} ariaLabel="List view" />
                 ) : (
@@ -385,37 +440,67 @@ export default function VolumesClient({
         </div>
       </div>
       {mode === RENDERING_MODE.TILE && (
-        <div className='volumes-title-count-wrapper'>
+        <div className="volumes-title-count-wrapper">
           {getVolumesCount(RENDERING_MODE.TILE)}
           {getArticlesCount(RENDERING_MODE.TILE)}
         </div>
       )}
       {mode === RENDERING_MODE.LIST ? (
-        <div className='volumes-filters'>
+        <div className="volumes-filters">
           <div className="volumes-filters-tags">
             {taggedFilters.map((filter, index) => (
-              <Tag key={index} text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()} onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}/>
+              <Tag
+                key={index}
+                text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
+                onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
+              />
             ))}
             {taggedFilters.length > 0 ? (
-              <div className="volumes-filters-tags-clear" onClick={clearTaggedFilters}>{t('common.filters.clearAll')}</div>
+              <div className="volumes-filters-tags-clear" onClick={clearTaggedFilters}>
+                {t('common.filters.clearAll')}
+              </div>
             ) : (
               <div className="volumes-filters-tags-clear"></div>
             )}
           </div>
         </div>
       ) : (
-        <div className='volumes-filters volumes-filters-tiles'>
+        <div className="volumes-filters volumes-filters-tiles">
           <div className="volumes-filters-tags">
-            <div className="volumes-filters-tags-filterTile" onClick={(): void => toggleFiltersModal()}>
-              <FilterIcon size={16} className="volumes-filters-tags-filterTile-icon" ariaLabel="Filters" />
-              <div className="volumes-filters-tags-filterTile-text">{taggedFilters.length > 0 ? `${t('common.filters.editFilters')} (${taggedFilters.length})` : `${t('common.filters.filter')}`}</div>
+            <div
+              className="volumes-filters-tags-filterTile"
+              onClick={(): void => toggleFiltersModal()}
+            >
+              <FilterIcon
+                size={16}
+                className="volumes-filters-tags-filterTile-icon"
+                ariaLabel="Filters"
+              />
+              <div className="volumes-filters-tags-filterTile-text">
+                {taggedFilters.length > 0
+                  ? `${t('common.filters.editFilters')} (${taggedFilters.length})`
+                  : `${t('common.filters.filter')}`}
+              </div>
             </div>
             {taggedFilters.map((filter, index) => (
-              <Tag key={index} text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()} onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}/>
+              <Tag
+                key={index}
+                text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
+                onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
+              />
             ))}
           </div>
           <div className="volumes-filters-modal">
-            {openedFiltersModal && <VolumesModal t={t} types={types} onCheckTypeCallback={onCheckType} years={years} onSelectYearCallback={onSelectYear} onCloseCallback={(): void => setOpenedFiltersModal(false)}/>}
+            {openedFiltersModal && (
+              <VolumesModal
+                t={t}
+                types={types}
+                onCheckTypeCallback={onCheckType}
+                years={years}
+                onSelectYearCallback={onSelectYear}
+                onCloseCallback={(): void => setOpenedFiltersModal(false)}
+              />
+            )}
           </div>
         </div>
       )}
@@ -424,26 +509,54 @@ export default function VolumesClient({
           {getVolumesCount(mode)}
           {getArticlesCount(mode)}
         </div>
-        <div className="volumes-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
+        <div
+          className="volumes-filtersMobile-tile"
+          onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
+        >
           <FilterIcon size={16} className="volumes-filtersMobile-tile-icon" ariaLabel="Filters" />
-          <div className="volumes-filtersMobile-tile-text">{taggedFilters.length > 0 ? `${t('common.filters.editFilters')} (${taggedFilters.length})` : `${t('common.filters.filter')}`}</div>
+          <div className="volumes-filtersMobile-tile-text">
+            {taggedFilters.length > 0
+              ? `${t('common.filters.editFilters')} (${taggedFilters.length})`
+              : `${t('common.filters.filter')}`}
+          </div>
         </div>
-        {openedFiltersMobileModal && <VolumesMobileModal t={t} initialTypes={types} onUpdateTypesCallback={setTypes} initialYears={years} onUpdateYearsCallback={setYears} onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}/>}
+        {openedFiltersMobileModal && (
+          <VolumesMobileModal
+            t={t}
+            initialTypes={types}
+            onUpdateTypesCallback={setTypes}
+            initialYears={years}
+            onUpdateYearsCallback={setYears}
+            onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
+          />
+        )}
       </div>
-      <div className='volumes-filtersMobile-tags'>
+      <div className="volumes-filtersMobile-tags">
         {taggedFilters.map((filter, index) => (
-          <Tag key={index} text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()} onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}/>
+          <Tag
+            key={index}
+            text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
+            onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
+          />
         ))}
       </div>
-      <div className='volumes-content'>
-        <div className='volumes-content-results'>
+      <div className="volumes-content">
+        <div className="volumes-content-results">
           {mode === RENDERING_MODE.LIST && (
-            <VolumesSidebar t={t} types={types} onCheckTypeCallback={onCheckType} years={years} onSelectYearCallback={onSelectYear} />
+            <VolumesSidebar
+              t={t}
+              types={types}
+              onCheckTypeCallback={onCheckType}
+              years={years}
+              onSelectYearCallback={onSelectYear}
+            />
           )}
           {isLoadingData ? (
             <Loader />
           ) : (
-            <div className={`volumes-content-results-cards ${mode === RENDERING_MODE.TILE && 'volumes-content-results-cards-tiles'}`}>
+            <div
+              className={`volumes-content-results-cards ${mode === RENDERING_MODE.TILE && 'volumes-content-results-cards-tiles'}`}
+            >
               {volumesData?.data.map((volume: IVolume, index: number) => (
                 <VolumeCard
                   key={index}

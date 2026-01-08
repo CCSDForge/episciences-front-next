@@ -1,6 +1,11 @@
 'use client';
 
-import { SearchIcon, ExternalLinkWhiteIcon, CaretLeftGreyIcon, CloseBlackIcon } from '@/components/icons';
+import {
+  SearchIcon,
+  ExternalLinkWhiteIcon,
+  CaretLeftGreyIcon,
+  CloseBlackIcon,
+} from '@/components/icons';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -30,7 +35,10 @@ export default function SearchBar({ lang }: SearchBarProps): React.JSX.Element {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
         setIsFocused(false);
       }
     };
@@ -80,12 +88,12 @@ export default function SearchBar({ lang }: SearchBarProps): React.JSX.Element {
         <div className="header-postheader-search-delimiter"></div>
         <form className="header-postheader-search-form">
           <div className="header-postheader-search-input">
-            <SearchIcon size={16} className="header-postheader-search-input-icon" ariaLabel="Search" />
-            <input
-              type="text"
-              placeholder="search"
-              disabled
+            <SearchIcon
+              size={16}
+              className="header-postheader-search-input-icon"
+              ariaLabel="Search"
             />
+            <input type="text" placeholder="search" disabled />
           </div>
           <div className="header-postheader-search-submit">
             {submitManagerLink ? (
@@ -125,12 +133,16 @@ export default function SearchBar({ lang }: SearchBarProps): React.JSX.Element {
         )}
 
         <div className="header-postheader-search-input">
-          <SearchIcon size={16} className="header-postheader-search-input-icon" ariaLabel={t('components.header.search.iconAlt')} />
+          <SearchIcon
+            size={16}
+            className="header-postheader-search-input-icon"
+            ariaLabel={t('components.header.search.iconAlt')}
+          />
           <input
             type="text"
             placeholder={t('components.header.search.placeholder')}
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={e => setSearchValue(e.target.value)}
             onFocus={handleFocus}
           />
         </div>
@@ -148,21 +160,17 @@ export default function SearchBar({ lang }: SearchBarProps): React.JSX.Element {
 
         <div className="header-postheader-search-submit">
           {isFocused ? (
-            <button type="submit">
-              {t('components.header.search.searchButton')}
-            </button>
+            <button type="submit">{t('components.header.search.searchButton')}</button>
+          ) : submitManagerLink ? (
+            <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
+              {t('components.header.search.submitButton')}
+              <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
+            </a>
           ) : (
-            submitManagerLink ? (
-              <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
-                {t('components.header.search.submitButton')}
-                <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
-              </a>
-            ) : (
-              <button type="button" disabled>
-                {t('components.header.search.submitButton')}
-                <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
-              </button>
-            )
+            <button type="button" disabled>
+              {t('components.header.search.submitButton')}
+              <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
+            </button>
           )}
         </div>
       </form>

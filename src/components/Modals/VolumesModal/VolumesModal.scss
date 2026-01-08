@@ -6,7 +6,8 @@
   border-top: 2px solid var(--primary);
   padding: 24px;
 
-  &-typesSection-title, &-yearsSection-title {
+  &-typesSection-title,
+  &-yearsSection-title {
     font-weight: bold;
     border-bottom: 1px solid var(--grey-light);
     padding-bottom: 8px;
@@ -62,4 +63,4 @@
       }
     }
   }
-} 
+}

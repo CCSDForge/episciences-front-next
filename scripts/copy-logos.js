@@ -25,7 +25,7 @@ async function copyLogos() {
     await fs.ensureDir(TARGET_DIR);
 
     // Check if source directory exists
-    if (!await fs.pathExists(SOURCE_DIR)) {
+    if (!(await fs.pathExists(SOURCE_DIR))) {
       console.warn('⚠️  external-assets/logos not found. Skipping logo copy.');
       console.warn('   Multi-tenant logos will not be available.');
       console.warn('   Make sure external-assets repository is cloned.');

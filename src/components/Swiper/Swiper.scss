@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 
 // Styles pour le swiper
 .swiper {
@@ -38,7 +38,8 @@
     }
   }
 
-  &-button-prev, &-button-next {
+  &-button-prev,
+  &-button-next {
     width: 22px;
     height: 40px;
     position: relative;
@@ -69,4 +70,4 @@
   &-slide {
     height: auto;
   }
-} 
+}

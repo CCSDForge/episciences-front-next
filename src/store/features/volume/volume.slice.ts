@@ -1,16 +1,16 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
-import { IVolume } from '@/types/volume'
-import { volumeApi } from './volume.query'
-import { IVolumeState } from './volume.type'
+import { IVolume } from '@/types/volume';
+import { volumeApi } from './volume.query';
+import { IVolumeState } from './volume.type';
 
 const volumeSlice = createSlice({
   name: 'volume',
   initialState: {
     volumes: {
       data: [],
-      totalItems: 0
+      totalItems: 0,
     },
   } as IVolumeState,
   reducers: {
@@ -18,16 +18,13 @@ const volumeSlice = createSlice({
       state.lastVolume = action.payload;
     },
   },
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      volumeApi.endpoints.fetchVolumes.matchFulfilled,
-      (state, { payload }) => {
-        state.volumes = payload
-      },
-    )
-  }
-})
+  extraReducers: builder => {
+    builder.addMatcher(volumeApi.endpoints.fetchVolumes.matchFulfilled, (state, { payload }) => {
+      state.volumes = payload;
+    });
+  },
+});
 
-export const { setLastVolume } = volumeSlice.actions
+export const { setLastVolume } = volumeSlice.actions;
 
-export default volumeSlice.reducer 
+export default volumeSlice.reducer;

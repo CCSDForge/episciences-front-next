@@ -27,7 +27,11 @@ const loggedArticles = new Set<string>();
 /**
  * Log progress for a single article generation
  */
-export function logArticleProgress(articleId: string, lang: string, pageType: 'main' | 'download' = 'main'): void {
+export function logArticleProgress(
+  articleId: string,
+  lang: string,
+  pageType: 'main' | 'download' = 'main'
+): void {
   // Create unique key for this article/lang/type combination
   const key = `${articleId}-${lang}-${pageType}`;
 

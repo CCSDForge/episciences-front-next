@@ -15,25 +15,33 @@ export type SwiperArticleCardProps = FetchedArticle;
 
 interface ISwiperArticleCardProps {
   language: AvailableLanguage;
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   article: FetchedArticle;
 }
 
-export default function SwiperArticleCard({ language, t, article }: ISwiperArticleCardProps): React.JSX.Element {
+export default function SwiperArticleCard({
+  language,
+  t,
+  article,
+}: ISwiperArticleCardProps): React.JSX.Element {
   if (!article) {
     return <></>;
   }
 
   return (
-    <div className='swiperArticleCard'>
-      {article?.tag && <div className='swiperArticleCard-tag'>{t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}</div>}
+    <div className="swiperArticleCard">
+      {article?.tag && (
+        <div className="swiperArticleCard-tag">
+          {t(articleTypes.find(tag => tag.value === article.tag)?.labelPath!)}
+        </div>
+      )}
       <Link href={`${PATHS.articles}/${article?.id}`} lang={language}>
-        <div className='swiperArticleCard-title'>
+        <div className="swiperArticleCard-title">
           <MathJax dynamic>{article?.title}</MathJax>
         </div>
       </Link>
-      <div className='swiperArticleCard-authors'>{truncatedArticleAuthorsName(article)}</div>
-      <div className='swiperArticleCard-publicationDate'>{`${t('common.publishedOn')} ${formatDate(article?.publicationDate!, language, { month: 'short' })}`}</div>
+      <div className="swiperArticleCard-authors">{truncatedArticleAuthorsName(article)}</div>
+      <div className="swiperArticleCard-publicationDate">{`${t('common.publishedOn')} ${formatDate(article?.publicationDate!, language, { month: 'short' })}`}</div>
     </div>
   );
-} 
+}

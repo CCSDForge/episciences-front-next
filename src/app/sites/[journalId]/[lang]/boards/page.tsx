@@ -14,25 +14,25 @@ export const metadata: Metadata = {
   title: 'Boards',
 };
 
-export default async function BoardsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
-  
-
+export default async function BoardsPage(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}) {
   const params = await props.params;
   try {
     const { journalId, lang } = params;
-    
+
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
-    
+
     // Fetch translations server-side
     const translations = await getServerTranslations(lang);
-    
+
     const [pages, members] = await Promise.all([
       fetchBoardPages(journalId),
-      fetchBoardMembers(journalId)
+      fetchBoardMembers(journalId),
     ]);
-    
+
     const breadcrumbLabels = {
       home: t('pages.home.title', translations),
       boards: t('pages.boards.title', translations),
@@ -49,18 +49,18 @@ export default async function BoardsPage(props: { params: Promise<{ journalId: s
       'scientific-advisory-board': t('pages.boards.types.scientificAdvisoryBoard', translations),
       'former-members': t('pages.boards.types.formerMember', translations),
       'guest-editor': t('pages.boards.roles.guestEditor', translations),
-      'editor': t('pages.boards.roles.editor', translations),
+      editor: t('pages.boards.roles.editor', translations),
       'chief-editor': t('pages.boards.roles.chiefEditor', translations),
-      'secretary': t('pages.boards.roles.secretary', translations),
+      secretary: t('pages.boards.roles.secretary', translations),
       'former-member': t('pages.boards.roles.formerMember', translations),
-      'member': t('pages.boards.roles.member', translations),
+      member: t('pages.boards.roles.member', translations),
     };
 
     const tableOfContentsLabel = t('pages.boards.tableOfContents', translations);
 
     return (
-      <BoardsClient 
-        initialPages={pages} 
+      <BoardsClient
+        initialPages={pages}
         initialMembers={members}
         lang={lang}
         breadcrumbLabels={breadcrumbLabels}
@@ -70,8 +70,9 @@ export default async function BoardsPage(props: { params: Promise<{ journalId: s
       />
     );
   } catch (error) {
-    console.warn(`[Build] Boards data could not be fully loaded for journal "${params.journalId}" (API mismatch or error).`);
+    console.warn(
+      `[Build] Boards data could not be fully loaded for journal "${params.journalId}" (API mismatch or error).`
+    );
     return <div>Content currently unavailable for this journal.</div>;
   }
 }
- 

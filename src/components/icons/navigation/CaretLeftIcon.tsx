@@ -56,7 +56,11 @@ export default function CaretLeftIcon({
       onTouchEnd={onTouchEnd}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
-      style={onClick ? { cursor: 'pointer', transform: 'rotate(-90deg)' } : { transform: 'rotate(-90deg)' }}
+      style={
+        onClick
+          ? { cursor: 'pointer', transform: 'rotate(-90deg)' }
+          : { transform: 'rotate(-90deg)' }
+      }
     >
       <g transform="translate(0 7.5) rotate(-90)">
         <path

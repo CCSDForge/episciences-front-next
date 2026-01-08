@@ -1,4 +1,4 @@
-import { AvailableLanguage } from "@/utils/i18n";
+import { AvailableLanguage } from '@/utils/i18n';
 
 interface IJournalSettings {
   setting: string;
@@ -31,4 +31,4 @@ export interface IJournal {
 
 export type RawJournal = IJournal & {
   rvid: number;
-} 
+};

@@ -18,55 +18,64 @@ interface IForAuthorsSidebarProps {
   toggleHeaderCallback: (id: string) => void;
 }
 
-export default function ForAuthorsSidebar({ headers, toggleHeaderCallback }: IForAuthorsSidebarProps): React.JSX.Element {
+export default function ForAuthorsSidebar({
+  headers,
+  toggleHeaderCallback,
+}: IForAuthorsSidebarProps): React.JSX.Element {
   const pathname = usePathname();
-  
+
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, anchorId: string) => {
     e.preventDefault();
     const element = document.getElementById(anchorId);
     if (element) {
-      element.scrollIntoView({ 
+      element.scrollIntoView({
         behavior: 'smooth',
-        block: 'start' 
+        block: 'start',
       });
       // Update URL without causing navigation
       window.history.pushState(null, '', `${pathname}#${anchorId}`);
     }
   };
-  
+
   return (
-    <div className='forAuthorsSidebar'>
+    <div className="forAuthorsSidebar">
       {headers.map((header, index) => (
-        <div
-          key={index}
-          className='forAuthorsSidebar-header'
-        >
-          <div className='forAuthorsSidebar-header-title'>
-            <a 
+        <div key={index} className="forAuthorsSidebar-header">
+          <div className="forAuthorsSidebar-header-title">
+            <a
               href={`${pathname}#${header.id}`}
-              onClick={(e) => handleAnchorClick(e, header.id)}
-              className='forAuthorsSidebar-header-title-link'
+              onClick={e => handleAnchorClick(e, header.id)}
+              className="forAuthorsSidebar-header-title-link"
             >
-              <div className='forAuthorsSidebar-header-title-text'>{header.value}</div>
+              <div className="forAuthorsSidebar-header-title-text">{header.value}</div>
             </a>
-            {header.children.length > 0 && (
-              header.opened ? (
-                <CaretUpGreyIcon size={16} className='forAuthorsSidebar-header-title-caret' ariaLabel="Collapse section" onClick={(): void => toggleHeaderCallback(header.id)} />
+            {header.children.length > 0 &&
+              (header.opened ? (
+                <CaretUpGreyIcon
+                  size={16}
+                  className="forAuthorsSidebar-header-title-caret"
+                  ariaLabel="Collapse section"
+                  onClick={(): void => toggleHeaderCallback(header.id)}
+                />
               ) : (
-                <CaretDownGreyIcon size={16} className='forAuthorsSidebar-header-title-caret' ariaLabel="Expand section" onClick={(): void => toggleHeaderCallback(header.id)} />
-              )
-            )}
+                <CaretDownGreyIcon
+                  size={16}
+                  className="forAuthorsSidebar-header-title-caret"
+                  ariaLabel="Expand section"
+                  onClick={(): void => toggleHeaderCallback(header.id)}
+                />
+              ))}
           </div>
           {header.opened && (
-            <div className='forAuthorsSidebar-header-subheaders'>
+            <div className="forAuthorsSidebar-header-subheaders">
               {header.children.map((subheader, index) => (
-                <a 
-                  key={index} 
+                <a
+                  key={index}
                   href={`${pathname}#${subheader.id}`}
-                  onClick={(e) => handleAnchorClick(e, subheader.id)}
-                  className='forAuthorsSidebar-header-subheaders-subheader-link'
+                  onClick={e => handleAnchorClick(e, subheader.id)}
+                  className="forAuthorsSidebar-header-subheaders-subheader-link"
                 >
-                  <div className='forAuthorsSidebar-header-subheaders-subheader'>
+                  <div className="forAuthorsSidebar-header-subheaders-subheader">
                     {subheader.value}
                   </div>
                 </a>
@@ -77,4 +86,4 @@ export default function ForAuthorsSidebar({ headers, toggleHeaderCallback }: IFo
       ))}
     </div>
   );
-} 
+}

@@ -15,7 +15,9 @@ export const metadata: Metadata = {
   description: 'Crédits et mentions légales',
 };
 
-export default async function CreditsPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+export default async function CreditsPage(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}) {
   const params = await props.params;
   const { journalId, lang } = params;
 
@@ -26,7 +28,7 @@ export default async function CreditsPage(props: { params: Promise<{ journalId: 
     // Fetch page data and translations in parallel
     [pageData, translations] = await Promise.all([
       journalId ? fetchCreditsPage(journalId) : null,
-      getServerTranslations(lang)
+      getServerTranslations(lang),
     ]);
   } catch (error) {
     console.warn('[CreditsPage] Failed to fetch data:', error);
@@ -38,11 +40,5 @@ export default async function CreditsPage(props: { params: Promise<{ journalId: 
     credits: t('pages.credits.title', translations),
   };
 
-  return (
-    <CreditsClient
-      creditsPage={pageData}
-      lang={lang}
-      breadcrumbLabels={breadcrumbLabels}
-    />
-  );
+  return <CreditsClient creditsPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />;
 }

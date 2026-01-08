@@ -9,11 +9,11 @@ const ATTEMPTS_INTERVAL = 200;
 function ScrollManager(): null {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   useEffect(() => {
     // Récupérer le hash depuis l'URL
     const hash = window.location.hash;
-    
+
     if (hash) {
       const id = hash.replace('#', '');
       let attempts = 0;
@@ -39,4 +39,4 @@ function ScrollManager(): null {
   return null;
 }
 
-export default ScrollManager; 
+export default ScrollManager;

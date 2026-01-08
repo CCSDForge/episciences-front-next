@@ -8,17 +8,23 @@ import { IIssue } from '@/types/issue';
 import { IJournal } from '@/types/journal';
 import { PATHS } from '@/config/paths';
 
-import './IssuesSection.scss'
+import './IssuesSection.scss';
 
 interface IIssuesSectionProps {
   language: string;
-  t: TFunction<"translation", undefined>;
+  t: TFunction<'translation', undefined>;
   issues: IIssue[];
   currentJournal: IJournal | null;
   journalId?: string;
 }
 
-export default function IssuesSection({ language, t, issues = [], currentJournal, journalId }: IIssuesSectionProps): React.JSX.Element {
+export default function IssuesSection({
+  language,
+  t,
+  issues = [],
+  currentJournal,
+  journalId,
+}: IIssuesSectionProps): React.JSX.Element {
   if (!issues || issues.length === 0) {
     return <></>;
   }
@@ -36,27 +42,33 @@ export default function IssuesSection({ language, t, issues = [], currentJournal
 
         const issueYear = issue.year || '';
         const issueTitle = issue.title ? issue.title[language] : '';
-        
+
         return (
-          <div key={issue.id} className='issuesSection-card'>
+          <div key={issue.id} className="issuesSection-card">
             {issue.tileImageURL ? (
-              <img className='issuesSection-card-tile' src={issue.tileImageURL} alt='Issue tile' />
+              <img className="issuesSection-card-tile" src={issue.tileImageURL} alt="Issue tile" />
             ) : (
               <div className="issuesSection-card-template">
                 <div className="issuesSection-card-template-jpe">{displayJournalCode}</div>
-                <div className="issuesSection-card-template-volume">{t('common.volumeCard.specialIssue')}</div>
+                <div className="issuesSection-card-template-volume">
+                  {t('common.volumeCard.specialIssue')}
+                </div>
                 <div className="issuesSection-card-template-number">{issue.num}</div>
                 <div className="issuesSection-card-template-year">{issueYear}</div>
               </div>
             )}
             <div className="issuesSection-card-text">
               <Link href={`${PATHS.volumes}/${issue.id}`}>
-                <div className='issuesSection-card-text-volume'>{`${t('common.volumeCard.specialIssue')} ${issue.num}`}</div>
+                <div className="issuesSection-card-text-volume">{`${t('common.volumeCard.specialIssue')} ${issue.num}`}</div>
               </Link>
               <div className="issuesSection-card-text-title">{issueTitle}</div>
               <div className="issuesSection-card-text-year">{issueYear}</div>
               <div className="issuesSection-card-text-count">
-                <FileGreyIcon size={16} className="issuesSection-card-text-count-icon" ariaLabel="Articles" />
+                <FileGreyIcon
+                  size={16}
+                  className="issuesSection-card-text-count-icon"
+                  ariaLabel="Articles"
+                />
                 <div className="issuesSection-card-text-count-text">
                   {issue.articles?.length > 1
                     ? `${issue.articles.length} ${t('common.articles')}`
@@ -64,8 +76,16 @@ export default function IssuesSection({ language, t, issues = [], currentJournal
                 </div>
               </div>
               {issue.downloadLink && (
-                <Link href={issue.downloadLink} target='_blank' className="issuesSection-card-text-download">
-                  <DownloadRedIcon size={16} className="issuesSection-card-text-download-icon" ariaLabel="Download PDF" />
+                <Link
+                  href={issue.downloadLink}
+                  target="_blank"
+                  className="issuesSection-card-text-download"
+                >
+                  <DownloadRedIcon
+                    size={16}
+                    className="issuesSection-card-text-download-icon"
+                    ariaLabel="Download PDF"
+                  />
                   <div className="issuesSection-card-text-download-text">{t('common.pdf')}</div>
                 </Link>
               )}
@@ -74,5 +94,5 @@ export default function IssuesSection({ language, t, issues = [], currentJournal
         );
       })}
     </div>
-  )
-} 
+  );
+}

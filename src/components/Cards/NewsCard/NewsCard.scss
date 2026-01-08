@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 
 .newsCard {
   display: flex;
@@ -8,11 +8,11 @@
   border-bottom: 4px solid var(--primary);
   scroll-margin: 120px;
 
-  @media (max-width:  breakpoints.$sm) {
+  @media (max-width: breakpoints.$sm) {
     padding: 25px;
   }
 
-  @media (max-width:  breakpoints.$xsm) {
+  @media (max-width: breakpoints.$xsm) {
     flex-direction: column;
   }
 
@@ -31,7 +31,7 @@
       flex-direction: row;
       gap: 40px;
 
-      @media (max-width:  breakpoints.$xsm) {
+      @media (max-width: breakpoints.$xsm) {
         flex-direction: column;
       }
 
@@ -56,11 +56,11 @@
     border-right: 1px solid var(--grey-light);
     font-size: 14px;
 
-    @media (max-width:  breakpoints.$sm) {
+    @media (max-width: breakpoints.$sm) {
       min-width: auto;
     }
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       border-right: none;
       padding-bottom: 4px;
       border-bottom: 1px solid var(--grey-light);
@@ -70,7 +70,7 @@
       border-right: none;
       padding-top: 8px;
 
-      @media (max-width:  breakpoints.$xsm) {
+      @media (max-width: breakpoints.$xsm) {
         padding-bottom: 0px;
         border-bottom: none;
       }

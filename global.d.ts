@@ -1,4 +1,4 @@
-declare module '@citation-js/core'
+declare module '@citation-js/core';
 
 interface MathJaxHub {
   Queue: (commands: [string, MathJaxHub]) => void;
@@ -21,4 +21,4 @@ declare module '*.svg' {
 declare module '*.scss' {
   const content: { [className: string]: string };
   export default content;
-} 
+}

@@ -4,5 +4,5 @@ export interface IArticleState {
   articles: {
     data: IArticle[];
     totalItems: number;
-  }
-} 
+  };
+}

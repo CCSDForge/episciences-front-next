@@ -13,38 +13,65 @@ import { AvailableLanguage } from '@/utils/i18n';
 
 interface ISectionCardProps {
   language: AvailableLanguage;
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   section: ISection;
 }
 
-export default function SectionCard({ language, t, section }: ISectionCardProps): React.JSX.Element {
+export default function SectionCard({
+  language,
+  t,
+  section,
+}: ISectionCardProps): React.JSX.Element {
   const [openedDescription, setOpenedDescription] = useState(false);
   const toggleDescription = (): void => setOpenedDescription(!openedDescription);
 
   return (
-    <div className='sectionCard'>
-      <div className='sectionCard-title'>
+    <div className="sectionCard">
+      <div className="sectionCard-title">
         <Link href={`${PATHS.sections}/${section.id}`} lang={language}>
-          <div className='sectionCard-title-text'>{section.title ? section.title[language] : ''}</div>
+          <div className="sectionCard-title-text">
+            {section.title ? section.title[language] : ''}
+          </div>
         </Link>
-        <div className='sectionCard-title-count'>{section.articles.length > 1 ? `${section.articles.length} ${t('common.articles')}`: `${section.articles.length} ${t('common.article')}`}</div>
+        <div className="sectionCard-title-count">
+          {section.articles.length > 1
+            ? `${section.articles.length} ${t('common.articles')}`
+            : `${section.articles.length} ${t('common.article')}`}
+        </div>
       </div>
       {section.description && section.description[language] && (
-        <div className='sectionCard-description'>
-          <div className={`sectionCard-description-title ${!openedDescription && 'sectionCard-description-title-closed'}`} onClick={toggleDescription}>
-            <div className='sectionCard-description-title-text'>{t('common.about')}</div>
+        <div className="sectionCard-description">
+          <div
+            className={`sectionCard-description-title ${!openedDescription && 'sectionCard-description-title-closed'}`}
+            onClick={toggleDescription}
+          >
+            <div className="sectionCard-description-title-text">{t('common.about')}</div>
             {openedDescription ? (
-              <CaretUpRedIcon size={14} className='sectionCard-description-title-caret' ariaLabel="Collapse description" />
+              <CaretUpRedIcon
+                size={14}
+                className="sectionCard-description-title-caret"
+                ariaLabel="Collapse description"
+              />
             ) : (
-              <CaretDownRedIcon size={14} className='sectionCard-description-title-caret' ariaLabel="Expand description" />
+              <CaretDownRedIcon
+                size={14}
+                className="sectionCard-description-title-caret"
+                ariaLabel="Expand description"
+              />
             )}
           </div>
-          <div className={`sectionCard-description-content ${openedDescription && 'sectionCard-description-content-opened'}`}>
+          <div
+            className={`sectionCard-description-content ${openedDescription && 'sectionCard-description-content-opened'}`}
+          >
             <MathJax dynamic>{section.description[language]}</MathJax>
           </div>
         </div>
       )}
-      <div className='sectionCard-countMobile'>{section.articles.length > 1 ? `${section.articles.length} ${t('common.articles')}`: `${section.articles.length} ${t('common.article')}`}</div>
+      <div className="sectionCard-countMobile">
+        {section.articles.length > 1
+          ? `${section.articles.length} ${t('common.articles')}`
+          : `${section.articles.length} ${t('common.article')}`}
+      </div>
     </div>
-  )
-} 
+  );
+}

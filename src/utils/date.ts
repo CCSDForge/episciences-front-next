@@ -1,4 +1,4 @@
-import { AvailableLanguage } from "./i18n"
+import { AvailableLanguage } from './i18n';
 
 // Helper: validates that a Date object is valid
 const createValidDate = (date: Date): Date | null => {
@@ -6,7 +6,12 @@ const createValidDate = (date: Date): Date | null => {
 };
 
 // Helper: parses date parts and creates a Date object
-const parseDateParts = (parts: string[], yearIndex: number, monthIndex: number, dayIndex: number): Date | null => {
+const parseDateParts = (
+  parts: string[],
+  yearIndex: number,
+  monthIndex: number,
+  dayIndex: number
+): Date | null => {
   if (parts.length !== 3) return null;
 
   const parsed = parts.map(p => parseInt(p, 10));
@@ -55,26 +60,30 @@ const parseDate = (dateString: string): Date | null => {
   return null;
 };
 
-export const formatDate = (dateString: string | undefined, language: AvailableLanguage, overridedOptions?: Intl.DateTimeFormatOptions): string => {
+export const formatDate = (
+  dateString: string | undefined,
+  language: AvailableLanguage,
+  overridedOptions?: Intl.DateTimeFormatOptions
+): string => {
   if (!dateString) return '';
-  
+
   try {
     const date = parseDate(dateString);
     if (!date) {
       console.error('Could not parse date:', dateString);
       return '';
     }
-    
+
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       ...overridedOptions,
-    }
+    };
 
     return new Intl.DateTimeFormat(language, options).format(date);
   } catch (error) {
     console.error('Error formatting date:', error, 'dateString:', dateString);
     return '';
   }
-} 
+};

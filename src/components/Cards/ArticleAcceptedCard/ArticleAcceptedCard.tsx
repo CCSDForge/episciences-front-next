@@ -6,7 +6,7 @@ import MathJax from '@/components/MathJax/MathJax';
 import { CaretUpRedIcon, CaretDownRedIcon, DownloadRedIcon } from '@/components/icons';
 import './ArticleAcceptedCard.scss';
 
-import { IArticle } from "@/types/article";
+import { IArticle } from '@/types/article';
 import { articleTypes, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -17,55 +17,87 @@ export interface IArticleAcceptedCard extends IArticle {
 
 interface IArticleAcceptedCardProps {
   language: AvailableLanguage;
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   article: IArticleAcceptedCard;
   toggleAbstractCallback: () => void;
 }
 
-export default function ArticleAcceptedCard({ language, t, article, toggleAbstractCallback }: IArticleAcceptedCardProps): React.JSX.Element {
+export default function ArticleAcceptedCard({
+  language,
+  t,
+  article,
+  toggleAbstractCallback,
+}: IArticleAcceptedCardProps): React.JSX.Element {
   return (
     <div className="articleAcceptedCard">
-      {article.tag && <div className='articleAcceptedCard-tag'>{t(articleTypes.find((tag) => tag.value === article.tag)?.labelPath!)}</div>}
+      {article.tag && (
+        <div className="articleAcceptedCard-tag">
+          {t(articleTypes.find(tag => tag.value === article.tag)?.labelPath!)}
+        </div>
+      )}
       {article.docLink && (
-        <Link href={article.docLink} target='_blank'>
-          <div className='articleAcceptedCard-title'>
+        <Link href={article.docLink} target="_blank">
+          <div className="articleAcceptedCard-title">
             <MathJax dynamic>{article.title}</MathJax>
           </div>
         </Link>
       )}
-      <div className='articleAcceptedCard-authors'>{article && article.authors ? article.authors.map(author => author.fullname).join(', ') : ''}</div>
+      <div className="articleAcceptedCard-authors">
+        {article && article.authors
+          ? article.authors.map(author => author.fullname).join(', ')
+          : ''}
+      </div>
       {article.abstract && (
-        <div className='articleAcceptedCard-abstract'>
-          <div className={`articleAcceptedCard-abstract-title ${!article.openedAbstract && 'articleAcceptedCard-abstract-title-closed'}`} onClick={toggleAbstractCallback}>
-            <div className='articleAcceptedCard-abstract-title-text'>{t('common.abstract')}</div>
+        <div className="articleAcceptedCard-abstract">
+          <div
+            className={`articleAcceptedCard-abstract-title ${!article.openedAbstract && 'articleAcceptedCard-abstract-title-closed'}`}
+            onClick={toggleAbstractCallback}
+          >
+            <div className="articleAcceptedCard-abstract-title-text">{t('common.abstract')}</div>
             {article.openedAbstract ? (
-              <CaretUpRedIcon size={14} className='articleAcceptedCard-abstract-title-caret' ariaLabel="Collapse abstract" />
+              <CaretUpRedIcon
+                size={14}
+                className="articleAcceptedCard-abstract-title-caret"
+                ariaLabel="Collapse abstract"
+              />
             ) : (
-              <CaretDownRedIcon size={14} className='articleAcceptedCard-abstract-title-caret' ariaLabel="Expand abstract" />
+              <CaretDownRedIcon
+                size={14}
+                className="articleAcceptedCard-abstract-title-caret"
+                ariaLabel="Expand abstract"
+              />
             )}
           </div>
-          <div className={`articleAcceptedCard-abstract-content ${article.openedAbstract && 'articleAcceptedCard-abstract-content-opened'}`}>
+          <div
+            className={`articleAcceptedCard-abstract-content ${article.openedAbstract && 'articleAcceptedCard-abstract-content-opened'}`}
+          >
             <MathJax dynamic>{getAbstractText(article.abstract, language)}</MathJax>
           </div>
         </div>
       )}
-      <div className='articleAcceptedCard-anchor'>
+      <div className="articleAcceptedCard-anchor">
         {article.acceptanceDate ? (
-          <div className='articleAcceptedCard-anchor-acceptanceDate'>{`${t('common.acceptedOn')} ${formatDate(article.acceptanceDate, language)}`}</div>
+          <div className="articleAcceptedCard-anchor-acceptanceDate">{`${t('common.acceptedOn')} ${formatDate(article.acceptanceDate, language)}`}</div>
         ) : (
-          <div className='articleAcceptedCard-anchor-acceptanceDate'></div>
+          <div className="articleAcceptedCard-anchor-acceptanceDate"></div>
         )}
         <div className="articleAcceptedCard-anchor-icons">
           {article.docLink && (
-            <Link href={article.docLink} target='_blank'>
+            <Link href={article.docLink} target="_blank">
               <div className="articleAcceptedCard-anchor-icons-download">
-                <DownloadRedIcon size={16} className="articleAcceptedCard-anchor-icons-download-download-icon" ariaLabel="Download" />
-                <div className="articleAcceptedCard-anchor-icons-download-text">{article.repositoryIdentifier}</div>
+                <DownloadRedIcon
+                  size={16}
+                  className="articleAcceptedCard-anchor-icons-download-download-icon"
+                  ariaLabel="Download"
+                />
+                <div className="articleAcceptedCard-anchor-icons-download-text">
+                  {article.repositoryIdentifier}
+                </div>
               </div>
             </Link>
           )}
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

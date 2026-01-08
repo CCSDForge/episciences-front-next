@@ -13,14 +13,14 @@ export const ICONS = {
   CARET_RIGHT_BLACK: '/_next/static/icons/caret-right-black.svg',
   CARET_LEFT_GREY: '/_next/static/icons/caret-left-grey.svg',
   CARET_LEFT_RED: '/_next/static/icons/caret-left-red.svg',
-  
+
   // Social
   ORCID: '/_next/static/icons/orcid.svg',
   TWITTER: '/_next/static/icons/twitter.svg',
   FACEBOOK: '/_next/static/icons/facebook.svg',
   LINKEDIN: '/_next/static/icons/linkedin.svg',
   MASTODON: '/_next/static/icons/mastodon.svg',
-  
+
   // UI
   FILTER: '/_next/static/icons/filter.svg',
   SEARCH: '/_next/static/icons/search.svg',
@@ -34,13 +34,13 @@ export const ICONS = {
   EXTERNAL_LINK_BLUE: '/_next/static/icons/external-link-blue.svg',
   EXTERNAL_LINK_RED: '/_next/static/icons/external-link-red.svg',
   EXTERNAL_LINK_WHITE: '/_next/static/icons/external-link-white.svg',
-  
+
   // View modes
   TILE_GREY: '/_next/static/icons/tile-grey.svg',
   TILE_RED: '/_next/static/icons/tile-red.svg',
   LIST_GREY: '/_next/static/icons/list-grey.svg',
   LIST_RED: '/_next/static/icons/list-red.svg',
-  
+
   // Others
   LOGO_TEXT: '/_next/static/icons/logo-text.svg',
   MAIL: '/_next/static/icons/mail.svg',
@@ -55,5 +55,5 @@ export const ICONS = {
   SHARE: '/_next/static/icons/share.svg',
   AT: '/_next/static/icons/at.svg',
   ARROW_RIGHT_BLUE: '/_next/static/icons/arrow-right-blue.svg',
-  ARROW_RIGHT_WHITE: '/_next/static/icons/arrow-right-white.svg'
-} as const 
+  ARROW_RIGHT_WHITE: '/_next/static/icons/arrow-right-white.svg',
+} as const;

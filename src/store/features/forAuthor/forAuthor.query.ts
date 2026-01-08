@@ -1,6 +1,6 @@
-import { createApi } from '@reduxjs/toolkit/query/react'
-import { IPage } from '@/types/page'
-import { createBaseQueryWithJsonAccept } from '@/lib/api/baseQuery'
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { IPage } from '@/types/page';
+import { createBaseQueryWithJsonAccept } from '@/lib/api/baseQuery';
 
 interface ForAuthorQueryParams {
   rvcode: string;
@@ -10,7 +10,7 @@ export const forAuthorApi = createApi({
   baseQuery: createBaseQueryWithJsonAccept,
   reducerPath: 'forAuthor',
   tagTypes: ['For author'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     fetchEditorialWorkflowPage: builder.query<IPage | undefined, ForAuthorQueryParams>({
       query: ({ rvcode }) => ({
         url: `/for-author/editorial-workflow/${rvcode}`,
@@ -30,10 +30,10 @@ export const forAuthorApi = createApi({
       transformResponse: (response: { items: IPage[] }) => response.items[0],
     }),
   }),
-})
+});
 
 export const {
   useFetchEditorialWorkflowPageQuery,
   useFetchEthicalCharterPageQuery,
   useFetchPrepareSubmissionPageQuery,
-} = forAuthorApi 
+} = forAuthorApi;

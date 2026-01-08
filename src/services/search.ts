@@ -1,9 +1,9 @@
-import { API_PATHS, API_URL } from '@/config/api'
-import { FetchedArticle, formatArticle } from '@/utils/article'
-import { PaginatedResponseWithRange, SearchRange } from '@/utils/pagination'
-import { formatSearchRange } from '@/utils/search'
-import { ISearchResult } from '@/types/search'
-import { getJournalApiUrl } from '@/utils/env-loader'
+import { API_PATHS, API_URL } from '@/config/api';
+import { FetchedArticle, formatArticle } from '@/utils/article';
+import { PaginatedResponseWithRange, SearchRange } from '@/utils/pagination';
+import { formatSearchRange } from '@/utils/search';
+import { ISearchResult } from '@/types/search';
+import { getJournalApiUrl } from '@/utils/env-loader';
 
 interface SearchParams {
   terms: string;
@@ -29,7 +29,7 @@ export async function fetchSearchResults({
   years = [],
   volumes = [],
   sections = [],
-  authors = []
+  authors = [],
 }: SearchParams): Promise<{
   data: FetchedArticle[];
   totalItems: number;
@@ -40,44 +40,44 @@ export async function fetchSearchResults({
     const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
     const fullUrl = `${apiRoot}${API_PATHS.search}`;
     const apiUrl = new URL(fullUrl);
-    
+
     // Ajout des paramètres à l'URL
     apiUrl.searchParams.append('terms', terms);
     apiUrl.searchParams.append('page', page.toString());
     apiUrl.searchParams.append('itemsPerPage', itemsPerPage.toString());
-    
+
     if (rvcode) {
       apiUrl.searchParams.append('rvcode', rvcode);
     }
-    
+
     // Ajout des types
     if (types && types.length > 0) {
       types.forEach(type => {
         apiUrl.searchParams.append('type[]', type);
       });
     }
-    
+
     // Ajout des années
     if (years && years.length > 0) {
       years.forEach(year => {
         apiUrl.searchParams.append('year[]', year.toString());
       });
     }
-    
+
     // Ajout des volumes
     if (volumes && volumes.length > 0) {
       volumes.forEach(volume => {
         apiUrl.searchParams.append('volume_id[]', volume.toString());
       });
     }
-    
+
     // Ajout des sections
     if (sections && sections.length > 0) {
       sections.forEach(section => {
         apiUrl.searchParams.append('section_id[]', section.toString());
       });
     }
-    
+
     // Ajout des auteurs
     if (authors && authors.length > 0) {
       authors.forEach(author => {
@@ -105,14 +105,14 @@ export async function fetchSearchResults({
     const range = formatSearchRange(data['hydra:range']);
 
     // Récupérer les articles complets pour chaque résultat de recherche
-    const fullResultsPromises = searchResults.map(async (searchResult) => {
+    const fullResultsPromises = searchResults.map(async searchResult => {
       const articleId = searchResult.docid;
       try {
         const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
         const response = await fetch(`${apiRoot}${API_PATHS.papers}${articleId}`, {
           next: {
             tags: ['article', `article-${articleId}`],
-          }
+          },
         });
 
         if (!response.ok) {
@@ -134,10 +134,10 @@ export async function fetchSearchResults({
     return {
       data: fullResults,
       totalItems,
-      range
+      range,
     };
   } catch (error) {
     console.error('Error fetching search results:', error);
     throw error;
   }
-} 
+}

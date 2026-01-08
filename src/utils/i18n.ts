@@ -6,7 +6,7 @@ export const availableLanguages = process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGU
   ? process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES.split(',')
   : ['en', 'fr'];
 
-export type AvailableLanguage = typeof availableLanguages[number];
+export type AvailableLanguage = (typeof availableLanguages)[number];
 
 export const getTranslations = async (language: AvailableLanguage = defaultLanguage) => {
   const response = await fetch(`${API_URL}/translations/${language}`);
@@ -23,4 +23,4 @@ export const fetchTranslations = async (language: AvailableLanguage = defaultLan
     console.error('Error fetching translations:', error);
     return null;
   }
-}; 
+};

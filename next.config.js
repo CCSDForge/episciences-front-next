@@ -17,7 +17,7 @@ const nextConfig = {
     includePaths: [path.join(__dirname, 'src/styles')],
     quietDeps: true,
   },
-  
+
   // Configuration des images
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -38,7 +38,7 @@ const nextConfig = {
     minimumCacheTTL: 5184000, // 60 days
     dangerouslyAllowSVG: false,
   },
-    
+
   async rewrites() {
     // Default to preprod if API_PROXY_TARGET is not set in .env
     const apiTarget = process.env.API_PROXY_TARGET || 'https://api-preprod.episciences.org/api';
@@ -60,22 +60,22 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
+            value: 'SAMEORIGIN',
           },
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff'
+            value: 'nosniff',
           },
           {
             key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin'
+            value: 'strict-origin-when-cross-origin',
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()'
-          }
-        ]
-      }
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
     ];
   },
 

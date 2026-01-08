@@ -17,31 +17,40 @@ interface ICreditsSidebarProps {
   toggleHeaderCallback: (id: string) => void;
 }
 
-export default function CreditsSidebar({ headers, toggleHeaderCallback }: ICreditsSidebarProps): React.JSX.Element {
+export default function CreditsSidebar({
+  headers,
+  toggleHeaderCallback,
+}: ICreditsSidebarProps): React.JSX.Element {
   return (
-    <div className='creditsSidebar'>
+    <div className="creditsSidebar">
       {headers.map((header, index) => (
-        <div
-          key={index}
-          className='creditsSidebar-header'
-        >
-          <div className='creditsSidebar-header-title'>
+        <div key={index} className="creditsSidebar-header">
+          <div className="creditsSidebar-header-title">
             <Link href={`#${header.id}`}>
-              <div className='creditsSidebar-header-title-text'>{header.value}</div>
+              <div className="creditsSidebar-header-title-text">{header.value}</div>
             </Link>
-            {header.children.length > 0 && (
-              header.opened ? (
-                <CaretUpGreyIcon size={16} className='creditsSidebar-header-title-caret' ariaLabel="Collapse section" onClick={(): void => toggleHeaderCallback(header.id)} />
+            {header.children.length > 0 &&
+              (header.opened ? (
+                <CaretUpGreyIcon
+                  size={16}
+                  className="creditsSidebar-header-title-caret"
+                  ariaLabel="Collapse section"
+                  onClick={(): void => toggleHeaderCallback(header.id)}
+                />
               ) : (
-                <CaretDownGreyIcon size={16} className='creditsSidebar-header-title-caret' ariaLabel="Expand section" onClick={(): void => toggleHeaderCallback(header.id)} />
-              )
-            )}
+                <CaretDownGreyIcon
+                  size={16}
+                  className="creditsSidebar-header-title-caret"
+                  ariaLabel="Expand section"
+                  onClick={(): void => toggleHeaderCallback(header.id)}
+                />
+              ))}
           </div>
           {header.opened && (
-            <div className='creditsSidebar-header-subheaders'>
+            <div className="creditsSidebar-header-subheaders">
               {header.children.map((subheader, index) => (
                 <Link key={index} href={`#${subheader.id}`}>
-                  <div className='creditsSidebar-header-subheaders-subheader'>
+                  <div className="creditsSidebar-header-subheaders-subheader">
                     {subheader.value}
                   </div>
                 </Link>
@@ -52,4 +61,4 @@ export default function CreditsSidebar({ headers, toggleHeaderCallback }: ICredi
       ))}
     </div>
   );
-} 
+}

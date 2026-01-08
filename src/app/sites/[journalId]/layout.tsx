@@ -12,9 +12,5 @@ export default async function JournalLayout(props: JournalLayoutProps) {
   const params = await props.params;
   const { children } = props;
 
-  return (
-    <>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

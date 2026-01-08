@@ -18,7 +18,7 @@ export interface IVolumeYearSelection {
 }
 
 interface IVolumesModalProps {
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   types: IVolumeTypeSelection[];
   onCheckTypeCallback: (value: string) => void;
   years: IVolumeYearSelection[];
@@ -26,7 +26,14 @@ interface IVolumesModalProps {
   onCloseCallback: () => void;
 }
 
-export default function VolumesModal({ t, types, onCheckTypeCallback, years, onSelectYearCallback, onCloseCallback }: IVolumesModalProps): React.JSX.Element {
+export default function VolumesModal({
+  t,
+  types,
+  onCheckTypeCallback,
+  years,
+  onSelectYearCallback,
+  onCloseCallback,
+}: IVolumesModalProps): React.JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -48,12 +55,12 @@ export default function VolumesModal({ t, types, onCheckTypeCallback, years, onS
         <div className="typesSectionTitle">{t('common.filters.volumeTypes')}</div>
         <div className="typesSectionTypes">
           {types.map((type, index) => (
-            <div
-              key={index}
-              className="typesSectionTypesChoice"
-            >
+            <div key={index} className="typesSectionTypesChoice">
               <div>
-                <Checkbox checked={type.isChecked} onChangeCallback={(): void => onCheckTypeCallback(type.value)}/>
+                <Checkbox
+                  checked={type.isChecked}
+                  onChangeCallback={(): void => onCheckTypeCallback(type.value)}
+                />
               </div>
               <span
                 className={`typesSectionTypesChoiceLabel ${type.isChecked ? 'typesSectionTypesChoiceLabelChecked' : ''}`}
@@ -69,7 +76,7 @@ export default function VolumesModal({ t, types, onCheckTypeCallback, years, onS
         <div className="yearsSectionTitle">{t('common.filters.years')}</div>
         <div className="yearsSectionYears">
           <div className="yearsSectionYearsList">
-            {years.map((y) => (
+            {years.map(y => (
               <div
                 key={y.year}
                 className={`yearsSectionYearsListYear ${y.isSelected ? 'yearsSectionYearsListYearSelected' : ''}`}
@@ -82,5 +89,5 @@ export default function VolumesModal({ t, types, onCheckTypeCallback, years, onS
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

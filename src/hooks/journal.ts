@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
-import { useFetchJournalQuery } from "@/store/features/journal/journal.query";
-import { setCurrentJournal } from "@/store/features/journal/journal.slice";
-import { useAppDispatch, useAppSelector } from "@/hooks/store";
+import { useFetchJournalQuery } from '@/store/features/journal/journal.query';
+import { setCurrentJournal } from '@/store/features/journal/journal.slice';
+import { useAppDispatch, useAppSelector } from '@/hooks/store';
 
-function JournalHook (): null {
+function JournalHook(): null {
   const journalRvCode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || '';
 
   const dispatch = useAppDispatch();
@@ -22,4 +22,4 @@ function JournalHook (): null {
   return null;
 }
 
-export default JournalHook; 
+export default JournalHook;

@@ -7,25 +7,39 @@ import { CloseRedIcon, CaretRightGreyIcon } from '@/components/icons';
 
 import './AuthorDetailsSidebar.scss';
 import { PATHS } from '@/config/paths';
-import { IAuthor } from "@/types/author";
+import { IAuthor } from '@/types/author';
 import { useFetchAuthorArticlesQuery } from '@/store/features/author/author.query';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 
 export interface IAuthorDetailsSidebarProps {
   language: AvailableLanguage;
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   rvcode?: string;
   expandedAuthor?: IAuthor;
   onCloseDetailsCallback: () => void;
 }
 
-export default function AuthorDetailsSidebar ({ language, t, rvcode, expandedAuthor, onCloseDetailsCallback }: IAuthorDetailsSidebarProps): React.JSX.Element {
-  const { data: articles } = useFetchAuthorArticlesQuery({ rvcode: rvcode!, fullname: expandedAuthor?.name! }, { skip: !rvcode })
+export default function AuthorDetailsSidebar({
+  language,
+  t,
+  rvcode,
+  expandedAuthor,
+  onCloseDetailsCallback,
+}: IAuthorDetailsSidebarProps): React.JSX.Element {
+  const { data: articles } = useFetchAuthorArticlesQuery(
+    { rvcode: rvcode!, fullname: expandedAuthor?.name! },
+    { skip: !rvcode }
+  );
 
   return (
     <div className="authorDetailsSidebar">
-      <CloseRedIcon size={24} className="authorDetailsSidebar-close" ariaLabel="Close author details" onClick={onCloseDetailsCallback} />
+      <CloseRedIcon
+        size={24}
+        className="authorDetailsSidebar-close"
+        ariaLabel="Close author details"
+        onClick={onCloseDetailsCallback}
+      />
       <div className="authorDetailsSidebar-content">
         <div className="authorDetailsSidebar-content-name">{expandedAuthor?.name}</div>
         {articles?.data.map((article, index) => (
@@ -35,15 +49,30 @@ export default function AuthorDetailsSidebar ({ language, t, rvcode, expandedAut
             </div>
             <div className="authorDetailsSidebar-content-article-publicationDate">{`${t('common.publishedOn')} ${formatDate(article.publicationDate, language)}`}</div>
             {article.doi && (
-                <div className="authorDetailsSidebar-content-article-doi">
-                  <div className="authorDetailsSidebar-content-article-doi-text">{t('common.doi')} :</div>
-                  <Link href={`${process.env.NEXT_PUBLIC_DOI_HOMEPAGE}/${article.doi}`} className="authorDetailsSidebar-content-article-doi-link" target='_blank' rel="noopener noreferrer">{article.doi}</Link>
+              <div className="authorDetailsSidebar-content-article-doi">
+                <div className="authorDetailsSidebar-content-article-doi-text">
+                  {t('common.doi')} :
                 </div>
+                <Link
+                  href={`${process.env.NEXT_PUBLIC_DOI_HOMEPAGE}/${article.doi}`}
+                  className="authorDetailsSidebar-content-article-doi-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {article.doi}
+                </Link>
+              </div>
             )}
             <Link href={`${PATHS.articles}/${article.id}`}>
               <div className="authorDetailsSidebar-content-article-seeMore">
-                <div className="authorDetailsSidebar-content-article-seeMore-text">{t('common.seeMore')}</div>
-                <CaretRightGreyIcon size={16} className="authorDetailsSidebar-content-article-seeMore-icon" ariaLabel="See article details" />
+                <div className="authorDetailsSidebar-content-article-seeMore-text">
+                  {t('common.seeMore')}
+                </div>
+                <CaretRightGreyIcon
+                  size={16}
+                  className="authorDetailsSidebar-content-article-seeMore-icon"
+                  ariaLabel="See article details"
+                />
               </div>
             </Link>
           </div>
@@ -51,4 +80,4 @@ export default function AuthorDetailsSidebar ({ language, t, rvcode, expandedAut
       </div>
     </div>
   );
-} 
+}

@@ -1,8 +1,8 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 .boardsSidebar {
   min-width: 265px;
 
-  @media (max-width:  breakpoints.$sm) {
+  @media (max-width: breakpoints.$sm) {
     display: none;
   }
 
@@ -23,4 +23,4 @@
       }
     }
   }
-} 
+}

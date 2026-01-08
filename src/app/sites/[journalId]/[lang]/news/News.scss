@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss" as breakpoints;
+@use '@/styles/breakpoints.scss' as breakpoints;
 
 .news {
   &-title {
@@ -15,7 +15,8 @@
       &-icon {
         cursor: pointer;
 
-        &-row, &-row-red {
+        &-row,
+        &-row-red {
           display: flex;
           justify-content: space-between;
           gap: 10px;
@@ -23,7 +24,7 @@
 
         &-row {
           color: var(--grey);
-          
+
           &-red {
             color: var(--primary);
             text-decoration: underline;
@@ -97,4 +98,4 @@
       }
     }
   }
-} 
+}

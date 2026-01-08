@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 
 .loader {
   position: absolute;
@@ -11,4 +11,4 @@
   @media (max-width: breakpoints.$sm) {
     width: 100px;
   }
-} 
+}

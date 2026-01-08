@@ -1,11 +1,11 @@
-import { AvailableLanguage } from "@/utils/i18n";
-import { IVolume } from "./volume";
+import { AvailableLanguage } from '@/utils/i18n';
+import { IVolume } from './volume';
 
 // Interface spécifique aux numéros spéciaux qui étend IVolume
 export type IIssue = Omit<IVolume, 'downloadLink'> & {
   downloadLink?: string;
   tileImageURL?: string;
-}
+};
 
 interface IVolumeCommitteeMember {
   uuid: string;
@@ -23,4 +23,4 @@ export interface IVolumeMetadata {
 export interface IVolumeSettingsProceeding {
   setting?: string;
   value?: string;
-} 
+}

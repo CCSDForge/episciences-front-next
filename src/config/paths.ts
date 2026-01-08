@@ -27,4 +27,4 @@ export const BREADCRUMB_PATHS = {
   home: PATHS.home,
   articles: PATHS.articles,
   articleDetails: (id: string) => `${PATHS.articles}/${id}`,
-} as const; 
+} as const;

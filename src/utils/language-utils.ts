@@ -12,7 +12,7 @@ export const acceptedLanguages: string[] = process.env.NEXT_PUBLIC_JOURNAL_ACCEP
   ? process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES.split(',').map(lang => lang.trim())
   : ['en', 'fr']; // Default to both supported languages
 
-export type AvailableLanguage = typeof acceptedLanguages[number];
+export type AvailableLanguage = (typeof acceptedLanguages)[number];
 
 /**
  * Extract language from route params
@@ -59,9 +59,9 @@ export function getLocalizedPath(path: string, lang: string): string {
   // Remove any existing language prefix from the path
   const cleanPath = removeLanguagePrefix(path);
 
-  // If we are at root ('/'), we might want to keep it simple or redirect, 
+  // If we are at root ('/'), we might want to keep it simple or redirect,
   // but generally links to specific pages should have the lang.
-  
+
   // If explicitly disabled (e.g. for single-lang sites), use old logic
   if (!ALWAYS_USE_PREFIX && isDefaultLanguage(lang)) {
     return cleanPath;

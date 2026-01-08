@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { useRouter } from 'next/navigation';
 import { TFunction } from 'i18next';
-import { EmailShareButton, FacebookShareButton, LinkedinShareButton, TwitterShareButton } from 'react-share';
+import {
+  EmailShareButton,
+  FacebookShareButton,
+  LinkedinShareButton,
+  TwitterShareButton,
+} from 'react-share';
 import { isMobileOnly } from 'react-device-detect';
 import {
   ExternalLinkBlackIcon,
@@ -16,12 +21,18 @@ import {
   TwitterIcon,
   LinkedinIcon,
   CaretUpGreyIcon,
-  CaretDownGreyIcon
+  CaretDownGreyIcon,
 } from '@/components/icons';
 
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
-import { ICitation, METADATA_TYPE, copyToClipboardCitation, getLicenseTranslations, getMetadataTypes } from '@/utils/article';
+import {
+  ICitation,
+  METADATA_TYPE,
+  copyToClipboardCitation,
+  getLicenseTranslations,
+  getMetadataTypes,
+} from '@/utils/article';
 import { fetchArticleMetadata } from '@/services/article';
 import { toast } from 'react-toastify';
 import { useAppSelector } from '@/hooks/store';
@@ -34,14 +45,21 @@ import './ArticleDetailsSidebar.scss';
 
 interface IArticleDetailsSidebarProps {
   language: AvailableLanguage;
-  t: TFunction<"translation", undefined>;
+  t: TFunction<'translation', undefined>;
   article?: IArticle;
   relatedVolume?: IVolume;
   citations: ICitation[];
   metrics?: React.JSX.Element;
 }
 
-export default function ArticleDetailsSidebar({ language, t, article, relatedVolume, citations, metrics }: IArticleDetailsSidebarProps): React.JSX.Element {
+export default function ArticleDetailsSidebar({
+  language,
+  t,
+  article,
+  relatedVolume,
+  citations,
+  metrics,
+}: IArticleDetailsSidebarProps): React.JSX.Element {
   const router = useRouter();
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
@@ -59,27 +77,36 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
 
   useEffect(() => {
     const handleTouchOutsideCitations = (event: TouchEvent): void => {
-      if (citationsDropdownRef.current && !citationsDropdownRef.current.contains(event.target as Node)) {
+      if (
+        citationsDropdownRef.current &&
+        !citationsDropdownRef.current.contains(event.target as Node)
+      ) {
         setShowCitationsDropdown(false);
       }
     };
 
     const handleTouchOutsideMetadatas = (event: TouchEvent): void => {
-      if (metadatasDropdownRef.current && !metadatasDropdownRef.current.contains(event.target as Node)) {
+      if (
+        metadatasDropdownRef.current &&
+        !metadatasDropdownRef.current.contains(event.target as Node)
+      ) {
         setShowMetadatasDropdown(false);
       }
     };
 
     const handleTouchOutsideSharing = (event: TouchEvent): void => {
-      if (sharingDropdownRef.current && !sharingDropdownRef.current.contains(event.target as Node)) {
+      if (
+        sharingDropdownRef.current &&
+        !sharingDropdownRef.current.contains(event.target as Node)
+      ) {
         setShowSharingDropdown(false);
       }
     };
-    
+
     document.addEventListener('touchstart', handleTouchOutsideCitations);
     document.addEventListener('touchstart', handleTouchOutsideMetadatas);
     document.addEventListener('touchstart', handleTouchOutsideSharing);
-    
+
     return () => {
       document.removeEventListener('touchstart', handleTouchOutsideCitations);
       document.removeEventListener('touchstart', handleTouchOutsideMetadatas);
@@ -87,7 +114,8 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
     };
   }, [citationsDropdownRef, metadatasDropdownRef, sharingDropdownRef]);
 
-  const togglePublicationDetails = (): void => setOpenedPublicationDetails(!openedPublicationDetails);
+  const togglePublicationDetails = (): void =>
+    setOpenedPublicationDetails(!openedPublicationDetails);
 
   const toggleFunding = (): void => setOpenedFunding(!openedFunding);
 
@@ -135,7 +163,12 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
     }
 
     return (
-      <Link href={`/${PATHS.volumes}/${relatedVolume.id}`} className="articleDetailsSidebar-volumeDetails-number">{text} {relatedVolume.num}</Link>
+      <Link
+        href={`/${PATHS.volumes}/${relatedVolume.id}`}
+        className="articleDetailsSidebar-volumeDetails-number"
+      >
+        {text} {relatedVolume.num}
+      </Link>
     );
   };
 
@@ -146,9 +179,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
 
     if (!sectionTitle) return null;
 
-    return (
-      <div className="articleDetailsSidebar-volumeDetails-section">{sectionTitle}</div>
-    );
+    return <div className="articleDetailsSidebar-volumeDetails-section">{sectionTitle}</div>;
   };
 
   const renderLicenseContent = (): React.JSX.Element | null => {
@@ -163,9 +194,18 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
       <div className="articleDetailsSidebar-volumeDetails-license">
         <div>{t('pages.articleDetails.license')}</div>
         {translatedLicense.isLink ? (
-          <Link href={translatedLicense.value} className="articleDetailsSidebar-volumeDetails-license-content articleDetailsSidebar-volumeDetails-license-content-link" target="_blank" rel="noopener noreferrer">{translatedLicense.label}</Link>
+          <Link
+            href={translatedLicense.value}
+            className="articleDetailsSidebar-volumeDetails-license-content articleDetailsSidebar-volumeDetails-license-content-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {translatedLicense.label}
+          </Link>
         ) : (
-          <div className="articleDetailsSidebar-volumeDetails-license-content">{translatedLicense.label}</div>
+          <div className="articleDetailsSidebar-volumeDetails-license-content">
+            {translatedLicense.label}
+          </div>
         )}
       </div>
     );
@@ -191,7 +231,10 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
     }
   };
 
-  const downloadMetadata = async (metadata: { type: METADATA_TYPE; label: string }): Promise<void> => {
+  const downloadMetadata = async (metadata: {
+    type: METADATA_TYPE;
+    label: string;
+  }): Promise<void> => {
     if (!article?.id || !rvcode || isDownloadingMetadata) return;
 
     try {
@@ -199,7 +242,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
       const metadataContent = await fetchArticleMetadata({
         rvcode,
         paperid: article.id.toString(),
-        type: metadata.type
+        type: metadata.type,
       });
 
       if (!metadataContent) {
@@ -238,8 +281,14 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
           <>
             <a href={article.pdfLink} target="_blank" rel="noopener noreferrer">
               <div className="articleDetailsSidebar-links-link">
-                <DownloadBlackIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Download PDF" />
-                <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.download')}</div>
+                <DownloadBlackIcon
+                  size={20}
+                  className="articleDetailsSidebar-links-link-icon"
+                  ariaLabel="Download PDF"
+                />
+                <div className="articleDetailsSidebar-links-link-text">
+                  {t('pages.articleDetails.actions.download')}
+                </div>
               </div>
             </a>
           </>
@@ -261,7 +310,7 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
             </div>
           </a>
         )}
-        
+
         {citations.length > 0 && (
           <div
             ref={citationsDropdownRef}
@@ -270,9 +319,17 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
             onMouseLeave={(): void => setShowCitationsDropdown(false)}
             onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
           >
-            <QuoteBlackIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Cite article" />
-            <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.cite')}</div>
-            <div className={`articleDetailsSidebar-links-link-modal-content ${showCitationsDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}>
+            <QuoteBlackIcon
+              size={20}
+              className="articleDetailsSidebar-links-link-icon"
+              ariaLabel="Cite article"
+            />
+            <div className="articleDetailsSidebar-links-link-text">
+              {t('pages.articleDetails.actions.cite')}
+            </div>
+            <div
+              className={`articleDetailsSidebar-links-link-modal-content ${showCitationsDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}
+            >
               <div className="articleDetailsSidebar-links-link-modal-content-links">
                 {citations.map((citation, index) => (
                   <div
@@ -280,13 +337,15 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
                     className="articleDetailsSidebar-links-link-modal-content-links-link"
                     onClick={(): void => copyCitation(citation)}
                     onTouchEnd={(): void => copyCitation(citation)}
-                  >{citation.key}</div>
+                  >
+                    {citation.key}
+                  </div>
                 ))}
               </div>
             </div>
           </div>
         )}
-        
+
         {metadataTypes.length > 0 && (
           <div
             ref={metadatasDropdownRef}
@@ -295,23 +354,37 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
             onMouseLeave={(): void => setShowMetadatasDropdown(false)}
             onTouchStart={(): void => setShowMetadatasDropdown(!showMetadatasDropdown)}
           >
-            <QuoteBlackIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Download metadata" />
-            <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.metadata')}</div>
-            <div className={`articleDetailsSidebar-links-link-modal-content ${showMetadatasDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}>
+            <QuoteBlackIcon
+              size={20}
+              className="articleDetailsSidebar-links-link-icon"
+              ariaLabel="Download metadata"
+            />
+            <div className="articleDetailsSidebar-links-link-text">
+              {t('pages.articleDetails.actions.metadata')}
+            </div>
+            <div
+              className={`articleDetailsSidebar-links-link-modal-content ${showMetadatasDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}
+            >
               <div className="articleDetailsSidebar-links-link-modal-content-links">
                 {metadataTypes.map((metadata, index) => (
                   <div
                     key={index}
                     className="articleDetailsSidebar-links-link-modal-content-links-link"
-                    onClick={(): void => { void downloadMetadata(metadata); }}
-                    onTouchEnd={(): void => { void downloadMetadata(metadata); }}
-                  >{metadata.label}</div>
+                    onClick={(): void => {
+                      void downloadMetadata(metadata);
+                    }}
+                    onTouchEnd={(): void => {
+                      void downloadMetadata(metadata);
+                    }}
+                  >
+                    {metadata.label}
+                  </div>
                 ))}
               </div>
             </div>
           </div>
         )}
-        
+
         <div
           ref={sharingDropdownRef}
           className="articleDetailsSidebar-links-link articleDetailsSidebar-links-link-modal"
@@ -319,37 +392,76 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
           onMouseLeave={(): void => setShowSharingDropdown(false)}
           onTouchStart={(): void => setShowSharingDropdown(!showSharingDropdown)}
         >
-          <ShareIcon size={20} className="articleDetailsSidebar-links-link-icon" ariaLabel="Share article" />
-          <div className="articleDetailsSidebar-links-link-text">{t('pages.articleDetails.actions.share.text')}</div>
-          <div className={`articleDetailsSidebar-links-link-modal-content ${showSharingDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}>
+          <ShareIcon
+            size={20}
+            className="articleDetailsSidebar-links-link-icon"
+            ariaLabel="Share article"
+          />
+          <div className="articleDetailsSidebar-links-link-text">
+            {t('pages.articleDetails.actions.share.text')}
+          </div>
+          <div
+            className={`articleDetailsSidebar-links-link-modal-content ${showSharingDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}
+          >
             <div className="articleDetailsSidebar-links-link-modal-content-sharing">
               <EmailShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-                <MailIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share via email" />
+                <MailIcon
+                  size={20}
+                  className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+                  ariaLabel="Share via email"
+                />
               </EmailShareButton>
               <FacebookShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-                <FacebookIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on Facebook" />
+                <FacebookIcon
+                  size={20}
+                  className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+                  ariaLabel="Share on Facebook"
+                />
               </FacebookShareButton>
               <TwitterShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-                <TwitterIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on X" />
+                <TwitterIcon
+                  size={20}
+                  className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+                  ariaLabel="Share on X"
+                />
               </TwitterShareButton>
               <LinkedinShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
-                <LinkedinIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on LinkedIn" />
+                <LinkedinIcon
+                  size={20}
+                  className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+                  ariaLabel="Share on LinkedIn"
+                />
               </LinkedinShareButton>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div className="articleDetailsSidebar-publicationDetails">
-        <div className="articleDetailsSidebar-publicationDetails-title" onClick={togglePublicationDetails}>
-          <div className="articleDetailsSidebar-publicationDetails-title-text">{t('common.publicationDetails')}</div>
+        <div
+          className="articleDetailsSidebar-publicationDetails-title"
+          onClick={togglePublicationDetails}
+        >
+          <div className="articleDetailsSidebar-publicationDetails-title-text">
+            {t('common.publicationDetails')}
+          </div>
           {openedPublicationDetails ? (
-            <CaretUpGreyIcon size={16} className="articleDetailsSidebar-publicationDetails-title-caret" ariaLabel="Collapse publication details" />
+            <CaretUpGreyIcon
+              size={16}
+              className="articleDetailsSidebar-publicationDetails-title-caret"
+              ariaLabel="Collapse publication details"
+            />
           ) : (
-            <CaretDownGreyIcon size={16} className="articleDetailsSidebar-publicationDetails-title-caret" ariaLabel="Expand publication details" />
+            <CaretDownGreyIcon
+              size={16}
+              className="articleDetailsSidebar-publicationDetails-title-caret"
+              ariaLabel="Expand publication details"
+            />
           )}
         </div>
-        <div className={`articleDetailsSidebar-publicationDetails-content ${openedPublicationDetails && 'articleDetailsSidebar-publicationDetails-content-opened'}`}>
+        <div
+          className={`articleDetailsSidebar-publicationDetails-content ${openedPublicationDetails && 'articleDetailsSidebar-publicationDetails-content-opened'}`}
+        >
           {article?.submissionDate && (
             <div className="articleDetailsSidebar-publicationDetails-content-row">
               <div>{t('common.submittedOn')}</div>
@@ -365,7 +477,9 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
           {article?.publicationDate && (
             <div className="articleDetailsSidebar-publicationDetails-content-row articleDetailsSidebar-publicationDetails-content-row-publicationDate">
               <div>{t('common.publishedOn')}</div>
-              <div className="articleDetailsSidebar-publicationDetails-content-row-publicationDate-value">{formatDate(article.publicationDate, language)}</div>
+              <div className="articleDetailsSidebar-publicationDetails-content-row-publicationDate-value">
+                {formatDate(article.publicationDate, language)}
+              </div>
             </div>
           )}
           {article?.modificationDate && (
@@ -386,7 +500,12 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
       {article?.doi && article.doi.trim() !== '' && (
         <div className="articleDetailsSidebar-doi">
           <div className="articleDetailsSidebar-doi-label">{t('common.doi')}</div>
-          <Link href={`https://doi.org/${article.doi}`} className="articleDetailsSidebar-doi-link" target="_blank" rel="noopener noreferrer">
+          <Link
+            href={`https://doi.org/${article.doi}`}
+            className="articleDetailsSidebar-doi-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {article.doi}
           </Link>
         </div>
@@ -395,14 +514,26 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
       {article?.fundings && article.fundings.length > 0 && (
         <div className="articleDetailsSidebar-funding">
           <div className="articleDetailsSidebar-funding-title" onClick={toggleFunding}>
-            <div className="articleDetailsSidebar-funding-title-text">{t('pages.articleDetails.funding.title')}</div>
+            <div className="articleDetailsSidebar-funding-title-text">
+              {t('pages.articleDetails.funding.title')}
+            </div>
             {openedFunding ? (
-              <CaretUpGreyIcon size={16} className="articleDetailsSidebar-funding-title-caret" ariaLabel="Collapse funding" />
+              <CaretUpGreyIcon
+                size={16}
+                className="articleDetailsSidebar-funding-title-caret"
+                ariaLabel="Collapse funding"
+              />
             ) : (
-              <CaretDownGreyIcon size={16} className="articleDetailsSidebar-funding-title-caret" ariaLabel="Expand funding" />
+              <CaretDownGreyIcon
+                size={16}
+                className="articleDetailsSidebar-funding-title-caret"
+                ariaLabel="Expand funding"
+              />
             )}
           </div>
-          <div className={`articleDetailsSidebar-funding-content ${openedFunding && 'articleDetailsSidebar-funding-content-opened'}`}>
+          <div
+            className={`articleDetailsSidebar-funding-content ${openedFunding && 'articleDetailsSidebar-funding-content-opened'}`}
+          >
             {article.fundings.map((fund: any, index: number) => (
               <div key={index} className="articleDetailsSidebar-funding-content-row">
                 <div>{fund.funder || fund}</div>
@@ -416,4 +547,4 @@ export default function ArticleDetailsSidebar({ language, t, article, relatedVol
       {metrics}
     </div>
   );
-} 
+}

@@ -2,7 +2,7 @@
 
 import { TFunction } from 'i18next';
 
-import './NewsSidebar.scss'
+import './NewsSidebar.scss';
 
 export interface INewsYearSelection {
   year: number;
@@ -10,18 +10,22 @@ export interface INewsYearSelection {
 }
 
 interface INewsSidebarProps {
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   years: INewsYearSelection[];
   onSelectYearCallback: (year: number) => void;
 }
 
-export default function NewsSidebar({ t, years, onSelectYearCallback }: INewsSidebarProps): React.JSX.Element {
+export default function NewsSidebar({
+  t,
+  years,
+  onSelectYearCallback,
+}: INewsSidebarProps): React.JSX.Element {
   return (
-    <div className='newsSidebar'>
-      <div className='newsSidebar-title'>{t('common.filters.years')}</div>
-      <div className='newsSidebar-years'>
-        <div className='newsSidebar-years-list'>
-          {years.map((y) => (
+    <div className="newsSidebar">
+      <div className="newsSidebar-title">{t('common.filters.years')}</div>
+      <div className="newsSidebar-years">
+        <div className="newsSidebar-years-list">
+          {years.map(y => (
             <div
               key={y.year}
               className={`newsSidebar-years-list-year ${y.isSelected && 'newsSidebar-years-list-year-selected'}`}
@@ -33,5 +37,5 @@ export default function NewsSidebar({ t, years, onSelectYearCallback }: INewsSid
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

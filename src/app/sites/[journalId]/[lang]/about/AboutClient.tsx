@@ -9,7 +9,13 @@ import remarkGfm from 'remark-gfm';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchAboutPage } from '@/services/about';
-import { generateIdFromText, unifiedProcessor, serializeMarkdown, getMarkdownImageURL, adjustNestedListsInMarkdownContent } from '@/utils/markdown';
+import {
+  generateIdFromText,
+  unifiedProcessor,
+  serializeMarkdown,
+  getMarkdownImageURL,
+  adjustNestedListsInMarkdownContent,
+} from '@/utils/markdown';
 import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
@@ -36,12 +42,16 @@ interface AboutClientProps {
   };
 }
 
-export default function AboutClient({ initialPage, lang, breadcrumbLabels }: AboutClientProps): React.JSX.Element {
+export default function AboutClient({
+  initialPage,
+  lang,
+  breadcrumbLabels,
+}: AboutClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
-  const language = useAppSelector(state => state.i18nReducer.language)
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code)
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name)
+  const language = useAppSelector(state => state.i18nReducer.language);
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
+  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Architecture hybride : fetch automatique des données fraîches
   // initialPage = HTML statique (SEO), data = données à jour depuis l'API
@@ -61,12 +71,12 @@ export default function AboutClient({ initialPage, lang, breadcrumbLabels }: Abo
 
   const parseContentSections = (toBeParsed: string | undefined): IAboutSection[] => {
     if (!toBeParsed) return [];
-    
+
     const tree = unifiedProcessor.parse(toBeParsed);
     const sections: IAboutSection[] = [];
     let currentSection: IAboutSection | null = null;
-  
-    tree.children.forEach((node) => {
+
+    tree.children.forEach(node => {
       if (node.type === 'heading' && node.depth === 2) {
         if (currentSection) {
           sections.push(currentSection);
@@ -78,46 +88,46 @@ export default function AboutClient({ initialPage, lang, breadcrumbLabels }: Abo
         currentSection = {
           id: generateIdFromText(titleText),
           value: serializeMarkdown(node),
-          opened: true
+          opened: true,
         };
       } else {
         if (!currentSection) {
           currentSection = {
             id: 'intro',
             value: '',
-            opened: true
+            opened: true,
           };
         }
         currentSection.value += serializeMarkdown(node) + '\n';
       }
     });
-  
+
     if (currentSection) {
       sections.push(currentSection);
     }
-  
+
     return sections;
   };
 
   const parseSidebarHeaders = (toBeParsed: string | undefined): IAboutHeader[] => {
     if (!toBeParsed) return [];
-    
+
     const tree = unifiedProcessor.parse(toBeParsed);
     const headers: IAboutHeader[] = [];
     let lastH2: IAboutHeader | null = null;
-  
-    tree.children.forEach((node) => {
+
+    tree.children.forEach(node => {
       if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
         const textNode = node.children.find(child => child.type === 'text') as { value: string };
-        
+
         if (textNode) {
           const header: IAboutHeader = {
             id: generateIdFromText(textNode.value),
             value: textNode.value,
             opened: true,
-            children: []
+            children: [],
           };
-  
+
           if (node.depth === 2) {
             lastH2 = header;
             headers.push(header);
@@ -127,12 +137,12 @@ export default function AboutClient({ initialPage, lang, breadcrumbLabels }: Abo
         }
       }
     });
-  
+
     return headers;
   };
 
   const toggleSectionHeader = (id: string): void => {
-    const updatedSections = pageSections.map((section) => {
+    const updatedSections = pageSections.map(section => {
       if (section.id === id) {
         return { ...section, opened: !section.opened };
       }
@@ -143,7 +153,7 @@ export default function AboutClient({ initialPage, lang, breadcrumbLabels }: Abo
   };
 
   const toggleSidebarHeader = (id: string): void => {
-    const updatedHeaders = sidebarHeaders.map((header) => {
+    const updatedHeaders = sidebarHeaders.map(header => {
       if (header.id === id) {
         return { ...header, opened: !header.opened };
       }
@@ -180,7 +190,7 @@ export default function AboutClient({ initialPage, lang, breadcrumbLabels }: Abo
           setSidebarHeaders([]);
         }
       } catch (error) {
-        console.error("Erreur lors du traitement du contenu:", error);
+        console.error('Erreur lors du traitement du contenu:', error);
       } finally {
         setIsLoading(false);
       }
@@ -191,70 +201,102 @@ export default function AboutClient({ initialPage, lang, breadcrumbLabels }: Abo
 
   const breadcrumbItems = [
     {
-      path: '/', 
-      label: breadcrumbLabels 
-        ? `${breadcrumbLabels.home} >` 
-        : `${t('pages.home.title')} >` 
-    }
+      path: '/',
+      label: breadcrumbLabels ? `${breadcrumbLabels.home} >` : `${t('pages.home.title')} >`,
+    },
   ];
 
   return (
-    <main className='about'>
-      <Breadcrumb 
-        parents={breadcrumbItems} 
-        crumbLabel={breadcrumbLabels?.about || t('pages.about.title')} 
-        lang={lang} 
+    <main className="about">
+      <Breadcrumb
+        parents={breadcrumbItems}
+        crumbLabel={breadcrumbLabels?.about || t('pages.about.title')}
+        lang={lang}
       />
-      <h1 className='about-title'>{breadcrumbLabels?.about || t('pages.about.title')}</h1>
+      <h1 className="about-title">{breadcrumbLabels?.about || t('pages.about.title')}</h1>
       <div className={`about-content content-transition ${isUpdating ? 'updating' : ''}`}>
         <AboutSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
         {isLoading ? (
           <Loader />
         ) : (
-          <div className='about-content-body'>
+          <div className="about-content-body">
             {pageSections.length > 0 ? (
-              pageSections.map((section) => (
+              pageSections.map(section => (
                 <div
                   key={section.id}
                   className={`about-content-body-section ${!section.opened && 'about-content-body-section-hidden'}`}
                 >
-                  <div className='about-content-body-section-subtitle' onClick={(): void => toggleSectionHeader(section.id)}>
-                    <h2 id={section.id} className='about-content-body-section-subtitle-text'>
-                                            <ReactMarkdown
-                                              remarkPlugins={[remarkGfm]}
-                                              components={{
-                                                img: ({ src, alt }) => <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />,
-                                                a: ({ href, children }) => <a href={href} target='_blank' rel='noreferrer' className='about-content-body-section-link'>{children}</a>,
-                                                h2: ({ children }) => <>{children}</>, // Render h2 children directly
-                                              }}
-                                            >
-                                              {section.value.split('\n')[0]}
-                                            </ReactMarkdown>
-                                          </h2>
-                                          {section.opened ? (
-                                            <CaretUpRedIcon size={16} className='about-content-body-section-subtitle-caret' ariaLabel="Collapse section" />
-                                          ) : (
-                                            <CaretDownRedIcon size={16} className='about-content-body-section-subtitle-caret' ariaLabel="Expand section" />
-                                          )}
-                                        </div>
-                                        <ReactMarkdown
-                                          remarkPlugins={[remarkGfm]}
-                                          components={{
-                                            img: ({ src, alt }) => <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />,
-                                            a: ({ href, children }) => <a href={href} target='_blank' rel='noreferrer' className='about-content-body-section-link'>{children}</a>
-                                          }}
-                                        >
-                                          {section.value.split('\n').slice(1).join('\n')}
-                                        </ReactMarkdown>
-                                      </div>
-                                    ))
-                                  ) : (
-                                    <p className="about-content-body-empty">Aucun contenu disponible pour la page &ldquo;À propos&rdquo;.</p>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </main>
-                        );
-                      }
-                      
+                  <div
+                    className="about-content-body-section-subtitle"
+                    onClick={(): void => toggleSectionHeader(section.id)}
+                  >
+                    <h2 id={section.id} className="about-content-body-section-subtitle-text">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          img: ({ src, alt }) => (
+                            <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />
+                          ),
+                          a: ({ href, children }) => (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="about-content-body-section-link"
+                            >
+                              {children}
+                            </a>
+                          ),
+                          h2: ({ children }) => <>{children}</>, // Render h2 children directly
+                        }}
+                      >
+                        {section.value.split('\n')[0]}
+                      </ReactMarkdown>
+                    </h2>
+                    {section.opened ? (
+                      <CaretUpRedIcon
+                        size={16}
+                        className="about-content-body-section-subtitle-caret"
+                        ariaLabel="Collapse section"
+                      />
+                    ) : (
+                      <CaretDownRedIcon
+                        size={16}
+                        className="about-content-body-section-subtitle-caret"
+                        ariaLabel="Expand section"
+                      />
+                    )}
+                  </div>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      img: ({ src, alt }) => (
+                        <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />
+                      ),
+                      a: ({ href, children }) => (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="about-content-body-section-link"
+                        >
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {section.value.split('\n').slice(1).join('\n')}
+                  </ReactMarkdown>
+                </div>
+              ))
+            ) : (
+              <p className="about-content-body-empty">
+                Aucun contenu disponible pour la page &ldquo;À propos&rdquo;.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}

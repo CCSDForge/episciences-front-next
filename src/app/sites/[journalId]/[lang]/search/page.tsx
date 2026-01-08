@@ -30,7 +30,7 @@ export default async function SearchPage(props: SearchPageProps) {
   const { lang, journalId } = params;
 
   // Extract search params
-  const search = searchParams?.terms as string || searchParams?.q as string || '';
+  const search = (searchParams?.terms as string) || (searchParams?.q as string) || '';
   const page = searchParams?.page ? Math.max(1, parseInt(searchParams.page as string, 10)) : 1;
 
   // Fetch translations
@@ -54,7 +54,7 @@ export default async function SearchPage(props: SearchPageProps) {
     range?: SearchRange;
   } = {
     data: [],
-    totalItems: 0
+    totalItems: 0,
   };
 
   if (search && journalId) {
@@ -68,7 +68,7 @@ export default async function SearchPage(props: SearchPageProps) {
         years: [],
         volumes: [],
         sections: [],
-        authors: []
+        authors: [],
       });
     } catch (error) {
       console.error('Initial search failed:', error);
@@ -76,7 +76,7 @@ export default async function SearchPage(props: SearchPageProps) {
   }
 
   return (
-    <SearchClient 
+    <SearchClient
       initialSearchResults={initialSearchResults}
       initialSearch={search}
       initialPage={page}

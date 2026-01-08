@@ -20,9 +20,9 @@ export type RawAuthorArticle = IAuthorArticle & {
   paper_title_t: string[];
   publication_date_tdate: string;
   doi_s?: string;
-}
+};
 
 export interface IAuthorArticlesResponse {
   data: IAuthorArticle[];
   totalItems: number;
-} 
+}

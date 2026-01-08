@@ -37,13 +37,13 @@ export const fetchJournalWithoutCode = async (): Promise<IJournal | null> => {
 };
 
 export async function getJournalByCode(rvcode: string): Promise<IJournal> {
- // console.log('getJournalByCode', rvcode);
+  // console.log('getJournalByCode', rvcode);
   const apiUrl = getJournalApiUrl(rvcode);
- // console.log(`${apiUrl}/journals/${rvcode}`);
+  // console.log(`${apiUrl}/journals/${rvcode}`);
   const response = await fetch(`${apiUrl}/journals/${rvcode}`, {
     headers: {
-      'Accept': 'application/json'
-    }
+      Accept: 'application/json',
+    },
   });
 
   if (!response.ok) {
@@ -53,7 +53,7 @@ export async function getJournalByCode(rvcode: string): Promise<IJournal> {
   const data = await response.json();
   return {
     ...data,
-    id: data.rvid
+    id: data.rvid,
   };
 }
 
@@ -63,8 +63,8 @@ export async function fetchJournal(rvcode: string): Promise<IJournal> {
     const response = await fetch(`${apiUrl}/journals/${rvcode}`, {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
-      }
+        Accept: 'application/json',
+      },
     });
 
     if (!response.ok) {
@@ -74,10 +74,10 @@ export async function fetchJournal(rvcode: string): Promise<IJournal> {
     const data = await response.json();
     return {
       ...data,
-      id: data.rvid
+      id: data.rvid,
     };
   } catch (error) {
     console.error('Error fetching journal:', error);
     throw error;
   }
-} 
+}

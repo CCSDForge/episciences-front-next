@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
@@ -12,7 +12,7 @@ const PDFViewer = dynamic(() => import('@/components/PDFViewer/PDFViewer'), {
       <div className="pdf-viewer-spinner"></div>
       <p>Loading PDF viewer...</p>
     </div>
-  )
+  ),
 });
 
 interface ArticleDetailsDownloadClientProps {
@@ -22,7 +22,7 @@ interface ArticleDetailsDownloadClientProps {
 
 export default function ArticleDetailsDownloadClient({
   pdfUrl,
-  articleTitle
+  articleTitle,
 }: ArticleDetailsDownloadClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
@@ -43,15 +43,8 @@ export default function ArticleDetailsDownloadClient({
   return (
     <div className="pdf-container">
       <div className="pdf-toolbar">
-        <div className="pdf-toolbar-title">
-          {articleTitle}
-        </div>
-        <a
-          href={pdfUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="pdf-toolbar-link"
-        >
+        <div className="pdf-toolbar-title">{articleTitle}</div>
+        <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="pdf-toolbar-link">
           {t('pages.articleDetails.download.openInNewTab')}
         </a>
       </div>
@@ -63,9 +56,7 @@ export default function ArticleDetailsDownloadClient({
       />
       <div className="pdf-fallback">
         <h1>{t('pages.articleDetails.download.pdfDisplayTitle')}</h1>
-        <p>
-          {t('pages.articleDetails.download.pdfDisplayMessage')}
-        </p>
+        <p>{t('pages.articleDetails.download.pdfDisplayMessage')}</p>
         <a href={pdfUrl} className="pdf-fallback-link" target="_blank" rel="noopener noreferrer">
           {t('pages.articleDetails.download.openPDF')}
         </a>

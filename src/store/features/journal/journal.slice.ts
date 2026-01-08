@@ -1,8 +1,8 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
-import { IJournal } from '@/types/journal'
-import { IJournalState } from './journal.type'
+import { IJournal } from '@/types/journal';
+import { IJournalState } from './journal.type';
 
 // Étendre l'état pour inclure l'endpoint API et la configuration dynamique
 interface ExtendedJournalState extends IJournalState {
@@ -11,7 +11,7 @@ interface ExtendedJournalState extends IJournalState {
 }
 
 const initialState: ExtendedJournalState = {
-  journals: []
+  journals: [],
 };
 
 const journalSlice = createSlice({
@@ -26,21 +26,24 @@ const journalSlice = createSlice({
     },
     setJournalConfig(state, action: PayloadAction<Record<string, string>>) {
       state.config = action.payload;
-    }
-  }
-})
+    },
+  },
+});
 
-export const { setCurrentJournal, setApiEndpoint, setJournalConfig } = journalSlice.actions
+export const { setCurrentJournal, setApiEndpoint, setJournalConfig } = journalSlice.actions;
 
 // Sélecteurs
-export const selectApiEndpoint = (state: { journalReducer: ExtendedJournalState }) => state.journalReducer.apiEndpoint;
-export const selectJournalConfig = (state: { journalReducer: ExtendedJournalState }) => state.journalReducer.config;
+export const selectApiEndpoint = (state: { journalReducer: ExtendedJournalState }) =>
+  state.journalReducer.apiEndpoint;
+export const selectJournalConfig = (state: { journalReducer: ExtendedJournalState }) =>
+  state.journalReducer.config;
 
-// Helper pour récupérer une variable de config avec priorité : 
+// Helper pour récupérer une variable de config avec priorité :
 // 1. Config dynamique (Redux)
 // 2. Variable d'env globale (process.env)
-export const selectConfigValue = (key: string) => (state: { journalReducer: ExtendedJournalState }) => {
-  return state.journalReducer.config?.[key] || process.env[key];
-};
+export const selectConfigValue =
+  (key: string) => (state: { journalReducer: ExtendedJournalState }) => {
+    return state.journalReducer.config?.[key] || process.env[key];
+  };
 
-export default journalSlice.reducer
+export default journalSlice.reducer;

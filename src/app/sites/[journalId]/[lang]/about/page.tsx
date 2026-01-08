@@ -5,8 +5,8 @@ import { fetchAboutPage } from '@/services/about';
 import { IPage } from '@/types/page';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 
-import { generateLanguageParamsForPage } from "@/utils/static-params-helper";
-import { getLanguageFromParams } from "@/utils/language-utils";
+import { generateLanguageParamsForPage } from '@/utils/static-params-helper';
+import { getLanguageFromParams } from '@/utils/language-utils';
 const AboutClient = dynamic(() => import('./AboutClient'));
 
 // Stable editorial content - no ISR, fully static at build time
@@ -17,7 +17,9 @@ export const metadata: Metadata = {
   description: 'À propos de la revue',
 };
 
-export default async function AboutPage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+export default async function AboutPage(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}) {
   const params = await props.params;
   let pageData = null;
   const { journalId, lang } = params;
@@ -29,7 +31,9 @@ export default async function AboutPage(props: { params: Promise<{ journalId: st
       if (rawData?.['hydra:member']?.[0]) {
         pageData = rawData['hydra:member'][0];
       } else {
-        console.warn(`[Build] About page content not found for journal "${journalId}" on API. It will be empty.`);
+        console.warn(
+          `[Build] About page content not found for journal "${journalId}" on API. It will be empty.`
+        );
       }
     }
   } catch (error) {
@@ -42,17 +46,5 @@ export default async function AboutPage(props: { params: Promise<{ journalId: st
     about: t('pages.about.title', translations),
   };
 
-  return (
-    <AboutClient 
-      initialPage={pageData} 
-      lang={lang} 
-      breadcrumbLabels={breadcrumbLabels}
-    />
-  );
+  return <AboutClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />;
 }
-
-  
-
-  
-
- 

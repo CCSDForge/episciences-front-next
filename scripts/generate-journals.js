@@ -32,7 +32,6 @@ export const journals: string[] = ${JSON.stringify(journals, null, 2)};
 
   fs.writeFileSync(outputPath, fileContent);
   console.log(`Successfully generated ${outputPath} with ${journals.length} journals.`);
-
 } catch (err) {
   console.error('Error generating journals list:', err);
   process.exit(1);

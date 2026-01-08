@@ -6,10 +6,10 @@ This document explains how to integrate the automatically generated `.htaccess` 
 
 The system automatically generates a `.htaccess` file during the build that handles:
 
-* ✅ Browser language detection via `Accept-Language`
-* ✅ Smart redirection to `/en/` or `/fr/`
-* ✅ Fallback to the default language
-* ✅ Monolingual sites (no detection if only one language)
+- ✅ Browser language detection via `Accept-Language`
+- ✅ Smart redirection to `/en/` or `/fr/`
+- ✅ Fallback to the default language
+- ✅ Monolingual sites (no detection if only one language)
 
 ## 🔧 Architecture
 
@@ -233,11 +233,11 @@ To change a journal’s default language:
 
 ### ✅ What Works
 
-* Old URLs with `RedirectPermanent` in the macro
-* Automatic browser language detection
-* Monolingual and multilingual sites
-* curl and wget (use fallback)
-* All SEO bots (Google, Bing, etc.)
+- Old URLs with `RedirectPermanent` in the macro
+- Automatic browser language detection
+- Monolingual and multilingual sites
+- curl and wget (use fallback)
+- All SEO bots (Google, Bing, etc.)
 
 ### ⚠️ Requires AllowOverride
 
@@ -318,6 +318,6 @@ tail -f /var/log/apache2/error.log | grep rewrite
 | Apache Macro    | Redirection of old URLs      | VirtualHost config     |
 | Directory rules | Specific URL rewrites        | VirtualHost config     |
 | .htaccess       | Language detection + routing | dist/journal/.htaccess |
-| Next.js         | Static page generation       | src/app/[lang]/*       |
+| Next.js         | Static page generation       | src/app/[lang]/\*      |
 
 ✅ **The system is fully compatible with your existing Apache rules.**

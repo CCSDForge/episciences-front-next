@@ -118,6 +118,7 @@ curl -I http://localhost:8080/en/ | grep -E "(X-Content-Type-Options|Content-Sec
 ```
 
 **Headers attendus** :
+
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: no-referrer-when-downgrade`
 - `Content-Security-Policy` (politique CSP complète)
@@ -270,6 +271,7 @@ make docker-test JOURNAL=epijinfo PORT=8080
 ### Problème : 404 sur toutes les pages
 
 **Causes possibles** :
+
 1. Le build n'existe pas
 2. Le volume Docker n'est pas monté correctement
 
@@ -293,6 +295,7 @@ ls -la /sites/episciences-front/dist/epijinfo/
 ### Problème : .htaccess ignoré (pas de détection de langue)
 
 **Causes possibles** :
+
 1. `AllowOverride` pas activé
 2. Module `mod_rewrite` désactivé
 
@@ -314,6 +317,7 @@ cat /usr/local/apache2/conf/httpd.conf | grep rewrite_module
 ### Problème : Redirections infinies
 
 **Causes possibles** :
+
 1. Conflit entre règles Apache et .htaccess
 2. Erreur de logique dans .htaccess
 
@@ -334,6 +338,7 @@ httpd -k restart
 ### Problème : Headers de sécurité manquants
 
 **Causes possibles** :
+
 1. Module `mod_headers` désactivé
 2. Configuration non chargée
 
@@ -349,14 +354,14 @@ cat /usr/local/apache2/conf/httpd.conf | grep headers_module
 
 ## 📊 Différences avec la production
 
-| Aspect | Production | Docker Test |
-|--------|-----------|-------------|
-| **ServerName** | `journal.episciences.org` | `localhost` |
-| **Données `/data/epi/`** | Vraies données (PDFs, sitemaps) | Mockées (vides) |
-| **HTTPS** | Oui (certificat) | Non (HTTP uniquement) |
-| **RemoteIP** | IPs production spécifiques | Réseau Docker (172.x.x.x) |
-| **Modules Apache** | Tous les modules | Modules essentiels uniquement |
-| **Volumes externes** | Montés depuis NFS/stockage | Dossiers locaux mockés |
+| Aspect                   | Production                      | Docker Test                   |
+| ------------------------ | ------------------------------- | ----------------------------- |
+| **ServerName**           | `journal.episciences.org`       | `localhost`                   |
+| **Données `/data/epi/`** | Vraies données (PDFs, sitemaps) | Mockées (vides)               |
+| **HTTPS**                | Oui (certificat)                | Non (HTTP uniquement)         |
+| **RemoteIP**             | IPs production spécifiques      | Réseau Docker (172.x.x.x)     |
+| **Modules Apache**       | Tous les modules                | Modules essentiels uniquement |
+| **Volumes externes**     | Montés depuis NFS/stockage      | Dossiers locaux mockés        |
 
 ---
 
@@ -365,11 +370,13 @@ cat /usr/local/apache2/conf/httpd.conf | grep headers_module
 Avant de déployer en production, vérifier :
 
 ### Navigation
+
 - [ ] Homepage accessible via `/`
 - [ ] Toutes les routes EN accessibles (`/en/articles`, `/en/volumes`, etc.)
 - [ ] Toutes les routes FR accessibles (`/fr/articles`, `/fr/volumes`, etc.)
 
 ### Détection de langue
+
 - [ ] Redirection FR fonctionne (`Accept-Language: fr`)
 - [ ] Redirection EN fonctionne (`Accept-Language: en`)
 - [ ] Fallback vers EN sans langue configurée
@@ -377,6 +384,7 @@ Avant de déployer en production, vérifier :
 - [ ] Navigateur avec `en-US` → `/en/`
 
 ### Anciennes URLs
+
 - [ ] `/browse/latest` → `/articles`
 - [ ] `/browse/volumes` → `/volumes`
 - [ ] `/browse/section` → `/sections`
@@ -385,6 +393,7 @@ Avant de déployer en production, vérifier :
 - [ ] `/volume/view/id/718` → `/volumes/718`
 
 ### Fichiers statiques
+
 - [ ] CSS servis sans redirection (200 OK)
 - [ ] JS servis sans redirection (200 OK)
 - [ ] Fonts servies sans redirection (200 OK)
@@ -393,6 +402,7 @@ Avant de déployer en production, vérifier :
 - [ ] Locales servies sans redirection (200 OK)
 
 ### Sécurité
+
 - [ ] Fichiers `.md` bloqués (404)
 - [ ] Fichiers `.sql` bloqués (404)
 - [ ] Fichiers `.sh` bloqués (404)
@@ -401,18 +411,21 @@ Avant de déployer en production, vérifier :
 - [ ] Archives (`.tar`, `.bz2`, `.rar`) bloquées (404)
 
 ### Headers
+
 - [ ] `X-Content-Type-Options: nosniff` présent
 - [ ] `Referrer-Policy` présent
 - [ ] `Content-Security-Policy` présent et correct
 - [ ] `Link: <inbox>` présent sur HTML
 
 ### Cache
+
 - [ ] Headers `Expires` présents sur fonts
 - [ ] Headers `Expires` présents sur CSS
 - [ ] Headers `Expires` présents sur JS
 - [ ] Headers `Expires` présents sur SVG
 
 ### Règles spéciales
+
 - [ ] Trailing slashes supprimés (sauf racine)
 - [ ] `.htaccess` fonctionne (langue détectée)
 - [ ] Bypass pour `/volumes/*.pdf` fonctionne

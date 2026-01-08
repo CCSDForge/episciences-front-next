@@ -10,30 +10,31 @@ import './SectionDetailsSidebar.scss';
 
 interface ISectionDetailsSidebarProps {
   language: AvailableLanguage;
-  t: TFunction<"translation", undefined>;
+  t: TFunction<'translation', undefined>;
   section?: ISection;
   articles?: IArticle[];
   currentJournal?: IJournal;
   sectionId: string;
 }
 
-export default function SectionDetailsSidebar({ 
-  language, 
-  t, 
-  section, 
-  articles = [], 
+export default function SectionDetailsSidebar({
+  language,
+  t,
+  section,
+  articles = [],
   currentJournal,
-  sectionId 
+  sectionId,
 }: ISectionDetailsSidebarProps): React.JSX.Element {
-  
   return (
-    <div className='sectionDetailsSidebar'>
-      <div className='sectionDetailsSidebar-info'>
-        <div className='sectionDetailsSidebar-info-type'>{t('common.section')}</div>
-        <div className='sectionDetailsSidebar-info-count'>
-          {articles.length > 1 ? `${articles.length} ${t('common.articles')}` : `${articles.length} ${t('common.article')}`}
+    <div className="sectionDetailsSidebar">
+      <div className="sectionDetailsSidebar-info">
+        <div className="sectionDetailsSidebar-info-type">{t('common.section')}</div>
+        <div className="sectionDetailsSidebar-info-count">
+          {articles.length > 1
+            ? `${articles.length} ${t('common.articles')}`
+            : `${articles.length} ${t('common.article')}`}
         </div>
       </div>
     </div>
   );
-} 
+}

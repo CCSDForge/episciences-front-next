@@ -18,12 +18,9 @@ export const metadata: Metadata = {
   title: 'Volume Details',
 };
 
-export default async function VolumeDetailsPage(
-  props: {
-    params: Promise<{ id: string; lang?: string; journalId: string }>
-  }
-) {
-
+export default async function VolumeDetailsPage(props: {
+  params: Promise<{ id: string; lang?: string; journalId: string }>;
+}) {
   const params = await props.params;
   const language = getLanguageFromParams(params);
   const { journalId } = params;
@@ -44,18 +41,16 @@ export default async function VolumeDetailsPage(
     }
 
     const [volumeData, translations] = await Promise.all([
-      fetchVolume(
-        journalId,
-        parseInt(params.id, 10),
-        language
-      ),
-      getServerTranslations(language)
+      fetchVolume(journalId, parseInt(params.id, 10), language),
+      getServerTranslations(language),
     ]);
 
     // Fetch all articles for the volume server-side
     let articles: FetchedArticle[] = [];
     if (volumeData && volumeData.articles && volumeData.articles.length > 0) {
-      console.log(`[Volume ${params.id}] Found ${volumeData.articles.length} articles in volume data`);
+      console.log(
+        `[Volume ${params.id}] Found ${volumeData.articles.length} articles in volume data`
+      );
 
       const paperIds = volumeData.articles
         .filter(article => article.paperid)
@@ -64,7 +59,7 @@ export default async function VolumeDetailsPage(
       console.log(`[Volume ${params.id}] Extracted ${paperIds.length} paper IDs:`, paperIds);
 
       // Fetch articles in parallel with error handling
-      const articlePromises = paperIds.map(async (docid) => {
+      const articlePromises = paperIds.map(async docid => {
         try {
           const article = await fetchArticle(docid);
           if (article) {
@@ -80,7 +75,10 @@ export default async function VolumeDetailsPage(
       });
 
       const fetchedArticles = await Promise.all(articlePromises);
-      articles = fetchedArticles.filter((article: FetchedArticle | null): article is FetchedArticle => article !== null && article !== undefined);
+      articles = fetchedArticles.filter(
+        (article: FetchedArticle | null): article is FetchedArticle =>
+          article !== null && article !== undefined
+      );
 
       console.log(`[Volume ${params.id}] Final articles count: ${articles.length}`);
     } else {
@@ -113,4 +111,3 @@ export default async function VolumeDetailsPage(
     );
   }
 }
- 

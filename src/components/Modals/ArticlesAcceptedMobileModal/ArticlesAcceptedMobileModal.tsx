@@ -12,7 +12,7 @@ import Tag from '@/components/Tag/Tag';
 import './ArticlesAcceptedMobileModal.scss';
 
 enum FILTERS_SECTION {
-  TYPE = 'type'
+  TYPE = 'type',
 }
 
 interface IArticlesAcceptedTypeSelection {
@@ -27,28 +27,33 @@ interface IArticlesAcceptedFilter {
 }
 
 interface IArticlesAcceptedMobileModalProps {
-  t: TFunction<"translation", undefined>
+  t: TFunction<'translation', undefined>;
   initialTypes: IArticlesAcceptedTypeSelection[];
   onUpdateTypesCallback: (types: IArticlesAcceptedTypeSelection[]) => void;
   onCloseCallback: () => void;
 }
 
-export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateTypesCallback, onCloseCallback }: IArticlesAcceptedMobileModalProps): React.JSX.Element {
+export default function ArticlesAcceptedMobileModal({
+  t,
+  initialTypes,
+  onUpdateTypesCallback,
+  onCloseCallback,
+}: IArticlesAcceptedMobileModalProps): React.JSX.Element {
   const dispatch = useAppDispatch();
 
   const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);
 
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const [openedSections, setOpenedSections] = useState<{ key: FILTERS_SECTION, isOpened: boolean }[]>([
-    { key: FILTERS_SECTION.TYPE, isOpened: false }
-  ]);
+  const [openedSections, setOpenedSections] = useState<
+    { key: FILTERS_SECTION; isOpened: boolean }[]
+  >([{ key: FILTERS_SECTION.TYPE, isOpened: false }]);
 
-  const [types, setTypes] = useState<IArticlesAcceptedTypeSelection[]>(initialTypes)
+  const [types, setTypes] = useState<IArticlesAcceptedTypeSelection[]>(initialTypes);
   const [taggedFilters, setTaggedFilters] = useState<IArticlesAcceptedFilter[]>([]);
 
   const onCheckType = (value: string): void => {
-    const updatedTypes = types.map((t) => {
+    const updatedTypes = types.map(t => {
       if (t.value === value) {
         return { ...t, isChecked: !t.isChecked };
       }
@@ -57,23 +62,25 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
     });
 
     setTypes(updatedTypes);
-  }
+  };
 
   const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: IArticlesAcceptedFilter[] = []
+    const initFilters: IArticlesAcceptedFilter[] = [];
 
-    types.filter((t) => t.isChecked).forEach((t) => {
-      initFilters.push({
-        value: t.value,
-        labelPath: t.labelPath
-      })
-    })
+    types
+      .filter(t => t.isChecked)
+      .forEach(t => {
+        initFilters.push({
+          value: t.value,
+          labelPath: t.labelPath,
+        });
+      });
 
-    setTaggedFilters(initFilters)
+    setTaggedFilters(initFilters);
   }, [types]);
 
   const onCloseTaggedFilter = (value: string) => {
-    const updatedTypes = types.map((t) => {
+    const updatedTypes = types.map(t => {
       if (t.value === value) {
         return { ...t, isChecked: false };
       }
@@ -81,12 +88,14 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
     });
 
     setTypes(updatedTypes);
-  }
+  };
 
   const clearTaggedFilters = useCallback((): void => {
-    setTypes(prev => prev.map((t) => {
-      return { ...t, isChecked: false };
-    }));
+    setTypes(prev =>
+      prev.map(t => {
+        return { ...t, isChecked: false };
+      })
+    );
 
     setTaggedFilters([]);
   }, []);
@@ -94,18 +103,18 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
   const onClose = useCallback((): void => {
     clearTaggedFilters();
     onCloseCallback();
-    dispatch(setFooterVisibility(true))
+    dispatch(setFooterVisibility(true));
   }, [clearTaggedFilters, onCloseCallback, dispatch]);
 
   const onApplyFilters = (): void => {
     onUpdateTypesCallback(types);
     onCloseCallback();
-    dispatch(setFooterVisibility(true))
-  }
+    dispatch(setFooterVisibility(true));
+  };
 
   useEffect(() => {
-    setAllTaggedFilters()
-  }, [setAllTaggedFilters])
+    setAllTaggedFilters();
+  }, [setAllTaggedFilters]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -122,12 +131,12 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
 
   useEffect(() => {
     if (isFooterEnabled) {
-      dispatch(setFooterVisibility(false))
+      dispatch(setFooterVisibility(false));
     }
   }, [isFooterEnabled, dispatch]);
 
   const toggleSection = (sectionKey: FILTERS_SECTION) => {
-    const updatedSections = openedSections.map((section) => {
+    const updatedSections = openedSections.map(section => {
       if (section.key === sectionKey) {
         return { ...section, isOpened: !section.isOpened };
       }
@@ -136,44 +145,73 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
     });
 
     setOpenedSections(updatedSections);
-  }
+  };
 
-  const isOpenedSection = (sectionKey: FILTERS_SECTION): boolean | undefined => openedSections.find(section => section.key === sectionKey)?.isOpened
+  const isOpenedSection = (sectionKey: FILTERS_SECTION): boolean | undefined =>
+    openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
-    <div className='articlesAcceptedMobileModal' ref={modalRef}>
-      <div className='articlesAcceptedMobileModal-title'>
-        <div className='articlesAcceptedMobileModal-title-text'>{t('common.filters.filter')}</div>
-        <CloseRedIcon size={24} className='articlesAcceptedMobileModal-title-close' ariaLabel="Close" onClick={onClose} />
+    <div className="articlesAcceptedMobileModal" ref={modalRef}>
+      <div className="articlesAcceptedMobileModal-title">
+        <div className="articlesAcceptedMobileModal-title-text">{t('common.filters.filter')}</div>
+        <CloseRedIcon
+          size={24}
+          className="articlesAcceptedMobileModal-title-close"
+          ariaLabel="Close"
+          onClick={onClose}
+        />
       </div>
       {taggedFilters.length > 0 && (
         <div className="articlesAcceptedMobileModal-tags">
           <div className="articlesAcceptedMobileModal-tags-row">
             {taggedFilters.map((filter, index) => (
-              <Tag key={index} text={t(filter.labelPath)} onCloseCallback={(): void => onCloseTaggedFilter(filter.value)}/>
+              <Tag
+                key={index}
+                text={t(filter.labelPath)}
+                onCloseCallback={(): void => onCloseTaggedFilter(filter.value)}
+              />
             ))}
           </div>
-          <div className="articlesAcceptedMobileModal-tags-clear" onClick={clearTaggedFilters}>{t('common.filters.clearAll')}</div>
+          <div className="articlesAcceptedMobileModal-tags-clear" onClick={clearTaggedFilters}>
+            {t('common.filters.clearAll')}
+          </div>
         </div>
       )}
-      <div className='articlesAcceptedMobileModal-filters'>
-        <div className='articlesAcceptedMobileModal-filters-types'>
-          <div className='articlesAcceptedMobileModal-filters-types-title'>
-            <div className='articlesAcceptedMobileModal-filters-types-title-text' onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}>{t('common.filters.documentTypes')}</div>
+      <div className="articlesAcceptedMobileModal-filters">
+        <div className="articlesAcceptedMobileModal-filters-types">
+          <div className="articlesAcceptedMobileModal-filters-types-title">
+            <div
+              className="articlesAcceptedMobileModal-filters-types-title-text"
+              onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
+            >
+              {t('common.filters.documentTypes')}
+            </div>
             {isOpenedSection(FILTERS_SECTION.TYPE) ? (
-              <CaretUpGreyIcon size={16} className='articlesAcceptedMobileModal-filters-types-title-caret' ariaLabel="Collapse" onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} />
+              <CaretUpGreyIcon
+                size={16}
+                className="articlesAcceptedMobileModal-filters-types-title-caret"
+                ariaLabel="Collapse"
+                onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
+              />
             ) : (
-              <CaretDownGreyIcon size={16} className='articlesAcceptedMobileModal-filters-types-title-caret' ariaLabel="Expand" onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)} />
+              <CaretDownGreyIcon
+                size={16}
+                className="articlesAcceptedMobileModal-filters-types-title-caret"
+                ariaLabel="Expand"
+                onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
+              />
             )}
           </div>
-          <div className={`articlesAcceptedMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesAcceptedMobileModal-filters-types-list-opened'}`}>
+          <div
+            className={`articlesAcceptedMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesAcceptedMobileModal-filters-types-list-opened'}`}
+          >
             {types.map((type, index) => (
-              <div
-                key={index}
-                className='articlesAcceptedMobileModal-filters-types-list-choice'
-              >
-                <div className='articlesAcceptedMobileModal-filters-types-list-choice-checkbox'>
-                  <Checkbox checked={type.isChecked} onChangeCallback={(): void => onCheckType(type.value)}/>
+              <div key={index} className="articlesAcceptedMobileModal-filters-types-list-choice">
+                <div className="articlesAcceptedMobileModal-filters-types-list-choice-checkbox">
+                  <Checkbox
+                    checked={type.isChecked}
+                    onChangeCallback={(): void => onCheckType(type.value)}
+                  />
                 </div>
                 <span
                   className={`articlesAcceptedMobileModal-filters-types-list-choice-label ${type.isChecked && 'articlesAcceptedMobileModal-filters-types-list-choice-label-checked'}`}
@@ -186,9 +224,12 @@ export default function ArticlesAcceptedMobileModal({ t, initialTypes, onUpdateT
           </div>
         </div>
       </div>
-      <div className='articlesAcceptedMobileModal-submit'>
-        <Button text={t('common.filters.applyFilters')} onClickCallback={(): void => onApplyFilters()} />
+      <div className="articlesAcceptedMobileModal-submit">
+        <Button
+          text={t('common.filters.applyFilters')}
+          onClickCallback={(): void => onApplyFilters()}
+        />
       </div>
     </div>
-  )
-} 
+  );
+}

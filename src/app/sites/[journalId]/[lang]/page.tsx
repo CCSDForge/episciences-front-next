@@ -10,7 +10,7 @@ import dynamicImport from 'next/dynamic';
 
 import '@/styles/pages/Home.scss';
 
-const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'), );
+const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'));
 
 // Home page content (latest volume + journal info) updates approximately weekly
 // Daily revalidation is sufficient
@@ -31,7 +31,7 @@ export async function generateStaticParams() {
 
 export const metadata: Metadata = {
   title: getFormattedSiteTitle('Accueil'),
-  description: 'Page d\'accueil de la revue',
+  description: "Page d'accueil de la revue",
 };
 
 // Fonction pour obtenir la langue par défaut
@@ -39,7 +39,9 @@ function getDefaultLanguage(): string {
   return process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE || 'fr';
 }
 
-export default async function HomePage(props: { params: Promise<{ journalId: string; lang: string }> }) {
+export default async function HomePage(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}) {
   const params = await props.params;
   const language = params.lang || 'fr';
   const rvcode = params.journalId;
@@ -52,7 +54,5 @@ export default async function HomePage(props: { params: Promise<{ journalId: str
     console.error(`Error fetching home data for journal ${rvcode}:`, error);
   }
 
-  return (
-    <HomeClient homeData={homeData} language={language} journalId={rvcode} />
-  );
+  return <HomeClient homeData={homeData} language={language} journalId={rvcode} />;
 }

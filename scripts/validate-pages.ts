@@ -75,7 +75,7 @@ function validatePage(filePath: string): ValidationResult {
     hasRevalidate,
     hasConnection,
     isValid,
-    reason
+    reason,
   };
 }
 

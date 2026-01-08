@@ -1,12 +1,35 @@
 'use client';
 
-import { QuoteBlackIcon, ShareIcon, BlueskyIcon, MailIcon, FacebookIcon, TwitterIcon, LinkedinIcon, WhatsappIcon } from '@/components/icons';
+import {
+  QuoteBlackIcon,
+  ShareIcon,
+  BlueskyIcon,
+  MailIcon,
+  FacebookIcon,
+  TwitterIcon,
+  LinkedinIcon,
+  WhatsappIcon,
+} from '@/components/icons';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
-import { BlueskyShareButton, EmailShareButton, FacebookShareButton, LinkedinShareButton, TwitterShareButton, WhatsappShareButton } from 'react-share';
+import {
+  BlueskyShareButton,
+  EmailShareButton,
+  FacebookShareButton,
+  LinkedinShareButton,
+  TwitterShareButton,
+  WhatsappShareButton,
+} from 'react-share';
 
-import { ICitation, METADATA_TYPE, copyToClipboardCitation, getMetadataTypes, getCitations, CITATION_TEMPLATE } from '@/utils/article';
+import {
+  ICitation,
+  METADATA_TYPE,
+  copyToClipboardCitation,
+  getMetadataTypes,
+  getCitations,
+  CITATION_TEMPLATE,
+} from '@/utils/article';
 import { fetchArticleMetadata } from '@/services/article';
 import { toast } from 'react-toastify';
 import { useAppSelector } from '@/hooks/store';
@@ -19,7 +42,13 @@ interface InteractiveDropdownProps {
   label?: string; // Optional pre-translated label
 }
 
-export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX, articleId, label }: InteractiveDropdownProps) {
+export default function InteractiveDropdown({
+  type,
+  metadataCSL,
+  metadataBibTeX,
+  articleId,
+  label,
+}: InteractiveDropdownProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
@@ -38,13 +67,17 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
         const fetchedCitations = await getCitations(metadataCSL as string);
 
         // Update the BibTeX citation with the proper content
-        const bibtexIndex = fetchedCitations.findIndex(citation => citation.key === CITATION_TEMPLATE.BIBTEX);
+        const bibtexIndex = fetchedCitations.findIndex(
+          citation => citation.key === CITATION_TEMPLATE.BIBTEX
+        );
         if (bibtexIndex !== -1 && metadataBibTeX) {
           fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
         }
 
         // Filter out citations with empty content
-        const validCitations = fetchedCitations.filter(citation => citation.citation && citation.citation.trim() !== '');
+        const validCitations = fetchedCitations.filter(
+          citation => citation.citation && citation.citation.trim() !== ''
+        );
 
         setCitations(validCitations);
       }
@@ -59,9 +92,9 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
         setShowDropdown(false);
       }
     };
-    
+
     document.addEventListener('touchstart', handleTouchOutside);
-    
+
     return () => {
       document.removeEventListener('touchstart', handleTouchOutside);
     };
@@ -87,7 +120,10 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
     }
   };
 
-  const downloadMetadata = async (metadata: { type: METADATA_TYPE; label: string }): Promise<void> => {
+  const downloadMetadata = async (metadata: {
+    type: METADATA_TYPE;
+    label: string;
+  }): Promise<void> => {
     if (!articleId || !rvcode || isDownloadingMetadata) return;
 
     try {
@@ -95,7 +131,7 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
       const metadataContent = await fetchArticleMetadata({
         rvcode,
         paperid: articleId,
-        type: metadata.type
+        type: metadata.type,
       });
 
       if (!metadataContent) {
@@ -135,7 +171,9 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
           className="articleDetailsSidebar-links-link-modal-content-links-link"
           onClick={(): void => copyCitation(citation)}
           onTouchEnd={(): void => copyCitation(citation)}
-        >{citation.key}</div>
+        >
+          {citation.key}
+        </div>
       ))}
     </div>
   );
@@ -146,9 +184,15 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
         <div
           key={index}
           className="articleDetailsSidebar-links-link-modal-content-links-link"
-          onClick={(): void => { void downloadMetadata(metadata); }}
-          onTouchEnd={(): void => { void downloadMetadata(metadata); }}
-        >{metadata.label}</div>
+          onClick={(): void => {
+            void downloadMetadata(metadata);
+          }}
+          onTouchEnd={(): void => {
+            void downloadMetadata(metadata);
+          }}
+        >
+          {metadata.label}
+        </div>
       ))}
     </div>
   );
@@ -158,28 +202,70 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
 
     return (
       <div className="articleDetailsSidebar-links-link-modal-content-links">
-        <BlueskyShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <BlueskyIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on Bluesky" />
+        <BlueskyShareButton
+          url={currentUrl}
+          className="articleDetailsSidebar-links-link-modal-content-links-link"
+        >
+          <BlueskyIcon
+            size={20}
+            className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+            ariaLabel="Share on Bluesky"
+          />
           <span>{t('pages.articleDetails.actions.share.bluesky')}</span>
         </BlueskyShareButton>
-        <FacebookShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <FacebookIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on Facebook" />
+        <FacebookShareButton
+          url={currentUrl}
+          className="articleDetailsSidebar-links-link-modal-content-links-link"
+        >
+          <FacebookIcon
+            size={20}
+            className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+            ariaLabel="Share on Facebook"
+          />
           <span>{t('pages.articleDetails.actions.share.facebook')}</span>
         </FacebookShareButton>
-        <LinkedinShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <LinkedinIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on LinkedIn" />
+        <LinkedinShareButton
+          url={currentUrl}
+          className="articleDetailsSidebar-links-link-modal-content-links-link"
+        >
+          <LinkedinIcon
+            size={20}
+            className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+            ariaLabel="Share on LinkedIn"
+          />
           <span>{t('pages.articleDetails.actions.share.linkedin')}</span>
         </LinkedinShareButton>
-        <EmailShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <MailIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share via email" />
+        <EmailShareButton
+          url={currentUrl}
+          className="articleDetailsSidebar-links-link-modal-content-links-link"
+        >
+          <MailIcon
+            size={20}
+            className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+            ariaLabel="Share via email"
+          />
           <span>{t('pages.articleDetails.actions.share.email')}</span>
         </EmailShareButton>
-        <WhatsappShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <WhatsappIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on WhatsApp" />
+        <WhatsappShareButton
+          url={currentUrl}
+          className="articleDetailsSidebar-links-link-modal-content-links-link"
+        >
+          <WhatsappIcon
+            size={20}
+            className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+            ariaLabel="Share on WhatsApp"
+          />
           <span>{t('pages.articleDetails.actions.share.whatsapp')}</span>
         </WhatsappShareButton>
-        <TwitterShareButton url={currentUrl} className="articleDetailsSidebar-links-link-modal-content-links-link">
-          <TwitterIcon size={20} className="articleDetailsSidebar-links-link-modal-content-sharing-icon" ariaLabel="Share on X (Twitter)" />
+        <TwitterShareButton
+          url={currentUrl}
+          className="articleDetailsSidebar-links-link-modal-content-links-link"
+        >
+          <TwitterIcon
+            size={20}
+            className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
+            ariaLabel="Share on X (Twitter)"
+          />
           <span>{t('pages.articleDetails.actions.share.twitter')}</span>
         </TwitterShareButton>
       </div>
@@ -189,8 +275,8 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
   const getIcon = () => {
     const iconProps = {
       size: 20,
-      className: "articleDetailsSidebar-links-link-icon",
-      ariaLabel: `${type} icon`
+      className: 'articleDetailsSidebar-links-link-icon',
+      ariaLabel: `${type} icon`,
     };
 
     switch (type) {
@@ -248,7 +334,9 @@ export default function InteractiveDropdown({ type, metadataCSL, metadataBibTeX,
     >
       {getIcon()}
       <div className="articleDetailsSidebar-links-link-text">{getLabel()}</div>
-      <div className={`articleDetailsSidebar-links-link-modal-content ${showDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}>
+      <div
+        className={`articleDetailsSidebar-links-link-modal-content ${showDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}
+      >
         {getDropdownContent()}
       </div>
     </div>

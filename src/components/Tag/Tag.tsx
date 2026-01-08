@@ -19,5 +19,5 @@ export default function Tag({ text, onCloseCallback }: Readonly<ITagProps>): Rea
         onClick={onCloseCallback}
       />
     </div>
-  )
-} 
+  );
+}

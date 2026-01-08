@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppSelector } from "@/hooks/store";
-import { ISection } from "@/types/section";
-import { IArticle } from "@/types/article";
-import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
-import VolumeArticleCard from "@/components/Cards/VolumeArticleCard/VolumeArticleCard";
-import PageTitle from "@/components/PageTitle/PageTitle";
-import SectionDetailsSidebar from "@/components/Sidebars/SectionDetailsSidebar/SectionDetailsSidebar";
+import { useAppSelector } from '@/hooks/store';
+import { ISection } from '@/types/section';
+import { IArticle } from '@/types/article';
+import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
+import VolumeArticleCard from '@/components/Cards/VolumeArticleCard/VolumeArticleCard';
+import PageTitle from '@/components/PageTitle/PageTitle';
+import SectionDetailsSidebar from '@/components/Sidebars/SectionDetailsSidebar/SectionDetailsSidebar';
 import './SectionDetails.scss';
 
 interface SectionDetailsClientProps {
@@ -28,7 +28,7 @@ export default function SectionDetailsClient({
   articles,
   sectionId,
   lang,
-  breadcrumbLabels
+  breadcrumbLabels,
 }: SectionDetailsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
@@ -54,33 +54,33 @@ export default function SectionDetailsClient({
   const sectionDescription = section?.description?.[language] || section?.description?.['en'] || '';
 
   const breadcrumbItems = [
-    { 
-      path: '/', 
-      label: breadcrumbLabels 
-        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
-        : `${t('pages.home.title')} > ${t('common.content')} >` 
+    {
+      path: '/',
+      label: breadcrumbLabels
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >`
+        : `${t('pages.home.title')} > ${t('common.content')} >`,
     },
-    { 
-      path: '/sections', 
-      label: breadcrumbLabels 
-        ? `${breadcrumbLabels.sections} >` 
-        : `${t('pages.sections.title')} >` 
-    }
+    {
+      path: '/sections',
+      label: breadcrumbLabels ? `${breadcrumbLabels.sections} >` : `${t('pages.sections.title')} >`,
+    },
   ];
 
   return (
-    <main className='sections'>
+    <main className="sections">
       <PageTitle title={sectionTitle} />
 
       <Breadcrumb parents={breadcrumbItems} crumbLabel={sectionTitle} lang={lang} />
 
       <div className="sectionDetails-section">
         <div className="sectionDetails-id">
-          <h1 className='sectionDetails-id-text'>{t('pages.sectionDetails.title')} {sectionId}</h1>
+          <h1 className="sectionDetails-id-text">
+            {t('pages.sectionDetails.title')} {sectionId}
+          </h1>
         </div>
         <div className="sectionDetails-content">
-          <div className='sectionDetails-content-results'>
-            <SectionDetailsSidebar 
+          <div className="sectionDetails-content-results">
+            <SectionDetailsSidebar
               language={language}
               t={t}
               section={section}
@@ -89,21 +89,23 @@ export default function SectionDetailsClient({
               sectionId={sectionId}
             />
             <div className="sectionDetails-content-results-content">
-              <div className='sectionDetails-content-results-content-title'>{sectionTitle}</div>
-              
+              <div className="sectionDetails-content-results-content-title">{sectionTitle}</div>
+
               {sectionDescription && (
-                <div className='sectionDetails-content-results-content-description'>
+                <div className="sectionDetails-content-results-content-description">
                   <p>{sectionDescription}</p>
                 </div>
               )}
-              
-              <div className='sectionDetails-content-results-content-mobileCount'>
-                {displayedArticles.length > 1 ? `${displayedArticles.length} ${t('common.articles')}` : `${displayedArticles.length} ${t('common.article')}`}
+
+              <div className="sectionDetails-content-results-content-mobileCount">
+                {displayedArticles.length > 1
+                  ? `${displayedArticles.length} ${t('common.articles')}`
+                  : `${displayedArticles.length} ${t('common.article')}`}
               </div>
-              
+
               {displayedArticles.length > 0 ? (
-                <div className='sectionDetails-content-results-content-cards'>
-                  {displayedArticles.map((article) => (
+                <div className="sectionDetails-content-results-content-cards">
+                  {displayedArticles.map(article => (
                     <VolumeArticleCard
                       key={article.id}
                       language={language}

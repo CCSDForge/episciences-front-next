@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import MathJax from '@/components/MathJax/MathJax';
 import { getTextDirection, getLanguageLabel } from '@/utils/rtl-languages';
@@ -8,8 +8,10 @@ interface AbstractSectionProps {
   currentLanguage: string;
 }
 
-export default function AbstractSection({ abstractData, currentLanguage }: AbstractSectionProps): React.JSX.Element | null {
-
+export default function AbstractSection({
+  abstractData,
+  currentLanguage,
+}: AbstractSectionProps): React.JSX.Element | null {
   // If abstractData is empty or null, return null
   if (!abstractData) {
     return null;

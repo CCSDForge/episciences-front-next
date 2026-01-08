@@ -42,10 +42,5 @@ export default async function DownloadPage(props: DownloadPageProps) {
     notFound();
   }
 
-  return (
-    <ArticleDetailsDownloadClient
-      pdfUrl={article.pdfLink}
-      articleTitle={article.title}
-    />
-  );
+  return <ArticleDetailsDownloadClient pdfUrl={article.pdfLink} articleTitle={article.title} />;
 }

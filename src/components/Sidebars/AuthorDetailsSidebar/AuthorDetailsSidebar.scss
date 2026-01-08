@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 .authorDetailsSidebar {
   display: flex;
   flex-direction: column;
@@ -13,11 +13,11 @@
   border-left: 2px solid var(--primary);
   overflow-y: scroll;
 
-  @media (max-width:  breakpoints.$sm) {
+  @media (max-width: breakpoints.$sm) {
     width: 420px;
   }
 
-  @media (max-width:  breakpoints.$xsm) {
+  @media (max-width: breakpoints.$xsm) {
     width: auto;
     padding: 24px;
     top: 30px;
@@ -32,7 +32,7 @@
     margin-top: 64px;
     cursor: pointer;
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       margin-top: 0px;
     }
   }
@@ -64,7 +64,7 @@
         font-style: italic;
         margin-bottom: 16px;
       }
-      
+
       &-doi {
         display: flex;
         align-items: center;
@@ -90,11 +90,11 @@
         font-size: 16px;
         font-style: italic;
         margin-bottom: 24px;
-  
+
         &-icon {
           height: 11px;
         }
       }
     }
   }
-} 
+}

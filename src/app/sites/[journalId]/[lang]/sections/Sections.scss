@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss" as breakpoints;
+@use '@/styles/breakpoints.scss' as breakpoints;
 
 .sections {
   &-title {
@@ -45,19 +45,20 @@
         justify-content: space-between;
         align-items: end;
         gap: 30px;
-  
+
         &-icon {
           cursor: pointer;
-  
-          &-row, &-row-red {
+
+          &-row,
+          &-row-red {
             display: flex;
             justify-content: space-between;
             gap: 10px;
           }
-  
+
           &-row {
             color: var(--grey);
-            
+
             &-red {
               color: var(--primary);
               text-decoration: underline;
@@ -94,4 +95,4 @@
       }
     }
   }
-} 
+}

@@ -18,7 +18,9 @@ export const metadata: Metadata = {
   title: 'Volumes',
 };
 
-export default async function VolumesPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
+export default async function VolumesPage(props: {
+  params: Promise<{ lang: string; journalId: string }>;
+}) {
   const params = await props.params;
   const { lang, journalId } = params;
   try {
@@ -33,9 +35,9 @@ export default async function VolumesPage(props: { params: Promise<{ lang: strin
         page: 1,
         itemsPerPage: VOLUMES_PER_PAGE,
         types: [],
-        years: []
+        years: [],
       }),
-      getServerTranslations(lang)
+      getServerTranslations(lang),
     ]);
 
     const breadcrumbLabels = {
@@ -43,7 +45,7 @@ export default async function VolumesPage(props: { params: Promise<{ lang: strin
       content: t('common.content', translations),
       volumes: t('pages.volumes.title', translations),
     };
-    
+
     return (
       <Suspense fallback={<Loader />}>
         <VolumesClient
@@ -61,4 +63,3 @@ export default async function VolumesPage(props: { params: Promise<{ lang: strin
     return <div>Failed to load volumes</div>;
   }
 }
- 

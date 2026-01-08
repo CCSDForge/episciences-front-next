@@ -23,27 +23,29 @@ export default function CollapsibleSectionWrapper({
   const [isOpen, setIsOpen] = useState(initialOpen);
 
   return (
-    <div className='articleDetails-content-article-section'>
+    <div className="articleDetails-content-article-section">
       <div
         className={`articleDetails-content-article-section-title ${!isOpen && 'articleDetails-content-article-section-closed'}`}
         onClick={(): void => setIsOpen(!isOpen)}
       >
-        <div className='articleDetails-content-article-section-title-text'>{title}</div>
+        <div className="articleDetails-content-article-section-title-text">{title}</div>
         {isOpen ? (
           <CaretUpRedIcon
             size={16}
-            className='articleDetails-content-article-section-title-caret'
+            className="articleDetails-content-article-section-title-caret"
             ariaLabel="Collapse section"
           />
         ) : (
           <CaretDownRedIcon
             size={16}
-            className='articleDetails-content-article-section-title-caret'
+            className="articleDetails-content-article-section-title-caret"
             ariaLabel="Expand section"
           />
         )}
       </div>
-      <div className={`articleDetails-content-article-section-content ${isOpen && 'articleDetails-content-article-section-content-opened'}`}>
+      <div
+        className={`articleDetails-content-article-section-content ${isOpen && 'articleDetails-content-article-section-content-opened'}`}
+      >
         {children}
       </div>
     </div>

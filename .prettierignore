@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+coverage
+public
+external-assets
+package-lock.json
+*.log
+.idea
+.vscode

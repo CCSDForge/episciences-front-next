@@ -3,7 +3,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
-import { FilterIcon, ListRedIcon, ListGreyIcon, TileRedIcon, TileGreyIcon } from '@/components/icons';
+import {
+  FilterIcon,
+  ListRedIcon,
+  ListGreyIcon,
+  TileRedIcon,
+  TileGreyIcon,
+} from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { RENDERING_MODE } from '@/utils/card';
@@ -29,7 +35,11 @@ interface NewsClientProps {
   };
 }
 
-export default function NewsClient({ initialNews, lang, breadcrumbLabels }: NewsClientProps): React.JSX.Element {
+export default function NewsClient({
+  initialNews,
+  lang,
+  breadcrumbLabels,
+}: NewsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL
@@ -41,9 +51,9 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
 
   const NEWS_PER_PAGE = 10;
 
-  const language = useAppSelector(state => state.i18nReducer.language)
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code)
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name)
+  const language = useAppSelector(state => state.i18nReducer.language);
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
+  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Architecture hybride : fetch automatique des données fraîches
   const { data: newsData, isUpdating } = useClientSideFetch({
@@ -56,7 +66,7 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
       return await fetchNews({
         rvcode,
         page: 1,
-        itemsPerPage
+        itemsPerPage,
       });
     },
     initialData: initialNews,
@@ -76,9 +86,9 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
   useEffect(() => {
     // Initialiser les années disponibles lorsque les données sont chargées
     if (newsData?.range?.years && years.length === 0) {
-      const initYears = newsData.range.years.map((y) => ({
+      const initYears = newsData.range.years.map(y => ({
         year: y,
-        isSelected: false
+        isSelected: false,
       }));
 
       setYears(initYears);
@@ -93,18 +103,21 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
   }, [newsData]);
 
   // Memoize handlePageClick to prevent Pagination re-renders
-  const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
-    setCurrentPage(selectedItem.selected + 1);
-    // Pour un comportement Full Static, la navigation entre les pages
-    // serait gérée par le rechargement de la page avec des paramètres d'URL
-    const selectedYears = years.filter(y => y.isSelected).map(y => y.year);
-    window.location.href = `/news?page=${selectedItem.selected + 1}${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`;
-  }, [years]);
+  const handlePageClick = useCallback(
+    (selectedItem: { selected: number }): void => {
+      setCurrentPage(selectedItem.selected + 1);
+      // Pour un comportement Full Static, la navigation entre les pages
+      // serait gérée par le rechargement de la page avec des paramètres d'URL
+      const selectedYears = years.filter(y => y.isSelected).map(y => y.year);
+      window.location.href = `/news?page=${selectedItem.selected + 1}${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`;
+    },
+    [years]
+  );
 
   const onSelectYear = (year: number): void => {
     setCurrentPage(1);
 
-    const updatedYears = years.map((y) => {
+    const updatedYears = years.map(y => {
       if (y.year === year) {
         return { ...y, isSelected: !y.isSelected };
       }
@@ -113,8 +126,8 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
     });
 
     setYears(updatedYears);
-    
-    // Pour un comportement Full Static, la sélection des années 
+
+    // Pour un comportement Full Static, la sélection des années
     // serait gérée par le rechargement de la page avec des paramètres d'URL
     const selectedYears = updatedYears.filter(y => y.isSelected).map(y => y.year);
     window.location.href = `/news?page=1${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`;
@@ -123,28 +136,30 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
   const renderMobileSelectedYears = (): string => getSelectedYears().reverse().join(', ');
 
   const breadcrumbItems = [
-    { 
-      path: '/', 
-      label: breadcrumbLabels 
-        ? `${breadcrumbLabels.home} > ${t('common.about')} >` 
-        : `${t('pages.home.title')} > ${t('common.about')} >` 
-    }
+    {
+      path: '/',
+      label: breadcrumbLabels
+        ? `${breadcrumbLabels.home} > ${t('common.about')} >`
+        : `${t('pages.home.title')} > ${t('common.about')} >`,
+    },
   ];
 
   return (
-    <main className='news'>
+    <main className="news">
       <PageTitle title={breadcrumbLabels?.news || t('pages.news.title')} />
 
-      <Breadcrumb 
-        parents={breadcrumbItems} 
-        crumbLabel={breadcrumbLabels?.news || t('pages.news.title')} 
-        lang={lang} 
+      <Breadcrumb
+        parents={breadcrumbItems}
+        crumbLabel={breadcrumbLabels?.news || t('pages.news.title')}
+        lang={lang}
       />
-      <div className='news-title'>
+      <div className="news-title">
         <h1>{breadcrumbLabels?.news || t('pages.news.title')}</h1>
-        <div className='news-title-icons'>
-          <div className='news-title-icons-icon' onClick={(): void => setMode(RENDERING_MODE.TILE)}>
-            <div className={`${mode === RENDERING_MODE.TILE ? 'news-title-icons-icon-row-red' : 'news-title-icons-icon-row'}`}>
+        <div className="news-title-icons">
+          <div className="news-title-icons-icon" onClick={(): void => setMode(RENDERING_MODE.TILE)}>
+            <div
+              className={`${mode === RENDERING_MODE.TILE ? 'news-title-icons-icon-row-red' : 'news-title-icons-icon-row'}`}
+            >
               {mode === RENDERING_MODE.TILE ? (
                 <TileRedIcon size={16} ariaLabel="Tile view" />
               ) : (
@@ -153,8 +168,10 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
               <span>{t('common.renderingMode.tile')}</span>
             </div>
           </div>
-          <div className='news-title-icons-icon' onClick={(): void => setMode(RENDERING_MODE.LIST)}>
-            <div className={`${mode === RENDERING_MODE.LIST ? 'news-title-icons-icon-row-red' : 'news-title-icons-icon-row'}`}>
+          <div className="news-title-icons-icon" onClick={(): void => setMode(RENDERING_MODE.LIST)}>
+            <div
+              className={`${mode === RENDERING_MODE.LIST ? 'news-title-icons-icon-row-red' : 'news-title-icons-icon-row'}`}
+            >
               {mode === RENDERING_MODE.LIST ? (
                 <ListRedIcon size={16} ariaLabel="List view" />
               ) : (
@@ -167,19 +184,35 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
       </div>
       <div className="news-filtersMobile">
         <span>{renderMobileSelectedYears()}</span>
-        <div className="news-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
+        <div
+          className="news-filtersMobile-tile"
+          onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
+        >
           <FilterIcon size={16} className="news-filtersMobile-tile-icon" ariaLabel="Filter" />
-          <div className="news-filtersMobile-tile-text">{getSelectedYears().length > 0 ? `${t('common.filters.editFilters')} (${getSelectedYears().length})` : `${t('common.filters.filter')}`}</div>
+          <div className="news-filtersMobile-tile-text">
+            {getSelectedYears().length > 0
+              ? `${t('common.filters.editFilters')} (${getSelectedYears().length})`
+              : `${t('common.filters.filter')}`}
+          </div>
         </div>
-        {openedFiltersMobileModal && <NewsMobileModal t={t} years={years} onUpdateYearsCallback={setYears} onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}/>}
+        {openedFiltersMobileModal && (
+          <NewsMobileModal
+            t={t}
+            years={years}
+            onUpdateYearsCallback={setYears}
+            onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
+          />
+        )}
       </div>
       <div className={`news-content content-transition ${isUpdating ? 'updating' : ''}`}>
-        <div className='news-content-results'>
+        <div className="news-content-results">
           <NewsSidebar t={t} years={years} onSelectYearCallback={onSelectYear} />
           {isLoading ? (
             <Loader />
           ) : (
-            <div className={`news-content-results-cards ${mode === RENDERING_MODE.TILE && 'news-content-results-cards-grid'}`}>
+            <div
+              className={`news-content-results-cards ${mode === RENDERING_MODE.TILE && 'news-content-results-cards-grid'}`}
+            >
               {news?.data?.map((singleNews, index) => (
                 <NewsCard
                   key={index}
@@ -187,8 +220,16 @@ export default function NewsClient({ initialNews, lang, breadcrumbLabels }: News
                   t={t}
                   mode={mode}
                   fullCard={mode === RENDERING_MODE.TILE && fullNewsIndex === index}
-                  blurCard={mode === RENDERING_MODE.TILE && fullNewsIndex !== -1 && fullNewsIndex !== index}
-                  setFullNewsIndexCallback={(): void => mode === RENDERING_MODE.TILE ? fullNewsIndex !== index ? setFullNewsIndex(index) : setFullNewsIndex(-1) : void(null)}
+                  blurCard={
+                    mode === RENDERING_MODE.TILE && fullNewsIndex !== -1 && fullNewsIndex !== index
+                  }
+                  setFullNewsIndexCallback={(): void =>
+                    mode === RENDERING_MODE.TILE
+                      ? fullNewsIndex !== index
+                        ? setFullNewsIndex(index)
+                        : setFullNewsIndex(-1)
+                      : void null
+                  }
                   news={singleNews}
                 />
               ))}

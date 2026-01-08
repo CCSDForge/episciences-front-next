@@ -54,12 +54,7 @@ export async function fetchWithRetry(
   options: RequestInit = {},
   retryOptions: RetryOptions = {}
 ): Promise<Response> {
-  const {
-    maxRetries = 3,
-    baseDelay = 1000,
-    maxDelay = 8000,
-    timeout = 15000
-  } = retryOptions;
+  const { maxRetries = 3, baseDelay = 1000, maxDelay = 8000, timeout = 15000 } = retryOptions;
 
   let lastError: Error | null = null;
 
@@ -71,7 +66,7 @@ export async function fetchWithRetry(
 
       const response = await fetch(url, {
         ...options,
-        signal: controller.signal
+        signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
@@ -99,7 +94,7 @@ export async function fetchWithRetry(
 
       console.warn(
         `[FetchRetry] Attempt ${attempt + 1}/${maxRetries + 1} failed for ${url}. ` +
-        `Retrying in ${Math.round(delay)}ms... Error: ${lastError.message}`
+          `Retrying in ${Math.round(delay)}ms... Error: ${lastError.message}`
       );
 
       // Wait before retrying
@@ -136,7 +131,7 @@ export async function fetchJsonWithRetry<T = unknown>(
   retryOptions: RetryOptions = {}
 ): Promise<T> {
   const response = await fetchWithRetry(url, options, retryOptions);
-  return await response.json() as T;
+  return (await response.json()) as T;
 }
 
 /**

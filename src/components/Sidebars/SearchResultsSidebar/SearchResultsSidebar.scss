@@ -1,14 +1,18 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 .searchResultsSidebar {
   min-width: 265px;
   max-width: 265px;
   margin-top: -46px;
 
-  @media (max-width:  breakpoints.$sm) {
+  @media (max-width: breakpoints.$sm) {
     display: none;
   }
 
-  &-typesSection-title, &-yearsSection-title, &-volumesSection-title, &-sectionsSection-title, &-authorsSection-title {
+  &-typesSection-title,
+  &-yearsSection-title,
+  &-volumesSection-title,
+  &-sectionsSection-title,
+  &-authorsSection-title {
     font-weight: bold;
     border-bottom: 1px solid var(--grey-light);
     padding-bottom: 8px;
@@ -77,10 +81,10 @@
           &-row {
             display: flex;
             gap: 18px;
-    
+
             &-label {
               cursor: pointer;
-    
+
               &-checked {
                 color: var(--black);
               }
@@ -123,10 +127,10 @@
         &-choice {
           display: flex;
           gap: 18px;
-  
+
           &-label {
             cursor: pointer;
-  
+
             &-checked {
               color: var(--black);
             }
@@ -154,10 +158,10 @@
         &-choice {
           display: flex;
           gap: 18px;
-  
+
           &-label {
             cursor: pointer;
-  
+
             &-checked {
               color: var(--black);
             }
@@ -190,10 +194,10 @@
           &-row {
             display: flex;
             gap: 18px;
-    
+
             &-label {
               cursor: pointer;
-    
+
               &-checked {
                 color: var(--black);
               }

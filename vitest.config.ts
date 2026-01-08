@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
-import path from 'path'
+import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
   resolve: {
@@ -41,12 +41,6 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
 
     // Exclude patterns
-    exclude: [
-      'node_modules',
-      'dist',
-      'external-assets',
-      '.next',
-      'coverage',
-    ],
+    exclude: ['node_modules', 'dist', 'external-assets', '.next', 'coverage'],
   },
-})
+});

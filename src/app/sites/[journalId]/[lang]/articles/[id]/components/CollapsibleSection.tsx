@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
@@ -9,33 +9,39 @@ interface CollapsibleSectionProps {
   children: React.ReactNode;
 }
 
-export default function CollapsibleSection({ title, defaultOpen = true, children }: CollapsibleSectionProps) {
+export default function CollapsibleSection({
+  title,
+  defaultOpen = true,
+  children,
+}: CollapsibleSectionProps) {
   const [isOpened, setIsOpened] = useState(defaultOpen);
 
   return (
-    <div className='articleDetails-content-article-section'>
+    <div className="articleDetails-content-article-section">
       <div
         className={`articleDetails-content-article-section-title ${!isOpened && 'articleDetails-content-article-section-closed'}`}
         onClick={() => setIsOpened(!isOpened)}
       >
-        <div className='articleDetails-content-article-section-title-text'>{title}</div>
+        <div className="articleDetails-content-article-section-title-text">{title}</div>
         {isOpened ? (
           <CaretUpRedIcon
             size={14}
-            className='articleDetails-content-article-section-title-caret'
+            className="articleDetails-content-article-section-title-caret"
             ariaLabel="Collapse section"
           />
         ) : (
           <CaretDownRedIcon
             size={14}
-            className='articleDetails-content-article-section-title-caret'
+            className="articleDetails-content-article-section-title-caret"
             ariaLabel="Expand section"
           />
         )}
       </div>
-      <div className={`articleDetails-content-article-section-content ${isOpened && 'articleDetails-content-article-section-content-opened'}`}>
+      <div
+        className={`articleDetails-content-article-section-content ${isOpened && 'articleDetails-content-article-section-content-opened'}`}
+      >
         {children}
       </div>
     </div>
   );
-} 
+}

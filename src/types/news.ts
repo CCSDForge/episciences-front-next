@@ -1,4 +1,4 @@
-import { AvailableLanguage } from "@/utils/i18n";
+import { AvailableLanguage } from '@/utils/i18n';
 
 export interface INews {
   id: number;
@@ -16,5 +16,5 @@ export type RawNews = INews & {
   };
   link?: {
     und: string;
-  }
-} 
+  };
+};

@@ -6,7 +6,12 @@ import { Link } from '@/components/Link/Link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from 'react-device-detect';
-import { BurgerIcon, LogoTextIcon, ArrowRightBlueIcon, ExternalLinkWhiteIcon } from '@/components/icons';
+import {
+  BurgerIcon,
+  LogoTextIcon,
+  ArrowRightBlueIcon,
+  ExternalLinkWhiteIcon,
+} from '@/components/icons';
 import './Header.scss';
 
 import { PATHS } from '@/config/paths';
@@ -42,9 +47,10 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   const language = useAppSelector(state => state.i18nReducer.language);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
   const lastVolume = useAppSelector(state => state.volumeReducer.lastVolume);
-  
+
   // Définir un titre par défaut pour le build statique
-  const defaultJournalTitle = process.env.NEXT_PUBLIC_JOURNAL_NAME || '[Pre-Production] Journal Epijinfo';
+  const defaultJournalTitle =
+    process.env.NEXT_PUBLIC_JOURNAL_NAME || '[Pre-Production] Journal Epijinfo';
 
   const [isSearching, setIsSearching] = useState(false);
   const [isReduced, setIsReduced] = useState(false);
@@ -60,7 +66,10 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
 
   useEffect(() => {
     const handleTouchOutside = (event: TouchEvent): void => {
-      if (mobileMenuDropdownRef.current && !mobileMenuDropdownRef.current.contains(event.target as Node)) {
+      if (
+        mobileMenuDropdownRef.current &&
+        !mobileMenuDropdownRef.current.contains(event.target as Node)
+      ) {
         setShowMobileMenu(false);
       }
     };
@@ -103,15 +112,21 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
     router.push(`${PATHS.search}?terms=${encodeURIComponent(search)}`);
   };
 
-  const getEpisciencesHomePageLink = (): string => 
-    language === 'fr' ? process.env.NEXT_PUBLIC_EPISCIENCES_HOMEPAGE_FR! : process.env.NEXT_PUBLIC_EPISCIENCES_HOMEPAGE!;
+  const getEpisciencesHomePageLink = (): string =>
+    language === 'fr'
+      ? process.env.NEXT_PUBLIC_EPISCIENCES_HOMEPAGE_FR!
+      : process.env.NEXT_PUBLIC_EPISCIENCES_HOMEPAGE!;
 
-  const getJournalAccessLink = (): string => 
-    language === 'fr' ? process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE_FR! : process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE!;
+  const getJournalAccessLink = (): string =>
+    language === 'fr'
+      ? process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE_FR!
+      : process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE!;
 
   const isMobileReduced = (): boolean => isReduced && isMobileOnly;
 
-  const shouldRenderStatistics: boolean = statisticsBlocksConfiguration().some((config) => config.render);
+  const shouldRenderStatistics: boolean = statisticsBlocksConfiguration().some(
+    config => config.render
+  );
 
   const shouldRenderMenuItem = (key: string): boolean => {
     const envValue = process.env[`NEXT_PUBLIC_JOURNAL_MENU_${key}_RENDER`];
@@ -131,44 +146,57 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   const getPostHeaderLinks = (): React.JSX.Element => {
     return (
       <>
-        <div className='header-postheader-links'>
-          <div 
-            className='header-postheader-links-dropdown' 
-            onMouseEnter={(): void => toggleDropdown('content', true)} 
+        <div className="header-postheader-links">
+          <div
+            className="header-postheader-links-dropdown"
+            onMouseEnter={(): void => toggleDropdown('content', true)}
             onMouseLeave={(): void => toggleDropdown('content', false)}
           >
             <div>
               <span>{t('components.header.content')}</span>
             </div>
             {showDropdown.content && (
-              <div className='header-postheader-links-dropdown-content' onMouseLeave={(): void => toggleDropdown('content', false)}>
-                <div className={`header-postheader-links-dropdown-content-links header-postheader-links-dropdown-content-links-large ${language === 'fr' && 'header-postheader-links-dropdown-content-links-large-fr'}`}>
+              <div
+                className="header-postheader-links-dropdown-content"
+                onMouseLeave={(): void => toggleDropdown('content', false)}
+              >
+                <div
+                  className={`header-postheader-links-dropdown-content-links header-postheader-links-dropdown-content-links-large ${language === 'fr' && 'header-postheader-links-dropdown-content-links-large-fr'}`}
+                >
                   <Link href={PATHS.articles}>{t('components.header.links.articles')}</Link>
                   {shouldRenderMenuItem('ACCEPTED_ARTICLES') && (
-                    <Link href={PATHS.articlesAccepted}>{t('components.header.links.articlesAccepted')}</Link>
+                    <Link href={PATHS.articlesAccepted}>
+                      {t('components.header.links.articlesAccepted')}
+                    </Link>
                   )}
                   {shouldRenderMenuItem('VOLUMES') && (
                     <Link href={PATHS.volumes}>{t('components.header.links.volumes')}</Link>
                   )}
                   {shouldRenderMenuItem('LAST_VOLUME') && (
-                    <Link href={`${PATHS.volumes}/${lastVolume?.id}`}>{t('components.header.links.lastVolume')}</Link>
+                    <Link href={`${PATHS.volumes}/${lastVolume?.id}`}>
+                      {t('components.header.links.lastVolume')}
+                    </Link>
                   )}
                   {shouldRenderMenuItem('SECTIONS') && (
                     <Link href={PATHS.sections}>{t('components.header.links.sections')}</Link>
                   )}
                   {shouldRenderMenuItem('SPECIAL_ISSUES') && (
-                    <Link href={`${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`}>{t('components.header.links.specialIssues')}</Link>
+                    <Link href={`${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`}>
+                      {t('components.header.links.specialIssues')}
+                    </Link>
                   )}
                   {shouldRenderMenuItem('VOLUME_TYPE_PROCEEDINGS') && (
-                    <Link href={`${PATHS.volumes}?type=${VOLUME_TYPE.PROCEEDINGS}`}>{t('components.header.links.proceedings')}</Link>
+                    <Link href={`${PATHS.volumes}?type=${VOLUME_TYPE.PROCEEDINGS}`}>
+                      {t('components.header.links.proceedings')}
+                    </Link>
                   )}
                   <Link href={PATHS.authors}>{t('components.header.links.authors')}</Link>
                 </div>
               </div>
             )}
           </div>
-          <div 
-            className='header-postheader-links-dropdown'
+          <div
+            className="header-postheader-links-dropdown"
             onMouseEnter={(): void => toggleDropdown('about', true)}
             onMouseLeave={(): void => toggleDropdown('about', false)}
           >
@@ -176,8 +204,11 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
               <span>{t('components.header.about')}</span>
             </div>
             {showDropdown.about && (
-              <div className='header-postheader-links-dropdown-content' onMouseLeave={(): void => toggleDropdown('about', false)}>
-                <div className='header-postheader-links-dropdown-content-links'>
+              <div
+                className="header-postheader-links-dropdown-content"
+                onMouseLeave={(): void => toggleDropdown('about', false)}
+              >
+                <div className="header-postheader-links-dropdown-content-links">
                   <Link href={PATHS.about}>{t('components.header.links.about')}</Link>
                   {shouldRenderMenuItem('NEWS') && (
                     <Link href={PATHS.news}>{t('components.header.links.news')}</Link>
@@ -196,9 +227,11 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
             <Link href={PATHS.forAuthors}>{t('components.header.links.forAuthors')}</Link>
           )}
         </div>
-        <div className={`header-postheader-search ${isReduced ? 'header-postheader-search-reduced' : ''}`}>
-          <div className='header-postheader-search-delimiter'></div>
-          <div className='header-postheader-search-search'>
+        <div
+          className={`header-postheader-search ${isReduced ? 'header-postheader-search-reduced' : ''}`}
+        >
+          <div className="header-postheader-search-delimiter"></div>
+          <div className="header-postheader-search-search">
             <HeaderSearchInput
               value={search ?? ''}
               placeholder={t('components.header.searchPlaceholder')}
@@ -209,11 +242,11 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
             />
           </div>
           {isSearching ? (
-            <div className='header-postheader-search-submit header-postheader-search-submit-search'>
+            <div className="header-postheader-search-submit header-postheader-search-submit-search">
               <Button text={t('components.header.search')} onClickCallback={submitSearch} />
             </div>
           ) : (
-            <div className='header-postheader-search-submit header-postheader-search-submit-article'>
+            <div className="header-postheader-search-submit header-postheader-search-submit-article">
               {submitManagerLink && (
                 <Link href={submitManagerLink} target="_blank" rel="noopener noreferrer">
                   <Button
@@ -234,52 +267,92 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   const getPostHeaderBurgerLinks = (): React.JSX.Element => {
     if (showMobileMenu) {
       return (
-        <div className={`header-postheader-burger-content ${showMobileMenu ? 'header-postheader-burger-content-displayed' : ''}`}>
-          <div className='header-postheader-burger-content-links'>
-            <div className='header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered'>
-              <div className='header-postheader-burger-content-links-section-links'>
-                <span className='header-postheader-burger-content-links-section-links-title'>{t('components.header.content')}</span>
-                <span onTouchEnd={(): void => router.push(PATHS.articles)}>{t('components.header.links.articles')}</span>
+        <div
+          className={`header-postheader-burger-content ${showMobileMenu ? 'header-postheader-burger-content-displayed' : ''}`}
+        >
+          <div className="header-postheader-burger-content-links">
+            <div className="header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered">
+              <div className="header-postheader-burger-content-links-section-links">
+                <span className="header-postheader-burger-content-links-section-links-title">
+                  {t('components.header.content')}
+                </span>
+                <span onTouchEnd={(): void => router.push(PATHS.articles)}>
+                  {t('components.header.links.articles')}
+                </span>
                 {shouldRenderMenuItem('ACCEPTED_ARTICLES') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.articlesAccepted)}>{t('components.header.links.articlesAccepted')}</span>
+                  <span onTouchEnd={(): void => router.push(PATHS.articlesAccepted)}>
+                    {t('components.header.links.articlesAccepted')}
+                  </span>
                 )}
                 {shouldRenderMenuItem('VOLUMES') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.volumes)}>{t('components.header.links.volumes')}</span>
+                  <span onTouchEnd={(): void => router.push(PATHS.volumes)}>
+                    {t('components.header.links.volumes')}
+                  </span>
                 )}
                 {shouldRenderMenuItem('LAST_VOLUME') && (
-                  <span onTouchEnd={(): void => router.push(`${PATHS.volumes}/${lastVolume?.id}`)}>{t('components.header.links.lastVolume')}</span>
+                  <span onTouchEnd={(): void => router.push(`${PATHS.volumes}/${lastVolume?.id}`)}>
+                    {t('components.header.links.lastVolume')}
+                  </span>
                 )}
                 {shouldRenderMenuItem('SECTIONS') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.sections)}>{t('components.header.links.sections')}</span>
+                  <span onTouchEnd={(): void => router.push(PATHS.sections)}>
+                    {t('components.header.links.sections')}
+                  </span>
                 )}
                 {shouldRenderMenuItem('SPECIAL_ISSUES') && (
-                  <span onTouchEnd={(): void => router.push(`${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`)}>{t('components.header.links.specialIssues')}</span>
+                  <span
+                    onTouchEnd={(): void =>
+                      router.push(`${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`)
+                    }
+                  >
+                    {t('components.header.links.specialIssues')}
+                  </span>
                 )}
                 {shouldRenderMenuItem('VOLUME_TYPE_PROCEEDINGS') && (
-                  <span onTouchEnd={(): void => router.push(`${PATHS.volumes}?type=${VOLUME_TYPE.PROCEEDINGS}`)}>{t('components.header.links.proceedings')}</span>
+                  <span
+                    onTouchEnd={(): void =>
+                      router.push(`${PATHS.volumes}?type=${VOLUME_TYPE.PROCEEDINGS}`)
+                    }
+                  >
+                    {t('components.header.links.proceedings')}
+                  </span>
                 )}
-                <span onTouchEnd={(): void => router.push(PATHS.authors)}>{t('components.header.links.authors')}</span>
+                <span onTouchEnd={(): void => router.push(PATHS.authors)}>
+                  {t('components.header.links.authors')}
+                </span>
               </div>
             </div>
-            <div className='header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered'>
-              <div className='header-postheader-burger-content-links-section-links'>
-                <span className='header-postheader-burger-content-links-section-links-title'>{t('components.header.about')}</span>
-                <span onTouchEnd={(): void => router.push(PATHS.about)}>{t('components.header.links.about')}</span>
+            <div className="header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered">
+              <div className="header-postheader-burger-content-links-section-links">
+                <span className="header-postheader-burger-content-links-section-links-title">
+                  {t('components.header.about')}
+                </span>
+                <span onTouchEnd={(): void => router.push(PATHS.about)}>
+                  {t('components.header.links.about')}
+                </span>
                 {shouldRenderMenuItem('NEWS') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.news)}>{t('components.header.links.news')}</span>
+                  <span onTouchEnd={(): void => router.push(PATHS.news)}>
+                    {t('components.header.links.news')}
+                  </span>
                 )}
                 {shouldRenderStatistics && (
-                  <span onTouchEnd={(): void => router.push(PATHS.statistics)}>{t('components.header.links.statistics')}</span>
+                  <span onTouchEnd={(): void => router.push(PATHS.statistics)}>
+                    {t('components.header.links.statistics')}
+                  </span>
                 )}
               </div>
             </div>
-            <div className='header-postheader-burger-content-links-section'>
-              <div className='header-postheader-burger-content-links-section-links'>
+            <div className="header-postheader-burger-content-links-section">
+              <div className="header-postheader-burger-content-links-section-links">
                 {shouldRenderMenuItem('BOARDS') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.boards)}>{t('components.header.links.boards')}</span>
+                  <span onTouchEnd={(): void => router.push(PATHS.boards)}>
+                    {t('components.header.links.boards')}
+                  </span>
                 )}
                 {shouldRenderMenuItem('FOR_AUTHORS') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.forAuthors)}>{t('components.header.links.forAuthors')}</span>
+                  <span onTouchEnd={(): void => router.push(PATHS.forAuthors)}>
+                    {t('components.header.links.forAuthors')}
+                  </span>
                 )}
               </div>
             </div>
@@ -292,9 +365,9 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
 
   if (isReduced) {
     return (
-      <header className='header header-reduced'>
-        <div className='header-reduced-journal'>
-          <div className='header-reduced-journal-logo'>
+      <header className="header header-reduced">
+        <div className="header-reduced-journal">
+          <div className="header-reduced-journal-logo">
             <Link href={PATHS.home}>
               <Image
                 src={getLogoOfJournal('small')}
@@ -306,28 +379,31 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
               />
             </Link>
           </div>
-          <div className='header-reduced-journal-blank'></div>
+          <div className="header-reduced-journal-blank"></div>
           {availableLanguages.length > 1 && (
-            <div className='header-reduced-journal-dropdown'>
+            <div className="header-reduced-journal-dropdown">
               <LanguageDropdown withWhiteCaret={isMobileReduced()} />
             </div>
           )}
         </div>
-        <div className='header-postheader' ref={mobileMenuDropdownRef}>
+        <div className="header-postheader" ref={mobileMenuDropdownRef}>
           {isMobileOnly && (
-            <div className='header-postheader-burger' onClick={(): void => setShowMobileMenu(!showMobileMenu)}>
-              <BurgerIcon size={24} className='header-postheader-burger-icon' ariaLabel="Menu" />
+            <div
+              className="header-postheader-burger"
+              onClick={(): void => setShowMobileMenu(!showMobileMenu)}
+            >
+              <BurgerIcon size={24} className="header-postheader-burger-icon" ariaLabel="Menu" />
               {getPostHeaderBurgerLinks()}
             </div>
           )}
           {getPostHeaderLinks()}
         </div>
       </header>
-    )
+    );
   }
 
   return (
-    <header className='header'>
+    <header className="header">
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <Link href={getEpisciencesHomePageLink()} target="_blank" rel="noopener noreferrer">
@@ -340,7 +416,12 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
               <ArrowRightBlueIcon size={16} ariaLabel="Access journals" />
             </Link>
           </div>
-          <Link href={getJournalAccessLink()} className="header-preheader-links-access" target="_blank" rel="noopener noreferrer">
+          <Link
+            href={getJournalAccessLink()}
+            className="header-preheader-links-access"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {t('components.header.journal')}
           </Link>
           {availableLanguages.length > 1 && <LanguageDropdown />}
@@ -365,8 +446,11 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
       </div>
       <div className="header-postheader" ref={mobileMenuDropdownRef}>
         {isMobileOnly && (
-          <div className='header-postheader-burger' onClick={(): void => setShowMobileMenu(!showMobileMenu)}>
-            <BurgerIcon size={24} className='header-postheader-burger-icon' ariaLabel="Menu" />
+          <div
+            className="header-postheader-burger"
+            onClick={(): void => setShowMobileMenu(!showMobileMenu)}
+          >
+            <BurgerIcon size={24} className="header-postheader-burger-icon" ariaLabel="Menu" />
             {getPostHeaderBurgerLinks()}
           </div>
         )}
@@ -374,4 +458,4 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
       </div>
     </header>
   );
-} 
+}

@@ -23,7 +23,22 @@ export function middleware(request: NextRequest) {
   console.log(`[Middleware] Incoming request: ${pathname} (Host: ${hostname})`);
 
   // Ignore static files with extensions
-  const staticExtensions = ['.js', '.css', '.woff', '.woff2', '.ttf', '.otf', '.eot', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.webp'];
+  const staticExtensions = [
+    '.js',
+    '.css',
+    '.woff',
+    '.woff2',
+    '.ttf',
+    '.otf',
+    '.eot',
+    '.svg',
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.ico',
+    '.webp',
+  ];
   if (staticExtensions.some(ext => pathname.endsWith(ext))) {
     return NextResponse.next();
   }

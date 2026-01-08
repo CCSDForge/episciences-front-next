@@ -39,7 +39,7 @@ export interface ISearchResultAuthorSelection {
 
 interface ISearchResultsSidebarProps {
   language: AvailableLanguage;
-  t: TFunction<"translation", undefined>;
+  t: TFunction<'translation', undefined>;
   types: ISearchResultTypeSelection[];
   onCheckTypeCallback: (value: string) => void;
   years: ISearchResultYearSelection[];
@@ -52,21 +52,36 @@ interface ISearchResultsSidebarProps {
   onCheckAuthorCallback: (fullname: string) => void;
 }
 
-export default function SearchResultsSidebar({ language, t, types, onCheckTypeCallback, years, onCheckYearCallback, volumes, onCheckVolumeCallback, sections, onCheckSectionCallback, authors, onCheckAuthorCallback }: ISearchResultsSidebarProps): React.JSX.Element {
+export default function SearchResultsSidebar({
+  language,
+  t,
+  types,
+  onCheckTypeCallback,
+  years,
+  onCheckYearCallback,
+  volumes,
+  onCheckVolumeCallback,
+  sections,
+  onCheckSectionCallback,
+  authors,
+  onCheckAuthorCallback,
+}: ISearchResultsSidebarProps): React.JSX.Element {
   return (
-    <div className='searchResultsSidebar'>
+    <div className="searchResultsSidebar">
       {types.length > 0 && (
-        <div className='searchResultsSidebar-typesSection'>
-          <div className='searchResultsSidebar-typesSection-title'>{t('common.filters.documentTypes')}</div>
-          <div className='searchResultsSidebar-typesSection-types'>
+        <div className="searchResultsSidebar-typesSection">
+          <div className="searchResultsSidebar-typesSection-title">
+            {t('common.filters.documentTypes')}
+          </div>
+          <div className="searchResultsSidebar-typesSection-types">
             {types.map((type, index) => (
-              <div
-                key={index}
-                className='searchResultsSidebar-typesSection-types-choice'
-              >
-                <div className='searchResultsSidebar-typesSection-types-choice-row'>
-                  <div className='searchResultsSidebar-typesSection-types-choice-row-checkbox'>
-                    <Checkbox checked={type.isChecked} onChangeCallback={(): void => onCheckTypeCallback(type.value)}/>
+              <div key={index} className="searchResultsSidebar-typesSection-types-choice">
+                <div className="searchResultsSidebar-typesSection-types-choice-row">
+                  <div className="searchResultsSidebar-typesSection-types-choice-row-checkbox">
+                    <Checkbox
+                      checked={type.isChecked}
+                      onChangeCallback={(): void => onCheckTypeCallback(type.value)}
+                    />
                   </div>
                   <span
                     className={`searchResultsSidebar-typesSection-types-choice-row-label ${type.isChecked && 'searchResultsSidebar-typesSection-types-choice-row-label-checked'}`}
@@ -75,25 +90,27 @@ export default function SearchResultsSidebar({ language, t, types, onCheckTypeCa
                     {t(type.labelPath)}
                   </span>
                 </div>
-                <div className='searchResultsSidebar-typesSection-types-choice-badge'>{type.count}</div>
+                <div className="searchResultsSidebar-typesSection-types-choice-badge">
+                  {type.count}
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
       {years.length > 0 && (
-        <div className='searchResultsSidebar-yearsSection'>
-          <div className='searchResultsSidebar-yearsSection-title'>{t('common.filters.years')}</div>
-          <div className='searchResultsSidebar-yearsSection-years'>
-            <div className='searchResultsSidebar-yearsSection-years-list'>
+        <div className="searchResultsSidebar-yearsSection">
+          <div className="searchResultsSidebar-yearsSection-title">{t('common.filters.years')}</div>
+          <div className="searchResultsSidebar-yearsSection-years">
+            <div className="searchResultsSidebar-yearsSection-years-list">
               {years.map((y, index) => (
-                <div
-                  key={index}
-                  className='searchResultsSidebar-yearsSection-years-list-choice'
-                >
-                  <div className='searchResultsSidebar-yearsSection-years-list-choice-row'>
-                    <div className='searchResultsSidebar-yearsSection-years-list-choice-row-checkbox'>
-                      <Checkbox checked={y.isChecked} onChangeCallback={(): void => onCheckYearCallback(y.year)}/>
+                <div key={index} className="searchResultsSidebar-yearsSection-years-list-choice">
+                  <div className="searchResultsSidebar-yearsSection-years-list-choice-row">
+                    <div className="searchResultsSidebar-yearsSection-years-list-choice-row-checkbox">
+                      <Checkbox
+                        checked={y.isChecked}
+                        onChangeCallback={(): void => onCheckYearCallback(y.year)}
+                      />
                     </div>
                     <span
                       className={`searchResultsSidebar-yearsSection-years-list-choice-row-label ${y.isChecked && 'searchResultsSidebar-yearsSection-years-list-choice-row-label-checked'}`}
@@ -102,7 +119,9 @@ export default function SearchResultsSidebar({ language, t, types, onCheckTypeCa
                       {y.year}
                     </span>
                   </div>
-                  <div className='searchResultsSidebar-yearsSection-years-list-choice-badge'>{y.count}</div>
+                  <div className="searchResultsSidebar-yearsSection-years-list-choice-badge">
+                    {y.count}
+                  </div>
                 </div>
               ))}
             </div>
@@ -110,17 +129,22 @@ export default function SearchResultsSidebar({ language, t, types, onCheckTypeCa
         </div>
       )}
       {volumes.length > 0 && (
-        <div className='searchResultsSidebar-volumesSection'>
-          <div className='searchResultsSidebar-volumesSection-title'>{t('common.filters.volumes')}</div>
-          <div className='searchResultsSidebar-volumesSection-volumes'>
-            <div className='searchResultsSidebar-volumesSection-volumes-list'>
+        <div className="searchResultsSidebar-volumesSection">
+          <div className="searchResultsSidebar-volumesSection-title">
+            {t('common.filters.volumes')}
+          </div>
+          <div className="searchResultsSidebar-volumesSection-volumes">
+            <div className="searchResultsSidebar-volumesSection-volumes-list">
               {volumes.map((v, index) => (
                 <div
                   key={index}
-                  className='searchResultsSidebar-volumesSection-volumes-list-choice'
+                  className="searchResultsSidebar-volumesSection-volumes-list-choice"
                 >
-                  <div className='searchResultsSidebar-volumesSection-volumes-list-choice-checkbox'>
-                    <Checkbox checked={v.isChecked} onChangeCallback={(): void => onCheckVolumeCallback(v.id)}/>
+                  <div className="searchResultsSidebar-volumesSection-volumes-list-choice-checkbox">
+                    <Checkbox
+                      checked={v.isChecked}
+                      onChangeCallback={(): void => onCheckVolumeCallback(v.id)}
+                    />
                   </div>
                   <span
                     className={`searchResultsSidebar-volumesSection-volumes-list-choice-label ${v.isChecked && 'searchResultsSidebar-volumesSection-volumes-list-choice-label-checked'}`}
@@ -135,17 +159,22 @@ export default function SearchResultsSidebar({ language, t, types, onCheckTypeCa
         </div>
       )}
       {sections.length > 0 && (
-        <div className='searchResultsSidebar-sectionsSection'>
-          <div className='searchResultsSidebar-sectionsSection-title'>{t('common.filters.sections')}</div>
-          <div className='searchResultsSidebar-sectionsSection-sections'>
-            <div className='searchResultsSidebar-sectionsSection-sections-list'>
+        <div className="searchResultsSidebar-sectionsSection">
+          <div className="searchResultsSidebar-sectionsSection-title">
+            {t('common.filters.sections')}
+          </div>
+          <div className="searchResultsSidebar-sectionsSection-sections">
+            <div className="searchResultsSidebar-sectionsSection-sections-list">
               {sections.map((s, index) => (
                 <div
                   key={index}
-                  className='searchResultsSidebar-sectionsSection-sections-list-choice'
+                  className="searchResultsSidebar-sectionsSection-sections-list-choice"
                 >
-                  <div className='searchResultsSidebar-sectionsSection-sections-list-choice-checkbox'>
-                    <Checkbox checked={s.isChecked} onChangeCallback={(): void => onCheckSectionCallback(s.id)}/>
+                  <div className="searchResultsSidebar-sectionsSection-sections-list-choice-checkbox">
+                    <Checkbox
+                      checked={s.isChecked}
+                      onChangeCallback={(): void => onCheckSectionCallback(s.id)}
+                    />
                   </div>
                   <span
                     className={`searchResultsSidebar-sectionsSection-sections-list-choice-label ${s.isChecked && 'searchResultsSidebar-sectionsSection-sections-list-choice-label-checked'}`}
@@ -160,18 +189,23 @@ export default function SearchResultsSidebar({ language, t, types, onCheckTypeCa
         </div>
       )}
       {authors.length > 0 && (
-        <div className='searchResultsSidebar-authorsSection'>
-          <div className='searchResultsSidebar-authorsSection-title'>{t('common.filters.authors')}</div>
-          <div className='searchResultsSidebar-authorsSection-authors'>
-            <div className='searchResultsSidebar-authorsSection-authors-list'>
+        <div className="searchResultsSidebar-authorsSection">
+          <div className="searchResultsSidebar-authorsSection-title">
+            {t('common.filters.authors')}
+          </div>
+          <div className="searchResultsSidebar-authorsSection-authors">
+            <div className="searchResultsSidebar-authorsSection-authors-list">
               {authors.map((a, index) => (
                 <div
                   key={index}
-                  className='searchResultsSidebar-authorsSection-authors-list-choice'
+                  className="searchResultsSidebar-authorsSection-authors-list-choice"
                 >
-                  <div className='searchResultsSidebar-authorsSection-authors-list-choice-row'>
-                    <div className='searchResultsSidebar-authorsSection-authors-list-choice-row-checkbox'>
-                      <Checkbox checked={a.isChecked} onChangeCallback={(): void => onCheckAuthorCallback(a.fullname)}/>
+                  <div className="searchResultsSidebar-authorsSection-authors-list-choice-row">
+                    <div className="searchResultsSidebar-authorsSection-authors-list-choice-row-checkbox">
+                      <Checkbox
+                        checked={a.isChecked}
+                        onChangeCallback={(): void => onCheckAuthorCallback(a.fullname)}
+                      />
                     </div>
                     <span
                       className={`searchResultsSidebar-authorsSection-authors-list-choice-row-label ${a.isChecked && 'searchResultsSidebar-authorsSection-authors-list-choice-row-label-checked'}`}
@@ -180,7 +214,9 @@ export default function SearchResultsSidebar({ language, t, types, onCheckTypeCa
                       {a.fullname}
                     </span>
                   </div>
-                  <div className='searchResultsSidebar-authorsSection-authors-list-choice-badge'>{a.count}</div>
+                  <div className="searchResultsSidebar-authorsSection-authors-list-choice-badge">
+                    {a.count}
+                  </div>
                 </div>
               ))}
             </div>
@@ -188,5 +224,5 @@ export default function SearchResultsSidebar({ language, t, types, onCheckTypeCa
         </div>
       )}
     </div>
-  )
-} 
+  );
+}

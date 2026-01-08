@@ -6,4 +6,4 @@ declare namespace NodeJS {
     NEXT_PUBLIC_VITE_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE: string;
     NEXT_PUBLIC_VITE_ORCID_HOMEPAGE: string;
   }
-} 
+}

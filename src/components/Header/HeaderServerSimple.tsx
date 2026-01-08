@@ -5,7 +5,9 @@ interface HeaderServerSimpleProps {
   lang?: string;
 }
 
-export default function HeaderServerSimple({ lang = 'en' }: HeaderServerSimpleProps): React.JSX.Element {
+export default function HeaderServerSimple({
+  lang = 'en',
+}: HeaderServerSimpleProps): React.JSX.Element {
   return (
     <header className="header">
       <div className="header-preheader">
@@ -25,9 +27,15 @@ export default function HeaderServerSimple({ lang = 'en' }: HeaderServerSimplePr
       </div>
       <div className="header-postheader">
         <div className="header-postheader-links">
-          <Link href="/articles" lang={lang}>Articles</Link>
-          <Link href="/about" lang={lang}>About</Link>
-          <Link href="/boards" lang={lang}>Boards</Link>
+          <Link href="/articles" lang={lang}>
+            Articles
+          </Link>
+          <Link href="/about" lang={lang}>
+            About
+          </Link>
+          <Link href="/boards" lang={lang}>
+            Boards
+          </Link>
         </div>
       </div>
     </header>

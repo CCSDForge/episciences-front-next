@@ -3,4 +3,4 @@ interface IJournalSettings {
   value: string;
 }
 
-export type { IJournalSettings }; 
+export type { IJournalSettings };

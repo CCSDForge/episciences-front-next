@@ -14,14 +14,14 @@ interface MathJaxProps {
 
 /**
  * A wrapper around better-react-mathjax's MathJax component to avoid hydration mismatches.
- * It renders plain children on the server and initial client render, 
+ * It renders plain children on the server and initial client render,
  * then switches to the MathJax component once mounted.
  */
-const MathJax: React.FC<MathJaxProps> = ({ 
-  children, 
-  dynamic = false, 
-  component: Component = 'span', 
-  ...props 
+const MathJax: React.FC<MathJaxProps> = ({
+  children,
+  dynamic = false,
+  component: Component = 'span',
+  ...props
 }) => {
   const [mounted, setMounted] = useState(false);
 
@@ -29,11 +29,11 @@ const MathJax: React.FC<MathJaxProps> = ({
     setMounted(true);
   }, []);
 
-  // IMPORTANT: We use suppressHydrationWarning because MathJax might have 
-  // already modified the DOM if the library loaded very fast, 
+  // IMPORTANT: We use suppressHydrationWarning because MathJax might have
+  // already modified the DOM if the library loaded very fast,
   // or better-react-mathjax might do something subtle.
   // However, rendering plain children on both sides is the key.
-  
+
   if (!mounted) {
     return (
       <Component {...props} suppressHydrationWarning>
@@ -43,10 +43,7 @@ const MathJax: React.FC<MathJaxProps> = ({
   }
 
   return (
-    <BetterMathJax
-      dynamic={dynamic}
-      {...props}
-    >
+    <BetterMathJax dynamic={dynamic} {...props}>
       {children}
     </BetterMathJax>
   );

@@ -38,7 +38,10 @@ export function getJournalsList(): string[] {
     const fs = require('fs');
     const journalsPath = path.join(process.cwd(), 'external-assets/journals.txt');
     const content = fs.readFileSync(journalsPath, 'utf-8');
-    const journals = content.split('\n').map((j: string) => j.trim()).filter(Boolean);
+    const journals = content
+      .split('\n')
+      .map((j: string) => j.trim())
+      .filter(Boolean);
 
     // Cache the result
     journalsListCache = journals;
@@ -88,29 +91,31 @@ export function loadJournalConfig(journalCode: string): JournalConfig {
     const envContent = fs.readFileSync(envPath, 'utf-8');
 
     const env = envContent
-        .split('\n')
-        .filter((line: string) => line && !line.trim().startsWith('#'))
-        .reduce((acc: Record<string, string>, line: string) => {
-            const parts = line.split('=');
-            if (parts.length >= 2) {
-                const key = parts[0].trim();
-                const value = parts.slice(1).join('=').trim();
-                if (key && value) {
-                    acc[key] = value.replace(/^["']|["']$/g, '');
-                }
+      .split('\n')
+      .filter((line: string) => line && !line.trim().startsWith('#'))
+      .reduce(
+        (acc: Record<string, string>, line: string) => {
+          const parts = line.split('=');
+          if (parts.length >= 2) {
+            const key = parts[0].trim();
+            const value = parts.slice(1).join('=').trim();
+            if (key && value) {
+              acc[key] = value.replace(/^["']|["']$/g, '');
             }
-            return acc;
-        }, {} as Record<string, string>);
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
     const config = {
-        code: journalCode,
-        env
+      code: journalCode,
+      env,
     };
 
     // Cache the loaded config
     configCache.set(journalCode, config);
     return config;
-
   } catch (error) {
     console.error(`[env-loader] Error loading config for ${journalCode}`, error);
     const errorConfig = { code: journalCode, env: {} };
@@ -157,9 +162,10 @@ export function getJournalApiUrl(journalCode: string): string {
 
     // 2. Journal Specific Config
     const config = loadJournalConfig(journalCode);
-    const url = config.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ||
-                process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ||
-                'https://api-preprod.episciences.org/api';
+    const url =
+      config.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ||
+      process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ||
+      'https://api-preprod.episciences.org/api';
 
     return url.endsWith('/') ? url.slice(0, -1) : url;
   }

@@ -6,4 +6,4 @@
 export function getFormattedSiteTitle(pageTitle: string): string {
   const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Episciences';
   return `${pageTitle} | ${siteName}`;
-} 
+}

@@ -1,6 +1,6 @@
-import { AvailableLanguage } from "@/utils/i18n";
-import { getJournalApiUrl } from "@/utils/env-loader";
-import { safeFetchData } from "@/utils/api-error-handler";
+import { AvailableLanguage } from '@/utils/i18n';
+import { getJournalApiUrl } from '@/utils/env-loader';
+import { safeFetchData } from '@/utils/api-error-handler';
 
 export interface IPage {
   id: number;
@@ -16,10 +16,9 @@ export async function fetchPage(pageCode: string, rvcode: string): Promise<IPage
   // Use safeFetchData to ensure graceful degradation if API is down
   const page = await safeFetchData(
     async () => {
-      const response = await fetch(
-        `${apiUrl}/pages?page_code=${pageCode}&rvcode=${rvcode}`,
-        { next: { tags: ['pages', `page-${pageCode}`, `page-${pageCode}-${rvcode}`] } }
-      );
+      const response = await fetch(`${apiUrl}/pages?page_code=${pageCode}&rvcode=${rvcode}`, {
+        next: { tags: ['pages', `page-${pageCode}`, `page-${pageCode}-${rvcode}`] },
+      });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch page with code ${pageCode}: HTTP ${response.status}`);
@@ -34,4 +33,4 @@ export async function fetchPage(pageCode: string, rvcode: string): Promise<IPage
   );
 
   return page;
-} 
+}

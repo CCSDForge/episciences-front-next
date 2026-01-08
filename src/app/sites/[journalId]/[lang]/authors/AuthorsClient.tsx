@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
-import { IAuthor, fetchAuthors } from "@/services/author";
-import { useAppSelector } from "@/hooks/store";
-import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
-import AuthorCard from "@/components/Cards/AuthorCard/AuthorCard";
-import AuthorsSidebar from "@/components/Sidebars/AuthorsSidebar/AuthorsSidebar";
-import AuthorDetailsSidebar from "@/components/Sidebars/AuthorDetailsSidebar/AuthorDetailsSidebar";
+import { IAuthor, fetchAuthors } from '@/services/author';
+import { useAppSelector } from '@/hooks/store';
+import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
+import AuthorCard from '@/components/Cards/AuthorCard/AuthorCard';
+import AuthorsSidebar from '@/components/Sidebars/AuthorsSidebar/AuthorsSidebar';
+import AuthorDetailsSidebar from '@/components/Sidebars/AuthorDetailsSidebar/AuthorDetailsSidebar';
 import Loader from '@/components/Loader/Loader';
-import Pagination from "@/components/Pagination/Pagination";
-import Tag from "@/components/Tag/Tag";
+import Pagination from '@/components/Pagination/Pagination';
+import Tag from '@/components/Tag/Tag';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import './Authors.scss';
 
@@ -55,7 +55,7 @@ export default function AuthorsClient({
   initialAuthorsData,
   lang,
   breadcrumbLabels,
-  countLabels
+  countLabels,
 }: AuthorsClientProps) {
   const { t, i18n } = useTranslation();
 
@@ -70,7 +70,7 @@ export default function AuthorsClient({
   const params = useSearchParams();
   const i18nState = useAppSelector(state => state.i18nReducer);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  
+
   // État local
   const [isLoading, setIsLoading] = useState(!initialAuthorsData);
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -90,15 +90,15 @@ export default function AuthorsClient({
           console.error('Journal code not available');
           return;
         }
-        
+
         const authorsData = await fetchAuthors({
           rvcode,
           page: currentPage,
           itemsPerPage: AUTHORS_PER_PAGE,
           search: searchValue,
-          letter: activeLetter
+          letter: activeLetter,
         });
-        
+
         setAuthors(authorsData.data);
         setTotalAuthors(authorsData.totalItems);
       } catch (error) {
@@ -111,49 +111,58 @@ export default function AuthorsClient({
     fetchData();
   }, [rvcode, currentPage, searchValue, activeLetter]);
 
-  const createQueryString = useCallback((name: string, value: string) => {
-    const newParams = new URLSearchParams(params?.toString() || '');
-    if (value) {
-      newParams.set(name, value);
-    } else {
-      newParams.delete(name);
-    }
-    return newParams.toString();
-  }, [params]);
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const newParams = new URLSearchParams(params?.toString() || '');
+      if (value) {
+        newParams.set(name, value);
+      } else {
+        newParams.delete(name);
+      }
+      return newParams.toString();
+    },
+    [params]
+  );
 
-  const onSearch = useCallback((newSearch: string): void => {
-    const newParams = createQueryString('search', newSearch);
-    if (activeLetter) {
-      const paramsWithoutLetter = new URLSearchParams(newParams);
-      paramsWithoutLetter.delete('letter');
-      router.push(`${pathname}?${paramsWithoutLetter.toString()}`);
-    } else {
-      router.push(`${pathname}?${newParams}`);
-    }
-    
-    setCurrentPage(1);
-    setExpandedAuthorIndex(-1);
-    setActiveLetter('');
-    setSearchValue(newSearch);
-  }, [activeLetter, createQueryString, pathname, router]);
+  const onSearch = useCallback(
+    (newSearch: string): void => {
+      const newParams = createQueryString('search', newSearch);
+      if (activeLetter) {
+        const paramsWithoutLetter = new URLSearchParams(newParams);
+        paramsWithoutLetter.delete('letter');
+        router.push(`${pathname}?${paramsWithoutLetter.toString()}`);
+      } else {
+        router.push(`${pathname}?${newParams}`);
+      }
 
-  const onSetActiveLetter = useCallback((newActiveLetter: string): void => {
-    const actualNewLetter = newActiveLetter !== activeLetter ? newActiveLetter : '';
-    const newParams = createQueryString('letter', actualNewLetter);
-    
-    if (searchValue) {
-      const paramsWithoutSearch = new URLSearchParams(newParams);
-      paramsWithoutSearch.delete('search');
-      router.push(`${pathname}?${paramsWithoutSearch.toString()}`);
-    } else {
-      router.push(`${pathname}?${newParams}`);
-    }
-    
-    setCurrentPage(1);
-    setExpandedAuthorIndex(-1);
-    setSearchValue('');
-    setActiveLetter(actualNewLetter);
-  }, [activeLetter, createQueryString, pathname, router, searchValue]);
+      setCurrentPage(1);
+      setExpandedAuthorIndex(-1);
+      setActiveLetter('');
+      setSearchValue(newSearch);
+    },
+    [activeLetter, createQueryString, pathname, router]
+  );
+
+  const onSetActiveLetter = useCallback(
+    (newActiveLetter: string): void => {
+      const actualNewLetter = newActiveLetter !== activeLetter ? newActiveLetter : '';
+      const newParams = createQueryString('letter', actualNewLetter);
+
+      if (searchValue) {
+        const paramsWithoutSearch = new URLSearchParams(newParams);
+        paramsWithoutSearch.delete('search');
+        router.push(`${pathname}?${paramsWithoutSearch.toString()}`);
+      } else {
+        router.push(`${pathname}?${newParams}`);
+      }
+
+      setCurrentPage(1);
+      setExpandedAuthorIndex(-1);
+      setSearchValue('');
+      setActiveLetter(actualNewLetter);
+    },
+    [activeLetter, createQueryString, pathname, router, searchValue]
+  );
 
   const getExpandedAuthor = useCallback((): IAuthor | undefined => {
     if (expandedAuthorIndex === -1 || !authors) {
@@ -167,25 +176,66 @@ export default function AuthorsClient({
     setExpandedAuthorIndex(-1);
   }, []);
 
-  const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
-    const newPage = selectedItem.selected + 1;
-    const newParams = createQueryString('page', newPage.toString());
-    router.push(`${pathname}?${newParams}`);
-    setCurrentPage(newPage);
-  }, [createQueryString, pathname, router]);
+  const handlePageClick = useCallback(
+    (selectedItem: { selected: number }): void => {
+      const newPage = selectedItem.selected + 1;
+      const newParams = createQueryString('page', newPage.toString());
+      router.push(`${pathname}?${newParams}`);
+      setCurrentPage(newPage);
+    },
+    [createQueryString, pathname, router]
+  );
 
   const getAuthorsCount = (): React.JSX.Element | null => {
     if (totalAuthors > 1) {
-      if (searchValue) return <div className='authors-count'>{totalAuthors} {countLabels?.authorsFor || t('common.authorsFor')} &ldquo;{searchValue}&rdquo;</div>;
-      if (activeLetter) return <div className='authors-count'>{totalAuthors} {countLabels?.authorsFor || t('common.authorsFor')} &ldquo;{activeLetter === 'others' ? (countLabels?.others || t('pages.authors.others')) : activeLetter}&rdquo;</div>;
+      if (searchValue)
+        return (
+          <div className="authors-count">
+            {totalAuthors} {countLabels?.authorsFor || t('common.authorsFor')} &ldquo;{searchValue}
+            &rdquo;
+          </div>
+        );
+      if (activeLetter)
+        return (
+          <div className="authors-count">
+            {totalAuthors} {countLabels?.authorsFor || t('common.authorsFor')} &ldquo;
+            {activeLetter === 'others'
+              ? countLabels?.others || t('pages.authors.others')
+              : activeLetter}
+            &rdquo;
+          </div>
+        );
 
-      return <div className='authors-count'>{totalAuthors} {countLabels?.authors || t('common.authors')}</div>;
+      return (
+        <div className="authors-count">
+          {totalAuthors} {countLabels?.authors || t('common.authors')}
+        </div>
+      );
     }
 
-    if (searchValue) return <div className='authors-count'>{totalAuthors} {countLabels?.authorFor || t('common.authorFor')} &ldquo;{searchValue}&rdquo;</div>;
-    if (activeLetter) return <div className='authors-count'>{totalAuthors} {countLabels?.authorFor || t('common.authorFor')} &ldquo;{activeLetter === 'others' ? (countLabels?.others || t('pages.authors.others')) : activeLetter}&rdquo;</div>;
+    if (searchValue)
+      return (
+        <div className="authors-count">
+          {totalAuthors} {countLabels?.authorFor || t('common.authorFor')} &ldquo;{searchValue}
+          &rdquo;
+        </div>
+      );
+    if (activeLetter)
+      return (
+        <div className="authors-count">
+          {totalAuthors} {countLabels?.authorFor || t('common.authorFor')} &ldquo;
+          {activeLetter === 'others'
+            ? countLabels?.others || t('pages.authors.others')
+            : activeLetter}
+          &rdquo;
+        </div>
+      );
 
-    return <div className='authors-count'>{totalAuthors} {countLabels?.author || t('common.author')}</div>;
+    return (
+      <div className="authors-count">
+        {totalAuthors} {countLabels?.author || t('common.author')}
+      </div>
+    );
   };
 
   const setAllTaggedFilters = useCallback((): void => {
@@ -194,37 +244,40 @@ export default function AuthorsClient({
     if (activeLetter) {
       initFilters.push({
         type: 'activeLetter',
-        value: activeLetter
+        value: activeLetter,
       });
     }
 
     if (searchValue) {
       initFilters.push({
         type: 'search',
-        value: searchValue
+        value: searchValue,
       });
     }
 
     setTaggedFilters(initFilters);
   }, [activeLetter, searchValue]);
 
-  const onCloseTaggedFilter = useCallback((type: AuthorTypeFilter) => {
-    if (type === 'search') {
-      const newParams = new URLSearchParams(params?.toString() || '');
-      newParams.delete('search');
-      if (pathname) {
-        router.push(`${pathname}?${newParams.toString()}`);
+  const onCloseTaggedFilter = useCallback(
+    (type: AuthorTypeFilter) => {
+      if (type === 'search') {
+        const newParams = new URLSearchParams(params?.toString() || '');
+        newParams.delete('search');
+        if (pathname) {
+          router.push(`${pathname}?${newParams.toString()}`);
+        }
+        setSearchValue('');
+      } else if (type === 'activeLetter') {
+        const newParams = new URLSearchParams(params?.toString() || '');
+        newParams.delete('letter');
+        if (pathname) {
+          router.push(`${pathname}?${newParams.toString()}`);
+        }
+        setActiveLetter('');
       }
-      setSearchValue('');
-    } else if (type === 'activeLetter') {
-      const newParams = new URLSearchParams(params?.toString() || '');
-      newParams.delete('letter');
-      if (pathname) {
-        router.push(`${pathname}?${newParams.toString()}`);
-      }
-      setActiveLetter('');
-    }
-  }, [params, pathname, router]);
+    },
+    [params, pathname, router]
+  );
 
   const clearTaggedFilters = useCallback((): void => {
     if (pathname) {
@@ -240,37 +293,57 @@ export default function AuthorsClient({
   }, [setAllTaggedFilters]);
 
   const breadcrumbItems = [
-    { 
-      path: '/', 
-      label: breadcrumbLabels 
-        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
-        : `${t('pages.home.title')} > ${t('common.content')} >` 
-    }
+    {
+      path: '/',
+      label: breadcrumbLabels
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >`
+        : `${t('pages.home.title')} > ${t('common.content')} >`,
+    },
   ];
 
   return (
-    <main className='authors'>
+    <main className="authors">
       <PageTitle title={breadcrumbLabels?.authors || t('pages.authors.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.authors || t('pages.authors.title')} lang={lang} />
-      <h1 className='authors-title'>{breadcrumbLabels?.authors || t('pages.authors.title')}</h1>
+      <Breadcrumb
+        parents={breadcrumbItems}
+        crumbLabel={breadcrumbLabels?.authors || t('pages.authors.title')}
+        lang={lang}
+      />
+      <h1 className="authors-title">{breadcrumbLabels?.authors || t('pages.authors.title')}</h1>
       {getAuthorsCount()}
-      <div className='authors-filters'>
-          <div className="authors-filters-tags">
-            {taggedFilters.map((filter, index) => (
-              <Tag key={index} text={filter.value === 'others' ? (countLabels?.others || t('pages.authors.others')) : filter.value} onCloseCallback={(): void => onCloseTaggedFilter(filter.type)}/>
-            ))}
-            {taggedFilters.length > 0 ? (
-              <div className="authors-filters-tags-clear" onClick={clearTaggedFilters}>{t('common.filters.clearAll')}</div>
-            ) : (
-              <div className="authors-filters-tags-clear"></div>
-            )}
-          </div>
+      <div className="authors-filters">
+        <div className="authors-filters-tags">
+          {taggedFilters.map((filter, index) => (
+            <Tag
+              key={index}
+              text={
+                filter.value === 'others'
+                  ? countLabels?.others || t('pages.authors.others')
+                  : filter.value
+              }
+              onCloseCallback={(): void => onCloseTaggedFilter(filter.type)}
+            />
+          ))}
+          {taggedFilters.length > 0 ? (
+            <div className="authors-filters-tags-clear" onClick={clearTaggedFilters}>
+              {t('common.filters.clearAll')}
+            </div>
+          ) : (
+            <div className="authors-filters-tags-clear"></div>
+          )}
         </div>
-      <div className='authors-content'>
-        <AuthorsSidebar t={t} search={searchValue} onSearchCallback={onSearch} activeLetter={activeLetter} onSetActiveLetterCallback={onSetActiveLetter} />
-        <div className='authors-content-results'>
-          <div className='authors-content-results-paginationTop'>
+      </div>
+      <div className="authors-content">
+        <AuthorsSidebar
+          t={t}
+          search={searchValue}
+          onSearchCallback={onSearch}
+          activeLetter={activeLetter}
+          onSetActiveLetterCallback={onSetActiveLetter}
+        />
+        <div className="authors-content-results">
+          <div className="authors-content-results-paginationTop">
             <Pagination
               currentPage={currentPage}
               itemsPerPage={AUTHORS_PER_PAGE}
@@ -279,23 +352,27 @@ export default function AuthorsClient({
             />
           </div>
           {isLoading ? (
-            <div className='authors-content-loader'>
+            <div className="authors-content-loader">
               <Loader />
             </div>
           ) : (
-            <div className='authors-content-results-cards'>
+            <div className="authors-content-results-cards">
               {authors?.map((author, index) => (
                 <AuthorCard
                   key={index}
                   t={t}
                   author={author}
                   expandedCard={expandedAuthorIndex === index}
-                  setExpandedAuthorIndexCallback={(): void => expandedAuthorIndex !== index ? setExpandedAuthorIndex(index) : setExpandedAuthorIndex(-1)}
+                  setExpandedAuthorIndexCallback={(): void =>
+                    expandedAuthorIndex !== index
+                      ? setExpandedAuthorIndex(index)
+                      : setExpandedAuthorIndex(-1)
+                  }
                 />
               ))}
             </div>
           )}
-          <div className='authors-content-results-paginationBottom'>
+          <div className="authors-content-results-paginationBottom">
             <Pagination
               currentPage={currentPage}
               itemsPerPage={AUTHORS_PER_PAGE}
@@ -305,7 +382,15 @@ export default function AuthorsClient({
           </div>
         </div>
       </div>
-      {expandedAuthorIndex >= 0 && <AuthorDetailsSidebar language={i18nState.language} t={t} rvcode={rvcode} expandedAuthor={getExpandedAuthor()} onCloseDetailsCallback={onCloseDetails} />}
+      {expandedAuthorIndex >= 0 && (
+        <AuthorDetailsSidebar
+          language={i18nState.language}
+          t={t}
+          rvcode={rvcode}
+          expandedAuthor={getExpandedAuthor()}
+          onCloseDetailsCallback={onCloseDetails}
+        />
+      )}
     </main>
   );
 }

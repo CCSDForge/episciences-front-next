@@ -14,7 +14,9 @@ export const metadata: Metadata = {
 
 const SECTIONS_PER_PAGE = 10;
 
-export default async function SectionsPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
+export default async function SectionsPage(props: {
+  params: Promise<{ lang: string; journalId: string }>;
+}) {
   // Dynamic rendering: client-side pagination
   await connection();
 
@@ -24,14 +26,14 @@ export default async function SectionsPage(props: { params: Promise<{ lang: stri
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
-    
+
     const [sectionsData, translations] = await Promise.all([
       fetchSections({
         rvcode: journalId,
         page: 1,
-        itemsPerPage: SECTIONS_PER_PAGE
+        itemsPerPage: SECTIONS_PER_PAGE,
       }),
-      getServerTranslations(lang)
+      getServerTranslations(lang),
     ]);
 
     const breadcrumbLabels = {
@@ -39,7 +41,7 @@ export default async function SectionsPage(props: { params: Promise<{ lang: stri
       content: t('common.content', translations),
       sections: t('pages.sections.title', translations),
     };
-    
+
     return (
       <SectionsClient
         initialSections={sectionsData}
@@ -53,4 +55,3 @@ export default async function SectionsPage(props: { params: Promise<{ lang: stri
     return <div>Failed to load sections</div>;
   }
 }
- 

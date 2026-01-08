@@ -59,8 +59,8 @@ export function useClientSideFetch<T>({
   // Éviter les double-fetch en mode strict
   const hasFetched = useRef(false);
 
-  const performFetch = async () => {
-    if (!enabled) return;
+  const performFetch = async (force = false) => {
+    if (!enabled && !force) return;
 
     try {
       setIsUpdating(true);
@@ -78,7 +78,10 @@ export function useClientSideFetch<T>({
       setError(error);
 
       // Log l'erreur pour debug, mais ne pas casser l'UI
-      console.warn('[useClientSideFetch] Fetch failed, using static data as fallback:', error.message);
+      console.warn(
+        '[useClientSideFetch] Fetch failed, using static data as fallback:',
+        error.message
+      );
 
       // Appeler le callback d'erreur si fourni
       if (onError) {
@@ -110,6 +113,6 @@ export function useClientSideFetch<T>({
     data,
     isUpdating,
     error,
-    refetch: performFetch,
+    refetch: () => performFetch(true),
   };
 }

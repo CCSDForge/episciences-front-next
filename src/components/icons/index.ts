@@ -76,11 +76,7 @@ export type { ArrowRightIconProps } from './navigation/ArrowRightIcon';
 
 // Download Icon (3 variants)
 export { default as DownloadIcon } from './actions/DownloadIcon';
-export {
-  DownloadRedIcon,
-  DownloadBlueIcon,
-  DownloadBlackIcon,
-} from './actions/DownloadIcon';
+export { DownloadRedIcon, DownloadBlueIcon, DownloadBlackIcon } from './actions/DownloadIcon';
 export type { DownloadIconProps } from './actions/DownloadIcon';
 
 // Share Icon
@@ -99,10 +95,7 @@ export type { ExternalLinkIconProps } from './actions/ExternalLinkIcon';
 
 // Quote Icon (2 variants)
 export { default as QuoteIcon } from './actions/QuoteIcon';
-export {
-  QuoteRedIcon,
-  QuoteBlackIcon,
-} from './actions/QuoteIcon';
+export { QuoteRedIcon, QuoteBlackIcon } from './actions/QuoteIcon';
 export type { QuoteIconProps } from './actions/QuoteIcon';
 
 // ============================================================
@@ -119,18 +112,12 @@ export type { SearchIconProps } from './ui/SearchIcon';
 
 // Close Icon (2 variants)
 export { default as CloseIcon } from './ui/CloseIcon';
-export {
-  CloseRedIcon,
-  CloseBlackIcon,
-} from './ui/CloseIcon';
+export { CloseRedIcon, CloseBlackIcon } from './ui/CloseIcon';
 export type { CloseIconProps } from './ui/CloseIcon';
 
 // File Icon (2 variants)
 export { default as FileIcon } from './ui/FileIcon';
-export {
-  FileGreyIcon,
-  FileBlueIcon,
-} from './ui/FileIcon';
+export { FileGreyIcon, FileBlueIcon } from './ui/FileIcon';
 export type { FileIconProps } from './ui/FileIcon';
 
 // User Icon
@@ -183,10 +170,7 @@ export type { FilterIconProps } from './ui/FilterIcon';
 
 // List Icon (2 variants)
 export { default as ListIcon } from './ui/ListIcon';
-export {
-  ListGreyIcon,
-  ListRedIcon,
-} from './ui/ListIcon';
+export { ListGreyIcon, ListRedIcon } from './ui/ListIcon';
 export type { ListIconProps } from './ui/ListIcon';
 
 // Tag Icon
@@ -195,10 +179,7 @@ export type { TagIconProps } from './ui/TagIcon';
 
 // Tile Icon (2 variants)
 export { default as TileIcon } from './ui/TileIcon';
-export {
-  TileGreyIcon,
-  TileRedIcon,
-} from './ui/TileIcon';
+export { TileGreyIcon, TileRedIcon } from './ui/TileIcon';
 export type { TileIconProps } from './ui/TileIcon';
 
 // Plus Circle Icon

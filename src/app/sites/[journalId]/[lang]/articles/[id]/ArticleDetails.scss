@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss" as breakpoints;
+@use '@/styles/breakpoints.scss' as breakpoints;
 .articleDetails {
   &-tag {
     width: fit-content;
@@ -10,13 +10,13 @@
     background: var(--primary);
     color: var(--primary-text);
   }
-  
+
   &-content {
     display: flex;
     gap: 60px;
     flex-direction: row-reverse;
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       gap: 20px;
       flex-direction: column;
     }
@@ -29,14 +29,14 @@
         font-size: 24px;
         margin-bottom: 8px;
 
-        @media (max-width:  breakpoints.$xsm) {
+        @media (max-width: breakpoints.$xsm) {
           display: none;
         }
 
         &-mobile {
           display: none;
 
-          @media (max-width:  breakpoints.$xsm) {
+          @media (max-width: breakpoints.$xsm) {
             display: block;
           }
         }
@@ -47,14 +47,14 @@
         font-size: 20px;
         margin-bottom: 40px;
 
-        @media (max-width:  breakpoints.$xsm) {
+        @media (max-width: breakpoints.$xsm) {
           display: none;
         }
 
         &-mobile {
           display: none;
 
-          @media (max-width:  breakpoints.$xsm) {
+          @media (max-width: breakpoints.$xsm) {
             display: block;
             margin-bottom: 0px;
             padding-bottom: 16px;
@@ -69,22 +69,22 @@
           padding-bottom: 8px;
           margin-bottom: 8px;
 
-          @media (max-width:  breakpoints.$xsm) {
+          @media (max-width: breakpoints.$xsm) {
             display: none;
           }
 
           &-caret {
             cursor: pointer;
 
-            @media (max-width:  breakpoints.$xsm) {
+            @media (max-width: breakpoints.$xsm) {
               align-self: flex-end;
             }
           }
 
           &-mobile {
             display: none;
-  
-            @media (max-width:  breakpoints.$xsm) {
+
+            @media (max-width: breakpoints.$xsm) {
               display: flex;
             }
           }
@@ -96,14 +96,14 @@
         font-size: 18px;
         margin-bottom: 40px;
 
-        @media (max-width:  breakpoints.$xsm) {
+        @media (max-width: breakpoints.$xsm) {
           display: none;
         }
 
         &-mobile {
           display: none;
 
-          @media (max-width:  breakpoints.$xsm) {
+          @media (max-width: breakpoints.$xsm) {
             display: block;
             margin-bottom: 0px;
             padding-bottom: 16px;
@@ -120,40 +120,41 @@
 
       &-section {
         margin-bottom: 40px;
-    
+
         &-title {
           display: flex;
           justify-content: space-between;
           gap: 8px;
           border-bottom: 1px solid var(--primary);
           cursor: pointer;
-    
+
           &-closed {
             width: 100px;
           }
-    
+
           &-text {
             font-size: 24px;
             font-weight: bold;
             color: var(--primary);
 
-            @media (max-width:  breakpoints.$sm) {
+            @media (max-width: breakpoints.$sm) {
               font-size: 17px;
             }
           }
         }
-    
+
         &-content {
           display: none;
           font-size: 16px;
           margin-top: 8px;
 
-          ul li, ol li {
+          ul li,
+          ol li {
             max-width: 860px;
             margin-bottom: 15px;
             overflow-wrap: break-word;
           }
-    
+
           &-opened {
             width: 100%;
             display: block;
@@ -162,7 +163,6 @@
           &-graphicalAbstract {
             max-width: 100%;
           }
-
 
           &-preview {
             width: 100%;
@@ -216,12 +216,16 @@
               }
 
               &-img {
-                @media (max-width:  breakpoints.$xsm) {
+                @media (max-width: breakpoints.$xsm) {
                   width: 100%;
                 }
               }
 
-              &-markdown-link, &-uri, &-doi, &-arxiv, &-hal {
+              &-markdown-link,
+              &-uri,
+              &-doi,
+              &-arxiv,
+              &-hal {
                 text-decoration: underline;
               }
 
@@ -242,14 +246,14 @@
           }
           &-keywords {
             &-tag {
-                width: fit-content;
-                height: fit-content;
-                padding: 4px 8px 4px 8px;
-                margin-bottom: 20px;
-                font-size: 16px;
-                font-weight: 500;
-                background: var(--primary);
-                color: var(--primary-text);
+              width: fit-content;
+              height: fit-content;
+              padding: 4px 8px 4px 8px;
+              margin-bottom: 20px;
+              font-size: 16px;
+              font-weight: 500;
+              background: var(--primary);
+              color: var(--primary-text);
             }
           }
 
@@ -257,12 +261,12 @@
           .language-group {
             margin-bottom: 24px;
 
-            &[dir="rtl"] {
+            &[dir='rtl'] {
               text-align: right;
               direction: rtl;
             }
 
-            &[dir="ltr"] {
+            &[dir='ltr'] {
               text-align: left;
               direction: ltr;
             }
@@ -277,7 +281,6 @@
             background: var(--grey);
             color: var(--primary-text);
             border-radius: 4px;
-
           }
 
           .language-separator {
@@ -327,7 +330,10 @@
                     margin-bottom: 10px;
                   }
 
-                  &-source, &-authors, &-reference, &-doi {
+                  &-source,
+                  &-authors,
+                  &-reference,
+                  &-doi {
                     font-size: 15px;
                   }
 

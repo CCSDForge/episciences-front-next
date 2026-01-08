@@ -10,7 +10,11 @@ interface IAuthorsSearchInputProps {
   onChangeCallback: (search: string) => void;
 }
 
-export default function AuthorsSearchInput({ value, placeholder, onChangeCallback }: IAuthorsSearchInputProps): React.JSX.Element {
+export default function AuthorsSearchInput({
+  value,
+  placeholder,
+  onChangeCallback,
+}: IAuthorsSearchInputProps): React.JSX.Element {
   return (
     <div className="authorsSearchInput">
       <input
@@ -19,11 +23,7 @@ export default function AuthorsSearchInput({ value, placeholder, onChangeCallbac
         placeholder={placeholder}
         onChange={(e: ChangeEvent<HTMLInputElement>): void => onChangeCallback(e.target.value)}
       />
-      <SearchIcon
-        size={16}
-        className="authorsSearchInput-icon"
-        ariaLabel="Search"
-      />
+      <SearchIcon size={16} className="authorsSearchInput-icon" ariaLabel="Search" />
     </div>
-  )
-} 
+  );
+}

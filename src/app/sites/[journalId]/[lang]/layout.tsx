@@ -39,9 +39,7 @@ interface LanguageLayoutProps {
 export default async function LanguageLayout(props: LanguageLayoutProps) {
   const params = await props.params;
 
-  const {
-    children
-  } = props;
+  const { children } = props;
 
   // Extract and validate language from params
   const lang = getLanguageFromParams(params);
@@ -65,16 +63,16 @@ export default async function LanguageLayout(props: LanguageLayoutProps) {
         page: 1,
         itemsPerPage: 1,
         types: [],
-        years: []
+        years: [],
       }),
       getJournalByCode(journalId),
-      getServerTranslations(lang)
+      getServerTranslations(lang),
     ]);
 
     if (volumesData.data.length > 0) {
       initialVolume = volumesData.data[0];
     }
-    
+
     if (journalData) {
       initialJournal = journalData;
     }
@@ -87,10 +85,10 @@ export default async function LanguageLayout(props: LanguageLayoutProps) {
   }
 
   return (
-    <ClientProviders 
-      initialVolume={initialVolume} 
+    <ClientProviders
+      initialVolume={initialVolume}
       initialJournal={initialJournal}
-      initialLanguage={lang} 
+      initialLanguage={lang}
       journalId={journalId}
       translations={translations}
       apiEndpoint={apiEndpoint}
@@ -102,9 +100,7 @@ export default async function LanguageLayout(props: LanguageLayoutProps) {
         <HeaderServer lang={lang} journalId={journalId} />
       </HeaderClientWrapper>
       {/* Server-rendered content - visible in static HTML */}
-      <div className="main-content">
-        {children}
-      </div>
+      <div className="main-content">{children}</div>
       <FooterServer lang={lang} journalId={journalId} />
     </ClientProviders>
   );

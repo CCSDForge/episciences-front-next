@@ -1,21 +1,24 @@
-"use client";
+'use client';
 
 import { FilterIcon } from '@/components/icons';
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
-import { useAppSelector } from "@/hooks/store";
+import { useAppSelector } from '@/hooks/store';
 import { useFetchArticlesQuery } from '@/store/features/article/article.query';
-import { IArticle } from "@/types/article";
+import { IArticle } from '@/types/article';
 import { FetchedArticle, articleTypes } from '@/utils/article';
-import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
+import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
-import ArticleCard, { IArticleCard } from "@/components/Cards/ArticleCard/ArticleCard";
+import ArticleCard, { IArticleCard } from '@/components/Cards/ArticleCard/ArticleCard';
 import ArticlesMobileModal from '@/components/Modals/ArticlesMobileModal/ArticlesMobileModal';
-import ArticlesSidebar, { IArticleTypeSelection, IArticleYearSelection } from "@/components/Sidebars/ArticlesSidebar/ArticlesSidebar";
-import Pagination from "@/components/Pagination/Pagination";
-import Tag from "@/components/Tag/Tag";
+import ArticlesSidebar, {
+  IArticleTypeSelection,
+  IArticleYearSelection,
+} from '@/components/Sidebars/ArticlesSidebar/ArticlesSidebar';
+import Pagination from '@/components/Pagination/Pagination';
+import Tag from '@/components/Tag/Tag';
 import './Articles.scss';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
@@ -30,7 +33,7 @@ interface IArticleFilter {
 
 type EnhancedArticle = FetchedArticle & {
   openedAbstract: boolean;
-}
+};
 
 interface ArticlesClientProps {
   initialArticles: {
@@ -49,7 +52,12 @@ interface ArticlesClientProps {
   };
 }
 
-export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels, countLabels }: ArticlesClientProps): React.JSX.Element {
+export default function ArticlesClient({
+  initialArticles,
+  lang,
+  breadcrumbLabels,
+  countLabels,
+}: ArticlesClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
   // Synchroniser la langue avec le paramètre de l'URL
@@ -64,9 +72,9 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
 
   const ARTICLES_PER_PAGE = 10;
 
-  const language = useAppSelector(state => state.i18nReducer.language)
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code)
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name)
+  const language = useAppSelector(state => state.i18nReducer.language);
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
+  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Initialiser la page depuis les query params ou 1 par défaut
   const pageFromUrl = searchParams?.get('page');
@@ -75,18 +83,20 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
   const [enhancedArticles, setEnhancedArticles] = useState<EnhancedArticle[]>(() => {
     if (initialArticles?.data) {
       return initialArticles.data
-        .filter((article) => article && article.title)
-        .map((article) => ({ ...article, openedAbstract: false }));
+        .filter(article => article && article.title)
+        .map(article => ({ ...article, openedAbstract: false }));
     }
     return [];
   });
-  const [types, setTypes] = useState<IArticleTypeSelection[]>([])
+  const [types, setTypes] = useState<IArticleTypeSelection[]>([]);
   const [years, setYears] = useState<IArticleYearSelection[]>([]);
   const [taggedFilters, setTaggedFilters] = useState<IArticleFilter[]>([]);
-  const [showAllAbstracts, setShowAllAbstracts] = useState(false)
-  const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false)
+  const [showAllAbstracts, setShowAllAbstracts] = useState(false);
+  const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [totalArticlesCount, setTotalArticlesCount] = useState<number>(initialArticles?.totalItems || 0);
+  const [totalArticlesCount, setTotalArticlesCount] = useState<number>(
+    initialArticles?.totalItems || 0
+  );
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -100,19 +110,19 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
 
   const { data: articles, isFetching: isFetchingArticles } = useFetchArticlesQuery(
-    { 
-      rvcode: rvcode!, 
-      page: currentPage, 
-      itemsPerPage: ARTICLES_PER_PAGE, 
-      types: selectedTypes, 
-      years: selectedYears 
-    }, 
-    { 
-      skip: !rvcode || isStaticBuild, 
-      refetchOnMountOrArgChange: !isStaticBuild 
+    {
+      rvcode: rvcode!,
+      page: currentPage,
+      itemsPerPage: ARTICLES_PER_PAGE,
+      types: selectedTypes,
+      years: selectedYears,
+    },
+    {
+      skip: !rvcode || isStaticBuild,
+      refetchOnMountOrArgChange: !isStaticBuild,
     }
   );
-  
+
   // Synchroniser currentPage avec les query params
   useEffect(() => {
     const pageParam = searchParams?.get('page');
@@ -165,8 +175,8 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
   useEffect(() => {
     if (!isStaticBuild && articles) {
       const displayedArticles = articles?.data
-        .filter((article) => article?.title)
-        .map((article) => ({ ...article, openedAbstract: false }));
+        .filter(article => article?.title)
+        .map(article => ({ ...article, openedAbstract: false }));
 
       setTotalArticlesCount(articles.totalItems || 0);
       setEnhancedArticles(displayedArticles as EnhancedArticle[]);
@@ -175,23 +185,21 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
 
   useEffect(() => {
     if (initialArticles?.data && types.length === 0) {
-      const availableTypes = Array.from(new Set(
-        initialArticles.data
-          .map((article: any) => article.tag)
-          .filter(Boolean)
-      ));
-      
+      const availableTypes = Array.from(
+        new Set(initialArticles.data.map((article: any) => article.tag).filter(Boolean))
+      );
+
       const initTypes = availableTypes
-        .filter((t) => articleTypes.find((at) => at.value === t))
-        .map((t) => {
-          const matchingType = articleTypes.find((at) => at.value === t);
+        .filter(t => articleTypes.find(at => at.value === t))
+        .map(t => {
+          const matchingType = articleTypes.find(at => at.value === t);
           return {
             labelPath: matchingType!.labelPath,
             value: matchingType!.value,
-            isChecked: false
+            isChecked: false,
           };
         });
-      
+
       if (initTypes.length > 0) {
         setTypes(initTypes);
       }
@@ -200,40 +208,45 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
 
   useEffect(() => {
     if (initialArticles?.data && years.length === 0) {
-      const availableYears = Array.from(new Set(
-        initialArticles.data
-          .map((article: any) => {
-            if (article.publicationDate) {
-              return new Date(article.publicationDate).getFullYear();
-            }
-            return undefined;
-          })
-          .filter((year): year is number => year !== undefined)
-      )).sort((a, b) => b - a);
-      
-      const initYears = availableYears.map((y) => ({
+      const availableYears = Array.from(
+        new Set(
+          initialArticles.data
+            .map((article: any) => {
+              if (article.publicationDate) {
+                return new Date(article.publicationDate).getFullYear();
+              }
+              return undefined;
+            })
+            .filter((year): year is number => year !== undefined)
+        )
+      ).sort((a, b) => b - a);
+
+      const initYears = availableYears.map(y => ({
         year: y,
-        isChecked: false
+        isChecked: false,
       }));
-      
+
       if (initYears.length > 0) {
         setYears(initYears);
       }
     }
   }, [initialArticles, years]);
 
-  const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
-    const newPage = selectedItem.selected + 1;
-    if (pathname) {
-      router.push(`${pathname}?page=${newPage}`);
-    }
-    setCurrentPage(newPage);
-    // Scroll vers le haut de la page
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [pathname, router]);
+  const handlePageClick = useCallback(
+    (selectedItem: { selected: number }): void => {
+      const newPage = selectedItem.selected + 1;
+      if (pathname) {
+        router.push(`${pathname}?page=${newPage}`);
+      }
+      setCurrentPage(newPage);
+      // Scroll vers le haut de la page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    [pathname, router]
+  );
 
   const onCheckType = (value: string): void => {
-    const updatedTypes = types.map((t) => {
+    const updatedTypes = types.map(t => {
       if (t.value === value) {
         return { ...t, isChecked: !t.isChecked };
       }
@@ -246,10 +259,10 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
     if (pathname) {
       router.push(pathname); // Retour à la page 1
     }
-  }
+  };
 
   const onCheckYear = (year: number): void => {
-    const updatedYears = years.map((y) => {
+    const updatedYears = years.map(y => {
       if (y.year === year) {
         return { ...y, isChecked: !y.isChecked };
       }
@@ -262,12 +275,11 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
     if (pathname) {
       router.push(pathname); // Retour à la page 1
     }
-  }
-
+  };
 
   const onCloseTaggedFilter = (type: ArticleTypeFilter, value: string | number): void => {
     if (type === 'type') {
-      const updatedTypes = types.map((t) => {
+      const updatedTypes = types.map(t => {
         if (t.value === value) {
           return { ...t, isChecked: false };
         }
@@ -277,120 +289,143 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
 
       setTypes(updatedTypes);
     } else if (type === 'year') {
-      const updatedYears = years.map((y) => {
+      const updatedYears = years.map(y => {
         if (y.year === value) {
           return { ...y, isChecked: false };
         }
-  
+
         return y;
       });
-  
+
       setYears(updatedYears);
     }
-  }
+  };
 
   const clearTaggedFilters = (): void => {
-    const updatedTypes = types.map((t) => {
+    const updatedTypes = types.map(t => {
       return { ...t, isChecked: false };
     });
 
-    const updatedYears = years.map((y) => {
+    const updatedYears = years.map(y => {
       return { ...y, isChecked: false };
     });
 
     setTypes(updatedTypes);
     setYears(updatedYears);
     setTaggedFilters([]);
-  }
+  };
 
   useEffect(() => {
-    const initFilters: IArticleFilter[] = []
+    const initFilters: IArticleFilter[] = [];
 
-    types.filter((t) => t.isChecked).forEach((t) => {
-      initFilters.push({
-        type: 'type',
-        value: t.value,
-        labelPath: t.labelPath
-      })
-    })
+    types
+      .filter(t => t.isChecked)
+      .forEach(t => {
+        initFilters.push({
+          type: 'type',
+          value: t.value,
+          labelPath: t.labelPath,
+        });
+      });
 
-    years.filter((y) => y.isChecked).forEach((y) => {
-      initFilters.push({
-        type: 'year',
-        value: y.year,
-        label: y.year
-      })
-    })
+    years
+      .filter(y => y.isChecked)
+      .forEach(y => {
+        initFilters.push({
+          type: 'year',
+          value: y.year,
+          label: y.year,
+        });
+      });
 
-    setTaggedFilters(initFilters)
-  }, [types, years])
+    setTaggedFilters(initFilters);
+  }, [types, years]);
 
   const toggleAbstract = (articleId?: number): void => {
-    if (!articleId) return
+    if (!articleId) return;
 
-    const updatedArticles = enhancedArticles.map((article) => {
+    const updatedArticles = enhancedArticles.map(article => {
       if (article?.id === articleId) {
         return {
           ...article,
-          openedAbstract: !article.openedAbstract
-        }
+          openedAbstract: !article.openedAbstract,
+        };
       }
 
       return { ...article };
     });
 
-    setEnhancedArticles(updatedArticles)
-  }
+    setEnhancedArticles(updatedArticles);
+  };
 
   const toggleAllAbstracts = (): void => {
-    const isShown = !showAllAbstracts
+    const isShown = !showAllAbstracts;
 
-    const updatedArticles = enhancedArticles.map((article) => ({
+    const updatedArticles = enhancedArticles.map(article => ({
       ...article,
-      openedAbstract: isShown
+      openedAbstract: isShown,
     }));
 
-    setEnhancedArticles(updatedArticles)
-    setShowAllAbstracts(isShown)
-  }
+    setEnhancedArticles(updatedArticles);
+    setShowAllAbstracts(isShown);
+  };
 
   const breadcrumbItems = [
-    { 
-      path: '/', 
-      label: breadcrumbLabels 
-        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >` 
-        : `${t('pages.home.title')} > ${t('common.content')} >` 
-    }
+    {
+      path: '/',
+      label: breadcrumbLabels
+        ? `${breadcrumbLabels.home} > ${breadcrumbLabels.content} >`
+        : `${t('pages.home.title')} > ${t('common.content')} >`,
+    },
   ];
 
   return (
-    <main className='articles'>
+    <main className="articles">
       <PageTitle title={breadcrumbLabels?.articles || t('pages.articles.title')} />
 
-      <Breadcrumb parents={breadcrumbItems} crumbLabel={breadcrumbLabels?.articles || t('pages.articles.title')} lang={lang} />
+      <Breadcrumb
+        parents={breadcrumbItems}
+        crumbLabel={breadcrumbLabels?.articles || t('pages.articles.title')}
+        lang={lang}
+      />
 
-      <div className='articles-title'>
-        <h1 className='articles-title-text'>{breadcrumbLabels?.articles || t('pages.articles.title')}</h1>
-        <div className='articles-title-count'>
+      <div className="articles-title">
+        <h1 className="articles-title-text">
+          {breadcrumbLabels?.articles || t('pages.articles.title')}
+        </h1>
+        <div className="articles-title-count">
           {totalArticlesCount > 1 ? (
-            <div className='articles-title-count-text'>{totalArticlesCount} {countLabels?.articles || t('common.articles')}</div>
+            <div className="articles-title-count-text">
+              {totalArticlesCount} {countLabels?.articles || t('common.articles')}
+            </div>
           ) : (
-            <div className='articles-title-count-text'>{totalArticlesCount} {countLabels?.article || t('common.article')}</div>
+            <div className="articles-title-count-text">
+              {totalArticlesCount} {countLabels?.article || t('common.article')}
+            </div>
           )}
           <div className="articles-title-count-filtersMobile">
-            <div className="articles-title-count-filtersMobile-tile" onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}>
-              <FilterIcon size={16} className="articles-title-count-filtersMobile-tile-icon" ariaLabel="Filters" />
+            <div
+              className="articles-title-count-filtersMobile-tile"
+              onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
+            >
+              <FilterIcon
+                size={16}
+                className="articles-title-count-filtersMobile-tile-icon"
+                ariaLabel="Filters"
+              />
               <div className="articles-title-count-filtersMobile-tile-text">
-                {taggedFilters.length > 0 ? `${t('common.filters.editFilters')} (${taggedFilters.length})` : `${t('common.filters.filter')}`}
+                {taggedFilters.length > 0
+                  ? `${t('common.filters.editFilters')} (${taggedFilters.length})`
+                  : `${t('common.filters.filter')}`}
               </div>
             </div>
             {openedFiltersMobileModal && (
-              <ArticlesMobileModal 
-                t={t} 
-                initialTypes={types} 
-                onUpdateTypesCallback={setTypes} 
-                initialYears={years} 
-                onUpdateYearsCallback={setYears} 
+              <ArticlesMobileModal
+                t={t}
+                initialTypes={types}
+                onUpdateTypesCallback={setTypes}
+                initialYears={years}
+                onUpdateYearsCallback={setYears}
                 onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
               />
             )}
@@ -402,9 +437,9 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
         {taggedFilters.length > 0 && (
           <div className="articles-filters-tags">
             {taggedFilters.map((filter, index) => (
-              <Tag 
-                key={index} 
-                text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()} 
+              <Tag
+                key={index}
+                text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
             ))}
@@ -418,23 +453,26 @@ export default function ArticlesClient({ initialArticles, lang, breadcrumbLabels
         </div>
       </div>
 
-      <div className="articles-filters-abstracts articles-filters-abstracts-mobile" onClick={toggleAllAbstracts}>
+      <div
+        className="articles-filters-abstracts articles-filters-abstracts-mobile"
+        onClick={toggleAllAbstracts}
+      >
         {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
       </div>
 
-      <div className='articles-content'>
-        <div className='articles-content-results'>
-          <ArticlesSidebar 
-            t={t} 
-            types={types} 
-            onCheckTypeCallback={onCheckType} 
-            years={years} 
-            onCheckYearCallback={onCheckYear} 
+      <div className="articles-content">
+        <div className="articles-content-results">
+          <ArticlesSidebar
+            t={t}
+            types={types}
+            onCheckTypeCallback={onCheckType}
+            years={years}
+            onCheckYearCallback={onCheckYear}
           />
           {isMounted && isFetchingArticles && enhancedArticles.length === 0 ? (
             <Loader />
           ) : (
-            <div className='articles-content-results-cards'>
+            <div className="articles-content-results-cards">
               {enhancedArticles.map((article, index) => (
                 <ArticleCard
                   key={index}

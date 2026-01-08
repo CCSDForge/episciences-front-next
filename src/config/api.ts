@@ -1,5 +1,6 @@
 // Use the API root endpoint directly since it already includes /api
-export const API_URL = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api-preprod.episciences.org/api'
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api-preprod.episciences.org/api';
 
 export const API_PATHS = {
   papers: '/papers/',
@@ -16,6 +17,6 @@ export const API_PATHS = {
   indexation: '/pages/',
   journals: '/journals/',
   browse: '/browse/',
-  sections: '/sections'
+  sections: '/sections',
   // Ajoutez d'autres chemins API au besoin
-}; 
+};

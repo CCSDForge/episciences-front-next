@@ -1,28 +1,40 @@
-import { IVolume, IVolumeMetadata, IVolumeSettingsProceeding, RawVolume, RawVolumeMetadata } from '@/types/volume';
+import {
+  IVolume,
+  IVolumeMetadata,
+  IVolumeSettingsProceeding,
+  RawVolume,
+  RawVolumeMetadata,
+} from '@/types/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { PaginatedResponseWithCount, Range } from '@/utils/pagination';
 import { API_URL } from '@/config/api';
 import { getJournalCode } from './journal';
 import { getJournalApiUrl } from '@/utils/env-loader';
 
-export const formatVolume = (rvcode: string, language: AvailableLanguage, volume: RawVolume): IVolume => {
+export const formatVolume = (
+  rvcode: string,
+  language: AvailableLanguage,
+  volume: RawVolume
+): IVolume => {
   let metadatas: IVolumeMetadata[] = [];
   let tileImageURL = undefined;
-  
+
   if (volume.metadata && volume.metadata.length) {
-    metadatas = volume.metadata.map((meta) => formatVolumeMetadata(meta))
+    metadatas = volume.metadata.map(meta => formatVolumeMetadata(meta));
 
     if (metadatas.length > 0) {
-      const tileFile = metadatas.find(metadata => metadata.file && metadata.title && metadata.title[language] === 'tile')?.file
+      const tileFile = metadatas.find(
+        metadata => metadata.file && metadata.title && metadata.title[language] === 'tile'
+      )?.file;
       if (tileFile) {
-        tileImageURL = `https://${rvcode}.episciences.org/public/volumes/${volume.vid}/${tileFile}`
+        tileImageURL = `https://${rvcode}.episciences.org/public/volumes/${volume.vid}/${tileFile}`;
       }
     }
   }
 
-  let settingsProceeding: IVolumeSettingsProceeding[] = []
+  let settingsProceeding: IVolumeSettingsProceeding[] = [];
   if (volume.settings_proceeding && volume.settings_proceeding.length) {
-    settingsProceeding = volume.settings_proceeding
+    settingsProceeding = volume.settings_proceeding;
   }
 
   return {
@@ -37,9 +49,9 @@ export const formatVolume = (rvcode: string, language: AvailableLanguage, volume
     downloadLink: `https://${rvcode}.episciences.org/volumes-full/${volume.vid}/${volume.vid}.pdf`,
     metadatas: metadatas,
     tileImageURL,
-    settingsProceeding: settingsProceeding
-  }
-}
+    settingsProceeding: settingsProceeding,
+  };
+};
 
 export const formatVolumeMetadata = (metadata: RawVolumeMetadata): IVolumeMetadata => {
   return {
@@ -48,13 +60,13 @@ export const formatVolumeMetadata = (metadata: RawVolumeMetadata): IVolumeMetada
     content: metadata.content,
     file: metadata.file,
     createdAt: metadata.date_creation,
-    updatedAt: metadata.date_updated
-  }
-}
+    updatedAt: metadata.date_updated,
+  };
+};
 
 export enum VOLUME_TYPE {
   SPECIAL_ISSUE = 'special_issue',
-  PROCEEDINGS = 'proceedings'
+  PROCEEDINGS = 'proceedings',
 }
 
 interface FetchVolumesParams {
@@ -66,58 +78,65 @@ interface FetchVolumesParams {
   types?: VOLUME_TYPE[] | string[];
 }
 
-export async function fetchVolumes({ 
-  rvcode, 
-  language, 
-  page, 
-  itemsPerPage, 
+export async function fetchVolumes({
+  rvcode,
+  language,
+  page,
+  itemsPerPage,
   years,
-  types 
-}: FetchVolumesParams): Promise<{ data: IVolume[], totalItems: number, articlesCount?: number, range?: Range }> {
+  types,
+}: FetchVolumesParams): Promise<{
+  data: IVolume[];
+  totalItems: number;
+  articlesCount?: number;
+  range?: Range;
+}> {
   try {
     const params = new URLSearchParams({
       page: page.toString(),
       itemsPerPage: itemsPerPage.toString(),
     });
 
-  if (language) {
-    params.append('language', language);
-  }
+    if (language) {
+      params.append('language', language);
+    }
 
-  if (types && types.length > 0) {
-    params.append('types', types.join(','));
-  }
+    if (types && types.length > 0) {
+      params.append('types', types.join(','));
+    }
 
-  if (years && years.length > 0) {
-    years.forEach(year => params.append('years[]', year.toString()));
-  }
+    if (years && years.length > 0) {
+      years.forEach(year => params.append('years[]', year.toString()));
+    }
 
-  const apiUrl = getJournalApiUrl(rvcode);
-  const response = await fetch(`${apiUrl}/volumes?${params.toString()}&rvcode=${rvcode}`, {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-    },
-    next: { tags: ['volumes', `volumes-${rvcode}`] }
-  });
+    const apiUrl = getJournalApiUrl(rvcode);
+    const response = await fetch(`${apiUrl}/volumes?${params.toString()}&rvcode=${rvcode}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      next: { tags: ['volumes', `volumes-${rvcode}`] },
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
       throw new Error('Failed to fetch volumes');
     }
 
     const data = await response.json();
-    const members = Array.isArray(data) ? data : (data['hydra:member'] || []);
-    
-    const formattedRange = data['hydra:range'] ? {
-      types: Array.isArray(data['hydra:range'].types) ? data['hydra:range'].types : [],
-      years: Array.isArray(data['hydra:range'].year) ? data['hydra:range'].year : []
-    } : undefined;
+    const members = Array.isArray(data) ? data : data['hydra:member'] || [];
+
+    const formattedRange = data['hydra:range']
+      ? {
+          types: Array.isArray(data['hydra:range'].types) ? data['hydra:range'].types : [],
+          years: Array.isArray(data['hydra:range'].year) ? data['hydra:range'].year : [],
+        }
+      : undefined;
 
     return {
       data: members.map((volume: RawVolume) => formatVolume(rvcode, language || 'fr', volume)),
       totalItems: data['hydra:totalItems'] || members.length,
       articlesCount: data['hydra:totalPublishedArticles'],
-      range: formattedRange
+      range: formattedRange,
     };
   } catch (error) {
     console.error('Error fetching volumes:', error);
@@ -127,28 +146,28 @@ export async function fetchVolumes({
       articlesCount: 0,
       range: {
         types: [],
-        years: []
-      }
+        years: [],
+      },
     };
   }
 }
 
-export const volumeTypes: { labelPath: string; value: string; }[] = [
+export const volumeTypes: { labelPath: string; value: string }[] = [
   { labelPath: 'pages.volumes.types.specialIssues', value: VOLUME_TYPE.SPECIAL_ISSUE },
-  { labelPath: 'pages.volumes.types.proceedings', value: VOLUME_TYPE.PROCEEDINGS }
-]
+  { labelPath: 'pages.volumes.types.proceedings', value: VOLUME_TYPE.PROCEEDINGS },
+];
 
 export interface Volume {
-  id: number
-  title: string
-  type: VOLUME_TYPE
-  year: number
-  number: string
-  description?: string
-  coverImage?: string
-  published: boolean
-  createdAt: string
-  updatedAt: string
+  id: number;
+  title: string;
+  type: VOLUME_TYPE;
+  year: number;
+  number: string;
+  description?: string;
+  coverImage?: string;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface FetchVolumeParams {
@@ -157,25 +176,29 @@ export interface FetchVolumeParams {
   language?: string;
 }
 
-export async function fetchVolume(rvcode: string, vid: number, language: string = 'fr'): Promise<IVolume | null> {
+export async function fetchVolume(
+  rvcode: string,
+  vid: number,
+  language: string = 'fr'
+): Promise<IVolume | null> {
   try {
     const apiUrl = getJournalApiUrl(rvcode);
     const response = await fetch(`${apiUrl}/volumes/${vid}?language=${language}&rvcode=${rvcode}`, {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
-      next: { tags: ['volumes', `volume-${vid}`, `volumes-${rvcode}`] }
+      next: { tags: ['volumes', `volume-${vid}`, `volumes-${rvcode}`] },
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch volume with id ${vid}`);
     }
-    
+
     const rawVolume = await response.json();
     return formatVolume(rvcode, language as AvailableLanguage, rawVolume);
   } catch (error) {
     console.error('Error fetching volume:', error);
     return null;
   }
-}; 
+}

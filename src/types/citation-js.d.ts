@@ -6,11 +6,14 @@
 declare module 'citation-js' {
   export class Cite {
     constructor(data: any, options?: any);
-    format(style: string, options?: {
-      format?: string;
-      template?: string;
-      lang?: string;
-    }): string;
+    format(
+      style: string,
+      options?: {
+        format?: string;
+        template?: string;
+        lang?: string;
+      }
+    ): string;
     data: any;
   }
   export default Cite;

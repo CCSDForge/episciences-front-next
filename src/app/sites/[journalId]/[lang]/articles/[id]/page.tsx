@@ -77,295 +77,139 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
     // Extract authors
     const authors = article.authors || [];
 
-        // Generate complete metadata using the utility function
+    // Generate complete metadata using the utility function
 
-        return generateArticleMetadata({
+    return generateArticleMetadata({
+      language,
 
-          language,
+      article,
 
-          article,
+      currentJournal,
 
-          currentJournal,
+      keywords,
 
-          keywords,
+      authors,
+    });
+  } catch (error) {
+    console.error(
+      `Erreur lors de la récupération des métadonnées de l'article ${params.id}:`,
+      error
+    );
 
-          authors
-
-        });
-
-      } catch (error) {
-
-        console.error(`Erreur lors de la récupération des métadonnées de l'article ${params.id}:`, error);
-
-        return {
-
-          title: 'Erreur lors du chargement de l\'article',
-
-        };
-
-      }
+    return {
+      title: "Erreur lors du chargement de l'article",
+    };
+  }
 }
-
-    
 
 export default async function ArticleDetailsPage(props: ArticleDetailsPageProps) {
   const params = await props.params;
 
+  try {
+    const { id, journalId } = params;
+
+    // Get language from params
+
+    const language = getLanguageFromParams(params);
+
+    // Fetch translations server-side
+
+    const translations = await getServerTranslations(language);
+
+    // Vérifier si nous avons un ID factice
+
+    if (id === 'no-articles-found') {
+      return (
+        <div className="error-message">
+          <h1>Aucun article disponible</h1>
+
+          <p>Page placeholder pour les détails d&apos;articles</p>
+        </div>
+      );
+    }
+
+    if (!journalId) {
+      throw new Error('journalId parameter is required');
+    }
+
+    // Fetch all data server-side for complete pre-rendering
+
+    const [article, metadataCSL, metadataBibTeX] = await Promise.all([
+      fetchArticle(id, journalId),
+
+      fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.CSL }).catch(
+        () => null
+      ),
+
+      fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.BIBTEX }).catch(
+        () => null
+      ),
+    ]);
+
+    // Fetch related volume if article has volumeId
+
+    let relatedVolume: IVolume | null = null;
+
+    if (article?.volumeId && journalId) {
       try {
+        relatedVolume = await fetchVolume(
+          journalId,
 
-        const { id, journalId } = params;
+          Number(article.volumeId),
 
-        // Get language from params
-
-        const language = getLanguageFromParams(params);
-
-    
-
-        // Fetch translations server-side
-
-        const translations = await getServerTranslations(language);
-
-    
-
-        // Vérifier si nous avons un ID factice
-
-        if (id === 'no-articles-found') {
-
-          return (
-
-            <div className="error-message">
-
-              <h1>Aucun article disponible</h1>
-
-              <p>Page placeholder pour les détails d&apos;articles</p>
-
-            </div>
-
-          );
-
-        }
-
-    
-
-        if (!journalId) {
-
-          throw new Error('journalId parameter is required');
-
-        }
-
-    
-
-            // Fetch all data server-side for complete pre-rendering
-
-    
-
-            const [article, metadataCSL, metadataBibTeX] = await Promise.all([
-
-    
-
-              fetchArticle(id, journalId),
-
-    
-
-              fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.CSL }).catch(() => null),
-
-    
-
-              fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.BIBTEX }).catch(() => null)
-
-    
-
-            ]);
-
-    
-
-        
-
-    
-
-        // Fetch related volume if article has volumeId
-
-        let relatedVolume: IVolume | null = null;
-
-                if (article?.volumeId && journalId) {
-
-                  try {
-
-                    relatedVolume = await fetchVolume(
-
-                      journalId,
-
-                      Number(article.volumeId),
-
-                      language
-
-                    );
-
-                  } catch (error) {
-
-        
-
-            console.error('Error fetching volume:', error);
-
-          }
-
-        }
-
-    
-
-                // Use server-side rendering for maximum pre-rendering
-
-    
-
-                if (article) {
-
-    
-
-                  return (
-
-    
-
-                    <ArticleDetailsServer
-
-    
-
-                      article={article as IArticle}
-
-    
-
-                      id={id}
-
-    
-
-                      relatedVolume={relatedVolume}
-
-    
-
-                      metadataCSL={metadataCSL}
-
-    
-
-                      metadataBibTeX={metadataBibTeX}
-
-    
-
-                      translations={translations}
-
-    
-
-                      language={language}
-
-    
-
-                    />
-
-    
-
-                  );
-
-    
-
-                }
-
-    
-
-        
-
-    
-
-                const breadcrumbLabels = {
-
-    
-
-                  home: t('pages.home.title', translations),
-
-    
-
-                  content: t('common.content', translations),
-
-    
-
-                  articles: t('pages.articles.title', translations),
-
-    
-
-                };
-
-    
-
-        
-
-    
-
-                // Fallback to client component if no article data
-
-    
-
-                return (
-
-    
-
-                  <ArticleDetailsClient
-
-    
-
-                    article={null}
-
-    
-
-                    id={id}
-
-    
-
-                    initialRelatedVolume={relatedVolume}
-
-    
-
-                    initialMetadataCSL={metadataCSL}
-
-    
-
-                    initialMetadataBibTeX={metadataBibTeX}
-
-    
-
-                    lang={language}
-
-    
-
-                    breadcrumbLabels={breadcrumbLabels}
-
-    
-
-                  />
-
-    
-
-                );
-
-    
-
-        
-
-        
-
-      } catch (error) {
-
-        console.error(`Erreur lors de la récupération de l'article ${params.id}:`, error);
-
-        return (
-
-          <div className="error-message">
-
-            <h1>Erreur lors du chargement de l&apos;article</h1>
-
-            <p>Impossible de charger les données de l&apos;article.</p>
-
-          </div>
-
+          language
         );
-
+      } catch (error) {
+        console.error('Error fetching volume:', error);
       }
-    } 
+    }
 
-     
+    // Use server-side rendering for maximum pre-rendering
+
+    if (article) {
+      return (
+        <ArticleDetailsServer
+          article={article as IArticle}
+          id={id}
+          relatedVolume={relatedVolume}
+          metadataCSL={metadataCSL}
+          metadataBibTeX={metadataBibTeX}
+          translations={translations}
+          language={language}
+        />
+      );
+    }
+
+    const breadcrumbLabels = {
+      home: t('pages.home.title', translations),
+
+      content: t('common.content', translations),
+
+      articles: t('pages.articles.title', translations),
+    };
+
+    // Fallback to client component if no article data
+
+    return (
+      <ArticleDetailsClient
+        article={null}
+        id={id}
+        initialRelatedVolume={relatedVolume}
+        initialMetadataCSL={metadataCSL}
+        initialMetadataBibTeX={metadataBibTeX}
+        lang={language}
+        breadcrumbLabels={breadcrumbLabels}
+      />
+    );
+  } catch (error) {
+    console.error(`Erreur lors de la récupération de l'article ${params.id}:`, error);
+
+    return (
+      <div className="error-message">
+        <h1>Erreur lors du chargement de l&apos;article</h1>
+
+        <p>Impossible de charger les données de l&apos;article.</p>
+      </div>
+    );
+  }
+}

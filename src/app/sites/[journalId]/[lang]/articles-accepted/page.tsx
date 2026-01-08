@@ -8,21 +8,22 @@ import { connection } from 'next/server';
 
 const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'));
 
-
 // Métadonnées pour la page
 export const metadata: Metadata = {
   title: 'Articles acceptés',
   description: 'Articles acceptés',
 };
 
-export default async function ArticlesAcceptedPage(props: { params: Promise<{ lang: string; journalId: string }> }) {
+export default async function ArticlesAcceptedPage(props: {
+  params: Promise<{ lang: string; journalId: string }>;
+}) {
   await connection();
 
   const params = await props.params;
   const { lang, journalId } = params;
   try {
     const ARTICLES_ACCEPTED_PER_PAGE = 10;
-    
+
     // Récupération dynamique des articles acceptés
     if (!journalId) {
       throw new Error('journalId is not defined');
@@ -34,9 +35,9 @@ export default async function ArticlesAcceptedPage(props: { params: Promise<{ la
         page: 1,
         itemsPerPage: ARTICLES_ACCEPTED_PER_PAGE,
         onlyAccepted: true,
-        types: []
+        types: [],
       }),
-      getServerTranslations(lang)
+      getServerTranslations(lang),
     ]);
 
     // S'assurer que les données sont correctement formatées pour le client
@@ -45,15 +46,17 @@ export default async function ArticlesAcceptedPage(props: { params: Promise<{ la
       totalItems: articlesAccepted.totalItems || 0,
       range: {
         // Vérification explicite de l'existence des types dans range
-        types: articlesAccepted.range && 'types' in articlesAccepted.range 
-          ? Array.isArray(articlesAccepted.range.types) 
-            ? articlesAccepted.range.types 
-            : []
-          : [],
-        years: articlesAccepted.range && Array.isArray(articlesAccepted.range.years) 
-          ? articlesAccepted.range.years 
-          : []
-      }
+        types:
+          articlesAccepted.range && 'types' in articlesAccepted.range
+            ? Array.isArray(articlesAccepted.range.types)
+              ? articlesAccepted.range.types
+              : []
+            : [],
+        years:
+          articlesAccepted.range && Array.isArray(articlesAccepted.range.years)
+            ? articlesAccepted.range.years
+            : [],
+      },
     };
 
     const breadcrumbLabels = {
@@ -82,4 +85,3 @@ export default async function ArticlesAcceptedPage(props: { params: Promise<{ la
     );
   }
 }
- 

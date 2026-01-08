@@ -1,1 +1,1 @@
-export const VOLUMES_PER_PAGE = 10; 
+export const VOLUMES_PER_PAGE = 10;

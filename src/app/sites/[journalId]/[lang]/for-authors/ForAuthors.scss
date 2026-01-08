@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss" as breakpoints;
+@use '@/styles/breakpoints.scss' as breakpoints;
 
 .forAuthors {
   &-title {
@@ -31,11 +31,13 @@
           }
         }
 
-        h2, h3 {
+        h2,
+        h3 {
           scroll-margin: 120px;
         }
 
-        h3, h4 {
+        h3,
+        h4 {
           margin: 0;
         }
 
@@ -63,11 +65,13 @@
           border-bottom: 1px solid var(--primary);
           cursor: pointer;
 
-          img, &-caret {
+          img,
+          &-caret {
             width: auto;
           }
 
-          &-text, &-caret {
+          &-text,
+          &-caret {
             display: block;
           }
         }
@@ -136,4 +140,4 @@
       }
     }
   }
-} 
+}

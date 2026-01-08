@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 .articlesMobileModal {
   position: absolute;
   left: 0px;
@@ -11,7 +11,7 @@
   flex-direction: column;
   color: var(--grey-dark);
 
-  @media (max-width:  breakpoints.$xsm) {
+  @media (max-width: breakpoints.$xsm) {
     top: 50px;
   }
 
@@ -23,7 +23,7 @@
     font-size: 18px;
     color: var(--primary);
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       padding: 0px 16px 12px 16px;
     }
 
@@ -32,7 +32,7 @@
       cursor: pointer;
     }
   }
-  
+
   &-tags {
     display: flex;
     flex-direction: column;
@@ -40,7 +40,7 @@
     margin-top: 15px;
     padding: 0px 40px 12px 40px;
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       padding: 0px 16px 12px 16px;
     }
 
@@ -64,11 +64,12 @@
   &-filters {
     padding: 0px 40px 12px 40px;
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       padding: 0px 16px 12px 16px;
     }
 
-    &-types, &-years {
+    &-types,
+    &-years {
       padding: 20px 0px 20px 0px;
 
       &-title {
@@ -93,16 +94,16 @@
           color: var(--grey);
           cursor: pointer;
         }
-  
+
         &-choice {
           display: flex;
           gap: 18px;
           font-weight: 500;
           font-size: 16px;
-  
+
           &-label {
             cursor: pointer;
-  
+
             &-checked {
               color: var(--black);
             }
@@ -118,11 +119,11 @@
     left: 40px;
     right: 40px;
 
-    @media (max-width:  breakpoints.$xsm) {
+    @media (max-width: breakpoints.$xsm) {
       left: 16px;
       right: 16px;
     }
-    
+
     .button {
       width: 100%;
       height: 40px;

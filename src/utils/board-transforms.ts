@@ -5,7 +5,11 @@
  * into the standardized IBoardMember interface.
  */
 
-import { IBoardMember, IBoardMemberAffiliation, IBoardMemberAssignedSection } from '@/services/board';
+import {
+  IBoardMember,
+  IBoardMemberAffiliation,
+  IBoardMemberAssignedSection,
+} from '@/services/board';
 
 /**
  * Raw board member data structure from the API
@@ -42,9 +46,10 @@ export interface RawBoardMember {
  */
 export function transformBoardMember(rawMember: RawBoardMember): IBoardMember {
   // Transform roles: flatten nested arrays and replace underscores with hyphens
-  const roles = (rawMember.roles && rawMember.roles.length > 0)
-    ? rawMember.roles[0].map((role: string) => role.replace(/_/g, '-'))
-    : [];
+  const roles =
+    rawMember.roles && rawMember.roles.length > 0
+      ? rawMember.roles[0].map((role: string) => role.replace(/_/g, '-'))
+      : [];
 
   // Parse social media links
   let twitter: string | undefined;
@@ -69,16 +74,16 @@ export function transformBoardMember(rawMember: RawBoardMember): IBoardMember {
     rawMember.additionalProfileInformation?.affiliations || []
   ).map(aff => ({
     label: aff.label || '',
-    rorId: aff.rorId || ''
+    rorId: aff.rorId || '',
   }));
 
   // Transform assigned sections
-  const assignedSections: IBoardMemberAssignedSection[] = (
-    rawMember.assignedSections || []
-  ).map(section => ({
-    sid: section.sid,
-    titles: section.titles || { en: '', fr: '' }
-  }));
+  const assignedSections: IBoardMemberAssignedSection[] = (rawMember.assignedSections || []).map(
+    section => ({
+      sid: section.sid,
+      titles: section.titles || { en: '', fr: '' },
+    })
+  );
 
   // Build the standardized member object
   return {
@@ -94,7 +99,7 @@ export function transformBoardMember(rawMember: RawBoardMember): IBoardMember {
     picture: rawMember.picture || '',
     twitter,
     mastodon,
-    website: rawMember.additionalProfileInformation?.webSites?.[0]
+    website: rawMember.additionalProfileInformation?.webSites?.[0],
   };
 }
 

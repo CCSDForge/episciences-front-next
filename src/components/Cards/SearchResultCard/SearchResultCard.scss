@@ -1,4 +1,4 @@
-@use "@/styles/breakpoints.scss";
+@use '@/styles/breakpoints.scss';
 
 .searchResultCard {
   display: flex;
@@ -7,7 +7,7 @@
   border: 1px solid var(--grey);
   border-bottom: 4px solid var(--primary);
 
-  @media (max-width:  breakpoints.$sm) {
+  @media (max-width: breakpoints.$sm) {
     padding: 25px;
   }
 
@@ -82,18 +82,19 @@
       justify-content: flex-end;
       align-items: flex-end;
 
-      @media (max-width:  breakpoints.$xsm) {
+      @media (max-width: breakpoints.$xsm) {
         gap: 8px;
       }
 
-      &-download, &-cite {
+      &-download,
+      &-cite {
         display: flex;
         gap: 4px;
         color: var(--primary);
         font-size: 13px;
 
         &-text {
-          @media (max-width:  breakpoints.$sm) {
+          @media (max-width: breakpoints.$sm) {
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 120px;
@@ -113,7 +114,7 @@
           &-displayed {
             display: block;
           }
-      
+
           &-links {
             cursor: pointer;
             display: flex;
@@ -125,10 +126,10 @@
             border: 1px solid var(--grey-light);
             box-shadow: 0px 3px 6px var(--grey);
             font-size: 14px;
-      
+
             span {
               cursor: pointer;
-      
+
               &:hover {
                 color: var(--grey-dark);
               }
