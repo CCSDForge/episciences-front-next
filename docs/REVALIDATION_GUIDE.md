@@ -49,10 +49,10 @@ To invalidate the cache, perform a **POST** request to `/api/revalidate`.
 
 ### Body Structure (JSON)
 
-| Field       | Required | Description                                                    |
-| ----------- | -------- | -------------------------------------------------------------- |
+| Field       | Required | Description                                                      |
+| ----------- | -------- | ---------------------------------------------------------------- |
 | `journalId` | **YES**  | The journal code (e.g., `epijinfo`). Used to validate the token. |
-| `tag`       | **YES**  | The cache tag to invalidate (see list below).                  |
+| `tag`       | **YES**  | The cache tag to invalidate (see list below).                    |
 
 ### Call Example (PHP / Symfony)
 
@@ -240,6 +240,20 @@ Update of figures on the Homepage.
     "tag": "stats-epijinfo"
   }
   ```
+
+### 🗺️ Sitemap (XML)
+
+The `sitemap.xml` is automatically generated and cached. It uses the same cache tags as the content lists.
+
+- **Automatic Update:**
+  - Invalidating `articles-{rvcode}` will update the sitemap with new articles.
+  - Invalidating `volumes-{rvcode}` will update the sitemap with new volumes.
+- **Specific Tag:** You can also force a sitemap-only update (though rarely needed).
+  - **Tag:** `sitemap-{rvcode}`
+  - **Action:**
+    ```json
+    { "journalId": "epijinfo", "tag": "sitemap-epijinfo" }
+    ```
 
 ---
 
