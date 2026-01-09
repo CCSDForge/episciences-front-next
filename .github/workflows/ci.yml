@@ -37,7 +37,7 @@ jobs:
 
       # Install dependencies using npm ci for clean install
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # Run ESLint to check code quality
       - name: Run linter
