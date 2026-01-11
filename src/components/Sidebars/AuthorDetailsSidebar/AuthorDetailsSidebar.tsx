@@ -3,7 +3,7 @@
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
-import { CloseRedIcon, CaretRightGreyIcon } from '@/components/icons';
+import { CloseBlackIcon, CaretRightGreyIcon } from '@/components/icons';
 
 import './AuthorDetailsSidebar.scss';
 import { PATHS } from '@/config/paths';
@@ -34,7 +34,7 @@ export default function AuthorDetailsSidebar({
 
   return (
     <div className="authorDetailsSidebar">
-      <CloseRedIcon
+      <CloseBlackIcon
         size={24}
         className="authorDetailsSidebar-close"
         ariaLabel="Close author details"

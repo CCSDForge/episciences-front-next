@@ -5,7 +5,7 @@ import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
-import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
 import {
   generateIdFromText,
@@ -19,6 +19,7 @@ import ForAuthorsSidebar, {
 } from '@/components/Sidebars/ForAuthorsSidebar/ForAuthorsSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
+import { BreadcrumbItem } from '@/utils/breadcrumbs';
 import '@/styles/transitions.scss';
 import './ForAuthors.scss';
 
@@ -48,8 +49,8 @@ interface ForAuthorsClientProps {
   prepareSubmissionPage: any;
   lang?: string;
   breadcrumbLabels?: {
-    home: string;
-    forAuthors: string;
+    parents: BreadcrumbItem[];
+    current: string;
   };
 }
 
@@ -62,7 +63,8 @@ export default function ForAuthorsClient({
 }: ForAuthorsClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
@@ -270,22 +272,15 @@ export default function ForAuthorsClient({
 
   // console.log('Render state:', { isLoading, pageSections, sidebarHeaders });
 
-  const breadcrumbItems = [
-    {
-      path: '/',
-      label: breadcrumbLabels ? `${breadcrumbLabels.home} >` : `${t('pages.home.title')} >`,
-    },
-  ];
-
   return (
     <main className="forAuthors">
       <Breadcrumb
-        parents={breadcrumbItems}
-        crumbLabel={breadcrumbLabels?.forAuthors || t('pages.forAuthors.title')}
+        parents={breadcrumbLabels?.parents || [{ path: '/', label: `${t('pages.home.title')} >` }]}
+        crumbLabel={breadcrumbLabels?.current || t('pages.forAuthors.title')}
         lang={lang}
       />
       <h1 className="forAuthors-title">
-        {breadcrumbLabels?.forAuthors || t('pages.forAuthors.title')}
+        {breadcrumbLabels?.current || t('pages.forAuthors.title')}
       </h1>
       {isLoading ? (
         <Loader />
@@ -339,13 +334,13 @@ export default function ForAuthorsClient({
                             {...props}
                           />
                           {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
-                            <CaretUpRedIcon
+                            <CaretUpBlackIcon
                               size={16}
                               className="forAuthors-content-body-section-subtitle-caret"
                               ariaLabel="Collapse section"
                             />
                           ) : (
-                            <CaretDownRedIcon
+                            <CaretDownBlackIcon
                               size={16}
                               className="forAuthors-content-body-section-subtitle-caret"
                               ariaLabel="Expand section"

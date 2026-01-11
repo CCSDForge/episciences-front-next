@@ -6,6 +6,7 @@ import {
   fetchPrepareSubmissionPage,
 } from '@/services/forAuthors';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { connection } from 'next/server';
 
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
@@ -50,8 +51,8 @@ export default async function ForAuthorsPage(props: {
   }
 
   const breadcrumbLabels = {
-    home: t('pages.home.title', translations),
-    forAuthors: t('pages.forAuthors.title', translations),
+    parents: getBreadcrumbHierarchy('/for-authors', translations),
+    current: t('pages.forAuthors.title', translations),
   };
 
   return (

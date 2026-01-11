@@ -1,6 +1,6 @@
 'use client';
 
-import { ExternalLinkRedIcon } from '@/components/icons';
+import { ExternalLinkBlackIcon } from '@/components/icons';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 
@@ -24,7 +24,7 @@ export default function JournalSection({
             a: ({ ...props }) => (
               <Link href={props.href!} target="_blank">
                 <span>{props.children?.toString()}</span>
-                <ExternalLinkRedIcon size={16} ariaLabel="External link" />
+                <ExternalLinkBlackIcon size={16} ariaLabel="External link" />
               </Link>
             ),
           }}

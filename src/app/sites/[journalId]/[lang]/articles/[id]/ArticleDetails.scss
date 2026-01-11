@@ -65,6 +65,7 @@
         &-withInstitutions {
           display: flex;
           justify-content: space-between;
+          align-items: center;
           border-bottom: 1px solid var(--grey-light);
           padding-bottom: 8px;
           margin-bottom: 8px;
@@ -124,6 +125,7 @@
         &-title {
           display: flex;
           justify-content: space-between;
+          align-items: center;
           gap: 8px;
           border-bottom: 1px solid var(--primary);
           cursor: pointer;

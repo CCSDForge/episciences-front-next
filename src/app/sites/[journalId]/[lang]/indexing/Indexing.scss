@@ -1,0 +1,24 @@
+@use '@/styles/breakpoints.scss' as breakpoints;
+
+// Specific styles for Indexing page - 3-column list layout
+.markdown-page {
+  &-content-body-section {
+    ul {
+      column-count: 3;
+      column-gap: 40px;
+
+      @media (max-width: 1200px) {
+        column-count: 2;
+      }
+
+      @media (max-width: 768px) {
+        column-count: 1;
+      }
+
+      li {
+        break-inside: avoid;
+        margin-bottom: 8px;
+      }
+    }
+  }
+}

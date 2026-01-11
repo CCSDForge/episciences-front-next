@@ -95,6 +95,7 @@
     &-title {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       cursor: pointer;
 
       &-text {
@@ -208,6 +209,7 @@
     &-title {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       cursor: pointer;
       border-bottom: 1px solid var(--grey-light);
       padding-bottom: 8px;

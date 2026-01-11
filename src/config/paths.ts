@@ -15,10 +15,15 @@ export const PATHS = {
   sections: '/sections',
   sectionDetails: '/sections/:id',
   about: 'about',
+  acknowledgements: 'acknowledgements',
+  indexing: 'indexing',
   credits: 'credits',
   news: 'news',
   statistics: '/statistics',
   forAuthors: 'for-authors',
+  ethicalCharter: 'ethical-charter',
+  forReviewers: 'for-reviewers',
+  forConferenceOrganisers: 'for-conference-organisers',
 } as const;
 
 export type PathsType = keyof typeof PATHS;

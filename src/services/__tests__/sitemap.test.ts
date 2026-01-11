@@ -61,9 +61,7 @@ describe('Sitemap Service', () => {
   describe('fetchAllVolumesForSitemap', () => {
     it('should transform API response to sitemap format', async () => {
       const mockResponse = {
-        'hydra:member': [
-          { vid: 1, date_updated: '2024-02-01', date_creation: '2024-01-01' },
-        ],
+        'hydra:member': [{ vid: 1, date_updated: '2024-02-01', date_creation: '2024-01-01' }],
       };
 
       (fetchWithRetry as any).mockResolvedValue({

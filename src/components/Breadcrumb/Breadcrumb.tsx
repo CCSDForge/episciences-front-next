@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { Link } from '@/components/Link/Link';
 import './Breadcrumb.scss';
 
@@ -17,17 +16,23 @@ export default function Breadcrumb({
   lang,
 }: IBreadcrumbProps): React.JSX.Element {
   return (
-    <div className="breadcrumb">
-      {parents.map((parent, index) => (
-        <Fragment key={index}>
-          <span className="breadcrumb-parent">
-            <Link href={`${parent.path}`} lang={lang}>
-              {parent.label}
-            </Link>
-          </span>{' '}
-        </Fragment>
-      ))}{' '}
-      <span className="breadcrumb-current">{crumbLabel}</span>
-    </div>
+    <nav className="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        {parents.map((parent, index) => (
+          <li key={index} className="breadcrumb-parent">
+            {parent.path === '#' ? (
+              <span>{parent.label}</span>
+            ) : (
+              <Link href={`${parent.path}`} lang={lang}>
+                {parent.label}
+              </Link>
+            )}
+          </li>
+        ))}
+        <li className="breadcrumb-current" aria-current="page">
+          {crumbLabel}
+        </li>
+      </ol>
+    </nav>
   );
 }

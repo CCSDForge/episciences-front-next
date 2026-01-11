@@ -102,11 +102,11 @@ export async function fetchVolumes({
     }
 
     if (types && types.length > 0) {
-      params.append('types', types.join(','));
+      types.forEach(type => params.append('type[]', type));
     }
 
     if (years && years.length > 0) {
-      years.forEach(year => params.append('years[]', year.toString()));
+      years.forEach(year => params.append('year[]', year.toString()));
     }
 
     const apiUrl = getJournalApiUrl(rvcode);
@@ -125,17 +125,37 @@ export async function fetchVolumes({
     const data = await response.json();
     const members = Array.isArray(data) ? data : data['hydra:member'] || [];
 
-    const formattedRange = data['hydra:range']
+    console.log(`fetchVolumes [${rvcode}] full data keys:`, Object.keys(data));
+    console.log(`fetchVolumes [${rvcode}] counts:`, {
+      totalItems: data['hydra:totalItems'],
+      totalPublishedArticles: data['hydra:totalPublishedArticles'],
+      membersLength: members.length
+    });
+
+    const rawRange = data['hydra:range'];
+    console.log(`fetchVolumes [${rvcode}] raw range:`, rawRange);
+
+    const formattedRange = rawRange
       ? {
-          types: Array.isArray(data['hydra:range'].types) ? data['hydra:range'].types : [],
-          years: Array.isArray(data['hydra:range'].year) ? data['hydra:range'].year : [],
+          types: Array.isArray(rawRange.types)
+            ? rawRange.types
+            : Array.isArray(rawRange.type)
+              ? rawRange.type
+              : [],
+          years: Array.isArray(rawRange.years)
+            ? rawRange.years
+            : Array.isArray(rawRange.year)
+              ? rawRange.year
+              : [],
         }
-      : undefined;
+      : { types: [], years: [] };
+
+    console.log(`fetchVolumes [${rvcode}] formatted range:`, formattedRange);
 
     return {
       data: members.map((volume: RawVolume) => formatVolume(rvcode, language || 'fr', volume)),
       totalItems: data['hydra:totalItems'] || members.length,
-      articlesCount: data['hydra:totalPublishedArticles'],
+      articlesCount: data['hydra:totalPublishedArticles'] || 0,
       range: formattedRange,
     };
   } catch (error) {

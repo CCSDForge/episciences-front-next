@@ -117,12 +117,16 @@ export type { CloseIconProps } from './ui/CloseIcon';
 
 // File Icon (2 variants)
 export { default as FileIcon } from './ui/FileIcon';
-export { FileGreyIcon, FileBlueIcon } from './ui/FileIcon';
+export { FileGreyIcon, FileBlueIcon, FileBlackIcon } from './ui/FileIcon';
 export type { FileIconProps } from './ui/FileIcon';
 
 // User Icon
 export { default as UserIcon } from './ui/UserIcon';
 export type { UserIconProps } from './ui/UserIcon';
+
+// Translate Icon
+export { default as TranslateIcon } from './ui/TranslateIcon';
+export type { TranslateIconProps } from './ui/TranslateIcon';
 
 // ============================================================
 // SOCIAL ICONS
@@ -170,7 +174,7 @@ export type { FilterIconProps } from './ui/FilterIcon';
 
 // List Icon (2 variants)
 export { default as ListIcon } from './ui/ListIcon';
-export { ListGreyIcon, ListRedIcon } from './ui/ListIcon';
+export { ListGreyIcon, ListRedIcon, ListBlackIcon } from './ui/ListIcon';
 export type { ListIconProps } from './ui/ListIcon';
 
 // Tag Icon
@@ -179,7 +183,7 @@ export type { TagIconProps } from './ui/TagIcon';
 
 // Tile Icon (2 variants)
 export { default as TileIcon } from './ui/TileIcon';
-export { TileGreyIcon, TileRedIcon } from './ui/TileIcon';
+export { TileGreyIcon, TileRedIcon, TileBlackIcon } from './ui/TileIcon';
 export type { TileIconProps } from './ui/TileIcon';
 
 // Plus Circle Icon

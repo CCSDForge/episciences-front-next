@@ -5,7 +5,7 @@ import { TFunction } from 'i18next';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setFooterVisibility } from '@/store/features/footer/footer.slice';
 import { AvailableLanguage } from '@/utils/i18n';
-import { CloseRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
+import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import Tag from '@/components/Tag/Tag';
@@ -338,7 +338,7 @@ export default function SearchResultsMobileModal({
     <div className="searchResultsMobileModal" ref={modalRef}>
       <div className="searchResultsMobileModal-title">
         <div className="searchResultsMobileModal-title-text">{t('common.filters.filter')}</div>
-        <CloseRedIcon
+        <CloseBlackIcon
           size={24}
           className="searchResultsMobileModal-title-close"
           ariaLabel="Close filters"

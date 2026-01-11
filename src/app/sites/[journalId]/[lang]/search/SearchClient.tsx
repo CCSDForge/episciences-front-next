@@ -83,7 +83,8 @@ export default function SearchClient({
 
   const SEARCH_RESULTS_PER_PAGE = 10;
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 

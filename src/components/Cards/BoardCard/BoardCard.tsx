@@ -9,14 +9,14 @@ import {
   AtIcon,
   TwitterIcon,
   MastodonIcon,
-  ExternalLinkRedIcon,
+  ExternalLinkBlackIcon,
 } from '@/components/icons';
 import { USER_PHOTO_BLUR } from '@/utils/image-placeholders';
 import './BoardCard.scss';
 
 import { IBoardMember } from '@/types/board';
 import { AvailableLanguage } from '@/utils/i18n';
-import { defaultBoardRole, getBoardRoles } from '@/utils/board';
+import { defaultBoardRole, getBoardRoles } from '@/services/board';
 
 interface IBoardCardProps {
   language: AvailableLanguage;
@@ -177,7 +177,7 @@ export default function BoardCard({
               >
                 <div className="boardCard-full-expanded-social-website">
                   <div>Website</div>
-                  <ExternalLinkRedIcon
+                  <ExternalLinkBlackIcon
                     size={16}
                     className="boardCard-full-expanded-social-website-img"
                     ariaLabel="External website"

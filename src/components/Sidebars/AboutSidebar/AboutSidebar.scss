@@ -4,6 +4,13 @@
   min-width: 265px;
   margin-top: 31px;
 
+  // Sticky positioning pour garder le sidebar visible lors du scroll
+  position: sticky;
+  top: 120px; // Espace pour le header fixe
+  align-self: flex-start; // Important pour sticky dans flexbox
+  max-height: calc(100vh - 140px); // Laisser un peu d'espace en bas
+  overflow-y: auto; // Scroll interne si le menu est trop long
+
   @media (max-width: breakpoints.$sm) {
     display: none;
   }
@@ -14,6 +21,7 @@
     &-title {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 15px;
       padding-bottom: 8px;
       border-bottom: 1px solid var(--grey-light);

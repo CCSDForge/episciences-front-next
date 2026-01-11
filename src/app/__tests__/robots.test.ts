@@ -21,7 +21,7 @@ describe('Robots.txt Generator', () => {
     const result = await robots();
 
     expect(result.sitemap).toBe('https://epijinfo.episciences.org/sitemap.xml');
-    
+
     // Cleanup
     process.env.NODE_ENV = originalEnv;
   });

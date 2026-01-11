@@ -8,6 +8,23 @@
     display: none;
   }
 
+  ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  li {
+    display: inline;
+
+    &:not(:last-child)::after {
+      content: ' ';
+      margin: 0 0.25rem;
+    }
+  }
+
   &-parent {
     color: var(--grey-light);
   }

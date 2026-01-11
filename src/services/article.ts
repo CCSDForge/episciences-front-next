@@ -287,7 +287,7 @@ export async function fetchArticleMetadata({
   type: METADATA_TYPE;
 }): Promise<string | null> {
   try {
-    const apiRoot = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '';
+    const apiRoot = getJournalApiUrl(rvcode);
     const response = await fetch(
       `${apiRoot}${API_PATHS.papers}export/${paperid}/${type}?code=${rvcode}`
     );

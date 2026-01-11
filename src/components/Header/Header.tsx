@@ -9,13 +9,14 @@ import { isMobileOnly } from 'react-device-detect';
 import {
   BurgerIcon,
   LogoTextIcon,
-  ArrowRightBlueIcon,
+  ArrowRightBlackIcon,
   ExternalLinkWhiteIcon,
 } from '@/components/icons';
 import './Header.scss';
 
 import { PATHS } from '@/config/paths';
 import { statisticsBlocksConfiguration } from '@/config/statistics';
+import { menuConfig, getVisibleMenuItems, processMenuItemPath } from '@/config/menu';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setSearch } from '@/store/features/search/search.slice';
 import { availableLanguages } from '@/utils/i18n';
@@ -23,6 +24,7 @@ import { VOLUME_TYPE } from '@/utils/volume';
 import Button from '@/components/Button/Button';
 import LanguageDropdown from '@/components/LanguageDropdown/LanguageDropdown';
 import HeaderSearchInput from '@/components/SearchInput/HeaderSearchInput/HeaderSearchInput';
+import HeaderDropdown from './HeaderDropdown';
 
 interface HeaderProps {
   currentJournal?: {
@@ -54,7 +56,11 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
 
   const [isSearching, setIsSearching] = useState(false);
   const [isReduced, setIsReduced] = useState(false);
-  const [showDropdown, setShowDropdown] = useState({ content: false, about: false });
+  const [showDropdown, setShowDropdown] = useState({
+    content: false,
+    about: false,
+    publish: false,
+  });
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const mobileMenuDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -92,7 +98,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   }, [reducedScrollPosition]);
 
   useEffect(() => {
-    setShowDropdown({ content: false, about: false });
+    setShowDropdown({ content: false, about: false, publish: false });
   }, [pathname]);
 
   const toggleDropdown = (menu: string, opened: boolean): void => {
@@ -128,9 +134,15 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
     config => config.render
   );
 
-  const shouldRenderMenuItem = (key: string): boolean => {
-    const envValue = process.env[`NEXT_PUBLIC_JOURNAL_MENU_${key}_RENDER`];
-    return envValue === undefined || envValue === 'true';
+  // Keyboard handler for burger menu
+  const handleBurgerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setShowMobileMenu(!showMobileMenu);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      setShowMobileMenu(false);
+    }
   };
 
   const getSubmitManagerLink = (): string | null => {
@@ -144,87 +156,55 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   const submitManagerLink = getSubmitManagerLink();
 
   const getPostHeaderLinks = (): React.JSX.Element => {
+    // Prepare visible menu items with dynamic path replacements
+    const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content).map(item =>
+      processMenuItemPath(item, {
+        lastVolumeId: lastVolume?.id?.toString() || '',
+      })
+    );
+    const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about);
+    const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish);
+    const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone);
+
     return (
       <>
         <div className="header-postheader-links">
-          <div
-            className="header-postheader-links-dropdown"
-            onMouseEnter={(): void => toggleDropdown('content', true)}
-            onMouseLeave={(): void => toggleDropdown('content', false)}
-          >
-            <div>
-              <span>{t('components.header.content')}</span>
-            </div>
-            {showDropdown.content && (
-              <div
-                className="header-postheader-links-dropdown-content"
-                onMouseLeave={(): void => toggleDropdown('content', false)}
-              >
-                <div
-                  className={`header-postheader-links-dropdown-content-links header-postheader-links-dropdown-content-links-large ${language === 'fr' && 'header-postheader-links-dropdown-content-links-large-fr'}`}
-                >
-                  <Link href={PATHS.articles}>{t('components.header.links.articles')}</Link>
-                  {shouldRenderMenuItem('ACCEPTED_ARTICLES') && (
-                    <Link href={PATHS.articlesAccepted}>
-                      {t('components.header.links.articlesAccepted')}
-                    </Link>
-                  )}
-                  {shouldRenderMenuItem('VOLUMES') && (
-                    <Link href={PATHS.volumes}>{t('components.header.links.volumes')}</Link>
-                  )}
-                  {shouldRenderMenuItem('LAST_VOLUME') && (
-                    <Link href={`${PATHS.volumes}/${lastVolume?.id}`}>
-                      {t('components.header.links.lastVolume')}
-                    </Link>
-                  )}
-                  {shouldRenderMenuItem('SECTIONS') && (
-                    <Link href={PATHS.sections}>{t('components.header.links.sections')}</Link>
-                  )}
-                  {shouldRenderMenuItem('SPECIAL_ISSUES') && (
-                    <Link href={`${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`}>
-                      {t('components.header.links.specialIssues')}
-                    </Link>
-                  )}
-                  {shouldRenderMenuItem('VOLUME_TYPE_PROCEEDINGS') && (
-                    <Link href={`${PATHS.volumes}?type=${VOLUME_TYPE.PROCEEDINGS}`}>
-                      {t('components.header.links.proceedings')}
-                    </Link>
-                  )}
-                  <Link href={PATHS.authors}>{t('components.header.links.authors')}</Link>
-                </div>
-              </div>
-            )}
-          </div>
-          <div
-            className="header-postheader-links-dropdown"
-            onMouseEnter={(): void => toggleDropdown('about', true)}
-            onMouseLeave={(): void => toggleDropdown('about', false)}
-          >
-            <div>
-              <span>{t('components.header.about')}</span>
-            </div>
-            {showDropdown.about && (
-              <div
-                className="header-postheader-links-dropdown-content"
-                onMouseLeave={(): void => toggleDropdown('about', false)}
-              >
-                <div className="header-postheader-links-dropdown-content-links">
-                  <Link href={PATHS.about}>{t('components.header.links.about')}</Link>
-                  {shouldRenderMenuItem('NEWS') && (
-                    <Link href={PATHS.news}>{t('components.header.links.news')}</Link>
-                  )}
-                  {shouldRenderStatistics && (
-                    <Link href={PATHS.statistics}>{t('components.header.links.statistics')}</Link>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          {shouldRenderMenuItem('BOARDS') && (
-            <Link href={PATHS.boards}>{t('components.header.links.boards')}</Link>
-          )}
-          {shouldRenderMenuItem('FOR_AUTHORS') && (
-            <Link href={PATHS.forAuthors}>{t('components.header.links.forAuthors')}</Link>
+          {/* CONTENT Dropdown */}
+          <HeaderDropdown
+            label={t('components.header.content')}
+            items={visibleContentItems}
+            isOpen={showDropdown.content}
+            onToggle={opened => toggleDropdown('content', opened)}
+            dropdownKey="content"
+            className={`dropdown-large ${language === 'fr' ? 'dropdown-large-fr' : ''}`}
+          />
+
+          {/* ABOUT Dropdown */}
+          <HeaderDropdown
+            label={t('components.header.about')}
+            items={visibleAboutItems}
+            isOpen={showDropdown.about}
+            onToggle={opened => toggleDropdown('about', opened)}
+            dropdownKey="about"
+          />
+
+          {/* Standalone items (BOARDS) */}
+          {visibleStandaloneItems.map(item => (
+            <Link key={item.key} href={item.path}>
+              {t(item.label)}
+            </Link>
+          ))}
+
+          {/* PUBLISH Dropdown - NEW - After Boards */}
+          {visiblePublishItems.length > 0 && (
+            <HeaderDropdown
+              label={t('components.header.publish')}
+              items={visiblePublishItems}
+              isOpen={showDropdown.publish}
+              onToggle={opened => toggleDropdown('publish', opened)}
+              dropdownKey="publish"
+              className="dropdown-publish"
+            />
           )}
         </div>
         <div
@@ -265,107 +245,87 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   };
 
   const getPostHeaderBurgerLinks = (): React.JSX.Element => {
-    if (showMobileMenu) {
-      return (
-        <div
-          className={`header-postheader-burger-content ${showMobileMenu ? 'header-postheader-burger-content-displayed' : ''}`}
-        >
-          <div className="header-postheader-burger-content-links">
-            <div className="header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered">
-              <div className="header-postheader-burger-content-links-section-links">
-                <span className="header-postheader-burger-content-links-section-links-title">
-                  {t('components.header.content')}
+    if (!showMobileMenu) return <></>;
+
+    // Prepare visible menu items with dynamic path replacements
+    const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content).map(item =>
+      processMenuItemPath(item, {
+        lastVolumeId: lastVolume?.id?.toString() || '',
+      })
+    );
+    const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about);
+    const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish);
+    const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone);
+
+    return (
+      <div
+        className={`header-postheader-burger-content ${showMobileMenu ? 'header-postheader-burger-content-displayed' : ''}`}
+      >
+        <div className="header-postheader-burger-content-links">
+          {/* CONTENT Section */}
+          <div className="header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered">
+            <div className="header-postheader-burger-content-links-section-links">
+              <span className="header-postheader-burger-content-links-section-links-title">
+                {t('components.header.content')}
+              </span>
+              {visibleContentItems.map(item => (
+                <span key={item.key} onTouchEnd={() => router.push(item.path)}>
+                  {t(item.label)}
                 </span>
-                <span onTouchEnd={(): void => router.push(PATHS.articles)}>
-                  {t('components.header.links.articles')}
-                </span>
-                {shouldRenderMenuItem('ACCEPTED_ARTICLES') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.articlesAccepted)}>
-                    {t('components.header.links.articlesAccepted')}
-                  </span>
-                )}
-                {shouldRenderMenuItem('VOLUMES') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.volumes)}>
-                    {t('components.header.links.volumes')}
-                  </span>
-                )}
-                {shouldRenderMenuItem('LAST_VOLUME') && (
-                  <span onTouchEnd={(): void => router.push(`${PATHS.volumes}/${lastVolume?.id}`)}>
-                    {t('components.header.links.lastVolume')}
-                  </span>
-                )}
-                {shouldRenderMenuItem('SECTIONS') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.sections)}>
-                    {t('components.header.links.sections')}
-                  </span>
-                )}
-                {shouldRenderMenuItem('SPECIAL_ISSUES') && (
-                  <span
-                    onTouchEnd={(): void =>
-                      router.push(`${PATHS.volumes}?type=${VOLUME_TYPE.SPECIAL_ISSUE}`)
-                    }
-                  >
-                    {t('components.header.links.specialIssues')}
-                  </span>
-                )}
-                {shouldRenderMenuItem('VOLUME_TYPE_PROCEEDINGS') && (
-                  <span
-                    onTouchEnd={(): void =>
-                      router.push(`${PATHS.volumes}?type=${VOLUME_TYPE.PROCEEDINGS}`)
-                    }
-                  >
-                    {t('components.header.links.proceedings')}
-                  </span>
-                )}
-                <span onTouchEnd={(): void => router.push(PATHS.authors)}>
-                  {t('components.header.links.authors')}
-                </span>
-              </div>
-            </div>
-            <div className="header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered">
-              <div className="header-postheader-burger-content-links-section-links">
-                <span className="header-postheader-burger-content-links-section-links-title">
-                  {t('components.header.about')}
-                </span>
-                <span onTouchEnd={(): void => router.push(PATHS.about)}>
-                  {t('components.header.links.about')}
-                </span>
-                {shouldRenderMenuItem('NEWS') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.news)}>
-                    {t('components.header.links.news')}
-                  </span>
-                )}
-                {shouldRenderStatistics && (
-                  <span onTouchEnd={(): void => router.push(PATHS.statistics)}>
-                    {t('components.header.links.statistics')}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="header-postheader-burger-content-links-section">
-              <div className="header-postheader-burger-content-links-section-links">
-                {shouldRenderMenuItem('BOARDS') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.boards)}>
-                    {t('components.header.links.boards')}
-                  </span>
-                )}
-                {shouldRenderMenuItem('FOR_AUTHORS') && (
-                  <span onTouchEnd={(): void => router.push(PATHS.forAuthors)}>
-                    {t('components.header.links.forAuthors')}
-                  </span>
-                )}
-              </div>
+              ))}
             </div>
           </div>
+
+          {/* ABOUT Section */}
+          <div className="header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered">
+            <div className="header-postheader-burger-content-links-section-links">
+              <span className="header-postheader-burger-content-links-section-links-title">
+                {t('components.header.about')}
+              </span>
+              {visibleAboutItems.map(item => (
+                <span key={item.key} onTouchEnd={() => router.push(item.path)}>
+                  {t(item.label)}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Standalone items (BOARDS) */}
+          {visibleStandaloneItems.length > 0 && (
+            <div className="header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered">
+              <div className="header-postheader-burger-content-links-section-links">
+                {visibleStandaloneItems.map(item => (
+                  <span key={item.key} onTouchEnd={() => router.push(item.path)}>
+                    {t(item.label)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* PUBLISH Section - NEW - After Boards */}
+          {visiblePublishItems.length > 0 && (
+            <div className="header-postheader-burger-content-links-section">
+              <div className="header-postheader-burger-content-links-section-links">
+                <span className="header-postheader-burger-content-links-section-links-title">
+                  {t('components.header.publish')}
+                </span>
+                {visiblePublishItems.map(item => (
+                  <span key={item.key} onTouchEnd={() => router.push(item.path)}>
+                    {t(item.label)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      );
-    }
-    return <></>;
+      </div>
+    );
   };
 
   if (isReduced) {
     return (
-      <header className="header header-reduced">
+      <header className="header header-reduced" role="banner">
         <div className="header-reduced-journal">
           <div className="header-reduced-journal-logo">
             <Link href={PATHS.home}>
@@ -386,24 +346,29 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
             </div>
           )}
         </div>
-        <div className="header-postheader" ref={mobileMenuDropdownRef}>
+        <nav className="header-postheader" ref={mobileMenuDropdownRef} aria-label="Main navigation">
           {isMobileOnly && (
             <div
               className="header-postheader-burger"
               onClick={(): void => setShowMobileMenu(!showMobileMenu)}
+              onKeyDown={handleBurgerKeyDown}
+              role="button"
+              aria-label="Toggle mobile menu"
+              aria-expanded={showMobileMenu}
+              tabIndex={0}
             >
               <BurgerIcon size={24} className="header-postheader-burger-icon" ariaLabel="Menu" />
               {getPostHeaderBurgerLinks()}
             </div>
           )}
           {getPostHeaderLinks()}
-        </div>
+        </nav>
       </header>
     );
   }
 
   return (
-    <header className="header">
+    <header className="header" role="banner">
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <Link href={getEpisciencesHomePageLink()} target="_blank" rel="noopener noreferrer">
@@ -413,7 +378,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
         <div className="header-preheader-links">
           <div className="header-preheader-links-access-mobile">
             <Link href={getJournalAccessLink()} target="_blank" rel="noopener noreferrer">
-              <ArrowRightBlueIcon size={16} ariaLabel="Access journals" />
+              <ArrowRightBlackIcon size={16} ariaLabel="Access journals" />
             </Link>
           </div>
           <Link
@@ -444,18 +409,23 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           {journalName || currentJournal?.name || defaultJournalTitle}
         </div>
       </div>
-      <div className="header-postheader" ref={mobileMenuDropdownRef}>
+      <nav className="header-postheader" ref={mobileMenuDropdownRef} aria-label="Main navigation">
         {isMobileOnly && (
           <div
             className="header-postheader-burger"
             onClick={(): void => setShowMobileMenu(!showMobileMenu)}
+            onKeyDown={handleBurgerKeyDown}
+            role="button"
+            aria-label="Toggle mobile menu"
+            aria-expanded={showMobileMenu}
+            tabIndex={0}
           >
             <BurgerIcon size={24} className="header-postheader-burger-icon" ariaLabel="Menu" />
             {getPostHeaderBurgerLinks()}
           </div>
         )}
         {getPostHeaderLinks()}
-      </div>
+      </nav>
     </header>
   );
 }

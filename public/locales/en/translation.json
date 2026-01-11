@@ -14,6 +14,7 @@
     "authorsFor": "authors for",
     "member": "member",
     "members": "members",
+    "editors": "Editors",
     "about": "About",
     "resultsFor": "results for",
     "resultFor": "result for",
@@ -86,6 +87,8 @@
       "journal": "Open Access journals",
       "content": "Articles & Issues",
       "about": "About",
+      "publish": "Publish",
+      "skipToMain": "Skip to main content",
       "links": {
         "openAccessJournals": "Open Access journals",
         "articlesAndIssues": "Articles & Issues",
@@ -101,11 +104,16 @@
         "proceedings": "Proceedings",
         "authors": "Authors",
         "about": "About",
+        "acknowledgements": "Acknowledgements",
+        "indexing": "Indexing",
         "theJournal": "The journal",
         "news": "News",
         "statistics": "Statistics",
         "boards": "Boards",
-        "forAuthors": "For authors"
+        "forAuthors": "For authors",
+        "ethicalCharter": "Ethical charter",
+        "forReviewers": "For reviewers",
+        "forConferenceOrganisers": "For conference organisers"
       },
       "search": {
         "placeholder": "search",
@@ -117,7 +125,9 @@
         "closeLabel": "Close search",
         "backAlt": "Back"
       },
-      "searchPlaceholder": "search"
+      "searchPlaceholder": "search",
+      "languageSelector": "Language selector",
+      "selectLanguage": "Select a language"
     },
     "footer": {
       "links": {
@@ -426,22 +436,48 @@
       "title": "Boards",
       "tableOfContents": "Table of contents",
       "types": {
+        "introductionBoard": "Boards presentation",
         "technicalBoard": "Technical board",
         "editorialBoard": "Editorial board",
         "scientificAdvisoryBoard": "Scientific advisory board",
-        "formerMember": "Former member"
+        "reviewersBoard": "Reviewers board",
+        "formerMember": "Former members",
+        "operatingCharterBoard": "Operating charter"
       },
       "roles": {
-        "member": "Member",
-        "guestEditor": "Guest editor",
-        "editor": "Editor",
         "chiefEditor": "Chief editor",
+        "managingEditor": "Managing editor",
+        "editor": "Editor",
+        "handlingEditor": "Handling editor",
+        "guestEditor": "Guest editor",
         "secretary": "Secretary",
+        "advisoryBoard": "Advisory board member",
+        "member": "Member",
         "formerMember": "Former member"
       }
     },
     "forAuthors": {
       "title": "For authors"
+    },
+    "acknowledgements": {
+      "title": "Acknowledgements",
+      "noContent": "No acknowledgements available for this journal."
+    },
+    "indexing": {
+      "title": "Indexing",
+      "noContent": "No indexing information available for this journal."
+    },
+    "ethicalCharter": {
+      "title": "Ethical Charter",
+      "noContent": "No ethical charter available for this journal."
+    },
+    "forReviewers": {
+      "title": "For Reviewers",
+      "noContent": "No information for reviewers available for this journal."
+    },
+    "forConferenceOrganisers": {
+      "title": "For Conference Organisers",
+      "noContent": "No information for conference organisers available for this journal."
     },
     "credits": {
       "title": "Credits"

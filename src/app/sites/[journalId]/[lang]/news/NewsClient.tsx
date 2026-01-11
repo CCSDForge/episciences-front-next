@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import {
   FilterIcon,
-  ListRedIcon,
+  ListBlackIcon,
   ListGreyIcon,
-  TileRedIcon,
+  TileBlackIcon,
   TileGreyIcon,
 } from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
@@ -51,7 +51,8 @@ export default function NewsClient({
 
   const NEWS_PER_PAGE = 10;
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
@@ -158,10 +159,10 @@ export default function NewsClient({
         <div className="news-title-icons">
           <div className="news-title-icons-icon" onClick={(): void => setMode(RENDERING_MODE.TILE)}>
             <div
-              className={`${mode === RENDERING_MODE.TILE ? 'news-title-icons-icon-row-red' : 'news-title-icons-icon-row'}`}
+              className={`${mode === RENDERING_MODE.TILE ? 'news-title-icons-icon-row-black' : 'news-title-icons-icon-row'}`}
             >
               {mode === RENDERING_MODE.TILE ? (
-                <TileRedIcon size={16} ariaLabel="Tile view" />
+                <TileBlackIcon size={16} ariaLabel="Tile view" />
               ) : (
                 <TileGreyIcon size={16} ariaLabel="Tile view" />
               )}
@@ -170,10 +171,10 @@ export default function NewsClient({
           </div>
           <div className="news-title-icons-icon" onClick={(): void => setMode(RENDERING_MODE.LIST)}>
             <div
-              className={`${mode === RENDERING_MODE.LIST ? 'news-title-icons-icon-row-red' : 'news-title-icons-icon-row'}`}
+              className={`${mode === RENDERING_MODE.LIST ? 'news-title-icons-icon-row-black' : 'news-title-icons-icon-row'}`}
             >
               {mode === RENDERING_MODE.LIST ? (
-                <ListRedIcon size={16} ariaLabel="List view" />
+                <ListBlackIcon size={16} ariaLabel="List view" />
               ) : (
                 <ListGreyIcon size={16} ariaLabel="List view" />
               )}

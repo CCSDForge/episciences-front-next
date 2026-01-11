@@ -44,16 +44,25 @@ export default async function BoardsPage(props: {
     };
 
     const rolesLabels = {
+      // Board types
+      'introduction-board': t('pages.boards.types.introductionBoard', translations),
       'technical-board': t('pages.boards.types.technicalBoard', translations),
       'editorial-board': t('pages.boards.types.editorialBoard', translations),
       'scientific-advisory-board': t('pages.boards.types.scientificAdvisoryBoard', translations),
+      'reviewers-board': t('pages.boards.types.reviewersBoard', translations),
       'former-members': t('pages.boards.types.formerMember', translations),
-      'guest-editor': t('pages.boards.roles.guestEditor', translations),
-      editor: t('pages.boards.roles.editor', translations),
+      'operating-charter-board': t('pages.boards.types.operatingCharterBoard', translations),
+
+      // Member roles
       'chief-editor': t('pages.boards.roles.chiefEditor', translations),
+      'managing-editor': t('pages.boards.roles.managingEditor', translations),
+      editor: t('pages.boards.roles.editor', translations),
+      'handling-editor': t('pages.boards.roles.handlingEditor', translations),
+      'guest-editor': t('pages.boards.roles.guestEditor', translations),
       secretary: t('pages.boards.roles.secretary', translations),
-      'former-member': t('pages.boards.roles.formerMember', translations),
+      'advisory-board': t('pages.boards.roles.advisoryBoard', translations),
       member: t('pages.boards.roles.member', translations),
+      'former-member': t('pages.boards.roles.formerMember', translations),
     };
 
     const tableOfContentsLabel = t('pages.boards.tableOfContents', translations);

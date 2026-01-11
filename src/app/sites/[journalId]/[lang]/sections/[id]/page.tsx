@@ -102,12 +102,19 @@ export default async function SectionDetailsPage(props: {
       sections: t('pages.sections.title', translations),
     };
 
+    // Calculate title and description server-side to prevent hydration mismatch
+    const langKey = (language as 'fr' | 'en') || 'en';
+    const sectionTitle = section.title?.[langKey] || section.title?.['en'] || `Section ${params.id}`;
+    const sectionDescription = section.description?.[langKey] || section.description?.['en'] || '';
+
     return (
       <SectionDetailsClient
         section={section}
         articles={articles}
         sectionId={params.id}
         lang={params.lang}
+        sectionTitle={sectionTitle}
+        sectionDescription={sectionDescription}
         breadcrumbLabels={breadcrumbLabels}
       />
     );

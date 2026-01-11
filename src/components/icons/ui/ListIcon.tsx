@@ -51,3 +51,7 @@ export const ListGreyIcon = (props: Omit<ListIconProps, 'color'>) => (
 export const ListRedIcon = (props: Omit<ListIconProps, 'color'>) => (
   <ListIcon {...props} color="#C1002A" />
 );
+
+export const ListBlackIcon = (props: Omit<ListIconProps, 'color'>) => (
+  <ListIcon {...props} color="#000000" />
+);

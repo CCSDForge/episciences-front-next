@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
-import { CloseRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
+import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setFooterVisibility } from '@/store/features/footer/footer.slice';
@@ -215,7 +215,7 @@ export default function VolumesMobileModal({
     <div className="volumesMobileModal" ref={modalRef}>
       <div className="title">
         <div>{t('common.filters.filter')}</div>
-        <CloseRedIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
+        <CloseBlackIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
       </div>
       {taggedFilters.length > 0 && (
         <div className="tags">

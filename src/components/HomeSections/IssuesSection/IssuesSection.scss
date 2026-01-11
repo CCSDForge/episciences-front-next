@@ -23,6 +23,9 @@
 
     &-tile {
       width: 120px;
+      height: auto;
+      object-fit: contain;
+      align-self: flex-start;
     }
 
     &-template {

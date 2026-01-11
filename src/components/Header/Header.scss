@@ -278,6 +278,10 @@
                 min-width: 220px;
               }
             }
+
+            &-publish {
+              min-width: 240px;
+            }
           }
         }
 
@@ -519,5 +523,72 @@
         }
       }
     }
+  }
+
+  // ===== ACCESSIBILITY ENHANCEMENTS =====
+
+  // Focus indicators for all interactive elements in navigation
+  &-postheader-links {
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  // Burger menu keyboard accessibility
+  &-postheader-burger {
+    &:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+
+  // Mobile menu items focus states
+  &-postheader-burger-content-links-section-links {
+    span {
+      cursor: pointer;
+      padding: 4px 8px;
+      margin: 2px 0;
+      border-radius: 2px;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: var(--grey-lighter);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: -2px;
+        background-color: var(--grey-lighter);
+      }
+
+      // Remove focus outline when not using keyboard
+      &:focus:not(:focus-visible) {
+        outline: none;
+      }
+    }
+  }
+}
+
+// Skip to main content link (for screen readers and keyboard users)
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 1rem 2rem;
+  background-color: var(--primary);
+  color: var(--primary-text);
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 4px 4px;
+
+  &:focus {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
   }
 }

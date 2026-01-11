@@ -1,6 +1,6 @@
 'use client';
 
-import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import MathJax from '@/components/MathJax/MathJax';
@@ -77,7 +77,8 @@ export default function ArticleDetailsClient({
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
 
@@ -214,17 +215,18 @@ export default function ArticleDetailsClient({
       <div className="articleDetails-content-article-section">
         <div
           className={`articleDetails-content-article-section-title ${!isOpenedSection && 'articleDetails-content-article-section-closed'}`}
+          style={{ alignItems: 'center' }}
           onClick={(): void => toggleSection(sectionKey)}
         >
           <div className="articleDetails-content-article-section-title-text">{sectionTitle}</div>
           {isOpenedSection ? (
-            <CaretUpRedIcon
+            <CaretUpBlackIcon
               size={16}
               className="articleDetails-content-article-section-title-caret"
               ariaLabel="Collapse section"
             />
           ) : (
-            <CaretDownRedIcon
+            <CaretDownBlackIcon
               size={16}
               className="articleDetails-content-article-section-title-caret"
               ariaLabel="Expand section"

@@ -1,6 +1,6 @@
 'use client';
 
-import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
@@ -49,7 +49,8 @@ export default function AboutClient({
 }: AboutClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
@@ -254,13 +255,13 @@ export default function AboutClient({
                       </ReactMarkdown>
                     </h2>
                     {section.opened ? (
-                      <CaretUpRedIcon
+                      <CaretUpBlackIcon
                         size={16}
                         className="about-content-body-section-subtitle-caret"
                         ariaLabel="Collapse section"
                       />
                     ) : (
-                      <CaretDownRedIcon
+                      <CaretDownBlackIcon
                         size={16}
                         className="about-content-body-section-subtitle-caret"
                         ariaLabel="Expand section"

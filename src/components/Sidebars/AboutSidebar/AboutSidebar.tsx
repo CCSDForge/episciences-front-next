@@ -1,6 +1,5 @@
 'use client';
 
-import { Link } from '@/components/Link/Link';
 import { CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import './AboutSidebar.scss';
 
@@ -20,14 +19,24 @@ export default function AboutSidebar({
   headers,
   toggleHeaderCallback,
 }: IAboutSidebarProps): React.JSX.Element {
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string): void => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Update URL without navigation
+      window.history.pushState(null, '', `#${id}`);
+    }
+  };
+
   return (
-    <div className="aboutSidebar">
+    <nav className="aboutSidebar" aria-label="Table of contents">
       {headers.map((header, index) => (
         <div key={index} className="aboutSidebar-header">
           <div className="aboutSidebar-header-title">
-            <Link href={`#${header.id}`}>
+            <a href={`#${header.id}`} onClick={e => handleAnchorClick(e, header.id)}>
               <div className="aboutSidebar-header-title-text">{header.value}</div>
-            </Link>
+            </a>
             {header.children.length > 0 &&
               (header.opened ? (
                 <CaretUpGreyIcon
@@ -47,15 +56,19 @@ export default function AboutSidebar({
           </div>
           {header.opened && (
             <div className="aboutSidebar-header-subheaders">
-              {header.children.map((subheader, index) => (
-                <Link key={index} href={`#${subheader.id}`}>
+              {header.children.map((subheader, subIndex) => (
+                <a
+                  key={subIndex}
+                  href={`#${subheader.id}`}
+                  onClick={e => handleAnchorClick(e, subheader.id)}
+                >
                   <div className="aboutSidebar-header-subheaders-subheader">{subheader.value}</div>
-                </Link>
+                </a>
               ))}
             </div>
           )}
         </div>
       ))}
-    </div>
+    </nav>
   );
 }

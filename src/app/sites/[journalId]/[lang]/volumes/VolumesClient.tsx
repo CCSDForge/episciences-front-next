@@ -2,9 +2,9 @@
 
 import {
   FilterIcon,
-  ListRedIcon,
+  ListBlackIcon,
   ListGreyIcon,
-  TileRedIcon,
+  TileBlackIcon,
   TileGreyIcon,
 } from '@/components/icons';
 import { useState, useEffect, useCallback } from 'react';
@@ -44,7 +44,8 @@ interface IVolumeFilter {
 interface VolumesClientProps {
   initialVolumes: VolumesResponse | null;
   initialPage: number;
-  initialType: string;
+  initialTypes: string[];
+  initialYears: number[];
   lang?: string;
   journalId?: string;
   breadcrumbLabels?: {
@@ -54,12 +55,13 @@ interface VolumesClientProps {
   };
 }
 
-const VOLUMES_PER_PAGE = 10;
+const VOLUMES_PER_PAGE = 20;
 
 export default function VolumesClient({
   initialVolumes,
   initialPage,
-  initialType,
+  initialTypes,
+  initialYears,
   lang,
   journalId,
   breadcrumbLabels,
@@ -76,7 +78,8 @@ export default function VolumesClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
@@ -88,16 +91,48 @@ export default function VolumesClient({
   const [volumesData, setVolumesData] = useState(initialVolumes);
   const [mode, setMode] = useState<RENDERING_MODE>(RENDERING_MODE.LIST);
   const [types, setTypes] = useState<IVolumeTypeSelection[]>([]);
+
   const [years, setYears] = useState<IVolumeYearSelection[]>([]);
   const [taggedFilters, setTaggedFilters] = useState<IVolumeFilter[]>([]);
   const [openedFiltersModal, setOpenedFiltersModal] = useState(false);
-  const [initQueryFilters, setInitQueryFilters] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
 
+  // Update local state when props change (Server Component re-render)
+  useEffect(() => {
+    if (initialVolumes) {
+      setVolumes(initialVolumes);
+      setVolumesData(initialVolumes); // Directly update data
+      setIsLoadingData(false); // Hide loader
+    }
+  }, [initialVolumes]);
+
   const getSelectedTypes = (): string[] => types.filter(t => t.isChecked).map(t => t.value);
   const getSelectedYears = (): number[] => years.filter(y => y.isSelected).map(y => y.year);
+
+  const updateParams = (newTypes: IVolumeTypeSelection[], newYears: IVolumeYearSelection[]) => {
+    const params = new URLSearchParams();
+
+    // Add types
+    newTypes.filter(t => t.isChecked).forEach(t => {
+      params.append('type', t.value);
+    });
+
+    // Add years
+    newYears.filter(y => y.isSelected).forEach(y => {
+      params.append('years', y.year.toString());
+    });
+
+    // Reset to page 1
+    params.set('page', '1');
+
+    const queryString = params.toString();
+    const url = queryString ? `${pathname}?${queryString}` : pathname || '';
+    
+    setIsLoadingData(true);
+    router.push(url);
+  };
 
   // Synchroniser currentPage avec les query params
   useEffect(() => {
@@ -109,24 +144,54 @@ export default function VolumesClient({
   }, [searchParams, currentPage]);
 
   useEffect(() => {
-    if (types.length > 0 && !initQueryFilters) {
+    if (types.length > 0) {
       setTypes(currentTypes => {
-        const newTypes = currentTypes.map(type => ({
+        const needsUpdate = currentTypes.some(
+          t => t.isChecked !== initialTypes.includes(t.value)
+        );
+
+        if (!needsUpdate) return currentTypes;
+
+        return currentTypes.map(type => ({
           ...type,
-          isChecked: initialType === type.value,
+          isChecked: initialTypes.includes(type.value),
         }));
-
-        return newTypes;
       });
-
-      setInitQueryFilters(true);
     }
-  }, [types, initQueryFilters, initialType]);
+  }, [initialTypes, types.length]);
+
+  // Initialize years selection from props
+  useEffect(() => {
+    if (years.length > 0) {
+      setYears(currentYears => {
+        const needsUpdate = currentYears.some(y => {
+          const shouldBeSelected = initialYears.includes(y.year);
+          return y.isSelected !== shouldBeSelected;
+        });
+        
+        if (!needsUpdate) return currentYears;
+
+        return currentYears.map(y => ({
+          ...y,
+          isSelected: initialYears.includes(y.year),
+        }));
+      });
+    }
+  }, [initialYears, years.length]);
 
   useEffect(() => {
-    if (volumes?.range?.types && types.length === 0) {
-      const typesArray = Array.isArray(volumes.range.types) ? volumes.range.types : [];
-      const initTypes = typesArray
+    // If we have volumes data (even empty) and types are not yet initialized
+    if (volumes && types.length === 0) {
+      // Use types from range if available, otherwise fallback to all known types
+      // This ensures the sidebar is visible even if the API doesn't return range data
+      const rangeTypes = Array.isArray(volumes.range?.types) ? volumes.range.types : [];
+      const typesSource = rangeTypes.length > 0
+        ? rangeTypes
+        : volumeTypes.map(vt => vt.value);
+
+      console.log('Initializing types from source:', typesSource, 'initialTypes:', initialTypes);
+
+      const initTypes = typesSource
         .filter(t => volumeTypes.find(vt => vt.value === t))
         .map(t => {
           const matchingType = volumeTypes.find(vt => vt.value === t);
@@ -135,81 +200,63 @@ export default function VolumesClient({
           return {
             labelPath: matchingType.labelPath,
             value: matchingType.value,
-            isChecked: initialType === matchingType.value,
+            isChecked: initialTypes.includes(matchingType.value),
           };
         })
         .filter((t): t is NonNullable<typeof t> => t !== null);
 
-      setTypes(initTypes);
+      if (initTypes.length > 0) {
+        setTypes(initTypes);
+      }
     }
-  }, [volumes?.range, volumes?.range?.types, types.length, initialType]);
+  }, [volumes, types.length, initialTypes]);
 
   useEffect(() => {
-    if (volumes?.range?.years && years.length === 0) {
-      const yearsArray = Array.isArray(volumes.range.years) ? volumes.range.years : [];
-      const initYears = yearsArray.map(y => ({
-        year: y,
-        isSelected: false,
-      }));
+    if (volumes && years.length === 0) {
+      let yearsToUse: number[] = [];
 
-      setYears(initYears);
-    }
-  }, [volumes?.range, volumes?.range?.years, years.length]);
-
-  // Simuler le filtrage côté client au lieu de refaire un appel API
-  useEffect(() => {
-    // Utiliser uniquement les données initiales et appliquer un filtrage côté client
-    if (initialVolumes?.data) {
-      // Appliquer les filtres si nécessaire
-      const selectedTypes = types.filter(t => t.isChecked).map(t => t.value);
-      const selectedYears = years.filter(y => y.isSelected).map(y => y.year);
-
-      let filteredArray = initialVolumes.data;
-
-      if (selectedTypes.length > 0 || selectedYears.length > 0) {
-        filteredArray = initialVolumes.data.filter(vol => {
-          // Filtrer par type
-          const typeMatch =
-            selectedTypes.length === 0 ||
-            (Array.isArray(vol.types) && vol.types.some(t => selectedTypes.includes(t)));
-
-          // Filtrer par année
-          const yearMatch =
-            selectedYears.length === 0 ||
-            (typeof vol.year === 'number' && selectedYears.includes(vol.year));
-
-          return typeMatch && yearMatch;
-        });
+      if (Array.isArray(volumes.range?.years) && volumes.range.years.length > 0) {
+        // Ensure years are numbers
+        yearsToUse = volumes.range.years.map(y => Number(y)).filter(n => !isNaN(n));
+      } else if (Array.isArray(volumes.data)) {
+        // Fallback: extract years from current data if range is missing
+        const extractedYears = volumes.data
+          .map(v => Number(v.year))
+          .filter((y): y is number => !isNaN(y));
+        yearsToUse = Array.from(new Set(extractedYears));
       }
 
-      // Appliquer la pagination côté client
-      const totalFiltered = filteredArray.length;
-      const startIndex = (currentPage - 1) * VOLUMES_PER_PAGE;
-      const endIndex = startIndex + VOLUMES_PER_PAGE;
-      const paginatedArray = filteredArray.slice(startIndex, endIndex);
-
-      const filteredData = {
-        ...initialVolumes,
-        data: paginatedArray,
-        totalItems: totalFiltered,
-      };
-
-      setVolumesData(filteredData);
+      if (yearsToUse.length > 0) {
+        // Sort descending
+        yearsToUse.sort((a, b) => b - a);
+        
+        console.log('Initializing years from:', yearsToUse);
+        const initYears = yearsToUse.map(y => ({
+          year: y,
+          isSelected: initialYears.includes(y),
+        }));
+        setYears(initYears);
+      }
     }
-  }, [initialVolumes, types, years, currentPage]);
+  }, [volumes, years.length, initialYears]);
+
+  // Client-side filtering removed in favor of server-side filtering via URL params
 
   // Memoize handlePageClick to prevent Pagination re-renders
   const handlePageClick = useCallback(
     (selectedItem: { selected: number }): void => {
       const newPage = selectedItem.selected + 1;
       if (pathname) {
-        router.push(`${pathname}?page=${newPage}`);
+        // Preserve current params, only change page
+        const params = new URLSearchParams(searchParams?.toString() || '');
+        params.set('page', newPage.toString());
+        router.push(`${pathname}?${params.toString()}`);
       }
       setCurrentPage(newPage);
       // Scroll vers le haut de la page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    [pathname, router]
+    [pathname, router, searchParams]
   );
 
   const getVolumesCount = (mode: RENDERING_MODE): React.JSX.Element | null => {
@@ -270,10 +317,7 @@ export default function VolumesClient({
     });
 
     setTypes(updatedTypes);
-    setCurrentPage(1);
-    if (pathname) {
-      router.push(pathname); // Retour à la page 1
-    }
+    updateParams(updatedTypes, years);
   };
 
   const onSelectYear = (year: number): void => {
@@ -286,10 +330,7 @@ export default function VolumesClient({
     });
 
     setYears(updatedYears);
-    setCurrentPage(1);
-    if (pathname) {
-      router.push(pathname); // Retour à la page 1
-    }
+    updateParams(types, updatedYears);
   };
 
   const onCloseTaggedFilter = (type: VolumeTypeFilter, value: string | number) => {
@@ -303,10 +344,7 @@ export default function VolumesClient({
       });
 
       setTypes(updatedTypes);
-      setCurrentPage(1);
-      if (pathname) {
-        router.push(pathname); // Retour à la page 1
-      }
+      updateParams(updatedTypes, years);
     } else if (type === 'year') {
       const updatedYears = years.map(y => {
         if (y.year === value) {
@@ -317,10 +355,7 @@ export default function VolumesClient({
       });
 
       setYears(updatedYears);
-      setCurrentPage(1);
-      if (pathname) {
-        router.push(pathname); // Retour à la page 1
-      }
+      updateParams(types, updatedYears);
     }
   };
 
@@ -336,10 +371,8 @@ export default function VolumesClient({
     setTypes(updatedTypes);
     setYears(updatedYears);
     setTaggedFilters([]);
-    setCurrentPage(1);
-    if (pathname) {
-      router.push(pathname); // Retour à la page 1
-    }
+    
+    updateParams(updatedTypes, updatedYears);
   };
 
   const toggleFiltersModal = () => {
@@ -411,10 +444,10 @@ export default function VolumesClient({
               onClick={(): void => setMode(RENDERING_MODE.TILE)}
             >
               <div
-                className={`${mode === RENDERING_MODE.TILE ? 'volumes-title-count-icons-icon-row-red' : 'volumes-title-count-icons-icon-row'}`}
+                className={`${mode === RENDERING_MODE.TILE ? 'volumes-title-count-icons-icon-row-black' : 'volumes-title-count-icons-icon-row'}`}
               >
                 {mode === RENDERING_MODE.TILE ? (
-                  <TileRedIcon size={16} ariaLabel="Tile view" />
+                  <TileBlackIcon size={16} ariaLabel="Tile view" />
                 ) : (
                   <TileGreyIcon size={16} ariaLabel="Tile view" />
                 )}
@@ -426,10 +459,10 @@ export default function VolumesClient({
               onClick={(): void => setMode(RENDERING_MODE.LIST)}
             >
               <div
-                className={`${mode === RENDERING_MODE.LIST ? 'volumes-title-count-icons-icon-row-red' : 'volumes-title-count-icons-icon-row'}`}
+                className={`${mode === RENDERING_MODE.LIST ? 'volumes-title-count-icons-icon-row-black' : 'volumes-title-count-icons-icon-row'}`}
               >
                 {mode === RENDERING_MODE.LIST ? (
-                  <ListRedIcon size={16} ariaLabel="List view" />
+                  <ListBlackIcon size={16} ariaLabel="List view" />
                 ) : (
                   <ListGreyIcon size={16} ariaLabel="List view" />
                 )}

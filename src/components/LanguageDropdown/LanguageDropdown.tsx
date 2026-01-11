@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 import {
-  CaretUpBlueIcon,
-  CaretDownBlueIcon,
+  CaretUpBlackIcon,
+  CaretDownBlackIcon,
   CaretUpWhiteIcon,
   CaretDownWhiteIcon,
+  TranslateIcon,
 } from '@/components/icons';
 import './LanguageDropdown.scss';
 
@@ -15,6 +17,15 @@ import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
 import { AvailableLanguage, availableLanguages } from '@/utils/i18n';
 import { getLocalizedPath, removeLanguagePrefix } from '@/utils/language-utils';
+
+// Native language names (always displayed in their own language)
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: 'English',
+  fr: 'Français',
+  es: 'Español',
+  de: 'Deutsch',
+  it: 'Italiano',
+};
 
 interface ILanguageDropdownProps {
   withWhiteCaret?: boolean;
@@ -25,6 +36,7 @@ export default function LanguageDropdown({
   withWhiteCaret,
   initialLanguage,
 }: ILanguageDropdownProps): React.JSX.Element | null {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
@@ -34,7 +46,10 @@ export default function LanguageDropdown({
   const language = initialLanguage || reduxLanguage;
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const menuItemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   // Synchroniser Redux avec la langue initiale au mount
   useEffect(() => {
@@ -49,37 +64,127 @@ export default function LanguageDropdown({
     lang => acceptedLanguages.length === 0 || acceptedLanguages.includes(lang)
   );
 
+  // Close dropdown when clicking outside
   useEffect(() => {
-    const handleTouchOutside = (event: TouchEvent): void => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent): void => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
+        setFocusedIndex(-1);
       }
     };
 
-    document.addEventListener('touchstart', handleTouchOutside);
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchOutside);
-    };
-  }, [dropdownRef]);
-
-  const switchLanguage = (updatedLanguage: AvailableLanguage): void => {
-    setShowDropdown(false);
-
-    if (updatedLanguage === language) {
-      return;
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
     }
 
-    // Navigate to the localized URL
-    if (pathname) {
-      // Remove current language prefix if any
-      const pathWithoutLang = removeLanguagePrefix(pathname);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showDropdown]);
 
-      // Get the localized path with new language
-      const localizedPath = getLocalizedPath(pathWithoutLang, updatedLanguage);
+  // Focus management when dropdown opens
+  useEffect(() => {
+    if (showDropdown && focusedIndex >= 0 && menuItemRefs.current[focusedIndex]) {
+      menuItemRefs.current[focusedIndex]?.focus();
+    }
+  }, [showDropdown, focusedIndex]);
 
-      // Force full page reload to ensure all components update
-      window.location.href = localizedPath;
+  const switchLanguage = useCallback(
+    (updatedLanguage: AvailableLanguage): void => {
+      setShowDropdown(false);
+      setFocusedIndex(-1);
+
+      if (updatedLanguage === language) {
+        return;
+      }
+
+      // Navigate to the localized URL
+      if (pathname) {
+        // Remove current language prefix if any
+        const pathWithoutLang = removeLanguagePrefix(pathname);
+
+        // Get the localized path with new language
+        const localizedPath = getLocalizedPath(pathWithoutLang, updatedLanguage);
+
+        // Force full page reload to ensure all components update
+        window.location.href = localizedPath;
+      }
+    },
+    [language, pathname]
+  );
+
+  const toggleDropdown = (): void => {
+    setShowDropdown(prev => !prev);
+    if (showDropdown) {
+      setFocusedIndex(-1);
+      // Return focus to button when closing
+      buttonRef.current?.focus();
+    }
+  };
+
+  // Keyboard handler for the button
+  const handleButtonKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
+    switch (event.key) {
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        toggleDropdown();
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        if (!showDropdown) {
+          setShowDropdown(true);
+        }
+        setFocusedIndex(0);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        if (!showDropdown) {
+          setShowDropdown(true);
+        }
+        setFocusedIndex(filteredLanguages.length - 1);
+        break;
+      case 'Escape':
+        event.preventDefault();
+        setShowDropdown(false);
+        setFocusedIndex(-1);
+        break;
+    }
+  };
+
+  // Keyboard handler for menu items
+  const handleMenuItemKeyDown = (
+    event: React.KeyboardEvent<HTMLButtonElement>,
+    index: number
+  ): void => {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        setFocusedIndex((index + 1) % filteredLanguages.length);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        setFocusedIndex((index - 1 + filteredLanguages.length) % filteredLanguages.length);
+        break;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        switchLanguage(filteredLanguages[index]);
+        buttonRef.current?.focus();
+        break;
+      case 'Escape':
+        event.preventDefault();
+        setShowDropdown(false);
+        setFocusedIndex(-1);
+        buttonRef.current?.focus();
+        break;
+      case 'Tab':
+        // Allow default tab behavior but close the menu
+        setShowDropdown(false);
+        setFocusedIndex(-1);
+        break;
     }
   };
 
@@ -88,58 +193,72 @@ export default function LanguageDropdown({
   }
 
   return (
-    <div
-      ref={dropdownRef}
-      className="languageDropdown"
-      onMouseEnter={(): void => setShowDropdown(true)}
-      onMouseLeave={(): void => setShowDropdown(false)}
-      onTouchStart={(): void => setShowDropdown(!showDropdown)}
-    >
-      <div className="languageDropdown-icon">
-        <div className="languageDropdown-icon-text">{language.toUpperCase()}</div>
+    <div ref={dropdownRef} className="languageDropdown">
+      <button
+        ref={buttonRef}
+        className="languageDropdown-button"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded={showDropdown}
+        aria-label={t('components.header.languageSelector')}
+        onClick={toggleDropdown}
+        onKeyDown={handleButtonKeyDown}
+      >
+        <TranslateIcon size={16} className="languageDropdown-button-icon" />
+        <span className="languageDropdown-button-text">{language.toUpperCase()}</span>
         {showDropdown ? (
           withWhiteCaret ? (
             <CaretUpWhiteIcon
               size={14}
-              className="languageDropdown-icon-caret"
+              className="languageDropdown-button-caret"
               ariaLabel="Collapse language menu"
             />
           ) : (
-            <CaretUpBlueIcon
+            <CaretUpBlackIcon
               size={14}
-              className="languageDropdown-icon-caret"
+              className="languageDropdown-button-caret"
               ariaLabel="Collapse language menu"
             />
           )
         ) : withWhiteCaret ? (
           <CaretDownWhiteIcon
             size={14}
-            className="languageDropdown-icon-caret"
+            className="languageDropdown-button-caret"
             ariaLabel="Expand language menu"
           />
         ) : (
-          <CaretDownBlueIcon
+          <CaretDownBlackIcon
             size={14}
-            className="languageDropdown-icon-caret"
+            className="languageDropdown-button-caret"
             ariaLabel="Expand language menu"
           />
         )}
-      </div>
-      <div
-        className={`languageDropdown-content ${showDropdown && 'languageDropdown-content-displayed'}`}
+      </button>
+      <ul
+        className={`languageDropdown-menu ${showDropdown ? 'languageDropdown-menu-displayed' : ''}`}
+        role="menu"
+        aria-label={t('components.header.selectLanguage')}
+        hidden={!showDropdown}
       >
-        <div className="languageDropdown-content-links">
-          {filteredLanguages.map((availableLanguage: AvailableLanguage, index: number) => (
-            <span
-              key={index}
-              onClick={(): void => switchLanguage(availableLanguage)}
-              onTouchEnd={(): void => switchLanguage(availableLanguage)}
+        {filteredLanguages.map((availableLanguage: AvailableLanguage, index: number) => (
+          <li key={availableLanguage} role="none">
+            <button
+              ref={el => {
+                menuItemRefs.current[index] = el;
+              }}
+              role="menuitem"
+              className="languageDropdown-menu-item"
+              aria-current={availableLanguage === language ? 'true' : undefined}
+              onClick={() => switchLanguage(availableLanguage)}
+              onKeyDown={event => handleMenuItemKeyDown(event, index)}
+              tabIndex={-1}
             >
-              {availableLanguage.toUpperCase()}
-            </span>
-          ))}
-        </div>
-      </div>
+              {availableLanguage.toUpperCase()} -{' '}
+              {LANGUAGE_NAMES[availableLanguage] || availableLanguage.toUpperCase()}
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

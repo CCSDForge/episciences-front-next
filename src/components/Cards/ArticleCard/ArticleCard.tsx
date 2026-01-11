@@ -5,10 +5,10 @@ import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import { Link } from '@/components/Link/Link';
 import {
-  CaretUpRedIcon,
-  CaretDownRedIcon,
-  DownloadRedIcon,
-  QuoteRedIcon,
+  CaretUpBlackIcon,
+  CaretDownBlackIcon,
+  DownloadBlackIcon,
+  QuoteBlackIcon,
 } from '@/components/icons';
 import './ArticleCard.scss';
 
@@ -97,10 +97,16 @@ export default function ArticleCard({
   useEffect(() => {
     const fetchCitations = async () => {
       const fetchedCitations = await getCitations(metadataCSL as string);
-      fetchedCitations.push({
-        key: CITATION_TEMPLATE.BIBTEX,
-        citation: metadataBibTeX as string,
-      });
+
+      // BibTeX is already added by getCitations with an empty citation,
+      // and then updated if metadataBibTeX is available.
+      // But here we need to make sure the citation is correctly filled
+      const bibtexIndex = fetchedCitations.findIndex(
+        citation => citation.key === CITATION_TEMPLATE.BIBTEX
+      );
+      if (bibtexIndex !== -1 && metadataBibTeX) {
+        fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
+      }
 
       setCitations(fetchedCitations);
     };
@@ -141,13 +147,13 @@ export default function ArticleCard({
           >
             <div className="articleCard-abstract-title-text">{t('common.abstract')}</div>
             {article.openedAbstract ? (
-              <CaretUpRedIcon
+              <CaretUpBlackIcon
                 size={14}
                 className="articleCard-abstract-title-caret"
                 ariaLabel="Collapse abstract"
               />
             ) : (
-              <CaretDownRedIcon
+              <CaretDownBlackIcon
                 size={14}
                 className="articleCard-abstract-title-caret"
                 ariaLabel="Expand abstract"
@@ -174,7 +180,7 @@ export default function ArticleCard({
               rel="noopener noreferrer"
             >
               <div className="articleCard-anchor-icons-download">
-                <DownloadRedIcon
+                <DownloadBlackIcon
                   size={16}
                   className="articleCard-anchor-icons-download-icon"
                   ariaLabel="Download PDF"
@@ -191,7 +197,7 @@ export default function ArticleCard({
               onMouseLeave={(): void => setShowCitationsDropdown(false)}
               onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
             >
-              <QuoteRedIcon
+              <QuoteBlackIcon
                 size={16}
                 className="articleCard-anchor-icons-cite-icon"
                 ariaLabel="Cite article"

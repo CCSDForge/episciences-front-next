@@ -3,9 +3,9 @@
 import React, { memo } from 'react';
 import ReactPaginate from 'react-paginate';
 import {
-  CaretLeftRedIcon,
+  CaretLeftBlackIcon,
   CaretLeftGreyLightIcon,
-  CaretRightRedIcon,
+  CaretRightBlackIcon,
   CaretRightGreyLightIcon,
 } from '@/components/icons';
 import { DEFAULT_ITEMS_PER_PAGE } from '@/utils/pagination';
@@ -57,7 +57,7 @@ const Pagination = memo(function Pagination({
         currentPage === 1 ? (
           <CaretLeftGreyLightIcon size={16} ariaLabel="Previous page (disabled)" />
         ) : (
-          <CaretLeftRedIcon size={16} ariaLabel="Previous page" />
+          <CaretLeftBlackIcon size={16} ariaLabel="Previous page" />
         )
       }
       nextClassName="pagination-next"
@@ -65,7 +65,7 @@ const Pagination = memo(function Pagination({
         currentPage === pageCount ? (
           <CaretRightGreyLightIcon size={16} ariaLabel="Next page (disabled)" />
         ) : (
-          <CaretRightRedIcon size={16} ariaLabel="Next page" />
+          <CaretRightBlackIcon size={16} ariaLabel="Next page" />
         )
       }
       activeClassName="pagination-page-active"

@@ -1,6 +1,6 @@
 'use client';
 
-import { CloseRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
+import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
@@ -101,7 +101,7 @@ export default function NewsMobileModal({
     <div className="newsMobileModal" ref={modalRef}>
       <div className="newsMobileModal-title">
         <div className="newsMobileModal-title-text">{t('common.filters.filter')}</div>
-        <CloseRedIcon
+        <CloseBlackIcon
           size={24}
           className="newsMobileModal-title-close"
           ariaLabel="Close"

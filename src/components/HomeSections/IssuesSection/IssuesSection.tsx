@@ -1,6 +1,6 @@
 'use client';
 
-import { FileGreyIcon, DownloadRedIcon } from '@/components/icons';
+import { FileGreyIcon, DownloadBlackIcon } from '@/components/icons';
 import { Fragment } from 'react';
 import { TFunction } from 'i18next';
 import { Link } from '@/components/Link/Link';
@@ -81,7 +81,7 @@ export default function IssuesSection({
                   target="_blank"
                   className="issuesSection-card-text-download"
                 >
-                  <DownloadRedIcon
+                  <DownloadBlackIcon
                     size={16}
                     className="issuesSection-card-text-download-icon"
                     ariaLabel="Download PDF"

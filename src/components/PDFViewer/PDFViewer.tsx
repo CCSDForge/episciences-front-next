@@ -1,6 +1,6 @@
 'use client';
 
-import { DownloadBlueIcon, ExternalLinkBlueIcon } from '@/components/icons';
+import { DownloadBlackIcon, ExternalLinkBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import './PDFViewer.scss';
@@ -41,7 +41,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): React.JSX.
 
         <div className="pdf-viewer-toolbar-controls">
           <a href={pdfUrl} download className="pdf-viewer-action-btn">
-            <DownloadBlueIcon size={16} ariaLabel="Download" />
+            <DownloadBlackIcon size={16} ariaLabel="Download" />
             <span>{t('components.pdfViewer.downloadPDF')}</span>
           </a>
           <a
@@ -50,7 +50,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): React.JSX.
             rel="noopener noreferrer"
             className="pdf-viewer-action-btn"
           >
-            <ExternalLinkBlueIcon size={16} ariaLabel="Open in new tab" />
+            <ExternalLinkBlackIcon size={16} ariaLabel="Open in new tab" />
             <span>{t('components.pdfViewer.openInNewTab')}</span>
           </a>
           <button
@@ -85,7 +85,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): React.JSX.
             </ul>
             <div className="pdf-viewer-fallback-actions">
               <a href={pdfUrl} download className="pdf-viewer-action-btn">
-                <DownloadBlueIcon size={16} ariaLabel="Download" />
+                <DownloadBlackIcon size={16} ariaLabel="Download" />
                 <span>{t('components.pdfViewer.downloadPDF')}</span>
               </a>
               <a
@@ -94,7 +94,7 @@ export default function PDFViewer({ pdfUrl, title }: PDFViewerProps): React.JSX.
                 rel="noopener noreferrer"
                 className="pdf-viewer-action-btn"
               >
-                <ExternalLinkBlueIcon size={16} ariaLabel="Open in new tab" />
+                <ExternalLinkBlackIcon size={16} ariaLabel="Open in new tab" />
                 <span>{t('components.pdfViewer.openInNewTab')}</span>
               </a>
             </div>

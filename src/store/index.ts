@@ -18,7 +18,6 @@ import rootReducer, { RootReducer } from './features';
 import { aboutApi } from './features/about/about.query';
 import { articleApi } from '@/store/features/article';
 import { authorApi } from './features/author/author.query';
-import { boardApi } from './features/board/board.query';
 import { creditsApi } from './features/credits/credits.query';
 import { forAuthorApi } from './features/forAuthor/forAuthor.query';
 import { indexationApi } from './features/indexation/indexation.query';
@@ -72,7 +71,6 @@ export const store = configureStore({
       .concat(aboutApi.middleware)
       .concat(articleApi.middleware)
       .concat(authorApi.middleware)
-      .concat(boardApi.middleware)
       .concat(creditsApi.middleware)
       .concat(forAuthorApi.middleware)
       .concat(indexationApi.middleware)

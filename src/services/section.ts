@@ -27,7 +27,16 @@ export async function fetchSection({ sid, rvcode }: FetchSectionParams): Promise
     throw new Error(`Failed to fetch section: ${response.statusText}`);
   }
 
-  return await response.json();
+  const rawSection = await response.json();
+
+  return {
+    ...rawSection,
+    id: rawSection.sid,
+    title: rawSection.titles,
+    description: rawSection.descriptions,
+    articles: rawSection.papers,
+    committee: rawSection.committee,
+  };
 }
 
 /**

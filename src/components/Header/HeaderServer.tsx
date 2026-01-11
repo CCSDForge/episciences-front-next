@@ -3,6 +3,8 @@ import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
+import { menuConfig, getVisibleMenuItems, processMenuItemPath } from '@/config/menu';
+import { fetchVolumes } from '@/services/volume';
 import fs from 'fs';
 import path from 'path';
 import './Header.scss';
@@ -25,14 +27,30 @@ export default async function HeaderServer({
   // Fetch journal info to get the name and logo
   let journalName = 'Journal';
   let journalLogoFilename: string | undefined = undefined; // To store the journal's logo filename
+  let lastVolumeId = '';
   const code = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
 
   try {
     if (code) {
-      const journal = await getJournalByCode(code); // This journal object should contain logo
+      const [journal, volumesData] = await Promise.all([
+        getJournalByCode(code),
+        fetchVolumes({
+          rvcode: code,
+          language: lang,
+          page: 1,
+          itemsPerPage: 1,
+          types: [],
+          years: [],
+        }).catch(() => ({ data: [] })),
+      ]);
+
       journalName =
         journal?.name || journal?.title?.[lang as keyof typeof journal.title] || 'Journal';
       journalLogoFilename = journal?.logo; // Get the logo filename if available
+
+      if (volumesData?.data?.[0]?.id) {
+        lastVolumeId = volumesData.data[0].id.toString();
+      }
     }
   } catch (error) {
     console.error('Failed to fetch journal in HeaderServer:', error);
@@ -84,8 +102,16 @@ export default async function HeaderServer({
   // Load translations for the current language
   const translations = await getServerTranslations(lang);
 
+  // Prepare visible menu items with dynamic path replacements
+  const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content).map(item =>
+    processMenuItemPath(item, { lastVolumeId })
+  );
+  const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about);
+  const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish);
+  const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone);
+
   return (
-    <header className="header">
+    <header className="header" role="banner">
       {/* Pre-header - visible only when not reduced */}
       <div className="header-preheader">
         <div className="header-preheader-logo">
@@ -129,74 +155,69 @@ export default async function HeaderServer({
       </div>
 
       {/* Post-header navigation */}
-      <div className="header-postheader">
+      <nav className="header-postheader" aria-label="Main navigation">
         <div className="header-postheader-links">
-          {/* Articles & Issues dropdown */}
+          {/* CONTENT Dropdown */}
           <div className="header-postheader-links-dropdown">
             <Link href="/articles" lang={lang}>
-              {t('components.header.links.articlesAndIssues', translations)}
+              {t('components.header.content', translations)}
             </Link>
             <div className="header-postheader-links-dropdown-content">
               <div className="header-postheader-links-dropdown-content-links header-postheader-links-dropdown-content-links-large-fr">
-                <Link href="/articles" lang={lang}>
-                  {t('components.header.links.allArticles', translations)}
-                </Link>
-                <Link href="/articles-accepted" lang={lang}>
-                  {t('components.header.links.allAcceptedArticles', translations)}
-                </Link>
-                <Link href="/volumes" lang={lang}>
-                  {t('components.header.links.allVolumes', translations)}
-                </Link>
-                <Link href="/volumes" lang={lang}>
-                  {t('components.header.links.lastVolume', translations)}
-                </Link>
-                <Link href="/sections" lang={lang}>
-                  {t('components.header.links.sections', translations)}
-                </Link>
-                <Link href="/volumes" lang={lang}>
-                  {t('components.header.links.specialIssues', translations)}
-                </Link>
-                <Link href="/volumes" lang={lang}>
-                  {t('components.header.links.proceedings', translations)}
-                </Link>
-                <Link href="/authors" lang={lang}>
-                  {t('components.header.links.authors', translations)}
-                </Link>
+                {visibleContentItems.map(item => (
+                  <Link key={item.key} href={item.path} lang={lang}>
+                    {t(item.label, translations)}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* About dropdown */}
+          {/* ABOUT Dropdown */}
           <div className="header-postheader-links-dropdown">
             <Link href="/about" lang={lang}>
-              {t('components.header.links.about', translations)}
+              {t('components.header.about', translations)}
             </Link>
             <div className="header-postheader-links-dropdown-content">
               <div className="header-postheader-links-dropdown-content-links">
-                <Link href="/about" lang={lang}>
-                  {t('components.header.links.theJournal', translations)}
-                </Link>
-                <Link href="/news" lang={lang}>
-                  {t('components.header.links.news', translations)}
-                </Link>
-                <Link href="/statistics" lang={lang}>
-                  {t('components.header.links.statistics', translations)}
-                </Link>
+                {visibleAboutItems.map(item => (
+                  <Link key={item.key} href={item.path} lang={lang}>
+                    {t(item.label, translations)}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
 
-          <Link href="/boards" lang={lang}>
-            {t('components.header.links.boards', translations)}
-          </Link>
-          <Link href="/for-authors" lang={lang}>
-            {t('components.header.links.forAuthors', translations)}
-          </Link>
+          {/* Standalone items (BOARDS) */}
+          {visibleStandaloneItems.map(item => (
+            <Link key={item.key} href={item.path} lang={lang}>
+              {t(item.label, translations)}
+            </Link>
+          ))}
+
+          {/* PUBLISH Dropdown - NEW - After Boards */}
+          {visiblePublishItems.length > 0 && (
+            <div className="header-postheader-links-dropdown">
+              <Link href="/for-authors" lang={lang}>
+                {t('components.header.publish', translations)}
+              </Link>
+              <div className="header-postheader-links-dropdown-content">
+                <div className="header-postheader-links-dropdown-content-links header-postheader-links-dropdown-content-links-publish">
+                  {visiblePublishItems.map(item => (
+                    <Link key={item.key} href={item.path} lang={lang}>
+                      {t(item.label, translations)}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Search form */}
         <SearchBar lang={lang} />
-      </div>
+      </nav>
     </header>
   );
 }

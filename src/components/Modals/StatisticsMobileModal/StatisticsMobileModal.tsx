@@ -1,6 +1,6 @@
 'use client';
 
-import { CloseRedIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
+import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 
@@ -106,7 +106,7 @@ export default function StatisticsMobileModal({
     <div className="statisticsMobileModal" ref={modalRef}>
       <div className="title">
         <div>{t('common.filters.filter')}</div>
-        <CloseRedIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
+        <CloseBlackIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
       </div>
       <div className="filters">
         <div className="filtersYears">

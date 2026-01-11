@@ -3,22 +3,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
-import { useAppSelector } from '@/hooks/store';
 import { IBoardMember } from '@/types/board';
 import { IBoardPage } from '@/services/board';
-import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
+import { getBoardsPerTitle, IBoardPerTitle } from '@/utils/board-transforms';
+import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
 import BoardsSidebar from '@/components/Sidebars/BoardsSidebar/BoardsSidebar';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import '@/styles/transitions.scss';
 import './Boards.scss';
-
-interface IBoardPerTitle {
-  title: string;
-  description: string;
-  members: IBoardMember[];
-}
 
 interface BoardsData {
   pages: IBoardPage[];
@@ -53,9 +47,8 @@ export default function BoardsClient({
   const { t, i18n } = useTranslation();
 
   // Use the prop lang for rendering to ensure consistency with SSR
-  // Fallback to i18n language or Redux state if lang prop is missing (should not happen in proper usage)
-  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
-  const currentLang = (lang || reduxLanguage || 'en') as 'en' | 'fr';
+  // The lang prop is always provided by the server component, so we use it directly
+  const currentLang = (lang || 'en') as 'en' | 'fr';
 
   // Synchroniser la langue avec le paramètre de l'URL pour les futures interactions client
   useEffect(() => {
@@ -83,27 +76,12 @@ export default function BoardsClient({
     return boardsData.pages.map(page => page.title[currentLang] || page.title['en'] || '');
   };
 
-  const getBoardsPerTitle = (): IBoardPerTitle[] => {
+  const boardsPerTitle = useMemo(() => {
     if (!boardsData?.pages || !boardsData.pages.length) return [];
     if (!boardsData?.members || !boardsData.members.length) return [];
 
-    return boardsData.pages.map(page => {
-      // Use currentLang for consistent rendering
-      const title = page.title[currentLang] || page.title['en'] || '';
-      const description = page.content[currentLang] || page.content['en'] || '';
-
-      const pageMembers = boardsData.members.filter(member => {
-        const pluralRoles = member.roles.map(role => `${role}s`);
-        return member.roles.includes(page.page_code) || pluralRoles.includes(page.page_code);
-      });
-
-      return {
-        title,
-        description,
-        members: pageMembers,
-      };
-    });
-  };
+    return getBoardsPerTitle(boardsData.pages, boardsData.members, currentLang);
+  }, [boardsData.pages, boardsData.members, currentLang]);
 
   const handleGroupToggle = (index: number): void => {
     setActiveGroupIndex(prev => (prev === index ? 0 : index));
@@ -150,7 +128,7 @@ export default function BoardsClient({
           tableOfContentsLabel={tableOfContentsLabel}
         />
         <div className="boards-content-groups">
-          {getBoardsPerTitle().map((boardPerTitle, index) => (
+          {boardsPerTitle.map((boardPerTitle, index) => (
             <div key={index} className="boards-content-groups-group">
               <div
                 className="boards-content-groups-group-title"
@@ -160,13 +138,13 @@ export default function BoardsClient({
               >
                 <h2>{boardPerTitle.title}</h2>
                 {activeGroupIndex === index ? (
-                  <CaretUpRedIcon
+                  <CaretUpBlackIcon
                     size={16}
                     className="boards-content-groups-group-caret"
                     ariaLabel="Collapse group"
                   />
                 ) : (
-                  <CaretDownRedIcon
+                  <CaretDownBlackIcon
                     size={16}
                     className="boards-content-groups-group-caret"
                     ariaLabel="Expand group"

@@ -7,9 +7,9 @@ import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import {
   FileGreyIcon,
-  DownloadRedIcon,
-  CaretUpRedIcon,
-  CaretDownRedIcon,
+  DownloadBlackIcon,
+  CaretUpBlackIcon,
+  CaretDownBlackIcon,
 } from '@/components/icons';
 import { VOLUME_COVER_BLUR } from '@/utils/image-placeholders';
 import './VolumeCard.scss';
@@ -161,7 +161,7 @@ export default function VolumeCard({
               lang={language}
               className="volumeCard-tile-text-download"
             >
-              <DownloadRedIcon
+              <DownloadBlackIcon
                 size={16}
                 className="volumeCard-tile-text-download-icon"
                 ariaLabel="Download PDF"
@@ -211,13 +211,13 @@ export default function VolumeCard({
             >
               <div className="volumeCard-content-description-title-text">{t('common.about')}</div>
               {openedDescription ? (
-                <CaretUpRedIcon
+                <CaretUpBlackIcon
                   size={14}
                   className="volumeCard-content-description-title-caret"
                   ariaLabel="Collapse description"
                 />
               ) : (
-                <CaretDownRedIcon
+                <CaretDownBlackIcon
                   size={14}
                   className="volumeCard-content-description-title-caret"
                   ariaLabel="Expand description"
@@ -238,7 +238,7 @@ export default function VolumeCard({
             lang={language}
             className="volumeCard-content-download"
           >
-            <DownloadRedIcon
+            <DownloadBlackIcon
               size={16}
               className="volumeCard-content-download-icon"
               ariaLabel="Download PDF"

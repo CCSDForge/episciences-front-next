@@ -20,7 +20,7 @@ import VolumeDetailsMobileModal from '@/components/Modals/VolumeDetailsMobileMod
 import VolumeDetailsSidebar from '@/components/Sidebars/VolumeDetailsSidebar/VolumeDetailsSidebar';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import {
-  DownloadRedIcon,
+  DownloadBlackIcon,
   CaretUpGreyIcon,
   CaretDownGreyIcon,
   CaretUpGreyLightIcon,
@@ -55,7 +55,8 @@ export default function VolumeDetailsClient({
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
 
@@ -474,7 +475,7 @@ export default function VolumeDetailsClient({
                             rel="noopener noreferrer"
                           >
                             <div className="volumeDetails-content-results-content-edito-anchor-icons-download">
-                              <DownloadRedIcon
+                              <DownloadBlackIcon
                                 size={16}
                                 className="volumeDetails-content-results-content-edito-anchor-icons-download-download-icon"
                                 ariaLabel="Download PDF"

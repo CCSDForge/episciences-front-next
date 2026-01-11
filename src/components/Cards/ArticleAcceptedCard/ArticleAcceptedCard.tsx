@@ -3,7 +3,7 @@
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
-import { CaretUpRedIcon, CaretDownRedIcon, DownloadRedIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon, DownloadBlackIcon } from '@/components/icons';
 import './ArticleAcceptedCard.scss';
 
 import { IArticle } from '@/types/article';
@@ -55,13 +55,13 @@ export default function ArticleAcceptedCard({
           >
             <div className="articleAcceptedCard-abstract-title-text">{t('common.abstract')}</div>
             {article.openedAbstract ? (
-              <CaretUpRedIcon
+              <CaretUpBlackIcon
                 size={14}
                 className="articleAcceptedCard-abstract-title-caret"
                 ariaLabel="Collapse abstract"
               />
             ) : (
-              <CaretDownRedIcon
+              <CaretDownBlackIcon
                 size={14}
                 className="articleAcceptedCard-abstract-title-caret"
                 ariaLabel="Expand abstract"
@@ -85,7 +85,7 @@ export default function ArticleAcceptedCard({
           {article.docLink && (
             <Link href={article.docLink} target="_blank">
               <div className="articleAcceptedCard-anchor-icons-download">
-                <DownloadRedIcon
+                <DownloadBlackIcon
                   size={16}
                   className="articleAcceptedCard-anchor-icons-download-download-icon"
                   ariaLabel="Download"

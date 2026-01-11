@@ -5,7 +5,7 @@ import { Link } from '@/components/Link/Link';
 import { useRouter } from 'next/navigation';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
-import { CaretUpRedIcon, CaretDownRedIcon, DownloadRedIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon, DownloadBlackIcon } from '@/components/icons';
 import './VolumeArticleCard.scss';
 
 import { PATHS } from '@/config/paths';
@@ -60,13 +60,13 @@ export default function VolumeArticleCard({
           >
             <div className="volumeArticleCard-abstract-title-text">{t('common.abstract')}</div>
             {openedAbstract ? (
-              <CaretUpRedIcon
+              <CaretUpBlackIcon
                 size={14}
                 className="volumeArticleCard-abstract-title-caret"
                 ariaLabel="Collapse abstract"
               />
             ) : (
-              <CaretDownRedIcon
+              <CaretDownBlackIcon
                 size={14}
                 className="volumeArticleCard-abstract-title-caret"
                 ariaLabel="Expand abstract"
@@ -93,7 +93,7 @@ export default function VolumeArticleCard({
               rel="noopener noreferrer"
             >
               <div className="volumeArticleCard-anchor-icons-download">
-                <DownloadRedIcon
+                <DownloadBlackIcon
                   size={16}
                   className="volumeArticleCard-anchor-icons-download-icon"
                   ariaLabel="Download PDF"

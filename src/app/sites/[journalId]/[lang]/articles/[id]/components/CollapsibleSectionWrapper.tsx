@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, ReactNode } from 'react';
-import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 
 interface CollapsibleSectionWrapperProps {
   title: string;
@@ -30,13 +30,13 @@ export default function CollapsibleSectionWrapper({
       >
         <div className="articleDetails-content-article-section-title-text">{title}</div>
         {isOpen ? (
-          <CaretUpRedIcon
+          <CaretUpBlackIcon
             size={16}
             className="articleDetails-content-article-section-title-caret"
             ariaLabel="Collapse section"
           />
         ) : (
-          <CaretDownRedIcon
+          <CaretDownBlackIcon
             size={16}
             className="articleDetails-content-article-section-title-caret"
             ariaLabel="Expand section"

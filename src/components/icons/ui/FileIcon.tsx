@@ -52,3 +52,7 @@ export const FileGreyIcon = (props: Omit<FileIconProps, 'color'>) => (
 export const FileBlueIcon = (props: Omit<FileIconProps, 'color'>) => (
   <FileIcon {...props} color="#2563EB" />
 );
+
+export const FileBlackIcon = (props: Omit<FileIconProps, 'color'>) => (
+  <FileIcon {...props} color="#000000" />
+);

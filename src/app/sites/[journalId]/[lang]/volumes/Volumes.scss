@@ -84,7 +84,7 @@
           cursor: pointer;
 
           &-row,
-          &-row-red {
+          &-row-black {
             display: flex;
             justify-content: space-between;
             gap: 10px;
@@ -93,8 +93,8 @@
           &-row {
             color: var(--grey);
 
-            &-red {
-              color: var(--primary);
+            &-black {
+              color: var(--black);
               text-decoration: underline;
             }
           }

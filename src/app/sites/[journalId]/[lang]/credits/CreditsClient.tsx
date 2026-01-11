@@ -1,6 +1,6 @@
 'use client';
 
-import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
@@ -47,7 +47,8 @@ export default function CreditsClient({
 }: CreditsClientProps): React.JSX.Element {
   const { t } = useTranslation();
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
@@ -229,13 +230,13 @@ export default function CreditsClient({
                             {...props}
                           />
                           {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
-                            <CaretUpRedIcon
+                            <CaretUpBlackIcon
                               size={16}
                               className="credits-content-body-section-subtitle-caret"
                               ariaLabel="Collapse section"
                             />
                           ) : (
-                            <CaretDownRedIcon
+                            <CaretDownBlackIcon
                               size={16}
                               className="credits-content-body-section-subtitle-caret"
                               ariaLabel="Expand section"

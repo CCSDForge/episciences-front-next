@@ -14,6 +14,9 @@ export default defineConfig({
     // Global test setup
     globals: true,
 
+    // Setup file for @testing-library/jest-dom matchers
+    setupFiles: ['./vitest.setup.ts'],
+
     // Coverage configuration
     coverage: {
       provider: 'v8',

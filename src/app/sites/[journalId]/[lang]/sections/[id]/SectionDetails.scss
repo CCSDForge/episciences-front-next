@@ -53,6 +53,30 @@
           }
         }
 
+        &-committee {
+          color: var(--grey-dark);
+          margin-bottom: 16px;
+          font-size: 20px;
+
+          @media (max-width: breakpoints.$xsm) {
+            display: none;
+          }
+
+          &-mobile {
+            display: none;
+
+            @media (max-width: breakpoints.$xsm) {
+              display: block;
+              font-size: 16px;
+              margin-bottom: 8px;
+            }
+          }
+
+          &-note {
+            margin-right: 5px;
+          }
+        }
+
         &-mobileCount {
           color: var(--grey);
           margin-bottom: 20px;

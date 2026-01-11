@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
-import { CaretUpRedIcon, CaretDownRedIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import './SectionCard.scss';
 
 import { PATHS } from '@/config/paths';
@@ -47,13 +47,13 @@ export default function SectionCard({
           >
             <div className="sectionCard-description-title-text">{t('common.about')}</div>
             {openedDescription ? (
-              <CaretUpRedIcon
+              <CaretUpBlackIcon
                 size={14}
                 className="sectionCard-description-title-caret"
                 ariaLabel="Collapse description"
               />
             ) : (
-              <CaretDownRedIcon
+              <CaretDownBlackIcon
                 size={14}
                 className="sectionCard-description-title-caret"
                 ariaLabel="Expand description"

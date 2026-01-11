@@ -5,10 +5,10 @@ import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import {
-  CaretUpRedIcon,
-  CaretDownRedIcon,
-  DownloadRedIcon,
-  QuoteRedIcon,
+  CaretUpBlackIcon,
+  CaretDownBlackIcon,
+  DownloadBlackIcon,
+  QuoteBlackIcon,
 } from '@/components/icons';
 import './SearchResultCard.scss';
 
@@ -102,10 +102,16 @@ export default function SearchResultCard({
   useEffect(() => {
     const fetchCitations = async () => {
       const fetchedCitations = await getCitations(metadataCSL as string);
-      fetchedCitations.push({
-        key: CITATION_TEMPLATE.BIBTEX,
-        citation: metadataBibTeX as string,
-      });
+
+      // BibTeX is already added by getCitations with an empty citation,
+      // and then updated if metadataBibTeX is available.
+      // But here we need to make sure the citation is correctly filled
+      const bibtexIndex = fetchedCitations.findIndex(
+        citation => citation.key === CITATION_TEMPLATE.BIBTEX
+      );
+      if (bibtexIndex !== -1 && metadataBibTeX) {
+        fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
+      }
 
       setCitations(fetchedCitations);
     };
@@ -143,13 +149,13 @@ export default function SearchResultCard({
           >
             <div className="searchResultCardAbstractTitleText">{t('common.abstract')}</div>
             {searchResult.openedAbstract ? (
-              <CaretUpRedIcon
+              <CaretUpBlackIcon
                 size={14}
                 className="searchResultCardAbstractTitleCaret"
                 ariaLabel="Collapse abstract"
               />
             ) : (
-              <CaretDownRedIcon
+              <CaretDownBlackIcon
                 size={14}
                 className="searchResultCardAbstractTitleCaret"
                 ariaLabel="Expand abstract"
@@ -171,7 +177,7 @@ export default function SearchResultCard({
           {searchResult.pdfLink && (
             <Link href={`/${PATHS.articles}/${searchResult.id}/download`} lang={language}>
               <div className="searchResultCardAnchorIconsDownload">
-                <DownloadRedIcon
+                <DownloadBlackIcon
                   size={16}
                   className="searchResultCardAnchorIconsDownloadIcon"
                   ariaLabel="Download PDF"
@@ -188,7 +194,7 @@ export default function SearchResultCard({
               onMouseLeave={(): void => setShowCitationsDropdown(false)}
               onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
             >
-              <QuoteRedIcon
+              <QuoteBlackIcon
                 size={16}
                 className="searchResultCardAnchorIconsCiteIcon"
                 ariaLabel="Cite article"

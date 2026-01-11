@@ -55,7 +55,8 @@ export default function SectionsClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Initialiser la page depuis les query params ou initialPage

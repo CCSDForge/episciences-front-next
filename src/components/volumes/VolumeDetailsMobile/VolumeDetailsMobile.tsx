@@ -1,6 +1,6 @@
 'use client';
 
-import { CloseRedIcon } from '@/components/icons';
+import { CloseBlackIcon } from '@/components/icons';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
@@ -98,7 +98,7 @@ export function VolumeDetailsMobile({
     <div className="volumeDetailsMobile" ref={modalRef}>
       <div className="volumeDetailsMobile-title">
         <div className="volumeDetailsMobile-title-text">{getTitle()}</div>
-        <CloseRedIcon
+        <CloseBlackIcon
           size={24}
           className="volumeDetailsMobile-title-close"
           ariaLabel="Close"

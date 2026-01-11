@@ -3,12 +3,8 @@ import sitemap from '../sites/[journalId]/sitemap';
 
 // Mock services
 vi.mock('@/services/sitemap', () => ({
-  fetchAllArticlesForSitemap: vi.fn().mockResolvedValue([
-    { id: 123, updated_at: '2024-01-01' }
-  ]),
-  fetchAllVolumesForSitemap: vi.fn().mockResolvedValue([
-    { id: 456, updated_at: '2024-02-01' }
-  ]),
+  fetchAllArticlesForSitemap: vi.fn().mockResolvedValue([{ id: 123, updated_at: '2024-01-01' }]),
+  fetchAllVolumesForSitemap: vi.fn().mockResolvedValue([{ id: 456, updated_at: '2024-02-01' }]),
 }));
 
 // Mock utils

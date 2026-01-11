@@ -34,6 +34,11 @@ const nextConfig = {
         hostname: 'api-preprod.episciences.org',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '*.episciences.org',
+        pathname: '/**',
+      },
     ],
     minimumCacheTTL: 5184000, // 60 days
     dangerouslyAllowSVG: false,

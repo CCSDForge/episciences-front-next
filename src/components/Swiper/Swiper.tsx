@@ -6,7 +6,7 @@ import { Pagination, Navigation } from 'swiper/modules';
 import { useEffect, useState } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import Card, { SwiperCardType, SwiperCardContent } from '@/components/SwiperCards/SwiperCard';
-import { CaretLeftRedIcon, CaretRightRedIcon } from '@/components/icons';
+import { CaretLeftBlackIcon, CaretRightBlackIcon } from '@/components/icons';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -85,7 +85,7 @@ export default function Swiper({
     <>
       <div className="swiper-page-wrapper">
         <div className={`${id}-button-prev swiper-button-prev`}>
-          <CaretLeftRedIcon size={16} className="swiper-button-prev-icon" ariaLabel="Previous" />
+          <CaretLeftBlackIcon size={16} className="swiper-button-prev-icon" ariaLabel="Previous" />
         </div>
         <SwiperReactLib
           slidesPerView={slidesPerView}
@@ -122,7 +122,7 @@ export default function Swiper({
           ))}
         </SwiperReactLib>
         <div className={`${id}-button-next swiper-button-next`}>
-          <CaretRightRedIcon size={16} className="swiper-button-next-icon" ariaLabel="Next" />
+          <CaretRightBlackIcon size={16} className="swiper-button-next-icon" ariaLabel="Next" />
         </div>
       </div>
       <div className={`${id}-pagination swiper-pagination`}></div>

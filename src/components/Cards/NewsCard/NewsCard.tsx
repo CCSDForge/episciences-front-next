@@ -4,7 +4,7 @@ import { MouseEvent, useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { TFunction } from 'i18next';
-import { ExternalLinkRedIcon } from '@/components/icons';
+import { ExternalLinkBlackIcon } from '@/components/icons';
 import './NewsCard.scss';
 
 import { INews } from '@/types/news';
@@ -101,7 +101,7 @@ export default function NewsCard({
                   prefetch={false}
                   onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
                 >
-                  <ExternalLinkRedIcon
+                  <ExternalLinkBlackIcon
                     size={16}
                     className="newsCard-content-read-icon"
                     ariaLabel="External link"
@@ -140,7 +140,7 @@ export default function NewsCard({
                   prefetch={false}
                   onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
                 >
-                  <ExternalLinkRedIcon
+                  <ExternalLinkBlackIcon
                     size={16}
                     className="newsCard-content-read-icon"
                     ariaLabel="External link"
@@ -170,7 +170,7 @@ export default function NewsCard({
               prefetch={false}
               onClick={(e: MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
             >
-              <ExternalLinkRedIcon
+              <ExternalLinkBlackIcon
                 size={16}
                 className="newsCard-content-read-icon"
                 ariaLabel="External link"

@@ -3,7 +3,7 @@
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import Image from 'next/image';
-import { DownloadBlueIcon } from '@/components/icons';
+import { DownloadBlackIcon } from '@/components/icons';
 
 import { PATHS } from '@/config/paths';
 import { IArticle } from '@/types/article';
@@ -153,7 +153,7 @@ export default function VolumeDetailsSidebar({
             className="volumeDetailsSidebar-actions-action"
             lang={language}
           >
-            <DownloadBlueIcon size={16} ariaLabel="Download all articles" />
+            <DownloadBlackIcon size={16} ariaLabel="Download all articles" />
             <span className="volumeDetailsSidebar-actions-action-text">
               {t('pages.volumeDetails.actions.downloadAll')}
             </span>
@@ -168,7 +168,7 @@ export default function VolumeDetailsSidebar({
             rel="noopener noreferrer"
             lang={language}
           >
-            <DownloadBlueIcon
+            <DownloadBlackIcon
               size={16}
               ariaLabel={`Download ${metadata.title?.[language] || 'file'}`}
             />

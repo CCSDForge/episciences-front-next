@@ -16,6 +16,8 @@ interface SectionDetailsClientProps {
   articles: IArticle[];
   sectionId: string;
   lang?: string;
+  sectionTitle: string;
+  sectionDescription: string;
   breadcrumbLabels?: {
     home: string;
     content: string;
@@ -28,6 +30,8 @@ export default function SectionDetailsClient({
   articles,
   sectionId,
   lang,
+  sectionTitle,
+  sectionDescription,
   breadcrumbLabels,
 }: SectionDetailsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
@@ -39,7 +43,8 @@ export default function SectionDetailsClient({
     }
   }, [lang, i18n]);
 
-  const language = useAppSelector(state => state.i18nReducer.language);
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
 
   const [displayedArticles, setDisplayedArticles] = useState<IArticle[]>(articles);
@@ -50,8 +55,23 @@ export default function SectionDetailsClient({
     }
   }, [articles]);
 
-  const sectionTitle = section?.title?.[language] || section?.title?.['en'] || '';
-  const sectionDescription = section?.description?.[language] || section?.description?.['en'] || '';
+  const renderSectionCommittee = (isMobile: boolean): React.JSX.Element | null => {
+    const className = isMobile
+      ? 'sectionDetails-content-results-content-committee sectionDetails-content-results-content-committee-mobile'
+      : 'sectionDetails-content-results-content-committee';
+
+    if (section?.committee && section.committee.length > 0) {
+      return (
+        <div className={className}>
+          <span className="sectionDetails-content-results-content-committee-note">
+            {t('common.editors')} :
+          </span>{' '}
+          {section?.committee.map(member => member.screenName).join(', ')}
+        </div>
+      );
+    }
+    return null;
+  };
 
   const breadcrumbItems = [
     {
@@ -97,7 +117,10 @@ export default function SectionDetailsClient({
                 </div>
               )}
 
+              {renderSectionCommittee(false)}
+
               <div className="sectionDetails-content-results-content-mobileCount">
+                {renderSectionCommittee(true)}
                 {displayedArticles.length > 1
                   ? `${displayedArticles.length} ${t('common.articles')}`
                   : `${displayedArticles.length} ${t('common.article')}`}

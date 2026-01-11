@@ -5,7 +5,7 @@ import { Link } from '@/components/Link/Link';
 import { OrcidIcon, UserIcon } from '@/components/icons';
 import { IBoardMember } from '@/types/board';
 import { AvailableLanguage } from '@/utils/i18n';
-import { defaultBoardRole, getBoardRoles } from '@/utils/board';
+import { defaultBoardRole, getBoardRoles } from '@/services/board';
 import './SwiperBoardCard.scss';
 
 export type SwiperBoardCardProps = IBoardMember;

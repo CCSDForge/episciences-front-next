@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
-import { CaretUpRedIcon, CaretDownRedIcon, DownloadRedIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon, DownloadBlackIcon } from '@/components/icons';
 import './SectionArticleCard.scss';
 
 import { PATHS } from '@/config/paths';
@@ -51,13 +51,13 @@ export default function SectionArticleCard({
           >
             <div className="sectionArticleCard-abstract-title-text">{t('common.abstract')}</div>
             {openedAbstract ? (
-              <CaretUpRedIcon
+              <CaretUpBlackIcon
                 size={14}
                 className="sectionArticleCard-abstract-title-caret"
                 ariaLabel="Collapse abstract"
               />
             ) : (
-              <CaretDownRedIcon
+              <CaretDownBlackIcon
                 size={14}
                 className="sectionArticleCard-abstract-title-caret"
                 ariaLabel="Expand abstract"
@@ -83,7 +83,7 @@ export default function SectionArticleCard({
               rel="noopener noreferrer"
             >
               <div className="sectionArticleCard-anchor-icons-download">
-                <DownloadRedIcon
+                <DownloadBlackIcon
                   size={16}
                   className="sectionArticleCard-anchor-icons-download-icon"
                   ariaLabel="Download PDF"

@@ -1,10 +1,11 @@
 'use client';
 
-import { CaretUpRedIcon, CaretDownRedIcon, FilterIcon } from '@/components/icons';
+import { CaretUpBlackIcon, CaretDownBlackIcon, FilterIcon } from '@/components/icons';
 import { useState, useEffect, Fragment, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import PageTitle from '@/components/PageTitle/PageTitle';
+import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchStatistics } from '@/services/statistics';
 import { useAppSelector } from '@/hooks/store';
 import {
@@ -74,55 +75,46 @@ export default function StatisticsClient({
   ]);
   const [years, setYears] = useState<IStatisticsYearSelection[]>([]);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
-  const [stats, setStats] = useState<IStatResponse | null>(initialStats || null);
-  const [isLoading, setIsLoading] = useState(!initialStats);
+
+  const {
+    data: stats,
+    isUpdating: isLoading,
+    refetch,
+  } = useClientSideFetch({
+    fetchFn: async () => {
+      if (!journalCode) return null;
+      const response = await fetchStatistics({
+        rvcode: journalCode,
+        page: 1,
+        itemsPerPage: 7,
+        years: getSelectedYears().length > 0 ? getSelectedYears() : undefined,
+      });
+
+      // Get current year and generate 5 years range if not available in response
+      const currentYear = new Date().getFullYear();
+      const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
+
+      return {
+        'hydra:member': response,
+        'hydra:totalItems': response.length,
+        'hydra:range': {
+          years: availableYears,
+        },
+        data: response,
+        totalItems: response.length,
+        range: {
+          years: availableYears,
+        },
+      };
+    },
+    initialData: initialStats || null,
+    enabled: !!journalCode,
+  });
 
   const getSelectedYears = useCallback(
     (): number[] => years.filter(y => y.isChecked).map(y => y.year),
     [years]
   );
-
-  // Chargement initial des statistiques si pas de données pré-chargées
-  useEffect(() => {
-    const loadInitialStatistics = async () => {
-      if (initialStats || !journalCode) return;
-
-      setIsLoading(true);
-      try {
-        const response = await fetchStatistics({
-          rvcode: journalCode,
-          page: 1,
-          itemsPerPage: 7,
-        });
-
-        // Obtenir les années disponibles
-        const currentYear = new Date().getFullYear();
-        const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
-
-        // Adapter la réponse au format attendu
-        const formattedStats: IStatResponse = {
-          'hydra:member': response,
-          'hydra:totalItems': response.length,
-          'hydra:range': {
-            years: availableYears,
-          },
-          data: response,
-          totalItems: response.length,
-          range: {
-            years: availableYears,
-          },
-        };
-
-        setStats(formattedStats);
-      } catch (error) {
-        console.error('Erreur lors du chargement initial des statistiques:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadInitialStatistics();
-  }, [journalCode, initialStats]);
 
   useEffect(() => {
     if (stats?.range?.years && years.length === 0) {
@@ -198,41 +190,10 @@ export default function StatisticsClient({
   const selectedYearsStr = getSelectedYears().join(',');
 
   useEffect(() => {
-    const fetchUpdatedStatistics = async () => {
-      const selectedYears = selectedYearsStr ? selectedYearsStr.split(',').map(Number) : [];
-
-      // Ne rien faire si le composant n'est pas initialisé (pas de journalCode ou years vide)
-      if (!journalCode || years.length === 0) return;
-
-      setIsLoading(true);
-      try {
-        const updatedStats = await fetchStatistics({
-          rvcode: journalCode,
-          // Si aucune année n'est sélectionnée, on ne passe pas le filtre years (toutes les années)
-          // Si au moins une année est sélectionnée, on filtre par ces années
-          years: selectedYears.length > 0 ? selectedYears : undefined,
-        });
-
-        // Adapter la réponse au format attendu
-        const formattedStats: IStatResponse = {
-          'hydra:member': updatedStats,
-          'hydra:totalItems': updatedStats.length,
-          'hydra:range': stats?.range,
-          data: updatedStats,
-          totalItems: updatedStats.length,
-          range: stats?.range,
-        };
-
-        setStats(formattedStats);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des statistiques:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUpdatedStatistics();
-  }, [selectedYearsStr, journalCode, years.length, stats?.range]);
+    if (journalCode) {
+      refetch();
+    }
+  }, [selectedYearsStr, journalCode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onCheckYear = (year: number): void => {
     const updatedYears = years.map(y => {
@@ -340,13 +301,13 @@ export default function StatisticsClient({
                         {t(statisticPerLabel.labelPath)}
                       </div>
                       {statisticPerLabel.isOpened ? (
-                        <CaretUpRedIcon
+                        <CaretUpBlackIcon
                           size={16}
                           className="statistics-content-results-cards-row-title-caret"
                           ariaLabel="Collapse section"
                         />
                       ) : (
-                        <CaretDownRedIcon
+                        <CaretDownBlackIcon
                           size={16}
                           className="statistics-content-results-cards-row-title-caret"
                           ariaLabel="Expand section"

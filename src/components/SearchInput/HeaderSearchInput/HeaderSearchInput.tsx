@@ -1,6 +1,6 @@
 'use client';
 
-import { CaretLeftRedIcon, SearchIcon, CloseRedIcon } from '@/components/icons';
+import { CaretLeftBlackIcon, SearchIcon, CloseBlackIcon } from '@/components/icons';
 import { ChangeEvent, KeyboardEvent, useState, useRef } from 'react';
 
 import './HeaderSearchInput.scss';
@@ -53,7 +53,7 @@ export default function HeaderSearchInput({
   return (
     <div className="headerSearchInput">
       {isSearching ? (
-        <CaretLeftRedIcon
+        <CaretLeftBlackIcon
           size={16}
           className="headerSearchInput-icon headerSearchInput-icon-caretLeft"
           ariaLabel="Back"
@@ -77,7 +77,7 @@ export default function HeaderSearchInput({
         onKeyDown={(e: KeyboardEvent<HTMLInputElement>): void => handleKeyDown(e)}
       />
       {isSearching && (
-        <CloseRedIcon
+        <CloseBlackIcon
           size={16}
           className="headerSearchInput-icon headerSearchInput-icon-close"
           ariaLabel="Clear"

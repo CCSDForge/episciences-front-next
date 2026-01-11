@@ -14,6 +14,7 @@
     "authorsFor": "auteurs pour",
     "member": "membre",
     "members": "membres",
+    "editors": "Rédacteurs",
     "about": "À propos",
     "resultsFor": "résultats pour",
     "resultFor": "résultat pour",
@@ -93,6 +94,8 @@
       "journal": "Revues en libre accès",
       "content": "Articles & volumes",
       "about": "À propos",
+      "publish": "Publier",
+      "skipToMain": "Aller au contenu principal",
       "links": {
         "openAccessJournals": "Revues en libre accès",
         "articlesAndIssues": "Articles & Numéros",
@@ -108,11 +111,16 @@
         "proceedings": "Actes de conférences",
         "authors": "Auteurs",
         "about": "À propos",
+        "acknowledgements": "Remerciements",
+        "indexing": "Indexation",
         "theJournal": "La revue",
         "news": "Actualités",
         "statistics": "Statistiques",
         "boards": "Comités",
-        "forAuthors": "Pour les auteurs"
+        "forAuthors": "Pour les auteurs",
+        "ethicalCharter": "Charte éthique",
+        "forReviewers": "Pour les relecteurs",
+        "forConferenceOrganisers": "Pour les organisateurs de conférences"
       },
       "search": {
         "placeholder": "rechercher",
@@ -124,7 +132,9 @@
         "closeLabel": "Fermer la recherche",
         "backAlt": "Retour"
       },
-      "searchPlaceholder": "rechercher"
+      "searchPlaceholder": "rechercher",
+      "languageSelector": "Sélecteur de langue",
+      "selectLanguage": "Sélectionner une langue"
     },
     "footer": {
       "links": {
@@ -433,22 +443,48 @@
       "title": "Comités",
       "tableOfContents": "Table des matières",
       "types": {
+        "introductionBoard": "Présentation des comités",
         "technicalBoard": "Comité technique",
         "editorialBoard": "Comité éditorial",
         "scientificAdvisoryBoard": "Comité scientifique",
-        "formerMember": "Ancien membre"
+        "reviewersBoard": "Comité de relecture",
+        "formerMember": "Anciens membres",
+        "operatingCharterBoard": "Charte de fonctionnement"
       },
       "roles": {
-        "member": "Membre",
-        "guestEditor": "Rédacteur invité",
-        "editor": "Rédacteur",
         "chiefEditor": "Rédacteur en chef",
+        "managingEditor": "Rédacteur en chef adjoint",
+        "editor": "Rédacteur",
+        "handlingEditor": "Rédacteur associé",
+        "guestEditor": "Rédacteur invité",
         "secretary": "Secrétaire",
+        "advisoryBoard": "Membre du comité consultatif",
+        "member": "Membre",
         "formerMember": "Ancien membre"
       }
     },
     "forAuthors": {
       "title": "Pour les auteurs"
+    },
+    "acknowledgements": {
+      "title": "Remerciements",
+      "noContent": "Aucun remerciement disponible pour cette revue."
+    },
+    "indexing": {
+      "title": "Indexation",
+      "noContent": "Aucune information d'indexation disponible pour cette revue."
+    },
+    "ethicalCharter": {
+      "title": "Charte éthique",
+      "noContent": "Aucune charte éthique disponible pour cette revue."
+    },
+    "forReviewers": {
+      "title": "Pour les relecteurs",
+      "noContent": "Aucune information pour les relecteurs disponible pour cette revue."
+    },
+    "forConferenceOrganisers": {
+      "title": "Pour les organisateurs de conférences",
+      "noContent": "Aucune information pour les organisateurs de conférences disponible pour cette revue."
     },
     "credits": {
       "title": "Crédits"

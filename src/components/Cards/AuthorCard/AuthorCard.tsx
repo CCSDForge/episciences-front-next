@@ -1,7 +1,7 @@
 'use client';
 
 import { TFunction } from 'i18next';
-import { CaretRightBlackIcon, CaretRightRedIcon } from '@/components/icons';
+import { CaretDownBlackIcon, CaretRightBlackIcon } from '@/components/icons';
 import './AuthorCard.scss';
 
 import { IAuthor } from '@/types/author';
@@ -29,7 +29,7 @@ export default function AuthorCard({
             {author.name}
           </div>
           {expandedCard ? (
-            <CaretRightRedIcon
+            <CaretDownBlackIcon
               size={16}
               className="authorCard-title-name-caret"
               ariaLabel="Collapse author"
