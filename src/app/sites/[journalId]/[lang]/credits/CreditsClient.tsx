@@ -10,6 +10,7 @@ import PageTitle from '@/components/PageTitle/PageTitle';
 
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
+import { AvailableLanguage } from '@/utils/i18n';
 import { fetchCreditsPage } from '@/services/credits';
 import {
   generateIdFromText,

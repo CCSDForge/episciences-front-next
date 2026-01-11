@@ -5,7 +5,6 @@ import { INTER_WORK_RELATIONSHIP } from '@/utils/article';
 import { BREADCRUMB_PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
-import { supportsInlinePreview } from '@/utils/pdf-preview';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServer';
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
@@ -194,7 +193,8 @@ export default function ArticleDetailsServer({
   };
 
   const getPreviewSection = (): React.JSX.Element | null => {
-    if (!article?.pdfLink || !supportsInlinePreview(article.pdfLink)) {
+    // All PDFs now routed through proxy which forces inline display
+    if (!article?.pdfLink) {
       return null;
     }
 

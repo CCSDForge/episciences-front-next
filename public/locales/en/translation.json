@@ -157,6 +157,26 @@
         "downloadLocal": "Download the PDF to view it locally",
         "openNewTab": "Open it in a new tab"
       }
+    },
+    "advancedPDFViewer": {
+      "zoom": {
+        "in": "Zoom in",
+        "out": "Zoom out",
+        "reset": "Reset"
+      },
+      "navigation": {
+        "previous": "Previous",
+        "next": "Next",
+        "pageOf": "Page {{current}} of {{total}}"
+      },
+      "sidebar": {
+        "outline": "Table of Contents",
+        "thumbnails": "Thumbnails",
+        "noOutline": "No outline available"
+      },
+      "download": "Download",
+      "loading": "Loading PDF...",
+      "error": "Failed to load PDF"
     }
   },
   "pages": {

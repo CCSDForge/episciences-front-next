@@ -175,7 +175,7 @@ export default function SearchResultCard({
         </div>
         <div className="searchResultCardAnchorIcons">
           {searchResult.pdfLink && (
-            <Link href={`/${PATHS.articles}/${searchResult.id}/download`} lang={language}>
+            <a href={`/${language}/${PATHS.articles}/${searchResult.id}/download`}>
               <div className="searchResultCardAnchorIconsDownload">
                 <DownloadBlackIcon
                   size={16}
@@ -184,7 +184,7 @@ export default function SearchResultCard({
                 />
                 <div className="searchResultCardAnchorIconsDownloadText">{t('common.pdf')}</div>
               </div>
-            </Link>
+            </a>
           )}
           {citations.length > 0 && (
             <div

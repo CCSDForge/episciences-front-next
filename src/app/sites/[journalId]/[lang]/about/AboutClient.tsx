@@ -9,6 +9,7 @@ import remarkGfm from 'remark-gfm';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchAboutPage } from '@/services/about';
+import { AvailableLanguage } from '@/utils/i18n';
 import {
   generateIdFromText,
   unifiedProcessor,

@@ -12,6 +12,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 import { useAppSelector } from '@/hooks/store';
+import { AvailableLanguage } from '@/utils/i18n';
 import { RENDERING_MODE } from '@/utils/card';
 import { volumeTypes } from '@/utils/volume';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';

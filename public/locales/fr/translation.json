@@ -164,6 +164,26 @@
         "downloadLocal": "Télécharger le PDF pour le visualiser localement",
         "openNewTab": "L'ouvrir dans un nouvel onglet"
       }
+    },
+    "advancedPDFViewer": {
+      "zoom": {
+        "in": "Zoom avant",
+        "out": "Zoom arrière",
+        "reset": "Réinitialiser"
+      },
+      "navigation": {
+        "previous": "Précédent",
+        "next": "Suivant",
+        "pageOf": "Page {{current}} sur {{total}}"
+      },
+      "sidebar": {
+        "outline": "Sommaire",
+        "thumbnails": "Miniatures",
+        "noOutline": "Aucun sommaire disponible"
+      },
+      "download": "Télécharger",
+      "loading": "Chargement du PDF...",
+      "error": "Erreur de chargement du PDF"
     }
   },
   "pages": {

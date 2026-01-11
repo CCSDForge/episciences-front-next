@@ -149,7 +149,7 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
     return data
       .filter((page: IBoardPage) => boardTypes.includes(page.page_code as BOARD_TYPE))
       .sort(
-        (a, b) =>
+        (a: IBoardPage, b: IBoardPage) =>
           boardTypes.indexOf(a.page_code as BOARD_TYPE) -
           boardTypes.indexOf(b.page_code as BOARD_TYPE)
       );

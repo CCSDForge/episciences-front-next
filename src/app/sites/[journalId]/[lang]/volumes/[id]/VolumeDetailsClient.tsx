@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { AvailableLanguage } from '@/utils/i18n';
 import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from 'react-device-detect';
 import ReactMarkdown from 'react-markdown';

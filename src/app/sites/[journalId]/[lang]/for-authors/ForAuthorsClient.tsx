@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { AvailableLanguage } from '@/utils/i18n';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';

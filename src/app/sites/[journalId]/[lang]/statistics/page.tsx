@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { fetchStatistics } from '@/services/statistics';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import type { IStatResponse } from '@/types/stat';
 import './Statistics.scss';
 
 const StatisticsClient = dynamic(() => import('./StatisticsClient'));
@@ -23,7 +24,7 @@ export default async function StatisticsPage(props: Props) {
   const { journalId, lang } = params;
 
   // Pre-fetch stats and translations server-side to avoid flashing
-  let initialStats = null;
+  let initialStats: IStatResponse | undefined = undefined;
   try {
     if (journalId) {
       const statsData = await fetchStatistics({

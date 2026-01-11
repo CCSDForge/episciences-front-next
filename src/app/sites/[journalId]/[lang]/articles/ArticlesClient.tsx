@@ -1,6 +1,7 @@
 'use client';
 
 import { FilterIcon } from '@/components/icons';
+import { AvailableLanguage } from '@/utils/i18n';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';

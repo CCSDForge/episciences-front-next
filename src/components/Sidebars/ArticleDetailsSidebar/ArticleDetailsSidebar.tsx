@@ -279,7 +279,7 @@ export default function ArticleDetailsSidebar({
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
           <>
-            <a href={article.pdfLink} target="_blank" rel="noopener noreferrer">
+            <a href={`/${PATHS.articles}/${article.id}/download`}>
               <div className="articleDetailsSidebar-links-link">
                 <DownloadBlackIcon
                   size={20}

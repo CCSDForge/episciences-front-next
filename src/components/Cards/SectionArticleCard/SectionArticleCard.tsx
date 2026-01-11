@@ -77,11 +77,7 @@ export default function SectionArticleCard({
         </div>
         <div className="sectionArticleCard-anchor-icons">
           {article.pdfLink && (
-            <Link
-              href={`${PATHS.articles}/${article.id}/download`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href={`/${language}/${PATHS.articles}/${article.id}/download`}>
               <div className="sectionArticleCard-anchor-icons-download">
                 <DownloadBlackIcon
                   size={16}
@@ -92,7 +88,7 @@ export default function SectionArticleCard({
                   {t('common.pdf')}
                 </div>
               </div>
-            </Link>
+            </a>
           )}
         </div>
       </div>

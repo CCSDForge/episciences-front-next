@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { AvailableLanguage } from '@/utils/i18n';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
 import { ISection } from '@/types/section';

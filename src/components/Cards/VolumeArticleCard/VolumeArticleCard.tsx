@@ -86,12 +86,7 @@ export default function VolumeArticleCard({
         </div>
         <div className="volumeArticleCard-anchor-icons">
           {article.pdfLink && (
-            <Link
-              href={`${PATHS.articles}/${article.id}/download`}
-              lang={language}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href={`/${language}/${PATHS.articles}/${article.id}/download`}>
               <div className="volumeArticleCard-anchor-icons-download">
                 <DownloadBlackIcon
                   size={16}
@@ -102,7 +97,7 @@ export default function VolumeArticleCard({
                   {t('common.pdf')}
                 </div>
               </div>
-            </Link>
+            </a>
           )}
         </div>
       </div>

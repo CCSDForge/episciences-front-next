@@ -9,6 +9,7 @@ import PageTitle from '@/components/PageTitle/PageTitle';
 import { useAppSelector } from '@/hooks/store';
 import { useFetchArticlesQuery } from '@/store/features/article/article.query';
 import { FetchedArticle, articleTypes } from '@/utils/article';
+import { AvailableLanguage } from '@/utils/i18n';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import ArticleAcceptedCard, {

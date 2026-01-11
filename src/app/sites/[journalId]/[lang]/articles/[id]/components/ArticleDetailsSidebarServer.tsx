@@ -222,8 +222,6 @@ export default function ArticleDetailsSidebarServer({
         {article?.pdfLink && (
           <a
             href={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)}
-            target="_blank"
-            rel="noopener noreferrer"
           >
             <div className="articleDetailsSidebar-links-link">
               <DownloadBlackIcon

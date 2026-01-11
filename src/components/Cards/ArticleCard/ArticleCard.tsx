@@ -173,12 +173,7 @@ export default function ArticleCard({
         </div>
         <div className="articleCard-anchor-icons">
           {article.pdfLink && (
-            <Link
-              href={`${PATHS.articles}/${article.id}/download`}
-              lang={language}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href={`/${language}/${PATHS.articles}/${article.id}/download`}>
               <div className="articleCard-anchor-icons-download">
                 <DownloadBlackIcon
                   size={16}
@@ -187,7 +182,7 @@ export default function ArticleCard({
                 />
                 <div className="articleCard-anchor-icons-download-text">{t('common.pdf')}</div>
               </div>
-            </Link>
+            </a>
           )}
           {citations.length > 0 && (
             <div

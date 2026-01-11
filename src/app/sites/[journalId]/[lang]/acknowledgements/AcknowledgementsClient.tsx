@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
+import { AvailableLanguage } from '@/utils/i18n';
 import { fetchAcknowledgementsPage } from '@/services/acknowledgements';
 import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';

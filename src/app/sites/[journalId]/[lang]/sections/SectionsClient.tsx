@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { AvailableLanguage } from '@/utils/i18n';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
