@@ -76,8 +76,11 @@ export default function NewsCard({
         <div
           id={cardId()}
           className="newsCard newsCard-tile newsCard-tile-full"
-          onClick={setFullNewsIndexCallback}
-        >
+          
+        role="button"
+        tabIndex={0}
+        
+        onClick={setFullNewsIndexCallback}        onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}>
           <div className="newsCard-tile-full-initial">
             <div className="newsCard-content newsCard-content-tile-full">
               <div className="newsCard-content-title newsCard-content-title-tile">
@@ -121,8 +124,11 @@ export default function NewsCard({
         className={
           blurCard ? 'newsCard newsCard-tile newsCard-tile-blur' : 'newsCard newsCard-tile'
         }
-        onClick={setFullNewsIndexCallback}
-      >
+        
+        role="button"
+        tabIndex={0}
+        
+        onClick={setFullNewsIndexCallback}        onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}>
         <div className="newsCard-content newsCard-content-tile">
           <div className="newsCard-content-title newsCard-content-title-tile">
             {news.title[language]}

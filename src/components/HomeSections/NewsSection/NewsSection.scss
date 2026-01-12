@@ -5,7 +5,7 @@
   gap: 24px;
   padding: 24px;
   border: 1px solid var(--grey);
-  border-bottom: 4px solid var(--primary);
+  border-bottom: 4px solid var(--primary-border);
 
   @media (max-width: breakpoints.$xsm) {
     flex-direction: column;
@@ -42,7 +42,7 @@
   }
 
   &-divider {
-    border-right: 2px solid var(--primary);
+    border-right: 2px solid var(--primary-border);
 
     @media (max-width: breakpoints.$xsm) {
       display: none;

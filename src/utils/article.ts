@@ -10,7 +10,7 @@ import {
   RawArticle,
 } from '@/types/article';
 import { TFunction } from 'i18next';
-import { toast } from 'react-toastify';
+import { toastSuccess } from './toast';
 
 export interface ICitation {
   key: CITATION_TEMPLATE;
@@ -498,7 +498,7 @@ export const copyToClipboardCitation = (
   t: TFunction<'translation', undefined>
 ): void => {
   navigator.clipboard.writeText(citation.citation);
-  toast.success(t('common.citeSuccess', { template: citation.key }));
+  toastSuccess(t('common.citeSuccess', { template: citation.key }));
 };
 
 export const getLicenseTranslations = (

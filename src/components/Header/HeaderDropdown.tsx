@@ -152,6 +152,7 @@ export default function HeaderDropdown({
   );
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Mouse events are progressive enhancement; keyboard navigation handled by button
     <div
       ref={dropdownRef}
       className={`header-dropdown ${className}`}

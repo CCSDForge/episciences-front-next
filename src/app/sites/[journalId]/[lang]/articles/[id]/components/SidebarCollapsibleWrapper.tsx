@@ -2,6 +2,7 @@
 
 import React, { useState, ReactNode } from 'react';
 import { CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface SidebarCollapsibleWrapperProps {
   title: string;
@@ -24,7 +25,14 @@ export default function SidebarCollapsibleWrapper({
 
   return (
     <div className={className}>
-      <div className={`${className}-title`} onClick={() => setIsOpen(!isOpen)}>
+      <div
+        className={`${className}-title`}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={(e) => handleKeyboardClick(e, () => setIsOpen(!isOpen))}
+      >
         <div className={`${className}-title-text`}>{title}</div>
         {isOpen ? (
           <CaretUpGreyIcon size={16} className={`${className}-title-caret`} ariaLabel="Collapse" />

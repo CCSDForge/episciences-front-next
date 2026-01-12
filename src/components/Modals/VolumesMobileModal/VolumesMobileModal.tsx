@@ -228,7 +228,11 @@ export default function VolumesMobileModal({
               />
             ))}
           </div>
-          <div className="tagsClear" onClick={clearTaggedFilters}>
+          <div className="tagsClear" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={clearTaggedFilters}        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
             {t('common.filters.clearAll')}
           </div>
         </div>

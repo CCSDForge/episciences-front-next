@@ -145,8 +145,11 @@ export default function SearchResultCard({
         <div className="searchResultCardAbstract">
           <div
             className={`searchResultCardAbstractTitle ${!searchResult.openedAbstract ? 'searchResultCardAbstractTitleClosed' : ''}`}
-            onClick={toggleAbstractCallback}
-          >
+            
+        role="button"
+        tabIndex={0}
+        
+        onClick={toggleAbstractCallback}        onKeyDown={(e) => handleKeyboardClick(e, toggleAbstractCallback)}>
             <div className="searchResultCardAbstractTitleText">{t('common.abstract')}</div>
             {searchResult.openedAbstract ? (
               <CaretUpBlackIcon

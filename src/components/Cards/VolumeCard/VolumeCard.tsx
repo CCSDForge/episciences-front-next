@@ -207,8 +207,11 @@ export default function VolumeCard({
           <div className="volumeCard-content-description">
             <div
               className={`volumeCard-content-description-title ${!openedDescription && 'volumeCard-content-description-title-closed'}`}
-              onClick={toggleDescription}
-            >
+              
+        role="button"
+        tabIndex={0}
+        
+        onClick={toggleDescription}        onKeyDown={(e) => handleKeyboardClick(e, toggleDescription)}>
               <div className="volumeCard-content-description-title-text">{t('common.about')}</div>
               {openedDescription ? (
                 <CaretUpBlackIcon

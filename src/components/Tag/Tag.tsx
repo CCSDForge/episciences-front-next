@@ -12,12 +12,14 @@ export default function Tag({ text, onCloseCallback }: Readonly<ITagProps>): Rea
   return (
     <div className="tag">
       <span className="tag-text">{text}</span>
-      <CloseBlackIcon
-        size={12}
-        className="tag-close"
-        ariaLabel="Close tag"
+      <button
+        type="button"
         onClick={onCloseCallback}
-      />
+        className="tag-close"
+        aria-label={`Remove ${text} filter`}
+      >
+        <CloseBlackIcon size={12} />
+      </button>
     </div>
   );
 }

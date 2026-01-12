@@ -58,7 +58,11 @@ export default function BoardCard({
 
   if (fullCard) {
     return (
-      <div className="boardCard boardCard-full" onClick={setFullMemberIndexCallback}>
+      <div className="boardCard boardCard-full" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={setFullMemberIndexCallback}        onKeyDown={(e) => handleKeyboardClick(e, setFullMemberIndexCallback)}>
         <div className="boardCard-full-initial">
           <div className="boardCard-full-initial-person">
             <div className="boardCard-full-initial-person-picture">
@@ -194,8 +198,11 @@ export default function BoardCard({
   return (
     <div
       className={blurCard ? 'boardCard boardCard-blur' : 'boardCard'}
-      onClick={setFullMemberIndexCallback}
-    >
+      
+        role="button"
+        tabIndex={0}
+        
+        onClick={setFullMemberIndexCallback}        onKeyDown={(e) => handleKeyboardClick(e, setFullMemberIndexCallback)}>
       <div className="boardCard-person">
         <div className="boardCard-person-picture">
           {member.picture ? (

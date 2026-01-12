@@ -1,13 +1,16 @@
 import { Link } from '@/components/Link/Link';
 import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
+import SkipLink from '@/components/SkipLink/SkipLink';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
 import { menuConfig, getVisibleMenuItems, processMenuItemPath } from '@/config/menu';
 import { fetchVolumes } from '@/services/volume';
+import { getPublicJournalConfig } from '@/utils/env-loader';
 import fs from 'fs';
 import path from 'path';
 import './Header.scss';
+import '@/components/SkipLink/SkipLink.scss';
 
 const logoEpisciences = '/icons/logo-text.svg';
 const logoBig = '/logos/logo-big.svg';
@@ -29,6 +32,10 @@ export default async function HeaderServer({
   let journalLogoFilename: string | undefined = undefined; // To store the journal's logo filename
   let lastVolumeId = '';
   const code = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+
+  // Load journal-specific public configuration (for multi-tenant support)
+  const journalPublicConfig = code ? getPublicJournalConfig(code) : {};
+  const episciencesManagerUrl = journalPublicConfig.NEXT_PUBLIC_EPISCIENCES_MANAGER;
 
   try {
     if (code) {
@@ -112,6 +119,14 @@ export default async function HeaderServer({
 
   return (
     <header className="header" role="banner">
+      {/* Skip Links - Only visible on keyboard focus (WCAG 2.4.1) */}
+      <SkipLink href="#main-content">
+        {t('components.header.skipToMain', translations)}
+      </SkipLink>
+      <SkipLink href="#search-bar">
+        {t('components.header.skipToSearch', translations)}
+      </SkipLink>
+
       {/* Pre-header - visible only when not reduced */}
       <div className="header-preheader">
         <div className="header-preheader-logo">
@@ -216,7 +231,7 @@ export default async function HeaderServer({
         </div>
 
         {/* Search form */}
-        <SearchBar lang={lang} />
+        <SearchBar lang={lang} episciencesManagerUrl={episciencesManagerUrl} journalCode={code} />
       </nav>
     </header>
   );

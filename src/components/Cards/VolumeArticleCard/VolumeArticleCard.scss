@@ -5,7 +5,7 @@
   flex-direction: column;
   padding: 30px 35px 20px 35px;
   border: 1px solid var(--grey);
-  border-bottom: 4px solid var(--primary);
+  border-bottom: 4px solid var(--primary-border);
 
   @media (max-width: breakpoints.$sm) {
     padding: 25px;
@@ -19,7 +19,7 @@
     font-size: 13px;
     font-weight: 500;
     background: var(--primary);
-    color: var(--primary-text);
+    color: var(--button-text-on-primary-bg);
   }
 
   &-title {
@@ -41,7 +41,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      border-bottom: 1px solid var(--primary);
+      border-bottom: 1px solid var(--primary-border);
       cursor: pointer;
 
       &-closed {
@@ -51,7 +51,7 @@
       &-text {
         font-size: 16px;
         font-weight: bold;
-        color: var(--primary);
+        color: var(--primary-text);
       }
     }
 
@@ -83,7 +83,7 @@
         align-items: flex-end;
         flex: 1;
         gap: 8px;
-        color: var(--primary);
+        color: var(--primary-text);
         font-size: 13px;
       }
     }

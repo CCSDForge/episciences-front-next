@@ -21,7 +21,7 @@
 
     // Accessibility: Focus indicator
     &:focus-visible {
-      outline: 2px solid var(--primary);
+      outline: 2px solid var(--focus-color);
       outline-offset: 2px;
       border-radius: 2px;
     }
@@ -62,13 +62,13 @@
       // Active page indicator
       &.active {
         font-weight: 600;
-        color: var(--primary);
+        color: var(--primary-text);
         background-color: var(--grey-lighter);
       }
 
       // Accessibility: Focus indicator
       &:focus-visible {
-        outline: 2px solid var(--primary);
+        outline: 2px solid var(--focus-color);
         outline-offset: -2px;
         background-color: var(--grey-lighter);
       }

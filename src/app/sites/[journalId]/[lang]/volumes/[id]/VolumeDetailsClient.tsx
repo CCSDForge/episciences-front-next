@@ -20,6 +20,7 @@ import VolumeArticleCard from '@/components/Cards/VolumeArticleCard/VolumeArticl
 import VolumeDetailsMobileModal from '@/components/Modals/VolumeDetailsMobileModal/VolumeDetailsMobileModal';
 import VolumeDetailsSidebar from '@/components/Sidebars/VolumeDetailsSidebar/VolumeDetailsSidebar';
 import PageTitle from '@/components/PageTitle/PageTitle';
+import { handleKeyboardClick } from '@/utils/keyboard';
 import {
   DownloadBlackIcon,
   CaretUpGreyIcon,
@@ -175,7 +176,12 @@ export default function VolumeDetailsClient({
         return (
           <div
             className="volumeDetails-id-mobileRelatedList"
+            role="button"
+            tabIndex={0}
             onClick={(): void => setOpenedRelatedVolumesMobileModal(true)}
+            onKeyDown={(e) =>
+              handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))
+            }
           >
             <div>{t('pages.volumeDetails.relatedVolumes.proceedings')}</div>
             {caretIcon}
@@ -187,7 +193,12 @@ export default function VolumeDetailsClient({
         return (
           <div
             className="volumeDetails-id-mobileRelatedList"
+            role="button"
+            tabIndex={0}
             onClick={(): void => setOpenedRelatedVolumesMobileModal(true)}
+            onKeyDown={(e) =>
+              handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))
+            }
           >
             <div>{t('pages.volumeDetails.relatedVolumes.specialIssues')}</div>
             {caretIcon}

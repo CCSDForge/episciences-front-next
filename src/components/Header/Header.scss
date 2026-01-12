@@ -30,7 +30,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-bottom: 1px solid var(--primary);
+      border-bottom: 1px solid var(--primary-border);
 
       @media (max-width: breakpoints.$xsm) {
         width: 60px;
@@ -40,7 +40,7 @@
     &-blank {
       width: 100%;
       background: var(--primary);
-      color: var(--primary-text);
+      color: var(--button-text-on-primary-bg);
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -66,8 +66,8 @@
       justify-content: flex-end;
       padding-right: 50px;
       background: var(--primary);
-      color: var(--primary-text);
-      border-bottom: 1px solid var(--primary);
+      color: var(--button-text-on-primary-bg);
+      border-bottom: 1px solid var(--primary-border);
 
       @media (max-width: breakpoints.$xsm) {
         min-width: unset;
@@ -171,7 +171,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid var(--primary);
+      border: 1px solid var(--primary-border);
       border-left: none;
 
       img {
@@ -197,7 +197,7 @@
       background: var(--primary);
       font-size: 32px;
       font-weight: bold;
-      color: var(--primary-text);
+      color: var(--button-text-on-primary-bg);
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -428,7 +428,7 @@
         a {
           height: 100%;
           background: var(--primary);
-          color: var(--primary-text);
+          color: var(--button-text-on-primary-bg);
           border: none;
           padding: 0 25px;
           font-size: 16px;
@@ -452,7 +452,8 @@
 
           &:hover {
             filter: brightness(0.9);
-            color: var(--primary-text);
+            // Keep same text color on hover for readability
+            color: var(--button-text-on-primary-bg);
           }
 
           &:focus {
@@ -531,7 +532,7 @@
   &-postheader-links {
     a:focus-visible,
     button:focus-visible {
-      outline: 2px solid var(--primary);
+      outline: 2px solid var(--focus-color);
       outline-offset: 2px;
       border-radius: 2px;
     }
@@ -540,7 +541,7 @@
   // Burger menu keyboard accessibility
   &-postheader-burger {
     &:focus-visible {
-      outline: 2px solid var(--primary);
+      outline: 2px solid var(--focus-color);
       outline-offset: 2px;
       border-radius: 4px;
     }
@@ -560,7 +561,7 @@
       }
 
       &:focus-visible {
-        outline: 2px solid var(--primary);
+        outline: 2px solid var(--focus-color);
         outline-offset: -2px;
         background-color: var(--grey-lighter);
       }
@@ -581,7 +582,7 @@
   z-index: 9999;
   padding: 1rem 2rem;
   background-color: var(--primary);
-  color: var(--primary-text);
+  color: var(--button-text-on-primary-bg);
   text-decoration: none;
   font-weight: 600;
   border-radius: 0 0 4px 4px;

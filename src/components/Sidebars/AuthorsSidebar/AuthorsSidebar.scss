@@ -13,7 +13,7 @@
 
   &-search {
     height: 36px;
-    border-bottom: 1px solid var(--primary);
+    border-bottom: 1px solid var(--primary-border);
     padding-bottom: 6px;
     margin-bottom: 25px;
   }
@@ -37,8 +37,8 @@
       cursor: pointer;
 
       &-active {
-        color: var(--primary-text);
-        background: var(--primary);
+        color: var(--button-text-on-primary-bg);
+  background: var(--primary);
         font-weight: bold;
       }
 

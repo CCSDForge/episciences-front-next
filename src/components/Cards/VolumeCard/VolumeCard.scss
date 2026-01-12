@@ -5,7 +5,7 @@
   justify-content: space-between;
   padding: 30px 35px 20px 35px;
   border: 1px solid var(--grey);
-  border-bottom: 4px solid var(--primary);
+  border-bottom: 4px solid var(--primary-border);
 
   @media (max-width: breakpoints.$sm) {
     padding: 25px;
@@ -70,7 +70,7 @@
     }
 
     &-num {
-      color: var(--primary);
+      color: var(--primary-text);
       font-size: 24px;
       font-weight: bold;
       margin-bottom: 18px;
@@ -118,7 +118,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        border-bottom: 1px solid var(--primary);
+        border-bottom: 1px solid var(--primary-border);
         cursor: pointer;
 
         &-closed {
@@ -128,7 +128,7 @@
         &-text {
           font-size: 16px;
           font-weight: bold;
-          color: var(--primary);
+          color: var(--primary-text);
         }
       }
 
@@ -149,7 +149,7 @@
       display: flex;
       align-self: flex-end;
       gap: 8px;
-      color: var(--primary);
+      color: var(--primary-text);
       font-size: 13px;
     }
   }
@@ -177,7 +177,7 @@
       flex-direction: column;
       padding: 15px;
       background: var(--primary);
-      color: var(--primary-text);
+      color: var(--button-text-on-primary-bg);
 
       &-jpe {
         font-size: 14px;
@@ -218,7 +218,7 @@
       flex-direction: column;
 
       &-volume {
-        color: var(--primary);
+        color: var(--primary-text);
         font-weight: 600;
         margin-bottom: 8px;
       }
@@ -252,7 +252,7 @@
         justify-content: flex-end;
         align-items: flex-end;
         gap: 8px;
-        color: var(--primary);
+        color: var(--primary-text);
         font-size: 13px;
         margin-top: auto;
         padding-top: 8px;

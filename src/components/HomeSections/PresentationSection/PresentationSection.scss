@@ -12,7 +12,7 @@
     flex-direction: column;
     padding: 24px;
     border: 1px solid var(--grey);
-    border-bottom: 4px solid var(--primary);
+    border-bottom: 4px solid var(--primary-border);
     flex-basis: 66.6%;
 
     &-content {
@@ -52,7 +52,7 @@
     flex-direction: column;
     padding: 24px;
     border: 1px solid var(--grey);
-    border-bottom: 4px solid var(--primary);
+    border-bottom: 4px solid var(--primary-border);
     flex-basis: 33.3%;
 
     &-title {
@@ -73,7 +73,7 @@
       }
 
       &-text {
-        color: var(--primary);
+        color: var(--primary-text);
         font-weight: 600;
       }
     }

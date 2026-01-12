@@ -38,7 +38,7 @@
     display: none;
 
     @media (max-width: breakpoints.$xsm) {
-      color: var(--primary);
+      color: var(--primary-text);
       width: 100%;
       display: flex;
       justify-content: space-between;
@@ -53,7 +53,7 @@
         gap: 4px;
         font-size: 14px;
         padding-bottom: 4px;
-        border-bottom: 1px solid var(--primary);
+        border-bottom: 1px solid var(--primary-border);
         cursor: pointer;
       }
     }

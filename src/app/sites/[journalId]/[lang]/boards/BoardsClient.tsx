@@ -11,6 +11,7 @@ import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
 import BoardsSidebar from '@/components/Sidebars/BoardsSidebar/BoardsSidebar';
 import PageTitle from '@/components/PageTitle/PageTitle';
+import { handleKeyboardClick } from '@/utils/keyboard';
 import '@/styles/transitions.scss';
 import './Boards.scss';
 
@@ -132,8 +133,16 @@ export default function BoardsClient({
             <div key={index} className="boards-content-groups-group">
               <div
                 className="boards-content-groups-group-title"
+                role="button"
+                tabIndex={0}
+                aria-expanded={activeGroupIndex === index}
                 onClick={(): void =>
                   activeGroupIndex === index ? handleGroupToggle(-1) : handleGroupToggle(index)
+                }
+                onKeyDown={(e) =>
+                  handleKeyboardClick(e, () =>
+                    activeGroupIndex === index ? handleGroupToggle(-1) : handleGroupToggle(index)
+                  )
                 }
               >
                 <h2>{boardPerTitle.title}</h2>

@@ -1,6 +1,45 @@
 @use 'variables' as *;
 
+/**
+ * ACCESSIBLE COLOR SYSTEM
+ *
+ * This project uses automatic contrast adjustment to ensure WCAG 2.2 compliance
+ * across 45+ journals with different theme colors.
+ *
+ * The following variables are generated dynamically per journal by src/config/theme.ts:
+ *
+ * PRIMARY COLORS (Multi-tenant - set per journal):
+ * --primary                    Original journal color (use for backgrounds)
+ * --primary-text               Text on white background (WCAG AA 4.5:1)
+ * --primary-text-aaa           High contrast text (WCAG AAA 7:1)
+ * --primary-text-large         Large text ≥18pt (WCAG AA 3:1)
+ * --primary-text-on-gray       Text on gray backgrounds (WCAG AA 4.5:1)
+ * --primary-text-on-dark       Text on dark backgrounds (WCAG AA 4.5:1)
+ * --primary-border             Borders and UI components (WCAG AA 3:1)
+ *
+ * SEMANTIC COLORS (Auto-generated from primary):
+ * --link-color                 Links (WCAG AA 4.5:1)
+ * --link-hover-color           Link hover/focus (WCAG AAA 7:1)
+ * --heading-color              Headings (WCAG AA 4.5:1)
+ * --button-text-on-primary-bg  Text on primary background (auto black/white)
+ *
+ * FOCUS INDICATORS (Auto-generated from primary):
+ * --focus-color                Focus outline on white/light backgrounds (WCAG AA 3:1)
+ * --focus-color-on-primary     Focus outline on primary background (always white)
+ * --focus-color-on-dark        Focus outline on dark backgrounds (always white)
+ *
+ * USAGE GUIDELINES:
+ * ✅ DO:    color: var(--primary-text);           // Text on white
+ * ✅ DO:    color: var(--primary-text-large);     // Large headings (≥18pt)
+ * ✅ DO:    color: var(--link-color);             // Links
+ * ✅ DO:    background-color: var(--primary);     // Backgrounds
+ * ❌ DON'T: color: var(--primary);                // Direct use for text (may fail WCAG)
+ *
+ * @see docs/accessible_color_system.md for full documentation
+ */
+
 :root {
+  // Static colors (same across all journals)
   --white: #{$white};
   --black: #{$black};
   --black-shadow: #{$black-shadow};
@@ -10,4 +49,7 @@
   --grey-darker: #{$grey-darker};
   --blue-navy: #{$blue-navy};
   --blue-navy-dark: #{$blue-navy-dark};
+
+  // Dynamic colors are set by applyThemeVariables() in src/config/theme.ts
+  // They are generated per journal based on NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR
 }

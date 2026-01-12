@@ -1,6 +1,7 @@
 'use client';
 
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
+import FocusTrap from 'focus-trap-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 
@@ -103,7 +104,14 @@ export default function StatisticsMobileModal({
     openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
-    <div className="statisticsMobileModal" ref={modalRef}>
+    <FocusTrap>
+      <div
+        className="statisticsMobileModal"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
       <div className="title">
         <div>{t('common.filters.filter')}</div>
         <CloseBlackIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
@@ -159,5 +167,6 @@ export default function StatisticsMobileModal({
         />
       </div>
     </div>
+    </FocusTrap>
   );
 }

@@ -172,7 +172,11 @@ export default function ArticlesAcceptedMobileModal({
               />
             ))}
           </div>
-          <div className="articlesAcceptedMobileModal-tags-clear" onClick={clearTaggedFilters}>
+          <div className="articlesAcceptedMobileModal-tags-clear" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={clearTaggedFilters}        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
             {t('common.filters.clearAll')}
           </div>
         </div>

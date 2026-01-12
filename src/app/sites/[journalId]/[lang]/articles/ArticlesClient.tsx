@@ -20,6 +20,7 @@ import ArticlesSidebar, {
 } from '@/components/Sidebars/ArticlesSidebar/ArticlesSidebar';
 import Pagination from '@/components/Pagination/Pagination';
 import Tag from '@/components/Tag/Tag';
+import LiveRegion from '@/components/LiveRegion/LiveRegion';
 import './Articles.scss';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
@@ -100,6 +101,7 @@ export default function ArticlesClient({
     initialArticles?.totalItems || 0
   );
   const [isMounted, setIsMounted] = useState(false);
+  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     setIsMounted(true);
@@ -241,10 +243,12 @@ export default function ArticlesClient({
         router.push(`${pathname}?page=${newPage}`);
       }
       setCurrentPage(newPage);
+      // Announce page change to screen readers
+      setAnnouncement(t('common.pagination.pageLoaded', { page: newPage }));
       // Scroll vers le haut de la page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    [pathname, router]
+    [pathname, router, t]
   );
 
   const onCheckType = (value: string): void => {
@@ -370,6 +374,13 @@ export default function ArticlesClient({
 
     setEnhancedArticles(updatedArticles);
     setShowAllAbstracts(isShown);
+
+    // Announce state change to screen readers
+    setAnnouncement(
+      isShown
+        ? t('common.toggleAbstracts.allExpanded')
+        : t('common.toggleAbstracts.allCollapsed')
+    );
   };
 
   const breadcrumbItems = [
@@ -383,6 +394,7 @@ export default function ArticlesClient({
 
   return (
     <main className="articles">
+      <LiveRegion message={announcement} />
       <PageTitle title={breadcrumbLabels?.articles || t('pages.articles.title')} />
 
       <Breadcrumb
@@ -445,19 +457,34 @@ export default function ArticlesClient({
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
             ))}
-            <div className="articles-filters-tags-clear" onClick={clearTaggedFilters}>
+            <div
+              className="articles-filters-tags-clear"
+              role="button"
+              tabIndex={0}
+              onClick={clearTaggedFilters}
+              onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+            >
               {t('common.filters.clearAll')}
             </div>
           </div>
         )}
-        <div className="articles-filters-abstracts" onClick={toggleAllAbstracts}>
+        <div
+          className="articles-filters-abstracts"
+          role="button"
+          tabIndex={0}
+          onClick={toggleAllAbstracts}
+          onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
+        >
           {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
         </div>
       </div>
 
       <div
         className="articles-filters-abstracts articles-filters-abstracts-mobile"
+        role="button"
+        tabIndex={0}
         onClick={toggleAllAbstracts}
+        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
       >
         {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
       </div>

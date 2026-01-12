@@ -44,9 +44,12 @@ export default function VolumeArticleCard({
       )}
       <div
         className="volumeArticleCard-title"
+        
+        role="button"
+        tabIndex={0}
+        
         onClick={navigateToArticle}
-        style={{ cursor: 'pointer' }}
-      >
+        style={{ cursor: 'pointer' }}        onKeyDown={(e) => handleKeyboardClick(e, navigateToArticle)}>
         <MathJax dynamic>{article.title}</MathJax>
       </div>
       <div className="volumeArticleCard-authors">
@@ -56,8 +59,11 @@ export default function VolumeArticleCard({
         <div className="volumeArticleCard-abstract">
           <div
             className={`volumeArticleCard-abstract-title ${!openedAbstract && 'volumeArticleCard-abstract-title-closed'}`}
-            onClick={toggleAbstract}
-          >
+            
+        role="button"
+        tabIndex={0}
+        
+        onClick={toggleAbstract}        onKeyDown={(e) => handleKeyboardClick(e, toggleAbstract)}>
             <div className="volumeArticleCard-abstract-title-text">{t('common.abstract')}</div>
             {openedAbstract ? (
               <CaretUpBlackIcon

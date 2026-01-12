@@ -326,7 +326,12 @@ export default function AuthorsClient({
             />
           ))}
           {taggedFilters.length > 0 ? (
-            <div className="authors-filters-tags-clear" onClick={clearTaggedFilters}>
+            <div className="authors-filters-tags-clear" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={clearTaggedFilters}
+        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
               {t('common.filters.clearAll')}
             </div>
           ) : (

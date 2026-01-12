@@ -30,7 +30,7 @@ const loggedArticles = new Set<string>();
 export function logArticleProgress(
   articleId: string,
   lang: string,
-  pageType: 'main' | 'download' = 'main'
+  pageType: 'main' | 'download' | 'preview' = 'main'
 ): void {
   // Create unique key for this article/lang/type combination
   const key = `${articleId}-${lang}-${pageType}`;
@@ -44,6 +44,8 @@ export function logArticleProgress(
   // Simple message: just show what's being generated
   if (pageType === 'download') {
     console.log(`  └─ téléchargement → Article ${articleId}`);
+  } else if (pageType === 'preview') {
+    console.log(`  └─ preview → Article ${articleId}`);
   } else {
     console.log(`  ✓ Article ${articleId} (${lang})`);
   }

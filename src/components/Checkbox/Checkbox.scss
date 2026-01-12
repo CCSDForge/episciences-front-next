@@ -1,16 +1,57 @@
+// Checkbox wrapper (when label is provided)
+.checkbox-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+// Checkbox input
 .checkbox {
   -webkit-appearance: initial;
   appearance: initial;
-  width: 16px;
-  height: 16px;
+  width: 20px; // Increased from 16px for better accessibility (WCAG 2.5.8 recommends 24×24px minimum)
+  height: 20px;
   border: 1px solid var(--grey-dark);
   cursor: pointer;
+  flex-shrink: 0; // Prevent shrinking when in flex container
+
+  // Add padding to reach 24×24px hit area (WCAG 2.5.8 Level AA)
+  margin: 2px;
+
+  &:hover {
+    border-color: var(--primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 
   &:checked {
     background: var(--primary);
+    border-color: var(--primary);
 
     &::after {
       content: none;
     }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Checkbox label
+.checkbox-label {
+  cursor: pointer;
+  user-select: none;
+  font-size: 16px;
+  line-height: 1.5;
+
+  &:hover {
+    color: var(--primary-text);
   }
 }

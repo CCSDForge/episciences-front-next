@@ -143,8 +143,11 @@ export default function ArticleCard({
         <div className="articleCard-abstract">
           <div
             className={`articleCard-abstract-title ${!article.openedAbstract ? 'articleCard-abstract-title-closed' : ''}`}
-            onClick={toggleAbstractCallback}
-          >
+            
+        role="button"
+        tabIndex={0}
+        
+        onClick={toggleAbstractCallback}        onKeyDown={(e) => handleKeyboardClick(e, toggleAbstractCallback)}>
             <div className="articleCard-abstract-title-text">{t('common.abstract')}</div>
             {article.openedAbstract ? (
               <CaretUpBlackIcon

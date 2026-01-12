@@ -30,7 +30,7 @@
     flex-direction: column;
     padding: 15px;
     background: var(--primary);
-    color: var(--primary-text);
+    color: var(--button-text-on-primary-bg);
     margin-bottom: 25px;
 
     &-jpe {
@@ -97,8 +97,8 @@
       gap: 8px;
       width: fit-content;
       height: 34px;
-      border: 1px solid var(--primary);
-      border-bottom: 4px solid var(--primary);
+      border: 1px solid var(--primary-border);
+      border-bottom: 4px solid var(--primary-border);
       cursor: pointer;
 
       @media (max-width: breakpoints.$sm) {

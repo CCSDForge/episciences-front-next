@@ -220,6 +220,17 @@ export default function ArticleDetailsServer({
 
   return (
     <main className="articleDetails">
+      {/* Tracking pixel for article views - appears in Apache logs as /articles/[id]/preview */}
+      {article?.id && (
+        <img
+          src={`/articles/${article.id}/preview`}
+          alt=""
+          width="1"
+          height="1"
+          style={{ position: 'absolute', visibility: 'hidden' }}
+          aria-hidden="true"
+        />
+      )}
       <Breadcrumb
         parents={[
           {

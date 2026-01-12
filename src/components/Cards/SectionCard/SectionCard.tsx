@@ -43,8 +43,11 @@ export default function SectionCard({
         <div className="sectionCard-description">
           <div
             className={`sectionCard-description-title ${!openedDescription && 'sectionCard-description-title-closed'}`}
-            onClick={toggleDescription}
-          >
+            
+        role="button"
+        tabIndex={0}
+        
+        onClick={toggleDescription}        onKeyDown={(e) => handleKeyboardClick(e, toggleDescription)}>
             <div className="sectionCard-description-title-text">{t('common.about')}</div>
             {openedDescription ? (
               <CaretUpBlackIcon

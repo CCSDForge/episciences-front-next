@@ -12,9 +12,15 @@ import { useTranslation } from 'react-i18next';
 
 interface SearchBarProps {
   lang?: string;
+  episciencesManagerUrl?: string;
+  journalCode?: string;
 }
 
-export default function SearchBar({ lang }: SearchBarProps): React.JSX.Element {
+export default function SearchBar({
+  lang,
+  episciencesManagerUrl,
+  journalCode,
+}: SearchBarProps): React.JSX.Element {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
@@ -72,11 +78,8 @@ export default function SearchBar({ lang }: SearchBarProps): React.JSX.Element {
   };
 
   const getSubmitManagerLink = (): string | null => {
-    const managerUrl = process.env.NEXT_PUBLIC_EPISCIENCES_MANAGER;
-    const code = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-
-    if (!managerUrl) return null;
-    return code ? `${managerUrl}/${code}` : managerUrl;
+    if (!episciencesManagerUrl) return null;
+    return journalCode ? `${episciencesManagerUrl}/${journalCode}` : episciencesManagerUrl;
   };
 
   const submitManagerLink = getSubmitManagerLink();
@@ -115,6 +118,7 @@ export default function SearchBar({ lang }: SearchBarProps): React.JSX.Element {
 
   return (
     <div
+      id="search-bar"
       ref={searchContainerRef}
       className={`header-postheader-search ${isFocused ? 'header-postheader-search-focused' : ''}`}
     >
@@ -139,11 +143,13 @@ export default function SearchBar({ lang }: SearchBarProps): React.JSX.Element {
             ariaLabel={t('components.header.search.iconAlt')}
           />
           <input
+            id="search-input"
             type="text"
             placeholder={t('components.header.search.placeholder')}
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
             onFocus={handleFocus}
+            aria-label={t('components.header.search.placeholder')}
           />
         </div>
 

@@ -1,0 +1,44 @@
+/**
+ * Skip Link Component
+ *
+ * Accessible skip navigation link that appears on keyboard focus.
+ * WCAG 2.4.1 Bypass Blocks (Level A)
+ */
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  z-index: 10000; // Above all content
+  padding: 8px 16px;
+  background-color: var(--primary, #0066cc);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  border: 2px solid transparent;
+  border-radius: 0 0 4px 0;
+  transition: top 0.2s ease-in-out;
+
+  // Only visible when focused (keyboard navigation)
+  &:focus {
+    top: 0;
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+
+  // Ensure high contrast on primary background
+  // Note: This assumes primary background is used.
+  // For multi-tenant safety, we use white text on primary.
+  // If primary is very light, the text color will be adjusted server-side.
+  @media (prefers-contrast: high) {
+    &:focus {
+      outline-width: 3px;
+    }
+  }
+
+  // Smooth transition on blur (returning to hidden state)
+  &:not(:focus) {
+    transition: top 0.1s ease-in-out 0.2s;
+  }
+}

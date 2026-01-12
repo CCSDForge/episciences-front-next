@@ -28,6 +28,7 @@
     "better-react-mathjax": "^2.0.3",
     "citation-js": "^0.7.14",
     "date-fns": "^4.1.0",
+    "focus-trap-react": "^11.0.6",
     "he": "^1.2.0",
     "i18next": "^23.16.8",
     "i18next-browser-languagedetector": "^8.0.4",

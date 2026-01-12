@@ -20,6 +20,7 @@ import {
 import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
+import { handleKeyboardClick } from '@/utils/keyboard';
 import '@/styles/transitions.scss';
 
 // Interface personnalisée qui accepte n'importe quel format de page
@@ -230,7 +231,11 @@ export default function AboutClient({
                 >
                   <div
                     className="about-content-body-section-subtitle"
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={section.opened}
                     onClick={(): void => toggleSectionHeader(section.id)}
+                    onKeyDown={(e) => handleKeyboardClick(e, () => toggleSectionHeader(section.id))}
                   >
                     <h2 id={section.id} className="about-content-body-section-subtitle-text">
                       <ReactMarkdown

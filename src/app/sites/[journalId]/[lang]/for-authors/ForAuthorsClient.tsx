@@ -21,6 +21,7 @@ import ForAuthorsSidebar, {
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
+import { handleKeyboardClick } from '@/utils/keyboard';
 import '@/styles/transitions.scss';
 import './ForAuthors.scss';
 
@@ -327,7 +328,13 @@ export default function ForAuthorsClient({
                       return (
                         <div
                           className="forAuthors-content-body-section-subtitle"
+                          role="button"
+                          tabIndex={0}
+                          aria-expanded={
+                            pageSections.find(pageSection => pageSection.id === id)?.opened
+                          }
                           onClick={(): void => toggleSectionHeader(id!)}
+                          onKeyDown={(e) => handleKeyboardClick(e, () => toggleSectionHeader(id!))}
                         >
                           <h2
                             id={id}

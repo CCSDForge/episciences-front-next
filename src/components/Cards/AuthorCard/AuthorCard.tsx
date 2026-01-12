@@ -22,7 +22,11 @@ export default function AuthorCard({
   return (
     <div className="authorCard">
       <div className="authorCard-title">
-        <div className="authorCard-title-name" onClick={setExpandedAuthorIndexCallback}>
+        <div className="authorCard-title-name" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={setExpandedAuthorIndexCallback}        onKeyDown={(e) => handleKeyboardClick(e, setExpandedAuthorIndexCallback)}>
           <div
             className={`authorCard-title-name-text ${expandedCard ? 'authorCard-title-name-text-expanded' : ''}`}
           >

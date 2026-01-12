@@ -133,7 +133,7 @@
         height: 32px;
         align-content: center;
         font-size: 14px;
-        color: var(--primary);
+        color: var(--primary-text);
         text-decoration: underline;
         cursor: pointer;
       }
@@ -142,12 +142,12 @@
         display: flex;
         gap: 4px;
         padding-bottom: 4px;
-        border-bottom: 1px solid var(--primary);
+        border-bottom: 1px solid var(--primary-border);
         margin-top: 17px;
         cursor: pointer;
 
         &-text {
-          color: var(--primary);
+          color: var(--primary-text);
           font-size: 14px;
           font-weight: bold;
         }
@@ -166,7 +166,7 @@
     display: none;
 
     @media (max-width: breakpoints.$xsm) {
-      color: var(--primary);
+      color: var(--primary-text);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -185,7 +185,7 @@
         gap: 4px;
         font-size: 14px;
         padding-bottom: 4px;
-        border-bottom: 1px solid var(--primary);
+        border-bottom: 1px solid var(--primary-border);
         cursor: pointer;
       }
     }

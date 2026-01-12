@@ -1,6 +1,7 @@
 'use client';
 
 import { CloseBlackIcon } from '@/components/icons';
+import FocusTrap from 'focus-trap-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TFunction } from 'i18next';
 
@@ -99,16 +100,27 @@ export default function VolumeDetailsMobileModal({
   }, [isFooterEnabled, dispatch]);
 
   return (
-    <div className="volumeDetailsMobileModal" ref={modalRef}>
+    <FocusTrap>
+      <div
+        className="volumeDetailsMobileModal"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
       <div className="volumeDetailsMobileModal-title">
-        <div className="volumeDetailsMobileModal-title-text">{getTitle()}</div>
-        <CloseBlackIcon
-          size={24}
-          className="volumeDetailsMobileModal-title-close"
-          ariaLabel="Close"
-          onClick={onClose}
-        />
-      </div>
+          <h2 id="modal-title" className="volumeDetailsMobileModal-title-text">
+            {getTitle()}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="volumeDetailsMobileModal-title-close"
+            aria-label={t('common.close')}
+          >
+            <CloseBlackIcon size={24} />
+          </button>
+        </div>
       <div className="volumeDetailsMobileModal-relatedVolumes">
         {relatedVolumes.map((relatedVolume, index) => (
           <div
@@ -126,5 +138,6 @@ export default function VolumeDetailsMobileModal({
         <Button text={getSubmitText()} onClickCallback={(): void => onApplyFilters()} />
       </div>
     </div>
+    </FocusTrap>
   );
 }

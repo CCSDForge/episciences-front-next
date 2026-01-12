@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { TFunction } from 'i18next';
+import FocusTrap from 'focus-trap-react';
 
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './VolumesModal.scss';
@@ -50,7 +51,14 @@ export default function VolumesModal({
   }, [onCloseCallback]);
 
   return (
-    <div className="volumesModal" ref={modalRef}>
+    <FocusTrap>
+      <div
+        className="volumesModal"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
       <div className="typesSection">
         <div className="typesSectionTitle">{t('common.filters.volumeTypes')}</div>
         <div className="typesSectionTypes">
@@ -89,5 +97,6 @@ export default function VolumesModal({
         </div>
       </div>
     </div>
+    </FocusTrap>
   );
 }

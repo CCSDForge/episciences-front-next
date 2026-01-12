@@ -6,7 +6,7 @@
   position: relative;
 
   &-input {
-    color: var(--primary);
+    color: var(--primary-text);
     font-size: 17px;
     font-style: italic;
     border: none;
@@ -14,7 +14,7 @@
     padding-right: 30px;
 
     &::placeholder {
-      color: var(--primary);
+      color: var(--primary-text);
       opacity: 1;
     }
 

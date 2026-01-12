@@ -318,19 +318,34 @@ export default function ArticlesAcceptedClient({
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.value)}
               />
             ))}
-            <div className="articlesAccepted-filters-tags-clear" onClick={clearTaggedFilters}>
+            <div className="articlesAccepted-filters-tags-clear" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={clearTaggedFilters}
+        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
               {t('common.filters.clearAll')}
             </div>
           </div>
         )}
-        <div className="articlesAccepted-filters-abstracts" onClick={toggleAllAbstracts}>
+        <div className="articlesAccepted-filters-abstracts" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={toggleAllAbstracts}
+        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}>
           {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
         </div>
       </div>
       <div
         className="articlesAccepted-filters-abstracts articlesAccepted-filters-abstracts-mobile"
+        
+        role="button"
+        tabIndex={0}
+        
         onClick={toggleAllAbstracts}
-      >
+      
+        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}>
         {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
       </div>
       <div className="articlesAccepted-content">

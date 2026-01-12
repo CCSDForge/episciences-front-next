@@ -8,6 +8,8 @@ import { setFooterVisibility } from '@/store/features/footer/footer.slice';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import Tag from '@/components/Tag/Tag';
+import LiveRegion from '@/components/LiveRegion/LiveRegion';
+import FocusTrap from 'focus-trap-react';
 import './ArticlesMobileModal.scss';
 
 enum FILTERS_SECTION {
@@ -66,6 +68,7 @@ export default function ArticlesMobileModal({
   const [types, setTypes] = useState<IArticlesTypeSelection[]>(initialTypes);
   const [years, setYears] = useState<IArticlesYearSelection[]>(initialYears);
   const [taggedFilters, setTaggedFilters] = useState<IArticlesFilter[]>([]);
+  const [announcement, setAnnouncement] = useState('');
 
   const onCheckType = (value: string): void => {
     const updatedTypes = types.map(t => {
@@ -162,6 +165,17 @@ export default function ArticlesMobileModal({
   const onApplyFilters = (): void => {
     onUpdateTypesCallback(types);
     onUpdateYearsCallback(years);
+
+    // Announce filter count to screen readers
+    const filterCount = taggedFilters.length;
+    if (filterCount > 0) {
+      setAnnouncement(
+        t('common.filters.filtersActive', { count: filterCount })
+      );
+    } else {
+      setAnnouncement(t('common.filters.noFilters'));
+    }
+
     onCloseCallback();
     dispatch(setFooterVisibility(true));
   };
@@ -177,9 +191,22 @@ export default function ArticlesMobileModal({
       }
     };
 
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    // Prevent background scroll
+    document.body.style.overflow = 'hidden';
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
     };
   }, [onClose]);
 
@@ -204,58 +231,74 @@ export default function ArticlesMobileModal({
     openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
-    <div className="articlesMobileModal" ref={modalRef}>
-      <div className="articlesMobileModal-title">
-        <div className="articlesMobileModal-title-text">{t('common.filters.filter')}</div>
-        <CloseBlackIcon
-          size={24}
-          className="articlesMobileModal-title-close"
-          ariaLabel="Close"
-          onClick={onClose}
-        />
-      </div>
-      {taggedFilters.length > 0 && (
-        <div className="articlesMobileModal-tags">
-          <div className="articlesMobileModal-tags-row">
-            {taggedFilters.map((filter, index) => (
-              <Tag
-                key={index}
-                text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
-                onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
-              />
-            ))}
-          </div>
-          <div className="articlesMobileModal-tags-clear" onClick={clearTaggedFilters}>
-            {t('common.filters.clearAll')}
-          </div>
+    <FocusTrap>
+      <div
+        className="articlesMobileModal"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <LiveRegion message={announcement} />
+        <div className="articlesMobileModal-title">
+          <h2 id="modal-title" className="articlesMobileModal-title-text">
+            {t('common.filters.filter')}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="articlesMobileModal-title-close"
+            aria-label={t('common.close')}
+          >
+            <CloseBlackIcon size={24} />
+          </button>
         </div>
-      )}
+        {taggedFilters.length > 0 && (
+          <div className="articlesMobileModal-tags">
+            <div className="articlesMobileModal-tags-row">
+              {taggedFilters.map((filter, index) => (
+                <Tag
+                  key={index}
+                  text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
+                  onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              className="articlesMobileModal-tags-clear"
+              onClick={clearTaggedFilters}
+            >
+              {t('common.filters.clearAll')}
+            </button>
+          </div>
+        )}
       <div className="articlesMobileModal-filters">
         <div className="articlesMobileModal-filters-types">
-          <div className="articlesMobileModal-filters-types-title">
-            <div
-              className="articlesMobileModal-filters-types-title-text"
-              onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
-            >
+          <button
+            type="button"
+            className="articlesMobileModal-filters-types-title"
+            onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
+            aria-expanded={isOpenedSection(FILTERS_SECTION.TYPE)}
+            aria-controls="filter-section-type"
+          >
+            <span className="articlesMobileModal-filters-types-title-text">
               {t('common.filters.documentTypes')}
-            </div>
+            </span>
             {isOpenedSection(FILTERS_SECTION.TYPE) ? (
               <CaretUpGreyIcon
                 size={16}
                 className="articlesMobileModal-filters-types-title-caret"
-                ariaLabel="Collapse"
-                onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
               />
             ) : (
               <CaretDownGreyIcon
                 size={16}
                 className="articlesMobileModal-filters-types-title-caret"
-                ariaLabel="Expand"
-                onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
               />
             )}
-          </div>
+          </button>
           <div
+            id="filter-section-type"
             className={`articlesMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesMobileModal-filters-types-list-opened'}`}
           >
             {types.map((type, index) => (
@@ -277,30 +320,30 @@ export default function ArticlesMobileModal({
           </div>
         </div>
         <div className="articlesMobileModal-filters-years">
-          <div className="articlesMobileModal-filters-years-title">
-            <div
-              className="articlesMobileModal-filters-years-title-text"
-              onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-            >
+          <button
+            type="button"
+            className="articlesMobileModal-filters-years-title"
+            onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+            aria-expanded={isOpenedSection(FILTERS_SECTION.YEAR)}
+            aria-controls="filter-section-year"
+          >
+            <span className="articlesMobileModal-filters-years-title-text">
               {t('common.filters.years')}
-            </div>
+            </span>
             {isOpenedSection(FILTERS_SECTION.YEAR) ? (
               <CaretUpGreyIcon
                 size={16}
                 className="articlesMobileModal-filters-years-title-caret"
-                ariaLabel="Collapse"
-                onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
               />
             ) : (
               <CaretDownGreyIcon
                 size={16}
                 className="articlesMobileModal-filters-years-title-caret"
-                ariaLabel="Expand"
-                onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
               />
             )}
-          </div>
+          </button>
           <div
+            id="filter-section-year"
             className={`articlesMobileModal-filters-years-list ${isOpenedSection(FILTERS_SECTION.YEAR) && 'articlesMobileModal-filters-years-list-opened'}`}
           >
             {years.map((y, index) => (
@@ -322,12 +365,13 @@ export default function ArticlesMobileModal({
           </div>
         </div>
       </div>
-      <div className="articlesMobileModal-submit">
-        <Button
-          text={t('common.filters.applyFilters')}
-          onClickCallback={(): void => onApplyFilters()}
-        />
+        <div className="articlesMobileModal-submit">
+          <Button
+            text={t('common.filters.applyFilters')}
+            onClickCallback={(): void => onApplyFilters()}
+          />
+        </div>
       </div>
-    </div>
+    </FocusTrap>
   );
 }

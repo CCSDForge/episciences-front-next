@@ -13,6 +13,7 @@ import {
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
+import { handleKeyboardClick } from '@/utils/keyboard';
 import {
   BlueskyShareButton,
   EmailShareButton,
@@ -31,7 +32,7 @@ import {
   CITATION_TEMPLATE,
 } from '@/utils/article';
 import { fetchArticleMetadata } from '@/services/article';
-import { toast } from 'react-toastify';
+import { toastSuccess, toastError } from '@/utils/toast';
 import { useAppSelector } from '@/hooks/store';
 
 interface InteractiveDropdownProps {
@@ -135,7 +136,7 @@ export default function InteractiveDropdown({
       });
 
       if (!metadataContent) {
-        toast.error(t('pages.articleDetails.metadata.downloadError'));
+        toastError(t('pages.articleDetails.metadata.downloadError'));
         return;
       }
 
@@ -153,36 +154,40 @@ export default function InteractiveDropdown({
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast.success(t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label }));
+      toastSuccess(t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label }));
       setShowDropdown(false);
     } catch (error) {
       console.error('Error downloading metadata:', error);
-      toast.error(t('pages.articleDetails.metadata.downloadError'));
+      toastError(t('pages.articleDetails.metadata.downloadError'));
     } finally {
       setIsDownloadingMetadata(false);
     }
   };
 
   const renderCiteDropdown = () => (
-    <div className="articleDetailsSidebar-links-link-modal-content-links">
+    <div className="articleDetailsSidebar-links-link-modal-content-links" role="menu">
       {citations.map((citation, index) => (
-        <div
+        <button
           key={index}
+          type="button"
+          role="menuitem"
           className="articleDetailsSidebar-links-link-modal-content-links-link"
           onClick={(): void => copyCitation(citation)}
           onTouchEnd={(): void => copyCitation(citation)}
         >
           {citation.key}
-        </div>
+        </button>
       ))}
     </div>
   );
 
   const renderMetadataDropdown = () => (
-    <div className="articleDetailsSidebar-links-link-modal-content-links">
+    <div className="articleDetailsSidebar-links-link-modal-content-links" role="menu">
       {metadataTypes.map((metadata, index) => (
-        <div
+        <button
           key={index}
+          type="button"
+          role="menuitem"
           className="articleDetailsSidebar-links-link-modal-content-links-link"
           onClick={(): void => {
             void downloadMetadata(metadata);
@@ -192,7 +197,7 @@ export default function InteractiveDropdown({
           }}
         >
           {metadata.label}
-        </div>
+        </button>
       ))}
     </div>
   );
@@ -324,18 +329,30 @@ export default function InteractiveDropdown({
   if (type === 'cite' && citations.length === 0) return null;
   if (type === 'metadata' && metadataTypes.length === 0) return null;
 
+  const toggleDropdown = (): void => setShowDropdown(!showDropdown);
+
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Mouse events are progressive enhancement; keyboard handled by button
     <div
       ref={dropdownRef}
       className="articleDetailsSidebar-links-link articleDetailsSidebar-links-link-modal"
       onMouseEnter={(): void => setShowDropdown(true)}
       onMouseLeave={(): void => setShowDropdown(false)}
-      onTouchStart={(): void => setShowDropdown(!showDropdown)}
     >
-      {getIcon()}
-      <div className="articleDetailsSidebar-links-link-text">{getLabel()}</div>
+      <button
+        type="button"
+        className="articleDetailsSidebar-links-link-button"
+        aria-expanded={showDropdown}
+        aria-haspopup="menu"
+        onClick={toggleDropdown}
+        onKeyDown={(e) => handleKeyboardClick(e, toggleDropdown)}
+      >
+        {getIcon()}
+        <span className="articleDetailsSidebar-links-link-text">{getLabel()}</span>
+      </button>
       <div
         className={`articleDetailsSidebar-links-link-modal-content ${showDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}
+        role="presentation"
       >
         {getDropdownContent()}
       </div>

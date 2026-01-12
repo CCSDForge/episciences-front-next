@@ -713,19 +713,34 @@ export default function SearchClient({
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
             ))}
-            <div className="articles-filters-tags-clear" onClick={clearTaggedFilters}>
+            <div className="articles-filters-tags-clear" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={clearTaggedFilters}
+        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
               {t('common.filters.clearAll')}
             </div>
           </div>
         )}
-        <div className="articles-filters-abstracts" onClick={toggleAllAbstracts}>
+        <div className="articles-filters-abstracts" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={toggleAllAbstracts}
+        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}>
           {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
         </div>
       </div>
       <div
         className="articles-filters-abstracts articles-filters-abstracts-mobile"
+        
+        role="button"
+        tabIndex={0}
+        
         onClick={toggleAllAbstracts}
-      >
+      
+        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}>
         {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
       </div>
       <div className="articles-content">

@@ -21,6 +21,7 @@ import NewsMobileModal from '@/components/Modals/NewsMobileModal/NewsMobileModal
 import NewsSidebar, { INewsYearSelection } from '@/components/Sidebars/NewsSidebar/NewsSidebar';
 import Pagination from '@/components/Pagination/Pagination';
 import { INews, Range, fetchNews } from '@/services/news';
+import { handleKeyboardClick } from '@/utils/keyboard';
 import '@/styles/transitions.scss';
 
 interface NewsClientProps {
@@ -158,7 +159,14 @@ export default function NewsClient({
       <div className="news-title">
         <h1>{breadcrumbLabels?.news || t('pages.news.title')}</h1>
         <div className="news-title-icons">
-          <div className="news-title-icons-icon" onClick={(): void => setMode(RENDERING_MODE.TILE)}>
+          <div
+            className="news-title-icons-icon"
+            role="button"
+            tabIndex={0}
+            aria-pressed={mode === RENDERING_MODE.TILE}
+            onClick={(): void => setMode(RENDERING_MODE.TILE)}
+            onKeyDown={(e) => handleKeyboardClick(e, () => setMode(RENDERING_MODE.TILE))}
+          >
             <div
               className={`${mode === RENDERING_MODE.TILE ? 'news-title-icons-icon-row-black' : 'news-title-icons-icon-row'}`}
             >
@@ -170,7 +178,14 @@ export default function NewsClient({
               <span>{t('common.renderingMode.tile')}</span>
             </div>
           </div>
-          <div className="news-title-icons-icon" onClick={(): void => setMode(RENDERING_MODE.LIST)}>
+          <div
+            className="news-title-icons-icon"
+            role="button"
+            tabIndex={0}
+            aria-pressed={mode === RENDERING_MODE.LIST}
+            onClick={(): void => setMode(RENDERING_MODE.LIST)}
+            onKeyDown={(e) => handleKeyboardClick(e, () => setMode(RENDERING_MODE.LIST))}
+          >
             <div
               className={`${mode === RENDERING_MODE.LIST ? 'news-title-icons-icon-row-black' : 'news-title-icons-icon-row'}`}
             >

@@ -1,7 +1,7 @@
 'use client';
 
 import { CaretLeftBlackIcon, SearchIcon, CloseBlackIcon } from '@/components/icons';
-import { ChangeEvent, KeyboardEvent, useState, useRef } from 'react';
+import { ChangeEvent, KeyboardEvent, useState, useRef, useId } from 'react';
 
 import './HeaderSearchInput.scss';
 
@@ -12,6 +12,11 @@ interface IHeaderSearchInputProps {
   setIsSearchingCallback: (isSearching: boolean) => void;
   onChangeCallback: (search: string) => void;
   onSubmitCallback: () => void;
+  /**
+   * Optional label for screen readers.
+   * Defaults to "Search" if not provided.
+   */
+  ariaLabel?: string;
 }
 
 export default function HeaderSearchInput({
@@ -21,9 +26,11 @@ export default function HeaderSearchInput({
   setIsSearchingCallback,
   onChangeCallback,
   onSubmitCallback,
+  ariaLabel = 'Search',
 }: IHeaderSearchInputProps): React.JSX.Element {
   const [preventBlur, setPreventBlur] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && onSubmitCallback) {
@@ -52,6 +59,9 @@ export default function HeaderSearchInput({
 
   return (
     <div className="headerSearchInput">
+      <label htmlFor={inputId} className="sr-only">
+        {ariaLabel}
+      </label>
       {isSearching ? (
         <CaretLeftBlackIcon
           size={16}
@@ -67,7 +77,9 @@ export default function HeaderSearchInput({
         />
       )}
       <input
+        id={inputId}
         ref={inputRef}
+        type="search"
         className="headerSearchInput-input"
         value={value}
         placeholder={placeholder}
@@ -75,6 +87,7 @@ export default function HeaderSearchInput({
         onBlur={(): void => handleBlur()}
         onChange={(e: ChangeEvent<HTMLInputElement>): void => onChangeCallback(e.target.value)}
         onKeyDown={(e: KeyboardEvent<HTMLInputElement>): void => handleKeyDown(e)}
+        aria-label={ariaLabel}
       />
       {isSearching && (
         <CloseBlackIcon

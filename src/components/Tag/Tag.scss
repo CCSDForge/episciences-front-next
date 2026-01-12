@@ -1,7 +1,7 @@
 .tag {
   height: 30px;
   padding: 0px 6px 0px 6px;
-  border: 1px solid var(--primary);
+  border: 1px solid var(--primary-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -17,8 +17,36 @@
   }
 
   &-close {
-    width: 9px;
-    height: 9px;
+    // Button reset
+    background: none;
+    border: none;
+
+    // Visual icon size (12px SVG inside)
+    width: 12px;
+    height: 12px;
+
+    // Create 44×44px touch target (WCAG 2.5.5 Level AAA)
+    padding: 16px;
+    margin: -16px;
+
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      opacity: 0.7;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-color, #0078d4);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }

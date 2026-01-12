@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import { useRouter } from 'next/navigation';
 import { isMobileOnly } from 'react-device-detect';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 import { BREADCRUMB_PATHS } from '@/config/paths';
 import { useAppSelector } from '@/hooks/store';
@@ -214,9 +215,13 @@ export default function ArticleDetailsClient({
     return (
       <div className="articleDetails-content-article-section">
         <div
+          role="button"
+          tabIndex={0}
+          aria-expanded={isOpenedSection}
           className={`articleDetails-content-article-section-title ${!isOpenedSection && 'articleDetails-content-article-section-closed'}`}
           style={{ alignItems: 'center' }}
           onClick={(): void => toggleSection(sectionKey)}
+          onKeyDown={(e) => handleKeyboardClick(e, () => toggleSection(sectionKey))}
         >
           <div className="articleDetails-content-article-section-title-text">{sectionTitle}</div>
           {isOpenedSection ? (

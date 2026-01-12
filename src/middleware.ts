@@ -103,7 +103,11 @@ export function middleware(request: NextRequest) {
   const rewriteUrl = new URL(internalPath, request.url);
   rewriteUrl.search = url.search;
 
-  return NextResponse.rewrite(rewriteUrl);
+  // Set custom headers for the detected language (for root layout lang attribute)
+  const response = NextResponse.rewrite(rewriteUrl);
+  response.headers.set('x-detected-language', targetLang);
+
+  return response;
 }
 
 export const config = {

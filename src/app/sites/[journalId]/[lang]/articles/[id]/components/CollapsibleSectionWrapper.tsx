@@ -2,6 +2,7 @@
 
 import React, { useState, ReactNode } from 'react';
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface CollapsibleSectionWrapperProps {
   title: string;
@@ -22,11 +23,17 @@ export default function CollapsibleSectionWrapper({
 }: CollapsibleSectionWrapperProps): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(initialOpen);
 
+  const toggleSection = (): void => setIsOpen(!isOpen);
+
   return (
     <div className="articleDetails-content-article-section">
       <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={isOpen}
         className={`articleDetails-content-article-section-title ${!isOpen && 'articleDetails-content-article-section-closed'}`}
-        onClick={(): void => setIsOpen(!isOpen)}
+        onClick={toggleSection}
+        onKeyDown={(e) => handleKeyboardClick(e, toggleSection)}
       >
         <div className="articleDetails-content-article-section-title-text">{title}</div>
         {isOpen ? (

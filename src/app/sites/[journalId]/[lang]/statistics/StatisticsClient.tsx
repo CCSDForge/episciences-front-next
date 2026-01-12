@@ -27,6 +27,7 @@ import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import PieChart from '@/components/Charts/PieChart/PieChart';
 import StatisticsMobileModal from '@/components/Modals/StatisticsMobileModal/StatisticsMobileModal';
+import { handleKeyboardClick } from '@/utils/keyboard';
 import StatisticsSidebar, {
   IStatisticsYearSelection,
 } from '@/components/Sidebars/StatisticsSidebar/StatisticsSidebar';
@@ -295,7 +296,13 @@ export default function StatisticsClient({
                   <div key={index} className="statistics-content-results-cards-row">
                     <div
                       className="statistics-content-results-cards-row-title"
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={statisticPerLabel.isOpened}
                       onClick={(): void => toggleStatisticsSection(statisticPerLabel.labelKey)}
+                      onKeyDown={(e) =>
+                        handleKeyboardClick(e, () => toggleStatisticsSection(statisticPerLabel.labelKey))
+                      }
                     >
                       <div className="statistics-content-results-cards-row-title-text">
                         {t(statisticPerLabel.labelPath)}

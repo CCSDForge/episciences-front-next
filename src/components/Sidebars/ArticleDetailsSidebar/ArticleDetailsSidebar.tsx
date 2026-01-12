@@ -34,7 +34,7 @@ import {
   getMetadataTypes,
 } from '@/utils/article';
 import { fetchArticleMetadata } from '@/services/article';
-import { toast } from 'react-toastify';
+import { toastSuccess, toastError } from '@/utils/toast';
 import { useAppSelector } from '@/hooks/store';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -246,7 +246,7 @@ export default function ArticleDetailsSidebar({
       });
 
       if (!metadataContent) {
-        toast.error(t('pages.articleDetails.metadata.downloadError'));
+        toastError(t('pages.articleDetails.metadata.downloadError'));
         return;
       }
 
@@ -264,11 +264,11 @@ export default function ArticleDetailsSidebar({
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast.success(t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label }));
+      toastSuccess(t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label }));
       setShowMetadatasDropdown(false);
     } catch (error) {
       console.error('Error downloading metadata:', error);
-      toast.error(t('pages.articleDetails.metadata.downloadError'));
+      toastError(t('pages.articleDetails.metadata.downloadError'));
     } finally {
       setIsDownloadingMetadata(false);
     }
@@ -440,8 +440,11 @@ export default function ArticleDetailsSidebar({
       <div className="articleDetailsSidebar-publicationDetails">
         <div
           className="articleDetailsSidebar-publicationDetails-title"
-          onClick={togglePublicationDetails}
-        >
+          
+        role="button"
+        tabIndex={0}
+        
+        onClick={togglePublicationDetails}        onKeyDown={(e) => handleKeyboardClick(e, togglePublicationDetails)}>
           <div className="articleDetailsSidebar-publicationDetails-title-text">
             {t('common.publicationDetails')}
           </div>
@@ -513,7 +516,11 @@ export default function ArticleDetailsSidebar({
 
       {article?.fundings && article.fundings.length > 0 && (
         <div className="articleDetailsSidebar-funding">
-          <div className="articleDetailsSidebar-funding-title" onClick={toggleFunding}>
+          <div className="articleDetailsSidebar-funding-title" 
+        role="button"
+        tabIndex={0}
+        
+        onClick={toggleFunding}        onKeyDown={(e) => handleKeyboardClick(e, toggleFunding)}>
             <div className="articleDetailsSidebar-funding-title-text">
               {t('pages.articleDetails.funding.title')}
             </div>
