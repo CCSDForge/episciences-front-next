@@ -371,7 +371,8 @@ export default function SearchClient({
     if (taggedFilters.length > 0 || currentPage !== initialPage) {
       updateUrlAndSearch();
     }
-  }, [taggedFilters, currentPage, initialPage, updateUrlAndSearch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taggedFilters, currentPage, initialPage]);
 
   // Mettre à jour les résultats améliorés lorsque les résultats de recherche changent
   useEffect(() => {
