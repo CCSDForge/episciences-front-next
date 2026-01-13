@@ -3,6 +3,7 @@
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import dynamic from 'next/dynamic';
 import MathJax from '@/components/MathJax/MathJax';
 import { useRouter } from 'next/navigation';
 import { isMobileOnly } from 'react-device-detect';
@@ -30,8 +31,17 @@ import KeywordsSection from './components/KeywordsSection';
 import LinkedPublicationsSection from './components/LinkedPublicationsSection';
 import CitedBySection from './components/CitedBySection';
 import ReferencesSection from './components/ReferencesSection';
-import PreviewSection from './components/PreviewSection';
 import { fetchVolume } from '@/services/volume';
+
+// Lazy load PDF preview section - only loaded when preview section is opened
+const PreviewSection = dynamic(() => import('./components/PreviewSection'), {
+  loading: () => (
+    <div className="articleDetails-content-article-section-content-preview-loading">
+      Loading preview...
+    </div>
+  ),
+  ssr: false,
+});
 import { fetchArticleMetadata } from '@/services/article';
 import './ArticleDetails.scss';
 

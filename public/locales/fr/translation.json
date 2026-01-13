@@ -254,6 +254,7 @@
         "download": "Télécharger l'article",
         "openOn": "Ouvrir sur",
         "cite": "Citer",
+        "citationError": "Erreur lors de la génération des citations",
         "metadata": "Metadata",
         "share": {
           "text": "Partager",

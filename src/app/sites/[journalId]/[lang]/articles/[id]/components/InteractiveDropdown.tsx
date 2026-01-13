@@ -56,36 +56,46 @@ export default function InteractiveDropdown({
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [citations, setCitations] = useState<ICitation[]>([]);
+  const [isLoadingCitations, setIsLoadingCitations] = useState(false);
+  const [citationsGenerated, setCitationsGenerated] = useState(false);
   const [isDownloadingMetadata, setIsDownloadingMetadata] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const metadataTypes = getMetadataTypes();
 
-  // Generate citations client-side when metadata is available
-  useEffect(() => {
-    const generateCitations = async () => {
-      if (type === 'cite' && (metadataCSL || metadataBibTeX)) {
-        const fetchedCitations = await getCitations(metadataCSL as string);
+  // Generate citations ONLY when user opens the dropdown (lazy loading)
+  const generateCitationsOnDemand = async () => {
+    // Only generate if not already generated and citations are needed
+    if (citationsGenerated || type !== 'cite' || (!metadataCSL && !metadataBibTeX)) {
+      return;
+    }
 
-        // Update the BibTeX citation with the proper content
-        const bibtexIndex = fetchedCitations.findIndex(
-          citation => citation.key === CITATION_TEMPLATE.BIBTEX
-        );
-        if (bibtexIndex !== -1 && metadataBibTeX) {
-          fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
-        }
+    try {
+      setIsLoadingCitations(true);
+      const fetchedCitations = await getCitations(metadataCSL as string);
 
-        // Filter out citations with empty content
-        const validCitations = fetchedCitations.filter(
-          citation => citation.citation && citation.citation.trim() !== ''
-        );
-
-        setCitations(validCitations);
+      // Update the BibTeX citation with the proper content
+      const bibtexIndex = fetchedCitations.findIndex(
+        citation => citation.key === CITATION_TEMPLATE.BIBTEX
+      );
+      if (bibtexIndex !== -1 && metadataBibTeX) {
+        fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
       }
-    };
 
-    generateCitations();
-  }, [type, metadataCSL, metadataBibTeX]);
+      // Filter out citations with empty content
+      const validCitations = fetchedCitations.filter(
+        citation => citation.citation && citation.citation.trim() !== ''
+      );
+
+      setCitations(validCitations);
+      setCitationsGenerated(true);
+    } catch (error) {
+      console.error('[InteractiveDropdown] Error generating citations:', error);
+      toastError(t('pages.articleDetails.actions.citationError'));
+    } finally {
+      setIsLoadingCitations(false);
+    }
+  };
 
   useEffect(() => {
     const handleTouchOutside = (event: TouchEvent): void => {
@@ -164,22 +174,34 @@ export default function InteractiveDropdown({
     }
   };
 
-  const renderCiteDropdown = () => (
-    <div className="articleDetailsSidebar-links-link-modal-content-links" role="menu">
-      {citations.map((citation, index) => (
-        <button
-          key={index}
-          type="button"
-          role="menuitem"
-          className="articleDetailsSidebar-links-link-modal-content-links-link"
-          onClick={(): void => copyCitation(citation)}
-          onTouchEnd={(): void => copyCitation(citation)}
-        >
-          {citation.key}
-        </button>
-      ))}
-    </div>
-  );
+  const renderCiteDropdown = () => {
+    if (isLoadingCitations) {
+      return (
+        <div className="articleDetailsSidebar-links-link-modal-content-links" role="menu">
+          <div className="articleDetailsSidebar-links-link-modal-content-links-link">
+            {t('common.loading')}...
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="articleDetailsSidebar-links-link-modal-content-links" role="menu">
+        {citations.map((citation, index) => (
+          <button
+            key={index}
+            type="button"
+            role="menuitem"
+            className="articleDetailsSidebar-links-link-modal-content-links-link"
+            onClick={(): void => copyCitation(citation)}
+            onTouchEnd={(): void => copyCitation(citation)}
+          >
+            {citation.key}
+          </button>
+        ))}
+      </div>
+    );
+  };
 
   const renderMetadataDropdown = () => (
     <div className="articleDetailsSidebar-links-link-modal-content-links" role="menu">
@@ -326,17 +348,34 @@ export default function InteractiveDropdown({
   };
 
   // Don't render if no data is available
-  if (type === 'cite' && citations.length === 0) return null;
+  if (type === 'cite' && !metadataCSL && !metadataBibTeX) return null;
   if (type === 'metadata' && metadataTypes.length === 0) return null;
 
-  const toggleDropdown = (): void => setShowDropdown(!showDropdown);
+  const toggleDropdown = (): void => {
+    const newState = !showDropdown;
+    setShowDropdown(newState);
+
+    // Generate citations when opening the dropdown for the first time
+    if (newState && type === 'cite') {
+      void generateCitationsOnDemand();
+    }
+  };
+
+  const handleMouseEnter = (): void => {
+    setShowDropdown(true);
+
+    // Generate citations on hover for better UX
+    if (type === 'cite') {
+      void generateCitationsOnDemand();
+    }
+  };
 
   return (
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Mouse events are progressive enhancement; keyboard handled by button
     <div
       ref={dropdownRef}
       className="articleDetailsSidebar-links-link articleDetailsSidebar-links-link-modal"
-      onMouseEnter={(): void => setShowDropdown(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={(): void => setShowDropdown(false)}
     >
       <button

@@ -247,6 +247,7 @@
         "download": "Download article",
         "openOn": "Open on",
         "cite": "Cite",
+        "citationError": "Error generating citations",
         "metadata": "Metadata",
         "share": {
           "text": "Share",
