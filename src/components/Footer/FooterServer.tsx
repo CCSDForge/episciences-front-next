@@ -103,7 +103,7 @@ export default async function FooterServer({
       <div className="footer-journal">
         <div className="footer-journal-logo">
           <Link href={`/${lang}`} lang={lang}>
-            <img src={footerLogoSrc} alt="Journal logo" />
+            <img src={footerLogoSrc} alt="Journal logo" loading="lazy" />
           </Link>
         </div>
         <div className="footer-journal-links">
@@ -160,7 +160,7 @@ export default async function FooterServer({
       <div className="footer-episciences">
         <div className="footer-episciences-logo">
           <Link href={episciencesUrl} lang={lang}>
-            <img src={logoEpisciences} alt="Episciences" />
+            <img src={logoEpisciences} alt="Episciences" loading="lazy" />
           </Link>
         </div>
         <div className="footer-episciences-links">

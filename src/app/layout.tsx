@@ -27,6 +27,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={currentLanguage}>
       <head>
         <base href="/" />
+        {/* Preload critical font to avoid FOIT/FOUT */}
+        <link
+          rel="preload"
+          href="/fonts/Noto-Sans/NotoSans-Regular.woff"
+          as="font"
+          type="font/woff"
+          crossOrigin="anonymous"
+        />
+        {/* Preconnect to API to reduce latency on first API call */}
+        <link rel="preconnect" href="https://api-preprod.episciences.org" />
+        <link rel="dns-prefetch" href="https://api-preprod.episciences.org" />
       </head>
       <body>
         {/* The JournalLayout at /sites/[journalId]/layout.tsx will provide ClientProviders */}

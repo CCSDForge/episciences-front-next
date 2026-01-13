@@ -13,14 +13,14 @@ export default function HeaderServerSimple({
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <a href="https://www.episciences.org">
-            <img src="/logos/logo-episciences.svg" alt="Episciences" />
+            <img src="/logos/logo-episciences.svg" alt="Episciences" loading="lazy" />
           </a>
         </div>
       </div>
       <div className="header-journal">
         <div className="header-journal-logo">
           <Link href="/" lang={lang}>
-            <img src="/logos/logo-big.svg" alt="Journal logo" />
+            <img src="/logos/logo-big.svg" alt="Journal logo" loading="eager" />
           </Link>
         </div>
         <div className="header-journal-title">Journal</div>
