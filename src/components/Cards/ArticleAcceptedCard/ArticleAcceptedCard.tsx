@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
@@ -23,7 +24,7 @@ interface IArticleAcceptedCardProps {
   toggleAbstractCallback: () => void;
 }
 
-export default function ArticleAcceptedCard({
+function ArticleAcceptedCard({
   language,
   t,
   article,
@@ -105,3 +106,6 @@ export default function ArticleAcceptedCard({
     </div>
   );
 }
+
+// Memoize to prevent unnecessary re-renders
+export default React.memo(ArticleAcceptedCard);

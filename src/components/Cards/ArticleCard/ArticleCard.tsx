@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import { Link } from '@/components/Link/Link';
@@ -40,7 +40,7 @@ interface IArticleCardProps {
   toggleAbstractCallback: () => void;
 }
 
-export default function ArticleCard({
+function ArticleCard({
   language,
   rvcode,
   t,
@@ -230,3 +230,12 @@ export default function ArticleCard({
     </div>
   );
 }
+
+// Memoize to prevent unnecessary re-renders when parent re-renders
+export default React.memo(ArticleCard, (prevProps, nextProps) => {
+  // Only re-render if article ID or opened state changes
+  return (
+    prevProps.article.id === nextProps.article.id &&
+    prevProps.article.openedAbstract === nextProps.article.openedAbstract
+  );
+});
