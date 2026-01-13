@@ -3,6 +3,7 @@
 import { FilterIcon } from '@/components/icons';
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import dynamic from 'next/dynamic';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
 // import filter from '/icons/filter.svg';
@@ -15,7 +16,13 @@ import Loader from '@/components/Loader/Loader';
 import ArticleAcceptedCard, {
   IArticleAcceptedCard,
 } from '@/components/Cards/ArticleAcceptedCard/ArticleAcceptedCard';
-import ArticlesAcceptedMobileModal from '@/components/Modals/ArticlesAcceptedMobileModal/ArticlesAcceptedMobileModal';
+
+// Lazy load mobile modal
+const ArticlesAcceptedMobileModal = dynamic(
+  () => import('@/components/Modals/ArticlesAcceptedMobileModal/ArticlesAcceptedMobileModal'),
+  { ssr: false }
+);
+
 import ArticlesAcceptedSidebar, {
   IArticleTypeSelection,
 } from '@/components/Sidebars/ArticlesAcceptedSidebar/ArticlesAcceptedSidebar';

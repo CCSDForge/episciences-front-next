@@ -2,6 +2,7 @@
 
 import { FilterIcon } from '@/components/icons';
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -16,7 +17,6 @@ import { SearchRange } from '@/utils/pagination';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import ArticleCard, { IArticleCard } from '@/components/Cards/ArticleCard/ArticleCard';
-import SearchResultsMobileModal from '@/components/Modals/SearchResultsMobileModal/SearchResultsMobileModal';
 import SearchResultsSidebar, {
   ISearchResultTypeSelection,
   ISearchResultYearSelection,
@@ -28,6 +28,12 @@ import Pagination from '@/components/Pagination/Pagination';
 import Tag from '@/components/Tag/Tag';
 import '../articles/Articles.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
+
+// Lazy load mobile modal
+const SearchResultsMobileModal = dynamic(
+  () => import('@/components/Modals/SearchResultsMobileModal/SearchResultsMobileModal'),
+  { ssr: false }
+);
 
 type SearchResultTypeFilter = 'type' | 'year' | 'volume' | 'section' | 'author';
 

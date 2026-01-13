@@ -8,6 +8,7 @@ import {
   TileGreyIcon,
 } from '@/components/icons';
 import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
@@ -18,12 +19,10 @@ import { volumeTypes } from '@/utils/volume';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import VolumeCard from '@/components/Cards/VolumeCard/VolumeCard';
-import VolumesMobileModal from '@/components/Modals/VolumesMobileModal/VolumesMobileModal';
 import VolumesSidebar, {
   IVolumeTypeSelection,
   IVolumeYearSelection,
 } from '@/components/Sidebars/VolumesSidebar/VolumesSidebar';
-import VolumesModal from '@/components/Modals/VolumesModal/VolumesModal';
 import Pagination from '@/components/Pagination/Pagination';
 import Tag from '@/components/Tag/Tag';
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -33,6 +32,18 @@ import { IVolume } from '@/types/volume';
 // Import VolumesResponse mais pas le hook useFetchVolumesQuery
 import type { VolumesResponse } from '@/store/features/volume/volume.query';
 import { handleKeyboardClick } from '@/utils/keyboard';
+
+// Lazy load mobile modal
+const VolumesMobileModal = dynamic(
+  () => import('@/components/Modals/VolumesMobileModal/VolumesMobileModal'),
+  { ssr: false }
+);
+
+// Lazy load desktop modal
+const VolumesModal = dynamic(
+  () => import('@/components/Modals/VolumesModal/VolumesModal'),
+  { ssr: false }
+);
 
 type VolumeTypeFilter = 'type' | 'year';
 

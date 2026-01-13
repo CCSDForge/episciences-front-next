@@ -5,6 +5,7 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
 import { useAppSelector } from '@/hooks/store';
 import { useFetchArticlesQuery } from '@/store/features/article/article.query';
@@ -13,7 +14,13 @@ import { FetchedArticle, articleTypes } from '@/utils/article';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import ArticleCard, { IArticleCard } from '@/components/Cards/ArticleCard/ArticleCard';
-import ArticlesMobileModal from '@/components/Modals/ArticlesMobileModal/ArticlesMobileModal';
+
+// Lazy load mobile modal - only loaded when filters button is clicked
+const ArticlesMobileModal = dynamic(
+  () => import('@/components/Modals/ArticlesMobileModal/ArticlesMobileModal'),
+  { ssr: false }
+);
+
 import ArticlesSidebar, {
   IArticleTypeSelection,
   IArticleYearSelection,

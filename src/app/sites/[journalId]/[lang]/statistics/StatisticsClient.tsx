@@ -2,6 +2,7 @@
 
 import { CaretUpBlackIcon, CaretDownBlackIcon, FilterIcon } from '@/components/icons';
 import { useState, useEffect, Fragment, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -26,12 +27,17 @@ import {
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import PieChart from '@/components/Charts/PieChart/PieChart';
-import StatisticsMobileModal from '@/components/Modals/StatisticsMobileModal/StatisticsMobileModal';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import StatisticsSidebar, {
   IStatisticsYearSelection,
 } from '@/components/Sidebars/StatisticsSidebar/StatisticsSidebar';
 import { statisticsBlocksConfiguration } from '@/config/statistics';
+
+// Lazy load mobile modal
+const StatisticsMobileModal = dynamic(
+  () => import('@/components/Modals/StatisticsMobileModal/StatisticsMobileModal'),
+  { ssr: false }
+);
 
 interface StatisticsClientProps {
   initialStats?: IStatResponse;

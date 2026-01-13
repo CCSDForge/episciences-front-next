@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from 'react-device-detect';
@@ -17,7 +18,6 @@ import { VOLUME_TYPE } from '@/utils/volume';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import VolumeArticleCard from '@/components/Cards/VolumeArticleCard/VolumeArticleCard';
-import VolumeDetailsMobileModal from '@/components/Modals/VolumeDetailsMobileModal/VolumeDetailsMobileModal';
 import VolumeDetailsSidebar from '@/components/Sidebars/VolumeDetailsSidebar/VolumeDetailsSidebar';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import { handleKeyboardClick } from '@/utils/keyboard';
@@ -29,6 +29,12 @@ import {
   CaretDownGreyLightIcon,
 } from '@/components/icons';
 import './VolumeDetails.scss';
+
+// Lazy load mobile modal
+const VolumeDetailsMobileModal = dynamic(
+  () => import('@/components/Modals/VolumeDetailsMobileModal/VolumeDetailsMobileModal'),
+  { ssr: false }
+);
 
 interface VolumeDetailsClientProps {
   initialVolume: IVolume | null;

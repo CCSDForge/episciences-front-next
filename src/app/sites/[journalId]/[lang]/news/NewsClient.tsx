@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import {
@@ -17,12 +18,17 @@ import { RENDERING_MODE } from '@/utils/card';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import NewsCard from '@/components/Cards/NewsCard/NewsCard';
-import NewsMobileModal from '@/components/Modals/NewsMobileModal/NewsMobileModal';
 import NewsSidebar, { INewsYearSelection } from '@/components/Sidebars/NewsSidebar/NewsSidebar';
 import Pagination from '@/components/Pagination/Pagination';
 import { INews, Range, fetchNews } from '@/services/news';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import '@/styles/transitions.scss';
+
+// Lazy load mobile modal
+const NewsMobileModal = dynamic(
+  () => import('@/components/Modals/NewsMobileModal/NewsMobileModal'),
+  { ssr: false }
+);
 
 interface NewsClientProps {
   initialNews: {
