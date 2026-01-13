@@ -27,6 +27,7 @@ import SearchResultsSidebar, {
 import Pagination from '@/components/Pagination/Pagination';
 import Tag from '@/components/Tag/Tag';
 import '../articles/Articles.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 type SearchResultTypeFilter = 'type' | 'year' | 'volume' | 'section' | 'author';
 
@@ -664,7 +665,10 @@ export default function SearchClient({
           <div className="articles-title-count-filtersMobile">
             <div
               className="articles-title-count-filtersMobile-tile"
+              role="button"
+              tabIndex={0}
               onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
+              onKeyDown={(e) => handleKeyboardClick(e, (): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal))}
             >
               <FilterIcon
                 size={16}
@@ -713,34 +717,34 @@ export default function SearchClient({
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
             ))}
-            <div className="articles-filters-tags-clear" 
-        role="button"
-        tabIndex={0}
-        
-        onClick={clearTaggedFilters}
-        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
+            <div
+              className="articles-filters-tags-clear"
+              role="button"
+              tabIndex={0}
+              onClick={clearTaggedFilters}
+              onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+            >
               {t('common.filters.clearAll')}
             </div>
           </div>
         )}
-        <div className="articles-filters-abstracts" 
-        role="button"
-        tabIndex={0}
-        
-        onClick={toggleAllAbstracts}
-        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}>
+        <div
+          className="articles-filters-abstracts"
+          role="button"
+          tabIndex={0}
+          onClick={toggleAllAbstracts}
+          onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
+        >
           {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
         </div>
       </div>
       <div
         className="articles-filters-abstracts articles-filters-abstracts-mobile"
-        
         role="button"
         tabIndex={0}
-        
         onClick={toggleAllAbstracts}
-      
-        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}>
+        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
+      >
         {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
       </div>
       <div className="articles-content">

@@ -225,7 +225,7 @@ export default function ArticleDetailsSidebarServer({
           >
             <div className="articleDetailsSidebar-links-link">
               <DownloadBlackIcon
-                size={20}
+                size={14}
                 className="articleDetailsSidebar-links-link-icon"
                 ariaLabel="Download"
               />
@@ -243,7 +243,7 @@ export default function ArticleDetailsSidebarServer({
             className="articleDetailsSidebar-links-link"
           >
             <ExternalLinkBlackIcon
-              size={20}
+              size={14}
               className="articleDetailsSidebar-links-link-icon"
               ariaLabel="External link"
             />

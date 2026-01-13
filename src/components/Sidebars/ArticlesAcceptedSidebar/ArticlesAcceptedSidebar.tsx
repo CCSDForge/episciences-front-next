@@ -4,6 +4,7 @@ import { TFunction } from 'i18next';
 
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './ArticlesAcceptedSidebar.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IArticleTypeSelection {
   labelPath: string;
@@ -39,7 +40,10 @@ export default function ArticlesAcceptedSidebar({
               </div>
               <span
                 className={`articlesAcceptedSidebar-typesSection-types-choice-label ${type.isChecked && 'articlesAcceptedSidebar-typesSection-types-choice-label-checked'}`}
+                role="button"
+                tabIndex={0}
                 onClick={(): void => onCheckTypeCallback(type.value)}
+                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
               >
                 {t(type.labelPath)}
               </span>

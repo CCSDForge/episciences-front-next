@@ -5,6 +5,7 @@ import { TFunction } from 'i18next';
 import { AvailableLanguage } from '@/utils/i18n';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './SearchResultsSidebar.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface ISearchResultTypeSelection {
   labelPath: string;
@@ -85,7 +86,10 @@ export default function SearchResultsSidebar({
                   </div>
                   <span
                     className={`searchResultsSidebar-typesSection-types-choice-row-label ${type.isChecked && 'searchResultsSidebar-typesSection-types-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => onCheckTypeCallback(type.value)}
+                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
                   >
                     {t(type.labelPath)}
                   </span>
@@ -114,7 +118,10 @@ export default function SearchResultsSidebar({
                     </div>
                     <span
                       className={`searchResultsSidebar-yearsSection-years-list-choice-row-label ${y.isChecked && 'searchResultsSidebar-yearsSection-years-list-choice-row-label-checked'}`}
+                      role="button"
+                      tabIndex={0}
                       onClick={(): void => onCheckYearCallback(y.year)}
+                      onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))}
                     >
                       {y.year}
                     </span>
@@ -148,7 +155,10 @@ export default function SearchResultsSidebar({
                   </div>
                   <span
                     className={`searchResultsSidebar-volumesSection-volumes-list-choice-label ${v.isChecked && 'searchResultsSidebar-volumesSection-volumes-list-choice-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => onCheckVolumeCallback(v.id)}
+                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckVolumeCallback(v.id))}
                   >
                     {v.label[language]}
                   </span>
@@ -178,7 +188,10 @@ export default function SearchResultsSidebar({
                   </div>
                   <span
                     className={`searchResultsSidebar-sectionsSection-sections-list-choice-label ${s.isChecked && 'searchResultsSidebar-sectionsSection-sections-list-choice-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => onCheckSectionCallback(s.id)}
+                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckSectionCallback(s.id))}
                   >
                     {s.label[language]}
                   </span>
@@ -209,7 +222,10 @@ export default function SearchResultsSidebar({
                     </div>
                     <span
                       className={`searchResultsSidebar-authorsSection-authors-list-choice-row-label ${a.isChecked && 'searchResultsSidebar-authorsSection-authors-list-choice-row-label-checked'}`}
+                      role="button"
+                      tabIndex={0}
                       onClick={(): void => onCheckAuthorCallback(a.fullname)}
+                      onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckAuthorCallback(a.fullname))}
                     >
                       {a.fullname}
                     </span>

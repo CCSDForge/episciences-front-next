@@ -10,6 +10,7 @@ import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import Tag from '@/components/Tag/Tag';
 import './VolumesMobileModal.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
   TYPE = 'type',
@@ -228,11 +229,13 @@ export default function VolumesMobileModal({
               />
             ))}
           </div>
-          <div className="tagsClear" 
-        role="button"
-        tabIndex={0}
-        
-        onClick={clearTaggedFilters}        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
+          <div
+            className="tagsClear"
+            role="button"
+            tabIndex={0}
+            onClick={clearTaggedFilters}
+            onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+          >
             {t('common.filters.clearAll')}
           </div>
         </div>
@@ -240,7 +243,12 @@ export default function VolumesMobileModal({
       <div className="filters">
         <div className="filtersTypes">
           <div className="filtersTypesTitle">
-            <div onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
+              onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.TYPE))}
+            >
               {t('common.filters.documentTypes')}
             </div>
             {isOpenedSection(FILTERS_SECTION.TYPE) ? (
@@ -272,7 +280,10 @@ export default function VolumesMobileModal({
                 </div>
                 <span
                   className={`filtersTypesListChoiceLabel ${type.isChecked ? 'filtersTypesListChoiceLabelChecked' : ''}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(): void => onCheckType(type.value)}
+                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckType(type.value))}
                 >
                   {t(`common.volumeTypes.${type.value}`)}
                 </span>
@@ -282,7 +293,12 @@ export default function VolumesMobileModal({
         </div>
         <div className="filtersYears">
           <div className="filtersYearsTitle">
-            <div onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+              onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))}
+            >
               {t('common.filters.years')}
             </div>
             {isOpenedSection(FILTERS_SECTION.YEAR) ? (
@@ -314,7 +330,10 @@ export default function VolumesMobileModal({
                 </div>
                 <span
                   className={`filtersYearsListChoiceLabel ${y.isSelected ? 'filtersYearsListChoiceLabelChecked' : ''}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(): void => onCheckYear(y.year)}
+                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
                 >
                   {y.year}
                 </span>

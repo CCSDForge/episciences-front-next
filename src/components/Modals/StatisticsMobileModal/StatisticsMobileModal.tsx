@@ -10,6 +10,7 @@ import { setFooterVisibility } from '@/store/features/footer/footer.slice';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './StatisticsMobileModal.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
   YEAR = 'year',
@@ -119,7 +120,12 @@ export default function StatisticsMobileModal({
       <div className="filters">
         <div className="filtersYears">
           <div className="filtersYearsTitle">
-            <div onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+              onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))}
+            >
               {t('common.filters.years')}
             </div>
             {isOpenedSection(FILTERS_SECTION.YEAR) ? (
@@ -151,7 +157,10 @@ export default function StatisticsMobileModal({
                 </div>
                 <span
                   className={`filtersYearsListChoiceLabel ${y.isChecked ? 'filtersYearsListChoiceLabelChecked' : ''}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(): void => onCheckYear(y.year)}
+                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
                 >
                   {y.year}
                 </span>

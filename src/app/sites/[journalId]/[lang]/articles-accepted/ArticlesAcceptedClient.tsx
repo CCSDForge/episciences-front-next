@@ -22,6 +22,7 @@ import ArticlesAcceptedSidebar, {
 import Pagination from '@/components/Pagination/Pagination';
 import Tag from '@/components/Tag/Tag';
 import './ArticlesAccepted.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IArticleAcceptedFilter {
   value: string | number;
@@ -284,7 +285,10 @@ export default function ArticlesAcceptedClient({
           <div className="articlesAccepted-title-count-filtersMobile">
             <div
               className="articlesAccepted-title-count-filtersMobile-tile"
+              role="button"
+              tabIndex={0}
               onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
+              onKeyDown={(e) => handleKeyboardClick(e, (): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal))}
             >
               <FilterIcon
                 size={16}
@@ -318,34 +322,34 @@ export default function ArticlesAcceptedClient({
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.value)}
               />
             ))}
-            <div className="articlesAccepted-filters-tags-clear" 
-        role="button"
-        tabIndex={0}
-        
-        onClick={clearTaggedFilters}
-        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
+            <div
+              className="articlesAccepted-filters-tags-clear"
+              role="button"
+              tabIndex={0}
+              onClick={clearTaggedFilters}
+              onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+            >
               {t('common.filters.clearAll')}
             </div>
           </div>
         )}
-        <div className="articlesAccepted-filters-abstracts" 
-        role="button"
-        tabIndex={0}
-        
-        onClick={toggleAllAbstracts}
-        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}>
+        <div
+          className="articlesAccepted-filters-abstracts"
+          role="button"
+          tabIndex={0}
+          onClick={toggleAllAbstracts}
+          onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
+        >
           {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
         </div>
       </div>
       <div
         className="articlesAccepted-filters-abstracts articlesAccepted-filters-abstracts-mobile"
-        
         role="button"
         tabIndex={0}
-        
         onClick={toggleAllAbstracts}
-      
-        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}>
+        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
+      >
         {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
       </div>
       <div className="articlesAccepted-content">

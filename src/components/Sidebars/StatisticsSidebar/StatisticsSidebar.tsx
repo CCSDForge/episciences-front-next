@@ -3,6 +3,7 @@
 import { TFunction } from 'i18next';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './StatisticsSidebar.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IStatisticsYearSelection {
   year: number;
@@ -35,7 +36,10 @@ export default function StatisticsSidebar({
               </div>
               <span
                 className={`statisticsSidebar-years-list-choice-label ${y.isChecked && 'statisticsSidebar-years-list-choice-label-checked'}`}
+                role="button"
+                tabIndex={0}
                 onClick={(): void => onCheckYearCallback(y.year)}
+                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))}
               >
                 {y.year}
               </span>

@@ -210,7 +210,12 @@ export default function VolumeDetailsClient({
     return (
       <div
         className="volumeDetails-id-mobileRelatedList"
+        role="button"
+        tabIndex={0}
         onClick={(): void => setOpenedRelatedVolumesMobileModal(true)}
+        onKeyDown={(e) =>
+          handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))
+        }
       >
         <div>{t('pages.volumeDetails.relatedVolumes.volumes')}</div>
         {caretIcon}
@@ -286,7 +291,12 @@ export default function VolumeDetailsClient({
               <ReactMarkdown>{`${volume?.description[language].substring(0, MAX_MOBILE_DESCRIPTION_LENGTH)}...`}</ReactMarkdown>
             )}
             <div
+              role="button"
+              tabIndex={0}
               onClick={(): void => setShowFullMobileDescription(!showFullMobileDescription)}
+              onKeyDown={(e) =>
+                handleKeyboardClick(e, () => setShowFullMobileDescription(!showFullMobileDescription))
+              }
               className="volumeDetails-content-results-content-description-toggleMobile"
             >
               {showFullMobileDescription ? t('common.seeLess') : t('common.seeMore')}

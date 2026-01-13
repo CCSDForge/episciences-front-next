@@ -3,6 +3,7 @@
 import { TFunction } from 'i18next';
 
 import './BoardsSidebar.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IBoardsSidebarProps {
   t: TFunction<'translation', undefined>;
@@ -29,7 +30,10 @@ export default function BoardsSidebar({
           <div
             key={index}
             className={`boardsSidebar-links-row ${index === activeGroupIndex && 'boardsSidebar-links-row-active'}`}
+            role="button"
+            tabIndex={0}
             onClick={(): void => onSetActiveGroupCallback(index)}
+            onKeyDown={(e) => handleKeyboardClick(e, (): void => onSetActiveGroupCallback(index))}
           >
             {group}
           </div>

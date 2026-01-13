@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface LiveRegionProps {
   message: string;
@@ -33,14 +34,15 @@ export default function LiveRegion({
   const regionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (regionRef.current && message) {
+    const regionElement = regionRef.current;
+    if (regionElement && message) {
       // Update the text content to trigger screen reader announcement
-      regionRef.current.textContent = message;
+      regionElement.textContent = message;
     }
 
     return () => {
-      if (clearOnUnmount && regionRef.current) {
-        regionRef.current.textContent = '';
+      if (clearOnUnmount && regionElement) {
+        regionElement.textContent = '';
       }
     };
   }, [message, clearOnUnmount]);

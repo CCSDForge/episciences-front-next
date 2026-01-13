@@ -34,6 +34,21 @@
       border: 1px solid var(--primary-border);
       border-bottom: 4px solid var(--primary-border);
 
+      &-button {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        color: inherit;
+        font: inherit;
+        width: 100%;
+        text-align: left;
+      }
+
       &-text {
         font-size: 14px;
         white-space: nowrap;
@@ -66,6 +81,11 @@
               display: flex;
               gap: 8px;
               cursor: pointer;
+              background: none;
+              border: none;
+              padding: 0;
+              text-align: left;
+              font: inherit;
 
               &:hover {
                 color: var(--grey-dark);

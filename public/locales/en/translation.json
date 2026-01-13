@@ -140,6 +140,7 @@
         "journals": "Journals",
         "acknowledgements": "Acknowledgements",
         "publishingPolicy": "Publishing policy",
+        "accessibility": "Accessibility: non-compliant",
         "legalMentions": "Legal mentions",
         "privacyStatement": "Privacy statement",
         "termsOfUse": "Terms of use"
@@ -499,6 +500,11 @@
     "forConferenceOrganisers": {
       "title": "For Conference Organisers",
       "noContent": "No information for conference organisers available for this journal."
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "description": "Accessibility statement",
+      "noContent": "Content not found."
     },
     "credits": {
       "title": "Credits"

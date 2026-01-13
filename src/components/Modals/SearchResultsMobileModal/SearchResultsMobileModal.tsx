@@ -12,6 +12,7 @@ import Tag from '@/components/Tag/Tag';
 import LiveRegion from '@/components/LiveRegion/LiveRegion';
 import FocusTrap from 'focus-trap-react';
 import './SearchResultsMobileModal.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
   TYPE = 'type',
@@ -449,7 +450,10 @@ export default function SearchResultsMobileModal({
                   </div>
                   <span
                     className={`searchResultsMobileModal-filters-types-list-choice-row-label ${type.isChecked && 'searchResultsMobileModal-filters-types-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => onCheckType(type.value)}
+                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckType(type.value))}
                   >
                     {t(type.labelPath)}
                   </span>
@@ -499,7 +503,10 @@ export default function SearchResultsMobileModal({
                   </div>
                   <span
                     className={`searchResultsMobileModal-filters-years-list-choice-row-label ${y.isChecked && 'searchResultsMobileModal-filters-years-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => onCheckYear(y.year)}
+                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
                   >
                     {y.year}
                   </span>
@@ -549,7 +556,10 @@ export default function SearchResultsMobileModal({
                   </div>
                   <span
                     className={`searchResultsMobileModal-filters-volumes-list-choice-row-label ${volume.isChecked && 'searchResultsMobileModal-filters-volumes-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => onCheckVolume(volume.id)}
+                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckVolume(volume.id))}
                   >
                     {volume.label[language]}
                   </span>
@@ -596,7 +606,10 @@ export default function SearchResultsMobileModal({
                   </div>
                   <span
                     className={`searchResultsMobileModal-filters-sections-list-choice-row-label ${section.isChecked && 'searchResultsMobileModal-filters-sections-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => onCheckSection(section.id)}
+                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckSection(section.id))}
                   >
                     {section.label[language]}
                   </span>
@@ -643,7 +656,10 @@ export default function SearchResultsMobileModal({
                   </div>
                   <span
                     className={`searchResultsMobileModal-filters-authors-list-choice-row-label ${author.isChecked && 'searchResultsMobileModal-filters-authors-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => onCheckAuthor(author.fullname)}
+                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckAuthor(author.fullname))}
                   >
                     {author.fullname}
                   </span>

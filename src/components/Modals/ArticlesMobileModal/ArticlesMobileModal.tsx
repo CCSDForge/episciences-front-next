@@ -11,6 +11,7 @@ import Tag from '@/components/Tag/Tag';
 import LiveRegion from '@/components/LiveRegion/LiveRegion';
 import FocusTrap from 'focus-trap-react';
 import './ArticlesMobileModal.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
   TYPE = 'type',
@@ -311,7 +312,10 @@ export default function ArticlesMobileModal({
                 </div>
                 <span
                   className={`articlesMobileModal-filters-types-list-choice-label ${type.isChecked && 'articlesMobileModal-filters-types-list-choice-label-checked'}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(): void => onCheckType(type.value)}
+                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckType(type.value))}
                 >
                   {t(type.labelPath)}
                 </span>
@@ -356,7 +360,10 @@ export default function ArticlesMobileModal({
                 </div>
                 <span
                   className={`articlesMobileModal-filters-years-list-choice-label ${y.isChecked && 'articlesMobileModal-filters-years-list-choice-label-checked'}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(): void => onCheckYear(y.year)}
+                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
                 >
                   {y.year}
                 </span>

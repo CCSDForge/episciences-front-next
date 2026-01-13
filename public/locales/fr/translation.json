@@ -147,6 +147,7 @@
         "journals": "Revues",
         "acknowledgements": "Remerciements",
         "publishingPolicy": "Politique de publication",
+        "accessibility": "Accessibilité : non conforme",
         "legalMentions": "Mentions légales",
         "privacyStatement": "Déclaration de confidentialité",
         "termsOfUse": "Termes d'utilisation"
@@ -506,6 +507,11 @@
     "forConferenceOrganisers": {
       "title": "Pour les organisateurs de conférences",
       "noContent": "Aucune information pour les organisateurs de conférences disponible pour cette revue."
+    },
+    "accessibility": {
+      "title": "Accessibilité",
+      "description": "Déclaration d'accessibilité",
+      "noContent": "Contenu non trouvé."
     },
     "credits": {
       "title": "Crédits"

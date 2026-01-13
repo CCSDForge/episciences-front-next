@@ -8,6 +8,7 @@ import { setFooterVisibility } from '@/store/features/footer/footer.slice';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './NewsMobileModal.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
   YEAR = 'year',
@@ -106,6 +107,9 @@ export default function NewsMobileModal({
           className="newsMobileModal-title-close"
           ariaLabel="Close"
           onClick={onClose}
+          onKeyDown={(e) => handleKeyboardClick(e, onClose)}
+          role="button"
+          tabIndex={0}
         />
       </div>
       <div className="newsMobileModal-filters">
@@ -113,7 +117,10 @@ export default function NewsMobileModal({
           <div className="newsMobileModal-filters-years-title">
             <div
               className="newsMobileModal-filters-years-title-text"
+              role="button"
+              tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+              onKeyDown={(e) => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.YEAR))}
             >
               {t('common.filters.years')}
             </div>
@@ -146,7 +153,10 @@ export default function NewsMobileModal({
                 </div>
                 <span
                   className={`newsMobileModal-filters-years-list-choice-label ${y.isSelected && 'newsMobileModal-filters-years-list-choice-label-selected'}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(): void => onSelectYear(y.year)}
+                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onSelectYear(y.year))}
                 >
                   {y.year}
                 </span>

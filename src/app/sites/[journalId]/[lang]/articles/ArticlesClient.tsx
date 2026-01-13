@@ -23,6 +23,7 @@ import Tag from '@/components/Tag/Tag';
 import LiveRegion from '@/components/LiveRegion/LiveRegion';
 import './Articles.scss';
 import PageTitle from '@/components/PageTitle/PageTitle';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 type ArticleTypeFilter = 'type' | 'year';
 
@@ -420,7 +421,10 @@ export default function ArticlesClient({
           <div className="articles-title-count-filtersMobile">
             <div
               className="articles-title-count-filtersMobile-tile"
+              role="button"
+              tabIndex={0}
               onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
+              onKeyDown={(e) => handleKeyboardClick(e, (): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal))}
             >
               <FilterIcon
                 size={16}

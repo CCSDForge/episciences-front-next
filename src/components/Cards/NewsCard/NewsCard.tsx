@@ -12,6 +12,7 @@ import { formatDate } from '@/utils/date';
 import { RENDERING_MODE } from '@/utils/card';
 import { AvailableLanguage } from '@/utils/i18n';
 import { generateIdFromText } from '@/utils/markdown';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 const MAX_CONTENT_LENGTH = 400;
 
@@ -60,6 +61,9 @@ export default function NewsCard({
         )}
         <div
           onClick={(e): void => toggleFullContent(e)}
+          onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleFullContent(e as any))}
+          role="button"
+          tabIndex={0}
           className="newsCard-content-content-toggle"
         >
           {showFullContent ? t('common.readLess') : t('common.readMore')}
@@ -76,11 +80,11 @@ export default function NewsCard({
         <div
           id={cardId()}
           className="newsCard newsCard-tile newsCard-tile-full"
-          
-        role="button"
-        tabIndex={0}
-        
-        onClick={setFullNewsIndexCallback}        onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}>
+          role="button"
+          tabIndex={0}
+          onClick={setFullNewsIndexCallback}
+          onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}
+        >
           <div className="newsCard-tile-full-initial">
             <div className="newsCard-content newsCard-content-tile-full">
               <div className="newsCard-content-title newsCard-content-title-tile">
@@ -124,11 +128,11 @@ export default function NewsCard({
         className={
           blurCard ? 'newsCard newsCard-tile newsCard-tile-blur' : 'newsCard newsCard-tile'
         }
-        
         role="button"
         tabIndex={0}
-        
-        onClick={setFullNewsIndexCallback}        onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}>
+        onClick={setFullNewsIndexCallback}
+        onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}
+      >
         <div className="newsCard-content newsCard-content-tile">
           <div className="newsCard-content-title newsCard-content-title-tile">
             {news.title[language]}

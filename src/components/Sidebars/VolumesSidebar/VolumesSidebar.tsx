@@ -3,6 +3,7 @@
 import { TFunction } from 'i18next';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './VolumesSidebar.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IVolumeTypeSelection {
   labelPath: string;
@@ -45,7 +46,10 @@ export default function VolumesSidebar({
               </div>
               <span
                 className={`volumesSidebar-typesSection-types-choice-label ${type.isChecked && 'volumesSidebar-typesSection-types-choice-label-checked'}`}
+                role="button"
+                tabIndex={0}
                 onClick={(): void => onCheckTypeCallback(type.value)}
+                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
               >
                 {t(type.labelPath)}
               </span>
@@ -61,7 +65,10 @@ export default function VolumesSidebar({
               <div
                 key={y.year}
                 className={`volumesSidebar-yearsSection-years-list-year ${y.isSelected && 'volumesSidebar-yearsSection-years-list-year-selected'}`}
+                role="button"
+                tabIndex={0}
                 onClick={(): void => onSelectYearCallback(y.year)}
+                onKeyDown={(e) => handleKeyboardClick(e, (): void => onSelectYearCallback(y.year))}
               >
                 {y.year}
               </div>

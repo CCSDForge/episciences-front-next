@@ -10,6 +10,7 @@ import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import Tag from '@/components/Tag/Tag';
 import './ArticlesAcceptedMobileModal.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
   TYPE = 'type',
@@ -159,6 +160,9 @@ export default function ArticlesAcceptedMobileModal({
           className="articlesAcceptedMobileModal-title-close"
           ariaLabel="Close"
           onClick={onClose}
+          onKeyDown={(e) => handleKeyboardClick(e, onClose)}
+          role="button"
+          tabIndex={0}
         />
       </div>
       {taggedFilters.length > 0 && (
@@ -172,11 +176,13 @@ export default function ArticlesAcceptedMobileModal({
               />
             ))}
           </div>
-          <div className="articlesAcceptedMobileModal-tags-clear" 
-        role="button"
-        tabIndex={0}
-        
-        onClick={clearTaggedFilters}        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
+          <div
+            className="articlesAcceptedMobileModal-tags-clear"
+            role="button"
+            tabIndex={0}
+            onClick={clearTaggedFilters}
+            onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+          >
             {t('common.filters.clearAll')}
           </div>
         </div>
@@ -186,7 +192,10 @@ export default function ArticlesAcceptedMobileModal({
           <div className="articlesAcceptedMobileModal-filters-types-title">
             <div
               className="articlesAcceptedMobileModal-filters-types-title-text"
+              role="button"
+              tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
+              onKeyDown={(e) => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.TYPE))}
             >
               {t('common.filters.documentTypes')}
             </div>
@@ -219,7 +228,10 @@ export default function ArticlesAcceptedMobileModal({
                 </div>
                 <span
                   className={`articlesAcceptedMobileModal-filters-types-list-choice-label ${type.isChecked && 'articlesAcceptedMobileModal-filters-types-list-choice-label-checked'}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(): void => onCheckType(type.value)}
+                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckType(type.value))}
                 >
                   {t(type.labelPath)}
                 </span>

@@ -4,6 +4,7 @@ import { TFunction } from 'i18next';
 
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './ArticlesSidebar.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IArticleTypeSelection {
   labelPath: string;
@@ -48,7 +49,10 @@ export default function ArticlesSidebar({
               </div>
               <span
                 className={`articlesSidebar-typesSection-types-choice-label ${type.isChecked && 'articlesSidebar-typesSection-types-choice-label-checked'}`}
+                role="button"
+                tabIndex={0}
                 onClick={(): void => onCheckTypeCallback(type.value)}
+                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
               >
                 {t(type.labelPath)}
               </span>
@@ -70,7 +74,10 @@ export default function ArticlesSidebar({
                 </div>
                 <span
                   className={`articlesSidebar-yearsSection-years-list-choice-label ${y.isChecked && 'articlesSidebar-yearsSection-years-list-choice-label-checked'}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(): void => onCheckYearCallback(y.year)}
+                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))}
                 >
                   {y.year}
                 </span>

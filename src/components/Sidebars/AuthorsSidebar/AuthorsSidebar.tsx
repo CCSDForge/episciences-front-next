@@ -6,6 +6,7 @@ import { TFunction } from 'i18next';
 import './AuthorsSidebar.scss';
 import { alphabet } from '@/utils/filter';
 import AuthorsSearchInput from '@/components/SearchInput/AuthorsSearchInput/AuthorsSearchInput';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IAuthorsSidebarProps {
   t: TFunction<'translation', undefined>;
@@ -48,7 +49,13 @@ export default function AuthorsSidebar({
     }
 
     return (
-      <div className={className} onClick={(): void => onSetActiveLetterCallback(value)}>
+      <div
+        className={className}
+        role="button"
+        tabIndex={0}
+        onClick={(): void => onSetActiveLetterCallback(value)}
+        onKeyDown={(e) => handleKeyboardClick(e, (): void => onSetActiveLetterCallback(value))}
+      >
         {label}
       </div>
     );

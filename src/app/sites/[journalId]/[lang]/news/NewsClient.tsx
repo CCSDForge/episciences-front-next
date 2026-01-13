@@ -203,7 +203,10 @@ export default function NewsClient({
         <span>{renderMobileSelectedYears()}</span>
         <div
           className="news-filtersMobile-tile"
+          role="button"
+          tabIndex={0}
           onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
+          onKeyDown={(e) => handleKeyboardClick(e, (): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal))}
         >
           <FilterIcon size={16} className="news-filtersMobile-tile-icon" ariaLabel="Filter" />
           <div className="news-filtersMobile-tile-text">

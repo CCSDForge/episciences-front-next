@@ -156,6 +156,10 @@ export default function Footer(): React.JSX.Element {
             </Link>
           </div>
           <div className="footer-episciences-links-legal">
+            <Link href={`/${language}/accessibility`} prefetch={false}>
+              {t('components.footer.links.accessibility')}
+            </Link>
+            <div className="footer-episciences-links-legal-divider">|</div>
             <Link
               href={getLegalTermsLink()}
               prefetch={false}

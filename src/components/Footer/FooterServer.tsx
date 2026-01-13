@@ -190,6 +190,10 @@ export default async function FooterServer({
             </Link>
           </div>
           <div className="footer-episciences-links-legal">
+            <Link href={`/${lang}/accessibility`} prefetch={false} lang={lang}>
+              {t('components.footer.links.accessibility', translations)}
+            </Link>
+            <div className="footer-episciences-links-legal-divider">|</div>
             <Link
               href={legalTermsUrl}
               prefetch={false}

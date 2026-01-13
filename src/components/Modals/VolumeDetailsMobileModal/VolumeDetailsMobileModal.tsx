@@ -12,6 +12,7 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 import Button from '@/components/Button/Button';
 import './VolumeDetailsMobileModal.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IVolumeDetailsMobileModalProps {
   language: AvailableLanguage;
@@ -126,8 +127,15 @@ export default function VolumeDetailsMobileModal({
           <div
             key={index}
             className={`volumeDetailsMobileModal-relatedVolumes-volume ${relatedVolume.id === chosenVolume?.id ? 'volumeDetailsMobileModal-relatedVolumes-volume-current' : ''}`}
+            role="button"
+            tabIndex={0}
             onClick={(): void =>
               setChosenVolume(chosenVolume?.id !== relatedVolume.id ? relatedVolume : undefined)
+            }
+            onKeyDown={(e) =>
+              handleKeyboardClick(e, () =>
+                setChosenVolume(chosenVolume?.id !== relatedVolume.id ? relatedVolume : undefined)
+              )
             }
           >
             {relatedVolume.title ? relatedVolume.title[language] : ''}

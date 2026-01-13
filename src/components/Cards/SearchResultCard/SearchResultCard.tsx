@@ -25,6 +25,7 @@ import {
 } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface ISearchResultCard extends IArticle {
   openedAbstract: boolean;
@@ -145,11 +146,11 @@ export default function SearchResultCard({
         <div className="searchResultCardAbstract">
           <div
             className={`searchResultCardAbstractTitle ${!searchResult.openedAbstract ? 'searchResultCardAbstractTitleClosed' : ''}`}
-            
-        role="button"
-        tabIndex={0}
-        
-        onClick={toggleAbstractCallback}        onKeyDown={(e) => handleKeyboardClick(e, toggleAbstractCallback)}>
+            role="button"
+            tabIndex={0}
+            onClick={toggleAbstractCallback}
+            onKeyDown={(e) => handleKeyboardClick(e, toggleAbstractCallback)}
+          >
             <div className="searchResultCardAbstractTitleText">{t('common.abstract')}</div>
             {searchResult.openedAbstract ? (
               <CaretUpBlackIcon
@@ -193,9 +194,12 @@ export default function SearchResultCard({
             <div
               ref={citationsDropdownRef}
               className="searchResultCardAnchorIconsCite"
+              role="button"
+              tabIndex={0}
               onMouseEnter={(): void => setShowCitationsDropdown(true)}
               onMouseLeave={(): void => setShowCitationsDropdown(false)}
-              onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
+              onClick={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
+              onKeyDown={(e) => handleKeyboardClick(e, () => setShowCitationsDropdown(!showCitationsDropdown))}
             >
               <QuoteBlackIcon
                 size={16}
@@ -210,7 +214,10 @@ export default function SearchResultCard({
                   {citations.map((citation, index) => (
                     <span
                       key={index}
+                      role="button"
+                      tabIndex={0}
                       onClick={(): void => copyCitation(citation)}
+                      onKeyDown={(e) => handleKeyboardClick(e, (): void => copyCitation(citation))}
                       onTouchEnd={(): void => copyCitation(citation)}
                     >
                       {citation.key}

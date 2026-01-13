@@ -42,6 +42,7 @@ import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
 
 import './ArticleDetailsSidebar.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IArticleDetailsSidebarProps {
   language: AvailableLanguage;
@@ -282,7 +283,7 @@ export default function ArticleDetailsSidebar({
             <a href={`/${PATHS.articles}/${article.id}/download`}>
               <div className="articleDetailsSidebar-links-link">
                 <DownloadBlackIcon
-                  size={20}
+                  size={14}
                   className="articleDetailsSidebar-links-link-icon"
                   ariaLabel="Download PDF"
                 />
@@ -301,7 +302,7 @@ export default function ArticleDetailsSidebar({
             className="articleDetailsSidebar-links-link"
           >
             <ExternalLinkBlackIcon
-              size={20}
+              size={14}
               className="articleDetailsSidebar-links-link-icon"
               ariaLabel="Open on repository"
             />
@@ -318,9 +319,13 @@ export default function ArticleDetailsSidebar({
             onMouseEnter={(): void => setShowCitationsDropdown(true)}
             onMouseLeave={(): void => setShowCitationsDropdown(false)}
             onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
+            onClick={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
+            onKeyDown={(e) => handleKeyboardClick(e, () => setShowCitationsDropdown(!showCitationsDropdown))}
+            role="button"
+            tabIndex={0}
           >
             <QuoteBlackIcon
-              size={20}
+              size={14}
               className="articleDetailsSidebar-links-link-icon"
               ariaLabel="Cite article"
             />
@@ -335,7 +340,10 @@ export default function ArticleDetailsSidebar({
                   <div
                     key={index}
                     className="articleDetailsSidebar-links-link-modal-content-links-link"
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => copyCitation(citation)}
+                    onKeyDown={(e) => handleKeyboardClick(e, (): void => copyCitation(citation))}
                     onTouchEnd={(): void => copyCitation(citation)}
                   >
                     {citation.key}
@@ -353,9 +361,13 @@ export default function ArticleDetailsSidebar({
             onMouseEnter={(): void => setShowMetadatasDropdown(true)}
             onMouseLeave={(): void => setShowMetadatasDropdown(false)}
             onTouchStart={(): void => setShowMetadatasDropdown(!showMetadatasDropdown)}
+            onClick={(): void => setShowMetadatasDropdown(!showMetadatasDropdown)}
+            onKeyDown={(e) => handleKeyboardClick(e, () => setShowMetadatasDropdown(!showMetadatasDropdown))}
+            role="button"
+            tabIndex={0}
           >
             <QuoteBlackIcon
-              size={20}
+              size={14}
               className="articleDetailsSidebar-links-link-icon"
               ariaLabel="Download metadata"
             />
@@ -370,9 +382,14 @@ export default function ArticleDetailsSidebar({
                   <div
                     key={index}
                     className="articleDetailsSidebar-links-link-modal-content-links-link"
+                    role="button"
+                    tabIndex={0}
                     onClick={(): void => {
                       void downloadMetadata(metadata);
                     }}
+                    onKeyDown={(e) => handleKeyboardClick(e, () => {
+                      void downloadMetadata(metadata);
+                    })}
                     onTouchEnd={(): void => {
                       void downloadMetadata(metadata);
                     }}
@@ -391,9 +408,13 @@ export default function ArticleDetailsSidebar({
           onMouseEnter={(): void => setShowSharingDropdown(true)}
           onMouseLeave={(): void => setShowSharingDropdown(false)}
           onTouchStart={(): void => setShowSharingDropdown(!showSharingDropdown)}
+          onClick={(): void => setShowSharingDropdown(!showSharingDropdown)}
+          onKeyDown={(e) => handleKeyboardClick(e, () => setShowSharingDropdown(!showSharingDropdown))}
+          role="button"
+          tabIndex={0}
         >
           <ShareIcon
-            size={20}
+            size={14}
             className="articleDetailsSidebar-links-link-icon"
             ariaLabel="Share article"
           />
@@ -406,28 +427,28 @@ export default function ArticleDetailsSidebar({
             <div className="articleDetailsSidebar-links-link-modal-content-sharing">
               <EmailShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
                 <MailIcon
-                  size={20}
+                  size={14}
                   className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
                   ariaLabel="Share via email"
                 />
               </EmailShareButton>
               <FacebookShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
                 <FacebookIcon
-                  size={20}
+                  size={14}
                   className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
                   ariaLabel="Share on Facebook"
                 />
               </FacebookShareButton>
               <TwitterShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
                 <TwitterIcon
-                  size={20}
+                  size={14}
                   className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
                   ariaLabel="Share on X"
                 />
               </TwitterShareButton>
               <LinkedinShareButton url={typeof window !== 'undefined' ? window.location.href : ''}>
                 <LinkedinIcon
-                  size={20}
+                  size={14}
                   className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
                   ariaLabel="Share on LinkedIn"
                 />
@@ -440,11 +461,11 @@ export default function ArticleDetailsSidebar({
       <div className="articleDetailsSidebar-publicationDetails">
         <div
           className="articleDetailsSidebar-publicationDetails-title"
-          
-        role="button"
-        tabIndex={0}
-        
-        onClick={togglePublicationDetails}        onKeyDown={(e) => handleKeyboardClick(e, togglePublicationDetails)}>
+          role="button"
+          tabIndex={0}
+          onClick={togglePublicationDetails}
+          onKeyDown={(e) => handleKeyboardClick(e, togglePublicationDetails)}
+        >
           <div className="articleDetailsSidebar-publicationDetails-title-text">
             {t('common.publicationDetails')}
           </div>
@@ -516,11 +537,13 @@ export default function ArticleDetailsSidebar({
 
       {article?.fundings && article.fundings.length > 0 && (
         <div className="articleDetailsSidebar-funding">
-          <div className="articleDetailsSidebar-funding-title" 
-        role="button"
-        tabIndex={0}
-        
-        onClick={toggleFunding}        onKeyDown={(e) => handleKeyboardClick(e, toggleFunding)}>
+          <div
+            className="articleDetailsSidebar-funding-title"
+            role="button"
+            tabIndex={0}
+            onClick={toggleFunding}
+            onKeyDown={(e) => handleKeyboardClick(e, toggleFunding)}
+          >
             <div className="articleDetailsSidebar-funding-title-text">
               {t('pages.articleDetails.funding.title')}
             </div>

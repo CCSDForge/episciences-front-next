@@ -6,6 +6,7 @@ import FocusTrap from 'focus-trap-react';
 
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './VolumesModal.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IVolumeTypeSelection {
   labelPath: string;
@@ -72,7 +73,10 @@ export default function VolumesModal({
               </div>
               <span
                 className={`typesSectionTypesChoiceLabel ${type.isChecked ? 'typesSectionTypesChoiceLabelChecked' : ''}`}
+                role="button"
+                tabIndex={0}
                 onClick={(): void => onCheckTypeCallback(type.value)}
+                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
               >
                 {t(type.labelPath)}
               </span>
@@ -88,7 +92,10 @@ export default function VolumesModal({
               <div
                 key={y.year}
                 className={`yearsSectionYearsListYear ${y.isSelected ? 'yearsSectionYearsListYearSelected' : ''}`}
+                role="button"
+                tabIndex={0}
                 onClick={(): void => onSelectYearCallback(y.year)}
+                onKeyDown={(e) => handleKeyboardClick(e, (): void => onSelectYearCallback(y.year))}
               >
                 {y.year}
               </div>

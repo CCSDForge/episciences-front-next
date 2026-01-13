@@ -212,7 +212,7 @@ export default function InteractiveDropdown({
           className="articleDetailsSidebar-links-link-modal-content-links-link"
         >
           <BlueskyIcon
-            size={20}
+            size={14}
             className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
             ariaLabel="Share on Bluesky"
           />
@@ -223,7 +223,7 @@ export default function InteractiveDropdown({
           className="articleDetailsSidebar-links-link-modal-content-links-link"
         >
           <FacebookIcon
-            size={20}
+            size={14}
             className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
             ariaLabel="Share on Facebook"
           />
@@ -234,7 +234,7 @@ export default function InteractiveDropdown({
           className="articleDetailsSidebar-links-link-modal-content-links-link"
         >
           <LinkedinIcon
-            size={20}
+            size={14}
             className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
             ariaLabel="Share on LinkedIn"
           />
@@ -245,7 +245,7 @@ export default function InteractiveDropdown({
           className="articleDetailsSidebar-links-link-modal-content-links-link"
         >
           <MailIcon
-            size={20}
+            size={14}
             className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
             ariaLabel="Share via email"
           />
@@ -256,7 +256,7 @@ export default function InteractiveDropdown({
           className="articleDetailsSidebar-links-link-modal-content-links-link"
         >
           <WhatsappIcon
-            size={20}
+            size={14}
             className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
             ariaLabel="Share on WhatsApp"
           />
@@ -267,7 +267,7 @@ export default function InteractiveDropdown({
           className="articleDetailsSidebar-links-link-modal-content-links-link"
         >
           <TwitterIcon
-            size={20}
+            size={14}
             className="articleDetailsSidebar-links-link-modal-content-sharing-icon"
             ariaLabel="Share on X (Twitter)"
           />
@@ -279,7 +279,7 @@ export default function InteractiveDropdown({
 
   const getIcon = () => {
     const iconProps = {
-      size: 20,
+      size: 14,
       className: 'articleDetailsSidebar-links-link-icon',
       ariaLabel: `${type} icon`,
     };

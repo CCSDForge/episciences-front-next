@@ -32,6 +32,7 @@ import { IVolume } from '@/types/volume';
 
 // Import VolumesResponse mais pas le hook useFetchVolumesQuery
 import type { VolumesResponse } from '@/store/features/volume/volume.query';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 type VolumeTypeFilter = 'type' | 'year';
 
@@ -442,7 +443,10 @@ export default function VolumesClient({
           <div className="volumes-title-count-icons">
             <div
               className="volumes-title-count-icons-icon"
+              role="button"
+              tabIndex={0}
               onClick={(): void => setMode(RENDERING_MODE.TILE)}
+              onKeyDown={(e) => handleKeyboardClick(e, (): void => setMode(RENDERING_MODE.TILE))}
             >
               <div
                 className={`${mode === RENDERING_MODE.TILE ? 'volumes-title-count-icons-icon-row-black' : 'volumes-title-count-icons-icon-row'}`}
@@ -457,7 +461,10 @@ export default function VolumesClient({
             </div>
             <div
               className="volumes-title-count-icons-icon"
+              role="button"
+              tabIndex={0}
               onClick={(): void => setMode(RENDERING_MODE.LIST)}
+              onKeyDown={(e) => handleKeyboardClick(e, (): void => setMode(RENDERING_MODE.LIST))}
             >
               <div
                 className={`${mode === RENDERING_MODE.LIST ? 'volumes-title-count-icons-icon-row-black' : 'volumes-title-count-icons-icon-row'}`}
@@ -508,7 +515,10 @@ export default function VolumesClient({
           <div className="volumes-filters-tags">
             <div
               className="volumes-filters-tags-filterTile"
+              role="button"
+              tabIndex={0}
               onClick={(): void => toggleFiltersModal()}
+              onKeyDown={(e) => handleKeyboardClick(e, toggleFiltersModal)}
             >
               <FilterIcon
                 size={16}
@@ -550,7 +560,10 @@ export default function VolumesClient({
         </div>
         <div
           className="volumes-filtersMobile-tile"
+          role="button"
+          tabIndex={0}
           onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
+          onKeyDown={(e) => handleKeyboardClick(e, (): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal))}
         >
           <FilterIcon size={16} className="volumes-filtersMobile-tile-icon" ariaLabel="Filters" />
           <div className="volumes-filtersMobile-tile-text">

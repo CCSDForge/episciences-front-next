@@ -3,6 +3,7 @@
 import { TFunction } from 'i18next';
 
 import './NewsSidebar.scss';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface INewsYearSelection {
   year: number;
@@ -29,7 +30,10 @@ export default function NewsSidebar({
             <div
               key={y.year}
               className={`newsSidebar-years-list-year ${y.isSelected && 'newsSidebar-years-list-year-selected'}`}
+              role="button"
+              tabIndex={0}
               onClick={(): void => onSelectYearCallback(y.year)}
+              onKeyDown={(e) => handleKeyboardClick(e, (): void => onSelectYearCallback(y.year))}
             >
               {y.year}
             </div>
