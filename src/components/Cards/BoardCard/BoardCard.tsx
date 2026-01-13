@@ -17,6 +17,7 @@ import './BoardCard.scss';
 import { IBoardMember } from '@/types/board';
 import { AvailableLanguage } from '@/utils/i18n';
 import { defaultBoardRole, getBoardRoles } from '@/services/board';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IBoardCardProps {
   language: AvailableLanguage;

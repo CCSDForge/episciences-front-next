@@ -10,6 +10,7 @@ import './SectionCard.scss';
 import { PATHS } from '@/config/paths';
 import { ISection } from '@/types/section';
 import { AvailableLanguage } from '@/utils/i18n';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface ISectionCardProps {
   language: AvailableLanguage;

@@ -10,6 +10,7 @@ import { IArticle } from '@/types/article';
 import { articleTypes, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IArticleAcceptedCard extends IArticle {
   openedAbstract: boolean;

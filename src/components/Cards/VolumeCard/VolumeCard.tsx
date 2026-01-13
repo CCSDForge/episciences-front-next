@@ -20,6 +20,7 @@ import { IVolume } from '@/types/volume';
 import { RENDERING_MODE } from '@/utils/card';
 import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IVolumeCardProps {
   language: AvailableLanguage;

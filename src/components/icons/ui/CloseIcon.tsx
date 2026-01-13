@@ -22,6 +22,9 @@ export interface CloseIconProps {
   onTouchEnd?: () => void;
   onMouseDown?: () => void;
   onMouseUp?: () => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
+  role?: string;
+  tabIndex?: number;
 }
 
 export default function CloseIcon({
@@ -36,6 +39,9 @@ export default function CloseIcon({
   onTouchEnd,
   onMouseDown,
   onMouseUp,
+  onKeyDown,
+  role,
+  tabIndex,
 }: CloseIconProps): React.JSX.Element {
   return (
     <svg
@@ -46,7 +52,7 @@ export default function CloseIcon({
       className={className}
       aria-label={ariaLabel}
       aria-hidden={!ariaLabel}
-      role={ariaLabel ? 'img' : undefined}
+      role={role || (ariaLabel ? 'img' : undefined)}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -54,6 +60,8 @@ export default function CloseIcon({
       onTouchEnd={onTouchEnd}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
+      onKeyDown={onKeyDown}
+      tabIndex={tabIndex}
       style={onClick ? { cursor: 'pointer' } : undefined}
     >
       <path

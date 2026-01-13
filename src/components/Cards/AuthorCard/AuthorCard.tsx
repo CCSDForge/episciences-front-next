@@ -5,6 +5,7 @@ import { CaretDownBlackIcon, CaretRightBlackIcon } from '@/components/icons';
 import './AuthorCard.scss';
 
 import { IAuthor } from '@/types/author';
+import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IAuthorCardProps {
   t: TFunction<'translation', undefined>;

@@ -14,6 +14,7 @@ import Loader from '@/components/Loader/Loader';
 import Pagination from '@/components/Pagination/Pagination';
 import Tag from '@/components/Tag/Tag';
 import PageTitle from '@/components/PageTitle/PageTitle';
+import { handleKeyboardClick } from '@/utils/keyboard';
 import './Authors.scss';
 
 type AuthorTypeFilter = 'search' | 'activeLetter';
