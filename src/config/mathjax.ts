@@ -1,7 +1,10 @@
-import { MathJax2Config } from 'better-react-mathjax';
+import { MathJax3Config } from 'better-react-mathjax';
 
-export const mathJaxConfig: MathJax2Config = {
-  tex2jax: {
+export const mathJaxConfig: MathJax3Config = {
+  startup: {
+    typeset: false,
+  },
+  tex: {
     inlineMath: [
       ['$', '$'],
       ['$$', '$$'],
@@ -9,4 +12,4 @@ export const mathJaxConfig: MathJax2Config = {
   },
 };
 
-export const mathJaxSrc = `${process.env.NEXT_PUBLIC_MATHJAX_HOMEPAGE}/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML`;
+export const mathJaxSrc = `${process.env.NEXT_PUBLIC_MATHJAX_HOMEPAGE}/3.2.2/es5/tex-mml-chtml.js`;

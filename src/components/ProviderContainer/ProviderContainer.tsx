@@ -19,7 +19,7 @@ const ProviderContainer: React.FC<ProviderContainerProps> = ({ children }) => {
   return (
     <Provider store={store}>
       <I18nextProvider i18n={i18n}>
-        <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={2}>
+        <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={3}>
           <JournalInitializer />
           <LastVolumeInitializer />
           {children}

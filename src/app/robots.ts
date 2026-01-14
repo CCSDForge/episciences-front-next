@@ -3,15 +3,18 @@ import { headers } from 'next/headers';
 import { ROBOTS_COMMON_DISALLOW } from '@/config/robots';
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
-  const headersList = await headers();
-  const host = headersList.get('host');
+  let host = 'journal.episciences.org';
+  
+  try {
+    const headersList = await headers();
+    host = headersList.get('host') || host;
+  } catch (error) {
+    // headers() n'est pas disponible lors de la génération statique (build)
+  }
 
   // Déterminer le protocole (https en prod, http en local)
   const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-
-  // Fallback si le host est manquant (ne devrait pas arriver)
-  const domain = host ?? 'journal.episciences.org';
-  const baseUrl = `${protocol}://${domain}`;
+  const baseUrl = `${protocol}://${host}`;
 
   return {
     rules: {

@@ -125,15 +125,10 @@ export async function fetchVolumes({
     const data = await response.json();
     const members = Array.isArray(data) ? data : data['hydra:member'] || [];
 
-    console.log(`fetchVolumes [${rvcode}] full data keys:`, Object.keys(data));
-    console.log(`fetchVolumes [${rvcode}] counts:`, {
-      totalItems: data['hydra:totalItems'],
-      totalPublishedArticles: data['hydra:totalPublishedArticles'],
-      membersLength: members.length
-    });
+
 
     const rawRange = data['hydra:range'];
-    console.log(`fetchVolumes [${rvcode}] raw range:`, rawRange);
+
 
     const formattedRange = rawRange
       ? {
@@ -150,7 +145,6 @@ export async function fetchVolumes({
         }
       : { types: [], years: [] };
 
-    console.log(`fetchVolumes [${rvcode}] formatted range:`, formattedRange);
 
     return {
       data: members.map((volume: RawVolume) => formatVolume(rvcode, language || 'fr', volume)),

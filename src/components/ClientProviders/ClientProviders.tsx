@@ -128,7 +128,7 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
   return (
     <Provider store={store}>
       <I18nextProvider i18n={i18nInstance}>
-        <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={2}>
+        <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={3}>
           {isClient && <ThemeStyleSwitch />}
           {/* JournalInitializer is no longer needed if we have initialJournal */}
           {isClient && !initialJournal && <JournalInitializer journalId={journalId} />}

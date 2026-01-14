@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
 
 // Importer l'intercepteur fetch pour logger toutes les requêtes
 import '@/utils/fetchInterceptor';
@@ -17,14 +16,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Read the language from the custom header set by middleware
-  const headersList = await headers();
-  const detectedLanguage = headersList.get('x-detected-language');
-  const currentLanguage = detectedLanguage || defaultLanguage;
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Note: On ne peut pas utiliser headers() ici car cela force le rendu dynamique de toute l'application,
+  // ce qui casse les pages en ISR/SSG comme les articles. 
+  // La langue correcte est gérée au niveau des sous-layouts via les paramètres d'URL.
   return (
-    <html lang={currentLanguage}>
+    <html lang={defaultLanguage}>
       <head>
         <base href="/" />
         {/* Preload critical font to avoid FOIT/FOUT */}
