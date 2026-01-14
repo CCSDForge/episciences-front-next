@@ -61,7 +61,7 @@ export default function VolumesModal({
         aria-labelledby="modal-title"
       >
       <div className="typesSection">
-        <div className="typesSectionTitle">{t('common.filters.volumeTypes')}</div>
+        <h2 id="modal-title" className="typesSectionTitle">{t('common.filters.volumeTypes')}</h2>
         <div className="typesSectionTypes">
           {types.map((type, index) => (
             <div key={index} className="typesSectionTypesChoice">
@@ -69,6 +69,7 @@ export default function VolumesModal({
                 <Checkbox
                   checked={type.isChecked}
                   onChangeCallback={(): void => onCheckTypeCallback(type.value)}
+                  ariaLabel={t(type.labelPath)}
                 />
               </div>
               <span

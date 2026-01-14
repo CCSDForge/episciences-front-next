@@ -276,6 +276,7 @@ export default function VolumesMobileModal({
                   <Checkbox
                     checked={type.isChecked}
                     onChangeCallback={(): void => onCheckType(type.value)}
+                    ariaLabel={t(`common.volumeTypes.${type.value}`)}
                   />
                 </div>
                 <span
@@ -326,6 +327,7 @@ export default function VolumesMobileModal({
                   <Checkbox
                     checked={y.isSelected}
                     onChangeCallback={(): void => onCheckYear(y.year)}
+                    ariaLabel={String(y.year)}
                   />
                 </div>
                 <span

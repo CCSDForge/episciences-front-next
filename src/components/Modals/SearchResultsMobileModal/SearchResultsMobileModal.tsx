@@ -446,6 +446,7 @@ export default function SearchResultsMobileModal({
                     <Checkbox
                       checked={type.isChecked}
                       onChangeCallback={(): void => onCheckType(type.value)}
+                      ariaLabel={t(type.labelPath)}
                     />
                   </div>
                   <span
@@ -499,6 +500,7 @@ export default function SearchResultsMobileModal({
                     <Checkbox
                       checked={y.isChecked}
                       onChangeCallback={(): void => onCheckYear(y.year)}
+                      ariaLabel={String(y.year)}
                     />
                   </div>
                   <span
@@ -552,6 +554,7 @@ export default function SearchResultsMobileModal({
                     <Checkbox
                       checked={volume.isChecked}
                       onChangeCallback={(): void => onCheckVolume(volume.id)}
+                      ariaLabel={volume.label[language]}
                     />
                   </div>
                   <span
@@ -602,6 +605,7 @@ export default function SearchResultsMobileModal({
                     <Checkbox
                       checked={section.isChecked}
                       onChangeCallback={(): void => onCheckSection(section.id)}
+                      ariaLabel={section.label[language]}
                     />
                   </div>
                   <span
@@ -652,6 +656,7 @@ export default function SearchResultsMobileModal({
                     <Checkbox
                       checked={author.isChecked}
                       onChangeCallback={(): void => onCheckAuthor(author.fullname)}
+                      ariaLabel={author.fullname}
                     />
                   </div>
                   <span

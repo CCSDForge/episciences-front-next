@@ -149,6 +149,7 @@ export default function NewsMobileModal({
                   <Checkbox
                     checked={y.isSelected}
                     onChangeCallback={(): void => onSelectYear(y.year)}
+                    ariaLabel={String(y.year)}
                   />
                 </div>
                 <span

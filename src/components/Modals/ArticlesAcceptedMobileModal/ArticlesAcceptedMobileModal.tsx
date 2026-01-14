@@ -224,6 +224,7 @@ export default function ArticlesAcceptedMobileModal({
                   <Checkbox
                     checked={type.isChecked}
                     onChangeCallback={(): void => onCheckType(type.value)}
+                    ariaLabel={t(type.labelPath)}
                   />
                 </div>
                 <span

@@ -153,6 +153,7 @@ export default function StatisticsMobileModal({
                   <Checkbox
                     checked={y.isChecked}
                     onChangeCallback={(): void => onCheckYear(y.year)}
+                    ariaLabel={String(y.year)}
                   />
                 </div>
                 <span

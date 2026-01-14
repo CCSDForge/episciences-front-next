@@ -308,6 +308,7 @@ export default function ArticlesMobileModal({
                   <Checkbox
                     checked={type.isChecked}
                     onChangeCallback={(): void => onCheckType(type.value)}
+                    ariaLabel={t(type.labelPath)}
                   />
                 </div>
                 <span
@@ -356,6 +357,7 @@ export default function ArticlesMobileModal({
                   <Checkbox
                     checked={y.isChecked}
                     onChangeCallback={(): void => onCheckYear(y.year)}
+                    ariaLabel={String(y.year)}
                   />
                 </div>
                 <span
