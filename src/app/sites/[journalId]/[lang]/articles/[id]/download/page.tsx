@@ -8,6 +8,7 @@ import { getPdfProxyUrl } from '@/utils/pdf';
 
 interface DownloadPageProps {
   params: Promise<{
+    journalId: string;
     lang: AvailableLanguage;
     id: string;
   }>;
@@ -15,7 +16,7 @@ interface DownloadPageProps {
 
 export async function generateMetadata(props: DownloadPageProps): Promise<Metadata> {
   const params = await props.params;
-  const article = await fetchArticle(params.id);
+  const article = await fetchArticle(params.id, params.journalId);
 
   if (!article) {
     return {
@@ -58,7 +59,7 @@ export default async function DownloadPage(props: DownloadPageProps) {
   // Log build progress for statistics
   logArticleProgress(params.id, params.lang, 'download');
 
-  const article = await fetchArticle(params.id);
+  const article = await fetchArticle(params.id, params.journalId);
 
   if (!article || !article.pdfLink) {
     notFound();

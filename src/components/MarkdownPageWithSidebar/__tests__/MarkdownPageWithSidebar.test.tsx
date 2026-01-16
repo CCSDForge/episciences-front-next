@@ -19,6 +19,11 @@ vi.mock('@/hooks/store', () => ({
   useAppSelector: () => 'journal-code',
 }));
 
+// Mock the MathJax component
+vi.mock('@/components/MathJax/MathJax', () => ({
+  default: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
+}));
+
 describe('MarkdownPageWithSidebar', () => {
   const mockBreadcrumbLabels: { parents: BreadcrumbItem[]; current: string } = {
     parents: [{ path: '/', label: 'Home >' }],

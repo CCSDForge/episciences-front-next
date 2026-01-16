@@ -74,6 +74,7 @@ export async function fetchArticles({
       range: data['hydra:range']
         ? {
             years: data['hydra:range'].publicationYears,
+            types: data['hydra:range'].types,
           }
         : undefined,
     };

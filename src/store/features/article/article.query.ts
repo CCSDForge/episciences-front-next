@@ -43,7 +43,7 @@ export const articleApi = createApi({
         return `${baseUrl}${queryParams}`;
       },
       transformResponse: (baseQueryReturnValue: PaginatedResponseWithRange<IPartialArticle>) => {
-        const range = baseQueryReturnValue['hydra:range'] as { publicationYears: number[] };
+        const range = baseQueryReturnValue['hydra:range'] as { publicationYears: number[]; types?: string[] };
 
         const totalItems = baseQueryReturnValue['hydra:totalItems'];
         const formattedData = baseQueryReturnValue['hydra:member'].map(partialArticle => ({
@@ -56,7 +56,8 @@ export const articleApi = createApi({
           totalItems,
           range: {
             ...range,
-            years: range.publicationYears,
+            years: range?.publicationYears,
+            types: range?.types,
           },
         };
       },

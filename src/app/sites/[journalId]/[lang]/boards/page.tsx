@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 
 import { fetchBoardMembers, fetchBoardPages } from '@/services/board';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getFilteredJournals } from '@/utils/journal-filter';
+import { acceptedLanguages } from '@/utils/language-utils';
 
 import dynamic from 'next/dynamic';
 
@@ -9,6 +11,20 @@ const BoardsClient = dynamic(() => import('./BoardsClient'));
 
 // Board membership changes infrequently - daily revalidation is appropriate
 export const revalidate = 86400; // 24 hours
+
+// Pre-generate boards page for all journals at build time
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 export const metadata: Metadata = {
   title: 'Boards',

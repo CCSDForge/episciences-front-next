@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 
 import { fetchVolumes } from '@/services/volume';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getFilteredJournals } from '@/utils/journal-filter';
+import { acceptedLanguages } from '@/utils/language-utils';
 
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
@@ -13,6 +15,20 @@ const VOLUMES_PER_PAGE = 20;
 
 // Volume list updates moderately - daily revalidation is appropriate
 export const revalidate = 86400; // 24 hours
+
+// Pre-generate volumes page for all journals at build time
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 export const metadata: Metadata = {
   title: 'Volumes',

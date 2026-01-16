@@ -4,13 +4,27 @@ import './About.scss';
 import { fetchAboutPage } from '@/services/about';
 import { IPage } from '@/types/page';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getFilteredJournals } from '@/utils/journal-filter';
+import { acceptedLanguages, getLanguageFromParams } from '@/utils/language-utils';
 
-import { generateLanguageParamsForPage } from '@/utils/static-params-helper';
-import { getLanguageFromParams } from '@/utils/language-utils';
 const AboutClient = dynamic(() => import('./AboutClient'));
 
 // Stable editorial content - no ISR, fully static at build time
 export const revalidate = false;
+
+// Pre-generate about page for all journals at build time
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 export const metadata: Metadata = {
   title: 'À propos',

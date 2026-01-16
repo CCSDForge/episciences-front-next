@@ -7,6 +7,15 @@ vi.mock('@/utils/env-loader', () => ({
   getJournalApiUrl: vi.fn().mockReturnValue('https://mock-api.com'),
 }));
 
+// Mock API_URL to avoid relative URL issues in test environment
+vi.mock('@/config/api', async importOriginal => {
+  const original = await importOriginal<typeof import('@/config/api')>();
+  return {
+    ...original,
+    API_URL: 'https://default-api.com/api',
+  };
+});
+
 vi.mock('@/utils/article', () => ({
   formatArticle: vi.fn(article => ({ ...article, formatted: true })),
 }));
@@ -181,12 +190,11 @@ describe('fetchSearchResults', () => {
 
     await fetchSearchResults({ terms: 'test' });
 
-    // getJournalApiUrl returns 'https://mock-api.com'
-    // If rvcode is missing, it should use API_URL which is NOT 'https://mock-api.com'
-    // (unless they happen to be identical, which is unlikely given the mock)
+    // When rvcode is missing, it should use API_URL ('https://default-api.com/api')
+    // instead of getJournalApiUrl which returns 'https://mock-api.com'
     expect(mockFetch).toHaveBeenNthCalledWith(
       1,
-      expect.not.stringContaining('https://mock-api.com'),
+      expect.stringContaining('https://default-api.com/api'),
       expect.anything()
     );
   });

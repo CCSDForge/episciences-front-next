@@ -73,6 +73,12 @@ export async function fetchWithRetry(
 
       // Check if response is successful
       if (!response.ok) {
+        // Don't retry 4xx errors (client errors) - they won't change
+        // Only retry 5xx errors (server errors) and network issues
+        if (response.status >= 400 && response.status < 500) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        // 5xx errors - will be retried
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -80,6 +86,17 @@ export async function fetchWithRetry(
       return response;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Unknown error');
+
+      // Don't retry 4xx errors (client errors) - they won't change
+      if (lastError.message.startsWith('HTTP 4')) {
+        throw lastError;
+      }
+
+      // Don't retry if network is completely down (fetch failed)
+      if (lastError.message === 'fetch failed' || lastError.message === 'Failed to fetch') {
+        console.warn(`[FetchRetry] Network unavailable for ${url}, skipping retries`);
+        throw lastError;
+      }
 
       // If this was the last attempt, throw the error
       if (attempt >= maxRetries) {

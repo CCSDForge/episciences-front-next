@@ -1,11 +1,12 @@
 declare module '@citation-js/core';
 
-interface MathJaxHub {
-  Queue: (commands: [string, MathJaxHub]) => void;
-}
-
+// MathJax v3 type declarations
 interface MathJax {
-  Hub: MathJaxHub;
+  typesetPromise?: (elements?: HTMLElement[]) => Promise<void>;
+  typeset?: (elements?: HTMLElement[]) => void;
+  startup?: {
+    promise?: Promise<void>;
+  };
 }
 
 interface Window {

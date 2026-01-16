@@ -1,7 +1,7 @@
 'use client';
 
 import { CaretRightGreyIcon } from '@/components/icons';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { useTranslation } from 'react-i18next';
 import { HomeData } from '@/services/home';
@@ -21,7 +21,6 @@ import NewsSection from '@/components/HomeSections/NewsSection/NewsSection';
 import PresentationSection from '@/components/HomeSections/PresentationSection/PresentationSection';
 import StatisticsSection from '@/components/HomeSections/StatisticsSection/StatisticsSection';
 import Swiper from '@/components/Swiper/Swiper';
-import applyThemeVariables from '@/config/theme';
 import '@/styles/transitions.scss';
 import '@/styles/pages/Home.scss';
 
@@ -168,10 +167,6 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
     };
   }, [aboutPage, articles, news, members, stats, indexation, issues, acceptedArticles]);
 
-  // Appliquer les variables de thème
-  useEffect(() => {
-    applyThemeVariables();
-  }, []);
 
   return (
     <main className="home">

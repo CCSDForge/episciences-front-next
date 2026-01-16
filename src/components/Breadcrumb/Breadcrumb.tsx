@@ -1,4 +1,7 @@
+'use client';
+
 import { Link } from '@/components/Link/Link';
+import MathJax from '@/components/MathJax/MathJax';
 import './Breadcrumb.scss';
 
 interface IBreadcrumbProps {
@@ -30,7 +33,7 @@ export default function Breadcrumb({
           </li>
         ))}
         <li className="breadcrumb-current" aria-current="page">
-          {crumbLabel}
+          <MathJax dynamic>{crumbLabel}</MathJax>
         </li>
       </ol>
     </nav>

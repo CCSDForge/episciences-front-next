@@ -33,6 +33,7 @@ vi.mock('@/hooks/store', () => ({
   useAppSelector: (selector: (state: unknown) => unknown) => {
     const mockState = {
       i18nReducer: { language: 'en' },
+      journalReducer: { config: { NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES: 'en,fr,es' } },
     };
     return selector(mockState);
   },

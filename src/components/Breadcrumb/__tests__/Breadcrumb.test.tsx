@@ -9,6 +9,11 @@ vi.mock('@/components/Link/Link', () => ({
   ),
 }));
 
+// Mock the MathJax component
+vi.mock('@/components/MathJax/MathJax', () => ({
+  default: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
+}));
+
 describe('Breadcrumb', () => {
   it('renders breadcrumb navigation with correct aria-label', () => {
     const parents = [{ path: '/', label: 'Home >' }];

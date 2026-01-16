@@ -7,7 +7,11 @@ export const mathJaxConfig: MathJax3Config = {
   tex: {
     inlineMath: [
       ['$', '$'],
+      ['\\(', '\\)'],
+    ],
+    displayMath: [
       ['$$', '$$'],
+      ['\\[', '\\]'],
     ],
   },
 };

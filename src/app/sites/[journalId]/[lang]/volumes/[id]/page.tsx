@@ -61,7 +61,7 @@ export default async function VolumeDetailsPage(props: {
       // Fetch articles in parallel with error handling
       const articlePromises = paperIds.map(async docid => {
         try {
-          const article = await fetchArticle(docid);
+          const article = await fetchArticle(docid, journalId);
           if (article) {
             console.log(`[Volume ${params.id}] Successfully fetched article ${docid}`);
           } else {

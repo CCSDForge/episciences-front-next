@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 
 import { fetchArticles } from '@/services/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getFilteredJournals } from '@/utils/journal-filter';
+import { acceptedLanguages } from '@/utils/language-utils';
 
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
@@ -9,7 +11,22 @@ import Loader from '@/components/Loader/Loader';
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
 
+// ISR: revalidate every hour, but serve stale content if API is down
 export const revalidate = 3600;
+
+// Pre-generate articles page for all journals at build time
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 export const metadata: Metadata = {
   title: 'Articles',
@@ -21,6 +38,7 @@ interface ArticlesData {
   totalItems: number;
   range?: {
     years?: number[];
+    types?: string[];
   };
 }
 
@@ -61,6 +79,7 @@ export default async function ArticlesPage(props: {
       totalItems: articles.totalItems || 0,
       range: {
         years: Array.isArray(articles.range?.years) ? articles.range.years : [],
+        types: Array.isArray(articles.range?.types) ? articles.range.types : [],
       },
     };
 

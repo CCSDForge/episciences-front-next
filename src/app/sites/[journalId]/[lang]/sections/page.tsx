@@ -2,11 +2,29 @@ import { Metadata } from 'next';
 
 import { fetchSections } from '@/services/section';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getFilteredJournals } from '@/utils/journal-filter';
+import { acceptedLanguages } from '@/utils/language-utils';
 
 import dynamic from 'next/dynamic';
-import { connection } from 'next/server';
 
 const SectionsClient = dynamic(() => import('./SectionsClient'));
+
+// Sections list updates moderately - daily revalidation is appropriate
+export const revalidate = 86400; // 24 hours
+
+// Pre-generate sections page for all journals at build time
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 export const metadata: Metadata = {
   title: 'Sections',
@@ -17,8 +35,6 @@ const SECTIONS_PER_PAGE = 10;
 export default async function SectionsPage(props: {
   params: Promise<{ lang: string; journalId: string }>;
 }) {
-  // Dynamic rendering: client-side pagination
-  await connection();
 
   const params = await props.params;
   const { lang, journalId } = params;

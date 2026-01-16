@@ -50,8 +50,9 @@ export default async function LanguageLayout(props: LanguageLayoutProps) {
   let initialJournal = null;
   let translations = {};
 
-  // Charger l'URL de l'API spécifique au journal
-  const apiEndpoint = getJournalApiUrl(journalId);
+  // Server uses direct API URL, client uses proxy to avoid CORS
+  // Note: We don't pass apiEndpoint to client - it will use /api-proxy by default
+  const _serverApiEndpoint = getJournalApiUrl(journalId); // Used only for server-side fetches
   // Charger la configuration dynamique (couleurs, flags) spécifique au journal
   const journalConfig = getPublicJournalConfig(journalId);
 
@@ -91,7 +92,7 @@ export default async function LanguageLayout(props: LanguageLayoutProps) {
       initialLanguage={lang}
       journalId={journalId}
       translations={translations}
-      apiEndpoint={apiEndpoint}
+      apiEndpoint="/api/proxy"
       journalConfig={journalConfig}
     >
       <ToastContainerWrapper />

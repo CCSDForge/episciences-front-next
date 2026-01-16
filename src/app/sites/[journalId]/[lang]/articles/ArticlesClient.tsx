@@ -49,6 +49,10 @@ interface ArticlesClientProps {
   initialArticles: {
     data: IArticle[];
     totalItems: number;
+    range?: {
+      years?: number[];
+      types?: string[];
+    };
   };
   lang?: string;
   breadcrumbLabels?: {
@@ -80,7 +84,7 @@ export default function ArticlesClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const ARTICLES_PER_PAGE = 10;
+  const ARTICLES_PER_PAGE = 20;
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
@@ -121,6 +125,10 @@ export default function ArticlesClient({
 
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
 
+  // Skip fetch on page 1 without filters - use server data (ISR handles freshness)
+  // Fetch only when user interacts (pagination, filters)
+  const shouldSkipFetch = !rvcode || isStaticBuild || (currentPage === 1 && selectedTypes.length === 0 && selectedYears.length === 0);
+
   const { data: articles, isFetching: isFetchingArticles } = useFetchArticlesQuery(
     {
       rvcode: rvcode!,
@@ -130,8 +138,8 @@ export default function ArticlesClient({
       years: selectedYears,
     },
     {
-      skip: !rvcode || isStaticBuild,
-      refetchOnMountOrArgChange: !isStaticBuild,
+      skip: shouldSkipFetch,
+      refetchOnMountOrArgChange: false,
     }
   );
 
@@ -185,61 +193,131 @@ export default function ArticlesClient({
   }, [initialArticles, types, years, isStaticBuild, currentPage]);
 
   useEffect(() => {
-    if (!isStaticBuild && articles) {
+    if (isStaticBuild) return;
+
+    // When filters are cleared (back to page 1 with no filters), restore initial data
+    if (shouldSkipFetch && currentPage === 1 && selectedTypes.length === 0 && selectedYears.length === 0) {
+      if (initialArticles?.data) {
+        const displayedArticles = initialArticles.data
+          .filter((article: any) => article && article.title)
+          .map((article: any) => ({ ...article, openedAbstract: false }));
+
+        const newIds = displayedArticles.map((a: any) => a.id).join(',');
+        const currentIds = enhancedArticles.map(a => a.id).join(',');
+
+        if (newIds !== currentIds || initialArticles.totalItems !== totalArticlesCount) {
+          setTotalArticlesCount(initialArticles.totalItems || 0);
+          setEnhancedArticles(displayedArticles as EnhancedArticle[]);
+        }
+      }
+      return;
+    }
+
+    // Update from RTK Query when fetch was actually executed (not skipped)
+    if (articles && !shouldSkipFetch) {
+      // Wait for enriched data (with titles) before updating
+      // The onQueryStarted in article.query.ts enriches partial data with full article details
+      const hasCompleteData = articles.data.some(article => article?.title);
+      if (!hasCompleteData) {
+        return; // Wait for onQueryStarted to enrich the data
+      }
+
       const displayedArticles = articles?.data
         .filter(article => article?.title)
         .map(article => ({ ...article, openedAbstract: false }));
 
-      setTotalArticlesCount(articles.totalItems || 0);
-      setEnhancedArticles(displayedArticles as EnhancedArticle[]);
+      // Only update if data actually changed to prevent flash/re-render
+      const newIds = displayedArticles.map(a => a.id).join(',');
+      const currentIds = enhancedArticles.map(a => a.id).join(',');
+
+      if (newIds !== currentIds || articles.totalItems !== totalArticlesCount) {
+        setTotalArticlesCount(articles.totalItems || 0);
+        setEnhancedArticles(displayedArticles as EnhancedArticle[]);
+      }
     }
-  }, [isStaticBuild, articles]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStaticBuild, articles, shouldSkipFetch, currentPage, selectedTypes.length, selectedYears.length, initialArticles]);
 
   useEffect(() => {
-    if (initialArticles?.data && types.length === 0) {
-      const availableTypes = Array.from(
-        new Set(initialArticles.data.map((article: any) => article.tag).filter(Boolean))
-      );
+    if (types.length === 0) {
+      // Priorité 1: Utiliser les types du range fourni par l'API (tous les types disponibles)
+      if (initialArticles?.range?.types && initialArticles.range.types.length > 0) {
+        const initTypes = initialArticles.range.types
+          .filter(t => articleTypes.find(at => at.value === t))
+          .map(t => {
+            const matchingType = articleTypes.find(at => at.value === t);
+            return {
+              labelPath: matchingType!.labelPath,
+              value: matchingType!.value,
+              isChecked: false,
+            };
+          });
 
-      const initTypes = availableTypes
-        .filter(t => articleTypes.find(at => at.value === t))
-        .map(t => {
-          const matchingType = articleTypes.find(at => at.value === t);
-          return {
-            labelPath: matchingType!.labelPath,
-            value: matchingType!.value,
-            isChecked: false,
-          };
-        });
+        if (initTypes.length > 0) {
+          setTypes(initTypes);
+        }
+      }
+      // Fallback: Extraire les types des articles de la page courante
+      else if (initialArticles?.data) {
+        const availableTypes = Array.from(
+          new Set(initialArticles.data.map((article: any) => article.tag).filter(Boolean))
+        );
 
-      if (initTypes.length > 0) {
-        setTypes(initTypes);
+        const initTypes = availableTypes
+          .filter(t => articleTypes.find(at => at.value === t))
+          .map(t => {
+            const matchingType = articleTypes.find(at => at.value === t);
+            return {
+              labelPath: matchingType!.labelPath,
+              value: matchingType!.value,
+              isChecked: false,
+            };
+          });
+
+        if (initTypes.length > 0) {
+          setTypes(initTypes);
+        }
       }
     }
   }, [initialArticles, types]);
 
   useEffect(() => {
-    if (initialArticles?.data && years.length === 0) {
-      const availableYears = Array.from(
-        new Set(
-          initialArticles.data
-            .map((article: any) => {
-              if (article.publicationDate) {
-                return new Date(article.publicationDate).getFullYear();
-              }
-              return undefined;
-            })
-            .filter((year): year is number => year !== undefined)
-        )
-      ).sort((a, b) => b - a);
+    if (years.length === 0) {
+      // Priorité 1: Utiliser les années du range fourni par l'API (toutes les années disponibles)
+      if (initialArticles?.range?.years && initialArticles.range.years.length > 0) {
+        const sortedYears = [...initialArticles.range.years].sort((a, b) => b - a);
+        const initYears = sortedYears.map(y => ({
+          year: y,
+          isChecked: false,
+        }));
 
-      const initYears = availableYears.map(y => ({
-        year: y,
-        isChecked: false,
-      }));
+        if (initYears.length > 0) {
+          setYears(initYears);
+        }
+      }
+      // Fallback: Extraire les années des articles de la page courante
+      else if (initialArticles?.data) {
+        const availableYears = Array.from(
+          new Set(
+            initialArticles.data
+              .map((article: any) => {
+                if (article.publicationDate) {
+                  return new Date(article.publicationDate).getFullYear();
+                }
+                return undefined;
+              })
+              .filter((year): year is number => year !== undefined)
+          )
+        ).sort((a, b) => b - a);
 
-      if (initYears.length > 0) {
-        setYears(initYears);
+        const initYears = availableYears.map(y => ({
+          year: y,
+          isChecked: false,
+        }));
+
+        if (initYears.length > 0) {
+          setYears(initYears);
+        }
       }
     }
   }, [initialArticles, years]);

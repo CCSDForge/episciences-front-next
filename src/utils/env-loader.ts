@@ -170,8 +170,7 @@ export function getJournalApiUrl(journalCode: string): string {
     return url.endsWith('/') ? url.slice(0, -1) : url;
   }
 
-  // Client-side: use global env var
-  // Note: For multi-tenant, the correct API URL should be passed from server as prop
-  // This fallback is for backward compatibility only
-  return process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api-preprod.episciences.org/api';
+  // Client-side: use the dynamic API proxy to avoid CORS issues
+  // The proxy route determines the correct API based on rvcode param
+  return '/api/proxy';
 }

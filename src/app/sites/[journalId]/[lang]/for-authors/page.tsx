@@ -7,12 +7,27 @@ import {
 } from '@/services/forAuthors';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
-import { connection } from 'next/server';
+import { getFilteredJournals } from '@/utils/journal-filter';
+import { acceptedLanguages } from '@/utils/language-utils';
 
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
 
 // Stable editorial content - no ISR, fully static at build time
 export const revalidate = false;
+
+// Pre-generate for-authors page for all journals at build time
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 // Cette fonction est aussi appelée au build time
 export async function generateMetadata(): Promise<Metadata> {

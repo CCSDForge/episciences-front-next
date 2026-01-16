@@ -276,3 +276,107 @@ Use the **Symfony Messenger** component to offload API calls to a queue.
 2.  Dispatch a `RevalidateCacheMessage` to the bus.
 3.  A Worker consumes the message and performs the HTTP `POST` call to Next.js.
 4.  In case of error (HTTP 500/503), the message is placed back in the queue for a later retry.
+
+---
+
+## 6. Multi-Server Deployment
+
+When deploying Next.js across multiple servers behind a load balancer, cache invalidation must propagate to all instances. The revalidation API supports automatic broadcast to peer servers.
+
+### The Problem
+
+Each Next.js instance maintains its own local ISR cache. Without coordination:
+
+```
+┌─────────────────┐
+│  Load Balancer  │
+└───────┬─────────┘
+        │
+   ┌────┼────┬────┐
+   │    │    │    │
+  VM1  VM2  VM3  VM4
+   │    │    │    │
+Cache1 Cache2 Cache3 Cache4
+```
+
+When a webhook hits VM2, only VM2 clears its cache. VM1, VM3, and VM4 continue serving stale content until their ISR period expires (up to 7 days for articles).
+
+### The Solution: Peer Broadcast
+
+Configure each server to broadcast revalidation requests to its peers.
+
+```
+Webhook → VM2 → Local revalidation
+              → Broadcast to VM1, VM3, VM4
+```
+
+### Configuration
+
+On each server, set the `PEER_SERVERS` environment variable with the URLs of all OTHER servers (not itself):
+
+```env
+# VM1 configuration
+PEER_SERVERS="http://vm2:3000,http://vm3:3000,http://vm4:3000"
+
+# VM2 configuration
+PEER_SERVERS="http://vm1:3000,http://vm3:3000,http://vm4:3000"
+
+# VM3 configuration
+PEER_SERVERS="http://vm1:3000,http://vm2:3000,http://vm4:3000"
+
+# VM4 configuration
+PEER_SERVERS="http://vm1:3000,http://vm2:3000,http://vm3:3000"
+```
+
+### How It Works
+
+1. **Original request arrives** at one server (e.g., VM2)
+2. VM2 **validates credentials** (IP whitelist, rate limit, token)
+3. VM2 **revalidates its local cache**
+4. VM2 **broadcasts** to all peer servers with header `x-forwarded-revalidation: true`
+5. Peer servers **skip IP/rate-limit checks** for forwarded requests (token still required)
+6. Peer servers **revalidate their local caches**
+7. Original server **returns success** (broadcast runs asynchronously)
+
+### Response Format
+
+The API response includes a `broadcast` field indicating if broadcast was triggered:
+
+```json
+{
+  "revalidated": true,
+  "now": 1704067200000,
+  "journalId": "epijinfo",
+  "tag": "article-123",
+  "broadcast": true
+}
+```
+
+### Logs
+
+Monitor broadcast activity in server logs:
+
+```
+[Revalidate API] Revalidating tag: article-123
+[Revalidate API] Broadcast complete: 3/3 peers updated
+```
+
+If a peer is unavailable:
+
+```
+[Revalidate API] Broadcast complete: 2/3 peers updated, 1 failed
+[Revalidate API] Broadcast to http://vm3:3000 failed: [Error details]
+```
+
+### Network Requirements
+
+- Peer servers must be able to reach each other on port 3000 (or your configured port)
+- If using Apache as reverse proxy, peers can communicate via internal IPs
+- Ensure firewall rules allow inter-server communication
+
+### Important Notes
+
+1. **Single-server deployments**: Leave `PEER_SERVERS` empty or unset
+2. **Broadcast is fire-and-forget**: The API returns immediately without waiting for peer responses
+3. **Token is required**: Peer servers still validate the authentication token
+4. **No infinite loops**: The `x-forwarded-revalidation` header prevents cascading broadcasts

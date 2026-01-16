@@ -102,12 +102,12 @@ export default function SearchBar({
             {submitManagerLink ? (
               <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
                 Submit
-                <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
+                <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
               </a>
             ) : (
               <button type="submit" disabled>
                 Submit
-                <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
+                <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
               </button>
             )}
           </div>
@@ -170,12 +170,12 @@ export default function SearchBar({
           ) : submitManagerLink ? (
             <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
               {t('components.header.search.submitButton')}
-              <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
+              <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
             </a>
           ) : (
             <button type="button" disabled>
               {t('components.header.search.submitButton')}
-              <ExternalLinkWhiteIcon size={16} ariaLabel="External link" />
+              <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
             </button>
           )}
         </div>

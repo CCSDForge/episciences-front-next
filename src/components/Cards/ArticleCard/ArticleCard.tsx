@@ -49,11 +49,14 @@ function ArticleCard({
 }: IArticleCardProps): React.JSX.Element {
   const [citations, setCitations] = useState<ICitation[]>([]);
   const [showCitationsDropdown, setShowCitationsDropdown] = useState(false);
+  // Lazy load citations: only fetch when user interacts with cite button
+  const [shouldLoadCitations, setShouldLoadCitations] = useState(false);
 
   const getArticlePath = () => {
     return `${PATHS.articles}/${article.id}`;
   };
 
+  // Only fetch CSL/BibTeX when user hovers or clicks on cite button
   const { data: metadataCSL } = useFetchArticleMetadataQuery(
     {
       rvcode: rvcode!,
@@ -61,7 +64,7 @@ function ArticleCard({
       type: METADATA_TYPE.CSL,
     },
     {
-      skip: !article.id || !rvcode,
+      skip: !article.id || !rvcode || !shouldLoadCitations,
     }
   );
 
@@ -72,7 +75,7 @@ function ArticleCard({
       type: METADATA_TYPE.BIBTEX,
     },
     {
-      skip: !article.id || !rvcode,
+      skip: !article.id || !rvcode || !shouldLoadCitations,
     }
   );
 
@@ -188,16 +191,25 @@ function ArticleCard({
               </div>
             </a>
           )}
-          {citations.length > 0 && (
+          {article.id && (
             <div
               ref={citationsDropdownRef}
               className="articleCard-anchor-icons-cite"
               role="button"
               tabIndex={0}
-              onMouseEnter={(): void => setShowCitationsDropdown(true)}
+              onMouseEnter={(): void => {
+                setShouldLoadCitations(true);
+                setShowCitationsDropdown(true);
+              }}
               onMouseLeave={(): void => setShowCitationsDropdown(false)}
-              onClick={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
-              onKeyDown={(e) => handleKeyboardClick(e, () => setShowCitationsDropdown(!showCitationsDropdown))}
+              onClick={(): void => {
+                setShouldLoadCitations(true);
+                setShowCitationsDropdown(!showCitationsDropdown);
+              }}
+              onKeyDown={(e) => handleKeyboardClick(e, () => {
+                setShouldLoadCitations(true);
+                setShowCitationsDropdown(!showCitationsDropdown);
+              })}
             >
               <QuoteBlackIcon
                 size={16}
@@ -209,18 +221,24 @@ function ArticleCard({
                 className={`articleCard-anchor-icons-cite-content ${showCitationsDropdown ? 'articleCard-anchor-icons-cite-content-displayed' : ''}`}
               >
                 <div className="articleCard-anchor-icons-cite-content-links">
-                  {citations.map((citation, index) => (
-                    <span
-                      key={index}
-                      role="button"
-                      tabIndex={0}
-                      onClick={(): void => copyCitation(citation)}
-                      onKeyDown={(e) => handleKeyboardClick(e, (): void => copyCitation(citation))}
-                      onTouchEnd={(): void => copyCitation(citation)}
-                    >
-                      {citation.key}
+                  {citations.length > 0 ? (
+                    citations.map((citation, index) => (
+                      <span
+                        key={index}
+                        role="button"
+                        tabIndex={0}
+                        onClick={(): void => copyCitation(citation)}
+                        onKeyDown={(e) => handleKeyboardClick(e, (): void => copyCitation(citation))}
+                        onTouchEnd={(): void => copyCitation(citation)}
+                      >
+                        {citation.key}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="articleCard-anchor-icons-cite-loading">
+                      {t('common.loading')}
                     </span>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>

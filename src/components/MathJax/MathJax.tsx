@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MathJax as BetterMathJax } from 'better-react-mathjax';
 
 interface MathJaxProps {
@@ -24,28 +24,44 @@ const MathJax: React.FC<MathJaxProps> = ({
   ...props
 }) => {
   const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // IMPORTANT: We use suppressHydrationWarning because MathJax might have
-  // already modified the DOM if the library loaded very fast,
-  // or better-react-mathjax might do something subtle.
-  // However, rendering plain children on both sides is the key.
+  // Force MathJax typesetting after mount and when children change
+  useEffect(() => {
+    if (mounted && containerRef.current) {
+      // Small delay to ensure BetterMathJax has rendered
+      const timer = setTimeout(() => {
+        if (window?.MathJax?.typesetPromise) {
+          window.MathJax.typesetPromise([containerRef.current!]).catch((err: Error) => {
+            // Ignore "no elements to typeset" errors
+            if (!err.message?.includes('no elements')) {
+              console.warn('[MathJax] Typeset error:', err.message);
+            }
+          });
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [mounted, children]);
 
   if (!mounted) {
     return (
-      <Component {...props} suppressHydrationWarning>
+      <Component data-mathjax-state="not-mounted" {...props} suppressHydrationWarning>
         {children}
       </Component>
     );
   }
 
   return (
-    <BetterMathJax dynamic={dynamic} {...props}>
-      {children}
-    </BetterMathJax>
+    <span ref={containerRef} data-mathjax-state="mounted">
+      <BetterMathJax dynamic={dynamic} {...props}>
+        {children}
+      </BetterMathJax>
+    </span>
   );
 };
 

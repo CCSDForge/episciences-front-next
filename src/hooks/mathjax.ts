@@ -14,8 +14,19 @@ function MathjaxRefresh(): null {
       let attempts = 0;
 
       const tryRefetchMathjax = (): void => {
-        if (window && window.MathJax && window.MathJax.Hub) {
-          window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
+        // MathJax v3 API
+        if (window?.MathJax?.typesetPromise) {
+          window.MathJax.typesetPromise().catch((err: Error) => {
+            console.warn('[MathJax] Typeset error:', err.message);
+          });
+          clearInterval(intervalId);
+        } else if (window?.MathJax?.typeset) {
+          // Fallback to synchronous typeset
+          try {
+            window.MathJax.typeset();
+          } catch (err) {
+            console.warn('[MathJax] Typeset error:', err);
+          }
           clearInterval(intervalId);
         } else if (attempts >= MAX_ATTEMPTS) {
           clearInterval(intervalId);

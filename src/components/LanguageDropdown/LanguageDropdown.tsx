@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +15,7 @@ import './LanguageDropdown.scss';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
+import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 import { AvailableLanguage, availableLanguages } from '@/utils/i18n';
 import { getLocalizedPath, removeLanguagePrefix } from '@/utils/language-utils';
 
@@ -41,6 +42,7 @@ export default function LanguageDropdown({
   const router = useRouter();
   const pathname = usePathname();
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const journalConfig = useAppSelector(selectJournalConfig);
 
   // Utiliser la langue initiale ou celle de Redux
   const language = initialLanguage || reduxLanguage;
@@ -58,11 +60,19 @@ export default function LanguageDropdown({
     }
   }, [initialLanguage, reduxLanguage, dispatch]);
 
-  const acceptedLanguagesStr = process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES || '';
-  const acceptedLanguages = acceptedLanguagesStr ? acceptedLanguagesStr.split(',') : [];
-  const filteredLanguages = availableLanguages.filter(
-    lang => acceptedLanguages.length === 0 || acceptedLanguages.includes(lang)
-  );
+  // Get accepted languages from journalConfig (multi-tenant) or fallback to process.env (build-time)
+  const filteredLanguages = useMemo(() => {
+    const acceptedLanguagesStr =
+      journalConfig?.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES ||
+      process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES ||
+      '';
+    const acceptedLanguages = acceptedLanguagesStr
+      ? acceptedLanguagesStr.split(',').map((lang: string) => lang.trim())
+      : [];
+    return availableLanguages.filter(
+      lang => acceptedLanguages.length === 0 || acceptedLanguages.includes(lang)
+    );
+  }, [journalConfig]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

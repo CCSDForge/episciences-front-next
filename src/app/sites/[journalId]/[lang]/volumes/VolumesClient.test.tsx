@@ -30,6 +30,11 @@ vi.mock('@/hooks/store', () => ({
   }),
 }));
 
+// Mock the MathJax component
+vi.mock('@/components/MathJax/MathJax', () => ({
+  default: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
+}));
+
 // Mock icons
 vi.mock('@/components/icons', () => ({
   FilterIcon: () => <div data-testid="FilterIcon" />,

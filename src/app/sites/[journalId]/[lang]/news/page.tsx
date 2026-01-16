@@ -2,12 +2,28 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { fetchNews } from '@/services/news';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getFilteredJournals } from '@/utils/journal-filter';
+import { acceptedLanguages } from '@/utils/language-utils';
 import './News.scss';
 
 const NewsClient = dynamic(() => import('./NewsClient'));
 
 // News are frequently updated - revalidate every hour
 export const revalidate = 3600; // 1 hour
+
+// Pre-generate news page for all journals at build time
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 export const metadata: Metadata = {
   title: 'Actualités',

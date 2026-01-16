@@ -1,11 +1,12 @@
 import React from 'react';
 import { IArticle, IArticleAuthor, IInstitution } from '@/types/article';
 import { IVolume } from '@/types/volume';
-import { INTER_WORK_RELATIONSHIP } from '@/utils/article';
+import { INTER_WORK_RELATIONSHIP, articleTypes } from '@/utils/article';
 import { BREADCRUMB_PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
+import MathJax from '@/components/MathJax/MathJax';
 import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServer';
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
 import AbstractSection from './components/AbstractSection';
@@ -84,7 +85,7 @@ export default function ArticleDetailsServer({
         <h1
           className={`articleDetails-content-article-title ${isMobile && 'articleDetails-content-article-title-mobile'}`}
         >
-          {article?.title}
+          <MathJax dynamic>{article?.title}</MathJax>
         </h1>
         {allAuthors.length > 0 && (
           <CollapsibleInstitutions
@@ -251,6 +252,16 @@ export default function ArticleDetailsServer({
         }
         lang={language}
       />
+
+      {article?.tag && (
+        <span className="articleDetails-tag">
+          {t(
+            articleTypes.find(type => type.value === article.tag)?.labelPath ||
+              `pages.articles.types.${article.tag}`,
+            translations
+          )}
+        </span>
+      )}
 
       <div className="articleDetails-content">
         {renderArticleTitleAndAuthors(true)}

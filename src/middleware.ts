@@ -17,7 +17,9 @@ function journalExists(journalId: string): boolean {
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl;
-  const hostname = request.nextUrl.hostname;
+  // Use Host header instead of nextUrl.hostname for multi-tenant routing
+  const hostHeader = request.headers.get('host') || '';
+  const hostname = hostHeader.split(':')[0]; // Remove port if present
   const pathname = url.pathname;
 
   console.log(`[Middleware] Incoming request: ${pathname} (Host: ${hostname})`);
