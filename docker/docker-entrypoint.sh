@@ -1,34 +1,42 @@
 #!/bin/sh
 set -e
 
-# Default to epijinfo if JOURNAL is not set
-JOURNAL=${JOURNAL:-epijinfo}
+# Default journals if not set
+JOURNALS=${JOURNALS:-epijinfo}
 
-echo "Starting Apache for journal: $JOURNAL"
+echo "=== Episciences Apache Configuration ==="
+echo "Journals: $JOURNALS"
 
-# Generate the episciences-hosts.conf file dynamically
-cat > /sites/conf/episciences-front/episciences-front-hosts.cnf <<EOF
-# Configuration for Docker testing environment
-# Adapted from episciences-front-hosts.cnf
-# Auto-generated for journal: $JOURNAL
+# Generate vhosts configuration dynamically
+cat > /usr/local/apache2/conf/extra/httpd-vhosts.conf <<EOF
+# Auto-generated VirtualHost configuration
+# Journals: $JOURNALS
 
-# Load macro module if not already loaded
 <IfModule !macro_module>
     LoadModule macro_module modules/mod_macro.so
 </IfModule>
 
-# Include macro definition
 Include /usr/local/apache2/conf/extra/episciences-macro.conf
 
-# Use macro for test journal
-# environment journal-code
-Use EpiHost test $JOURNAL
+EOF
 
-# Cleanup macro after use
+# Add a vhost for each journal
+IFS=','
+for journal in $JOURNALS; do
+    journal=$(echo "$journal" | tr -d ' ')  # trim whitespace
+    echo "Configuring journal: $journal"
+    cat >> /usr/local/apache2/conf/extra/httpd-vhosts.conf <<EOF
+Use EpiHost test $journal
+EOF
+done
+
+cat >> /usr/local/apache2/conf/extra/httpd-vhosts.conf <<EOF
+
 UndefMacro EpiHost
 EOF
 
-echo "Generated VirtualHost configuration for journal: $JOURNAL"
+echo "=== Configuration generated ==="
+cat /usr/local/apache2/conf/extra/httpd-vhosts.conf
+echo "=== Starting Apache ==="
 
-# Execute the original command (start Apache)
-exec httpd-foreground
+exec "$@"

@@ -1,0 +1,25 @@
+FROM httpd:2.4-alpine
+
+# Enable required modules for reverse proxy
+RUN sed -i \
+    -e 's/#LoadModule proxy_module/LoadModule proxy_module/' \
+    -e 's/#LoadModule proxy_http_module/LoadModule proxy_http_module/' \
+    -e 's/#LoadModule macro_module/LoadModule macro_module/' \
+    -e 's/#LoadModule remoteip_module/LoadModule remoteip_module/' \
+    /usr/local/apache2/conf/httpd.conf
+
+# Include vhosts config at the end of httpd.conf
+RUN echo "Include conf/extra/httpd-vhosts.conf" >> /usr/local/apache2/conf/httpd.conf
+
+# Copy macro configuration
+COPY apache-config/episciences-macro.conf /usr/local/apache2/conf/extra/episciences-macro.conf
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Create required directories
+RUN mkdir -p /data /sites/conf/episciences-front
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["httpd-foreground"]

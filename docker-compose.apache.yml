@@ -1,0 +1,44 @@
+# Docker Compose for testing multi-tenant ISR with Apache reverse proxy
+# Usage: make build && make up (see Makefile)
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: episciences-nextjs
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - HOSTNAME=0.0.0.0
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - episciences
+
+  apache:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.apache
+    container_name: episciences-apache
+    ports:
+      - "${PORT:-8080}:80"
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      # List of journals to configure (comma-separated)
+      - JOURNALS=${JOURNALS:-epijinfo,dmtcs}
+    volumes:
+      - ./docker/mock-data:/data:ro
+    networks:
+      - episciences
+
+networks:
+  episciences:
+    driver: bridge

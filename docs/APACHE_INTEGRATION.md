@@ -90,21 +90,75 @@ Historically, Apache handled redirects (e.g., `/browse/latest` -> `/articles`).
 - **New approach**: These redirects are now handled **inside Next.js** (via `next.config.js` or Middleware) to keep the logic centralized.
 - **Exception**: If you have specific rewrite rules that _must_ happen at the edge, place them before the `ProxyPass` directive.
 
-## 🧪 Docker Testing
+## 🧪 Local Testing with Docker
 
-The project includes a `docker/` directory to simulate this architecture.
+The project includes a complete Docker setup to test the multi-tenant ISR architecture locally with Apache as reverse proxy.
 
-1.  **Build the app**:
+### Quick Start
 
-    ```bash
-    docker build -t episciences-next .
-    ```
+```bash
+# 1. Build the application and Docker images
+make build
 
-2.  **Run with Apache (Compose)**:
-    Ensure you have a `docker-compose.yml` that links the `httpd` service to the `nextjs` service.
-    - Apache Container: Maps port 80 -> 80.
-    - Next.js Container: Exposes port 3000.
-    - Apache config uses `ProxyPass / http://nextjs:3000/`.
+# 2. Add entries to /etc/hosts (see output of make hosts)
+sudo sh -c 'echo "127.0.0.1 epijinfo.episciences.test" >> /etc/hosts'
+sudo sh -c 'echo "127.0.0.1 dmtcs.episciences.test" >> /etc/hosts'
+
+# 3. Start containers
+make up
+
+# 4. Access the journals
+# http://epijinfo.episciences.test:8080
+# http://dmtcs.episciences.test:8080
+```
+
+### Available Commands
+
+| Command        | Description                           |
+| -------------- | ------------------------------------- |
+| `make help`    | Show all available commands           |
+| `make build`   | Build Next.js app and Docker images   |
+| `make up`      | Start containers                      |
+| `make down`    | Stop containers                       |
+| `make logs`    | Show container logs                   |
+| `make rebuild` | Rebuild and restart everything        |
+| `make clean`   | Remove images and volumes             |
+| `make hosts`   | Show /etc/hosts entries to add        |
+
+### Testing Multiple Journals
+
+You can test with different journals by setting the `JOURNALS` variable:
+
+```bash
+# Test with specific journals
+make rebuild JOURNALS=epijinfo,dmtcs,jtcam
+
+# Use a different port
+make up PORT=9000
+```
+
+### Architecture
+
+```
+Browser (epijinfo.episciences.test:8080)
+    ↓
+Apache Container (port 80)
+    ↓ ProxyPass
+Next.js Container (port 3000)
+    ↓ Middleware
+/sites/epijinfo/en/...
+```
+
+### Files
+
+| File                          | Purpose                                    |
+| ----------------------------- | ------------------------------------------ |
+| `docker-compose.apache.yml`   | Docker Compose configuration               |
+| `docker/Dockerfile`           | Next.js standalone build                   |
+| `docker/Dockerfile.apache`    | Apache reverse proxy image                 |
+| `docker/docker-entrypoint.sh` | Dynamic vhost generation                   |
+| `docker/apache-config/`       | Apache configuration files                 |
+| `Makefile`                    | Build and run commands                     |
 
 ## 🔍 Troubleshooting
 
