@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 
 import { fetchSections } from '@/services/section';
 import { getServerTranslations, t } from '@/utils/server-i18n';
@@ -6,6 +7,7 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 
 import dynamic from 'next/dynamic';
+import Loader from '@/components/Loader/Loader';
 
 const SectionsClient = dynamic(() => import('./SectionsClient'));
 
@@ -59,12 +61,14 @@ export default async function SectionsPage(props: {
     };
 
     return (
-      <SectionsClient
-        initialSections={sectionsData}
-        initialPage={1}
-        lang={lang}
-        breadcrumbLabels={breadcrumbLabels}
-      />
+      <Suspense fallback={<Loader />}>
+        <SectionsClient
+          initialSections={sectionsData}
+          initialPage={1}
+          lang={lang}
+          breadcrumbLabels={breadcrumbLabels}
+        />
+      </Suspense>
     );
   } catch (error) {
     console.error('Error fetching sections:', error);

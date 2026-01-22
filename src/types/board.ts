@@ -25,6 +25,7 @@ export interface IBoardMember {
   assignedSections: IBoardMemberAssignedSection[];
   twitter?: string;
   mastodon?: string;
+  bluesky?: string;
   website?: string;
   orcid?: string;
   picture?: string;

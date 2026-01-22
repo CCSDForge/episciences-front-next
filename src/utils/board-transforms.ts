@@ -59,18 +59,27 @@ export function transformBoardMember(rawMember: RawBoardMember): IBoardMember {
   // Parse social media links
   let twitter: string | undefined;
   let mastodon: string | undefined;
+  let bluesky: string | undefined;
 
   if (rawMember.additionalProfileInformation?.socialMedias) {
     const socialMedias = rawMember.additionalProfileInformation.socialMedias;
-    const atCount = (socialMedias.match(/@/g) || []).length;
 
-    if (atCount === 1) {
-      // Twitter format: @username
-      twitter = `${process.env.NEXT_PUBLIC_TWITTER_HOMEPAGE}/${socialMedias.slice(1)}`;
-    } else if (atCount > 1) {
-      // Mastodon format: @username@instance.com
-      const parts = socialMedias.split('@');
-      mastodon = `https://${parts[2]}/@${parts[1]}`;
+    // Check for Bluesky: contains bsky.social or bsky.app
+    if (socialMedias.includes('bsky.social') || socialMedias.includes('bsky.app')) {
+      // Handle formats: @handle.bsky.social, handle.bsky.social, or full URL
+      const handle = socialMedias.replace(/^@/, '').replace(/^https?:\/\/bsky\.app\/profile\//, '');
+      bluesky = `https://bsky.app/profile/${handle}`;
+    } else {
+      const atCount = (socialMedias.match(/@/g) || []).length;
+
+      if (atCount === 1) {
+        // Twitter/X format: @username
+        twitter = `${process.env.NEXT_PUBLIC_TWITTER_HOMEPAGE}/${socialMedias.slice(1)}`;
+      } else if (atCount > 1) {
+        // Mastodon format: @username@instance.com
+        const parts = socialMedias.split('@');
+        mastodon = `https://${parts[2]}/@${parts[1]}`;
+      }
     }
   }
 
@@ -104,6 +113,7 @@ export function transformBoardMember(rawMember: RawBoardMember): IBoardMember {
     picture: rawMember.picture || '',
     twitter,
     mastodon,
+    bluesky,
     website: rawMember.additionalProfileInformation?.webSites?.[0],
   };
 }

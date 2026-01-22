@@ -60,6 +60,36 @@
     margin-bottom: 15px;
   }
 
+  &-affiliation-item {
+    margin-bottom: 4px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &-affiliation-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary-text);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  &-affiliation-ror-icon {
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
   &-assignedSections {
     font-size: 12px;
     color: var(--grey);
