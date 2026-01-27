@@ -15,7 +15,7 @@ import { VOLUME_TYPE } from '@/utils/volume';
 import './PresentationSection.scss';
 
 const MAX_ABOUT_CONTENT_LENGTH = 400;
-const MAX_NEWS_CONTENT_LENGTH = 200;
+const MAX_NEWS_CONTENT_LENGTH = 350;
 
 interface IPresentationSectionProps {
   language: AvailableLanguage;
