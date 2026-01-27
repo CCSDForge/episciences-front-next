@@ -128,7 +128,9 @@
       },
       "searchPlaceholder": "search",
       "languageSelector": "Language selector",
-      "selectLanguage": "Select a language"
+      "selectLanguage": "Select a language",
+      "signIn": "Sign in",
+      "newWindow": "(new window)"
     },
     "footer": {
       "links": {

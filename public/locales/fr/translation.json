@@ -135,7 +135,9 @@
       },
       "searchPlaceholder": "rechercher",
       "languageSelector": "Sélecteur de langue",
-      "selectLanguage": "Sélectionner une langue"
+      "selectLanguage": "Sélectionner une langue",
+      "signIn": "Connexion",
+      "newWindow": "(nouvelle fenêtre)"
     },
     "footer": {
       "links": {

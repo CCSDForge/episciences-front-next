@@ -340,11 +340,38 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
             </Link>
           </div>
           <div className="header-reduced-journal-blank"></div>
-          {availableLanguages.length > 1 && (
-            <div className="header-reduced-journal-dropdown">
+          <div className="header-reduced-journal-dropdown">
+            {availableLanguages.length > 1 && (
               <LanguageDropdown withWhiteCaret={isMobileReduced()} />
-            </div>
-          )}
+            )}
+            {submitManagerLink && (
+              <>
+                {availableLanguages.length > 1 && (
+                  <span className="header-signin-separator" aria-hidden="true">|</span>
+                )}
+                <Link
+                  href={submitManagerLink}
+                  className="header-signin"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="header-signin-text">
+                    {t('components.header.signIn')}
+                  </span>
+                  <img
+                    className="header-signin-icon"
+                    src="/icons/user-circle.svg"
+                    alt={t('components.header.signIn')}
+                    width={28}
+                    height={28}
+                  />
+                  <span className="sr-only">
+                    {t('components.header.newWindow')}
+                  </span>
+                </Link>
+              </>
+            )}
+          </div>
         </div>
         <nav className="header-postheader" ref={mobileMenuDropdownRef} aria-label="Main navigation">
           {isMobileOnly && (
@@ -389,7 +416,36 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           >
             {t('components.header.journal')}
           </Link>
-          {availableLanguages.length > 1 && <LanguageDropdown />}
+          <div className="header-preheader-links-right">
+            {availableLanguages.length > 1 && <LanguageDropdown />}
+            {submitManagerLink && (
+              <>
+                {availableLanguages.length > 1 && (
+                  <span className="header-signin-separator" aria-hidden="true">|</span>
+                )}
+                <Link
+                  href={submitManagerLink}
+                  className="header-signin"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="header-signin-text">
+                    {t('components.header.signIn')}
+                  </span>
+                  <img
+                    className="header-signin-icon"
+                    src="/icons/user-circle.svg"
+                    alt={t('components.header.signIn')}
+                    width={28}
+                    height={28}
+                  />
+                  <span className="sr-only">
+                    {t('components.header.newWindow')}
+                  </span>
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
       <div className="header-journal">

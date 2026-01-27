@@ -106,6 +106,22 @@ export default async function HeaderServer({
     }
   }
 
+  // Compute sign-in link URL (same as Submit button)
+  const signInUrl =
+    episciencesManagerUrl && code
+      ? `${episciencesManagerUrl}/${code}`
+      : episciencesManagerUrl || null;
+
+  // Determine if multiple languages are available (for separator rendering)
+  const acceptedLanguagesStr =
+    journalPublicConfig?.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES ||
+    process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES ||
+    '';
+  const acceptedLanguages = acceptedLanguagesStr
+    ? acceptedLanguagesStr.split(',').map((l: string) => l.trim()).filter(Boolean)
+    : ['en', 'fr'];
+  const hasMultipleLanguages = acceptedLanguages.length > 1;
+
   // Load translations for the current language
   const translations = await getServerTranslations(lang);
 
@@ -142,6 +158,34 @@ export default async function HeaderServer({
           </div>
           <div className="header-preheader-links-right">
             <LanguageDropdownWrapper lang={lang} />
+            {signInUrl && (
+              <>
+                {hasMultipleLanguages && (
+                  <span className="header-signin-separator" aria-hidden="true">|</span>
+                )}
+                <Link
+                  href={signInUrl}
+                  lang={lang}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="header-signin"
+                >
+                  <span className="header-signin-text">
+                    {t('components.header.signIn', translations)}
+                  </span>
+                  <img
+                    className="header-signin-icon"
+                    src="/icons/user-circle.svg"
+                    alt={t('components.header.signIn', translations)}
+                    width={28}
+                    height={28}
+                  />
+                  <span className="sr-only">
+                    {t('components.header.newWindow', translations)}
+                  </span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -166,6 +210,34 @@ export default async function HeaderServer({
         <div className="header-reduced-journal-blank">{journalName}</div>
         <div className="header-reduced-journal-dropdown">
           <LanguageDropdownWrapper lang={lang} />
+          {signInUrl && (
+            <>
+              {hasMultipleLanguages && (
+                <span className="header-signin-separator" aria-hidden="true">|</span>
+              )}
+              <Link
+                href={signInUrl}
+                lang={lang}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="header-signin"
+              >
+                <span className="header-signin-text">
+                  {t('components.header.signIn', translations)}
+                </span>
+                <img
+                  className="header-signin-icon"
+                  src="/icons/user-circle.svg"
+                  alt={t('components.header.signIn', translations)}
+                  width={28}
+                  height={28}
+                />
+                <span className="sr-only">
+                  {t('components.header.newWindow', translations)}
+                </span>
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
