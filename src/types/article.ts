@@ -37,6 +37,7 @@ export interface IArticle {
   relatedItems?: IArticleRelatedItem[];
   fundings?: string[];
   license?: string;
+  classifications?: IClassificationItem[];
   metrics?: {
     views: number;
     downloads: number;
@@ -98,6 +99,14 @@ export interface IArticleRelatedItem {
   citation?: string;
 }
 
+export interface IClassificationItem {
+  code: string;
+  label: string;
+  description: string;
+  sourceName: string;
+  classificationName: string;
+}
+
 export type RawArticle = IPartialArticle &
   IArticle & {
     document: {
@@ -154,6 +163,17 @@ export type RawArticle = IPartialArticle &
           section?: {
             id: number;
             titles: Record<AvailableLanguage, string>;
+          };
+          classifications?: {
+            msc2020?: {
+              [code: string]: {
+                code: string;
+                label: string;
+                description: string;
+                source_name: string;
+                classification_name: string;
+              };
+            };
           };
           metrics?: {
             file_count: number;

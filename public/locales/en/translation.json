@@ -232,6 +232,7 @@
         "graphicalAbstract": "Graphical abstract",
         "abstract": "Abstract",
         "keywords": "Keywords",
+        "mscClassifications": "Mathematics Subject Classification 2020",
         "references": "References",
         "linkedPublications": "Linked publications -  datasets - software",
         "citedBy": "Cited by",

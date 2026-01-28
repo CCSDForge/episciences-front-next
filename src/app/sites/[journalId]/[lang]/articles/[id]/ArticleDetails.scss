@@ -246,6 +246,28 @@
               }
             }
           }
+          &-classifications {
+            &-item {
+              a {
+                color: var(--primary-text);
+                text-decoration: underline;
+
+                &:hover {
+                  text-decoration: none;
+                }
+              }
+            }
+          }
+
+          .classifications-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+
           &-keywords {
             &-tag {
               width: fit-content;

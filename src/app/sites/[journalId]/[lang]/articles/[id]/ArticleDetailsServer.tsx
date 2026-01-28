@@ -11,6 +11,7 @@ import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServe
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
 import AbstractSection from './components/AbstractSection';
 import KeywordsSection from './components/KeywordsSection';
+import ClassificationsSection from './components/ClassificationsSection';
 import LinkedPublicationsSectionServer from './components/LinkedPublicationsSectionServer';
 import CitedBySection from './components/CitedBySection';
 import ReferencesSection from './components/ReferencesSection';
@@ -38,6 +39,7 @@ enum ARTICLE_SECTION {
   GRAPHICAL_ABSTRACT = 'graphicalAbstract',
   ABSTRACT = 'abstract',
   KEYWORDS = 'keywords',
+  MSC_CLASSIFICATIONS = 'mscClassifications',
   REFERENCES = 'references',
   LINKED_PUBLICATIONS = 'linkedPublications',
   CITED_BY = 'citedBy',
@@ -153,6 +155,14 @@ export default function ArticleDetailsServer({
         currentLanguage={(language || defaultLanguage) as AvailableLanguage}
       />
     );
+  };
+
+  const getClassificationsSection = (): React.JSX.Element | null => {
+    if (!article?.classifications || article.classifications.length === 0) {
+      return null;
+    }
+
+    return <ClassificationsSection classifications={article.classifications} />;
   };
 
   const getLinkedPublicationsSection = (): React.JSX.Element | null => {
@@ -289,6 +299,11 @@ export default function ArticleDetailsServer({
             ARTICLE_SECTION.KEYWORDS,
             t('pages.articleDetails.sections.keywords', translations),
             getKeywordsSection()
+          )}
+          {renderSection(
+            ARTICLE_SECTION.MSC_CLASSIFICATIONS,
+            t('pages.articleDetails.sections.mscClassifications', translations),
+            getClassificationsSection()
           )}
           {renderSection(
             ARTICLE_SECTION.LINKED_PUBLICATIONS,

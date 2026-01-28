@@ -6,6 +6,7 @@ import {
   IArticleKeywords,
   IArticleReference,
   IArticleRelatedItem,
+  IClassificationItem,
   IInstitution,
   RawArticle,
 } from '@/types/article';
@@ -441,6 +442,22 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       }
     }
 
+    /** Format classifications (MSC 2020) */
+    let classifications: IClassificationItem[] | undefined = undefined;
+    const msc2020 = articleDB?.current?.classifications?.msc2020;
+    if (msc2020) {
+      const items = Object.values(msc2020);
+      if (items.length > 0) {
+        classifications = items.map(item => ({
+          code: item.code,
+          label: item.label,
+          description: item.description,
+          sourceName: item.source_name,
+          classificationName: item.classification_name,
+        }));
+      }
+    }
+
     /** Format metrics */
     const metrics: { views: number; downloads: number } = { views: 0, downloads: 0 };
     if (articleDB?.current?.metrics) {
@@ -477,6 +494,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       pdfLink: articleDB?.current?.mainPdfUrl?.length ? articleDB?.current?.mainPdfUrl : undefined,
       docLink: articleDB?.current?.repository?.doc_url,
       keywords,
+      classifications,
       doi,
       volumeId: articleDB?.current?.volume?.id,
       section,

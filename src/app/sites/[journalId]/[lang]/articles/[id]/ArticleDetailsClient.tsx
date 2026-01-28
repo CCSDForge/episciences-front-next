@@ -28,6 +28,7 @@ import ArticleDetailsSidebar from '@/components/Sidebars/ArticleDetailsSidebar/A
 import CollapsibleInstitutions from './components/CollapsibleInstitutions';
 import AbstractSection from './components/AbstractSection';
 import KeywordsSection from './components/KeywordsSection';
+import ClassificationsSection from './components/ClassificationsSection';
 import LinkedPublicationsSection from './components/LinkedPublicationsSection';
 import CitedBySection from './components/CitedBySection';
 import ReferencesSection from './components/ReferencesSection';
@@ -67,6 +68,7 @@ enum ARTICLE_SECTION {
   GRAPHICAL_ABSTRACT = 'graphicalAbstract',
   ABSTRACT = 'abstract',
   KEYWORDS = 'keywords',
+  MSC_CLASSIFICATIONS = 'mscClassifications',
   REFERENCES = 'references',
   LINKED_PUBLICATIONS = 'linkedPublications',
   CITED_BY = 'citedBy',
@@ -108,6 +110,7 @@ export default function ArticleDetailsClient({
     { key: ARTICLE_SECTION.GRAPHICAL_ABSTRACT, isOpened: true },
     { key: ARTICLE_SECTION.ABSTRACT, isOpened: true },
     { key: ARTICLE_SECTION.KEYWORDS, isOpened: true },
+    { key: ARTICLE_SECTION.MSC_CLASSIFICATIONS, isOpened: true },
     { key: ARTICLE_SECTION.REFERENCES, isOpened: true },
     { key: ARTICLE_SECTION.LINKED_PUBLICATIONS, isOpened: true },
     { key: ARTICLE_SECTION.CITED_BY, isOpened: true },
@@ -320,6 +323,14 @@ export default function ArticleDetailsClient({
     );
   };
 
+  const getClassificationsSection = (): React.JSX.Element | null => {
+    if (!article?.classifications || article.classifications.length === 0) {
+      return null;
+    }
+
+    return <ClassificationsSection classifications={article.classifications} />;
+  };
+
   const getLinkedPublicationsSection = (): React.JSX.Element | null => {
     if (!article?.relatedItems || article.relatedItems.length === 0) {
       return null;
@@ -485,6 +496,11 @@ export default function ArticleDetailsClient({
                 ARTICLE_SECTION.KEYWORDS,
                 t('pages.articleDetails.sections.keywords'),
                 getKeywordsSection()
+              )}
+              {renderSection(
+                ARTICLE_SECTION.MSC_CLASSIFICATIONS,
+                t('pages.articleDetails.sections.mscClassifications'),
+                getClassificationsSection()
               )}
               {renderSection(
                 ARTICLE_SECTION.LINKED_PUBLICATIONS,
