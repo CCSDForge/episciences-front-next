@@ -129,6 +129,10 @@
       justify-content: space-between;
       color: var(--blue-navy);
 
+      @media (max-width: breakpoints.$xsm) {
+        justify-content: flex-end;
+      }
+
       &-left {
         font-size: 14px;
         font-weight: 300;
@@ -371,6 +375,11 @@
       height: 100%;
       gap: 5px;
 
+      @media (max-width: breakpoints.$xsm) {
+        flex: 1;
+        gap: 0;
+      }
+
       &-focused {
         gap: 8px;
 
@@ -425,6 +434,10 @@
         align-items: center;
         height: 100%;
         gap: 0;
+
+        @media (max-width: breakpoints.$xsm) {
+          flex: 1;
+        }
       }
 
       &-input {
@@ -442,7 +455,8 @@
         }
 
         @media (max-width: breakpoints.$xsm) {
-          min-width: 120px;
+          min-width: 0;
+          flex: 1;
           padding: 0 5px;
         }
 

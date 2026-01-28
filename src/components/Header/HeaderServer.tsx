@@ -1,6 +1,7 @@
 import { Link } from '@/components/Link/Link';
 import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
+import MobileBurgerMenu from './MobileBurgerMenu';
 import SkipLink from '@/components/SkipLink/SkipLink';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
@@ -151,11 +152,13 @@ export default async function HeaderServer({
           </Link>
         </div>
         <div className="header-preheader-links">
-          <div className="header-preheader-links-left">
-            <Link href={episciencesUrl} lang={lang}>
-              {t('components.header.links.openAccessJournals', translations)}
-            </Link>
-          </div>
+          <Link
+            href={episciencesUrl}
+            className="header-preheader-links-access"
+            lang={lang}
+          >
+            {t('components.header.links.openAccessJournals', translations)}
+          </Link>
           <div className="header-preheader-links-right">
             <LanguageDropdownWrapper lang={lang} />
             {signInUrl && (
@@ -243,6 +246,51 @@ export default async function HeaderServer({
 
       {/* Post-header navigation */}
       <nav className="header-postheader" aria-label="Main navigation">
+        {/* Burger menu - visible only on mobile via CSS */}
+        <MobileBurgerMenu
+          lang={lang}
+          sections={[
+            ...(visibleContentItems.length > 0
+              ? [{
+                  title: t('components.header.content', translations),
+                  items: visibleContentItems.map(item => ({
+                    key: item.key,
+                    label: t(item.label, translations),
+                    path: item.path,
+                  })),
+                }]
+              : []),
+            ...(visibleAboutItems.length > 0
+              ? [{
+                  title: t('components.header.about', translations),
+                  items: visibleAboutItems.map(item => ({
+                    key: item.key,
+                    label: t(item.label, translations),
+                    path: item.path,
+                  })),
+                }]
+              : []),
+            ...(visibleStandaloneItems.length > 0
+              ? [{
+                  items: visibleStandaloneItems.map(item => ({
+                    key: item.key,
+                    label: t(item.label, translations),
+                    path: item.path,
+                  })),
+                }]
+              : []),
+            ...(visiblePublishItems.length > 0
+              ? [{
+                  title: t('components.header.publish', translations),
+                  items: visiblePublishItems.map(item => ({
+                    key: item.key,
+                    label: t(item.label, translations),
+                    path: item.path,
+                  })),
+                }]
+              : []),
+          ]}
+        />
         <div className="header-postheader-links">
           {/* CONTENT Dropdown */}
           <div className="header-postheader-links-dropdown">
