@@ -202,12 +202,11 @@ Additional documentation is available in the `docs/` folder:
 - [Configuration Guide](docs/CONFIGURATION_GUIDE.md) - Dynamic runtime configuration
 - [Local Testing Guide](docs/LOCAL_TESTING_GUIDE.md) - Local development setup with subdomains
 - [Coding Standards](docs/CODING_STANDARDS.md) - Code conventions and best practices
+- [Accessible Color System](docs/ACCESSIBLE_COLOR_SYSTEM.md) - WCAG-compliant color generation
 
 ### Deployment & Infrastructure
+- [Production Deployment](docs/PRODUCTION_DEPLOYMENT.md) - Guide for production setup and standalone execution
 - [Apache Integration](docs/APACHE_INTEGRATION.md) - Reverse proxy setup and Docker testing
-
-### Accessibility
-- [Accessible Color System](docs/ACCESSIBLE_COLOR_SYSTEM.md) - WCAG-compliant color generation
 
 ## Production Deployment
 
