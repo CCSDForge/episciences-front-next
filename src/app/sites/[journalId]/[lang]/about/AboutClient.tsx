@@ -10,6 +10,7 @@ import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchAboutPage } from '@/services/about';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import {
   generateIdFromText,
   unifiedProcessor,
@@ -71,6 +72,7 @@ export default function AboutClient({
   const [pageSections, setPageSections] = useState<IAboutSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IAboutHeader[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [languageNotice, setLanguageNotice] = useState<string | undefined>();
 
   const parseContentSections = (toBeParsed: string | undefined): IAboutSection[] => {
     if (!toBeParsed) return [];
@@ -170,18 +172,12 @@ export default function AboutClient({
   useEffect(() => {
     if (pageData) {
       try {
-        // Extraire le contenu en fonction du format des données
-        let content = '';
-
-        // Vérifier si nous avons le format attendu
-        if (pageData.content && pageData.content[language]) {
-          content = pageData.content[language];
-        }
-
-        // Si content est vide, essayer d'autres formats possibles
-        if (!content && pageData.content) {
-          content = pageData.content['en'] || pageData.content['fr'] || '';
-        }
+        const contentResult = getLocalizedContent(pageData.content, language);
+        const content = contentResult.value;
+        setLanguageNotice(
+          contentResult.isAvailable && !contentResult.isOriginalLanguage
+            ? t('common.contentNotInLanguage') : undefined
+        );
 
         if (content) {
           const adjustedContent = adjustNestedListsInMarkdownContent(content);
@@ -217,6 +213,11 @@ export default function AboutClient({
         lang={lang}
       />
       <h1 className="about-title">{breadcrumbLabels?.about || t('pages.about.title')}</h1>
+      {languageNotice && (
+        <p className="about-language-notice" role="status">
+          {languageNotice}
+        </p>
+      )}
       <div className={`about-content content-transition ${isUpdating ? 'updating' : ''}`}>
         <AboutSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
         {isLoading ? (

@@ -10,6 +10,7 @@ import './SectionCard.scss';
 import { PATHS } from '@/config/paths';
 import { ISection } from '@/types/section';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface ISectionCardProps {
@@ -26,12 +27,15 @@ export default function SectionCard({
   const [openedDescription, setOpenedDescription] = useState(false);
   const toggleDescription = (): void => setOpenedDescription(!openedDescription);
 
+  const titleText = section.title ? getLocalizedContent(section.title, language).value || '' : '';
+  const descriptionResult = section.description ? getLocalizedContent(section.description, language) : null;
+
   return (
     <div className="sectionCard">
       <div className="sectionCard-title">
         <Link href={`${PATHS.sections}/${section.id}`} lang={language}>
           <div className="sectionCard-title-text">
-            {section.title ? section.title[language] : ''}
+            {titleText}
           </div>
         </Link>
         <div className="sectionCard-title-count">
@@ -40,14 +44,14 @@ export default function SectionCard({
             : `${section.articles.length} ${t('common.article')}`}
         </div>
       </div>
-      {section.description && section.description[language] && (
+      {descriptionResult?.value && (
         <div className="sectionCard-description">
           <div
             className={`sectionCard-description-title ${!openedDescription && 'sectionCard-description-title-closed'}`}
-            
+
         role="button"
         tabIndex={0}
-        
+
         onClick={toggleDescription}        onKeyDown={(e) => handleKeyboardClick(e, toggleDescription)}>
             <div className="sectionCard-description-title-text">{t('common.about')}</div>
             {openedDescription ? (
@@ -67,7 +71,7 @@ export default function SectionCard({
           <div
             className={`sectionCard-description-content ${openedDescription && 'sectionCard-description-content-opened'}`}
           >
-            <MathJax dynamic>{section.description[language]}</MathJax>
+            <MathJax dynamic>{descriptionResult.value}</MathJax>
           </div>
         </div>
       )}

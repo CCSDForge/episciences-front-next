@@ -8,9 +8,13 @@
 
 export const defaultLanguage: string = process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE || 'en';
 
+// All interface languages the platform supports (superset used for URL routing)
+export const allSupportedLanguages: string[] = ['en', 'fr', 'es'];
+
+// Languages accepted by the current journal (env-driven, may be a subset)
 export const acceptedLanguages: string[] = process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES
   ? process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES.split(',').map(lang => lang.trim())
-  : ['en', 'fr']; // Default to both supported languages
+  : ['en', 'fr'];
 
 export type AvailableLanguage = (typeof acceptedLanguages)[number];
 
@@ -43,7 +47,7 @@ export function isDefaultLanguage(lang: string): boolean {
  * @returns The language if valid, otherwise the default language
  */
 export function validateLanguage(lang: string): string {
-  return acceptedLanguages.includes(lang) ? lang : defaultLanguage;
+  return allSupportedLanguages.includes(lang) ? lang : defaultLanguage;
 }
 
 // Configuration: Always show language prefix for better multi-tenant SEO and robot differentiation
@@ -78,7 +82,7 @@ export function getLocalizedPath(path: string, lang: string): string {
  */
 export function removeLanguagePrefix(path: string): string {
   // Handle paths like /fr/about or /en/articles/123
-  for (const lang of acceptedLanguages) {
+  for (const lang of allSupportedLanguages) {
     if (path.startsWith(`/${lang}/`) || path === `/${lang}`) {
       return path.substring(lang.length + 1) || '/';
     }
@@ -100,7 +104,7 @@ export function getLanguageFromPathname(pathname: string): string {
   }
 
   const potentialLang = segments[0];
-  return acceptedLanguages.includes(potentialLang) ? potentialLang : defaultLanguage;
+  return allSupportedLanguages.includes(potentialLang) ? potentialLang : defaultLanguage;
 }
 
 /**
@@ -115,5 +119,5 @@ export function hasLanguagePrefix(path: string): boolean {
     return false;
   }
 
-  return acceptedLanguages.includes(segments[0]);
+  return allSupportedLanguages.includes(segments[0]);
 }

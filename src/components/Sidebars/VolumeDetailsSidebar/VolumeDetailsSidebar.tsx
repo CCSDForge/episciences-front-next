@@ -10,6 +10,7 @@ import { IArticle } from '@/types/article';
 import { IJournal } from '@/types/journal';
 import { IVolume, IVolumeMetadata } from '@/types/volume';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { VOLUME_COVER_BLUR } from '@/utils/image-placeholders';
 import './VolumeDetailsSidebar.scss';
@@ -192,7 +193,7 @@ export default function VolumeDetailsSidebar({
                   lang={language}
                   className={`volumeDetailsSidebar-relatedVolumes-volumes-list-volume ${relatedVolume.id === volume?.id && 'volumeDetailsSidebar-relatedVolumes-volumes-list-volume-current'}`}
                 >
-                  {relatedVolume.title ? relatedVolume.title[language] : ''}
+                  {relatedVolume.title ? getLocalizedContent(relatedVolume.title, language).value || '' : ''}
                 </Link>
               ))}
             </div>

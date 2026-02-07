@@ -5,7 +5,7 @@ import { getServerTranslations, t as translate } from '@/utils/server-i18n';
 import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
 import { getFilteredJournals } from '@/utils/journal-filter';
-import { acceptedLanguages } from '@/utils/language-utils';
+import { acceptedLanguages, defaultLanguage } from '@/utils/language-utils';
 
 export const revalidate = false;
 
@@ -44,19 +44,23 @@ export default async function AccessibilityPage(props: {
   const translations = await getServerTranslations(lang);
   
   const contentDir = path.join(process.cwd(), 'src/content/accessibility');
-  const filename = lang === 'fr' ? 'fr.md' : 'en.md';
-  const filePath = path.join(contentDir, filename);
-  
+  const candidates = [lang, defaultLanguage].filter((v, i, a) => a.indexOf(v) === i);
+
   let content = '';
   try {
-    if (fs.existsSync(filePath)) {
-      content = fs.readFileSync(filePath, 'utf8');
-    } else {
-      console.warn(`[Accessibility] content file not found: ${filePath}`);
+    for (const candidate of candidates) {
+      const candidatePath = path.join(contentDir, `${candidate}.md`);
+      if (fs.existsSync(candidatePath)) {
+        content = fs.readFileSync(candidatePath, 'utf8');
+        break;
+      }
+    }
+    if (!content) {
+      console.warn(`[Accessibility] No content file found for candidates: ${candidates.join(', ')}`);
       content = translate('pages.accessibility.noContent', translations);
     }
   } catch (err) {
-    console.error(`[Accessibility] Error reading file ${filePath}:`, err);
+    console.error(`[Accessibility] Error reading content:`, err);
     content = 'Error loading content.';
   }
 

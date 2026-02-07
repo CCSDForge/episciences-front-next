@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from 'react-device-detect';
 import ReactMarkdown from 'react-markdown';
@@ -248,13 +249,13 @@ export default function VolumeDetailsClient({
       if (conferenceName && conferenceName.value) {
         return (
           <div className={className}>
-            {volume?.title ? `${volume?.title[language]} (${conferenceName.value})` : ''}
+            {volume?.title ? `${getLocalizedContent(volume.title, language).value || ''} (${conferenceName.value})` : ''}
           </div>
         );
       }
     }
 
-    return <div className={className}>{volume?.title ? volume?.title[language] : ''}</div>;
+    return <div className={className}>{volume?.title ? getLocalizedContent(volume.title, language).value || '' : ''}</div>;
   };
 
   const renderVolumeCommittee = (isMobile: boolean): React.JSX.Element | null => {
@@ -279,12 +280,16 @@ export default function VolumeDetailsClient({
   };
 
   const renderVolumeDescription = (): React.JSX.Element => {
-    if (volume?.description && volume.description[language]) {
+    const descriptionText = volume?.description
+      ? getLocalizedContent(volume.description, language).value
+      : null;
+
+    if (descriptionText) {
       if (isMounted && isMobileOnly) {
-        if (volume.description[language].length <= MAX_MOBILE_DESCRIPTION_LENGTH) {
+        if (descriptionText.length <= MAX_MOBILE_DESCRIPTION_LENGTH) {
           return (
             <div className="volumeDetails-content-results-content-description">
-              <ReactMarkdown>{volume.description[language]}</ReactMarkdown>
+              <ReactMarkdown>{descriptionText}</ReactMarkdown>
             </div>
           );
         }
@@ -292,9 +297,9 @@ export default function VolumeDetailsClient({
         return (
           <div className="volumeDetails-content-results-content-description">
             {showFullMobileDescription ? (
-              <ReactMarkdown>{volume?.description[language]}</ReactMarkdown>
+              <ReactMarkdown>{descriptionText}</ReactMarkdown>
             ) : (
-              <ReactMarkdown>{`${volume?.description[language].substring(0, MAX_MOBILE_DESCRIPTION_LENGTH)}...`}</ReactMarkdown>
+              <ReactMarkdown>{`${descriptionText.substring(0, MAX_MOBILE_DESCRIPTION_LENGTH)}...`}</ReactMarkdown>
             )}
             <div
               role="button"
@@ -318,7 +323,7 @@ export default function VolumeDetailsClient({
 
       return (
         <div className="volumeDetails-content-results-content-description">
-          <ReactMarkdown>{volume?.description[language]}</ReactMarkdown>
+          <ReactMarkdown>{descriptionText}</ReactMarkdown>
         </div>
       );
     }

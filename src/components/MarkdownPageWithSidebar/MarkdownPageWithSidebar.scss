@@ -9,6 +9,15 @@
     }
   }
 
+  &-language-notice {
+    border-left: 4px solid var(--primary);
+    background-color: var(--primary-background, #f5f5f5);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-style: italic;
+    color: var(--primary-text);
+  }
+
   &-content {
     display: flex;
 

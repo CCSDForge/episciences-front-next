@@ -3,7 +3,7 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import resourcesToBackend from 'i18next-resources-to-backend';
-import { availableLanguages, defaultLanguage } from '@/utils/i18n';
+import { allSupportedLanguages, defaultLanguage } from '@/utils/i18n';
 
 // Detect initial language from URL (client-side only)
 function getInitialLanguage(): string {
@@ -13,11 +13,10 @@ function getInitialLanguage(): string {
 
   const pathname = window.location.pathname;
 
-  // Check if pathname starts with /fr/ or /en/
-  if (pathname.startsWith('/fr/') || pathname === '/fr') {
-    return 'fr';
-  } else if (pathname.startsWith('/en/') || pathname === '/en') {
-    return 'en';
+  for (const lang of allSupportedLanguages) {
+    if (pathname.startsWith(`/${lang}/`) || pathname === `/${lang}`) {
+      return lang;
+    }
   }
 
   return defaultLanguage;
@@ -27,7 +26,7 @@ function getInitialLanguage(): string {
 const i18nConfig = {
   lng: getInitialLanguage(), // Start with detected language
   fallbackLng: defaultLanguage,
-  supportedLngs: [...availableLanguages],
+  supportedLngs: [...allSupportedLanguages],
   debug: process.env.NODE_ENV === 'development',
   interpolation: {
     escapeValue: false,

@@ -31,11 +31,13 @@ const LANGUAGE_NAMES: Record<string, string> = {
 interface ILanguageDropdownProps {
   withWhiteCaret?: boolean;
   initialLanguage?: string;
+  acceptedLanguages?: string[];
 }
 
 export default function LanguageDropdown({
   withWhiteCaret,
   initialLanguage,
+  acceptedLanguages: acceptedLanguagesProp,
 }: ILanguageDropdownProps): React.JSX.Element | null {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -60,19 +62,20 @@ export default function LanguageDropdown({
     }
   }, [initialLanguage, reduxLanguage, dispatch]);
 
-  // Get accepted languages from journalConfig (multi-tenant) or fallback to process.env (build-time)
+  // Use server-passed prop (SSR-safe) > journalConfig (runtime) > env (build-time)
   const filteredLanguages = useMemo(() => {
+    if (acceptedLanguagesProp && acceptedLanguagesProp.length > 0) {
+      return acceptedLanguagesProp;
+    }
     const acceptedLanguagesStr =
       journalConfig?.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES ||
       process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES ||
       '';
-    const acceptedLanguages = acceptedLanguagesStr
+    const accepted = acceptedLanguagesStr
       ? acceptedLanguagesStr.split(',').map((lang: string) => lang.trim())
       : [];
-    return availableLanguages.filter(
-      lang => acceptedLanguages.length === 0 || acceptedLanguages.includes(lang)
-    );
-  }, [journalConfig]);
+    return accepted.length > 0 ? accepted : [...availableLanguages];
+  }, [acceptedLanguagesProp, journalConfig]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

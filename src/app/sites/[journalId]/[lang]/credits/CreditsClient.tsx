@@ -11,6 +11,7 @@ import PageTitle from '@/components/PageTitle/PageTitle';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import { fetchCreditsPage } from '@/services/credits';
 import {
   generateIdFromText,
@@ -162,8 +163,8 @@ export default function CreditsClient({
     setIsLoading(true);
     try {
       if (pageData?.content && language) {
-        const content = pageData.content[language];
-        const adjustedContent = adjustNestedListsInMarkdownContent(content);
+        const contentResult = getLocalizedContent(pageData.content, language);
+        const adjustedContent = adjustNestedListsInMarkdownContent(contentResult.value);
 
         setPageSections(parseContentSections(adjustedContent));
         setSidebarHeaders(parseSidebarHeaders(adjustedContent));

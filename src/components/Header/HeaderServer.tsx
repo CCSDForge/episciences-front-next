@@ -160,7 +160,7 @@ export default async function HeaderServer({
             {t('components.header.links.openAccessJournals', translations)}
           </Link>
           <div className="header-preheader-links-right">
-            <LanguageDropdownWrapper lang={lang} />
+            <LanguageDropdownWrapper lang={lang} acceptedLanguages={acceptedLanguages} />
             {signInUrl && (
               <>
                 {hasMultipleLanguages && (
@@ -212,7 +212,7 @@ export default async function HeaderServer({
         </div>
         <div className="header-reduced-journal-blank">{journalName}</div>
         <div className="header-reduced-journal-dropdown">
-          <LanguageDropdownWrapper lang={lang} />
+          <LanguageDropdownWrapper lang={lang} acceptedLanguages={acceptedLanguages} />
           {signInUrl && (
             <>
               {hasMultipleLanguages && (

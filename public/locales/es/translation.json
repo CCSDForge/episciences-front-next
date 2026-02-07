@@ -1,0 +1,521 @@
+{
+  "common": {
+    "article": "artículo",
+    "articles": "artículos",
+    "document": "documento",
+    "documents": "documentos",
+    "volume": "volumen",
+    "volumes": "volúmenes",
+    "section": "sección",
+    "sections": "secciones",
+    "author": "autor",
+    "authorFor": "autor de",
+    "authors": "autores",
+    "authorsFor": "autores de",
+    "member": "miembro",
+    "members": "miembros",
+    "editors": "Editores",
+    "about": "Acerca de",
+    "resultsFor": "resultados para",
+    "resultFor": "resultado para",
+    "read": "Leer",
+    "readMore": "Leer más",
+    "readLess": "Leer menos",
+    "seeMore": "Ver más",
+    "seeLess": "Ver menos",
+    "doi": "DOI",
+    "pdf": "PDF",
+    "cite": "Citar",
+    "citeSuccess": "La cita {{template}} se ha copiado en el portapapeles",
+    "week": "semana",
+    "weeks": "semanas",
+    "content": "Artículos y números",
+    "publishedOn": "Publicado el",
+    "acceptedOn": "Aceptado el",
+    "abstract": "Resumen",
+    "toggleAbstracts": {
+      "hideAll": "Ocultar todos los resúmenes",
+      "showAll": "Mostrar todos los resúmenes"
+    },
+    "languages": {
+      "en": "Inglés",
+      "fr": "Francés",
+      "es": "Español",
+      "de": "Alemán",
+      "it": "Italiano",
+      "pt": "Portugués",
+      "ar": "Árabe",
+      "fa": "Persa",
+      "ur": "Urdu",
+      "he": "Hebreo",
+      "yi": "Yidis",
+      "sd": "Sindhi",
+      "ps": "Pastún",
+      "ks": "Cachemiro",
+      "ug": "Uigur",
+      "ckb": "Kurdo (Sorani)",
+      "dv": "Divehi"
+    },
+    "contentNotInLanguage": "Este contenido aún no está disponible en el idioma solicitado.",
+    "volumeCommittee": "Comité del volumen",
+    "volumeCard": {
+      "volume": "Volumen",
+      "specialIssue": "Número especial",
+      "proceeding": "Actas de congreso"
+    },
+    "renderingMode": {
+      "tile": "Mosaico",
+      "list": "Lista"
+    },
+    "filters": {
+      "filter": "Filtrar",
+      "editFilters": "Editar filtros",
+      "clearAll": "Borrar todos los filtros",
+      "applyFilters": "Aplicar filtros",
+      "years": "Años",
+      "documentTypes": "Tipos de documento",
+      "volumeTypes": "Tipos de volumen",
+      "volumes": "Volúmenes",
+      "sections": "Secciones",
+      "authors": "Autores"
+    },
+    "publicationDetails": "Detalles de publicación",
+    "submittedOn": "Enviado el",
+    "lastModifiedOn": "Última modificación el"
+  },
+  "components": {
+    "header": {
+      "journal": "Revistas de acceso abierto",
+      "content": "Artículos y números",
+      "about": "Acerca de",
+      "publish": "Publicar",
+      "skipToMain": "Ir al contenido principal",
+      "skipToSearch": "Ir a la búsqueda",
+      "links": {
+        "openAccessJournals": "Revistas de acceso abierto",
+        "articlesAndIssues": "Artículos y números",
+        "allArticles": "Todos los artículos",
+        "articles": "Todos los artículos",
+        "allAcceptedArticles": "Todos los artículos aceptados",
+        "articlesAccepted": "Todos los artículos aceptados",
+        "allVolumes": "Todos los volúmenes",
+        "volumes": "Todos los volúmenes",
+        "lastVolume": "Último volumen",
+        "sections": "Secciones",
+        "specialIssues": "Números especiales",
+        "proceedings": "Actas de congresos",
+        "authors": "Autores",
+        "about": "Acerca de",
+        "acknowledgements": "Agradecimientos",
+        "indexing": "Indexación",
+        "theJournal": "La revista",
+        "news": "Noticias",
+        "statistics": "Estadísticas",
+        "boards": "Comités",
+        "forAuthors": "Para autores",
+        "ethicalCharter": "Carta ética",
+        "forReviewers": "Para revisores",
+        "forConferenceOrganisers": "Para organizadores de congresos"
+      },
+      "search": {
+        "placeholder": "buscar",
+        "iconAlt": "Buscar",
+        "searchButton": "Buscar",
+        "submitButton": "Enviar",
+        "clearLabel": "Borrar búsqueda",
+        "clearAlt": "Borrar",
+        "closeLabel": "Cerrar búsqueda",
+        "backAlt": "Volver"
+      },
+      "searchPlaceholder": "buscar",
+      "languageSelector": "Selector de idioma",
+      "selectLanguage": "Seleccionar un idioma",
+      "signIn": "Iniciar sesión",
+      "newWindow": "(nueva ventana)"
+    },
+    "footer": {
+      "links": {
+        "notice": "Ficha de la revista",
+        "contact": "Contacto",
+        "credits": "Créditos",
+        "rss": "RSS",
+        "documentation": "Documentación",
+        "journals": "Revistas",
+        "acknowledgements": "Agradecimientos",
+        "publishingPolicy": "Política de publicación",
+        "accessibility": "Accesibilidad: no conforme",
+        "legalMentions": "Aviso legal",
+        "privacyStatement": "Declaración de privacidad",
+        "termsOfUse": "Condiciones de uso"
+      }
+    },
+    "pdfViewer": {
+      "downloadPDF": "Descargar PDF",
+      "openInNewTab": "Abrir en nueva pestaña",
+      "showViewer": "Mostrar visor",
+      "showInfo": "Mostrar información",
+      "loading": "Cargando visor de PDF...",
+      "fallback": {
+        "title": "Información del PDF",
+        "description": "Este PDF está alojado en un repositorio externo. Puede:",
+        "useViewer": "Utilizar el visor de arriba",
+        "downloadLocal": "Descargar el PDF para verlo localmente",
+        "openNewTab": "Abrirlo en una nueva pestaña"
+      }
+    },
+    "advancedPDFViewer": {
+      "zoom": {
+        "in": "Ampliar",
+        "out": "Reducir",
+        "reset": "Restablecer"
+      },
+      "navigation": {
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "pageOf": "Página {{current}} de {{total}}"
+      },
+      "sidebar": {
+        "outline": "Índice",
+        "thumbnails": "Miniaturas",
+        "noOutline": "No hay índice disponible"
+      },
+      "download": "Descargar",
+      "loading": "Cargando PDF...",
+      "error": "Error al cargar el PDF"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Inicio",
+      "blocks": {
+        "articles": {
+          "subtitle": "Últimos artículos",
+          "see": "Ver todos los artículos"
+        },
+        "news": {
+          "subtitle": "Noticias",
+          "see": "Ver todas las noticias"
+        },
+        "members": {
+          "subtitle": "Miembros",
+          "see": "Ver todos los miembros"
+        },
+        "indexation": {
+          "subtitle": "Indexación de la revista"
+        },
+        "specialIssues": {
+          "subtitle": "Números especiales",
+          "see": "Ver todos los números"
+        },
+        "articlesAccepted": {
+          "subtitle": "Últimos artículos aceptados",
+          "see": "Ver todos los artículos aceptados"
+        }
+      }
+    },
+    "articles": {
+      "title": "Artículos",
+      "types": {
+        "article": "Artículo",
+        "book": "Libro",
+        "bookpart": "Parte de libro",
+        "conference": "Comunicación en congreso",
+        "lecture": "Conferencia",
+        "other": "Otro",
+        "preprint": "Preimpresión",
+        "report": "Informe",
+        "software": "Software"
+      }
+    },
+    "articleDetails": {
+      "title": "Artículo",
+      "sections": {
+        "graphicalAbstract": "Resumen gráfico",
+        "abstract": "Resumen",
+        "keywords": "Palabras clave",
+        "mscClassifications": "Clasificación Mathematics Subject Classification 2020",
+        "references": "Referencias",
+        "linkedPublications": "Publicaciones relacionadas - conjuntos de datos - software",
+        "citedBy": "Citado por",
+        "preview": "Vista previa"
+      },
+      "citedBySection": {
+        "source": "Fuente: ",
+        "authors": "Autores",
+        "reference": "Referencia de la revista",
+        "volume": "Volumen",
+        "page": "pp.",
+        "doi": "DOI"
+      },
+      "actions": {
+        "download": "Descargar artículo",
+        "openOn": "Abrir en",
+        "cite": "Citar",
+        "citationError": "Error al generar las citas",
+        "metadata": "Metadatos",
+        "share": {
+          "text": "Compartir",
+          "bluesky": "Bluesky",
+          "email": "Correo",
+          "twitter": "X",
+          "linkedin": "LinkedIn",
+          "facebook": "Facebook",
+          "whatsapp": "WhatsApp"
+        }
+      },
+      "publicationDetails": {
+        "title": "Detalles de publicación",
+        "publishedOn": "Publicado el",
+        "acceptedOn": "Aceptado el",
+        "submittedOn": "Enviado el",
+        "importedOn": "Importado el",
+        "lastModifiedOn": "Última modificación el"
+      },
+      "volumeDetails": {
+        "title": "Volumen",
+        "specialIssue": "Número especial",
+        "proceeding": "Actas de congreso"
+      },
+      "license": "Licencia",
+      "licenses": {
+        "arxiv": {
+          "assumed": "arXiv.org - Assumed non-exclusive license to distribute",
+          "nonExclusive": "arXiv.org - Non-exclusive license to distribute"
+        },
+        "creativeCommons": {
+          "nonCommercial1.0": "Atribución-NoComercial 1.0 Genérica (CC BY-NC 1.0)",
+          "nonCommercial2.0": "Atribución-NoComercial 2.0 Genérica (CC BY-NC 2.0)",
+          "nonCommercial2.5": "Atribución-NoComercial 2.5 Genérica (CC BY-NC 2.5)",
+          "nonCommercial3.0": "Atribución-NoComercial 3.0 No adaptada (CC BY-NC 3.0)",
+          "nonCommercial4.0": "Atribución-NoComercial 4.0 Internacional (CC BY-NC 4.0)",
+          "noDerivatives1.0": "Atribución-SinDerivadas 1.0 Genérica (CC BY-ND 1.0)",
+          "noDerivatives2.0": "Atribución-SinDerivadas 2.0 Genérica (CC BY-ND 2.0)",
+          "noDerivatives2.5": "Atribución-SinDerivadas 2.5 Genérica (CC BY-ND 2.5)",
+          "noDerivatives3.0": "Atribución-SinDerivadas 3.0 No adaptada (CC BY-ND 3.0)",
+          "noDerivatives4.0": "Atribución-SinDerivadas 4.0 Internacional (CC BY-ND 4.0)",
+          "noDerivativesNonCommercial1.0": "Atribución-SinDerivadas-NoComercial 1.0 Genérica (CC BY-ND-NC 1.0)",
+          "noDerivativesNonCommercial2.0": "Atribución-NoComercial-SinDerivadas 2.0 Genérica (CC BY-NC-ND 2.0)",
+          "noDerivativesNonCommercial2.5": "Atribución-NoComercial-SinDerivadas 2.5 Genérica (CC BY-NC-ND 2.5)",
+          "noDerivativesNonCommercial3.0": "Atribución-NoComercial-SinDerivadas 3.0 No adaptada (CC BY-NC-ND 3.0)",
+          "noDerivativesNonCommercial4.0": "Atribución-NoComercial-SinDerivadas 4.0 Internacional (CC BY-NC-ND 4.0)",
+          "nonCommercialShareAlike1.0": "Atribución-NoComercial-CompartirIgual 1.0 Genérica (CC BY-NC-SA 1.0)",
+          "nonCommercialShareAlike2.0": "Atribución-NoComercial-CompartirIgual 2.0 Genérica (CC BY-NC-SA 2.0)",
+          "nonCommercialShareAlike2.5": "Atribución-NoComercial-CompartirIgual 2.5 Genérica (CC BY-NC-SA 2.5)",
+          "nonCommercialShareAlike3.0": "Atribución-NoComercial-CompartirIgual 3.0 No adaptada (CC BY-NC-SA 3.0)",
+          "nonCommercialShareAlike4.0": "Atribución-NoComercial-CompartirIgual 4.0 Internacional (CC BY-NC-SA 4.0)",
+          "shareAlike1.0": "Atribución-CompartirIgual 1.0 Genérica (CC BY-SA 1.0)",
+          "shareAlike2.0": "Atribución-CompartirIgual 2.0 Genérica (CC BY-SA 2.0)",
+          "shareAlike2.5": "Atribución-CompartirIgual 2.5 Genérica (CC BY-SA 2.5)",
+          "shareAlike3.0": "Atribución-CompartirIgual 3.0 No adaptada (CC BY-SA 3.0)",
+          "shareAlike4.0": "Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)",
+          "generic1.0": "Atribución 1.0 Genérica (CC BY 1.0)",
+          "generic2.0": "Atribución 2.0 Genérica (CC BY 2.0)",
+          "generic2.5": "Atribución 2.5 Genérica (CC BY 2.5)",
+          "generic3.0": "Atribución 3.0 No adaptada (CC BY 3.0)",
+          "generic4.0": "Atribución 4.0 Internacional (CC BY 4.0)",
+          "zero1.0": "CC0 1.0 Universal (CC0 1.0) Dedicación de Dominio Público"
+        },
+        "others": {
+          "closedAccess": "Acceso cerrado",
+          "embargoedAccess": "Acceso embargado",
+          "restrictedAccess": "Acceso restringido",
+          "openAccess": "Acceso abierto"
+        }
+      },
+      "funding": "Financiación",
+      "metrics": {
+        "title": "Indicadores",
+        "views": "Vistas",
+        "downloads": "Descargas"
+      },
+      "relationships": {
+        "isSameAs": "Es idéntico a",
+        "hasPreprint": "Tiene preimpresión",
+        "isDerivedFrom": "Es derivado de",
+        "hasDerivation": "Tiene derivación",
+        "isReviewOf": "Es revisión de",
+        "hasReview": "Tiene revisión",
+        "isCommentOn": "Es comentario sobre",
+        "hasComment": "Tiene comentario",
+        "isReplyTo": "Es respuesta a",
+        "hasReply": "Tiene respuesta",
+        "basedOnData": "Basado en datos de",
+        "isDataBasisFor": "Es base de datos para",
+        "hasRelatedMaterial": "Tiene material relacionado",
+        "isRelatedMaterial": "Es material relacionado con",
+        "isCompiledBy": "Es compilado por",
+        "compiles": "Compila",
+        "isDocumentedBy": "Es documentado por",
+        "documents": "Documenta",
+        "isSupplementTo": "Es suplemento de",
+        "isSupplementedBy": "Es complementado por",
+        "isContinuedBy": "Es continuado por",
+        "continues": "Continúa",
+        "isPartOf": "Es parte de",
+        "hasPart": "Tiene parte",
+        "references": "Referencia",
+        "isReferencedBy": "Es referenciado por",
+        "isBasedOn": "Está basado en",
+        "isBasisFor": "Es base para",
+        "requires": "Requiere",
+        "isRequiredBy": "Es requerido por",
+        "finances": "Financia",
+        "isFinancedBy": "Es financiado por",
+        "isVersionOf": "Es versión de",
+        "isRelatedTo": "Está relacionado con"
+      },
+      "metadata": {
+        "title": "Metadatos",
+        "download": "Descargar",
+        "downloadSuccess": "Metadatos {{format}} descargados con éxito",
+        "downloadError": "Error al descargar los metadatos. Inténtelo de nuevo.",
+        "citationFormats": {
+          "APA": "APA",
+          "MLA": "MLA",
+          "BibTeX": "BibTeX"
+        }
+      },
+      "download": {
+        "openInNewTab": "Abrir en nueva pestaña",
+        "openPDF": "Abrir PDF",
+        "pdfDisplayTitle": "Visualización del PDF",
+        "pdfDisplayMessage": "El PDF no se puede mostrar directamente. Haga clic en el botón de abajo para abrirlo en una nueva pestaña o descargarlo."
+      }
+    },
+    "articlesAccepted": {
+      "title": "Próximas publicaciones"
+    },
+    "search": {
+      "title": "Buscar"
+    },
+    "volumes": {
+      "title": "Volúmenes",
+      "types": {
+        "specialIssues": "Números especiales",
+        "proceedings": "Actas de congresos"
+      }
+    },
+    "volumeDetails": {
+      "title": "Volumen",
+      "titleSpecialIssue": "Número especial",
+      "titleProceeding": "Actas de congreso",
+      "proceedingSettings": {
+        "theme": "Tema del congreso"
+      },
+      "actions": {
+        "downloadAll": "Descargar todos los artículos"
+      },
+      "relatedVolumes": {
+        "volumes": "Lista de volúmenes",
+        "specialIssues": "Lista de números especiales",
+        "proceedings": "Lista de actas de congresos",
+        "lookAtSelectedVolume": "Consultar el volumen seleccionado",
+        "lookAtSelectedIssue": "Consultar el número seleccionado",
+        "lookAtSelectedProceedings": "Consultar las actas seleccionadas"
+      }
+    },
+    "sections": {
+      "title": "Secciones",
+      "totalArticles": "Total de artículos",
+      "articlesInSection": "Artículos en esta sección",
+      "noArticlesTitle": "No se encontraron artículos",
+      "noArticlesMessage": "Esta sección no tiene artículos actualmente."
+    },
+    "sectionDetails": {
+      "title": "Sección"
+    },
+    "authors": {
+      "title": "Autores",
+      "searchName": "buscar un nombre",
+      "others": "Otros"
+    },
+    "about": {
+      "title": "La revista"
+    },
+    "news": {
+      "title": "Noticias"
+    },
+    "statistics": {
+      "title": "Estadísticas",
+      "labels": {
+        "glance": "De un vistazo",
+        "evaluationPublication": "Evaluación y publicación"
+      },
+      "types": {
+        "nbSubmissions": "Envíos",
+        "acceptanceRate": "Tasa de aceptación",
+        "medianSubmissionPublication": "Tiempo mediano entre envío y publicación",
+        "medianSubmissionAcceptance": "Tiempo mediano entre envío y aceptación",
+        "nbSubmissionsDetails": "Detalle de envíos",
+        "medianReviewsNumber": "Número mediano de revisiones de artículos de investigación",
+        "reviewsReceived": "Revisiones recibidas",
+        "reviewsRequested": "Revisiones solicitadas"
+      },
+      "statuses": {
+        "published": "Artículos publicados",
+        "refused": "Artículos rechazados",
+        "beingPublished": "En curso de publicación",
+        "accepted": "Artículos aceptados",
+        "other-status": "Otro estado"
+      }
+    },
+    "boards": {
+      "title": "Comités",
+      "tableOfContents": "Índice",
+      "types": {
+        "introductionBoard": "Presentación de los comités",
+        "technicalBoard": "Comité técnico",
+        "editorialBoard": "Comité editorial",
+        "scientificAdvisoryBoard": "Comité científico consultivo",
+        "reviewersBoard": "Comité de revisores",
+        "formerMember": "Antiguos miembros",
+        "operatingCharterBoard": "Carta de funcionamiento"
+      },
+      "roles": {
+        "chiefEditor": "Editor jefe",
+        "managingEditor": "Editor adjunto",
+        "editor": "Editor",
+        "handlingEditor": "Editor asociado",
+        "guestEditor": "Editor invitado",
+        "secretary": "Secretario",
+        "advisoryBoard": "Miembro del comité consultivo",
+        "member": "Miembro",
+        "formerMember": "Antiguo miembro"
+      }
+    },
+    "forAuthors": {
+      "title": "Para autores"
+    },
+    "acknowledgements": {
+      "title": "Agradecimientos",
+      "noContent": "No hay agradecimientos disponibles para esta revista."
+    },
+    "indexing": {
+      "title": "Indexación",
+      "noContent": "No hay información de indexación disponible para esta revista."
+    },
+    "ethicalCharter": {
+      "title": "Carta ética",
+      "noContent": "No hay carta ética disponible para esta revista."
+    },
+    "forReviewers": {
+      "title": "Para revisores",
+      "noContent": "No hay información para revisores disponible para esta revista."
+    },
+    "forConferenceOrganisers": {
+      "title": "Para organizadores de congresos",
+      "noContent": "No hay información para organizadores de congresos disponible para esta revista."
+    },
+    "accessibility": {
+      "title": "Accesibilidad",
+      "description": "Declaración de accesibilidad",
+      "noContent": "Contenido no encontrado."
+    },
+    "credits": {
+      "title": "Créditos"
+    },
+    "common": {
+      "noContent": "No hay contenido disponible para esta revista."
+    }
+  }
+}

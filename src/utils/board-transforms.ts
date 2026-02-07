@@ -15,6 +15,7 @@ import {
   BOARD_TYPE,
 } from '@/services/board';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 
 /**
  * Raw board member data structure from the API
@@ -176,8 +177,8 @@ export function getBoardsPerTitle(
 
   return sortedPages.map(page => {
     // Extract localized title and description
-    const title = page.title[lang] || page.title['en'] || '';
-    const description = page.content[lang] || page.content['en'] || '';
+    const title = getLocalizedContent(page.title, lang).value;
+    const description = getLocalizedContent(page.content, lang).value;
 
     // Filter members for this board page (handle empty members array)
     const pageMembers = !members || members.length === 0 ? [] : members.filter(member => {

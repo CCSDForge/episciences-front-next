@@ -5,6 +5,7 @@ import { getLanguageFromParams } from '@/utils/language-utils';
 import { ISection, PartialSectionArticle } from '@/types/section';
 import { IArticle } from '@/types/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 
 // Section details change infrequently - long revalidation time
 // Use on-demand revalidation API for updates
@@ -103,9 +104,8 @@ export default async function SectionDetailsPage(props: {
     };
 
     // Calculate title and description server-side to prevent hydration mismatch
-    const langKey = (language as 'fr' | 'en') || 'en';
-    const sectionTitle = section.title?.[langKey] || section.title?.['en'] || `Section ${params.id}`;
-    const sectionDescription = section.description?.[langKey] || section.description?.['en'] || '';
+    const sectionTitle = getLocalizedContent(section.title, language).value || `Section ${params.id}`;
+    const sectionDescription = getLocalizedContent(section.description, language).value || '';
 
     return (
       <SectionDetailsClient

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import { fetchForReviewersPage } from '@/services/forReviewers';
 import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
@@ -26,8 +27,8 @@ export default function ForReviewersClient({
   const { t } = useTranslation();
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
-  // Use the lang prop for consistent SSR/client rendering
-  const currentLang = (lang || 'en') as 'en' | 'fr';
+  const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
+  const language = (lang as AvailableLanguage) || reduxLanguage;
 
   const { data: pageData, isUpdating } = useClientSideFetch({
     fetchFn: async () => {
@@ -45,9 +46,12 @@ export default function ForReviewersClient({
     setIsLoading(false);
   }, [pageData]);
 
-  const content = pageData?.content?.[currentLang] || pageData?.content?.['en'] || '';
-  const title =
-    pageData?.title?.[currentLang] || pageData?.title?.['en'] || t('pages.forReviewers.title');
+  const contentResult = getLocalizedContent(pageData?.content, language);
+  const titleResult = getLocalizedContent(pageData?.title, language);
+  const content = contentResult.value;
+  const title = titleResult.value || t('pages.forReviewers.title');
+  const languageNotice = contentResult.isAvailable && !contentResult.isOriginalLanguage
+    ? t('common.contentNotInLanguage') : undefined;
 
   return (
     <MarkdownPageWithSidebar
@@ -61,6 +65,7 @@ export default function ForReviewersClient({
       }}
       lang={lang}
       noContentMessage={t('pages.forReviewers.noContent')}
+      languageNotice={languageNotice}
       className="markdown-page"
     />
   );

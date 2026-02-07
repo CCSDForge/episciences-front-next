@@ -78,6 +78,7 @@
       "sections": "Sections",
       "authors": "Authors"
     },
+    "contentNotInLanguage": "This content is not yet available in the requested language.",
     "publicationDetails": "Publication Details",
     "submittedOn": "Submitted on",
     "lastModifiedOn": "Last modified on"

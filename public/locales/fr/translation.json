@@ -85,6 +85,7 @@
       "secretary": "Secrétaire de rédaction",
       "webmaster": "Webmaster"
     },
+    "contentNotInLanguage": "Ce contenu n'est pas encore disponible dans la langue demandée.",
     "publicationDetails": "Détails de publication",
     "submittedOn": "Soumis le",
     "lastModifiedOn": "Modifié le"

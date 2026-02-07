@@ -38,6 +38,7 @@ interface MarkdownPageWithSidebarProps {
   };
   lang?: string;
   noContentMessage?: string;
+  languageNotice?: string;
   className?: string;
 }
 
@@ -54,6 +55,7 @@ export default function MarkdownPageWithSidebar({
   breadcrumbLabels,
   lang,
   noContentMessage,
+  languageNotice,
   className = 'markdown-page',
 }: MarkdownPageWithSidebarProps): React.JSX.Element {
   const { t } = useTranslation();
@@ -231,6 +233,11 @@ export default function MarkdownPageWithSidebar({
         lang={lang}
       />
       <h1 className={`${className}-title`}>{title}</h1>
+      {languageNotice && (
+        <p className={`${className}-language-notice`} role="status">
+          {languageNotice}
+        </p>
+      )}
       <div className={`${className}-content content-transition ${isUpdating ? 'updating' : ''}`}>
         {sidebarHeaders.length > 0 && (
           <AboutSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />

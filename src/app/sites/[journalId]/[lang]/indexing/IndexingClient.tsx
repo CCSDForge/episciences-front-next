@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import { fetchIndexingPage } from '@/services/indexing';
 import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
@@ -45,8 +46,12 @@ export default function IndexingClient({
     setIsLoading(false);
   }, [pageData]);
 
-  const content = pageData?.content?.[language] || pageData?.content?.['en'] || '';
-  const title = pageData?.title?.[language] || pageData?.title?.['en'] || t('pages.indexing.title');
+  const contentResult = getLocalizedContent(pageData?.content, language);
+  const titleResult = getLocalizedContent(pageData?.title, language);
+  const content = contentResult.value;
+  const title = titleResult.value || t('pages.indexing.title');
+  const languageNotice = contentResult.isAvailable && !contentResult.isOriginalLanguage
+    ? t('common.contentNotInLanguage') : undefined;
 
   return (
     <MarkdownPageWithSidebar
@@ -60,6 +65,7 @@ export default function IndexingClient({
       }}
       lang={lang}
       noContentMessage={t('pages.indexing.noContent')}
+      languageNotice={languageNotice}
       className="markdown-page"
     />
   );

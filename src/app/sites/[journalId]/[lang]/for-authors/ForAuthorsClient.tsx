@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
@@ -83,6 +84,7 @@ export default function ForAuthorsClient({
   const [pageSections, setPageSections] = useState<IForAuthorsSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IForAuthorsHeader[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [languageNotice, setLanguageNotice] = useState<string | undefined>();
 
   const parseContentSections = (
     toBeParsed: Record<
@@ -246,21 +248,32 @@ export default function ForAuthorsClient({
     if (forAuthorsData) {
       setIsLoading(false);
 
+      const ewTitle = getLocalizedContent(forAuthorsData.editorialWorkflowPage?.title, language);
+      const ewContent = getLocalizedContent(forAuthorsData.editorialWorkflowPage?.content, language);
+      const ecTitle = getLocalizedContent(forAuthorsData.ethicalCharterPage?.title, language);
+      const ecContent = getLocalizedContent(forAuthorsData.ethicalCharterPage?.content, language);
+      const psTitle = getLocalizedContent(forAuthorsData.prepareSubmissionPage?.title, language);
+      const psContent = getLocalizedContent(forAuthorsData.prepareSubmissionPage?.content, language);
+
+      const hasFallback = [ewTitle, ewContent, ecTitle, ecContent, psTitle, psContent]
+        .some(r => r.isAvailable && !r.isOriginalLanguage);
+      setLanguageNotice(hasFallback ? t('common.contentNotInLanguage') : undefined);
+
       const content: Record<
         ForAuthorsSectionType,
         { title: string | undefined; content: string | undefined }
       > = {
         editorialWorkflow: {
-          title: forAuthorsData.editorialWorkflowPage?.title?.[language] ?? '',
-          content: forAuthorsData.editorialWorkflowPage?.content?.[language] ?? '',
+          title: ewTitle.value || '',
+          content: ewContent.value || '',
         },
         ethicalCharter: {
-          title: forAuthorsData.ethicalCharterPage?.title?.[language] ?? '',
-          content: forAuthorsData.ethicalCharterPage?.content?.[language] ?? '',
+          title: ecTitle.value || '',
+          content: ecContent.value || '',
         },
         prepareSubmission: {
-          title: forAuthorsData.prepareSubmissionPage?.title?.[language] ?? '',
-          content: forAuthorsData.prepareSubmissionPage?.content?.[language] ?? '',
+          title: psTitle.value || '',
+          content: psContent.value || '',
         },
       };
 
@@ -284,6 +297,11 @@ export default function ForAuthorsClient({
       <h1 className="forAuthors-title">
         {breadcrumbLabels?.current || t('pages.forAuthors.title')}
       </h1>
+      {languageNotice && (
+        <p className="forAuthors-language-notice" role="status">
+          {languageNotice}
+        </p>
+      )}
       {isLoading ? (
         <Loader />
       ) : pageSections.length === 0 ? (
