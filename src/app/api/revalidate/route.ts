@@ -24,10 +24,10 @@ const PEER_SERVERS = process.env.PEER_SERVERS
 // Header to identify forwarded revalidation requests (prevents infinite loops)
 const FORWARDED_HEADER = 'x-forwarded-revalidation';
 
-// Simple in-memory rate limiter (10 req/min per IP)
+// Simple in-memory rate limiter (Configurable via env)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 10;
-const RATE_WINDOW = 60000; // 1 minute
+const RATE_LIMIT = Number(process.env.REVALIDATE_RATE_LIMIT) || 100;
+const RATE_WINDOW = Number(process.env.REVALIDATE_RATE_WINDOW) || 60000; // 1 minute default
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();

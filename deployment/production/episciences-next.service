@@ -1,0 +1,20 @@
+[Unit]
+Description=Episciences Next.js Frontend
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+# Path to the application root on the server
+WorkingDirectory=/var/www/episciences-front-next
+ExecStart=/usr/bin/node server.js
+Restart=always
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
+# Optional: Override API target if needed
+# Environment=API_PROXY_TARGET=https://api.episciences.org/api
+
+[Install]
+WantedBy=multi-user.target
