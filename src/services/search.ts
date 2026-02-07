@@ -39,7 +39,7 @@ export async function fetchSearchResults({
     // Construct the full URL by concatenating API_URL and search path
     const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
     const fullUrl = `${apiRoot}${API_PATHS.search}`;
-    const apiUrl = new URL(fullUrl);
+    const apiUrl = new URL(fullUrl, typeof window !== 'undefined' ? window.location.origin : undefined);
 
     // Ajout des paramètres à l'URL
     apiUrl.searchParams.append('terms', terms);
