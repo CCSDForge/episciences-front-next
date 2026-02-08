@@ -67,24 +67,6 @@ export function getContrastRatio(color1: string, color2: string): number {
 }
 
 /**
- * Check if contrast meets WCAG standards
- */
-export function meetsWCAG(
-  foreground: string,
-  background: string,
-  level: 'AA' | 'AAA' = 'AA',
-  isLargeText: boolean = false
-): boolean {
-  const ratio = getContrastRatio(foreground, background);
-
-  if (level === 'AAA') {
-    return isLargeText ? ratio >= 4.5 : ratio >= 7;
-  }
-  // AA
-  return isLargeText ? ratio >= 3 : ratio >= 4.5;
-}
-
-/**
  * Darken a color by a percentage (0-100)
  */
 function darkenColor(hex: string, percent: number): string {
@@ -203,30 +185,4 @@ export function getContrastingTextColor(backgroundColor: string): string {
   const whiteContrast = getContrastRatio(backgroundColor, '#ffffff');
 
   return blackContrast > whiteContrast ? '#000000' : '#ffffff';
-}
-
-/**
- * Test suite helper - get readable report of contrast ratios
- */
-export function getContrastReport(foreground: string, background: string) {
-  const ratio = getContrastRatio(foreground, background);
-  const meetsAA = ratio >= 4.5;
-  const meetsAALarge = ratio >= 3;
-  const meetsAAA = ratio >= 7;
-  const meetsAAALarge = ratio >= 4.5;
-
-  return {
-    ratio: ratio.toFixed(2),
-    meetsAA,
-    meetsAALarge,
-    meetsAAA,
-    meetsAAALarge,
-    recommendation: meetsAAA
-      ? 'Excellent (AAA)'
-      : meetsAA
-      ? 'Good (AA)'
-      : meetsAALarge
-      ? 'OK for large text only (AA Large)'
-      : 'FAIL - Adjust color',
-  };
 }

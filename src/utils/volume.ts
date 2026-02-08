@@ -4,7 +4,7 @@ import {
   IVolumeSettingsProceeding,
   RawVolume,
   RawVolumeMetadata,
-} from '../types/volume';
+} from '@/types/volume';
 import { AvailableLanguage } from './i18n';
 
 export function formatVolumeMetadata(metadata: RawVolumeMetadata): IVolumeMetadata {

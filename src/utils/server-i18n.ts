@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import path from 'path';
 
 export const defaultLanguage: string = process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE || 'en';

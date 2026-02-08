@@ -119,58 +119,5 @@ export async function fetchWithRetry(
     }
   }
 
-  // All retries failed, throw the last error
   throw lastError;
-}
-
-/**
- * Simplified fetch with retry that returns data directly
- *
- * This is a convenience wrapper around fetchWithRetry that handles
- * the full flow: fetch, check status, parse JSON, and return data.
- *
- * @param url - URL to fetch
- * @param options - Standard fetch options
- * @param retryOptions - Retry behavior configuration
- * @returns Promise resolving to parsed JSON data
- * @throws Error if fetch or parsing fails
- *
- * @example
- * ```typescript
- * const articles = await fetchJsonWithRetry<Article[]>(
- *   'https://api.example.com/articles'
- * );
- * ```
- */
-export async function fetchJsonWithRetry<T = unknown>(
-  url: string,
-  options: RequestInit = {},
-  retryOptions: RetryOptions = {}
-): Promise<T> {
-  const response = await fetchWithRetry(url, options, retryOptions);
-  return (await response.json()) as T;
-}
-
-/**
- * Check if an error is a timeout error
- *
- * @param error - Error to check
- * @returns true if error is a timeout
- */
-export function isTimeoutError(error: Error): boolean {
-  return error.name === 'AbortError' || error.message.includes('timeout');
-}
-
-/**
- * Check if an error is a network error (not HTTP error)
- *
- * @param error - Error to check
- * @returns true if error is a network issue
- */
-export function isNetworkError(error: Error): boolean {
-  return (
-    error.message.includes('Failed to fetch') ||
-    error.message.includes('NetworkError') ||
-    error.message.includes('network')
-  );
 }

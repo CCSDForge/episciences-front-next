@@ -22,6 +22,8 @@ import {
   INTER_WORK_RELATIONSHIP,
 } from '@/utils/article';
 import { AvailableLanguage } from '@/utils/i18n';
+import { truncate } from '@/utils/string';
+import { MAX_BREADCRUMB_TITLE } from '@/config/constants';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import ArticleDetailsSidebar from '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar';
@@ -74,8 +76,6 @@ enum ARTICLE_SECTION {
   CITED_BY = 'citedBy',
   PREVIEW = 'preview',
 }
-
-const MAX_BREADCRUMB_TITLE = 20;
 
 export default function ArticleDetailsClient({
   article,
@@ -452,13 +452,7 @@ export default function ArticleDetailsClient({
               : `${t('pages.articles.title')} >`,
           },
         ]}
-        crumbLabel={
-          article?.title.length
-            ? article.title.length > MAX_BREADCRUMB_TITLE
-              ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...`
-              : article.title
-            : ''
-        }
+        crumbLabel={truncate(article?.title, MAX_BREADCRUMB_TITLE, ' ...')}
         lang={lang}
       />
       {isLoading ? (

@@ -11,6 +11,7 @@ import { INews } from '@/types/news';
 import { formatDate } from '@/utils/date';
 import { RENDERING_MODE } from '@/utils/card';
 import { AvailableLanguage } from '@/utils/i18n';
+import { truncate } from '@/utils/string';
 import { generateIdFromText } from '@/utils/markdown';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
@@ -48,26 +49,23 @@ export default function NewsCard({
   const renderContent = (): React.JSX.Element | null => {
     if (!news.content || !news.content[language]) return null;
 
-    if (news.content[language].length <= MAX_CONTENT_LENGTH) {
-      return <ReactMarkdown>{news.content[language]}</ReactMarkdown>;
-    }
+    const content = news.content[language];
+    const isTruncated = content.length > MAX_CONTENT_LENGTH;
 
     return (
       <div className="newsCard-content-content">
-        {showFullContent ? (
-          <ReactMarkdown>{news.content[language]}</ReactMarkdown>
-        ) : (
-          <ReactMarkdown>{`${news.content[language].substring(0, MAX_CONTENT_LENGTH)}...`}</ReactMarkdown>
+        <ReactMarkdown>{showFullContent ? content : truncate(content, MAX_CONTENT_LENGTH)}</ReactMarkdown>
+        {isTruncated && (
+          <div
+            onClick={(e): void => toggleFullContent(e)}
+            onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleFullContent(e as any))}
+            role="button"
+            tabIndex={0}
+            className="newsCard-content-content-toggle"
+          >
+            {showFullContent ? t('common.readLess') : t('common.readMore')}
+          </div>
         )}
-        <div
-          onClick={(e): void => toggleFullContent(e)}
-          onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleFullContent(e as any))}
-          role="button"
-          tabIndex={0}
-          className="newsCard-content-content-toggle"
-        >
-          {showFullContent ? t('common.readLess') : t('common.readMore')}
-        </div>
       </div>
     );
   };

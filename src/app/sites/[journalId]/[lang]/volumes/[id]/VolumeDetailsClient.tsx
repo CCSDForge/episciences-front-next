@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { AvailableLanguage } from '@/utils/i18n';
+import { truncate } from '@/utils/string';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from 'react-device-detect';
@@ -286,37 +287,35 @@ export default function VolumeDetailsClient({
 
     if (descriptionText) {
       if (isMounted && isMobileOnly) {
-        if (descriptionText.length <= MAX_MOBILE_DESCRIPTION_LENGTH) {
-          return (
-            <div className="volumeDetails-content-results-content-description">
-              <ReactMarkdown>{descriptionText}</ReactMarkdown>
-            </div>
-          );
-        }
+        const isTruncated = descriptionText.length > MAX_MOBILE_DESCRIPTION_LENGTH;
 
         return (
           <div className="volumeDetails-content-results-content-description">
-            {showFullMobileDescription ? (
-              <ReactMarkdown>{descriptionText}</ReactMarkdown>
-            ) : (
-              <ReactMarkdown>{`${descriptionText.substring(0, MAX_MOBILE_DESCRIPTION_LENGTH)}...`}</ReactMarkdown>
+            <ReactMarkdown>
+              {showFullMobileDescription
+                ? descriptionText
+                : truncate(descriptionText, MAX_MOBILE_DESCRIPTION_LENGTH)}
+            </ReactMarkdown>
+            {isTruncated && (
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={(): void => setShowFullMobileDescription(!showFullMobileDescription)}
+                onKeyDown={(e) =>
+                  handleKeyboardClick(e, () =>
+                    setShowFullMobileDescription(!showFullMobileDescription)
+                  )
+                }
+                className="volumeDetails-content-results-content-description-toggleMobile"
+              >
+                {showFullMobileDescription ? t('common.seeLess') : t('common.seeMore')}
+                {showFullMobileDescription ? (
+                  <CaretUpGreyLightIcon size={16} ariaLabel="See less" />
+                ) : (
+                  <CaretDownGreyLightIcon size={16} ariaLabel="See more" />
+                )}
+              </div>
             )}
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={(): void => setShowFullMobileDescription(!showFullMobileDescription)}
-              onKeyDown={(e) =>
-                handleKeyboardClick(e, () => setShowFullMobileDescription(!showFullMobileDescription))
-              }
-              className="volumeDetails-content-results-content-description-toggleMobile"
-            >
-              {showFullMobileDescription ? t('common.seeLess') : t('common.seeMore')}
-              {showFullMobileDescription ? (
-                <CaretUpGreyLightIcon size={16} ariaLabel="See less" />
-              ) : (
-                <CaretDownGreyLightIcon size={16} ariaLabel="See more" />
-              )}
-            </div>
           </div>
         );
       }

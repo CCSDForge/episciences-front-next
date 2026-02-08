@@ -3,6 +3,8 @@ import { IArticle, IArticleAuthor, IInstitution } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import { INTER_WORK_RELATIONSHIP, articleTypes } from '@/utils/article';
 import { BREADCRUMB_PATHS } from '@/config/paths';
+import { MAX_BREADCRUMB_TITLE } from '@/config/constants';
+import { truncate } from '@/utils/string';
 import { Translations, t } from '@/utils/server-i18n';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
@@ -32,8 +34,6 @@ interface ArticleDetailsServerProps {
 interface EnhancedArticleAuthor extends IArticleAuthor {
   institutionsKeys: number[];
 }
-
-const MAX_BREADCRUMB_TITLE = 20;
 
 enum ARTICLE_SECTION {
   GRAPHICAL_ABSTRACT = 'graphicalAbstract',
@@ -253,13 +253,7 @@ export default function ArticleDetailsServer({
             label: `${t('pages.articles.title', translations)} >`,
           },
         ]}
-        crumbLabel={
-          article?.title.length
-            ? article.title.length > MAX_BREADCRUMB_TITLE
-              ? `${article.title.substring(0, MAX_BREADCRUMB_TITLE)} ...`
-              : article.title
-            : ''
-        }
+        crumbLabel={truncate(article?.title, MAX_BREADCRUMB_TITLE, ' ...')}
         lang={language}
       />
 

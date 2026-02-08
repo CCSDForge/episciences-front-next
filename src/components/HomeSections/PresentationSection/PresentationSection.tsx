@@ -11,6 +11,7 @@ import { INews } from '@/types/news';
 import { IVolume } from '@/types/volume';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
+import { truncate } from '@/utils/string';
 import { VOLUME_TYPE } from '@/utils/volume';
 import './PresentationSection.scss';
 
@@ -26,11 +27,6 @@ interface IPresentationSectionProps {
     information?: IVolume | INews;
   };
 }
-
-const truncateText = (text: string | undefined | null, maxLength: number): string => {
-  if (!text || typeof text !== 'string') return '';
-  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
-};
 
 export default function PresentationSection({
   language,
@@ -61,7 +57,7 @@ export default function PresentationSection({
           </div>
           {content && (
             <div className="presentationSection-new-description">
-              {truncateText(content, MAX_NEWS_CONTENT_LENGTH)}
+              {truncate(content, MAX_NEWS_CONTENT_LENGTH)}
             </div>
           )}
           <Link href={PATHS.news} lang={language}>
@@ -103,7 +99,7 @@ export default function PresentationSection({
           </div>
           {description && (
             <div className="presentationSection-new-description">
-              {truncateText(description, MAX_NEWS_CONTENT_LENGTH)}
+              {truncate(description, MAX_NEWS_CONTENT_LENGTH)}
             </div>
           )}
           <Link
@@ -151,7 +147,7 @@ export default function PresentationSection({
       {hasValidAboutContent && (
         <div className="presentationSection-about">
           <div className="presentationSection-about-content">
-            <ReactMarkdown>{`${aboutText?.substring(0, MAX_ABOUT_CONTENT_LENGTH) ?? ''}...`}</ReactMarkdown>
+            <ReactMarkdown>{truncate(aboutText, MAX_ABOUT_CONTENT_LENGTH)}</ReactMarkdown>
           </div>
           <Link href={PATHS.about} lang={language}>
             <div className="presentationSection-about-seeMore">

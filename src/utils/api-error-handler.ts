@@ -99,23 +99,3 @@ export async function safeFetchData<T>(
   const result = await safeFetch(fetchFn, fallback, context);
   return result.data;
 }
-
-/**
- * Check if a fetch result came from fallback (indicating an error)
- *
- * @param result - FetchResult to check
- * @returns true if data came from fallback
- */
-export function isFromFallback<T>(result: FetchResult<T>): boolean {
-  return result.source === 'fallback';
-}
-
-/**
- * Check if a fetch result came from API (success)
- *
- * @param result - FetchResult to check
- * @returns true if data came from API
- */
-export function isFromApi<T>(result: FetchResult<T>): boolean {
-  return result.source === 'api';
-}

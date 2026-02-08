@@ -381,11 +381,6 @@ export function isValidJournalId(id: string): boolean {
   return /^[a-z0-9-]{2,50}$/.test(id);
 }
 
-// Language code: exactly 2 lowercase letters
-export function isValidLanguageCode(lang: string): boolean {
-  return /^[a-z]{2}$/.test(lang);
-}
-
 // Path: must match Next.js route pattern
 export function isValidRevalidatePath(path: string): boolean {
   return /^\/sites\/[a-z0-9-]+\/[a-z]{2}(\/.*)?$/.test(path);
