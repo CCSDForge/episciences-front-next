@@ -1,5 +1,6 @@
 import path from 'path';
 import { isValidJournalId } from './validation';
+import { API_ROOT_ENDPOINT } from '@/config/api';
 // On évite l'import statique de fs pour ne pas casser le build client
 // import fs from 'fs';
 
@@ -165,7 +166,7 @@ export function getJournalApiUrl(journalCode: string): string {
     const url =
       config.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ||
       process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ||
-      'https://api-preprod.episciences.org/api';
+      API_ROOT_ENDPOINT;
 
     return url.endsWith('/') ? url.slice(0, -1) : url;
   }

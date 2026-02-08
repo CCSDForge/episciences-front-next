@@ -2,6 +2,7 @@ import { Link } from '@/components/Link/Link';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
 import { PATHS } from '@/config/paths';
+import { API_ROOT_ENDPOINT } from '@/config/api';
 import fs from 'fs';
 import path from 'path';
 import './Footer.scss';
@@ -19,8 +20,7 @@ export default async function FooterServer({
   journalId,
 }: FooterServerProps): Promise<React.JSX.Element> {
   const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'journal';
-  const apiEndpoint =
-    process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api.episciences.org/api';
+  const apiEndpoint = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || API_ROOT_ENDPOINT;
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 
   // Fetch journal data

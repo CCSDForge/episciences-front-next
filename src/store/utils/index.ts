@@ -4,12 +4,10 @@ import {
   FetchArgs,
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
+import { API_URL } from '@/config/api';
 
 // Server-side: use direct API URL, Client-side: use dynamic proxy to avoid CORS
-const defaultBaseUrl =
-  typeof window === 'undefined'
-    ? process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api-preprod.episciences.org/api'
-    : '/api/proxy';
+const defaultBaseUrl = API_URL;
 
 const createDynamicBaseQuery =
   (acceptHeader: string): BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =>

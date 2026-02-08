@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import '@/utils/fetchInterceptor';
 import { defaultLanguage } from '@/utils/language-utils';
 import '@/styles/index.scss';
+import { API_DOMAIN } from '@/config/api';
 
 export const metadata: Metadata = {
   title: {
@@ -33,8 +34,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           crossOrigin="anonymous"
         />
         {/* Preconnect to API to reduce latency on first API call */}
-        <link rel="preconnect" href="https://api-preprod.episciences.org" />
-        <link rel="dns-prefetch" href="https://api-preprod.episciences.org" />
+        <link rel="preconnect" href={API_DOMAIN} />
+        <link rel="dns-prefetch" href={API_DOMAIN} />
       </head>
       <body>
         {/* The JournalLayout at /sites/[journalId]/layout.tsx will provide ClientProviders */}
