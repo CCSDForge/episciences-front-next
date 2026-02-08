@@ -283,7 +283,7 @@ export default function ForAuthorsClient({
       const headers = parseSidebarHeaders(content);
       setSidebarHeaders(headers);
     }
-  }, [forAuthorsData, language]);
+  }, [forAuthorsData, language, t]);
 
   // console.log('Render state:', { isLoading, pageSections, sidebarHeaders });
 

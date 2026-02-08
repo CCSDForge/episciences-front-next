@@ -171,51 +171,15 @@
       margin-bottom: 32px;
     }
 
-    &-title,
-    &-doi,
-    &-license {
+    &-title {
       font-size: 14px;
       font-weight: 600;
-    }
-
-    &-title {
       margin-top: 8px;
       margin-bottom: 32px;
 
       @media (max-width: breakpoints.$xsm) {
         padding-bottom: 16px;
         border-bottom: 1px solid var(--grey-light);
-      }
-    }
-
-    &-doi {
-      margin-bottom: 16px;
-
-      &-content {
-        text-decoration: underline;
-      }
-    }
-
-    &-license {
-      margin-bottom: 32px;
-
-      &-content {
-        &-link {
-          text-decoration: underline;
-        }
-      }
-    }
-
-    &-doi,
-    &-license {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-
-      &-content {
-        color: var(--primary-text);
-        font-size: 14px;
-        font-weight: normal;
       }
     }
   }
@@ -280,6 +244,33 @@
 
       &:hover {
         text-decoration: none;
+      }
+    }
+  }
+
+  &-license {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 32px;
+
+    &-label {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--black);
+    }
+
+    &-content {
+      color: var(--primary-text);
+      font-size: 14px;
+      font-weight: normal;
+
+      &-link {
+        text-decoration: underline;
+
+        &:hover {
+          text-decoration: none;
+        }
       }
     }
   }

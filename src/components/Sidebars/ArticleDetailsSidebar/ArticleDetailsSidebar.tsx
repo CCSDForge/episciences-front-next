@@ -10,7 +10,6 @@ import {
   LinkedinShareButton,
   TwitterShareButton,
 } from 'react-share';
-import { isMobileOnly } from 'react-device-detect';
 import {
   ExternalLinkBlackIcon,
   DownloadBlackIcon,
@@ -30,7 +29,7 @@ import {
   ICitation,
   METADATA_TYPE,
   copyToClipboardCitation,
-  getLicenseTranslations,
+  getLicenseLabelInfo,
   getMetadataTypes,
 } from '@/utils/article';
 import { fetchArticleMetadata } from '@/services/article';
@@ -186,27 +185,32 @@ export default function ArticleDetailsSidebar({
   const renderLicenseContent = (): React.JSX.Element | null => {
     if (!article?.license) return null;
 
-    const licenseTranslations = getLicenseTranslations(t);
-    const translatedLicense = licenseTranslations.find(lt => lt.value === article.license);
-
-    if (!translatedLicense) return null;
+    const info = getLicenseLabelInfo(article.license);
+    let label = article.license;
+    if (info) {
+      const obj = t(info.parent, { returnObjects: true }) as Record<string, string> | string;
+      if (typeof obj === 'object' && obj !== null && info.key in obj) {
+        label = obj[info.key];
+      }
+    }
+    const isLink = article.license.startsWith('http');
 
     return (
-      <div className="articleDetailsSidebar-volumeDetails-license">
-        <div>{t('pages.articleDetails.license')}</div>
-        {translatedLicense.isLink ? (
-          <Link
-            href={translatedLicense.value}
-            className="articleDetailsSidebar-volumeDetails-license-content articleDetailsSidebar-volumeDetails-license-content-link"
+      <div className="articleDetailsSidebar-license">
+        <div className="articleDetailsSidebar-license-label">
+          {t('pages.articleDetails.license')}
+        </div>
+        {isLink ? (
+          <a
+            href={article.license}
+            className="articleDetailsSidebar-license-content articleDetailsSidebar-license-content-link"
             target="_blank"
             rel="noopener noreferrer"
           >
-            {translatedLicense.label}
-          </Link>
+            {label}
+          </a>
         ) : (
-          <div className="articleDetailsSidebar-volumeDetails-license-content">
-            {translatedLicense.label}
-          </div>
+          <div className="articleDetailsSidebar-license-content">{label}</div>
         )}
       </div>
     );
@@ -518,7 +522,6 @@ export default function ArticleDetailsSidebar({
       <div className="articleDetailsSidebar-volumeDetails">
         {renderRelatedVolume(relatedVolume)}
         {renderRelatedSection()}
-        {renderLicenseContent()}
       </div>
 
       {article?.doi && article.doi.trim() !== '' && (
@@ -534,6 +537,8 @@ export default function ArticleDetailsSidebar({
           </Link>
         </div>
       )}
+
+      {renderLicenseContent()}
 
       {article?.fundings && article.fundings.length > 0 && (
         <div className="articleDetailsSidebar-funding">

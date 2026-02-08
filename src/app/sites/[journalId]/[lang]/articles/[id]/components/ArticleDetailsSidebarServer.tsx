@@ -6,6 +6,7 @@ import { formatDate } from '@/utils/date';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
+import { getLicenseLabelInfo } from '@/utils/article';
 import { ExternalLinkBlackIcon, DownloadBlackIcon } from '@/components/icons';
 import InteractiveDropdown from './InteractiveDropdown';
 import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
@@ -121,10 +122,36 @@ export default function ArticleDetailsSidebarServer({
   const renderLicenseContent = (): React.JSX.Element | null => {
     if (!article?.license) return null;
 
+    const info = getLicenseLabelInfo(article.license);
+    let label = article.license;
+    if (info) {
+      let obj: any = translations;
+      for (const k of info.parent.split('.')) {
+        obj = obj?.[k];
+      }
+      if (obj && info.key in obj) {
+        label = obj[info.key];
+      }
+    }
+    const isLink = article.license.startsWith('http');
+
     return (
-      <div className="articleDetailsSidebar-volumeDetails-license">
-        <div>{t('pages.articleDetails.license', translations)}</div>
-        <div className="articleDetailsSidebar-volumeDetails-license-content">{article.license}</div>
+      <div className="articleDetailsSidebar-license">
+        <div className="articleDetailsSidebar-license-label">
+          {t('pages.articleDetails.license', translations)}
+        </div>
+        {isLink ? (
+          <a
+            href={article.license}
+            className="articleDetailsSidebar-license-content articleDetailsSidebar-license-content-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {label}
+          </a>
+        ) : (
+          <div className="articleDetailsSidebar-license-content">{label}</div>
+        )}
       </div>
     );
   };
@@ -285,7 +312,6 @@ export default function ArticleDetailsSidebarServer({
       <div className="articleDetailsSidebar-volumeDetails">
         {renderRelatedVolume(relatedVolume)}
         {renderRelatedSection()}
-        {renderLicenseContent()}
       </div>
 
       {article?.doi && article.doi.trim() !== '' && (
@@ -301,6 +327,8 @@ export default function ArticleDetailsSidebarServer({
           </a>
         </div>
       )}
+
+      {renderLicenseContent()}
 
       {renderFunding()}
       {renderMetrics()}

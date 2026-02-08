@@ -196,7 +196,7 @@ export default function AboutClient({
     } else {
       setIsLoading(false);
     }
-  }, [pageData, language]);
+  }, [pageData, language, t]);
 
   const breadcrumbItems = [
     {

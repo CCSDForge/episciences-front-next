@@ -366,15 +366,21 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       }
     }
 
-    /** Format license */
+    /** Format license - extract from license_ref (object or array, prefer "vor" entry) */
     let license = undefined;
+    const extractLicense = (licenseRef: any): string | undefined => {
+      if (!licenseRef) return undefined;
+      if (Array.isArray(licenseRef)) {
+        const vor = licenseRef.find((l: any) => l['@applies_to'] === 'vor');
+        return (vor || licenseRef[0])?.value;
+      }
+      return licenseRef.value;
+    };
     if (Array.isArray(articleContent.program)) {
-      const licenseRef = articleContent.program.find(
-        p => p.license_ref && p.license_ref.value
-      )?.license_ref;
-      license = licenseRef?.value;
+      const prog = articleContent.program.find((p: any) => p.license_ref);
+      license = extractLicense(prog?.license_ref);
     } else {
-      license = articleContent.program?.license_ref?.value;
+      license = extractLicense(articleContent.program?.license_ref);
     }
 
     /** Format keywords */
@@ -519,16 +525,50 @@ export const copyToClipboardCitation = (
   toastSuccess(t('common.citeSuccess', { template: citation.key }));
 };
 
-export const getLicenseTranslations = (
-  t: TFunction<'translation', undefined>
-): { value: string; label: string; isLink?: boolean }[] => [
-  { value: 'CC-BY-4.0', label: t('pages.articleDetails.license.ccby4'), isLink: true },
-  { value: 'CC-BY-SA-4.0', label: t('pages.articleDetails.license.ccbysa4'), isLink: true },
-  { value: 'CC-BY-NC-4.0', label: t('pages.articleDetails.license.ccbync4'), isLink: true },
-  { value: 'CC-BY-NC-SA-4.0', label: t('pages.articleDetails.license.ccbyncsa4'), isLink: true },
-  { value: 'CC-BY-ND-4.0', label: t('pages.articleDetails.license.ccbynd4'), isLink: true },
-  { value: 'CC-BY-NC-ND-4.0', label: t('pages.articleDetails.license.ccbyncnd4'), isLink: true },
-];
+/**
+ * Maps a license URL to its i18n path segments.
+ * Returns { parent, key } where parent is a dot-separated path safe for t(),
+ * and key is the final segment (may contain dots like "generic4.0").
+ * Returns null if the URL doesn't match any known license pattern.
+ */
+export function getLicenseLabelInfo(licenseUrl: string): { parent: string; key: string } | null {
+  if (!licenseUrl) return null;
+
+  const CC_TYPE_MAP: Record<string, string> = {
+    'by': 'generic',
+    'by-nc': 'nonCommercial',
+    'by-nd': 'noDerivatives',
+    'by-sa': 'shareAlike',
+    'by-nc-nd': 'noDerivativesNonCommercial',
+    'by-nc-sa': 'nonCommercialShareAlike',
+    'by-nd-nc': 'noDerivativesNonCommercial',
+  };
+
+  // Creative Commons licenses: https://creativecommons.org/licenses/{type}/{version}/
+  const ccMatch = licenseUrl.match(/creativecommons\.org\/licenses\/([\w-]+)\/([\d.]+)/);
+  if (ccMatch) {
+    const typeKey = CC_TYPE_MAP[ccMatch[1]];
+    if (typeKey) {
+      return { parent: 'pages.articleDetails.licenses.creativeCommons', key: `${typeKey}${ccMatch[2]}` };
+    }
+  }
+
+  // CC0: https://creativecommons.org/publicdomain/zero/{version}/
+  const cc0Match = licenseUrl.match(/creativecommons\.org\/publicdomain\/zero\/([\d.]+)/);
+  if (cc0Match) {
+    return { parent: 'pages.articleDetails.licenses.creativeCommons', key: `zero${cc0Match[1]}` };
+  }
+
+  // arXiv licenses
+  if (licenseUrl.includes('arxiv.org/licenses/assumed')) {
+    return { parent: 'pages.articleDetails.licenses.arxiv', key: 'assumed' };
+  }
+  if (licenseUrl.includes('arxiv.org/licenses/nonexclusive-distrib')) {
+    return { parent: 'pages.articleDetails.licenses.arxiv', key: 'nonExclusive' };
+  }
+
+  return null;
+}
 
 export const getMetadataTypes = (): { type: METADATA_TYPE; label: string }[] => [
   { type: METADATA_TYPE.TEI, label: 'TEI' },
