@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next';
 import { fetchAllArticlesForSitemap, fetchAllVolumesForSitemap } from '@/services/sitemap';
-import { getJournalCode } from '@/utils/static-build';
 
 // Force dynamic rendering pour que le sitemap puisse être mis à jour à la demande
 export const dynamic = 'force-dynamic';

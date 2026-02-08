@@ -1,6 +1,8 @@
 import { API_URL } from '@/config/api';
 import { IJournal } from '@/types/journal';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { getJournalCode } from '@/utils/static-build';
+export { getJournalCode };
 
 interface Journal {
   code: string;
@@ -9,14 +11,6 @@ interface Journal {
   url?: string;
   logo?: string;
 }
-
-export const getJournalCode = (): string => {
-  const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
-  if (!rvcode) {
-    throw new Error('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
-  }
-  return rvcode;
-};
 
 export const getJournal = async (): Promise<IJournal> => {
   const journalCode = getJournalCode();
