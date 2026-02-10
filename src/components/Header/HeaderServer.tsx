@@ -64,45 +64,29 @@ export default async function HeaderServer({
     console.error('Failed to fetch journal in HeaderServer:', error);
   }
 
-  // Construct the final logo URLs
+  // Construct the final logo URL
   // Strategy:
-  // 1. Check for logo-{code}-big.svg and logo-{code}-small.svg in public/logos
+  // 1. Check for logo-{code}.svg in public/logos
   // 2. If not found, use journal.logo from API
   // 3. Fallback to default episciences logo
 
-  let mainLogoSrc = logoEpisciences;
-  let reducedLogoSrc = logoEpisciences;
+  let logoSrc = logoEpisciences;
 
   if (code) {
     try {
       const publicLogosDir = path.join(process.cwd(), 'public/logos');
-      const bigLogoName = `logo-${code}-big.svg`;
-      const smallLogoName = `logo-${code}-small.svg`;
+      const logoName = `logo-${code}.svg`;
+      const logoPath = path.join(publicLogosDir, logoName);
 
-      const bigLogoPath = path.join(publicLogosDir, bigLogoName);
-      const smallLogoPath = path.join(publicLogosDir, smallLogoName);
-
-      // Check if files exist (synchronous check is fine in Server Component)
-      const hasBig = fs.existsSync(bigLogoPath);
-      const hasSmall = fs.existsSync(smallLogoPath);
-
-      if (hasBig) {
-        mainLogoSrc = `/logos/${bigLogoName}`;
+      if (fs.existsSync(logoPath)) {
+        logoSrc = `/logos/${logoName}`;
       } else if (journalLogoFilename) {
-        mainLogoSrc = `/logos/${journalLogoFilename}`;
-      }
-
-      if (hasSmall) {
-        reducedLogoSrc = `/logos/${smallLogoName}`;
-      } else if (journalLogoFilename) {
-        reducedLogoSrc = `/logos/${journalLogoFilename}`;
+        logoSrc = `/logos/${journalLogoFilename}`;
       }
     } catch (e) {
       console.warn('Error checking logo files:', e);
-      // Fallback to API logo if fs check fails
       if (journalLogoFilename) {
-        mainLogoSrc = `/logos/${journalLogoFilename}`;
-        reducedLogoSrc = `/logos/${journalLogoFilename}`;
+        logoSrc = `/logos/${journalLogoFilename}`;
       }
     }
   }
@@ -197,7 +181,13 @@ export default async function HeaderServer({
       <div className="header-journal">
         <div className="header-journal-logo">
           <Link href="/" lang={lang}>
-            <img src={mainLogoSrc} alt="Journal logo" loading="eager" />
+            <img
+              src={logoSrc}
+              alt="Journal logo"
+              loading="eager"
+              width={160}
+              height={160}
+            />
           </Link>
         </div>
         <div className="header-journal-title">{journalName}</div>
@@ -207,7 +197,13 @@ export default async function HeaderServer({
       <div className="header-reduced-journal">
         <div className="header-reduced-journal-logo">
           <Link href="/" lang={lang}>
-            <img src={reducedLogoSrc} alt="Journal logo" loading="lazy" />
+            <img
+              src={logoSrc}
+              alt="Journal logo"
+              loading="lazy"
+              width={42}
+              height={42}
+            />
           </Link>
         </div>
         <div className="header-reduced-journal-blank">{journalName}</div>

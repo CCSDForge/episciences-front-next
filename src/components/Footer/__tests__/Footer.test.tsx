@@ -224,7 +224,7 @@ describe('Footer', () => {
       render(<Footer />);
 
       const journalLogo = screen.getByAltText('Test Journal');
-      expect(journalLogo).toHaveAttribute('src', '/logos/logo-test-small.svg');
+      expect(journalLogo).toHaveAttribute('src', '/logos/logo-test.svg');
     });
 
     it('episciences logo has proper src attribute', () => {

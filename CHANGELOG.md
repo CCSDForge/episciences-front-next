@@ -12,4 +12,6 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Simplified journal logo management by using a single SVG per journal instead of separate big/small versions.
+- Improved header and footer rendering to prevent layout shifts and ensure correct logo sizing across all devices.
 - Header preheader layout adjusts to `flex-end` on mobile, search bar is now flexible width on small screens.

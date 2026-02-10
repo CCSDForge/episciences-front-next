@@ -75,17 +75,17 @@ export default async function FooterServer({
   const translations = await getServerTranslations(lang);
 
   // Construct the final logo URL
-  // Use logo-{rvcode}-small.svg if it exists, otherwise use journal.logo from API, fallback to default logoSmall
+  // Use logo-{rvcode}.svg if it exists, otherwise use journal.logo from API, fallback to default logoSmall
   let footerLogoSrc = logoSmall;
 
   if (rvcode) {
     try {
       const publicLogosDir = path.join(process.cwd(), 'public/logos');
-      const smallLogoName = `logo-${rvcode}-small.svg`;
-      const smallLogoPath = path.join(publicLogosDir, smallLogoName);
+      const logoName = `logo-${rvcode}.svg`;
+      const logoPath = path.join(publicLogosDir, logoName);
 
-      if (fs.existsSync(smallLogoPath)) {
-        footerLogoSrc = `/logos/${smallLogoName}`;
+      if (fs.existsSync(logoPath)) {
+        footerLogoSrc = `/logos/${logoName}`;
       } else if (journal?.logo) {
         footerLogoSrc = `/logos/${journal.logo}`;
       }
@@ -103,7 +103,13 @@ export default async function FooterServer({
       <div className="footer-journal">
         <div className="footer-journal-logo">
           <Link href={`/${lang}`} lang={lang}>
-            <img src={footerLogoSrc} alt="Journal logo" loading="lazy" />
+            <img
+              src={footerLogoSrc}
+              alt="Journal logo"
+              loading="lazy"
+              width={42}
+              height={42}
+            />
           </Link>
         </div>
         <div className="footer-journal-links">
