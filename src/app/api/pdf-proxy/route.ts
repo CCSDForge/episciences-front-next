@@ -75,7 +75,9 @@ export async function GET(request: NextRequest) {
 
   // Validate disposition parameter
   if (disposition !== 'inline' && disposition !== 'attachment') {
-    return new NextResponse('Invalid disposition parameter (must be inline or attachment)', { status: 400 });
+    return new NextResponse('Invalid disposition parameter (must be inline or attachment)', {
+      status: 400,
+    });
   }
 
   // Validate domain

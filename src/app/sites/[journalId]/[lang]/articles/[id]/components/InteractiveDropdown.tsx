@@ -384,7 +384,7 @@ export default function InteractiveDropdown({
         aria-expanded={showDropdown}
         aria-haspopup="menu"
         onClick={toggleDropdown}
-        onKeyDown={(e) => handleKeyboardClick(e, toggleDropdown)}
+        onKeyDown={e => handleKeyboardClick(e, toggleDropdown)}
       >
         {getIcon()}
         <span className="articleDetailsSidebar-links-link-text">{getLabel()}</span>

@@ -7,7 +7,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('https://creativecommons.org/licenses/by/4.0/');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.creativeCommons',
-        key: 'generic4.0'
+        key: 'generic4.0',
       });
     });
 
@@ -15,7 +15,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('https://creativecommons.org/licenses/by-nc/4.0/');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.creativeCommons',
-        key: 'nonCommercial4.0'
+        key: 'nonCommercial4.0',
       });
     });
 
@@ -23,7 +23,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('https://creativecommons.org/licenses/by-nd/4.0/');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.creativeCommons',
-        key: 'noDerivatives4.0'
+        key: 'noDerivatives4.0',
       });
     });
 
@@ -31,7 +31,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('https://creativecommons.org/licenses/by-sa/4.0/');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.creativeCommons',
-        key: 'shareAlike4.0'
+        key: 'shareAlike4.0',
       });
     });
 
@@ -39,7 +39,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('https://creativecommons.org/licenses/by-nc-nd/4.0/');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.creativeCommons',
-        key: 'noDerivativesNonCommercial4.0'
+        key: 'noDerivativesNonCommercial4.0',
       });
     });
 
@@ -47,7 +47,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('https://creativecommons.org/licenses/by-nc-sa/4.0/');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.creativeCommons',
-        key: 'nonCommercialShareAlike4.0'
+        key: 'nonCommercialShareAlike4.0',
       });
     });
 
@@ -55,7 +55,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('https://creativecommons.org/licenses/by/3.0/');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.creativeCommons',
-        key: 'generic3.0'
+        key: 'generic3.0',
       });
     });
 
@@ -63,7 +63,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('https://creativecommons.org/licenses/by/4.0');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.creativeCommons',
-        key: 'generic4.0'
+        key: 'generic4.0',
       });
     });
   });
@@ -73,7 +73,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('https://creativecommons.org/publicdomain/zero/1.0/');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.creativeCommons',
-        key: 'zero1.0'
+        key: 'zero1.0',
       });
     });
   });
@@ -83,7 +83,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('http://arxiv.org/licenses/assumed-1991-2003');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.arxiv',
-        key: 'assumed'
+        key: 'assumed',
       });
     });
 
@@ -91,7 +91,7 @@ describe('getLicenseLabelInfo', () => {
       const result = getLicenseLabelInfo('http://arxiv.org/licenses/nonexclusive-distrib/1.0/');
       expect(result).toEqual({
         parent: 'pages.articleDetails.licenses.arxiv',
-        key: 'nonExclusive'
+        key: 'nonExclusive',
       });
     });
   });

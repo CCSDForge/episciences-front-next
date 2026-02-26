@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getJournalCode, getJournal, fetchJournalWithoutCode, getJournalByCode, fetchJournal } from '../journal';
+import {
+  getJournalCode,
+  getJournal,
+  fetchJournalWithoutCode,
+  getJournalByCode,
+  fetchJournal,
+} from '../journal';
 
 // Mock dependencies
 vi.mock('@/config/api', () => ({
@@ -38,7 +44,9 @@ describe('journal service', () => {
     it('should throw error if environment variable is not set', () => {
       delete process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
 
-      expect(() => getJournalCode()).toThrow('NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required');
+      expect(() => getJournalCode()).toThrow(
+        'NEXT_PUBLIC_JOURNAL_RVCODE environment variable is required'
+      );
     });
   });
 
@@ -60,9 +68,7 @@ describe('journal service', () => {
 
       const result = await getJournal();
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/journals/myjournal')
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/journals/myjournal'));
       expect(result).toEqual(mockJournalData);
     });
 

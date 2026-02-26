@@ -49,7 +49,7 @@ export default function VolumesSidebar({
                 role="button"
                 tabIndex={0}
                 onClick={(): void => onCheckTypeCallback(type.value)}
-                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
+                onKeyDown={e => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
               >
                 {t(type.labelPath)}
               </span>
@@ -68,7 +68,7 @@ export default function VolumesSidebar({
                 role="button"
                 tabIndex={0}
                 onClick={(): void => onSelectYearCallback(y.year)}
-                onKeyDown={(e) => handleKeyboardClick(e, (): void => onSelectYearCallback(y.year))}
+                onKeyDown={e => handleKeyboardClick(e, (): void => onSelectYearCallback(y.year))}
               >
                 {y.year}
               </div>

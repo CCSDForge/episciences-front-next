@@ -17,7 +17,7 @@ vi.mock('@/utils/env-loader', () => ({
 }));
 
 vi.mock('@/utils/board-transforms', () => ({
-  transformBoardMembers: vi.fn((members) =>
+  transformBoardMembers: vi.fn(members =>
     members.map((m: any) => ({
       id: m.uid,
       firstname: m.firstname,
@@ -145,9 +145,27 @@ describe('board service', () => {
     it('should fetch and filter board pages correctly', async () => {
       const mockPages = {
         'hydra:member': [
-          { id: 1, page_code: 'editorial-board', title: { en: 'Editorial Board' }, content: { en: '' }, rvcode: 'test' },
-          { id: 2, page_code: 'about', title: { en: 'About' }, content: { en: '' }, rvcode: 'test' },
-          { id: 3, page_code: 'technical-board', title: { en: 'Technical Board' }, content: { en: '' }, rvcode: 'test' },
+          {
+            id: 1,
+            page_code: 'editorial-board',
+            title: { en: 'Editorial Board' },
+            content: { en: '' },
+            rvcode: 'test',
+          },
+          {
+            id: 2,
+            page_code: 'about',
+            title: { en: 'About' },
+            content: { en: '' },
+            rvcode: 'test',
+          },
+          {
+            id: 3,
+            page_code: 'technical-board',
+            title: { en: 'Technical Board' },
+            content: { en: '' },
+            rvcode: 'test',
+          },
         ],
       };
 
@@ -251,9 +269,7 @@ describe('board service', () => {
 
     it('should handle hydra collection format', async () => {
       const mockResponse = {
-        'hydra:member': [
-          { uid: 1, firstname: 'Test', lastname: 'User', roles: [] },
-        ],
+        'hydra:member': [{ uid: 1, firstname: 'Test', lastname: 'User', roles: [] }],
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -286,9 +302,7 @@ describe('board service', () => {
 
       await fetchBoardMembers('myjournal');
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/journals/boards/myjournal')
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/journals/boards/myjournal'));
     });
   });
 });

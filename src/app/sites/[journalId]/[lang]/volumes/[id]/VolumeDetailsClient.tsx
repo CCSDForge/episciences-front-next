@@ -187,9 +187,7 @@ export default function VolumeDetailsClient({
             role="button"
             tabIndex={0}
             onClick={(): void => setOpenedRelatedVolumesMobileModal(true)}
-            onKeyDown={(e) =>
-              handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))
-            }
+            onKeyDown={e => handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))}
           >
             <div>{t('pages.volumeDetails.relatedVolumes.proceedings')}</div>
             {caretIcon}
@@ -204,9 +202,7 @@ export default function VolumeDetailsClient({
             role="button"
             tabIndex={0}
             onClick={(): void => setOpenedRelatedVolumesMobileModal(true)}
-            onKeyDown={(e) =>
-              handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))
-            }
+            onKeyDown={e => handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))}
           >
             <div>{t('pages.volumeDetails.relatedVolumes.specialIssues')}</div>
             {caretIcon}
@@ -221,9 +217,7 @@ export default function VolumeDetailsClient({
         role="button"
         tabIndex={0}
         onClick={(): void => setOpenedRelatedVolumesMobileModal(true)}
-        onKeyDown={(e) =>
-          handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))
-        }
+        onKeyDown={e => handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))}
       >
         <div>{t('pages.volumeDetails.relatedVolumes.volumes')}</div>
         {caretIcon}
@@ -250,13 +244,19 @@ export default function VolumeDetailsClient({
       if (conferenceName && conferenceName.value) {
         return (
           <div className={className}>
-            {volume?.title ? `${getLocalizedContent(volume.title, language).value || ''} (${conferenceName.value})` : ''}
+            {volume?.title
+              ? `${getLocalizedContent(volume.title, language).value || ''} (${conferenceName.value})`
+              : ''}
           </div>
         );
       }
     }
 
-    return <div className={className}>{volume?.title ? getLocalizedContent(volume.title, language).value || '' : ''}</div>;
+    return (
+      <div className={className}>
+        {volume?.title ? getLocalizedContent(volume.title, language).value || '' : ''}
+      </div>
+    );
   };
 
   const renderVolumeCommittee = (isMobile: boolean): React.JSX.Element | null => {
@@ -301,7 +301,7 @@ export default function VolumeDetailsClient({
                 role="button"
                 tabIndex={0}
                 onClick={(): void => setShowFullMobileDescription(!showFullMobileDescription)}
-                onKeyDown={(e) =>
+                onKeyDown={e =>
                   handleKeyboardClick(e, () =>
                     setShowFullMobileDescription(!showFullMobileDescription)
                   )

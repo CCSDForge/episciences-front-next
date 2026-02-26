@@ -24,6 +24,7 @@ help:
 	@echo "  make clean       Remove images and volumes"
 	@echo "  make test        Run application tests"
 	@echo "  make lint        Check code style (ESLint)"
+	@echo "  make format      Format code (Prettier)"
 	@echo "  make format-check Check code formatting (Prettier)"
 	@echo "  make quality     Run all quality checks (lint + format)"
 	@echo "  make hosts       Show /etc/hosts entries"
@@ -70,6 +71,10 @@ test:
 lint:
 	@echo "Running linter..."
 	npm run lint
+
+format:
+	@echo "Formatting code..."
+	npm run format
 
 format-check:
 	@echo "Checking formatting..."

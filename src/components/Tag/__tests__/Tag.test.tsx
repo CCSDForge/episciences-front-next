@@ -83,17 +83,11 @@ describe('Tag', () => {
     it('aria-label updates based on tag text', () => {
       const { rerender } = render(<Tag text="Article" onCloseCallback={vi.fn()} />);
 
-      expect(screen.getByRole('button')).toHaveAttribute(
-        'aria-label',
-        'Remove Article filter'
-      );
+      expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Remove Article filter');
 
       rerender(<Tag text="Review" onCloseCallback={vi.fn()} />);
 
-      expect(screen.getByRole('button')).toHaveAttribute(
-        'aria-label',
-        'Remove Review filter'
-      );
+      expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Remove Review filter');
     });
   });
 

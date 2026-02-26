@@ -37,7 +37,6 @@ const SECTIONS_PER_PAGE = 10;
 export default async function SectionsPage(props: {
   params: Promise<{ lang: string; journalId: string }>;
 }) {
-
   const params = await props.params;
   const { lang, journalId } = params;
   try {

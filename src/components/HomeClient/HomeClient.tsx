@@ -167,7 +167,6 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
     };
   }, [aboutPage, articles, news, members, stats, indexation, issues, acceptedArticles]);
 
-
   return (
     <main className="home">
       <h1 className="home-title">{t('pages.home.title')}</h1>

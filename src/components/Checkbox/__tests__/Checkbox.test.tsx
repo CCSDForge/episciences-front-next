@@ -25,7 +25,9 @@ describe('Checkbox', () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Checkbox checked={false} onChangeCallback={handleChange} ariaLabel="Test checkbox" />);
+      render(
+        <Checkbox checked={false} onChangeCallback={handleChange} ariaLabel="Test checkbox" />
+      );
 
       await user.click(screen.getByRole('checkbox'));
       expect(handleChange).toHaveBeenCalledTimes(1);
@@ -35,7 +37,9 @@ describe('Checkbox', () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Checkbox checked={false} onChangeCallback={handleChange} ariaLabel="Test checkbox" />);
+      render(
+        <Checkbox checked={false} onChangeCallback={handleChange} ariaLabel="Test checkbox" />
+      );
 
       const checkbox = screen.getByRole('checkbox');
       checkbox.focus();
@@ -55,7 +59,14 @@ describe('Checkbox', () => {
     });
 
     it('associates label with checkbox via htmlFor/id', () => {
-      render(<Checkbox checked={false} onChangeCallback={vi.fn()} label="Subscribe" id="subscribe-checkbox" />);
+      render(
+        <Checkbox
+          checked={false}
+          onChangeCallback={vi.fn()}
+          label="Subscribe"
+          id="subscribe-checkbox"
+        />
+      );
 
       const checkbox = screen.getByRole('checkbox');
       const label = screen.getByText('Subscribe');

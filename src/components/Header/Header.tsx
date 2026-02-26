@@ -347,7 +347,9 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
             {submitManagerLink && (
               <>
                 {availableLanguages.length > 1 && (
-                  <span className="header-signin-separator" aria-hidden="true">|</span>
+                  <span className="header-signin-separator" aria-hidden="true">
+                    |
+                  </span>
                 )}
                 <Link
                   href={submitManagerLink}
@@ -355,9 +357,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <span className="header-signin-text">
-                    {t('components.header.signIn')}
-                  </span>
+                  <span className="header-signin-text">{t('components.header.signIn')}</span>
                   <img
                     className="header-signin-icon"
                     src="/icons/user-circle.svg"
@@ -365,9 +365,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
                     width={28}
                     height={28}
                   />
-                  <span className="sr-only">
-                    {t('components.header.newWindow')}
-                  </span>
+                  <span className="sr-only">{t('components.header.newWindow')}</span>
                 </Link>
               </>
             )}
@@ -421,7 +419,9 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
             {submitManagerLink && (
               <>
                 {availableLanguages.length > 1 && (
-                  <span className="header-signin-separator" aria-hidden="true">|</span>
+                  <span className="header-signin-separator" aria-hidden="true">
+                    |
+                  </span>
                 )}
                 <Link
                   href={submitManagerLink}
@@ -429,9 +429,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <span className="header-signin-text">
-                    {t('components.header.signIn')}
-                  </span>
+                  <span className="header-signin-text">{t('components.header.signIn')}</span>
                   <img
                     className="header-signin-icon"
                     src="/icons/user-circle.svg"
@@ -439,9 +437,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
                     width={28}
                     height={28}
                   />
-                  <span className="sr-only">
-                    {t('components.header.newWindow')}
-                  </span>
+                  <span className="sr-only">{t('components.header.newWindow')}</span>
                 </Link>
               </>
             )}

@@ -112,7 +112,7 @@ a:focus-visible {
 
 // Buttons - Thicker outline for better visibility
 button:focus-visible,
-[role="button"]:focus-visible {
+[role='button']:focus-visible {
   outline: 3px solid var(--focus-color, #0078d4);
   outline-offset: 2px;
 }
@@ -127,8 +127,8 @@ select:focus-visible {
 }
 
 // Checkboxes and radio buttons - Larger focus area
-input[type="checkbox"]:focus-visible,
-input[type="radio"]:focus-visible {
+input[type='checkbox']:focus-visible,
+input[type='radio']:focus-visible {
   outline: 3px solid var(--focus-color, #0078d4);
   outline-offset: 2px;
   box-shadow: none; // No glow for checkboxes/radios
@@ -215,7 +215,7 @@ input[type="radio"]:focus-visible {
  * Use this pattern for buttons/elements with background-color: var(--primary)
  */
 .primary-bg,
-[class*="primary"] {
+[class*='primary'] {
   *:focus-visible,
   &:focus-visible {
     outline-color: var(--focus-color-on-primary, #ffffff);
@@ -230,7 +230,7 @@ input[type="radio"]:focus-visible {
  */
 .dark-bg,
 .footer,
-[class*="dark"] {
+[class*='dark'] {
   *:focus-visible,
   &:focus-visible {
     outline-color: var(--focus-color-on-dark, #ffffff);

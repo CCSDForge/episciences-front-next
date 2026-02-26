@@ -306,8 +306,10 @@ export default function StatisticsClient({
                       tabIndex={0}
                       aria-expanded={statisticPerLabel.isOpened}
                       onClick={(): void => toggleStatisticsSection(statisticPerLabel.labelKey)}
-                      onKeyDown={(e) =>
-                        handleKeyboardClick(e, () => toggleStatisticsSection(statisticPerLabel.labelKey))
+                      onKeyDown={e =>
+                        handleKeyboardClick(e, () =>
+                          toggleStatisticsSection(statisticPerLabel.labelKey)
+                        )
                       }
                     >
                       <div className="statistics-content-results-cards-row-title-text">

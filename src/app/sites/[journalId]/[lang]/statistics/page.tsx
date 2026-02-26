@@ -77,10 +77,6 @@ export default async function StatisticsPage(props: Props) {
   };
 
   return (
-    <StatisticsClient
-      initialStats={initialStats}
-      lang={lang}
-      breadcrumbLabels={breadcrumbLabels}
-    />
+    <StatisticsClient initialStats={initialStats} lang={lang} breadcrumbLabels={breadcrumbLabels} />
   );
 }

@@ -73,10 +73,7 @@ describe('author service', () => {
         letter: 'A',
       });
 
-      expect(apiCall).toHaveBeenCalledWith(
-        expect.stringContaining('letter=A'),
-        expect.any(Object)
-      );
+      expect(apiCall).toHaveBeenCalledWith(expect.stringContaining('letter=A'), expect.any(Object));
     });
 
     it('should handle pagination parameters', async () => {

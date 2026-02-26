@@ -33,7 +33,7 @@ export default function NewsSidebar({
               role="button"
               tabIndex={0}
               onClick={(): void => onSelectYearCallback(y.year)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => onSelectYearCallback(y.year))}
+              onKeyDown={e => handleKeyboardClick(e, (): void => onSelectYearCallback(y.year))}
             >
               {y.year}
             </div>

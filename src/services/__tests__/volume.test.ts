@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fetchVolumes, fetchVolume, formatVolume, formatVolumeMetadata, VOLUME_TYPE, volumeTypes } from '../volume';
+import {
+  fetchVolumes,
+  fetchVolume,
+  formatVolume,
+  formatVolumeMetadata,
+  VOLUME_TYPE,
+  volumeTypes,
+} from '../volume';
 
 // Mock dependencies
 vi.mock('@/utils/env-loader', () => ({
@@ -77,7 +84,9 @@ describe('volume service', () => {
       expect(result.year).toBe(2024);
       expect(result.types).toEqual(['special_issue']);
       expect(result.articles).toEqual([{ id: 1 }, { id: 2 }]);
-      expect(result.downloadLink).toBe('https://testjournal.episciences.org/volumes-full/123/123.pdf');
+      expect(result.downloadLink).toBe(
+        'https://testjournal.episciences.org/volumes-full/123/123.pdf'
+      );
     });
 
     it('should extract tile image URL from metadata', () => {
@@ -101,7 +110,9 @@ describe('volume service', () => {
 
       const result = formatVolume('myjournal', 'en', rawVolume);
 
-      expect(result.tileImageURL).toBe('https://myjournal.episciences.org/public/volumes/456/cover.jpg');
+      expect(result.tileImageURL).toBe(
+        'https://myjournal.episciences.org/public/volumes/456/cover.jpg'
+      );
     });
 
     it('should not set tile URL if title does not match "tile"', () => {
@@ -172,7 +183,15 @@ describe('volume service', () => {
     it('should fetch volumes with correct parameters', async () => {
       const mockResponse = {
         'hydra:member': [
-          { vid: 1, vol_num: '1', titles: {}, descriptions: {}, vol_year: 2024, vol_type: [], papers: [] },
+          {
+            vid: 1,
+            vol_num: '1',
+            titles: {},
+            descriptions: {},
+            vol_year: 2024,
+            vol_type: [],
+            papers: [],
+          },
         ],
         'hydra:totalItems': 1,
         'hydra:totalPublishedArticles': 10,
@@ -262,7 +281,15 @@ describe('volume service', () => {
 
     it('should handle array response format', async () => {
       const mockResponse = [
-        { vid: 1, vol_num: '1', titles: {}, descriptions: {}, vol_year: 2024, vol_type: [], papers: [] },
+        {
+          vid: 1,
+          vol_num: '1',
+          titles: {},
+          descriptions: {},
+          vol_year: 2024,
+          vol_type: [],
+          papers: [],
+        },
       ];
 
       mockFetch.mockResolvedValueOnce({
@@ -346,7 +373,16 @@ describe('volume service', () => {
     it('should use default language if not provided', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ vid: 1, vol_num: '1', titles: {}, descriptions: {}, vol_year: 2024, vol_type: [], papers: [] }),
+        json: () =>
+          Promise.resolve({
+            vid: 1,
+            vol_num: '1',
+            titles: {},
+            descriptions: {},
+            vol_year: 2024,
+            vol_type: [],
+            papers: [],
+          }),
       });
 
       await fetchVolume('testjournal', 1);

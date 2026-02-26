@@ -535,7 +535,7 @@ export function getLicenseLabelInfo(licenseUrl: string): { parent: string; key: 
   if (!licenseUrl) return null;
 
   const CC_TYPE_MAP: Record<string, string> = {
-    'by': 'generic',
+    by: 'generic',
     'by-nc': 'nonCommercial',
     'by-nd': 'noDerivatives',
     'by-sa': 'shareAlike',
@@ -549,7 +549,10 @@ export function getLicenseLabelInfo(licenseUrl: string): { parent: string; key: 
   if (ccMatch) {
     const typeKey = CC_TYPE_MAP[ccMatch[1]];
     if (typeKey) {
-      return { parent: 'pages.articleDetails.licenses.creativeCommons', key: `${typeKey}${ccMatch[2]}` };
+      return {
+        parent: 'pages.articleDetails.licenses.creativeCommons',
+        key: `${typeKey}${ccMatch[2]}`,
+      };
     }
   }
 

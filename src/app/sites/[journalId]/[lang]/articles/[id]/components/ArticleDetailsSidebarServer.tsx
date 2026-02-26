@@ -247,9 +247,7 @@ export default function ArticleDetailsSidebarServer({
     <div className="articleDetailsSidebar">
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
-          <a
-            href={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)}
-          >
+          <a href={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)}>
             <div className="articleDetailsSidebar-links-link">
               <DownloadBlackIcon
                 size={14}

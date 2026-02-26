@@ -117,9 +117,7 @@ describe('getBoardsPerTitle', () => {
     const scientificBoard = result.find(b => b.title === 'Scientific Advisory Board');
 
     // Frank should appear in both boards (has editorial-board + advisory-board roles)
-    expect(editorialBoard?.members).toContainEqual(
-      expect.objectContaining({ firstname: 'Frank' })
-    );
+    expect(editorialBoard?.members).toContainEqual(expect.objectContaining({ firstname: 'Frank' }));
     expect(scientificBoard?.members).toContainEqual(
       expect.objectContaining({ firstname: 'Frank' })
     );

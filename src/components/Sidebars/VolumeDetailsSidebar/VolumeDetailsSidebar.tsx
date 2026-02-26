@@ -193,7 +193,9 @@ export default function VolumeDetailsSidebar({
                   lang={language}
                   className={`volumeDetailsSidebar-relatedVolumes-volumes-list-volume ${relatedVolume.id === volume?.id && 'volumeDetailsSidebar-relatedVolumes-volumes-list-volume-current'}`}
                 >
-                  {relatedVolume.title ? getLocalizedContent(relatedVolume.title, language).value || '' : ''}
+                  {relatedVolume.title
+                    ? getLocalizedContent(relatedVolume.title, language).value || ''
+                    : ''}
                 </Link>
               ))}
             </div>

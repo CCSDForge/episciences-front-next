@@ -39,7 +39,7 @@ export default function StatisticsSidebar({
                 role="button"
                 tabIndex={0}
                 onClick={(): void => onCheckYearCallback(y.year)}
-                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))}
+                onKeyDown={e => handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))}
               >
                 {y.year}
               </span>

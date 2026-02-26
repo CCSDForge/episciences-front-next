@@ -6,7 +6,12 @@ import HeaderSearchInput from '../HeaderSearchInput';
 
 // Mock the icon components with proper ARIA roles
 vi.mock('@/components/icons', () => ({
-  CaretLeftBlackIcon: ({ size, ariaLabel, onClick, className }: {
+  CaretLeftBlackIcon: ({
+    size,
+    ariaLabel,
+    onClick,
+    className,
+  }: {
     size: number;
     ariaLabel?: string;
     onClick?: () => void;
@@ -20,7 +25,11 @@ vi.mock('@/components/icons', () => ({
       className={className}
     />
   ),
-  SearchIcon: ({ size, ariaLabel, className }: {
+  SearchIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
     size: number;
     ariaLabel?: string;
     className?: string;
@@ -33,7 +42,14 @@ vi.mock('@/components/icons', () => ({
       className={className}
     />
   ),
-  CloseBlackIcon: ({ size, ariaLabel, onClick, onMouseDown, onMouseUp, className }: {
+  CloseBlackIcon: ({
+    size,
+    ariaLabel,
+    onClick,
+    onMouseDown,
+    onMouseUp,
+    className,
+  }: {
     size: number;
     ariaLabel?: string;
     onClick?: () => void;

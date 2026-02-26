@@ -11,19 +11,17 @@ import { getJournalApiUrl } from '@/utils/env-loader';
  * Usage: /api/proxy/papers/123?rvcode=transformations
  * The rvcode parameter determines which API endpoint to use.
  */
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ path: string[] }> }
-) {
+export async function GET(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const params = await context.params;
   const path = params.path.join('/');
   const searchParams = request.nextUrl.searchParams;
 
   // Get journal code from query params or header
-  const rvcode = searchParams.get('rvcode') ||
-                 searchParams.get('code') ||
-                 request.headers.get('x-journal-code') ||
-                 'epijinfo';
+  const rvcode =
+    searchParams.get('rvcode') ||
+    searchParams.get('code') ||
+    request.headers.get('x-journal-code') ||
+    'epijinfo';
 
   // Get the correct API URL for this journal
   const apiUrl = getJournalApiUrl(rvcode);
@@ -40,7 +38,7 @@ export async function GET(
     const response = await fetch(targetUrl.toString(), {
       method: 'GET',
       headers: {
-        'Accept': request.headers.get('Accept') || 'application/ld+json',
+        Accept: request.headers.get('Accept') || 'application/ld+json',
         'Content-Type': 'application/json',
       },
     });
@@ -56,25 +54,20 @@ export async function GET(
     });
   } catch (error) {
     console.error(`[API Proxy] Error proxying to ${targetUrl}:`, error);
-    return NextResponse.json(
-      { error: 'Failed to proxy request' },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  context: { params: Promise<{ path: string[] }> }
-) {
+export async function POST(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const params = await context.params;
   const path = params.path.join('/');
   const searchParams = request.nextUrl.searchParams;
 
-  const rvcode = searchParams.get('rvcode') ||
-                 searchParams.get('code') ||
-                 request.headers.get('x-journal-code') ||
-                 'epijinfo';
+  const rvcode =
+    searchParams.get('rvcode') ||
+    searchParams.get('code') ||
+    request.headers.get('x-journal-code') ||
+    'epijinfo';
 
   const apiUrl = getJournalApiUrl(rvcode);
   const targetUrl = new URL(`${apiUrl}/${path}`);
@@ -89,7 +82,7 @@ export async function POST(
     const response = await fetch(targetUrl.toString(), {
       method: 'POST',
       headers: {
-        'Accept': request.headers.get('Accept') || 'application/ld+json',
+        Accept: request.headers.get('Accept') || 'application/ld+json',
         'Content-Type': request.headers.get('Content-Type') || 'application/json',
       },
       body,
@@ -105,9 +98,6 @@ export async function POST(
     });
   } catch (error) {
     console.error(`[API Proxy] Error proxying POST to ${targetUrl}:`, error);
-    return NextResponse.json(
-      { error: 'Failed to proxy request' },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }
 }

@@ -12,7 +12,11 @@ import './SwiperBoardCard.scss';
  * Renders an affiliation with optional ROR link
  * If rorId is present, displays the ROR icon as a link followed by a non-breaking space and the label as plain text
  */
-function AffiliationWithRor({ affiliation }: { affiliation: IBoardMemberAffiliation }): React.JSX.Element {
+function AffiliationWithRor({
+  affiliation,
+}: {
+  affiliation: IBoardMemberAffiliation;
+}): React.JSX.Element {
   if (affiliation.rorId) {
     return (
       <span className="swiperBoardCard-affiliation-with-ror">

@@ -107,7 +107,7 @@ export default function NewsMobileModal({
           className="newsMobileModal-title-close"
           ariaLabel="Close"
           onClick={onClose}
-          onKeyDown={(e) => handleKeyboardClick(e, onClose)}
+          onKeyDown={e => handleKeyboardClick(e, onClose)}
           role="button"
           tabIndex={0}
         />
@@ -120,7 +120,7 @@ export default function NewsMobileModal({
               role="button"
               tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-              onKeyDown={(e) => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.YEAR))}
+              onKeyDown={e => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.YEAR))}
             >
               {t('common.filters.years')}
             </div>
@@ -157,7 +157,7 @@ export default function NewsMobileModal({
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onSelectYear(y.year)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onSelectYear(y.year))}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onSelectYear(y.year))}
                 >
                   {y.year}
                 </span>

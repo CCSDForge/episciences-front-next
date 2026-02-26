@@ -116,7 +116,7 @@ export function VolumeDetailsMobile({
             onClick={(): void =>
               setChosenVolume(chosenVolume?.id !== relatedVolume.id ? relatedVolume : undefined)
             }
-            onKeyDown={(e) =>
+            onKeyDown={e =>
               handleKeyboardClick(e, () =>
                 setChosenVolume(chosenVolume?.id !== relatedVolume.id ? relatedVolume : undefined)
               )

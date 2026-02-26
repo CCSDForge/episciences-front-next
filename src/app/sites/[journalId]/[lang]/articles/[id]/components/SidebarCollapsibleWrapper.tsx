@@ -31,7 +31,7 @@ export default function SidebarCollapsibleWrapper({
         tabIndex={0}
         aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={(e) => handleKeyboardClick(e, () => setIsOpen(!isOpen))}
+        onKeyDown={e => handleKeyboardClick(e, () => setIsOpen(!isOpen))}
       >
         <div className={`${className}-title-text`}>{title}</div>
         {isOpen ? (

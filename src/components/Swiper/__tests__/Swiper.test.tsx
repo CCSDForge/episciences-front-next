@@ -30,7 +30,11 @@ vi.mock('swiper/css/navigation', () => ({}));
 
 // Mock icon components with proper ARIA
 vi.mock('@/components/icons', () => ({
-  CaretLeftBlackIcon: ({ size, ariaLabel, className }: {
+  CaretLeftBlackIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
     size: number;
     ariaLabel?: string;
     className?: string;
@@ -43,7 +47,11 @@ vi.mock('@/components/icons', () => ({
       className={className}
     />
   ),
-  CaretRightBlackIcon: ({ size, ariaLabel, className }: {
+  CaretRightBlackIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
     size: number;
     ariaLabel?: string;
     className?: string;
@@ -318,9 +326,7 @@ describe('Swiper', () => {
         { name: 'Member 2', id: 2 },
       ];
 
-      const { container } = render(
-        <Swiper {...defaultProps} type="board" cards={boardCards} />
-      );
+      const { container } = render(<Swiper {...defaultProps} type="board" cards={boardCards} />);
 
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();
@@ -332,9 +338,7 @@ describe('Swiper', () => {
         id: i + 1,
       }));
 
-      const { container } = render(
-        <Swiper {...defaultProps} cards={manyCards} />
-      );
+      const { container } = render(<Swiper {...defaultProps} cards={manyCards} />);
 
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();

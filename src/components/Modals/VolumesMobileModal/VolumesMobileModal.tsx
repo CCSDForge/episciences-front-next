@@ -234,7 +234,7 @@ export default function VolumesMobileModal({
             role="button"
             tabIndex={0}
             onClick={clearTaggedFilters}
-            onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+            onKeyDown={e => handleKeyboardClick(e, clearTaggedFilters)}
           >
             {t('common.filters.clearAll')}
           </div>
@@ -247,7 +247,9 @@ export default function VolumesMobileModal({
               role="button"
               tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.TYPE))}
+              onKeyDown={e =>
+                handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.TYPE))
+              }
             >
               {t('common.filters.documentTypes')}
             </div>
@@ -284,7 +286,7 @@ export default function VolumesMobileModal({
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onCheckType(type.value)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckType(type.value))}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onCheckType(type.value))}
                 >
                   {t(`common.volumeTypes.${type.value}`)}
                 </span>
@@ -298,7 +300,9 @@ export default function VolumesMobileModal({
               role="button"
               tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))}
+              onKeyDown={e =>
+                handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))
+              }
             >
               {t('common.filters.years')}
             </div>
@@ -335,7 +339,7 @@ export default function VolumesMobileModal({
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onCheckYear(y.year)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
                 >
                   {y.year}
                 </span>

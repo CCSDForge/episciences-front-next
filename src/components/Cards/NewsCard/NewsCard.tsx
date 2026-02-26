@@ -54,11 +54,13 @@ export default function NewsCard({
 
     return (
       <div className="newsCard-content-content">
-        <ReactMarkdown>{showFullContent ? content : truncate(content, MAX_CONTENT_LENGTH)}</ReactMarkdown>
+        <ReactMarkdown>
+          {showFullContent ? content : truncate(content, MAX_CONTENT_LENGTH)}
+        </ReactMarkdown>
         {isTruncated && (
           <div
             onClick={(e): void => toggleFullContent(e)}
-            onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleFullContent(e as any))}
+            onKeyDown={e => handleKeyboardClick(e, (): void => toggleFullContent(e as any))}
             role="button"
             tabIndex={0}
             className="newsCard-content-content-toggle"
@@ -81,7 +83,7 @@ export default function NewsCard({
           role="button"
           tabIndex={0}
           onClick={setFullNewsIndexCallback}
-          onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}
+          onKeyDown={e => handleKeyboardClick(e, setFullNewsIndexCallback)}
         >
           <div className="newsCard-tile-full-initial">
             <div className="newsCard-content newsCard-content-tile-full">
@@ -129,7 +131,7 @@ export default function NewsCard({
         role="button"
         tabIndex={0}
         onClick={setFullNewsIndexCallback}
-        onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}
+        onKeyDown={e => handleKeyboardClick(e, setFullNewsIndexCallback)}
       >
         <div className="newsCard-content newsCard-content-tile">
           <div className="newsCard-content-title newsCard-content-title-tile">

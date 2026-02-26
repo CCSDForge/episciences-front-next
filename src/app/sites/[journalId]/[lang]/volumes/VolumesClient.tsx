@@ -40,10 +40,9 @@ const VolumesMobileModal = dynamic(
 );
 
 // Lazy load desktop modal
-const VolumesModal = dynamic(
-  () => import('@/components/Modals/VolumesModal/VolumesModal'),
-  { ssr: false }
-);
+const VolumesModal = dynamic(() => import('@/components/Modals/VolumesModal/VolumesModal'), {
+  ssr: false,
+});
 
 type VolumeTypeFilter = 'type' | 'year';
 
@@ -128,21 +127,25 @@ export default function VolumesClient({
     const params = new URLSearchParams();
 
     // Add types
-    newTypes.filter(t => t.isChecked).forEach(t => {
-      params.append('type', t.value);
-    });
+    newTypes
+      .filter(t => t.isChecked)
+      .forEach(t => {
+        params.append('type', t.value);
+      });
 
     // Add years
-    newYears.filter(y => y.isSelected).forEach(y => {
-      params.append('years', y.year.toString());
-    });
+    newYears
+      .filter(y => y.isSelected)
+      .forEach(y => {
+        params.append('years', y.year.toString());
+      });
 
     // Reset to page 1
     params.set('page', '1');
 
     const queryString = params.toString();
     const url = queryString ? `${pathname}?${queryString}` : pathname || '';
-    
+
     setIsLoadingData(true);
     router.push(url);
   };
@@ -159,9 +162,7 @@ export default function VolumesClient({
   useEffect(() => {
     if (types.length > 0) {
       setTypes(currentTypes => {
-        const needsUpdate = currentTypes.some(
-          t => t.isChecked !== initialTypes.includes(t.value)
-        );
+        const needsUpdate = currentTypes.some(t => t.isChecked !== initialTypes.includes(t.value));
 
         if (!needsUpdate) return currentTypes;
 
@@ -181,7 +182,7 @@ export default function VolumesClient({
           const shouldBeSelected = initialYears.includes(y.year);
           return y.isSelected !== shouldBeSelected;
         });
-        
+
         if (!needsUpdate) return currentYears;
 
         return currentYears.map(y => ({
@@ -198,9 +199,7 @@ export default function VolumesClient({
       // Use types from range if available, otherwise fallback to all known types
       // This ensures the sidebar is visible even if the API doesn't return range data
       const rangeTypes = Array.isArray(volumes.range?.types) ? volumes.range.types : [];
-      const typesSource = rangeTypes.length > 0
-        ? rangeTypes
-        : volumeTypes.map(vt => vt.value);
+      const typesSource = rangeTypes.length > 0 ? rangeTypes : volumeTypes.map(vt => vt.value);
 
       console.log('Initializing types from source:', typesSource, 'initialTypes:', initialTypes);
 
@@ -242,7 +241,7 @@ export default function VolumesClient({
       if (yearsToUse.length > 0) {
         // Sort descending
         yearsToUse.sort((a, b) => b - a);
-        
+
         console.log('Initializing years from:', yearsToUse);
         const initYears = yearsToUse.map(y => ({
           year: y,
@@ -384,7 +383,7 @@ export default function VolumesClient({
     setTypes(updatedTypes);
     setYears(updatedYears);
     setTaggedFilters([]);
-    
+
     updateParams(updatedTypes, updatedYears);
   };
 
@@ -457,7 +456,7 @@ export default function VolumesClient({
               role="button"
               tabIndex={0}
               onClick={(): void => setMode(RENDERING_MODE.TILE)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => setMode(RENDERING_MODE.TILE))}
+              onKeyDown={e => handleKeyboardClick(e, (): void => setMode(RENDERING_MODE.TILE))}
             >
               <div
                 className={`${mode === RENDERING_MODE.TILE ? 'volumes-title-count-icons-icon-row-black' : 'volumes-title-count-icons-icon-row'}`}
@@ -475,7 +474,7 @@ export default function VolumesClient({
               role="button"
               tabIndex={0}
               onClick={(): void => setMode(RENDERING_MODE.LIST)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => setMode(RENDERING_MODE.LIST))}
+              onKeyDown={e => handleKeyboardClick(e, (): void => setMode(RENDERING_MODE.LIST))}
             >
               <div
                 className={`${mode === RENDERING_MODE.LIST ? 'volumes-title-count-icons-icon-row-black' : 'volumes-title-count-icons-icon-row'}`}
@@ -508,12 +507,13 @@ export default function VolumesClient({
               />
             ))}
             {taggedFilters.length > 0 ? (
-              <div className="volumes-filters-tags-clear" 
-        role="button"
-        tabIndex={0}
-        
-        onClick={clearTaggedFilters}
-        onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}>
+              <div
+                className="volumes-filters-tags-clear"
+                role="button"
+                tabIndex={0}
+                onClick={clearTaggedFilters}
+                onKeyDown={e => handleKeyboardClick(e, clearTaggedFilters)}
+              >
                 {t('common.filters.clearAll')}
               </div>
             ) : (
@@ -529,7 +529,7 @@ export default function VolumesClient({
               role="button"
               tabIndex={0}
               onClick={(): void => toggleFiltersModal()}
-              onKeyDown={(e) => handleKeyboardClick(e, toggleFiltersModal)}
+              onKeyDown={e => handleKeyboardClick(e, toggleFiltersModal)}
             >
               <FilterIcon
                 size={16}
@@ -574,7 +574,11 @@ export default function VolumesClient({
           role="button"
           tabIndex={0}
           onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
-          onKeyDown={(e) => handleKeyboardClick(e, (): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal))}
+          onKeyDown={e =>
+            handleKeyboardClick(e, (): void =>
+              setOpenedFiltersMobileModal(!openedFiltersMobileModal)
+            )
+          }
         >
           <FilterIcon size={16} className="volumes-filtersMobile-tile-icon" ariaLabel="Filters" />
           <div className="volumes-filtersMobile-tile-text">

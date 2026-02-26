@@ -50,8 +50,10 @@ export default function ForReviewersClient({
   const titleResult = getLocalizedContent(pageData?.title, language);
   const content = contentResult.value;
   const title = titleResult.value || t('pages.forReviewers.title');
-  const languageNotice = contentResult.isAvailable && !contentResult.isOriginalLanguage
-    ? t('common.contentNotInLanguage') : undefined;
+  const languageNotice =
+    contentResult.isAvailable && !contentResult.isOriginalLanguage
+      ? t('common.contentNotInLanguage')
+      : undefined;
 
   return (
     <MarkdownPageWithSidebar

@@ -231,7 +231,7 @@ export default function CreditsClient({
                             pageSections.find(pageSection => pageSection.id === id)?.opened
                           }
                           onClick={(): void => toggleSectionHeader(id!)}
-                          onKeyDown={(e) => handleKeyboardClick(e, () => toggleSectionHeader(id!))}
+                          onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id!))}
                         >
                           <h2
                             id={id}

@@ -103,7 +103,10 @@ export default async function HeaderServer({
     process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES ||
     '';
   const acceptedLanguages = acceptedLanguagesStr
-    ? acceptedLanguagesStr.split(',').map((l: string) => l.trim()).filter(Boolean)
+    ? acceptedLanguagesStr
+        .split(',')
+        .map((l: string) => l.trim())
+        .filter(Boolean)
     : ['en', 'fr'];
   const hasMultipleLanguages = acceptedLanguages.length > 1;
 
@@ -121,12 +124,8 @@ export default async function HeaderServer({
   return (
     <header className="header" role="banner">
       {/* Skip Links - Only visible on keyboard focus (WCAG 2.4.1) */}
-      <SkipLink href="#main-content">
-        {t('components.header.skipToMain', translations)}
-      </SkipLink>
-      <SkipLink href="#search-bar">
-        {t('components.header.skipToSearch', translations)}
-      </SkipLink>
+      <SkipLink href="#main-content">{t('components.header.skipToMain', translations)}</SkipLink>
+      <SkipLink href="#search-bar">{t('components.header.skipToSearch', translations)}</SkipLink>
 
       {/* Pre-header - visible only when not reduced */}
       <div className="header-preheader">
@@ -136,11 +135,7 @@ export default async function HeaderServer({
           </Link>
         </div>
         <div className="header-preheader-links">
-          <Link
-            href={episciencesUrl}
-            className="header-preheader-links-access"
-            lang={lang}
-          >
+          <Link href={episciencesUrl} className="header-preheader-links-access" lang={lang}>
             {t('components.header.links.openAccessJournals', translations)}
           </Link>
           <div className="header-preheader-links-right">
@@ -148,7 +143,9 @@ export default async function HeaderServer({
             {signInUrl && (
               <>
                 {hasMultipleLanguages && (
-                  <span className="header-signin-separator" aria-hidden="true">|</span>
+                  <span className="header-signin-separator" aria-hidden="true">
+                    |
+                  </span>
                 )}
                 <Link
                   href={signInUrl}
@@ -167,9 +164,7 @@ export default async function HeaderServer({
                     width={28}
                     height={28}
                   />
-                  <span className="sr-only">
-                    {t('components.header.newWindow', translations)}
-                  </span>
+                  <span className="sr-only">{t('components.header.newWindow', translations)}</span>
                 </Link>
               </>
             )}
@@ -181,13 +176,7 @@ export default async function HeaderServer({
       <div className="header-journal">
         <div className="header-journal-logo">
           <Link href="/" lang={lang}>
-            <img
-              src={logoSrc}
-              alt="Journal logo"
-              loading="eager"
-              width={160}
-              height={160}
-            />
+            <img src={logoSrc} alt="Journal logo" loading="eager" width={160} height={160} />
           </Link>
         </div>
         <div className="header-journal-title">{journalName}</div>
@@ -197,13 +186,7 @@ export default async function HeaderServer({
       <div className="header-reduced-journal">
         <div className="header-reduced-journal-logo">
           <Link href="/" lang={lang}>
-            <img
-              src={logoSrc}
-              alt="Journal logo"
-              loading="lazy"
-              width={42}
-              height={42}
-            />
+            <img src={logoSrc} alt="Journal logo" loading="lazy" width={42} height={42} />
           </Link>
         </div>
         <div className="header-reduced-journal-blank">{journalName}</div>
@@ -212,7 +195,9 @@ export default async function HeaderServer({
           {signInUrl && (
             <>
               {hasMultipleLanguages && (
-                <span className="header-signin-separator" aria-hidden="true">|</span>
+                <span className="header-signin-separator" aria-hidden="true">
+                  |
+                </span>
               )}
               <Link
                 href={signInUrl}
@@ -231,9 +216,7 @@ export default async function HeaderServer({
                   width={28}
                   height={28}
                 />
-                <span className="sr-only">
-                  {t('components.header.newWindow', translations)}
-                </span>
+                <span className="sr-only">{t('components.header.newWindow', translations)}</span>
               </Link>
             </>
           )}
@@ -247,43 +230,51 @@ export default async function HeaderServer({
           lang={lang}
           sections={[
             ...(visibleContentItems.length > 0
-              ? [{
-                  title: t('components.header.content', translations),
-                  items: visibleContentItems.map(item => ({
-                    key: item.key,
-                    label: t(item.label, translations),
-                    path: item.path,
-                  })),
-                }]
+              ? [
+                  {
+                    title: t('components.header.content', translations),
+                    items: visibleContentItems.map(item => ({
+                      key: item.key,
+                      label: t(item.label, translations),
+                      path: item.path,
+                    })),
+                  },
+                ]
               : []),
             ...(visibleAboutItems.length > 0
-              ? [{
-                  title: t('components.header.about', translations),
-                  items: visibleAboutItems.map(item => ({
-                    key: item.key,
-                    label: t(item.label, translations),
-                    path: item.path,
-                  })),
-                }]
+              ? [
+                  {
+                    title: t('components.header.about', translations),
+                    items: visibleAboutItems.map(item => ({
+                      key: item.key,
+                      label: t(item.label, translations),
+                      path: item.path,
+                    })),
+                  },
+                ]
               : []),
             ...(visibleStandaloneItems.length > 0
-              ? [{
-                  items: visibleStandaloneItems.map(item => ({
-                    key: item.key,
-                    label: t(item.label, translations),
-                    path: item.path,
-                  })),
-                }]
+              ? [
+                  {
+                    items: visibleStandaloneItems.map(item => ({
+                      key: item.key,
+                      label: t(item.label, translations),
+                      path: item.path,
+                    })),
+                  },
+                ]
               : []),
             ...(visiblePublishItems.length > 0
-              ? [{
-                  title: t('components.header.publish', translations),
-                  items: visiblePublishItems.map(item => ({
-                    key: item.key,
-                    label: t(item.label, translations),
-                    path: item.path,
-                  })),
-                }]
+              ? [
+                  {
+                    title: t('components.header.publish', translations),
+                    items: visiblePublishItems.map(item => ({
+                      key: item.key,
+                      label: t(item.label, translations),
+                      path: item.path,
+                    })),
+                  },
+                ]
               : []),
           ]}
         />

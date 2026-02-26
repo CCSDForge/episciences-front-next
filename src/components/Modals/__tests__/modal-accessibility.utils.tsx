@@ -19,9 +19,15 @@ import footerReducer from '@/store/features/footer/footer.slice';
 
 // Common mocks for all modal tests
 vi.mock('@/components/icons', () => ({
-  CloseBlackIcon: ({ size }: { size: number }) => <span data-testid="close-icon" data-size={size} />,
-  CaretUpGreyIcon: ({ size }: { size: number }) => <span data-testid="caret-up-icon" data-size={size} />,
-  CaretDownGreyIcon: ({ size }: { size: number }) => <span data-testid="caret-down-icon" data-size={size} />,
+  CloseBlackIcon: ({ size }: { size: number }) => (
+    <span data-testid="close-icon" data-size={size} />
+  ),
+  CaretUpGreyIcon: ({ size }: { size: number }) => (
+    <span data-testid="caret-up-icon" data-size={size} />
+  ),
+  CaretDownGreyIcon: ({ size }: { size: number }) => (
+    <span data-testid="caret-down-icon" data-size={size} />
+  ),
 }));
 
 vi.mock('@/components/Button/Button', () => ({
@@ -40,19 +46,25 @@ vi.mock('@/components/Tag/Tag', () => ({
   default: ({ text, onCloseCallback }: { text: string; onCloseCallback: () => void }) => (
     <span data-testid="tag">
       {text}
-      <button onClick={onCloseCallback} aria-label="Remove filter">×</button>
+      <button onClick={onCloseCallback} aria-label="Remove filter">
+        ×
+      </button>
     </span>
   ),
 }));
 
 vi.mock('@/components/LiveRegion/LiveRegion', () => ({
   default: ({ message }: { message: string }) => (
-    <div role="status" aria-live="polite">{message}</div>
+    <div role="status" aria-live="polite">
+      {message}
+    </div>
   ),
 }));
 
 vi.mock('focus-trap-react', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div data-testid="focus-trap">{children}</div>,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="focus-trap">{children}</div>
+  ),
 }));
 
 // Create mock store for modals that use Redux

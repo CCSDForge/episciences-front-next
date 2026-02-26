@@ -150,7 +150,7 @@ function ArticleCard({
             role="button"
             tabIndex={0}
             onClick={toggleAbstractCallback}
-            onKeyDown={(e) => handleKeyboardClick(e, toggleAbstractCallback)}
+            onKeyDown={e => handleKeyboardClick(e, toggleAbstractCallback)}
           >
             <div className="articleCard-abstract-title-text">{t('common.abstract')}</div>
             {article.openedAbstract ? (
@@ -206,10 +206,12 @@ function ArticleCard({
                 setShouldLoadCitations(true);
                 setShowCitationsDropdown(!showCitationsDropdown);
               }}
-              onKeyDown={(e) => handleKeyboardClick(e, () => {
-                setShouldLoadCitations(true);
-                setShowCitationsDropdown(!showCitationsDropdown);
-              })}
+              onKeyDown={e =>
+                handleKeyboardClick(e, () => {
+                  setShouldLoadCitations(true);
+                  setShowCitationsDropdown(!showCitationsDropdown);
+                })
+              }
             >
               <QuoteBlackIcon
                 size={16}
@@ -228,7 +230,7 @@ function ArticleCard({
                         role="button"
                         tabIndex={0}
                         onClick={(): void => copyCitation(citation)}
-                        onKeyDown={(e) => handleKeyboardClick(e, (): void => copyCitation(citation))}
+                        onKeyDown={e => handleKeyboardClick(e, (): void => copyCitation(citation))}
                         onTouchEnd={(): void => copyCitation(citation)}
                       >
                         {citation.key}

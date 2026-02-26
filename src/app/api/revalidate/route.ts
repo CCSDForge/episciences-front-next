@@ -18,7 +18,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Peer servers for multi-server deployments (comma-separated URLs)
 const PEER_SERVERS = process.env.PEER_SERVERS
-  ? process.env.PEER_SERVERS.split(',').map(url => url.trim()).filter(Boolean)
+  ? process.env.PEER_SERVERS.split(',')
+      .map(url => url.trim())
+      .filter(Boolean)
   : [];
 
 // Header to identify forwarded revalidation requests (prevents infinite loops)
@@ -168,9 +170,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Execution
     if (tag) {
-      console.log(
-        `[Revalidate API] Revalidating tag: ${tag}${isForwarded ? ' (forwarded)' : ''}`
-      );
+      console.log(`[Revalidate API] Revalidating tag: ${tag}${isForwarded ? ' (forwarded)' : ''}`);
       revalidateTag(tag, { expire: 0 });
     } else if (path) {
       // Validate path format to prevent path traversal attacks

@@ -176,7 +176,8 @@ export default function AboutClient({
         const content = contentResult.value;
         setLanguageNotice(
           contentResult.isAvailable && !contentResult.isOriginalLanguage
-            ? t('common.contentNotInLanguage') : undefined
+            ? t('common.contentNotInLanguage')
+            : undefined
         );
 
         if (content) {
@@ -236,7 +237,7 @@ export default function AboutClient({
                     tabIndex={0}
                     aria-expanded={section.opened}
                     onClick={(): void => toggleSectionHeader(section.id)}
-                    onKeyDown={(e) => handleKeyboardClick(e, () => toggleSectionHeader(section.id))}
+                    onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(section.id))}
                   >
                     <h2 id={section.id} className="about-content-body-section-subtitle-text">
                       <ReactMarkdown

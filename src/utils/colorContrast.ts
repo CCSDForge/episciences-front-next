@@ -26,7 +26,7 @@ function rgbToHex(r: number, g: number, b: number): string {
   return (
     '#' +
     [r, g, b]
-      .map((x) => {
+      .map(x => {
         const hex = Math.round(x).toString(16);
         return hex.length === 1 ? '0' + hex : hex;
       })
@@ -39,7 +39,7 @@ function rgbToHex(r: number, g: number, b: number): string {
  * @see https://www.w3.org/TR/WCAG22/#dfn-relative-luminance
  */
 function getLuminance(r: number, g: number, b: number): number {
-  const [rs, gs, bs] = [r, g, b].map((c) => {
+  const [rs, gs, bs] = [r, g, b].map(c => {
     const sRGB = c / 255;
     return sRGB <= 0.03928 ? sRGB / 12.92 : Math.pow((sRGB + 0.055) / 1.055, 2.4);
   });

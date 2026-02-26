@@ -234,7 +234,7 @@ export default function ArticleDetailsClient({
           className={`articleDetails-content-article-section-title ${!isOpenedSection && 'articleDetails-content-article-section-closed'}`}
           style={{ alignItems: 'center' }}
           onClick={(): void => toggleSection(sectionKey)}
-          onKeyDown={(e) => handleKeyboardClick(e, () => toggleSection(sectionKey))}
+          onKeyDown={e => handleKeyboardClick(e, () => toggleSection(sectionKey))}
         >
           <div className="articleDetails-content-article-section-title-text">{sectionTitle}</div>
           {isOpenedSection ? (

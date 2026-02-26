@@ -7,8 +7,7 @@ export const API_DOMAIN = API_ROOT_ENDPOINT.replace(/\/api$/, '');
 
 // Use the API root endpoint directly since it already includes /api
 // Server-side: use direct API URL, Client-side: use dynamic proxy to avoid CORS
-export const API_URL =
-  typeof window === 'undefined' ? API_ROOT_ENDPOINT : '/api/proxy';
+export const API_URL = typeof window === 'undefined' ? API_ROOT_ENDPOINT : '/api/proxy';
 
 export const API_PATHS = {
   papers: '/papers/',

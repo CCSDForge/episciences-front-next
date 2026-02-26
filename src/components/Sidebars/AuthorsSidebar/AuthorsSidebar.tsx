@@ -54,7 +54,7 @@ export default function AuthorsSidebar({
         role="button"
         tabIndex={0}
         onClick={(): void => onSetActiveLetterCallback(value)}
-        onKeyDown={(e) => handleKeyboardClick(e, (): void => onSetActiveLetterCallback(value))}
+        onKeyDown={e => handleKeyboardClick(e, (): void => onSetActiveLetterCallback(value))}
       >
         {label}
       </div>

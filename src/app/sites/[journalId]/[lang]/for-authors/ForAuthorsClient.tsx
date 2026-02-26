@@ -249,14 +249,21 @@ export default function ForAuthorsClient({
       setIsLoading(false);
 
       const ewTitle = getLocalizedContent(forAuthorsData.editorialWorkflowPage?.title, language);
-      const ewContent = getLocalizedContent(forAuthorsData.editorialWorkflowPage?.content, language);
+      const ewContent = getLocalizedContent(
+        forAuthorsData.editorialWorkflowPage?.content,
+        language
+      );
       const ecTitle = getLocalizedContent(forAuthorsData.ethicalCharterPage?.title, language);
       const ecContent = getLocalizedContent(forAuthorsData.ethicalCharterPage?.content, language);
       const psTitle = getLocalizedContent(forAuthorsData.prepareSubmissionPage?.title, language);
-      const psContent = getLocalizedContent(forAuthorsData.prepareSubmissionPage?.content, language);
+      const psContent = getLocalizedContent(
+        forAuthorsData.prepareSubmissionPage?.content,
+        language
+      );
 
-      const hasFallback = [ewTitle, ewContent, ecTitle, ecContent, psTitle, psContent]
-        .some(r => r.isAvailable && !r.isOriginalLanguage);
+      const hasFallback = [ewTitle, ewContent, ecTitle, ecContent, psTitle, psContent].some(
+        r => r.isAvailable && !r.isOriginalLanguage
+      );
       setLanguageNotice(hasFallback ? t('common.contentNotInLanguage') : undefined);
 
       const content: Record<
@@ -352,7 +359,7 @@ export default function ForAuthorsClient({
                             pageSections.find(pageSection => pageSection.id === id)?.opened
                           }
                           onClick={(): void => toggleSectionHeader(id!)}
-                          onKeyDown={(e) => handleKeyboardClick(e, () => toggleSectionHeader(id!))}
+                          onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id!))}
                         >
                           <h2
                             id={id}

@@ -7,10 +7,12 @@ Episciences hosts 45+ journals, each with custom theme colors. To ensure WCAG 2.
 ## The Problem
 
 When a journal uses a light primary color (e.g., `#87CEEB` sky blue):
+
 - **OK**: Using it for backgrounds, banners, large UI areas
 - **FAIL**: Using it for text on white background → poor contrast
 
 **Example:**
+
 ```scss
 /* BAD - May fail WCAG if primary is light */
 .article-title {
@@ -31,20 +33,20 @@ We automatically generate WCAG-compliant variants:
 
 ## Available CSS Variables
 
-| Variable | WCAG Level | Ratio | Use Case |
-|----------|------------|-------|----------|
-| `--primary` | N/A | Original | Backgrounds, large areas |
-| `--primary-text` | AA | 4.5:1 | Normal text on white |
-| `--primary-text-aaa` | AAA | 7:1 | High contrast mode |
-| `--primary-text-large` | AA | 3:1 | Large text (>=18pt/>=14pt bold) |
-| `--primary-text-on-gray` | AA | 4.5:1 | Text on light gray (#f5f5f5) |
-| `--primary-text-on-dark` | AA | 4.5:1 | Text on dark backgrounds |
-| `--primary-border` | AA | 3:1 | Borders, icons, UI components |
-| `--link-color` | AA | 4.5:1 | Links |
-| `--link-hover-color` | AAA | 7:1 | Link hover/focus states |
-| `--heading-color` | AA | 4.5:1 | Headings |
-| `--button-text-on-primary-bg` | Auto | Auto | Text on primary background (auto black or white) |
-| `--focus-color` | AA | 3:1 | Focus indicators |
+| Variable                      | WCAG Level | Ratio    | Use Case                                         |
+| ----------------------------- | ---------- | -------- | ------------------------------------------------ |
+| `--primary`                   | N/A        | Original | Backgrounds, large areas                         |
+| `--primary-text`              | AA         | 4.5:1    | Normal text on white                             |
+| `--primary-text-aaa`          | AAA        | 7:1      | High contrast mode                               |
+| `--primary-text-large`        | AA         | 3:1      | Large text (>=18pt/>=14pt bold)                  |
+| `--primary-text-on-gray`      | AA         | 4.5:1    | Text on light gray (#f5f5f5)                     |
+| `--primary-text-on-dark`      | AA         | 4.5:1    | Text on dark backgrounds                         |
+| `--primary-border`            | AA         | 3:1      | Borders, icons, UI components                    |
+| `--link-color`                | AA         | 4.5:1    | Links                                            |
+| `--link-hover-color`          | AAA        | 7:1      | Link hover/focus states                          |
+| `--heading-color`             | AA         | 4.5:1    | Headings                                         |
+| `--button-text-on-primary-bg` | Auto       | Auto     | Text on primary background (auto black or white) |
+| `--focus-color`               | AA         | 3:1      | Focus indicators                                 |
 
 ## Usage Guide
 
@@ -68,7 +70,9 @@ a {
   }
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   color: var(--heading-color);
 }
 ```
@@ -159,6 +163,7 @@ npm test -- colorContrast.test.ts
 ```
 
 Manual testing with real journal colors:
+
 ```bash
 npm run dev
 # Visit different journals and verify text contrast
@@ -173,11 +178,11 @@ npm run dev
 
 ## WCAG 2.2 Requirements
 
-| Text Type | WCAG AA | WCAG AAA |
-|-----------|---------|----------|
-| Normal text (<18pt) | 4.5:1 | 7:1 |
-| Large text (>=18pt or >=14pt bold) | 3:1 | 4.5:1 |
-| UI components (borders, icons) | 3:1 | N/A |
+| Text Type                          | WCAG AA | WCAG AAA |
+| ---------------------------------- | ------- | -------- |
+| Normal text (<18pt)                | 4.5:1   | 7:1      |
+| Large text (>=18pt or >=14pt bold) | 3:1     | 4.5:1    |
+| UI components (borders, icons)     | 3:1     | N/A      |
 
 Our system automatically meets WCAG AA for all text types across all journals.
 
@@ -186,6 +191,7 @@ Our system automatically meets WCAG AA for all text types across all journals.
 ### Example: Article Details
 
 **BEFORE** (uses primary directly - may fail WCAG):
+
 ```scss
 .articleDetails-content-article-section-title-text {
   color: var(--primary); // May fail if primary is light
@@ -193,6 +199,7 @@ Our system automatically meets WCAG AA for all text types across all journals.
 ```
 
 **AFTER** (uses accessible variant):
+
 ```scss
 .articleDetails-content-article-section-title-text {
   color: var(--primary-text); // Automatically adjusted for WCAG AA
@@ -252,18 +259,23 @@ The system logs generated colors in console during development:
 ## FAQ
 
 ### Q: Why not just use the primary color everywhere?
+
 **A:** A light primary color (#87CEEB) on white has a ratio of 1.8:1, which fails WCAG AA (minimum 4.5:1). Users with low vision won't be able to read the text.
 
 ### Q: Does this change the appearance of my pages?
+
 **A:** Yes, if you were using a light color for text. Text will be darker (more readable) but will remain in the same color family. Backgrounds and large areas keep the original color.
 
 ### Q: What if I really want to use the light color?
+
 **A:** Use it on dark backgrounds or for non-text elements (backgrounds, large areas). For text on white, always use `var(--primary-text)`.
 
 ### Q: Does the system work with dark colors?
+
 **A:** Yes! If the primary color is already dark (#003366), `var(--primary-text)` will return the original color (already compliant). The system is smart.
 
 ### Q: Can I disable this system for a journal?
+
 **A:** Not recommended (WCAG violation), but technically possible by manually defining all CSS variables in the journal's .env. However, you lose the accessibility guarantee.
 
 ## Multi-Tenant Support
@@ -285,11 +297,11 @@ Journal C: Primary #FF6B6B (light red)
 
 ## Real Journal Examples
 
-| Journal | Primary | Primary-Text | Ratio | WCAG |
-|---------|---------|--------------|-------|------|
-| DMTCS | #B21316 | #B21316 | 5.2:1 | AA |
-| Journal A | #87CEEB | #0066A8 | 4.6:1 | AA |
-| Journal B | #FFB6C1 | #C30045 | 4.5:1 | AA |
+| Journal   | Primary | Primary-Text | Ratio | WCAG |
+| --------- | ------- | ------------ | ----- | ---- |
+| DMTCS     | #B21316 | #B21316      | 5.2:1 | AA   |
+| Journal A | #87CEEB | #0066A8      | 4.6:1 | AA   |
+| Journal B | #FFB6C1 | #C30045      | 4.5:1 | AA   |
 
 ## References
 

@@ -6,7 +6,11 @@ import VolumesSidebar, { IVolumeTypeSelection, IVolumeYearSelection } from '../V
 
 // Mock the Checkbox component
 vi.mock('@/components/Checkbox/Checkbox', () => ({
-  default: ({ checked, onChangeCallback, ariaLabel }: {
+  default: ({
+    checked,
+    onChangeCallback,
+    ariaLabel,
+  }: {
     checked: boolean;
     onChangeCallback: () => void;
     ariaLabel?: string;
@@ -256,17 +260,13 @@ describe('VolumesSidebar', () => {
 
   describe('Empty states', () => {
     it('handles empty types array', () => {
-      const { container } = render(
-        <VolumesSidebar {...defaultProps} types={[]} />
-      );
+      const { container } = render(<VolumesSidebar {...defaultProps} types={[]} />);
 
       expect(container.querySelector('.volumesSidebar-typesSection-types')).toBeInTheDocument();
     });
 
     it('handles empty years array', () => {
-      const { container } = render(
-        <VolumesSidebar {...defaultProps} years={[]} />
-      );
+      const { container } = render(<VolumesSidebar {...defaultProps} years={[]} />);
 
       expect(container.querySelector('.volumesSidebar-yearsSection-years')).toBeInTheDocument();
     });
@@ -276,7 +276,9 @@ describe('VolumesSidebar', () => {
     it('year items use year-list class', () => {
       const { container } = render(<VolumesSidebar {...defaultProps} />);
 
-      expect(container.querySelector('.volumesSidebar-yearsSection-years-list')).toBeInTheDocument();
+      expect(
+        container.querySelector('.volumesSidebar-yearsSection-years-list')
+      ).toBeInTheDocument();
     });
 
     it('each year has year class', () => {
@@ -316,9 +318,7 @@ describe('VolumesSidebar', () => {
 
     it('should have no violations with all types checked', async () => {
       const allCheckedTypes = defaultTypes.map(t => ({ ...t, isChecked: true }));
-      const { container } = render(
-        <VolumesSidebar {...defaultProps} types={allCheckedTypes} />
-      );
+      const { container } = render(<VolumesSidebar {...defaultProps} types={allCheckedTypes} />);
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();
@@ -330,9 +330,7 @@ describe('VolumesSidebar', () => {
         { year: 2023, isSelected: true },
         { year: 2022, isSelected: false },
       ];
-      const { container } = render(
-        <VolumesSidebar {...defaultProps} years={differentYear} />
-      );
+      const { container } = render(<VolumesSidebar {...defaultProps} years={differentYear} />);
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();

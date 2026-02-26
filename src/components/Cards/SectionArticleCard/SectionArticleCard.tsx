@@ -48,11 +48,11 @@ export default function SectionArticleCard({
         <div className="sectionArticleCard-abstract">
           <div
             className={`sectionArticleCard-abstract-title ${!openedAbstract && 'sectionArticleCard-abstract-title-closed'}`}
-            
-        role="button"
-        tabIndex={0}
-        
-        onClick={toggleAbstract}        onKeyDown={(e) => handleKeyboardClick(e, toggleAbstract)}>
+            role="button"
+            tabIndex={0}
+            onClick={toggleAbstract}
+            onKeyDown={e => handleKeyboardClick(e, toggleAbstract)}
+          >
             <div className="sectionArticleCard-abstract-title-text">{t('common.abstract')}</div>
             {openedAbstract ? (
               <CaretUpBlackIcon

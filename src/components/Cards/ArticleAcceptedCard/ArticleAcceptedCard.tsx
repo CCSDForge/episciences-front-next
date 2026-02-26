@@ -53,11 +53,11 @@ function ArticleAcceptedCard({
         <div className="articleAcceptedCard-abstract">
           <div
             className={`articleAcceptedCard-abstract-title ${!article.openedAbstract && 'articleAcceptedCard-abstract-title-closed'}`}
-            
-        role="button"
-        tabIndex={0}
-        
-        onClick={toggleAbstractCallback}        onKeyDown={(e) => handleKeyboardClick(e, toggleAbstractCallback)}>
+            role="button"
+            tabIndex={0}
+            onClick={toggleAbstractCallback}
+            onKeyDown={e => handleKeyboardClick(e, toggleAbstractCallback)}
+          >
             <div className="articleAcceptedCard-abstract-title-text">{t('common.abstract')}</div>
             {article.openedAbstract ? (
               <CaretUpBlackIcon

@@ -104,7 +104,8 @@ export default async function SectionDetailsPage(props: {
     };
 
     // Calculate title and description server-side to prevent hydration mismatch
-    const sectionTitle = getLocalizedContent(section.title, language).value || `Section ${params.id}`;
+    const sectionTitle =
+      getLocalizedContent(section.title, language).value || `Section ${params.id}`;
     const sectionDescription = getLocalizedContent(section.description, language).value || '';
 
     return (

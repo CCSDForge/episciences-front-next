@@ -6,14 +6,24 @@ import VolumesModal from '../VolumesModal/VolumesModal';
 
 // Mock Checkbox component with proper accessibility attributes
 vi.mock('@/components/Checkbox/Checkbox', () => ({
-  default: ({ checked, onChangeCallback, ariaLabel }: { checked: boolean; onChangeCallback: () => void; ariaLabel?: string }) => (
+  default: ({
+    checked,
+    onChangeCallback,
+    ariaLabel,
+  }: {
+    checked: boolean;
+    onChangeCallback: () => void;
+    ariaLabel?: string;
+  }) => (
     <input type="checkbox" checked={checked} onChange={onChangeCallback} aria-label={ariaLabel} />
   ),
 }));
 
 // Mock FocusTrap
 vi.mock('focus-trap-react', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div data-testid="focus-trap">{children}</div>,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="focus-trap">{children}</div>
+  ),
 }));
 
 // Mock translation function

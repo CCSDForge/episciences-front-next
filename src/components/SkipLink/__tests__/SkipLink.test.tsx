@@ -111,8 +111,14 @@ describe('SkipLink', () => {
       );
 
       expect(screen.getByRole('link', { name: /skip to main/i })).toHaveAttribute('href', '#main');
-      expect(screen.getByRole('link', { name: /skip to search/i })).toHaveAttribute('href', '#search');
-      expect(screen.getByRole('link', { name: /skip to footer/i })).toHaveAttribute('href', '#footer');
+      expect(screen.getByRole('link', { name: /skip to search/i })).toHaveAttribute(
+        'href',
+        '#search'
+      );
+      expect(screen.getByRole('link', { name: /skip to footer/i })).toHaveAttribute(
+        'href',
+        '#footer'
+      );
     });
   });
 

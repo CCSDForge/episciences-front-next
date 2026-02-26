@@ -160,7 +160,7 @@ export default function ArticlesAcceptedMobileModal({
           className="articlesAcceptedMobileModal-title-close"
           ariaLabel="Close"
           onClick={onClose}
-          onKeyDown={(e) => handleKeyboardClick(e, onClose)}
+          onKeyDown={e => handleKeyboardClick(e, onClose)}
           role="button"
           tabIndex={0}
         />
@@ -181,7 +181,7 @@ export default function ArticlesAcceptedMobileModal({
             role="button"
             tabIndex={0}
             onClick={clearTaggedFilters}
-            onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+            onKeyDown={e => handleKeyboardClick(e, clearTaggedFilters)}
           >
             {t('common.filters.clearAll')}
           </div>
@@ -195,7 +195,7 @@ export default function ArticlesAcceptedMobileModal({
               role="button"
               tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
-              onKeyDown={(e) => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.TYPE))}
+              onKeyDown={e => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.TYPE))}
             >
               {t('common.filters.documentTypes')}
             </div>
@@ -232,7 +232,7 @@ export default function ArticlesAcceptedMobileModal({
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onCheckType(type.value)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckType(type.value))}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onCheckType(type.value))}
                 >
                   {t(type.labelPath)}
                 </span>

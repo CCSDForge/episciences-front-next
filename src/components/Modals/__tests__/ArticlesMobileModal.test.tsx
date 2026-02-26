@@ -9,9 +9,15 @@ import footerReducer from '@/store/features/footer/footer.slice';
 
 // Mock the icons
 vi.mock('@/components/icons', () => ({
-  CloseBlackIcon: ({ size }: { size: number }) => <span data-testid="close-icon" data-size={size} />,
-  CaretUpGreyIcon: ({ size }: { size: number }) => <span data-testid="caret-up-icon" data-size={size} />,
-  CaretDownGreyIcon: ({ size }: { size: number }) => <span data-testid="caret-down-icon" data-size={size} />,
+  CloseBlackIcon: ({ size }: { size: number }) => (
+    <span data-testid="close-icon" data-size={size} />
+  ),
+  CaretUpGreyIcon: ({ size }: { size: number }) => (
+    <span data-testid="caret-up-icon" data-size={size} />
+  ),
+  CaretDownGreyIcon: ({ size }: { size: number }) => (
+    <span data-testid="caret-down-icon" data-size={size} />
+  ),
 }));
 
 // Mock Button component
@@ -23,7 +29,15 @@ vi.mock('@/components/Button/Button', () => ({
 
 // Mock Checkbox component with proper accessibility attributes
 vi.mock('@/components/Checkbox/Checkbox', () => ({
-  default: ({ checked, onChangeCallback, ariaLabel }: { checked: boolean; onChangeCallback: () => void; ariaLabel?: string }) => (
+  default: ({
+    checked,
+    onChangeCallback,
+    ariaLabel,
+  }: {
+    checked: boolean;
+    onChangeCallback: () => void;
+    ariaLabel?: string;
+  }) => (
     <input type="checkbox" checked={checked} onChange={onChangeCallback} aria-label={ariaLabel} />
   ),
 }));
@@ -33,7 +47,9 @@ vi.mock('@/components/Tag/Tag', () => ({
   default: ({ text, onCloseCallback }: { text: string; onCloseCallback: () => void }) => (
     <span data-testid="tag">
       {text}
-      <button onClick={onCloseCallback} aria-label="Remove filter">×</button>
+      <button onClick={onCloseCallback} aria-label="Remove filter">
+        ×
+      </button>
     </span>
   ),
 }));
@@ -41,13 +57,17 @@ vi.mock('@/components/Tag/Tag', () => ({
 // Mock LiveRegion component
 vi.mock('@/components/LiveRegion/LiveRegion', () => ({
   default: ({ message }: { message: string }) => (
-    <div role="status" aria-live="polite">{message}</div>
+    <div role="status" aria-live="polite">
+      {message}
+    </div>
   ),
 }));
 
 // Mock FocusTrap
 vi.mock('focus-trap-react', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div data-testid="focus-trap">{children}</div>,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="focus-trap">{children}</div>
+  ),
 }));
 
 // Create mock store
@@ -190,9 +210,9 @@ describe('ArticlesMobileModal', () => {
     it('has aria-expanded on section toggle buttons', () => {
       renderWithStore(<ArticlesMobileModal {...defaultProps} />);
 
-      const toggleButtons = screen.getAllByRole('button').filter(
-        btn => btn.getAttribute('aria-expanded') !== null
-      );
+      const toggleButtons = screen
+        .getAllByRole('button')
+        .filter(btn => btn.getAttribute('aria-expanded') !== null);
 
       expect(toggleButtons.length).toBeGreaterThan(0);
       toggleButtons.forEach(btn => {

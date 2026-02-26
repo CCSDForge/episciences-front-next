@@ -139,7 +139,7 @@ export default function BoardsClient({
                 onClick={(): void =>
                   activeGroupIndex === index ? handleGroupToggle(-1) : handleGroupToggle(index)
                 }
-                onKeyDown={(e) =>
+                onKeyDown={e =>
                   handleKeyboardClick(e, () =>
                     activeGroupIndex === index ? handleGroupToggle(-1) : handleGroupToggle(index)
                   )

@@ -62,15 +62,39 @@ vi.mock('@/hooks/store', () => ({
 
 // Mock Link component
 vi.mock('@/components/Link/Link', () => ({
-  Link: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => (
-    <a href={href} {...props}>{children}</a>
+  Link: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+    [key: string]: unknown;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
   ),
 }));
 
 // Mock icon components with proper ARIA
 vi.mock('@/components/icons', () => ({
-  BurgerIcon: ({ size, ariaLabel, className }: { size: number; ariaLabel?: string; className?: string }) => (
-    <span data-testid="burger-icon" data-size={size} role="img" aria-label={ariaLabel} className={className} />
+  BurgerIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
+    size: number;
+    ariaLabel?: string;
+    className?: string;
+  }) => (
+    <span
+      data-testid="burger-icon"
+      data-size={size}
+      role="img"
+      aria-label={ariaLabel}
+      className={className}
+    />
   ),
   LogoTextIcon: ({ size, ariaLabel }: { size: number; ariaLabel?: string }) => (
     <span data-testid="logo-text-icon" data-size={size} role="img" aria-label={ariaLabel} />
@@ -90,7 +114,12 @@ vi.mock('@/components/LanguageDropdown/LanguageDropdown', () => ({
 
 // Mock HeaderSearchInput
 vi.mock('@/components/SearchInput/HeaderSearchInput/HeaderSearchInput', () => ({
-  default: ({ placeholder, value, onChangeCallback, onSubmitCallback }: {
+  default: ({
+    placeholder,
+    value,
+    onChangeCallback,
+    onSubmitCallback,
+  }: {
     placeholder: string;
     value: string;
     onChangeCallback: (value: string) => void;
@@ -101,21 +130,25 @@ vi.mock('@/components/SearchInput/HeaderSearchInput/HeaderSearchInput', () => ({
       data-testid="header-search-input"
       placeholder={placeholder}
       value={value}
-      onChange={(e) => onChangeCallback(e.target.value)}
-      onKeyDown={(e) => e.key === 'Enter' && onSubmitCallback()}
+      onChange={e => onChangeCallback(e.target.value)}
+      onKeyDown={e => e.key === 'Enter' && onSubmitCallback()}
     />
   ),
 }));
 
 // Mock HeaderDropdown
 vi.mock('../HeaderDropdown', () => ({
-  default: ({ label, isOpen, onToggle }: { label: string; isOpen: boolean; onToggle: (open: boolean) => void }) => (
+  default: ({
+    label,
+    isOpen,
+    onToggle,
+  }: {
+    label: string;
+    isOpen: boolean;
+    onToggle: (open: boolean) => void;
+  }) => (
     <div data-testid={`header-dropdown-${label.toLowerCase()}`}>
-      <button
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-        onClick={() => onToggle(!isOpen)}
-      >
+      <button aria-expanded={isOpen} aria-haspopup="true" onClick={() => onToggle(!isOpen)}>
         {label}
       </button>
     </div>
@@ -245,7 +278,9 @@ describe('Header', () => {
     });
 
     it('uses currentJournal name for alt text', () => {
-      render(<Header currentJournal={{ ...defaultProps.currentJournal, name: 'Custom Journal' }} />);
+      render(
+        <Header currentJournal={{ ...defaultProps.currentJournal, name: 'Custom Journal' }} />
+      );
 
       const logo = screen.getByAltText('Custom Journal');
       expect(logo).toBeInTheDocument();
@@ -265,9 +300,9 @@ describe('Header', () => {
       render(<Header {...defaultProps} />);
 
       // Check for links with target="_blank"
-      const externalLinks = screen.getAllByRole('link').filter(
-        link => link.getAttribute('target') === '_blank'
-      );
+      const externalLinks = screen
+        .getAllByRole('link')
+        .filter(link => link.getAttribute('target') === '_blank');
 
       externalLinks.forEach(link => {
         expect(link).toHaveAttribute('rel', 'noopener noreferrer');
@@ -291,9 +326,9 @@ describe('Header', () => {
     it('dropdown buttons have aria-haspopup', () => {
       render(<Header {...defaultProps} />);
 
-      const dropdownButtons = screen.getAllByRole('button').filter(
-        button => button.getAttribute('aria-haspopup') === 'true'
-      );
+      const dropdownButtons = screen
+        .getAllByRole('button')
+        .filter(button => button.getAttribute('aria-haspopup') === 'true');
 
       expect(dropdownButtons.length).toBeGreaterThan(0);
     });
@@ -301,9 +336,9 @@ describe('Header', () => {
     it('dropdown buttons have aria-expanded', () => {
       render(<Header {...defaultProps} />);
 
-      const dropdownButtons = screen.getAllByRole('button').filter(
-        button => button.hasAttribute('aria-expanded')
-      );
+      const dropdownButtons = screen
+        .getAllByRole('button')
+        .filter(button => button.hasAttribute('aria-expanded'));
 
       expect(dropdownButtons.length).toBeGreaterThan(0);
     });

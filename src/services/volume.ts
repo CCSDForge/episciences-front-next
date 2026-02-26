@@ -125,10 +125,7 @@ export async function fetchVolumes({
     const data = await response.json();
     const members = Array.isArray(data) ? data : data['hydra:member'] || [];
 
-
-
     const rawRange = data['hydra:range'];
-
 
     const formattedRange = rawRange
       ? {
@@ -144,7 +141,6 @@ export async function fetchVolumes({
               : [],
         }
       : { types: [], years: [] };
-
 
     return {
       data: members.map((volume: RawVolume) => formatVolume(rvcode, language || 'fr', volume)),
