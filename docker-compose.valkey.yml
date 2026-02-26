@@ -1,0 +1,81 @@
+# Docker Compose for Valkey Cluster with Sentinel (HA)
+# Usage: docker compose -f docker-compose.yml -f docker-compose.valkey.yml up -d
+
+services:
+  valkey-node-1:
+    image: valkey/valkey:8.0
+    container_name: valkey-node-1
+    command: valkey-server --port 6379
+    networks:
+      - episciences
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  valkey-node-2:
+    image: valkey/valkey:8.0
+    container_name: valkey-node-2
+    command: valkey-server --port 6379 --replicaof valkey-node-1 6379
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  valkey-node-3:
+    image: valkey/valkey:8.0
+    container_name: valkey-node-3
+    command: valkey-server --port 6379 --replicaof valkey-node-1 6379
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  sentinel-1:
+    image: valkey/valkey:8.0
+    container_name: sentinel-1
+    command: valkey-sentinel /etc/valkey/sentinel.conf
+    volumes:
+      - ./docker/valkey/sentinel.conf:/etc/valkey/sentinel.conf
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
+
+  sentinel-2:
+    image: valkey/valkey:8.0
+    container_name: sentinel-2
+    command: valkey-sentinel /etc/valkey/sentinel.conf
+    volumes:
+      - ./docker/valkey/sentinel.conf:/etc/valkey/sentinel.conf
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
+
+  sentinel-3:
+    image: valkey/valkey:8.0
+    container_name: sentinel-3
+    command: valkey-sentinel /etc/valkey/sentinel.conf
+    volumes:
+      - ./docker/valkey/sentinel.conf:/etc/valkey/sentinel.conf
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
