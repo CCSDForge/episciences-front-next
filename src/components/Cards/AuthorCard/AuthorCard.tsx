@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { TFunction } from 'i18next';
 import { CaretDownBlackIcon, CaretRightBlackIcon } from '@/components/icons';
 import './AuthorCard.scss';
@@ -14,7 +15,7 @@ export interface IAuthorCardProps {
   setExpandedAuthorIndexCallback: () => void;
 }
 
-export default function AuthorCard({
+function AuthorCard({
   t,
   author,
   expandedCard,
@@ -58,3 +59,5 @@ export default function AuthorCard({
     </div>
   );
 }
+
+export default React.memo(AuthorCard);

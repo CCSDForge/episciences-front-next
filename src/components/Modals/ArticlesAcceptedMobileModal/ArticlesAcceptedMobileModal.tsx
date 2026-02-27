@@ -10,6 +10,7 @@ import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import Tag from '@/components/Tag/Tag';
 import './ArticlesAcceptedMobileModal.scss';
+import FocusTrap from 'focus-trap-react';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
@@ -152,9 +153,18 @@ export default function ArticlesAcceptedMobileModal({
     openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
-    <div className="articlesAcceptedMobileModal" ref={modalRef}>
-      <div className="articlesAcceptedMobileModal-title">
-        <div className="articlesAcceptedMobileModal-title-text">{t('common.filters.filter')}</div>
+    <FocusTrap>
+      <div
+        className="articlesAcceptedMobileModal"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="articles-accepted-modal-title"
+      >
+        <div className="articlesAcceptedMobileModal-title">
+          <h2 id="articles-accepted-modal-title" className="articlesAcceptedMobileModal-title-text">
+            {t('common.filters.filter')}
+          </h2>
         <CloseBlackIcon
           size={24}
           className="articlesAcceptedMobileModal-title-close"
@@ -248,5 +258,6 @@ export default function ArticlesAcceptedMobileModal({
         />
       </div>
     </div>
+    </FocusTrap>
   );
 }

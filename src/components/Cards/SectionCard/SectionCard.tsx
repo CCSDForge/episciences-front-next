@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
@@ -19,7 +19,7 @@ interface ISectionCardProps {
   section: ISection;
 }
 
-export default function SectionCard({
+function SectionCard({
   language,
   t,
   section,
@@ -83,3 +83,5 @@ export default function SectionCard({
     </div>
   );
 }
+
+export default React.memo(SectionCard);

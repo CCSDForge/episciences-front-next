@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { isValidJournalId } from '@/utils/validation';
 
 /**
  * Dynamic API Proxy
@@ -22,6 +23,10 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
     searchParams.get('code') ||
     request.headers.get('x-journal-code') ||
     'epijinfo';
+
+  if (!isValidJournalId(rvcode)) {
+    return NextResponse.json({ error: 'Invalid journal code' }, { status: 400 });
+  }
 
   // Get the correct API URL for this journal
   const apiUrl = getJournalApiUrl(rvcode);
@@ -68,6 +73,10 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
     searchParams.get('code') ||
     request.headers.get('x-journal-code') ||
     'epijinfo';
+
+  if (!isValidJournalId(rvcode)) {
+    return NextResponse.json({ error: 'Invalid journal code' }, { status: 400 });
+  }
 
   const apiUrl = getJournalApiUrl(rvcode);
   const targetUrl = new URL(`${apiUrl}/${path}`);

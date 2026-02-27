@@ -1,6 +1,6 @@
 'use client';
 
-import { MouseEvent, useState } from 'react';
+import React, { MouseEvent, useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import ReactMarkdown from 'react-markdown';
 import { TFunction } from 'i18next';
@@ -30,7 +30,7 @@ interface INewsCardProps extends INewsCardTile {
   news: INews;
 }
 
-export default function NewsCard({
+function NewsCard({
   language,
   t,
   mode,
@@ -193,3 +193,5 @@ export default function NewsCard({
     </div>
   );
 }
+
+export default React.memo(NewsCard);

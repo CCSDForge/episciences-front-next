@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -297,7 +298,14 @@ export default function MarkdownPageWithSidebar({
                       remarkPlugins={[remarkGfm]}
                       components={{
                         img: ({ src, alt }) => (
-                          <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />
+                          <Image
+                            src={getMarkdownImageURL(src || '', rvcode || '')}
+                            alt={alt || ''}
+                            width={0}
+                            height={0}
+                            sizes="100vw"
+                            style={{ width: '100%', height: 'auto' }}
+                          />
                         ),
                         a: ({ href, children }) => (
                           <a

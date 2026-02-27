@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
@@ -31,7 +31,7 @@ interface IVolumeCardProps {
   journalCode?: string;
 }
 
-export default function VolumeCard({
+function VolumeCard({
   language,
   t,
   mode,
@@ -254,3 +254,5 @@ export default function VolumeCard({
     </div>
   );
 }
+
+export default React.memo(VolumeCard);

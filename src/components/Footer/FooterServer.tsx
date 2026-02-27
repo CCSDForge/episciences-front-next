@@ -103,7 +103,7 @@ export default async function FooterServer({
       <div className="footer-journal">
         <div className="footer-journal-logo">
           <Link href={`/${lang}`} lang={lang}>
-            <img src={footerLogoSrc} alt="Journal logo" loading="lazy" width={42} height={42} />
+            <img src={footerLogoSrc} alt={`${journal?.name || rvcode} logo`} loading="lazy" width={42} height={42} />
           </Link>
         </div>
         <div className="footer-journal-links">

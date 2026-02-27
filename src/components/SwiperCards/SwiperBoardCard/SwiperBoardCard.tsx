@@ -2,6 +2,7 @@
 
 import { TFunction } from 'i18next';
 import { Link } from '@/components/Link/Link';
+import Image from 'next/image';
 import { OrcidIcon, UserIcon, RorIcon } from '@/components/icons';
 import { IBoardMember, IBoardMemberAffiliation } from '@/types/board';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -60,7 +61,13 @@ export default function SwiperBoardCard({
       <div className="swiperBoardCard-person">
         <div className="swiperBoardCard-person-picture">
           {member.picture ? (
-            <img src={member.picture} alt={`${member.firstname} ${member.lastname} picture`} />
+            <Image
+              src={member.picture}
+              alt={`${member.firstname} ${member.lastname}`}
+              width={64}
+              height={64}
+              unoptimized
+            />
           ) : (
             <UserIcon
               size={48}

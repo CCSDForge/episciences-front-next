@@ -176,7 +176,7 @@ export default async function HeaderServer({
       <div className="header-journal">
         <div className="header-journal-logo">
           <Link href="/" lang={lang}>
-            <img src={logoSrc} alt="Journal logo" loading="eager" width={160} height={160} />
+            <img src={logoSrc} alt={`${journalName} logo`} loading="eager" width={160} height={160} />
           </Link>
         </div>
         <div className="header-journal-title">{journalName}</div>
@@ -186,7 +186,7 @@ export default async function HeaderServer({
       <div className="header-reduced-journal">
         <div className="header-reduced-journal-logo">
           <Link href="/" lang={lang}>
-            <img src={logoSrc} alt="Journal logo" loading="lazy" width={42} height={42} />
+            <img src={logoSrc} alt={`${journalName} logo`} loading="lazy" width={42} height={42} />
           </Link>
         </div>
         <div className="header-reduced-journal-blank">{journalName}</div>
