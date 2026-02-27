@@ -59,7 +59,7 @@ export function useClientSideFetch<T>({
   // Éviter les double-fetch en mode strict
   const hasFetched = useRef(false);
 
-  const performFetch = async (force = false) => {
+  const performFetch = async (force = false, signal?: AbortSignal) => {
     if (!enabled && !force) return;
 
     try {
@@ -68,30 +68,34 @@ export function useClientSideFetch<T>({
 
       const freshData = await fetchFn();
 
+      if (signal?.aborted) return;
+
       // Mise à jour seulement si les données ont changé
-      // Note: comparaison simple, peut être améliorée avec deep equality si nécessaire
       if (JSON.stringify(freshData) !== JSON.stringify(data)) {
         setData(freshData);
       }
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error during fetch');
-      setError(error);
+      if (signal?.aborted) return;
 
-      // Log l'erreur pour debug, mais ne pas casser l'UI
+      const fetchError = err instanceof Error ? err : new Error('Unknown error during fetch');
+
+      // Ignorer les erreurs d'abandon (composant démonté)
+      if (fetchError.name === 'AbortError') return;
+
+      setError(fetchError);
+
       console.warn(
         '[useClientSideFetch] Fetch failed, using static data as fallback:',
-        error.message
+        fetchError.message
       );
 
-      // Appeler le callback d'erreur si fourni
       if (onError) {
-        onError(error);
+        onError(fetchError);
       }
-
-      // Garder les données initiales en cas d'erreur (graceful degradation)
-      // setData reste inchangé, on utilise le fallback HTML statique
     } finally {
-      setIsUpdating(false);
+      if (!signal?.aborted) {
+        setIsUpdating(false);
+      }
     }
   };
 
@@ -100,14 +104,11 @@ export function useClientSideFetch<T>({
     if (hasFetched.current) return;
     hasFetched.current = true;
 
-    performFetch();
+    const controller = new AbortController();
+    performFetch(false, controller.signal);
 
-    // Cleanup si nécessaire (abort controller pour annuler les fetches en cours)
-    return () => {
-      // Pas de cleanup spécial nécessaire pour l'instant
-    };
+    return () => controller.abort();
   }, [enabled]); // eslint-disable-line react-hooks/exhaustive-deps
-  // Note: On ignore volontairement fetchFn et initialData pour éviter les re-fetch inutiles
 
   return {
     data,

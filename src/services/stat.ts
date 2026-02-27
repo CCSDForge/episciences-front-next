@@ -1,5 +1,5 @@
-import { API_URL } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { safeFetchData } from '@/utils/api-error-handler';
 
 interface FetchStatsParams {
   rvcode: string;
@@ -14,16 +14,18 @@ export async function fetchStats({ rvcode, page, itemsPerPage }: FetchStatsParam
   });
 
   const apiUrl = getJournalApiUrl(rvcode);
-  const response = await fetch(`${apiUrl}/journals/${rvcode}/stats?${params}`, {
-    next: {
-      revalidate: 3600, // Stats - revalidate every hour
-      tags: ['stats'], // Tag for on-demand revalidation
+  return safeFetchData(
+    async () => {
+      const response = await fetch(`${apiUrl}/journals/${rvcode}/stats?${params}`, {
+        next: {
+          revalidate: 3600,
+          tags: ['stats'],
+        },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
     },
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch stats');
-  }
-
-  return response.json();
+    null,
+    `fetchStats(${rvcode})`
+  );
 }
