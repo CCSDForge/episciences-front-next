@@ -20,7 +20,7 @@ import ArticleAcceptedCard, {
 // Lazy load mobile modal
 const ArticlesAcceptedMobileModal = dynamic(
   () => import('@/components/Modals/ArticlesAcceptedMobileModal/ArticlesAcceptedMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 import ArticlesAcceptedSidebar, {

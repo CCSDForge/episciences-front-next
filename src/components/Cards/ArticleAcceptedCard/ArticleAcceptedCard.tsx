@@ -8,10 +8,9 @@ import { CaretUpBlackIcon, CaretDownBlackIcon, DownloadBlackIcon } from '@/compo
 import './ArticleAcceptedCard.scss';
 
 import { IArticle } from '@/types/article';
-import { articleTypes, getAbstractText } from '@/utils/article';
+import { getArticleTypeLabel, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
-import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IArticleAcceptedCard extends IArticle {
   openedAbstract: boolean;
@@ -34,7 +33,7 @@ function ArticleAcceptedCard({
     <div className="articleAcceptedCard">
       {article.tag && (
         <div className="articleAcceptedCard-tag">
-          {t(articleTypes.find(tag => tag.value === article.tag)?.labelPath!)}
+          {t(getArticleTypeLabel(article.tag))}
         </div>
       )}
       {article.docLink && (
@@ -51,12 +50,10 @@ function ArticleAcceptedCard({
       </div>
       {article.abstract && (
         <div className="articleAcceptedCard-abstract">
-          <div
+          <button
+            type="button"
             className={`articleAcceptedCard-abstract-title ${!article.openedAbstract && 'articleAcceptedCard-abstract-title-closed'}`}
-            role="button"
-            tabIndex={0}
             onClick={toggleAbstractCallback}
-            onKeyDown={e => handleKeyboardClick(e, toggleAbstractCallback)}
           >
             <div className="articleAcceptedCard-abstract-title-text">{t('common.abstract')}</div>
             {article.openedAbstract ? (
@@ -72,7 +69,7 @@ function ArticleAcceptedCard({
                 ariaLabel="Expand abstract"
               />
             )}
-          </div>
+          </button>
           <div
             className={`articleAcceptedCard-abstract-content ${article.openedAbstract && 'articleAcceptedCard-abstract-content-opened'}`}
           >

@@ -403,7 +403,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
             (p): p is typeof p & { keywords: unknown } =>
               p && typeof p === 'object' && 'keywords' in p && !!p.keywords
           )
-        : (articleContent.program as any)?.keywords
+        : (articleContent.program as { keywords?: unknown })?.keywords
           ? articleContent.program
           : null;
 
@@ -608,6 +608,11 @@ export const articleTypes: { labelPath: string; value: string }[] = [
   { labelPath: 'pages.articles.types.report', value: ARTICLE_TYPE.REPORT },
   { labelPath: 'pages.articles.types.software', value: ARTICLE_TYPE.SOFTWARE },
 ];
+
+export function getArticleTypeLabel(tag: string | undefined): string {
+  if (!tag) return '';
+  return articleTypes.find(type => type.value === tag)?.labelPath ?? '';
+}
 
 export const getCitations = async (csl?: string): Promise<ICitation[]> => {
   if (!csl || csl.trim() === '') {

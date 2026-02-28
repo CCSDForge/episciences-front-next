@@ -36,12 +36,13 @@ import { handleKeyboardClick } from '@/utils/keyboard';
 // Lazy load mobile modal
 const VolumesMobileModal = dynamic(
   () => import('@/components/Modals/VolumesMobileModal/VolumesMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 // Lazy load desktop modal
 const VolumesModal = dynamic(() => import('@/components/Modals/VolumesModal/VolumesModal'), {
   ssr: false,
+  loading: () => null,
 });
 
 type VolumeTypeFilter = 'type' | 'year';

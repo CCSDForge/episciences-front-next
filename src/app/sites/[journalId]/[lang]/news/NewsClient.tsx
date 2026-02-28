@@ -27,7 +27,7 @@ import '@/styles/transitions.scss';
 // Lazy load mobile modal
 const NewsMobileModal = dynamic(
   () => import('@/components/Modals/NewsMobileModal/NewsMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 interface NewsClientProps {

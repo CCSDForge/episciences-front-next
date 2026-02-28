@@ -35,7 +35,7 @@ import './VolumeDetails.scss';
 // Lazy load mobile modal
 const VolumeDetailsMobileModal = dynamic(
   () => import('@/components/Modals/VolumeDetailsMobileModal/VolumeDetailsMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 interface VolumeDetailsClientProps {

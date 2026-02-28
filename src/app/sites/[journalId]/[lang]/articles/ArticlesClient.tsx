@@ -18,7 +18,7 @@ import ArticleCard, { IArticleCard } from '@/components/Cards/ArticleCard/Articl
 // Lazy load mobile modal - only loaded when filters button is clicked
 const ArticlesMobileModal = dynamic(
   () => import('@/components/Modals/ArticlesMobileModal/ArticlesMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 import ArticlesSidebar, {

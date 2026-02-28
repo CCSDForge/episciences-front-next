@@ -36,7 +36,7 @@ import { statisticsBlocksConfiguration } from '@/config/statistics';
 // Lazy load mobile modal
 const StatisticsMobileModal = dynamic(
   () => import('@/components/Modals/StatisticsMobileModal/StatisticsMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 interface StatisticsClientProps {

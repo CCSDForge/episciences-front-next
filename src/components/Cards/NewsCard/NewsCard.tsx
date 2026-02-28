@@ -60,7 +60,12 @@ function NewsCard({
         {isTruncated && (
           <div
             onClick={(e): void => toggleFullContent(e)}
-            onKeyDown={e => handleKeyboardClick(e, (): void => toggleFullContent(e as any))}
+            onKeyDown={e =>
+              handleKeyboardClick(e, (evt): void => {
+                evt.stopPropagation();
+                setShowFullContent(prev => !prev);
+              })
+            }
             role="button"
             tabIndex={0}
             className="newsCard-content-content-toggle"

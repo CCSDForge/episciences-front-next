@@ -32,7 +32,7 @@ import { handleKeyboardClick } from '@/utils/keyboard';
 // Lazy load mobile modal
 const SearchResultsMobileModal = dynamic(
   () => import('@/components/Modals/SearchResultsMobileModal/SearchResultsMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 type SearchResultTypeFilter = 'type' | 'year' | 'volume' | 'section' | 'author';

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { TFunction } from 'i18next';
 import { Link } from '@/components/Link/Link';
 import Image from 'next/image';
@@ -51,7 +52,7 @@ interface ISwiperBoardCardProps {
   member: IBoardMember;
 }
 
-export default function SwiperBoardCard({
+function SwiperBoardCard({
   language,
   t,
   member,
@@ -128,3 +129,5 @@ export default function SwiperBoardCard({
     </div>
   );
 }
+
+export default memo(SwiperBoardCard);

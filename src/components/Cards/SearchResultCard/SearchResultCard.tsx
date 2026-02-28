@@ -13,7 +13,7 @@ import './SearchResultCard.scss';
 
 import { PATHS } from '@/config/paths';
 import { IArticle, IArticleAbstracts } from '@/types/article';
-import { articleTypes } from '@/utils/article';
+import { getArticleTypeLabel } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useCitationsDropdown } from '@/hooks/useCitationsDropdown';
@@ -61,7 +61,7 @@ export default function SearchResultCard({
     <div className="searchResultCard">
       {searchResult.tag && (
         <div className="searchResultCardTag">
-          {t(articleTypes.find(tag => tag.value === searchResult.tag)?.labelPath!)}
+          {t(getArticleTypeLabel(searchResult.tag))}
         </div>
       )}
       <Link href={`/${PATHS.articles}/${searchResult.id}`} lang={language}>
