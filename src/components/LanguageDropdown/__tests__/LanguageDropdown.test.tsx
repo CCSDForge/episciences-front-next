@@ -406,8 +406,8 @@ describe('LanguageDropdown', () => {
       const frenchOption = screen.getByText(/FR -/);
       await user.click(frenchOption);
 
-      // Should have triggered a navigation
-      expect(window.location.href).toContain('fr');
+      // Should have triggered a navigation via router.push
+      expect(mockPush).toHaveBeenCalledWith(expect.stringContaining('fr'));
     });
 
     it('selecting current language does not navigate', async () => {

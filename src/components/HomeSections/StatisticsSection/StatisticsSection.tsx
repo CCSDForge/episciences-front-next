@@ -1,10 +1,11 @@
 'use client';
 
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment } from 'react';
 import { TFunction, i18n } from 'i18next';
-import { isMobileOnly } from 'react-device-detect';
 
-import { IStat, isIStatValueDetails } from '@/types/stat';
+import { IStat, IStatValueEvaluation, isIStatValueDetails, isIStatValueEvaluation } from '@/types/stat';
+
+type ISimpleStat = IStat & { value?: number };
 import { statTypes } from '@/utils/stat';
 import './StatisticsSection.scss';
 
@@ -19,50 +20,37 @@ export default function StatisticsSection({
   i18n,
   stats,
 }: IStatisticsSectionProps): React.JSX.Element {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const renderedStats = (): IStat[] => {
-    if (isMounted && isMobileOnly) {
-      return stats.slice(0, 2);
-    }
-
-    return stats;
-  };
+  const filteredStats = stats.filter(
+    (s): s is ISimpleStat =>
+      !(s.value && (isIStatValueDetails(s.value) || isIStatValueEvaluation(s.value)))
+  );
 
   return (
     <div className="statisticsSection">
-      {renderedStats().map((singleStat, index) =>
-        singleStat.value && isIStatValueDetails(singleStat.value) ? (
-          <></>
-        ) : (
-          <Fragment key={index}>
-            <div className="statisticsSection-row">
-              {singleStat.unit ? (
-                <div className="statisticsSection-row-stat">
-                  {singleStat.value}{' '}
-                  {i18n.exists(`common.${singleStat.unit}`)
-                    ? singleStat.value && singleStat.value > 1
-                      ? t(`common.${singleStat.unit}s`)
-                      : t(`common.${singleStat.unit}`)
-                    : singleStat.unit}
-                </div>
-              ) : (
-                <div className="statisticsSection-row-stat">{singleStat.value}</div>
-              )}
-              <div className="statisticsSection-row-title">
-                {t(statTypes.find(stat => stat.value === singleStat.name)?.labelPath!)}
+      {filteredStats.map((singleStat, index) => (
+        <Fragment key={singleStat.name}>
+          <div className="statisticsSection-row">
+            {singleStat.unit ? (
+              <div className="statisticsSection-row-stat">
+                {singleStat.value}{' '}
+                {i18n.exists(`common.${singleStat.unit}`)
+                  ? singleStat.value && singleStat.value > 1
+                    ? t(`common.${singleStat.unit}s`)
+                    : t(`common.${singleStat.unit}`)
+                  : singleStat.unit}
               </div>
+            ) : (
+              <div className="statisticsSection-row-stat">{singleStat.value}</div>
+            )}
+            <div className="statisticsSection-row-title">
+              {t(statTypes.find(stat => stat.value === singleStat.name)?.labelPath!)}
             </div>
-            <div
-              className={`${index !== renderedStats().length - 1 && 'statisticsSection-divider'}`}
-            ></div>
-          </Fragment>
-        )
-      )}
+          </div>
+          <div
+            className={`${index !== filteredStats.length - 1 && 'statisticsSection-divider'}`}
+          ></div>
+        </Fragment>
+      ))}
     </div>
   );
 }

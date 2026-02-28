@@ -28,6 +28,9 @@ export async function generateMetadata(props: {
     }
 
     const section = await fetchSection({ sid: params.id, rvcode: params.journalId });
+    if (!section) {
+      return { title: 'Section Details', description: 'Section details page' };
+    }
     const sectionTitle = section.title?.en || section.title?.fr || `Section ${params.id}`;
 
     return {
@@ -68,6 +71,9 @@ export default async function SectionDetailsPage(props: {
 
     // Fetch section details by ID (like volumes do)
     const rawSection = await fetchSection({ sid: params.id, rvcode: journalId });
+    if (!rawSection) {
+      throw new Error(`Section ${params.id} not found`);
+    }
 
     // Format section data (similar to fetchSections formatting)
     const section: ISection = {

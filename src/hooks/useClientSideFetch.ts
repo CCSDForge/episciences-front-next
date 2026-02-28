@@ -70,10 +70,7 @@ export function useClientSideFetch<T>({
 
       if (signal?.aborted) return;
 
-      // Mise à jour seulement si les données ont changé
-      if (JSON.stringify(freshData) !== JSON.stringify(data)) {
-        setData(freshData);
-      }
+      setData(freshData);
     } catch (err) {
       if (signal?.aborted) return;
 

@@ -19,14 +19,16 @@ function ScrollManager(): null {
       let attempts = 0;
 
       const tryScrollToElement = (): void => {
+        if (attempts >= MAX_ATTEMPTS) {
+          clearInterval(intervalId);
+          return;
+        }
+        attempts++;
         const element = document.getElementById(id);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
           clearInterval(intervalId);
-        } else if (attempts >= MAX_ATTEMPTS) {
-          clearInterval(intervalId);
         }
-        attempts++;
       };
 
       const intervalId = setInterval(tryScrollToElement, ATTEMPTS_INTERVAL);

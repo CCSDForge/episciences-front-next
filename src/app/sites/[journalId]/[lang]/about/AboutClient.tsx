@@ -256,7 +256,12 @@ export default function AboutClient({
                               {children}
                             </a>
                           ),
-                          h2: ({ children }) => <>{children}</>, // Render h2 children directly
+                          h1: ({ children }) => <>{children}</>,
+                          h2: ({ children }) => <>{children}</>,
+                          h3: ({ children }) => <>{children}</>,
+                          h4: ({ children }) => <>{children}</>,
+                          h5: ({ children }) => <>{children}</>,
+                          h6: ({ children }) => <>{children}</>,
                         }}
                       >
                         {section.value.split('\n')[0]}
