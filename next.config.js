@@ -4,6 +4,14 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
 
+  // Distributed cache handler (Valkey/ioredis)
+  // Activated only when VALKEY_ENABLED=true for backward compatibility and local dev without Valkey
+  ...(process.env.VALKEY_ENABLED === 'true' && {
+    cacheHandler: require.resolve('./src/lib/cache-handler.js'),
+    // Disable Next.js built-in in-memory cache (our handler manages it)
+    cacheMaxMemorySize: 0,
+  }),
+
   // Standalone output for optimized Docker deployments
   // Creates a standalone build in .next/standalone with minimal dependencies
   output: 'standalone',
