@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import { Link } from '@/components/Link/Link';
@@ -13,20 +13,11 @@ import {
 import './ArticleCard.scss';
 
 import { PATHS } from '@/config/paths';
-import { useFetchArticleMetadataQuery } from '@/store/features/article/article.query';
 import { IArticle } from '@/types/article';
-import {
-  CITATION_TEMPLATE,
-  ICitation,
-  METADATA_TYPE,
-  articleTypes,
-  copyToClipboardCitation,
-  getCitations,
-  getAbstractText,
-} from '@/utils/article';
+import { articleTypes, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
-import { handleKeyboardClick } from '@/utils/keyboard';
+import { useCitationsDropdown } from '@/hooks/useCitationsDropdown';
 
 export interface IArticleCard extends IArticle {
   openedAbstract: boolean;
@@ -47,82 +38,18 @@ function ArticleCard({
   article,
   toggleAbstractCallback,
 }: IArticleCardProps): React.JSX.Element {
-  const [citations, setCitations] = useState<ICitation[]>([]);
-  const [showCitationsDropdown, setShowCitationsDropdown] = useState(false);
-  // Lazy load citations: only fetch when user interacts with cite button
-  const [shouldLoadCitations, setShouldLoadCitations] = useState(false);
+  const {
+    citations,
+    showCitationsDropdown,
+    citationsDropdownRef,
+    copyCitation,
+    handleTriggerMouseEnter,
+    handleTriggerClick,
+    handleContainerMouseLeave,
+  } = useCitationsDropdown(article.id, rvcode, t);
 
   const getArticlePath = () => {
     return `${PATHS.articles}/${article.id}`;
-  };
-
-  // Only fetch CSL/BibTeX when user hovers or clicks on cite button
-  const { data: metadataCSL } = useFetchArticleMetadataQuery(
-    {
-      rvcode: rvcode!,
-      paperid: article.id.toString(),
-      type: METADATA_TYPE.CSL,
-    },
-    {
-      skip: !article.id || !rvcode || !shouldLoadCitations,
-    }
-  );
-
-  const { data: metadataBibTeX } = useFetchArticleMetadataQuery(
-    {
-      rvcode: rvcode!,
-      paperid: article.id.toString(),
-      type: METADATA_TYPE.BIBTEX,
-    },
-    {
-      skip: !article.id || !rvcode || !shouldLoadCitations,
-    }
-  );
-
-  const citationsDropdownRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleTouchOutside = (event: TouchEvent): void => {
-      if (
-        citationsDropdownRef.current &&
-        !citationsDropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowCitationsDropdown(false);
-      }
-    };
-
-    document.addEventListener('touchstart', handleTouchOutside);
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchOutside);
-    };
-  }, [citationsDropdownRef]);
-
-  useEffect(() => {
-    const fetchCitations = async () => {
-      const fetchedCitations = await getCitations(metadataCSL as string);
-
-      // BibTeX is already added by getCitations with an empty citation,
-      // and then updated if metadataBibTeX is available.
-      // But here we need to make sure the citation is correctly filled
-      const bibtexIndex = fetchedCitations.findIndex(
-        citation => citation.key === CITATION_TEMPLATE.BIBTEX
-      );
-      if (bibtexIndex !== -1 && metadataBibTeX) {
-        fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
-      }
-
-      setCitations(fetchedCitations);
-    };
-
-    if (metadataCSL && metadataBibTeX) {
-      fetchCitations();
-    }
-  }, [metadataCSL, metadataBibTeX]);
-
-  const copyCitation = (citation: ICitation): void => {
-    copyToClipboardCitation(citation, t);
-    setShowCitationsDropdown(false);
   };
 
   return (
@@ -145,12 +72,10 @@ function ArticleCard({
       </div>
       {article.abstract && (
         <div className="articleCard-abstract">
-          <div
+          <button
+            type="button"
             className={`articleCard-abstract-title ${!article.openedAbstract ? 'articleCard-abstract-title-closed' : ''}`}
-            role="button"
-            tabIndex={0}
             onClick={toggleAbstractCallback}
-            onKeyDown={e => handleKeyboardClick(e, toggleAbstractCallback)}
           >
             <div className="articleCard-abstract-title-text">{t('common.abstract')}</div>
             {article.openedAbstract ? (
@@ -166,7 +91,7 @@ function ArticleCard({
                 ariaLabel="Expand abstract"
               />
             )}
-          </div>
+          </button>
           <div
             className={`articleCard-abstract-content ${article.openedAbstract ? 'articleCard-abstract-content-opened' : ''}`}
           >
@@ -195,46 +120,35 @@ function ArticleCard({
             <div
               ref={citationsDropdownRef}
               className="articleCard-anchor-icons-cite"
-              role="button"
-              tabIndex={0}
-              onMouseEnter={(): void => {
-                setShouldLoadCitations(true);
-                setShowCitationsDropdown(true);
-              }}
-              onMouseLeave={(): void => setShowCitationsDropdown(false)}
-              onClick={(): void => {
-                setShouldLoadCitations(true);
-                setShowCitationsDropdown(!showCitationsDropdown);
-              }}
-              onKeyDown={e =>
-                handleKeyboardClick(e, () => {
-                  setShouldLoadCitations(true);
-                  setShowCitationsDropdown(!showCitationsDropdown);
-                })
-              }
+              onMouseLeave={handleContainerMouseLeave}
             >
-              <QuoteBlackIcon
-                size={16}
-                className="articleCard-anchor-icons-cite-icon"
-                ariaLabel="Cite article"
-              />
-              <div className="articleCard-anchor-icons-cite-text">{t('common.cite')}</div>
+              <button
+                type="button"
+                className="articleCard-anchor-icons-cite-trigger"
+                onMouseEnter={handleTriggerMouseEnter}
+                onClick={handleTriggerClick}
+              >
+                <QuoteBlackIcon
+                  size={16}
+                  className="articleCard-anchor-icons-cite-icon"
+                  ariaLabel="Cite article"
+                />
+                <div className="articleCard-anchor-icons-cite-text">{t('common.cite')}</div>
+              </button>
               <div
                 className={`articleCard-anchor-icons-cite-content ${showCitationsDropdown ? 'articleCard-anchor-icons-cite-content-displayed' : ''}`}
               >
                 <div className="articleCard-anchor-icons-cite-content-links">
                   {citations.length > 0 ? (
-                    citations.map((citation, index) => (
-                      <span
-                        key={index}
-                        role="button"
-                        tabIndex={0}
+                    citations.map(citation => (
+                      <button
+                        type="button"
+                        key={citation.key}
                         onClick={(): void => copyCitation(citation)}
-                        onKeyDown={e => handleKeyboardClick(e, (): void => copyCitation(citation))}
                         onTouchEnd={(): void => copyCitation(citation)}
                       >
                         {citation.key}
-                      </span>
+                      </button>
                     ))
                   ) : (
                     <span className="articleCard-anchor-icons-cite-loading">
@@ -253,9 +167,10 @@ function ArticleCard({
 
 // Memoize to prevent unnecessary re-renders when parent re-renders
 export default React.memo(ArticleCard, (prevProps, nextProps) => {
-  // Only re-render if article ID or opened state changes
   return (
     prevProps.article.id === nextProps.article.id &&
-    prevProps.article.openedAbstract === nextProps.article.openedAbstract
+    prevProps.article.openedAbstract === nextProps.article.openedAbstract &&
+    prevProps.language === nextProps.language &&
+    prevProps.rvcode === nextProps.rvcode
   );
 });
