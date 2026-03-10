@@ -7,7 +7,7 @@ import { truncate } from '@/utils/string';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from 'react-device-detect';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useRouter } from 'next/navigation';
 import { Link } from '@/components/Link/Link';
 import { useAppSelector } from '@/hooks/store';
@@ -291,11 +291,11 @@ export default function VolumeDetailsClient({
 
         return (
           <div className="volumeDetails-content-results-content-description">
-            <ReactMarkdown>
+            <MarkdownRenderer>
               {showFullMobileDescription
                 ? descriptionText
                 : truncate(descriptionText, MAX_MOBILE_DESCRIPTION_LENGTH)}
-            </ReactMarkdown>
+            </MarkdownRenderer>
             {isTruncated && (
               <div
                 role="button"
@@ -322,7 +322,7 @@ export default function VolumeDetailsClient({
 
       return (
         <div className="volumeDetails-content-results-content-description">
-          <ReactMarkdown>{descriptionText}</ReactMarkdown>
+          <MarkdownRenderer>{descriptionText}</MarkdownRenderer>
         </div>
       );
     }

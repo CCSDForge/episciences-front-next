@@ -3,9 +3,8 @@
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import { Link } from '@/components/Link/Link';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
-import remarkGfm from 'remark-gfm';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
 import { useAppSelector } from '@/hooks/store';
@@ -204,8 +203,7 @@ export default function CreditsClient({
                 key={section.id}
                 className={`credits-content-body-section ${!section.opened && 'credits-content-body-section-hidden'}`}
               >
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
+                <MarkdownRenderer
                   urlTransform={uri =>
                     uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
                   }
@@ -260,7 +258,7 @@ export default function CreditsClient({
                   }}
                 >
                   {section.value}
-                </ReactMarkdown>
+                </MarkdownRenderer>
               </div>
             ))}
           </div>

@@ -4,9 +4,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { Link } from '@/components/Link/Link';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
-import remarkGfm from 'remark-gfm';
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
 import {
@@ -322,8 +321,7 @@ export default function ForAuthorsClient({
                 key={section.id}
                 className={`forAuthors-content-body-section ${!section.opened && 'forAuthors-content-body-section-hidden'}`}
               >
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
+                <MarkdownRenderer
                   urlTransform={uri =>
                     uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
                   }
@@ -334,7 +332,6 @@ export default function ForAuthorsClient({
                         href.startsWith('http') ||
                         href.startsWith('//') ||
                         href.startsWith('mailto:');
-                      const isAnchor = href.startsWith('#');
 
                       return (
                         <Link
@@ -388,7 +385,7 @@ export default function ForAuthorsClient({
                   }}
                 >
                   {section.value}
-                </ReactMarkdown>
+                </MarkdownRenderer>
                 <div className="forAuthors-content-body-section-cards">
                   {section.cards?.map((card, index) => (
                     <div
@@ -405,7 +402,7 @@ export default function ForAuthorsClient({
                         >
                           {card.title}
                         </h3>
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{card.content}</ReactMarkdown>
+                        <MarkdownRenderer>{card.content}</MarkdownRenderer>
                       </div>
                     </div>
                   ))}

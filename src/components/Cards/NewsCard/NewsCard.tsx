@@ -2,7 +2,7 @@
 
 import React, { MouseEvent, useState } from 'react';
 import { Link } from '@/components/Link/Link';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { TFunction } from 'i18next';
 import { ExternalLinkBlackIcon } from '@/components/icons';
 import './NewsCard.scss';
@@ -54,9 +54,9 @@ function NewsCard({
 
     return (
       <div className="newsCard-content-content">
-        <ReactMarkdown>
+        <MarkdownRenderer>
           {showFullContent ? content : truncate(content, MAX_CONTENT_LENGTH)}
-        </ReactMarkdown>
+        </MarkdownRenderer>
         {isTruncated && (
           <div
             onClick={(e): void => toggleFullContent(e)}

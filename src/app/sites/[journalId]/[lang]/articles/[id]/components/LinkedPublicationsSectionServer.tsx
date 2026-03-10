@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from '@/components/Link/Link';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { IArticleRelatedItem } from '@/types/article';
 import {
   INTER_WORK_RELATIONSHIP,
@@ -46,8 +45,7 @@ export default function LinkedPublicationsSectionServer({
               {t(relationship, translations)}
             </div>
           )}
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
+          <MarkdownRenderer
             components={{
               a: ({ ...props }) => (
                 <Link
@@ -62,7 +60,7 @@ export default function LinkedPublicationsSectionServer({
             }}
           >
             {decodeText(relatedItem.citation)}
-          </ReactMarkdown>
+          </MarkdownRenderer>
         </div>
       );
     }

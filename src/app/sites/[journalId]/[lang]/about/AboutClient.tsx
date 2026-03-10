@@ -2,9 +2,8 @@
 
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
-import remarkGfm from 'remark-gfm';
 
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
@@ -240,8 +239,7 @@ export default function AboutClient({
                     onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(section.id))}
                   >
                     <h2 id={section.id} className="about-content-body-section-subtitle-text">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
+                      <MarkdownRenderer
                         components={{
                           img: ({ src, alt }) => (
                             <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />
@@ -265,7 +263,7 @@ export default function AboutClient({
                         }}
                       >
                         {section.value.split('\n')[0]}
-                      </ReactMarkdown>
+                      </MarkdownRenderer>
                     </h2>
                     {section.opened ? (
                       <CaretUpBlackIcon
@@ -281,8 +279,7 @@ export default function AboutClient({
                       />
                     )}
                   </div>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
+                  <MarkdownRenderer
                     components={{
                       img: ({ src, alt }) => (
                         <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />
@@ -300,7 +297,7 @@ export default function AboutClient({
                     }}
                   >
                     {section.value.split('\n').slice(1).join('\n')}
-                  </ReactMarkdown>
+                  </MarkdownRenderer>
                 </div>
               ))
             ) : (
