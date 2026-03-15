@@ -341,6 +341,20 @@ describe('VolumesMobileModal', () => {
       await user.click(screen.getByRole('dialog'));
       expect(onClose).not.toHaveBeenCalled();
     });
+
+    it('calls onCloseCallback when Escape key is pressed', () => {
+      const onClose = vi.fn();
+      renderWithStore(<VolumesMobileModal {...defaultProps} onCloseCallback={onClose} />);
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onClose).toHaveBeenCalledOnce();
+    });
+
+    it('does not close when a non-Escape key is pressed', () => {
+      const onClose = vi.fn();
+      renderWithStore(<VolumesMobileModal {...defaultProps} onCloseCallback={onClose} />);
+      fireEvent.keyDown(document, { key: 'Enter' });
+      expect(onClose).not.toHaveBeenCalled();
+    });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
