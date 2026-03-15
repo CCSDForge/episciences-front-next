@@ -82,6 +82,8 @@ Next.js response headers are stripped first (`proxy_hide_header`) to avoid dupli
 | `font-src` | `cdnjs.cloudflare.com` | MathJax fonts |
 | `connect-src` | `https://*.episciences.org` | API calls |
 | | `https://piwik-episciences.ccsd.cnrs.fr` | Matomo beacon |
+| `worker-src` | `blob:` | MathJax Web Workers (blob URLs) |
+| | `cdnjs.cloudflare.com` | MathJax worker scripts from CDN |
 | `frame-src` / `object-src` | `'none'` | No embeds |
 
 **Gzip compression** is enabled for text, JSON, JS, CSS, SVG, and WOFF2.

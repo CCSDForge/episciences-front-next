@@ -76,7 +76,7 @@ function VolumeCard({
       href={volumeDetailPath}
       prefetch={false}
       lang={language}
-      className={`volumeCard-content-num ${isMobile && 'volumeCard-content-num-mobile'}`}
+      className={`volumeCard-content-num${isMobile ? ' volumeCard-content-num-mobile' : ''}`}
     >
       {formatVolumeNum()}
     </Link>

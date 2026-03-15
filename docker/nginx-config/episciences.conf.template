@@ -4,7 +4,8 @@ gzip            on;
 gzip_vary       on;
 gzip_min_length 1024;
 gzip_types      text/plain text/css application/json application/javascript
-                text/xml application/xml image/svg+xml font/woff2;
+                text/xml application/xml application/xml+rss image/svg+xml
+                font/woff2;
 
 # Default server: reject unknown hosts
 server {
@@ -107,7 +108,7 @@ server {
         add_header Permissions-Policy     "camera=(), microphone=(), geolocation=()" always;
 
         add_header Content-Security-Policy
-            "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com piwik-episciences.ccsd.cnrs.fr; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.episciences.org; font-src 'self' cdnjs.cloudflare.com; connect-src 'self' https://*.episciences.org https://piwik-episciences.ccsd.cnrs.fr; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
+            "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com piwik-episciences.ccsd.cnrs.fr; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.episciences.org; font-src 'self' cdnjs.cloudflare.com; connect-src 'self' https://*.episciences.org https://piwik-episciences.ccsd.cnrs.fr; worker-src 'self' blob: cdnjs.cloudflare.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
             always;
     }
 }
