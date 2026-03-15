@@ -68,7 +68,7 @@ describe('getValkeyClient()', () => {
     resetValkeyClient();
     mockDisconnect = vi.fn();
     mockOn = vi.fn().mockReturnThis();
-    MockRedisCtor = vi.fn(() => ({ on: mockOn, disconnect: mockDisconnect }));
+    MockRedisCtor = vi.fn(function () { return { on: mockOn, disconnect: mockDisconnect }; });
     _internals.setRedisFactory(MockRedisCtor);
   });
 
@@ -182,7 +182,7 @@ describe('resetValkeyClient()', () => {
     resetValkeyClient();
     mockDisconnect = vi.fn();
     mockOn = vi.fn().mockReturnThis();
-    MockRedisCtor = vi.fn(() => ({ on: mockOn, disconnect: mockDisconnect }));
+    MockRedisCtor = vi.fn(function () { return { on: mockOn, disconnect: mockDisconnect }; });
     _internals.setRedisFactory(MockRedisCtor);
   });
 
