@@ -240,25 +240,25 @@ describe('LanguageDropdown', () => {
   });
 
   describe('Menu items accessibility', () => {
-    it('menu items have role="menuitem"', async () => {
+    it('menu items have role="menuitemradio"', async () => {
       const user = userEvent.setup();
       render(<LanguageDropdown />);
 
       await user.click(screen.getByRole('button'));
 
-      const menuItems = screen.getAllByRole('menuitem');
+      const menuItems = screen.getAllByRole('menuitemradio');
       expect(menuItems.length).toBeGreaterThan(0);
     });
 
-    it('current language has aria-current="true"', async () => {
+    it('current language has aria-checked="true"', async () => {
       const user = userEvent.setup();
       render(<LanguageDropdown />);
 
       await user.click(screen.getByRole('button'));
 
       const currentItem = screen
-        .getAllByRole('menuitem')
-        .find(item => item.getAttribute('aria-current') === 'true');
+        .getAllByRole('menuitemradio')
+        .find(item => item.getAttribute('aria-checked') === 'true');
       expect(currentItem).toBeInTheDocument();
       expect(currentItem).toHaveTextContent('EN');
     });
@@ -279,7 +279,7 @@ describe('LanguageDropdown', () => {
 
       await user.click(screen.getByRole('button'));
 
-      const menuItems = screen.getAllByRole('menuitem');
+      const menuItems = screen.getAllByRole('menuitemradio');
       menuItems.forEach(item => {
         expect(item).toHaveAttribute('tabindex', '-1');
       });

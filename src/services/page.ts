@@ -16,7 +16,8 @@ export async function fetchPage(pageCode: string, rvcode: string): Promise<IPage
   // Use safeFetchData to ensure graceful degradation if API is down
   const page = await safeFetchData(
     async () => {
-      const response = await fetch(`${apiUrl}/pages?page_code=${pageCode}&rvcode=${rvcode}`, {
+      const params = new URLSearchParams({ page_code: pageCode, rvcode });
+      const response = await fetch(`${apiUrl}/pages?${params}`, {
         next: { tags: ['pages', `page-${pageCode}`, `page-${pageCode}-${rvcode}`] },
       });
 

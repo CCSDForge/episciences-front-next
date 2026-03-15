@@ -18,10 +18,10 @@ jobs:
       CI: 'true'
       NODE_ENV: 'development'
 
-    # Test against multiple Node.js versions
+    # Test against supported Node.js versions (vitest 3.x requires Node >= 19)
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x, 22.x]
 
     steps:
       # Checkout repository code

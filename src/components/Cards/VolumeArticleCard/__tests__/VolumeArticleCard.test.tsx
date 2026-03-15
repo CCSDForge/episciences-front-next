@@ -220,6 +220,22 @@ describe('VolumeArticleCard', () => {
       render(<VolumeArticleCard language="en" t={mockT as any} article={articleWithAbstract} />);
       expect(screen.getByTestId('caret-down')).toBeInTheDocument();
     });
+
+    it('abstract toggle has aria-expanded="false" when collapsed', () => {
+      render(<VolumeArticleCard language="en" t={mockT as any} article={articleWithAbstract} />);
+      const toggle = screen.getByRole('button', { name: /Abstract/ });
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('abstract toggle has aria-expanded="true" after opening', async () => {
+      const user = userEvent.setup();
+      render(<VolumeArticleCard language="en" t={mockT as any} article={articleWithAbstract} />);
+      await user.click(screen.getByRole('button', { name: /Abstract/ }));
+      expect(screen.getByRole('button', { name: /Abstract/ })).toHaveAttribute(
+        'aria-expanded',
+        'true'
+      );
+    });
   });
 
   describe('accessibility', () => {

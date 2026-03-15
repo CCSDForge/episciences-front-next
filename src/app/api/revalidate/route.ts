@@ -1,5 +1,7 @@
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+import { sanitizeIp } from '@/utils/validation';
 
 /**
  * API Route for Secure On-Demand Revalidation
@@ -14,6 +16,10 @@ import { NextRequest, NextResponse } from 'next/server';
  * Cache consistency across the cluster is handled by the shared Valkey cache
  * (see src/lib/cache-handler.js). PEER_SERVERS broadcasting is no longer needed.
  */
+
+if (process.env.NODE_ENV === 'production' && !process.env.REVALIDATION_SECRET) {
+  console.warn('[Revalidate API] CRITICAL: REVALIDATION_SECRET is not set in production!');
+}
 
 // Simple in-memory rate limiter (Configurable via env)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -77,10 +83,9 @@ export async function POST(request: NextRequest) {
     const allowedIps = process.env.ALLOWED_IPS
       ? process.env.ALLOWED_IPS.split(',').map(ip => ip.trim())
       : [];
-    const clientIp =
-      request.headers.get('x-forwarded-for')?.split(',')[0] ||
-      request.headers.get('x-real-ip') ||
-      '';
+    const clientIp = sanitizeIp(
+      request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip')
+    );
 
     if (allowedIps.length > 0 && !allowedIps.includes(clientIp)) {
       console.warn(`[Revalidate API] Blocked unauthorized IP: ${clientIp}`);
@@ -109,16 +114,24 @@ export async function POST(request: NextRequest) {
       // Check for journal-specific token: REVALIDATION_TOKEN_EPIJINFO
       const journalToken =
         process.env[`REVALIDATION_TOKEN_${journalId.toUpperCase().replace(/-/g, '_')}`];
-      if (journalToken && headerToken === journalToken) {
-        isAuthorized = true;
+      if (journalToken) {
+        const a = Buffer.from(headerToken);
+        const b = Buffer.from(journalToken);
+        if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+          isAuthorized = true;
+        }
       }
     }
 
     // Fallback to global secret if journal secret not found or not provided
     if (!isAuthorized) {
       const globalSecret = process.env.REVALIDATION_SECRET;
-      if (globalSecret && headerToken === globalSecret) {
-        isAuthorized = true;
+      if (globalSecret) {
+        const a = Buffer.from(headerToken);
+        const b = Buffer.from(globalSecret);
+        if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+          isAuthorized = true;
+        }
       }
     }
 

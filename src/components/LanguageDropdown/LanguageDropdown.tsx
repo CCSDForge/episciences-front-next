@@ -124,7 +124,7 @@ export default function LanguageDropdown({
         router.push(localizedPath);
       }
     },
-    [language, pathname]
+    [language, pathname, router]
   );
 
   const toggleDropdown = (): void => {
@@ -258,9 +258,9 @@ export default function LanguageDropdown({
               ref={el => {
                 menuItemRefs.current[index] = el;
               }}
-              role="menuitem"
+              role="menuitemradio"
               className="languageDropdown-menu-item"
-              aria-current={availableLanguage === language ? 'true' : undefined}
+              aria-checked={availableLanguage === language}
               onClick={() => switchLanguage(availableLanguage)}
               onKeyDown={event => handleMenuItemKeyDown(event, index)}
               tabIndex={-1}

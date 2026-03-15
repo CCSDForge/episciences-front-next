@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getJournalApiUrl } from '@/utils/env-loader';
-import { isValidJournalId } from '@/utils/validation';
+import { isValidJournalId, sanitizeIp } from '@/utils/validation';
 
 /**
  * Dynamic API Proxy
@@ -49,10 +49,9 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export async function GET(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
-  const clientIp =
-    request.headers.get('x-forwarded-for')?.split(',')[0] ||
-    request.headers.get('x-real-ip') ||
-    'unknown';
+  const clientIp = sanitizeIp(
+    request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip')
+  );
 
   if (!checkRateLimit(clientIp)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
@@ -66,8 +65,11 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
   const rvcode =
     searchParams.get('rvcode') ||
     searchParams.get('code') ||
-    request.headers.get('x-journal-code') ||
-    'epijinfo';
+    request.headers.get('x-journal-code');
+
+  if (!rvcode) {
+    return NextResponse.json({ error: 'Missing rvcode parameter' }, { status: 400 });
+  }
 
   if (!isValidJournalId(rvcode)) {
     return NextResponse.json({ error: 'Invalid journal code' }, { status: 400 });
@@ -109,10 +111,9 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
 }
 
 export async function POST(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
-  const clientIp =
-    request.headers.get('x-forwarded-for')?.split(',')[0] ||
-    request.headers.get('x-real-ip') ||
-    'unknown';
+  const clientIp = sanitizeIp(
+    request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip')
+  );
 
   if (!checkRateLimit(clientIp)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
@@ -125,8 +126,11 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
   const rvcode =
     searchParams.get('rvcode') ||
     searchParams.get('code') ||
-    request.headers.get('x-journal-code') ||
-    'epijinfo';
+    request.headers.get('x-journal-code');
+
+  if (!rvcode) {
+    return NextResponse.json({ error: 'Missing rvcode parameter' }, { status: 400 });
+  }
 
   if (!isValidJournalId(rvcode)) {
     return NextResponse.json({ error: 'Invalid journal code' }, { status: 400 });
