@@ -49,6 +49,21 @@ Run the preparation script on your build server. **You must specify a branch or 
 - Node.js 20+
 - Nginx 1.20+
 
+### Nginx configuration
+
+Deploy the production Nginx template before starting the service:
+
+```bash
+export EPI_ENV=prod DOMAIN_SUFFIX=episciences.org HAPROXY_CIDR=10.0.0.0/8
+envsubst '${EPI_ENV} ${DOMAIN_SUFFIX} ${HAPROXY_CIDR}' \
+  < deployment/production/nginx-episciences.conf.template \
+  > /etc/nginx/conf.d/episciences.conf
+nginx -t && systemctl reload nginx
+```
+
+See [Nginx Integration](NGINX_INTEGRATION.md) for the full configuration reference
+(security headers, CSP, static asset routing).
+
 ### Directories
 
 ```bash
@@ -81,18 +96,22 @@ Environment=HOSTNAME=127.0.0.1
 WantedBy=multi-user.target
 ```
 
-### 3.1 Cluster Cache Synchronization (CRITICAL)
+### 3.1 Cluster Cache Synchronization
 
-In a cluster, each node has its own local cache. To ensure that "Publishing" an article updates ALL nodes, you must configure them to talk to each other.
+In a cluster, each node has its own local cache. To ensure cache invalidation reaches all nodes,
+use the **Valkey distributed cache** (Redis-compatible, with Sentinel for HA).
 
-**Add the `PEER_SERVERS` environment variable to your systemd service file.**
+Enable it in the systemd service:
 
-**Example for a 4-node cluster:**
-Each node must list the IPs of the 3 other nodes.
+```ini
+Environment=VALKEY_ENABLED=true
+Environment=VALKEY_SENTINEL_HOSTS=sentinel-1:26379,sentinel-2:26379,sentinel-3:26379
+Environment=VALKEY_MASTER_NAME=mymaster
+Environment=VALKEY_PASSWORD=<secret>
+```
 
-- **VM1 (10.0.0.1)**: `PEER_SERVERS=http://10.0.0.2:3000,http://10.0.0.3:3000,http://10.0.0.4:3000`
-- **VM2 (10.0.0.2)**: `PEER_SERVERS=http://10.0.0.1:3000,http://10.0.0.3:3000,http://10.0.0.4:3000`
-- (and so on)
+All nodes share the same Valkey cluster. A webhook to any node invalidates the cache for all.
+See [Valkey Cache Strategy](VALKEY_CACHE_STRATEGY.md) for full configuration details.
 
 ### 3.2 Security & Rate Limiting
 

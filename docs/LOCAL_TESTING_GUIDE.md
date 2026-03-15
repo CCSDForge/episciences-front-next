@@ -1,127 +1,140 @@
 # Local Testing & Multi-Tenancy Guide
 
-This guide explains how to simulate the production multi-tenant environment on your local machine. The application uses a single Next.js instance to serve multiple journals based on the hostname (domain).
+This guide explains how to simulate the production multi-tenant environment on your local machine.
+The application uses a single Next.js instance to serve multiple journals based on the hostname.
 
-## 🌍 How it works
+## How it works
 
 The application relies on **Middleware** (`src/middleware.ts`) to intercept requests:
 
-1.  It reads the **Hostname** from the request header.
-2.  It extracts the subdomain (e.g., `epijinfo` from `epijinfo.localhost`).
-3.  It maps this subdomain to a valid **Journal Code** (rvcode).
-4.  It rewrites the internal URL to `/sites/[journalId]/[lang]/...`.
+1. It reads the **Hostname** from the request header.
+2. It extracts the subdomain (e.g., `epijinfo` from `epijinfo.localhost`).
+3. It maps this subdomain to a valid **Journal Code** (rvcode).
+4. It rewrites the internal URL to `/sites/[journalId]/[lang]/...`.
 
-## 🛠️ Method 1: Subdomains (Recommended)
+---
 
-The best way to test is to use subdomains that mimic production behavior. Most modern browsers and operating systems automatically resolve `*.localhost` to `127.0.0.1`.
+## Method 1: Nginx in Docker + npm run dev (recommended)
 
-### 1. Direct Access
+This is the closest to production: Nginx handles multi-tenant routing and injects the same
+security headers (CSP, `X-Frame-Options`, etc.) as the production server,
+while `npm run dev` provides hot-reload.
 
-Try accessing these URLs directly in your browser:
+### Setup
 
-- [http://epijinfo.localhost:3000](http://epijinfo.localhost:3000)
-- [http://jds.localhost:3000](http://jds.localhost:3000)
-- [http://lmcs.localhost:3000](http://lmcs.localhost:3000)
+1. Add the required `/etc/hosts` entries (one-time):
 
-### 2. Configuring `/etc/hosts` (If needed)
+   ```text
+   127.0.0.1  epijinfo.episciences.test
+   127.0.0.1  dmtcs.episciences.test
+   ```
 
-If automatic resolution doesn't work, or if you want to test specific custom domains, you need to edit your hosts file.
+   Or run `make hosts` to see the entries for the current `JOURNALS` variable.
 
-**Linux / macOS:**
+2. Start the dev server and the Nginx container:
 
-1.  Open terminal.
-2.  Run `sudo nano /etc/hosts`.
-3.  Add the following lines:
-    ```text
-    127.0.0.1   epijinfo.localhost
-    127.0.0.1   jds.localhost
-    127.0.0.1   lmcs.localhost
-    127.0.0.1   arima.localhost
-    ```
-4.  Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`).
+   ```bash
+   # Terminal 1
+   npm run dev
 
-## ⚙️ Method 2: Environment Variable (Fallback)
+   # Terminal 2
+   make dev-nginx
+   ```
 
-If you cannot edit your hosts file, or if you simply want to work on a single journal without dealing with subdomains, you can force a specific journal ID.
+3. Access `http://epijinfo.episciences.test:8080`.
 
-1.  Open or create `.env.local`.
-2.  Set the `NEXT_PUBLIC_JOURNAL_RVCODE` variable:
-    ```env
-    # Forces the app to serve 'epijinfo' even on localhost:3000
-    NEXT_PUBLIC_JOURNAL_RVCODE=epijinfo
-    ```
-3.  Restart the server (`npm run dev`).
-4.  Access [http://localhost:3000](http://localhost:3000).
+### Useful commands
 
-**Note:** This overrides the middleware detection logic. Remember to comment it out to test other journals.
+| Command | Description |
+|---|---|
+| `make dev-nginx` | Start Nginx (builds image if needed) |
+| `make dev-nginx-down` | Stop Nginx |
+| `make dev-nginx-logs` | Stream Nginx access/error logs |
+| `make dev-nginx-rebuild` | Rebuild Nginx image (after template changes) |
 
-## ⚙️ 3. Journal Configuration & External Assets
+See [Nginx Integration](NGINX_INTEGRATION.md) for full details on the Docker setup.
 
-Each journal can have its own specific configuration (API URL, feature flags, etc.).
-The application looks for these configurations in the `external-assets/` directory.
+---
 
-### Configuration File
+## Method 2: Subdomains with npm run dev (simple)
 
-To define specific environment variables for a journal (e.g., `dc`), create a file named `.env.local.dc` in `external-assets/`.
+No Docker required. The middleware detects the journal from the subdomain.
 
-**File path:** `external-assets/.env.local.dc`
+Most systems resolve `*.localhost` automatically to `127.0.0.1`. Try directly:
 
-**Example Content:**
+- `http://epijinfo.localhost:8080`
+- `http://jds.localhost:8080`
+- `http://lmcs.localhost:8080`
+
+If automatic resolution does not work, add entries to `/etc/hosts`:
+
+```text
+127.0.0.1  epijinfo.localhost
+127.0.0.1  jds.localhost
+127.0.0.1  lmcs.localhost
+127.0.0.1  arima.localhost
+```
+
+**Note:** This method skips Nginx, so production security headers (CSP, etc.) are not applied.
+
+---
+
+## Method 3: Environment Variable (single journal, no hosts file)
+
+Force a specific journal by setting `NEXT_PUBLIC_JOURNAL_RVCODE` in `.env.local`:
 
 ```env
-# API Endpoint specific for this journal (optional)
-NEXT_PUBLIC_API_ROOT_ENDPOINT=https://api-preprod.episciences.org/api
+NEXT_PUBLIC_JOURNAL_RVCODE=epijinfo
+```
 
-# Specific feature flags
-NEXT_PUBLIC_SHOW_NEWS=true
+Then access `http://localhost:8080`. This bypasses middleware detection.
+Remember to remove this override when testing other journals.
+
+---
+
+## Journal Configuration & External Assets
+
+Each journal can have its own configuration (API URL, feature flags, colors, etc.)
+loaded from `external-assets/`.
+
+### Configuration file
+
+Create `external-assets/.env.local.<journal-code>`:
+
+```env
+NEXT_PUBLIC_API_ROOT_ENDPOINT=https://api-preprod.episciences.org/api
+NEXT_PUBLIC_JOURNAL_RVCODE=epijinfo
+NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR=#49737e
 ```
 
 ### Logos
 
-Journal logos are also loaded from `external-assets/logos/`.
-Ensure the file `logo-dc.svg` exists if you are testing the `dc` journal.
+Journal logos are loaded from `public/logos/`.
+The file must be named `logo-<journal-code>.svg` (e.g., `logo-epijinfo.svg`).
 
-## ⚠️ Common Issues
+---
 
-### 1. CORS Errors & Multiple APIs
+## Common Issues
 
-When testing multiple journals simultaneously (e.g., `epijinfo.localhost` and `jds.localhost`), you might encounter CORS errors or connection issues.
+### CORS errors when testing multiple journals
 
-**Server-Side (No Issues):**
-The application reads `external-assets/.env.local.<journalCode>` for each request.
+**Server-side (no issues):** Each request loads `external-assets/.env.local.<journalCode>` independently.
 
-- `epijinfo` uses the URL defined in `.env.local.epijinfo`
-- `jds` uses the URL defined in `.env.local.jds`
-  This works automatically.
+**Client-side (potential CORS):** Client components fetch directly from the browser.
 
-**Client-Side (CORS Risk):**
-Client components (Search, Pagination) fetch data directly from the browser.
+- If the API sends `Access-Control-Allow-Origin: *`, everything works.
+- If not, use the built-in proxy to bypass CORS:
 
-- **Scenario A (Recommended):** Your API (e.g., `api-preprod`) sends `Access-Control-Allow-Origin: *`. Everything works.
-- **Scenario B (Local Backend):** If your local Symfony API does not allow `*.localhost`, requests will fail.
-  - _Fix:_ Configure your local Apache/Nginx to allow your local domains.
-  - _Workaround (Proxy):_ Use the built-in proxy to bypass CORS.
-    1.  Open or create your `.env.local` file (this file is ignored by git).
-    2.  Add the following variables:
+  ```env
+  # .env.local
+  NEXT_PUBLIC_API_URL_FORCE=/api-proxy
+  API_PROXY_TARGET=http://127.0.0.1:8000/api
+  ```
 
-        ```env
-        # 1. Force ALL journals to use the local proxy (Relative URL handles subdomains correctly)
-        NEXT_PUBLIC_API_URL_FORCE=/api-proxy
+  Then restart `npm run dev`. All journals will route API calls through the local proxy.
 
-        # 2. Tell the proxy where to forward requests (Local Backend or Preprod)
-        API_PROXY_TARGET=http://127.0.0.1:8000/api
-        ```
-
-    3.  Restart the server (`npm run dev`).
-
-    **Result:**
-    - `epijinfo.localhost` calls `/api-proxy` -> proxies to `127.0.0.1:8000`.
-    - `jds.localhost` calls `/api-proxy` -> proxies to `127.0.0.1:8000`.
-    - No need to touch `external-assets/`.
-
-### 2. "Journal not found"
-
-If you see a 404 or a generic error:
+### "Journal not found" (404 or generic error)
 
 - Check that the subdomain exactly matches a known journal code (rvcode).
-- Verify in `src/config/journals-generated.ts` (or the API response) that the journal exists.
+- Verify the journal exists in the API or in `src/config/`.
+- Ensure `external-assets/.env.local.<journal-code>` exists.
