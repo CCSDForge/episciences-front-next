@@ -132,13 +132,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Stream response with controlled Content-Disposition
-    const headers = new Headers({
+    const allowedOrigin = process.env.NEXT_PUBLIC_EPISCIENCES_ALLOWED_ORIGIN || '';
+    const corsHeaders: Record<string, string> = {
       'Content-Type': 'application/pdf', // Always force application/pdf (upstream may send application/octet-stream)
       'Content-Disposition': contentDisposition, // 'inline' or 'attachment; filename="..."'
       'Cache-Control': 'public, max-age=604800, immutable', // 7 days cache
-      'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET',
-    });
+    };
+    if (allowedOrigin) {
+      corsHeaders['Access-Control-Allow-Origin'] = allowedOrigin;
+    }
+    const headers = new Headers(corsHeaders);
 
     // If Content-Length is available, forward it
     const contentLength = response.headers.get('Content-Length');
@@ -168,12 +172,13 @@ export async function GET(request: NextRequest) {
  * OPTIONS /api/pdf-proxy - Handle CORS preflight requests
  */
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
+  const allowedOrigin = process.env.NEXT_PUBLIC_EPISCIENCES_ALLOWED_ORIGIN || '';
+  const optionsHeaders: Record<string, string> = {
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+  if (allowedOrigin) {
+    optionsHeaders['Access-Control-Allow-Origin'] = allowedOrigin;
+  }
+  return new NextResponse(null, { status: 200, headers: optionsHeaders });
 }

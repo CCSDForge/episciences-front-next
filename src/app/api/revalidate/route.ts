@@ -16,6 +16,10 @@ import crypto from 'crypto';
  * (see src/lib/cache-handler.js). PEER_SERVERS broadcasting is no longer needed.
  */
 
+if (process.env.NODE_ENV === 'production' && !process.env.REVALIDATION_SECRET) {
+  console.error('[Revalidate API] CRITICAL: REVALIDATION_SECRET is not set in production!');
+}
+
 // Simple in-memory rate limiter (Configurable via env)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = Number(process.env.REVALIDATE_RATE_LIMIT) || 100;
