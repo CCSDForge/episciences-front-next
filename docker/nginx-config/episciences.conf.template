@@ -1,3 +1,11 @@
+server_tokens off;
+
+gzip            on;
+gzip_vary       on;
+gzip_min_length 1024;
+gzip_types      text/plain text/css application/json application/javascript
+                text/xml application/xml image/svg+xml font/woff2;
+
 # Default server: reject unknown hosts
 server {
     listen 80 default_server;
@@ -74,7 +82,7 @@ server {
     # ==============================================================================
 
     location / {
-        proxy_pass http://app:3000;
+        proxy_pass http://${NEXT_UPSTREAM};
         
         # Standard Proxy Headers
         proxy_set_header Host $host;
@@ -87,9 +95,19 @@ server {
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
 
-        # Security Headers
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header Referrer-Policy "no-referrer-when-downgrade" always;
-        add_header X-Frame-Options "SAMEORIGIN" always;
+        # Security headers — strip Next.js duplicates, then add cleanly
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header Referrer-Policy;
+        proxy_hide_header Permissions-Policy;
+
+        add_header X-Frame-Options        "SAMEORIGIN"                         always;
+        add_header X-Content-Type-Options "nosniff"                            always;
+        add_header Referrer-Policy        "strict-origin-when-cross-origin"    always;
+        add_header Permissions-Policy     "camera=(), microphone=(), geolocation=()" always;
+
+        add_header Content-Security-Policy
+            "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com piwik-episciences.ccsd.cnrs.fr; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.episciences.org; font-src 'self' cdnjs.cloudflare.com; connect-src 'self' https://*.episciences.org https://piwik-episciences.ccsd.cnrs.fr; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
+            always;
     }
 }

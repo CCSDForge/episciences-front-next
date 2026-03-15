@@ -1,0 +1,164 @@
+# /etc/nginx/conf.d/episciences.conf
+# Generated from nginx-episciences.conf.template via:
+#   envsubst '${EPI_ENV} ${DOMAIN_SUFFIX} ${HAPROXY_CIDR}' \
+#     < nginx-episciences.conf.template > /etc/nginx/conf.d/episciences.conf
+#
+# Required environment variables:
+#   EPI_ENV        — e.g. "prod" or "preprod"  (used for NFS path)
+#   DOMAIN_SUFFIX  — e.g. "episciences.org"    (matched in server_name)
+#   HAPROXY_CIDR   — e.g. "10.0.0.0/8"        (HAProxy IP range, for real-IP trust)
+
+server_tokens off;
+
+gzip            on;
+gzip_vary       on;
+gzip_min_length 1024;
+gzip_types      text/plain text/css application/json application/javascript
+                text/xml application/xml application/xml+rss image/svg+xml
+                font/woff2;
+
+# ---------------------------------------------------------------------------
+# Default: reject unknown / unmatched hosts
+# ---------------------------------------------------------------------------
+server {
+    listen 80 default_server;
+    server_name _;
+    return 444;
+}
+
+# ---------------------------------------------------------------------------
+# Main server block — one block handles every journal via hostname regex
+# ---------------------------------------------------------------------------
+server {
+    listen 80;
+
+    # Capture journal code from hostname:  epijinfo.episciences.org → epijinfo
+    server_name "~^(?P<journal_code>[a-z0-9-]{2,50})\.${DOMAIN_SUFFIX}$";
+
+    # Trust HAProxy for real client IP
+    set_real_ip_from  ${HAPROXY_CIDR};
+    real_ip_header    X-Forwarded-For;
+    real_ip_recursive on;
+
+    # Per-journal logs
+    access_log /var/log/nginx/${journal_code}_access.log combined;
+    error_log  /var/log/nginx/${journal_code}_error.log warn;
+
+    # NFS data root (same layout as legacy Apache setup)
+    set $epi_data_root "/data/epi/${EPI_ENV}/$journal_code";
+
+    # -----------------------------------------------------------------------
+    # STATIC ASSETS — served directly from NFS, bypass Next.js
+    # -----------------------------------------------------------------------
+
+    location = /sitemap.xml {
+        alias $epi_data_root/sitemap/sitemap.xml;
+        add_header Cache-Control "public, max-age=3600" always;
+    }
+
+    location /public/documents/ {
+        alias    $epi_data_root/public/documents/;
+        autoindex off;
+        add_header Cache-Control "public, max-age=86400" always;
+    }
+
+    location /volumes-full/ {
+        alias    $epi_data_root/public/volume-pdf/;
+        autoindex off;
+        add_header Cache-Control "public, max-age=86400" always;
+    }
+
+    location /volumes-doaj/ {
+        alias    $epi_data_root/public/volume-doaj/;
+        autoindex off;
+        add_header Cache-Control "public, max-age=86400" always;
+    }
+
+    location /public/volumes/ {
+        alias    $epi_data_root/public/volumes/;
+        autoindex off;
+        add_header Cache-Control "public, max-age=86400" always;
+    }
+
+    location /user/picture/ {
+        alias    /data/user_photo/${EPI_ENV}/uuid/;
+        autoindex off;
+        add_header Cache-Control "public, max-age=86400" always;
+    }
+
+    # Resources: /$journal-code/resources/<path>
+    location ~ ^/(?<jc>[a-z0-9-]+)/resources/(?<res_path>.*)$ {
+        if ($jc != $journal_code) { return 403; }
+        alias    /data/epi/${EPI_ENV}/$journal_code/public/$res_path;
+        autoindex off;
+        add_header Cache-Control "public, max-age=86400" always;
+    }
+
+    # -----------------------------------------------------------------------
+    # SECURITY — block sensitive file extensions
+    # -----------------------------------------------------------------------
+
+    location ~* \.(md|sql|sh|git|bak|save|tar|gz|bz2|rar)$ {
+        deny all;
+        access_log    off;
+        log_not_found off;
+    }
+
+    # -----------------------------------------------------------------------
+    # PROXY TO NEXT.JS (systemd service on 127.0.0.1:3000)
+    # -----------------------------------------------------------------------
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+
+        # Standard proxy headers
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        # Preserve the scheme set by HAProxy (https) so Next.js can generate
+        # correct absolute URLs (og:url, canonical, etc.)
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+
+        # Timeouts — generous for ISR cold-start revalidation
+        proxy_connect_timeout 60s;
+        proxy_send_timeout    90s;
+        proxy_read_timeout    90s;
+
+        # -----------------------------------------------------------------------
+        # SECURITY HEADERS
+        # Remove duplicates that Next.js may already set, then re-add cleanly.
+        # -----------------------------------------------------------------------
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header Referrer-Policy;
+        proxy_hide_header Permissions-Policy;
+
+        add_header X-Frame-Options         "SAMEORIGIN"                         always;
+        add_header X-Content-Type-Options  "nosniff"                            always;
+        add_header Referrer-Policy         "strict-origin-when-cross-origin"    always;
+        add_header Permissions-Policy      "camera=(), microphone=(), geolocation=()" always;
+
+        # -----------------------------------------------------------------------
+        # CONTENT SECURITY POLICY
+        #
+        # default-src   'self'                      — baseline: block all unlisted
+        # script-src    + 'unsafe-inline'            — required: Next.js hydration data scripts
+        #               + cdnjs.cloudflare.com       — MathJax CDN
+        #               + piwik-episciences.ccsd.cnrs.fr — Matomo analytics
+        # style-src     + 'unsafe-inline'            — required: Next.js inline styles
+        # img-src       + data:                      — blur placeholders (Next.js Image)
+        #               + blob:                      — canvas/worker blobs (MathJax)
+        #               + https://*.episciences.org  — article thumbnails, board photos (API)
+        # font-src      + cdnjs.cloudflare.com       — MathJax fonts
+        # connect-src   + https://*.episciences.org  — API, revalidation endpoint
+        #               + https://piwik-episciences.ccsd.cnrs.fr — Matomo beacon
+        # frame-src     'none'                       — no iframe embedding
+        # object-src    'none'                       — block plugins (Flash, etc.)
+        # base-uri      'self'                       — prevent base-tag hijacking
+        # form-action   'self'                       — forms must submit to same origin
+        # -----------------------------------------------------------------------
+        add_header Content-Security-Policy
+            "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com piwik-episciences.ccsd.cnrs.fr; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.episciences.org; font-src 'self' cdnjs.cloudflare.com; connect-src 'self' https://*.episciences.org https://piwik-episciences.ccsd.cnrs.fr; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
+            always;
+    }
+}
