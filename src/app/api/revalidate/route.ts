@@ -1,5 +1,6 @@
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 
 /**
  * API Route for Secure On-Demand Revalidation
@@ -109,16 +110,24 @@ export async function POST(request: NextRequest) {
       // Check for journal-specific token: REVALIDATION_TOKEN_EPIJINFO
       const journalToken =
         process.env[`REVALIDATION_TOKEN_${journalId.toUpperCase().replace(/-/g, '_')}`];
-      if (journalToken && headerToken === journalToken) {
-        isAuthorized = true;
+      if (journalToken) {
+        const a = Buffer.from(headerToken);
+        const b = Buffer.from(journalToken);
+        if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+          isAuthorized = true;
+        }
       }
     }
 
     // Fallback to global secret if journal secret not found or not provided
     if (!isAuthorized) {
       const globalSecret = process.env.REVALIDATION_SECRET;
-      if (globalSecret && headerToken === globalSecret) {
-        isAuthorized = true;
+      if (globalSecret) {
+        const a = Buffer.from(headerToken);
+        const b = Buffer.from(globalSecret);
+        if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+          isAuthorized = true;
+        }
       }
     }
 
