@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TFunction } from 'i18next';
-import { useAppDispatch, useAppSelector } from '@/hooks/store';
-import { setFooterVisibility } from '@/store/features/footer/footer.slice';
 import { AvailableLanguage } from '@/utils/i18n';
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import Button from '@/components/Button/Button';
@@ -13,6 +11,8 @@ import LiveRegion from '@/components/LiveRegion/LiveRegion';
 import FocusTrap from 'focus-trap-react';
 import './SearchResultsMobileModal.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { useMobileModal } from '@/hooks/useMobileModal';
+import { useFilterSections } from '@/hooks/useFilterSections';
 
 enum FILTERS_SECTION {
   TYPE = 'type',
@@ -94,20 +94,6 @@ export default function SearchResultsMobileModal({
   onUpdateAuthorsCallback,
   onCloseCallback,
 }: ISearchResultsMobileModalProps): React.JSX.Element {
-  const dispatch = useAppDispatch();
-  const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  const [openedSections, setOpenedSections] = useState<
-    { key: FILTERS_SECTION; isOpened: boolean }[]
-  >([
-    { key: FILTERS_SECTION.TYPE, isOpened: false },
-    { key: FILTERS_SECTION.YEAR, isOpened: false },
-    { key: FILTERS_SECTION.VOLUME, isOpened: false },
-    { key: FILTERS_SECTION.SECTION, isOpened: false },
-    { key: FILTERS_SECTION.AUTHOR, isOpened: false },
-  ]);
-
   const [types, setTypes] = useState<ISearchResultsTypeSelection[]>(initialTypes);
   const [years, setYears] = useState<ISearchResultsYearSelection[]>(initialYears);
   const [volumes, setVolumes] = useState<ISearchResultsVolumeSelection[]>(initialVolumes);
@@ -115,166 +101,6 @@ export default function SearchResultsMobileModal({
   const [authors, setAuthors] = useState<ISearchResultsAuthorSelection[]>(initialAuthors);
   const [taggedFilters, setTaggedFilters] = useState<ISearchResultsFilter[]>([]);
   const [announcement, setAnnouncement] = useState('');
-
-  const onCheckType = (value: string): void => {
-    const updatedTypes = types.map(t => {
-      if (t.value === value) {
-        return { ...t, isChecked: !t.isChecked };
-      }
-      return { ...t };
-    });
-
-    setTypes(updatedTypes);
-  };
-
-  const onCheckYear = (value: number): void => {
-    const updatedYears = years.map(y => {
-      if (y.year === value) {
-        return { ...y, isChecked: !y.isChecked };
-      }
-      return { ...y };
-    });
-
-    setYears(updatedYears);
-  };
-
-  const onCheckVolume = (id: number): void => {
-    const updatedVolumes = volumes.map(v => {
-      if (v.id === id) {
-        return { ...v, isChecked: !v.isChecked };
-      }
-      return { ...v };
-    });
-
-    setVolumes(updatedVolumes);
-  };
-
-  const onCheckSection = (id: number): void => {
-    const updatedSections = sections.map(s => {
-      if (s.id === id) {
-        return { ...s, isChecked: !s.isChecked };
-      }
-      return { ...s };
-    });
-
-    setSections(updatedSections);
-  };
-
-  const onCheckAuthor = (fullname: string): void => {
-    const updatedAuthors = authors.map(a => {
-      if (a.fullname === fullname) {
-        return { ...a, isChecked: !a.isChecked };
-      }
-      return { ...a };
-    });
-
-    setAuthors(updatedAuthors);
-  };
-
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: ISearchResultsFilter[] = [];
-
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({
-          type: 'type',
-          value: t.value,
-          labelPath: t.labelPath,
-        });
-      });
-
-    years
-      .filter(y => y.isChecked)
-      .forEach(y => {
-        initFilters.push({
-          type: 'year',
-          value: y.year,
-          label: y.year,
-        });
-      });
-
-    volumes
-      .filter(v => v.isChecked)
-      .forEach(v => {
-        initFilters.push({
-          type: 'volume',
-          value: v.id,
-          translatedLabel: v.label,
-        });
-      });
-
-    sections
-      .filter(s => s.isChecked)
-      .forEach(s => {
-        initFilters.push({
-          type: 'section',
-          value: s.id,
-          translatedLabel: s.label,
-        });
-      });
-
-    authors
-      .filter(a => a.isChecked)
-      .forEach(a => {
-        initFilters.push({
-          type: 'author',
-          value: a.fullname,
-          label: a.fullname,
-        });
-      });
-
-    setTaggedFilters(initFilters);
-  }, [types, years, volumes, sections, authors]);
-
-  const onCloseTaggedFilter = (type: SearchResultsTypeFilter, value: string | number) => {
-    if (type === 'type') {
-      const updatedTypes = types.map(t => {
-        if (t.value === value) {
-          return { ...t, isChecked: false };
-        }
-        return t;
-      });
-
-      setTypes(updatedTypes);
-    } else if (type === 'year') {
-      const updatedYears = years.map(y => {
-        if (y.year === value) {
-          return { ...y, isChecked: false };
-        }
-        return y;
-      });
-
-      setYears(updatedYears);
-    } else if (type === 'volume') {
-      const updatedVolumes = volumes.map(v => {
-        if (v.id === value) {
-          return { ...v, isChecked: false };
-        }
-        return v;
-      });
-
-      setVolumes(updatedVolumes);
-    } else if (type === 'section') {
-      const updatedSections = sections.map(s => {
-        if (s.id === value) {
-          return { ...s, isChecked: false };
-        }
-        return s;
-      });
-
-      setSections(updatedSections);
-    } else if (type === 'author') {
-      const updatedAuthors = authors.map(a => {
-        if (a.fullname === value) {
-          return { ...a, isChecked: false };
-        }
-        return a;
-      });
-
-      setAuthors(updatedAuthors);
-    }
-  };
 
   const clearTaggedFilters = useCallback((): void => {
     setTypes(prev => prev.map(t => ({ ...t, isChecked: false })));
@@ -285,11 +111,72 @@ export default function SearchResultsMobileModal({
     setTaggedFilters([]);
   }, []);
 
-  const onClose = useCallback((): void => {
-    clearTaggedFilters();
-    onCloseCallback();
-    dispatch(setFooterVisibility(true));
-  }, [clearTaggedFilters, onCloseCallback, dispatch]);
+  const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
+    onBeforeClose: clearTaggedFilters,
+    lockBodyScroll: true,
+  });
+
+  const { toggle: toggleSection, isOpened: isOpenedSection } = useFilterSections([
+    { key: FILTERS_SECTION.TYPE, isOpened: false },
+    { key: FILTERS_SECTION.YEAR, isOpened: false },
+    { key: FILTERS_SECTION.VOLUME, isOpened: false },
+    { key: FILTERS_SECTION.SECTION, isOpened: false },
+    { key: FILTERS_SECTION.AUTHOR, isOpened: false },
+  ]);
+
+  const setAllTaggedFilters = useCallback((): void => {
+    const initFilters: ISearchResultsFilter[] = [];
+    types.filter(t => t.isChecked).forEach(t => {
+      initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
+    });
+    years.filter(y => y.isChecked).forEach(y => {
+      initFilters.push({ type: 'year', value: y.year, label: y.year });
+    });
+    volumes.filter(v => v.isChecked).forEach(v => {
+      initFilters.push({ type: 'volume', value: v.id, translatedLabel: v.label });
+    });
+    sections.filter(s => s.isChecked).forEach(s => {
+      initFilters.push({ type: 'section', value: s.id, translatedLabel: s.label });
+    });
+    authors.filter(a => a.isChecked).forEach(a => {
+      initFilters.push({ type: 'author', value: a.fullname, label: a.fullname });
+    });
+    setTaggedFilters(initFilters);
+  }, [types, years, volumes, sections, authors]);
+
+  useEffect(() => {
+    setAllTaggedFilters();
+  }, [setAllTaggedFilters]);
+
+  const onCheckType = (value: string): void => {
+    setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: !t.isChecked } : t)));
+  };
+
+  const onCheckYear = (value: number): void => {
+    setYears(prev => prev.map(y => (y.year === value ? { ...y, isChecked: !y.isChecked } : y)));
+  };
+
+  const onCheckVolume = (id: number): void => {
+    setVolumes(prev => prev.map(v => (v.id === id ? { ...v, isChecked: !v.isChecked } : v)));
+  };
+
+  const onCheckSection = (id: number): void => {
+    setSections(prev => prev.map(s => (s.id === id ? { ...s, isChecked: !s.isChecked } : s)));
+  };
+
+  const onCheckAuthor = (fullname: string): void => {
+    setAuthors(prev =>
+      prev.map(a => (a.fullname === fullname ? { ...a, isChecked: !a.isChecked } : a))
+    );
+  };
+
+  const onCloseTaggedFilter = (type: SearchResultsTypeFilter, value: string | number) => {
+    if (type === 'type') setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: false } : t)));
+    else if (type === 'year') setYears(prev => prev.map(y => (y.year === value ? { ...y, isChecked: false } : y)));
+    else if (type === 'volume') setVolumes(prev => prev.map(v => (v.id === value ? { ...v, isChecked: false } : v)));
+    else if (type === 'section') setSections(prev => prev.map(s => (s.id === value ? { ...s, isChecked: false } : s)));
+    else if (type === 'author') setAuthors(prev => prev.map(a => (a.fullname === value ? { ...a, isChecked: false } : a)));
+  };
 
   const onApplyFilters = (): void => {
     onUpdateTypesCallback(types);
@@ -298,7 +185,6 @@ export default function SearchResultsMobileModal({
     onUpdateSectionsCallback(sections);
     onUpdateAuthorsCallback(authors);
 
-    // Announce filter count to screen readers
     const filterCount = taggedFilters.length;
     if (filterCount > 0) {
       setAnnouncement(t('common.filters.filtersActive', { count: filterCount }));
@@ -306,59 +192,8 @@ export default function SearchResultsMobileModal({
       setAnnouncement(t('common.filters.noFilters'));
     }
 
-    onCloseCallback();
-    dispatch(setFooterVisibility(true));
+    closeModal();
   };
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-
-    // Prevent background scroll
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
-    };
-  }, [onClose]);
-
-  useEffect(() => {
-    if (isFooterEnabled) {
-      dispatch(setFooterVisibility(false));
-    }
-  }, [isFooterEnabled, dispatch]);
-
-  const toggleSection = (sectionKey: FILTERS_SECTION) => {
-    const updatedSections = openedSections.map(section => {
-      if (section.key === sectionKey) {
-        return { ...section, isOpened: !section.isOpened };
-      }
-      return { ...section };
-    });
-
-    setOpenedSections(updatedSections);
-  };
-
-  const isOpenedSection = (sectionKey: FILTERS_SECTION): boolean | undefined =>
-    openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
     <FocusTrap>
@@ -560,7 +395,9 @@ export default function SearchResultsMobileModal({
                       role="button"
                       tabIndex={0}
                       onClick={(): void => onCheckVolume(volume.id)}
-                      onKeyDown={e => handleKeyboardClick(e, (): void => onCheckVolume(volume.id))}
+                      onKeyDown={e =>
+                        handleKeyboardClick(e, (): void => onCheckVolume(volume.id))
+                      }
                     >
                       {volume.label[language]}
                     </span>
