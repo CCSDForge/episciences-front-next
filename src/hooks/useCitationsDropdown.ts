@@ -34,7 +34,7 @@ export function useCitationsDropdown(
 
   const { data: metadataCSL } = useFetchArticleMetadataQuery(
     {
-      rvcode: rvcode!,
+      rvcode: rvcode ?? '',
       paperid: articleId.toString(),
       type: METADATA_TYPE.CSL,
     },
@@ -45,7 +45,7 @@ export function useCitationsDropdown(
 
   const { data: metadataBibTeX } = useFetchArticleMetadataQuery(
     {
-      rvcode: rvcode!,
+      rvcode: rvcode ?? '',
       paperid: articleId.toString(),
       type: METADATA_TYPE.BIBTEX,
     },

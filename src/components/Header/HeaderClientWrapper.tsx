@@ -27,7 +27,7 @@ export default function HeaderClientWrapper({
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [reducedScrollPosition]);
+  }, []);
 
   useEffect(() => {
     // Apply the class to the header element
