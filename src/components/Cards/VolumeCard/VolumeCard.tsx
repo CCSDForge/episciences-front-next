@@ -48,55 +48,39 @@ function VolumeCard({
 
   const toggleDescription = (): void => setOpenedDescription(!openedDescription);
 
-  const renderVolumeTileNum = (): React.JSX.Element => {
-    let text = '';
-
+  const formatVolumeNum = (): string => {
     if (volume.types && volume.types.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
-        text += `${t('common.volumeCard.proceeding')}`;
-      } else if (volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
-        text += `${t('common.volumeCard.specialIssue')}`;
+        return `${t('common.volumeCard.proceeding')} ${volume.num}`;
       }
-    } else {
-      text += `${t('common.volumeCard.volume')}`;
+      if (volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
+        return `${t('common.volumeCard.specialIssue')} ${volume.num}`;
+      }
     }
-
-    return (
-      <Link
-        href={volumeDetailPath}
-        prefetch={false}
-        lang={language}
-        className="volumeCard-tile-text-volume"
-      >
-        {`${text} ${volume.num}`}
-      </Link>
-    );
+    return `${t('common.volumeCard.volume')} ${volume.num}`;
   };
 
-  const renderVolumeListNum = (isMobile: boolean): React.JSX.Element | null => {
-    let text = '';
+  const renderVolumeTileNum = (): React.JSX.Element => (
+    <Link
+      href={volumeDetailPath}
+      prefetch={false}
+      lang={language}
+      className="volumeCard-tile-text-volume"
+    >
+      {formatVolumeNum()}
+    </Link>
+  );
 
-    if (volume.types && volume.types.length) {
-      if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
-        text += `${t('common.volumeCard.proceeding')}`;
-      } else if (volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
-        text += `${t('common.volumeCard.specialIssue')}`;
-      }
-    } else {
-      text += `${t('common.volumeCard.volume')}`;
-    }
-
-    return (
-      <Link
-        href={volumeDetailPath}
-        prefetch={false}
-        lang={language}
-        className={`volumeCard-content-num ${isMobile && 'volumeCard-content-num-mobile'}`}
-      >
-        {`${text} ${volume.num}`}
-      </Link>
-    );
-  };
+  const renderVolumeListNum = (isMobile: boolean): React.JSX.Element => (
+    <Link
+      href={volumeDetailPath}
+      prefetch={false}
+      lang={language}
+      className={`volumeCard-content-num ${isMobile && 'volumeCard-content-num-mobile'}`}
+    >
+      {formatVolumeNum()}
+    </Link>
+  );
 
   if (mode === RENDERING_MODE.TILE) {
     return (

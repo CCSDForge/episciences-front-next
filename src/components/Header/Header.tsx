@@ -26,6 +26,46 @@ import LanguageDropdown from '@/components/LanguageDropdown/LanguageDropdown';
 import HeaderSearchInput from '@/components/SearchInput/HeaderSearchInput/HeaderSearchInput';
 import HeaderDropdown from './HeaderDropdown';
 
+/** Sign-in link shown in both reduced and full header variants */
+function HeaderSignIn({
+  submitManagerLink,
+  showSeparator,
+  signInText,
+  newWindowText,
+}: {
+  submitManagerLink: string;
+  showSeparator: boolean;
+  signInText: string;
+  newWindowText: string;
+}): React.JSX.Element {
+  return (
+    <>
+      {showSeparator && (
+        <span className="header-signin-separator" aria-hidden="true">
+          |
+        </span>
+      )}
+      <Link
+        href={submitManagerLink}
+        className="header-signin"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span className="header-signin-text">{signInText}</span>
+        <Image
+          className="header-signin-icon"
+          src="/icons/user-circle.svg"
+          alt={signInText}
+          width={28}
+          height={28}
+          unoptimized
+        />
+        <span className="sr-only">{newWindowText}</span>
+      </Link>
+    </>
+  );
+}
+
 interface HeaderProps {
   currentJournal?: {
     id: number;
@@ -352,29 +392,12 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
               <LanguageDropdown withWhiteCaret={isMobileReduced()} />
             )}
             {submitManagerLink && (
-              <>
-                {availableLanguages.length > 1 && (
-                  <span className="header-signin-separator" aria-hidden="true">
-                    |
-                  </span>
-                )}
-                <Link
-                  href={submitManagerLink}
-                  className="header-signin"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="header-signin-text">{t('components.header.signIn')}</span>
-                  <img
-                    className="header-signin-icon"
-                    src="/icons/user-circle.svg"
-                    alt={t('components.header.signIn')}
-                    width={28}
-                    height={28}
-                  />
-                  <span className="sr-only">{t('components.header.newWindow')}</span>
-                </Link>
-              </>
+              <HeaderSignIn
+                submitManagerLink={submitManagerLink}
+                showSeparator={availableLanguages.length > 1}
+                signInText={t('components.header.signIn')}
+                newWindowText={t('components.header.newWindow')}
+              />
             )}
           </div>
         </div>
@@ -424,29 +447,12 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           <div className="header-preheader-links-right">
             {availableLanguages.length > 1 && <LanguageDropdown />}
             {submitManagerLink && (
-              <>
-                {availableLanguages.length > 1 && (
-                  <span className="header-signin-separator" aria-hidden="true">
-                    |
-                  </span>
-                )}
-                <Link
-                  href={submitManagerLink}
-                  className="header-signin"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="header-signin-text">{t('components.header.signIn')}</span>
-                  <img
-                    className="header-signin-icon"
-                    src="/icons/user-circle.svg"
-                    alt={t('components.header.signIn')}
-                    width={28}
-                    height={28}
-                  />
-                  <span className="sr-only">{t('components.header.newWindow')}</span>
-                </Link>
-              </>
+              <HeaderSignIn
+                submitManagerLink={submitManagerLink}
+                showSeparator={availableLanguages.length > 1}
+                signInText={t('components.header.signIn')}
+                newWindowText={t('components.header.newWindow')}
+              />
             )}
           </div>
         </div>
