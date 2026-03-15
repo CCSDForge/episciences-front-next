@@ -57,6 +57,7 @@ export default function Swiper({
 
   // Mémoïser les cartes filtrées pour éviter les recalculs à chaque rendu
   const renderedCards = useMemo((): SwiperCardContent[] => {
+    if (!cards) return [];
     const filteredCards = cards.filter(Boolean);
 
     // Pendant le rendu initial (SSR + première passe client), on retourne toutes les cartes
