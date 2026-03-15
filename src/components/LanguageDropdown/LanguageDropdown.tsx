@@ -121,8 +121,7 @@ export default function LanguageDropdown({
         // Get the localized path with new language
         const localizedPath = getLocalizedPath(pathWithoutLang, updatedLanguage);
 
-        // Force full page reload to ensure all components update
-        window.location.href = localizedPath;
+        router.push(localizedPath);
       }
     },
     [language, pathname]

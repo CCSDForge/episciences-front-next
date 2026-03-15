@@ -9,7 +9,7 @@ This document defines coding standards and best practices for the Episciences Ne
 ### Language
 
 - **Code:** English only for all code, comments, and documentation
-- **User-facing content:** Support multiple languages (fr, en) via i18n
+- **User-facing content:** Support multiple languages (fr, en, es) via i18n
 - **Commit messages:** English, following conventional commits format
 
 ### Code Style

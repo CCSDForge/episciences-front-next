@@ -9,7 +9,7 @@ import './SectionArticleCard.scss';
 
 import { PATHS } from '@/config/paths';
 import { IArticle } from '@/types/article';
-import { articleTypes, getAbstractText } from '@/utils/article';
+import { getArticleTypeLabel, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
@@ -33,7 +33,7 @@ export default function SectionArticleCard({
     <div className="sectionArticleCard">
       {article.tag && (
         <div className="volumeArticleCard-tag">
-          {t(articleTypes.find(tag => tag.value === article.tag)?.labelPath!)}
+          {t(getArticleTypeLabel(article.tag))}
         </div>
       )}
       <Link href={`${PATHS.articles}/${article.id}`}>
@@ -48,11 +48,11 @@ export default function SectionArticleCard({
         <div className="sectionArticleCard-abstract">
           <div
             className={`sectionArticleCard-abstract-title ${!openedAbstract && 'sectionArticleCard-abstract-title-closed'}`}
-            
-        role="button"
-        tabIndex={0}
-        
-        onClick={toggleAbstract}        onKeyDown={(e) => handleKeyboardClick(e, toggleAbstract)}>
+            role="button"
+            tabIndex={0}
+            onClick={toggleAbstract}
+            onKeyDown={e => handleKeyboardClick(e, toggleAbstract)}
+          >
             <div className="sectionArticleCard-abstract-title-text">{t('common.abstract')}</div>
             {openedAbstract ? (
               <CaretUpBlackIcon

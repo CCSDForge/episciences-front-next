@@ -60,51 +60,55 @@ export default function VolumesModal({
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-      <div className="typesSection">
-        <h2 id="modal-title" className="typesSectionTitle">{t('common.filters.volumeTypes')}</h2>
-        <div className="typesSectionTypes">
-          {types.map((type, index) => (
-            <div key={index} className="typesSectionTypesChoice">
-              <div>
-                <Checkbox
-                  checked={type.isChecked}
-                  onChangeCallback={(): void => onCheckTypeCallback(type.value)}
-                  ariaLabel={t(type.labelPath)}
-                />
-              </div>
-              <span
-                className={`typesSectionTypesChoiceLabel ${type.isChecked ? 'typesSectionTypesChoiceLabelChecked' : ''}`}
-                role="button"
-                tabIndex={0}
-                onClick={(): void => onCheckTypeCallback(type.value)}
-                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
-              >
-                {t(type.labelPath)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="yearsSection">
-        <div className="yearsSectionTitle">{t('common.filters.years')}</div>
-        <div className="yearsSectionYears">
-          <div className="yearsSectionYearsList">
-            {years.map(y => (
-              <div
-                key={y.year}
-                className={`yearsSectionYearsListYear ${y.isSelected ? 'yearsSectionYearsListYearSelected' : ''}`}
-                role="button"
-                tabIndex={0}
-                onClick={(): void => onSelectYearCallback(y.year)}
-                onKeyDown={(e) => handleKeyboardClick(e, (): void => onSelectYearCallback(y.year))}
-              >
-                {y.year}
+        <div className="typesSection">
+          <h2 id="modal-title" className="typesSectionTitle">
+            {t('common.filters.volumeTypes')}
+          </h2>
+          <div className="typesSectionTypes">
+            {types.map((type, index) => (
+              <div key={index} className="typesSectionTypesChoice">
+                <div>
+                  <Checkbox
+                    checked={type.isChecked}
+                    onChangeCallback={(): void => onCheckTypeCallback(type.value)}
+                    ariaLabel={t(type.labelPath)}
+                  />
+                </div>
+                <span
+                  className={`typesSectionTypesChoiceLabel ${type.isChecked ? 'typesSectionTypesChoiceLabelChecked' : ''}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={(): void => onCheckTypeCallback(type.value)}
+                  onKeyDown={e =>
+                    handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))
+                  }
+                >
+                  {t(type.labelPath)}
+                </span>
               </div>
             ))}
           </div>
         </div>
+        <div className="yearsSection">
+          <div className="yearsSectionTitle">{t('common.filters.years')}</div>
+          <div className="yearsSectionYears">
+            <div className="yearsSectionYearsList">
+              {years.map(y => (
+                <div
+                  key={y.year}
+                  className={`yearsSectionYearsListYear ${y.isSelected ? 'yearsSectionYearsListYearSelected' : ''}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={(): void => onSelectYearCallback(y.year)}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onSelectYearCallback(y.year))}
+                >
+                  {y.year}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
     </FocusTrap>
   );
 }

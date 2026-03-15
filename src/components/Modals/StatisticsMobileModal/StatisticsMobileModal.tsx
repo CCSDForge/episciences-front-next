@@ -113,70 +113,72 @@ export default function StatisticsMobileModal({
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-      <div className="title">
-        <div>{t('common.filters.filter')}</div>
-        <CloseBlackIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
-      </div>
-      <div className="filters">
-        <div className="filtersYears">
-          <div className="filtersYearsTitle">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))}
-            >
-              {t('common.filters.years')}
-            </div>
-            {isOpenedSection(FILTERS_SECTION.YEAR) ? (
-              <CaretUpGreyIcon
-                size={16}
-                className="filtersYearsTitleCaret"
-                ariaLabel="Collapse"
+        <div className="title">
+          <div>{t('common.filters.filter')}</div>
+          <CloseBlackIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
+        </div>
+        <div className="filters">
+          <div className="filtersYears">
+            <div className="filtersYearsTitle">
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-              />
-            ) : (
-              <CaretDownGreyIcon
-                size={16}
-                className="filtersYearsTitleCaret"
-                ariaLabel="Expand"
-                onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-              />
-            )}
-          </div>
-          <div
-            className={`filtersYearsList ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'filtersYearsListOpened' : ''}`}
-          >
-            {filtersYears.map((y, index) => (
-              <div key={index} className="filtersYearsListChoice">
-                <div>
-                  <Checkbox
-                    checked={y.isChecked}
-                    onChangeCallback={(): void => onCheckYear(y.year)}
-                    ariaLabel={String(y.year)}
-                  />
-                </div>
-                <span
-                  className={`filtersYearsListChoiceLabel ${y.isChecked ? 'filtersYearsListChoiceLabelChecked' : ''}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={(): void => onCheckYear(y.year)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
-                >
-                  {y.year}
-                </span>
+                onKeyDown={e =>
+                  handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))
+                }
+              >
+                {t('common.filters.years')}
               </div>
-            ))}
+              {isOpenedSection(FILTERS_SECTION.YEAR) ? (
+                <CaretUpGreyIcon
+                  size={16}
+                  className="filtersYearsTitleCaret"
+                  ariaLabel="Collapse"
+                  onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+                />
+              ) : (
+                <CaretDownGreyIcon
+                  size={16}
+                  className="filtersYearsTitleCaret"
+                  ariaLabel="Expand"
+                  onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+                />
+              )}
+            </div>
+            <div
+              className={`filtersYearsList ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'filtersYearsListOpened' : ''}`}
+            >
+              {filtersYears.map((y, index) => (
+                <div key={index} className="filtersYearsListChoice">
+                  <div>
+                    <Checkbox
+                      checked={y.isChecked}
+                      onChangeCallback={(): void => onCheckYear(y.year)}
+                      ariaLabel={String(y.year)}
+                    />
+                  </div>
+                  <span
+                    className={`filtersYearsListChoiceLabel ${y.isChecked ? 'filtersYearsListChoiceLabelChecked' : ''}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={(): void => onCheckYear(y.year)}
+                    onKeyDown={e => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
+                  >
+                    {y.year}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+        <div className="submit">
+          <Button
+            text={t('common.filters.applyFilters')}
+            onClickCallback={(): void => onApplyFilters()}
+          />
+        </div>
       </div>
-      <div className="submit">
-        <Button
-          text={t('common.filters.applyFilters')}
-          onClickCallback={(): void => onApplyFilters()}
-        />
-      </div>
-    </div>
     </FocusTrap>
   );
 }

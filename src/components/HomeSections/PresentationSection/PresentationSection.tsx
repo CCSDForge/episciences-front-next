@@ -2,7 +2,7 @@
 
 import { CaretRightGreyIcon } from '@/components/icons';
 import { Link } from '@/components/Link/Link';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { TFunction } from 'i18next';
 
 import { HOMEPAGE_LAST_INFORMATION_BLOCK } from '@/config/homepage';
@@ -147,7 +147,7 @@ export default function PresentationSection({
       {hasValidAboutContent && (
         <div className="presentationSection-about">
           <div className="presentationSection-about-content">
-            <ReactMarkdown>{truncate(aboutText, MAX_ABOUT_CONTENT_LENGTH)}</ReactMarkdown>
+            <MarkdownRenderer>{truncate(aboutText, MAX_ABOUT_CONTENT_LENGTH)}</MarkdownRenderer>
           </div>
           <Link href={PATHS.about} lang={language}>
             <div className="presentationSection-about-seeMore">

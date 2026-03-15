@@ -133,9 +133,7 @@ describe('LiveRegion', () => {
     });
 
     it('should have no accessibility violations with assertive message', async () => {
-      const { container } = render(
-        <LiveRegion message="Critical error" politeness="assertive" />
-      );
+      const { container } = render(<LiveRegion message="Critical error" politeness="assertive" />);
 
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();

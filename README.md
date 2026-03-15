@@ -62,19 +62,19 @@ npm run start
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server on port 8080 |
-| `npm run dev:turbo` | Start development server with Turbopack |
-| `npm run build` | Production build (standalone Node.js) |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Format code with Prettier |
-| `npm run format:check` | Check code formatting |
-| `npm run test` | Run tests in watch mode |
-| `npm run test:run` | Run tests once (CI mode) |
-| `npm run test:ui` | Run tests with UI |
-| `npm run test:coverage` | Generate test coverage report |
+| Command                 | Description                             |
+| ----------------------- | --------------------------------------- |
+| `npm run dev`           | Start development server on port 8080   |
+| `npm run dev:turbo`     | Start development server with Turbopack |
+| `npm run build`         | Production build (standalone Node.js)   |
+| `npm run start`         | Start production server                 |
+| `npm run lint`          | Run ESLint                              |
+| `npm run format`        | Format code with Prettier               |
+| `npm run format:check`  | Check code formatting                   |
+| `npm run test`          | Run tests in watch mode                 |
+| `npm run test:run`      | Run tests once (CI mode)                |
+| `npm run test:ui`       | Run tests with UI                       |
+| `npm run test:coverage` | Generate test coverage report           |
 
 ## Testing
 
@@ -95,6 +95,7 @@ npm run test:ui
 ```
 
 Test configuration:
+
 - **Environment:** happy-dom
 - **Coverage:** v8 provider with text, JSON, HTML, and LCOV reports
 
@@ -195,18 +196,21 @@ The project uses GitHub Actions for continuous integration:
 Additional documentation is available in the `docs/` folder:
 
 ### Architecture & Caching
+
 - [ISR Strategy](docs/ISR_STRATEGY.md) - Detailed ISR configuration by page type
 - [Revalidation Guide](docs/REVALIDATION_GUIDE.md) - On-demand revalidation API & webhooks
 
 ### Configuration & Development
+
 - [Configuration Guide](docs/CONFIGURATION_GUIDE.md) - Dynamic runtime configuration
 - [Local Testing Guide](docs/LOCAL_TESTING_GUIDE.md) - Local development setup with subdomains
 - [Coding Standards](docs/CODING_STANDARDS.md) - Code conventions and best practices
 - [Accessible Color System](docs/ACCESSIBLE_COLOR_SYSTEM.md) - WCAG-compliant color generation
 
 ### Deployment & Infrastructure
+
 - [Production Deployment](docs/PRODUCTION_DEPLOYMENT.md) - Guide for production setup and standalone execution
-- [Apache Integration](docs/APACHE_INTEGRATION.md) - Reverse proxy setup and Docker testing
+- [Nginx Integration](docs/NGINX_INTEGRATION.md) - Reverse proxy setup and Docker testing
 
 ## Production Deployment
 
@@ -236,9 +240,9 @@ docker build -f docker/Dockerfile -t episciences-front .
 docker run -p 3000:3000 episciences-front
 ```
 
-### Testing with Apache (Production-like)
+### Testing with Nginx (Production-like)
 
-To test the multi-tenant setup with Apache reverse proxy locally:
+To test the multi-tenant setup with Nginx reverse proxy locally:
 
 ```bash
 # Build and start containers
@@ -253,7 +257,7 @@ make hosts
 # http://dmtcs.episciences.test:8080
 ```
 
-See [Apache Integration](docs/APACHE_INTEGRATION.md) for full documentation.
+See [Nginx Integration](docs/NGINX_INTEGRATION.md) for full documentation.
 
 ## Contributing
 

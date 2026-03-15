@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
 import { IBoardMember } from '@/types/board';
 import { IBoardPage } from '@/services/board';
@@ -139,7 +139,7 @@ export default function BoardsClient({
                 onClick={(): void =>
                   activeGroupIndex === index ? handleGroupToggle(-1) : handleGroupToggle(index)
                 }
-                onKeyDown={(e) =>
+                onKeyDown={e =>
                   handleKeyboardClick(e, () =>
                     activeGroupIndex === index ? handleGroupToggle(-1) : handleGroupToggle(index)
                   )
@@ -164,7 +164,7 @@ export default function BoardsClient({
                 className={`boards-content-groups-group-content ${activeGroupIndex === index && 'boards-content-groups-group-content-active'}`}
               >
                 <div className="boards-content-groups-group-content-description">
-                  <ReactMarkdown>{boardPerTitle.description}</ReactMarkdown>
+                  <MarkdownRenderer>{boardPerTitle.description}</MarkdownRenderer>
                 </div>
                 <div className="boards-content-groups-group-content-grid">
                   {boardPerTitle.members.map((member, index) => (

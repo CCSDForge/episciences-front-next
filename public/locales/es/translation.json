@@ -115,7 +115,8 @@
         "forAuthors": "Para autores",
         "ethicalCharter": "Carta ética",
         "forReviewers": "Para revisores",
-        "forConferenceOrganisers": "Para organizadores de congresos"
+        "forConferenceOrganisers": "Para organizadores de congresos",
+        "proposingSpecialIssues": "Propuesta de monográficos"
       },
       "search": {
         "placeholder": "buscar",
@@ -505,6 +506,10 @@
     "forConferenceOrganisers": {
       "title": "Para organizadores de congresos",
       "noContent": "No hay información para organizadores de congresos disponible para esta revista."
+    },
+    "proposingSpecialIssues": {
+      "title": "Propuesta de monográficos",
+      "noContent": "No hay información sobre la propuesta de monográficos disponible para esta revista."
     },
     "accessibility": {
       "title": "Accesibilidad",

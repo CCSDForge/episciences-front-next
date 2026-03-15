@@ -324,7 +324,9 @@ export default function ArticleDetailsSidebar({
             onMouseLeave={(): void => setShowCitationsDropdown(false)}
             onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
             onClick={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
-            onKeyDown={(e) => handleKeyboardClick(e, () => setShowCitationsDropdown(!showCitationsDropdown))}
+            onKeyDown={e =>
+              handleKeyboardClick(e, () => setShowCitationsDropdown(!showCitationsDropdown))
+            }
             role="button"
             tabIndex={0}
           >
@@ -347,7 +349,7 @@ export default function ArticleDetailsSidebar({
                     role="button"
                     tabIndex={0}
                     onClick={(): void => copyCitation(citation)}
-                    onKeyDown={(e) => handleKeyboardClick(e, (): void => copyCitation(citation))}
+                    onKeyDown={e => handleKeyboardClick(e, (): void => copyCitation(citation))}
                     onTouchEnd={(): void => copyCitation(citation)}
                   >
                     {citation.key}
@@ -366,7 +368,9 @@ export default function ArticleDetailsSidebar({
             onMouseLeave={(): void => setShowMetadatasDropdown(false)}
             onTouchStart={(): void => setShowMetadatasDropdown(!showMetadatasDropdown)}
             onClick={(): void => setShowMetadatasDropdown(!showMetadatasDropdown)}
-            onKeyDown={(e) => handleKeyboardClick(e, () => setShowMetadatasDropdown(!showMetadatasDropdown))}
+            onKeyDown={e =>
+              handleKeyboardClick(e, () => setShowMetadatasDropdown(!showMetadatasDropdown))
+            }
             role="button"
             tabIndex={0}
           >
@@ -391,9 +395,11 @@ export default function ArticleDetailsSidebar({
                     onClick={(): void => {
                       void downloadMetadata(metadata);
                     }}
-                    onKeyDown={(e) => handleKeyboardClick(e, () => {
-                      void downloadMetadata(metadata);
-                    })}
+                    onKeyDown={e =>
+                      handleKeyboardClick(e, () => {
+                        void downloadMetadata(metadata);
+                      })
+                    }
                     onTouchEnd={(): void => {
                       void downloadMetadata(metadata);
                     }}
@@ -413,7 +419,9 @@ export default function ArticleDetailsSidebar({
           onMouseLeave={(): void => setShowSharingDropdown(false)}
           onTouchStart={(): void => setShowSharingDropdown(!showSharingDropdown)}
           onClick={(): void => setShowSharingDropdown(!showSharingDropdown)}
-          onKeyDown={(e) => handleKeyboardClick(e, () => setShowSharingDropdown(!showSharingDropdown))}
+          onKeyDown={e =>
+            handleKeyboardClick(e, () => setShowSharingDropdown(!showSharingDropdown))
+          }
           role="button"
           tabIndex={0}
         >
@@ -468,7 +476,7 @@ export default function ArticleDetailsSidebar({
           role="button"
           tabIndex={0}
           onClick={togglePublicationDetails}
-          onKeyDown={(e) => handleKeyboardClick(e, togglePublicationDetails)}
+          onKeyDown={e => handleKeyboardClick(e, togglePublicationDetails)}
         >
           <div className="articleDetailsSidebar-publicationDetails-title-text">
             {t('common.publicationDetails')}
@@ -547,7 +555,7 @@ export default function ArticleDetailsSidebar({
             role="button"
             tabIndex={0}
             onClick={toggleFunding}
-            onKeyDown={(e) => handleKeyboardClick(e, toggleFunding)}
+            onKeyDown={e => handleKeyboardClick(e, toggleFunding)}
           >
             <div className="articleDetailsSidebar-funding-title-text">
               {t('pages.articleDetails.funding.title')}

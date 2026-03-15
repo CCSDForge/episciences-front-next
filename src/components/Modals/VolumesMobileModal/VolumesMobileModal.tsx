@@ -10,6 +10,7 @@ import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import Tag from '@/components/Tag/Tag';
 import './VolumesMobileModal.scss';
+import FocusTrap from 'focus-trap-react';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
@@ -213,10 +214,19 @@ export default function VolumesMobileModal({
     openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
-    <div className="volumesMobileModal" ref={modalRef}>
-      <div className="title">
-        <div>{t('common.filters.filter')}</div>
-        <CloseBlackIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
+    <FocusTrap>
+      <div
+        className="volumesMobileModal"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="volumes-modal-title"
+      >
+        <div className="title">
+          <h2 id="volumes-modal-title" className="title-text">
+            {t('common.filters.filter')}
+          </h2>
+          <CloseBlackIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
       </div>
       {taggedFilters.length > 0 && (
         <div className="tags">
@@ -234,7 +244,7 @@ export default function VolumesMobileModal({
             role="button"
             tabIndex={0}
             onClick={clearTaggedFilters}
-            onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+            onKeyDown={e => handleKeyboardClick(e, clearTaggedFilters)}
           >
             {t('common.filters.clearAll')}
           </div>
@@ -247,7 +257,9 @@ export default function VolumesMobileModal({
               role="button"
               tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.TYPE))}
+              onKeyDown={e =>
+                handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.TYPE))
+              }
             >
               {t('common.filters.documentTypes')}
             </div>
@@ -284,7 +296,7 @@ export default function VolumesMobileModal({
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onCheckType(type.value)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckType(type.value))}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onCheckType(type.value))}
                 >
                   {t(`common.volumeTypes.${type.value}`)}
                 </span>
@@ -298,7 +310,9 @@ export default function VolumesMobileModal({
               role="button"
               tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))}
+              onKeyDown={e =>
+                handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))
+              }
             >
               {t('common.filters.years')}
             </div>
@@ -335,7 +349,7 @@ export default function VolumesMobileModal({
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onCheckYear(y.year)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
                 >
                   {y.year}
                 </span>
@@ -344,12 +358,13 @@ export default function VolumesMobileModal({
           </div>
         </div>
       </div>
-      <div className="submit">
-        <Button
-          text={t('common.filters.applyFilters')}
-          onClickCallback={(): void => onApplyFilters()}
-        />
+        <div className="submit">
+          <Button
+            text={t('common.filters.applyFilters')}
+            onClickCallback={(): void => onApplyFilters()}
+          />
+        </div>
       </div>
-    </div>
+    </FocusTrap>
   );
 }

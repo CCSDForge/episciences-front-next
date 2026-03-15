@@ -7,7 +7,7 @@ import { truncate } from '@/utils/string';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { useTranslation } from 'react-i18next';
 import { isMobileOnly } from 'react-device-detect';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useRouter } from 'next/navigation';
 import { Link } from '@/components/Link/Link';
 import { useAppSelector } from '@/hooks/store';
@@ -35,7 +35,7 @@ import './VolumeDetails.scss';
 // Lazy load mobile modal
 const VolumeDetailsMobileModal = dynamic(
   () => import('@/components/Modals/VolumeDetailsMobileModal/VolumeDetailsMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 interface VolumeDetailsClientProps {
@@ -187,9 +187,7 @@ export default function VolumeDetailsClient({
             role="button"
             tabIndex={0}
             onClick={(): void => setOpenedRelatedVolumesMobileModal(true)}
-            onKeyDown={(e) =>
-              handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))
-            }
+            onKeyDown={e => handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))}
           >
             <div>{t('pages.volumeDetails.relatedVolumes.proceedings')}</div>
             {caretIcon}
@@ -204,9 +202,7 @@ export default function VolumeDetailsClient({
             role="button"
             tabIndex={0}
             onClick={(): void => setOpenedRelatedVolumesMobileModal(true)}
-            onKeyDown={(e) =>
-              handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))
-            }
+            onKeyDown={e => handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))}
           >
             <div>{t('pages.volumeDetails.relatedVolumes.specialIssues')}</div>
             {caretIcon}
@@ -221,9 +217,7 @@ export default function VolumeDetailsClient({
         role="button"
         tabIndex={0}
         onClick={(): void => setOpenedRelatedVolumesMobileModal(true)}
-        onKeyDown={(e) =>
-          handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))
-        }
+        onKeyDown={e => handleKeyboardClick(e, () => setOpenedRelatedVolumesMobileModal(true))}
       >
         <div>{t('pages.volumeDetails.relatedVolumes.volumes')}</div>
         {caretIcon}
@@ -250,13 +244,19 @@ export default function VolumeDetailsClient({
       if (conferenceName && conferenceName.value) {
         return (
           <div className={className}>
-            {volume?.title ? `${getLocalizedContent(volume.title, language).value || ''} (${conferenceName.value})` : ''}
+            {volume?.title
+              ? `${getLocalizedContent(volume.title, language).value || ''} (${conferenceName.value})`
+              : ''}
           </div>
         );
       }
     }
 
-    return <div className={className}>{volume?.title ? getLocalizedContent(volume.title, language).value || '' : ''}</div>;
+    return (
+      <div className={className}>
+        {volume?.title ? getLocalizedContent(volume.title, language).value || '' : ''}
+      </div>
+    );
   };
 
   const renderVolumeCommittee = (isMobile: boolean): React.JSX.Element | null => {
@@ -291,17 +291,17 @@ export default function VolumeDetailsClient({
 
         return (
           <div className="volumeDetails-content-results-content-description">
-            <ReactMarkdown>
+            <MarkdownRenderer>
               {showFullMobileDescription
                 ? descriptionText
                 : truncate(descriptionText, MAX_MOBILE_DESCRIPTION_LENGTH)}
-            </ReactMarkdown>
+            </MarkdownRenderer>
             {isTruncated && (
               <div
                 role="button"
                 tabIndex={0}
                 onClick={(): void => setShowFullMobileDescription(!showFullMobileDescription)}
-                onKeyDown={(e) =>
+                onKeyDown={e =>
                   handleKeyboardClick(e, () =>
                     setShowFullMobileDescription(!showFullMobileDescription)
                   )
@@ -322,7 +322,7 @@ export default function VolumeDetailsClient({
 
       return (
         <div className="volumeDetails-content-results-content-description">
-          <ReactMarkdown>{descriptionText}</ReactMarkdown>
+          <MarkdownRenderer>{descriptionText}</MarkdownRenderer>
         </div>
       );
     }

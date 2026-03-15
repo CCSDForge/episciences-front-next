@@ -109,7 +109,7 @@ export default function VolumeDetailsMobileModal({
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-      <div className="volumeDetailsMobileModal-title">
+        <div className="volumeDetailsMobileModal-title">
           <h2 id="modal-title" className="volumeDetailsMobileModal-title-text">
             {getTitle()}
           </h2>
@@ -122,30 +122,30 @@ export default function VolumeDetailsMobileModal({
             <CloseBlackIcon size={24} />
           </button>
         </div>
-      <div className="volumeDetailsMobileModal-relatedVolumes">
-        {relatedVolumes.map((relatedVolume, index) => (
-          <div
-            key={index}
-            className={`volumeDetailsMobileModal-relatedVolumes-volume ${relatedVolume.id === chosenVolume?.id ? 'volumeDetailsMobileModal-relatedVolumes-volume-current' : ''}`}
-            role="button"
-            tabIndex={0}
-            onClick={(): void =>
-              setChosenVolume(chosenVolume?.id !== relatedVolume.id ? relatedVolume : undefined)
-            }
-            onKeyDown={(e) =>
-              handleKeyboardClick(e, () =>
+        <div className="volumeDetailsMobileModal-relatedVolumes">
+          {relatedVolumes.map((relatedVolume, index) => (
+            <div
+              key={index}
+              className={`volumeDetailsMobileModal-relatedVolumes-volume ${relatedVolume.id === chosenVolume?.id ? 'volumeDetailsMobileModal-relatedVolumes-volume-current' : ''}`}
+              role="button"
+              tabIndex={0}
+              onClick={(): void =>
                 setChosenVolume(chosenVolume?.id !== relatedVolume.id ? relatedVolume : undefined)
-              )
-            }
-          >
-            {relatedVolume.title ? relatedVolume.title[language] : ''}
-          </div>
-        ))}
+              }
+              onKeyDown={e =>
+                handleKeyboardClick(e, () =>
+                  setChosenVolume(chosenVolume?.id !== relatedVolume.id ? relatedVolume : undefined)
+                )
+              }
+            >
+              {relatedVolume.title ? relatedVolume.title[language] : ''}
+            </div>
+          ))}
+        </div>
+        <div className="volumeDetailsMobileModal-submit">
+          <Button text={getSubmitText()} onClickCallback={(): void => onApplyFilters()} />
+        </div>
       </div>
-      <div className="volumeDetailsMobileModal-submit">
-        <Button text={getSubmitText()} onClickCallback={(): void => onApplyFilters()} />
-      </div>
-    </div>
     </FocusTrap>
   );
 }

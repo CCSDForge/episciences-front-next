@@ -172,7 +172,7 @@ describe('PageTitle', () => {
 
   describe('Journal name variations', () => {
     it('handles journal name with special characters', async () => {
-      const store = createMockStore('Journal d\'Épistémologie');
+      const store = createMockStore("Journal d'Épistémologie");
 
       render(
         <Provider store={store}>
@@ -181,7 +181,7 @@ describe('PageTitle', () => {
       );
 
       await waitFor(() => {
-        expect(document.title).toBe('Home | Journal d\'Épistémologie');
+        expect(document.title).toBe("Home | Journal d'Épistémologie");
       });
     });
 

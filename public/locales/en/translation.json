@@ -115,7 +115,8 @@
         "forAuthors": "For authors",
         "ethicalCharter": "Ethical charter",
         "forReviewers": "For reviewers",
-        "forConferenceOrganisers": "For conference organisers"
+        "forConferenceOrganisers": "For conference organisers",
+        "proposingSpecialIssues": "Proposing special issues"
       },
       "search": {
         "placeholder": "search",
@@ -505,6 +506,10 @@
     "forConferenceOrganisers": {
       "title": "For Conference Organisers",
       "noContent": "No information for conference organisers available for this journal."
+    },
+    "proposingSpecialIssues": {
+      "title": "Proposing Special Issues",
+      "noContent": "No information about proposing special issues available for this journal."
     },
     "accessibility": {
       "title": "Accessibility",

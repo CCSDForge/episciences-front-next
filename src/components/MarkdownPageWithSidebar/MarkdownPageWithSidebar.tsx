@@ -1,10 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect, useCallback } from 'react';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
-import remarkGfm from 'remark-gfm';
 import { useAppSelector } from '@/hooks/store';
 import {
   generateIdFromText,
@@ -293,11 +293,17 @@ export default function MarkdownPageWithSidebar({
                     role="region"
                     aria-labelledby={section.id}
                   >
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                    <MarkdownRenderer
                       components={{
                         img: ({ src, alt }) => (
-                          <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />
+                          <Image
+                            src={getMarkdownImageURL(src || '', rvcode || '')}
+                            alt={alt || ''}
+                            width={0}
+                            height={0}
+                            sizes="100vw"
+                            style={{ width: '100%', height: 'auto' }}
+                          />
                         ),
                         a: ({ href, children }) => (
                           <a
@@ -309,10 +315,9 @@ export default function MarkdownPageWithSidebar({
                             {children}
                           </a>
                         ),
-                        h1: ({ children }) => <></>,
-                        h2: ({ children }) => <></>,
+                        h1: () => <></>,
+                        h2: () => <></>,
                         h3: ({ node, children }) => {
-                          // Extract text from the AST node for proper ID generation
                           const text = node ? extractTextFromNode(node) : '';
                           const id = generateIdFromText(text);
                           return <h3 id={id}>{children}</h3>;
@@ -320,7 +325,7 @@ export default function MarkdownPageWithSidebar({
                       }}
                     >
                       {section.value}
-                    </ReactMarkdown>
+                    </MarkdownRenderer>
                   </div>
                 </div>
               ))

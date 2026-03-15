@@ -42,7 +42,7 @@ export default async function AccessibilityPage(props: {
   const params = await props.params;
   const { lang } = params;
   const translations = await getServerTranslations(lang);
-  
+
   const contentDir = path.join(process.cwd(), 'src/content/accessibility');
   const candidates = [lang, defaultLanguage].filter((v, i, a) => a.indexOf(v) === i);
 
@@ -56,7 +56,9 @@ export default async function AccessibilityPage(props: {
       }
     }
     if (!content) {
-      console.warn(`[Accessibility] No content file found for candidates: ${candidates.join(', ')}`);
+      console.warn(
+        `[Accessibility] No content file found for candidates: ${candidates.join(', ')}`
+      );
       content = translate('pages.accessibility.noContent', translations);
     }
   } catch (err) {
@@ -65,7 +67,7 @@ export default async function AccessibilityPage(props: {
   }
 
   const breadcrumbLabels = {
-    parents: getBreadcrumbHierarchy('/accessibility', translations), 
+    parents: getBreadcrumbHierarchy('/accessibility', translations),
     current: translate('pages.accessibility.title', translations),
   };
 

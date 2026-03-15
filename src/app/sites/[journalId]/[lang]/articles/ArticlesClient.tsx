@@ -18,7 +18,7 @@ import ArticleCard, { IArticleCard } from '@/components/Cards/ArticleCard/Articl
 // Lazy load mobile modal - only loaded when filters button is clicked
 const ArticlesMobileModal = dynamic(
   () => import('@/components/Modals/ArticlesMobileModal/ArticlesMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 import ArticlesSidebar, {
@@ -127,7 +127,10 @@ export default function ArticlesClient({
 
   // Skip fetch on page 1 without filters - use server data (ISR handles freshness)
   // Fetch only when user interacts (pagination, filters)
-  const shouldSkipFetch = !rvcode || isStaticBuild || (currentPage === 1 && selectedTypes.length === 0 && selectedYears.length === 0);
+  const shouldSkipFetch =
+    !rvcode ||
+    isStaticBuild ||
+    (currentPage === 1 && selectedTypes.length === 0 && selectedYears.length === 0);
 
   const { data: articles, isFetching: isFetchingArticles } = useFetchArticlesQuery(
     {
@@ -196,7 +199,12 @@ export default function ArticlesClient({
     if (isStaticBuild) return;
 
     // When filters are cleared (back to page 1 with no filters), restore initial data
-    if (shouldSkipFetch && currentPage === 1 && selectedTypes.length === 0 && selectedYears.length === 0) {
+    if (
+      shouldSkipFetch &&
+      currentPage === 1 &&
+      selectedTypes.length === 0 &&
+      selectedYears.length === 0
+    ) {
       if (initialArticles?.data) {
         const displayedArticles = initialArticles.data
           .filter((article: any) => article && article.title)
@@ -236,7 +244,15 @@ export default function ArticlesClient({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStaticBuild, articles, shouldSkipFetch, currentPage, selectedTypes.length, selectedYears.length, initialArticles]);
+  }, [
+    isStaticBuild,
+    articles,
+    shouldSkipFetch,
+    currentPage,
+    selectedTypes.length,
+    selectedYears.length,
+    initialArticles,
+  ]);
 
   useEffect(() => {
     if (types.length === 0) {
@@ -463,9 +479,7 @@ export default function ArticlesClient({
 
     // Announce state change to screen readers
     setAnnouncement(
-      isShown
-        ? t('common.toggleAbstracts.allExpanded')
-        : t('common.toggleAbstracts.allCollapsed')
+      isShown ? t('common.toggleAbstracts.allExpanded') : t('common.toggleAbstracts.allCollapsed')
     );
   };
 
@@ -509,7 +523,11 @@ export default function ArticlesClient({
               role="button"
               tabIndex={0}
               onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal))}
+              onKeyDown={e =>
+                handleKeyboardClick(e, (): void =>
+                  setOpenedFiltersMobileModal(!openedFiltersMobileModal)
+                )
+              }
             >
               <FilterIcon
                 size={16}
@@ -551,7 +569,7 @@ export default function ArticlesClient({
               role="button"
               tabIndex={0}
               onClick={clearTaggedFilters}
-              onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+              onKeyDown={e => handleKeyboardClick(e, clearTaggedFilters)}
             >
               {t('common.filters.clearAll')}
             </div>
@@ -562,7 +580,7 @@ export default function ArticlesClient({
           role="button"
           tabIndex={0}
           onClick={toggleAllAbstracts}
-          onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
+          onKeyDown={e => handleKeyboardClick(e, toggleAllAbstracts)}
         >
           {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
         </div>
@@ -573,7 +591,7 @@ export default function ArticlesClient({
         role="button"
         tabIndex={0}
         onClick={toggleAllAbstracts}
-        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
+        onKeyDown={e => handleKeyboardClick(e, toggleAllAbstracts)}
       >
         {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
       </div>

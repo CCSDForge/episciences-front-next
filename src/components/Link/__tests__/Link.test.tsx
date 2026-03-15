@@ -171,7 +171,7 @@ describe('Link', () => {
   describe('Click handling', () => {
     it('calls onClick handler when clicked', async () => {
       const user = userEvent.setup();
-      const handleClick = vi.fn((e) => e.preventDefault());
+      const handleClick = vi.fn(e => e.preventDefault());
 
       render(
         <Link href="/test" onClick={handleClick}>

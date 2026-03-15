@@ -121,6 +121,7 @@ export async function fetchAcceptedArticles(
     headers: {
       Accept: 'application/json',
     },
+    next: { tags: ['articles-accepted', `articles-accepted-${rvcode}`] },
   });
 
   if (!response.ok) {
@@ -203,7 +204,7 @@ export async function fetchExportLink(
  * Cette fonction est utile pour les pages qui ne passent pas par RTK Query et ont besoin
  * de transformer les données manuellement.
  */
-export function transformArticleForDisplay(rawArticle: any): FetchedArticle {
+export function transformArticleForDisplay(rawArticle: any): FetchedArticle | undefined {
   // Si l'article est déjà formaté avec un id et title, on le retourne tel quel
   if (rawArticle && typeof rawArticle === 'object' && rawArticle.id && rawArticle.title) {
     return rawArticle;
@@ -235,7 +236,7 @@ export function transformArticleForDisplay(rawArticle: any): FetchedArticle {
 /**
  * Crée un article minimal à partir des données brutes pour éviter les erreurs d'affichage
  */
-function createMinimalArticle(rawArticle: any): FetchedArticle {
+function createMinimalArticle(rawArticle: any): FetchedArticle | undefined {
   if (!rawArticle) return undefined;
 
   return {
@@ -258,7 +259,7 @@ function createMinimalArticle(rawArticle: any): FetchedArticle {
 /**
  * Récupère un article par son ID
  */
-export async function getArticleById(id: string | number): Promise<FetchedArticle> {
+export async function getArticleById(id: string | number): Promise<FetchedArticle | undefined> {
   try {
     const apiRoot = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '';
     const response = await fetch(`${apiRoot}${API_PATHS.papers}${id}`);

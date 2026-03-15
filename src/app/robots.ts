@@ -4,7 +4,7 @@ import { ROBOTS_COMMON_DISALLOW } from '@/config/robots';
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   let host = 'journal.episciences.org';
-  
+
   try {
     const headersList = await headers();
     host = headersList.get('host') || host;

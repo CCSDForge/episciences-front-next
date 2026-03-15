@@ -82,13 +82,13 @@ vi.mock('@/components/ThemeStyleSwitch/ThemeStyleSwitch', () => ({
 
 // Mock Redux slice actions
 vi.mock('@/store/features/i18n/i18n.slice', () => ({
-  setLanguage: vi.fn((lang) => ({ type: 'i18n/setLanguage', payload: lang })),
+  setLanguage: vi.fn(lang => ({ type: 'i18n/setLanguage', payload: lang })),
 }));
 
 vi.mock('@/store/features/journal/journal.slice', () => ({
-  setCurrentJournal: vi.fn((journal) => ({ type: 'journal/setCurrentJournal', payload: journal })),
-  setApiEndpoint: vi.fn((endpoint) => ({ type: 'journal/setApiEndpoint', payload: endpoint })),
-  setJournalConfig: vi.fn((config) => ({ type: 'journal/setJournalConfig', payload: config })),
+  setCurrentJournal: vi.fn(journal => ({ type: 'journal/setCurrentJournal', payload: journal })),
+  setApiEndpoint: vi.fn(endpoint => ({ type: 'journal/setApiEndpoint', payload: endpoint })),
+  setJournalConfig: vi.fn(config => ({ type: 'journal/setJournalConfig', payload: config })),
 }));
 
 // Mock language utils

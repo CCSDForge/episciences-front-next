@@ -181,23 +181,32 @@ export function getBoardsPerTitle(
     const description = getLocalizedContent(page.content, lang).value;
 
     // Filter members for this board page (handle empty members array)
-    const pageMembers = !members || members.length === 0 ? [] : members.filter(member => {
-      // Basic role matching: direct match or pluralized match
-      const hasDirectRole = member.roles.includes(page.page_code);
-      const hasPluralRole = member.roles.includes(`${page.page_code}s`);
+    const pageMembers =
+      !members || members.length === 0
+        ? []
+        : members.filter(member => {
+            // Basic role matching: direct match or pluralized match
+            const hasDirectRole = member.roles.includes(page.page_code);
+            const hasPluralRole = member.roles.includes(`${page.page_code}s`);
 
-      // Special case: Scientific Advisory Board also includes "advisory-board" role
-      const isScientificAdvisorySpecial =
-        page.page_code === 'scientific-advisory-board' &&
-        member.roles.includes('advisory-board');
+            // Special case: Scientific Advisory Board also includes "advisory-board" role
+            const isScientificAdvisorySpecial =
+              page.page_code === 'scientific-advisory-board' &&
+              member.roles.includes('advisory-board');
 
-      // Special case: Editorial Board also includes "managing-editor" and "handling-editor"
-      const isEditorialBoardSpecial =
-        page.page_code === 'editorial-board' &&
-        (member.roles.includes('managing-editor') || member.roles.includes('handling-editor'));
+            // Special case: Editorial Board also includes "managing-editor" and "handling-editor"
+            const isEditorialBoardSpecial =
+              page.page_code === 'editorial-board' &&
+              (member.roles.includes('managing-editor') ||
+                member.roles.includes('handling-editor'));
 
-      return hasDirectRole || hasPluralRole || isScientificAdvisorySpecial || isEditorialBoardSpecial;
-    });
+            return (
+              hasDirectRole ||
+              hasPluralRole ||
+              isScientificAdvisorySpecial ||
+              isEditorialBoardSpecial
+            );
+          });
 
     // Sort members by role priority (chief-editor first, then managing-editor, etc.)
     const sortedMembers = [...pageMembers].sort((a, b) => {

@@ -27,7 +27,7 @@ import '@/styles/transitions.scss';
 // Lazy load mobile modal
 const NewsMobileModal = dynamic(
   () => import('@/components/Modals/NewsMobileModal/NewsMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 interface NewsClientProps {
@@ -171,7 +171,7 @@ export default function NewsClient({
             tabIndex={0}
             aria-pressed={mode === RENDERING_MODE.TILE}
             onClick={(): void => setMode(RENDERING_MODE.TILE)}
-            onKeyDown={(e) => handleKeyboardClick(e, () => setMode(RENDERING_MODE.TILE))}
+            onKeyDown={e => handleKeyboardClick(e, () => setMode(RENDERING_MODE.TILE))}
           >
             <div
               className={`${mode === RENDERING_MODE.TILE ? 'news-title-icons-icon-row-black' : 'news-title-icons-icon-row'}`}
@@ -190,7 +190,7 @@ export default function NewsClient({
             tabIndex={0}
             aria-pressed={mode === RENDERING_MODE.LIST}
             onClick={(): void => setMode(RENDERING_MODE.LIST)}
-            onKeyDown={(e) => handleKeyboardClick(e, () => setMode(RENDERING_MODE.LIST))}
+            onKeyDown={e => handleKeyboardClick(e, () => setMode(RENDERING_MODE.LIST))}
           >
             <div
               className={`${mode === RENDERING_MODE.LIST ? 'news-title-icons-icon-row-black' : 'news-title-icons-icon-row'}`}
@@ -212,7 +212,11 @@ export default function NewsClient({
           role="button"
           tabIndex={0}
           onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
-          onKeyDown={(e) => handleKeyboardClick(e, (): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal))}
+          onKeyDown={e =>
+            handleKeyboardClick(e, (): void =>
+              setOpenedFiltersMobileModal(!openedFiltersMobileModal)
+            )
+          }
         >
           <FilterIcon size={16} className="news-filtersMobile-tile-icon" ariaLabel="Filter" />
           <div className="news-filtersMobile-tile-text">

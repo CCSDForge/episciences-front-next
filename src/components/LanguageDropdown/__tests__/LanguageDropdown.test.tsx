@@ -41,20 +41,82 @@ vi.mock('@/hooks/store', () => ({
 
 // Mock icon components with proper ARIA
 vi.mock('@/components/icons', () => ({
-  CaretUpBlackIcon: ({ size, ariaLabel, className }: { size: number; ariaLabel?: string; className?: string }) => (
-    <span data-testid="caret-up-black" data-size={size} role="img" aria-label={ariaLabel} className={className} />
+  CaretUpBlackIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
+    size: number;
+    ariaLabel?: string;
+    className?: string;
+  }) => (
+    <span
+      data-testid="caret-up-black"
+      data-size={size}
+      role="img"
+      aria-label={ariaLabel}
+      className={className}
+    />
   ),
-  CaretDownBlackIcon: ({ size, ariaLabel, className }: { size: number; ariaLabel?: string; className?: string }) => (
-    <span data-testid="caret-down-black" data-size={size} role="img" aria-label={ariaLabel} className={className} />
+  CaretDownBlackIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
+    size: number;
+    ariaLabel?: string;
+    className?: string;
+  }) => (
+    <span
+      data-testid="caret-down-black"
+      data-size={size}
+      role="img"
+      aria-label={ariaLabel}
+      className={className}
+    />
   ),
-  CaretUpWhiteIcon: ({ size, ariaLabel, className }: { size: number; ariaLabel?: string; className?: string }) => (
-    <span data-testid="caret-up-white" data-size={size} role="img" aria-label={ariaLabel} className={className} />
+  CaretUpWhiteIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
+    size: number;
+    ariaLabel?: string;
+    className?: string;
+  }) => (
+    <span
+      data-testid="caret-up-white"
+      data-size={size}
+      role="img"
+      aria-label={ariaLabel}
+      className={className}
+    />
   ),
-  CaretDownWhiteIcon: ({ size, ariaLabel, className }: { size: number; ariaLabel?: string; className?: string }) => (
-    <span data-testid="caret-down-white" data-size={size} role="img" aria-label={ariaLabel} className={className} />
+  CaretDownWhiteIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
+    size: number;
+    ariaLabel?: string;
+    className?: string;
+  }) => (
+    <span
+      data-testid="caret-down-white"
+      data-size={size}
+      role="img"
+      aria-label={ariaLabel}
+      className={className}
+    />
   ),
   TranslateIcon: ({ size, className }: { size: number; className?: string }) => (
-    <span data-testid="translate-icon" data-size={size} role="img" aria-label="Translate" className={className} />
+    <span
+      data-testid="translate-icon"
+      data-size={size}
+      role="img"
+      aria-label="Translate"
+      className={className}
+    />
   ),
 }));
 
@@ -194,9 +256,9 @@ describe('LanguageDropdown', () => {
 
       await user.click(screen.getByRole('button'));
 
-      const currentItem = screen.getAllByRole('menuitem').find(
-        item => item.getAttribute('aria-current') === 'true'
-      );
+      const currentItem = screen
+        .getAllByRole('menuitem')
+        .find(item => item.getAttribute('aria-current') === 'true');
       expect(currentItem).toBeInTheDocument();
       expect(currentItem).toHaveTextContent('EN');
     });
@@ -344,8 +406,8 @@ describe('LanguageDropdown', () => {
       const frenchOption = screen.getByText(/FR -/);
       await user.click(frenchOption);
 
-      // Should have triggered a navigation
-      expect(window.location.href).toContain('fr');
+      // Should have triggered a navigation via router.push
+      expect(mockPush).toHaveBeenCalledWith(expect.stringContaining('fr'));
     });
 
     it('selecting current language does not navigate', async () => {
@@ -463,13 +525,19 @@ describe('LanguageDropdown', () => {
 
       // Open dropdown
       await user.click(screen.getByRole('button', { name: 'Select language' }));
-      expect(screen.getByRole('button', { name: 'Select language' })).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('button', { name: 'Select language' })).toHaveAttribute(
+        'aria-expanded',
+        'true'
+      );
 
       // Click outside
       await user.click(screen.getByTestId('outside-button'));
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Select language' })).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.getByRole('button', { name: 'Select language' })).toHaveAttribute(
+          'aria-expanded',
+          'false'
+        );
       });
     });
   });

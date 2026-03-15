@@ -133,4 +133,82 @@ describe('useClientSideFetch', () => {
     // but we can check behaviorally or verify re-renders if we cared about perf.
     // For now, checking the value is correct is sufficient.
   });
+
+  it('should not update state after unmount (abort on unmount)', async () => {
+    let resolvePromise!: (value: typeof updatedData) => void;
+    const pendingPromise = new Promise<typeof updatedData>(resolve => {
+      resolvePromise = resolve;
+    });
+    mockFetchFn.mockReturnValue(pendingPromise);
+
+    const { result, unmount } = renderHook(() =>
+      useClientSideFetch({
+        fetchFn: mockFetchFn,
+        initialData,
+      })
+    );
+
+    // Unmount while fetch is in progress
+    unmount();
+
+    // Resolve the fetch after unmount
+    resolvePromise(updatedData);
+
+    // Give async operations a tick to complete
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // State should not have been updated (still initialData at unmount time)
+    expect(result.current.data).toEqual(initialData);
+  });
+
+  it('should call onError callback when fetch fails', async () => {
+    const error = new Error('API failure');
+    mockFetchFn.mockRejectedValue(error);
+    const onError = vi.fn();
+
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const { result } = renderHook(() =>
+      useClientSideFetch({
+        fetchFn: mockFetchFn,
+        initialData,
+        onError,
+      })
+    );
+
+    await waitFor(() => {
+      expect(result.current.isUpdating).toBe(false);
+    });
+
+    expect(onError).toHaveBeenCalledWith(error);
+    expect(onError).toHaveBeenCalledTimes(1);
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should allow manual refetch after initial auto-fetch', async () => {
+    const firstData = { id: 1, name: 'First' };
+    const secondData = { id: 1, name: 'Second' };
+    mockFetchFn
+      .mockResolvedValueOnce(firstData)
+      .mockResolvedValueOnce(secondData);
+
+    const { result } = renderHook(() =>
+      useClientSideFetch({
+        fetchFn: mockFetchFn,
+        initialData,
+      })
+    );
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual(firstData);
+    });
+
+    await act(async () => {
+      await result.current.refetch();
+    });
+
+    expect(result.current.data).toEqual(secondData);
+    expect(mockFetchFn).toHaveBeenCalledTimes(2);
+  });
 });

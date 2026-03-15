@@ -49,8 +49,10 @@ export default function AcknowledgementsClient({
   const titleResult = getLocalizedContent(pageData?.title, language);
   const content = contentResult.value;
   const title = titleResult.value || t('pages.acknowledgements.title');
-  const languageNotice = contentResult.isAvailable && !contentResult.isOriginalLanguage
-    ? t('common.contentNotInLanguage') : undefined;
+  const languageNotice =
+    contentResult.isAvailable && !contentResult.isOriginalLanguage
+      ? t('common.contentNotInLanguage')
+      : undefined;
 
   return (
     <MarkdownPageWithSidebar

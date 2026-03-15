@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
@@ -13,19 +12,11 @@ import {
 import './SearchResultCard.scss';
 
 import { PATHS } from '@/config/paths';
-import { useFetchArticleMetadataQuery } from '@/store/features/article/article.query';
 import { IArticle, IArticleAbstracts } from '@/types/article';
-import {
-  CITATION_TEMPLATE,
-  ICitation,
-  METADATA_TYPE,
-  articleTypes,
-  copyToClipboardCitation,
-  getCitations,
-} from '@/utils/article';
+import { getArticleTypeLabel } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
-import { handleKeyboardClick } from '@/utils/keyboard';
+import { useCitationsDropdown } from '@/hooks/useCitationsDropdown';
 
 export interface ISearchResultCard extends IArticle {
   openedAbstract: boolean;
@@ -46,8 +37,15 @@ export default function SearchResultCard({
   searchResult,
   toggleAbstractCallback,
 }: ISearchResultCardProps): React.JSX.Element {
-  const [citations, setCitations] = useState<ICitation[]>([]);
-  const [showCitationsDropdown, setShowCitationsDropdown] = useState(false);
+  const {
+    citations,
+    showCitationsDropdown,
+    citationsDropdownRef,
+    copyCitation,
+    handleTriggerMouseEnter,
+    handleTriggerClick,
+    handleContainerMouseLeave,
+  } = useCitationsDropdown(searchResult.id, rvcode, t);
 
   // Helper to extract abstract string from union type
   const getAbstractString = (
@@ -59,79 +57,11 @@ export default function SearchResultCard({
     return abstract[language] || abstract.en || abstract.fr || Object.values(abstract)[0];
   };
 
-  const { data: metadataCSL } = useFetchArticleMetadataQuery(
-    {
-      rvcode: rvcode!,
-      paperid: searchResult.id.toString(),
-      type: METADATA_TYPE.CSL,
-    },
-    {
-      skip: !searchResult.id || !rvcode,
-    }
-  );
-
-  const { data: metadataBibTeX } = useFetchArticleMetadataQuery(
-    {
-      rvcode: rvcode!,
-      paperid: searchResult.id.toString(),
-      type: METADATA_TYPE.BIBTEX,
-    },
-    {
-      skip: !searchResult.id || !rvcode,
-    }
-  );
-
-  const citationsDropdownRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleTouchOutside = (event: TouchEvent): void => {
-      if (
-        citationsDropdownRef.current &&
-        !citationsDropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowCitationsDropdown(false);
-      }
-    };
-
-    document.addEventListener('touchstart', handleTouchOutside);
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchOutside);
-    };
-  }, [citationsDropdownRef]);
-
-  useEffect(() => {
-    const fetchCitations = async () => {
-      const fetchedCitations = await getCitations(metadataCSL as string);
-
-      // BibTeX is already added by getCitations with an empty citation,
-      // and then updated if metadataBibTeX is available.
-      // But here we need to make sure the citation is correctly filled
-      const bibtexIndex = fetchedCitations.findIndex(
-        citation => citation.key === CITATION_TEMPLATE.BIBTEX
-      );
-      if (bibtexIndex !== -1 && metadataBibTeX) {
-        fetchedCitations[bibtexIndex].citation = metadataBibTeX as string;
-      }
-
-      setCitations(fetchedCitations);
-    };
-
-    if (metadataCSL && metadataBibTeX) {
-      fetchCitations();
-    }
-  }, [metadataCSL, metadataBibTeX]);
-
-  const copyCitation = (citation: ICitation): void => {
-    copyToClipboardCitation(citation, t);
-    setShowCitationsDropdown(false);
-  };
-
   return (
     <div className="searchResultCard">
       {searchResult.tag && (
         <div className="searchResultCardTag">
-          {t(articleTypes.find(tag => tag.value === searchResult.tag)?.labelPath!)}
+          {t(getArticleTypeLabel(searchResult.tag))}
         </div>
       )}
       <Link href={`/${PATHS.articles}/${searchResult.id}`} lang={language}>
@@ -144,12 +74,10 @@ export default function SearchResultCard({
       </div>
       {searchResult.abstract && (
         <div className="searchResultCardAbstract">
-          <div
+          <button
+            type="button"
             className={`searchResultCardAbstractTitle ${!searchResult.openedAbstract ? 'searchResultCardAbstractTitleClosed' : ''}`}
-            role="button"
-            tabIndex={0}
             onClick={toggleAbstractCallback}
-            onKeyDown={(e) => handleKeyboardClick(e, toggleAbstractCallback)}
           >
             <div className="searchResultCardAbstractTitleText">{t('common.abstract')}</div>
             {searchResult.openedAbstract ? (
@@ -165,7 +93,7 @@ export default function SearchResultCard({
                 ariaLabel="Expand abstract"
               />
             )}
-          </div>
+          </button>
           <div
             className={`searchResultCardAbstractContent ${searchResult.openedAbstract ? 'searchResultCardAbstractContentOpened' : ''}`}
           >
@@ -190,39 +118,45 @@ export default function SearchResultCard({
               </div>
             </a>
           )}
-          {citations.length > 0 && (
+          {searchResult.id && (
             <div
               ref={citationsDropdownRef}
               className="searchResultCardAnchorIconsCite"
-              role="button"
-              tabIndex={0}
-              onMouseEnter={(): void => setShowCitationsDropdown(true)}
-              onMouseLeave={(): void => setShowCitationsDropdown(false)}
-              onClick={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
-              onKeyDown={(e) => handleKeyboardClick(e, () => setShowCitationsDropdown(!showCitationsDropdown))}
+              onMouseLeave={handleContainerMouseLeave}
             >
-              <QuoteBlackIcon
-                size={16}
-                className="searchResultCardAnchorIconsCiteIcon"
-                ariaLabel="Cite article"
-              />
-              <div className="searchResultCardAnchorIconsCiteText">{t('common.cite')}</div>
+              <button
+                type="button"
+                className="searchResultCardAnchorIconsCiteTrigger"
+                onMouseEnter={handleTriggerMouseEnter}
+                onClick={handleTriggerClick}
+              >
+                <QuoteBlackIcon
+                  size={16}
+                  className="searchResultCardAnchorIconsCiteIcon"
+                  ariaLabel="Cite article"
+                />
+                <div className="searchResultCardAnchorIconsCiteText">{t('common.cite')}</div>
+              </button>
               <div
                 className={`searchResultCardAnchorIconsCiteContent ${showCitationsDropdown ? 'searchResultCardAnchorIconsCiteContentDisplayed' : ''}`}
               >
                 <div className="searchResultCardAnchorIconsCiteContentLinks">
-                  {citations.map((citation, index) => (
-                    <span
-                      key={index}
-                      role="button"
-                      tabIndex={0}
-                      onClick={(): void => copyCitation(citation)}
-                      onKeyDown={(e) => handleKeyboardClick(e, (): void => copyCitation(citation))}
-                      onTouchEnd={(): void => copyCitation(citation)}
-                    >
-                      {citation.key}
+                  {citations.length > 0 ? (
+                    citations.map(citation => (
+                      <button
+                        type="button"
+                        key={citation.key}
+                        onClick={(): void => copyCitation(citation)}
+                        onTouchEnd={(): void => copyCitation(citation)}
+                      >
+                        {citation.key}
+                      </button>
+                    ))
+                  ) : (
+                    <span className="searchResultCardAnchorIconsCiteLoading">
+                      {t('common.loading')}
                     </span>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
-import { API_URL } from '@/config/api';
-import { IStat, IStatResponse } from '@/types/stat';
+import { IStat } from '@/types/stat';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { safeFetchData } from '@/utils/api-error-handler';
 
 interface StatisticsParams {
   rvcode: string;
@@ -20,30 +20,27 @@ export async function fetchStatistics({
   params.append('itemsPerPage', itemsPerPage.toString());
   params.append('rvcode', encodeURIComponent(rvcode));
 
-  // Si years est défini et non vide, on ajoute le filtre par années
   if (years && years.length > 0) {
     years.forEach(year => params.append('year[]', year.toString()));
   }
-  // Si years est undefined ou vide, on ne passe pas le paramètre (toutes les années)
 
   const apiUrl = getJournalApiUrl(rvcode);
-  const response = await fetch(`${apiUrl}/statistics/?${params}`, {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
+  return safeFetchData(
+    async () => {
+      const response = await fetch(`${apiUrl}/statistics/?${params}`, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        next: {
+          revalidate: 3600,
+          tags: ['statistics'],
+        },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
     },
-    next: {
-      revalidate: 3600, // Statistics - revalidate every hour
-      tags: ['statistics'], // Tag for on-demand revalidation
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Failed to fetch statistics: ${response.status} ${response.statusText} - ${errorText}`
-    );
-  }
-
-  return response.json();
+    [],
+    `fetchStatistics(${rvcode})`
+  );
 }

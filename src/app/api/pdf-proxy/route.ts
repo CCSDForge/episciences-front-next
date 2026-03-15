@@ -14,6 +14,19 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT = 30;
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 
+// Cleanup expired entries every 5 minutes to prevent memory leak
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, record] of rateLimitMap.entries()) {
+      if (now > record.resetTime) {
+        rateLimitMap.delete(key);
+      }
+    }
+  },
+  5 * 60 * 1000
+);
+
 /**
  * Check if client has exceeded rate limit
  */
@@ -55,7 +68,10 @@ function isAllowedDomain(url: string): boolean {
  */
 export async function GET(request: NextRequest) {
   // Get client IP
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0] ||
+    request.headers.get('x-real-ip') ||
+    'unknown';
 
   // Check rate limit
   if (!checkRateLimit(ip)) {
@@ -75,7 +91,9 @@ export async function GET(request: NextRequest) {
 
   // Validate disposition parameter
   if (disposition !== 'inline' && disposition !== 'attachment') {
-    return new NextResponse('Invalid disposition parameter (must be inline or attachment)', { status: 400 });
+    return new NextResponse('Invalid disposition parameter (must be inline or attachment)', {
+      status: 400,
+    });
   }
 
   // Validate domain

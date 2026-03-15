@@ -49,8 +49,10 @@ export default function EthicalCharterClient({
   const titleResult = getLocalizedContent(pageData?.title, language);
   const content = contentResult.value;
   const title = titleResult.value || t('pages.ethicalCharter.title');
-  const languageNotice = contentResult.isAvailable && !contentResult.isOriginalLanguage
-    ? t('common.contentNotInLanguage') : undefined;
+  const languageNotice =
+    contentResult.isAvailable && !contentResult.isOriginalLanguage
+      ? t('common.contentNotInLanguage')
+      : undefined;
 
   return (
     <MarkdownPageWithSidebar

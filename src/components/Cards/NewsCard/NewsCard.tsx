@@ -1,8 +1,8 @@
 'use client';
 
-import { MouseEvent, useState } from 'react';
+import React, { MouseEvent, useState } from 'react';
 import { Link } from '@/components/Link/Link';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { TFunction } from 'i18next';
 import { ExternalLinkBlackIcon } from '@/components/icons';
 import './NewsCard.scss';
@@ -30,7 +30,7 @@ interface INewsCardProps extends INewsCardTile {
   news: INews;
 }
 
-export default function NewsCard({
+function NewsCard({
   language,
   t,
   mode,
@@ -54,11 +54,18 @@ export default function NewsCard({
 
     return (
       <div className="newsCard-content-content">
-        <ReactMarkdown>{showFullContent ? content : truncate(content, MAX_CONTENT_LENGTH)}</ReactMarkdown>
+        <MarkdownRenderer>
+          {showFullContent ? content : truncate(content, MAX_CONTENT_LENGTH)}
+        </MarkdownRenderer>
         {isTruncated && (
           <div
             onClick={(e): void => toggleFullContent(e)}
-            onKeyDown={(e) => handleKeyboardClick(e, (): void => toggleFullContent(e as any))}
+            onKeyDown={e =>
+              handleKeyboardClick(e, (evt): void => {
+                evt.stopPropagation();
+                setShowFullContent(prev => !prev);
+              })
+            }
             role="button"
             tabIndex={0}
             className="newsCard-content-content-toggle"
@@ -81,7 +88,7 @@ export default function NewsCard({
           role="button"
           tabIndex={0}
           onClick={setFullNewsIndexCallback}
-          onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}
+          onKeyDown={e => handleKeyboardClick(e, setFullNewsIndexCallback)}
         >
           <div className="newsCard-tile-full-initial">
             <div className="newsCard-content newsCard-content-tile-full">
@@ -129,7 +136,7 @@ export default function NewsCard({
         role="button"
         tabIndex={0}
         onClick={setFullNewsIndexCallback}
-        onKeyDown={(e) => handleKeyboardClick(e, setFullNewsIndexCallback)}
+        onKeyDown={e => handleKeyboardClick(e, setFullNewsIndexCallback)}
       >
         <div className="newsCard-content newsCard-content-tile">
           <div className="newsCard-content-title newsCard-content-title-tile">
@@ -191,3 +198,5 @@ export default function NewsCard({
     </div>
   );
 }
+
+export default React.memo(NewsCard);

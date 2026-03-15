@@ -43,9 +43,9 @@ export const toHaveNoViolations = {
     }
 
     const formattedViolations = violations
-      .map((violation) => {
+      .map(violation => {
         const nodes = violation.nodes
-          .map((node) => `  - ${node.html}\n    ${node.failureSummary}`)
+          .map(node => `  - ${node.html}\n    ${node.failureSummary}`)
           .join('\n');
         return `\n${violation.help} (${violation.id})\nImpact: ${violation.impact}\nNodes:\n${nodes}`;
       })

@@ -32,7 +32,7 @@ import { handleKeyboardClick } from '@/utils/keyboard';
 // Lazy load mobile modal
 const SearchResultsMobileModal = dynamic(
   () => import('@/components/Modals/SearchResultsMobileModal/SearchResultsMobileModal'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 type SearchResultTypeFilter = 'type' | 'year' | 'volume' | 'section' | 'author';
@@ -675,7 +675,11 @@ export default function SearchClient({
               role="button"
               tabIndex={0}
               onClick={(): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal)}
-              onKeyDown={(e) => handleKeyboardClick(e, (): void => setOpenedFiltersMobileModal(!openedFiltersMobileModal))}
+              onKeyDown={e =>
+                handleKeyboardClick(e, (): void =>
+                  setOpenedFiltersMobileModal(!openedFiltersMobileModal)
+                )
+              }
             >
               <FilterIcon
                 size={16}
@@ -729,7 +733,7 @@ export default function SearchClient({
               role="button"
               tabIndex={0}
               onClick={clearTaggedFilters}
-              onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+              onKeyDown={e => handleKeyboardClick(e, clearTaggedFilters)}
             >
               {t('common.filters.clearAll')}
             </div>
@@ -740,7 +744,7 @@ export default function SearchClient({
           role="button"
           tabIndex={0}
           onClick={toggleAllAbstracts}
-          onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
+          onKeyDown={e => handleKeyboardClick(e, toggleAllAbstracts)}
         >
           {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
         </div>
@@ -750,7 +754,7 @@ export default function SearchClient({
         role="button"
         tabIndex={0}
         onClick={toggleAllAbstracts}
-        onKeyDown={(e) => handleKeyboardClick(e, toggleAllAbstracts)}
+        onKeyDown={e => handleKeyboardClick(e, toggleAllAbstracts)}
       >
         {`${showAllAbstracts ? t('common.toggleAbstracts.hideAll') : t('common.toggleAbstracts.showAll')}`}
       </div>

@@ -2,6 +2,7 @@
 
 import { FileGreyIcon, DownloadBlackIcon } from '@/components/icons';
 import { Fragment } from 'react';
+import Image from 'next/image';
 import { TFunction } from 'i18next';
 import { Link } from '@/components/Link/Link';
 import { IIssue } from '@/types/issue';
@@ -46,7 +47,15 @@ export default function IssuesSection({
         return (
           <div key={issue.id} className="issuesSection-card">
             {issue.tileImageURL ? (
-              <img className="issuesSection-card-tile" src={issue.tileImageURL} alt="Issue tile" />
+              <Image
+                className="issuesSection-card-tile"
+                src={issue.tileImageURL}
+                alt={issueTitle || (issue.num ? `Issue ${issue.num}` : 'Issue cover')}
+                width={120}
+                height={160}
+                style={{ height: 'auto' }}
+                sizes="120px"
+              />
             ) : (
               <div className="issuesSection-card-template">
                 <div className="issuesSection-card-template-jpe">{displayJournalCode}</div>

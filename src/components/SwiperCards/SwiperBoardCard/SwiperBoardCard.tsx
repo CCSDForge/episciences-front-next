@@ -1,7 +1,9 @@
 'use client';
 
+import { memo } from 'react';
 import { TFunction } from 'i18next';
 import { Link } from '@/components/Link/Link';
+import Image from 'next/image';
 import { OrcidIcon, UserIcon, RorIcon } from '@/components/icons';
 import { IBoardMember, IBoardMemberAffiliation } from '@/types/board';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -12,7 +14,11 @@ import './SwiperBoardCard.scss';
  * Renders an affiliation with optional ROR link
  * If rorId is present, displays the ROR icon as a link followed by a non-breaking space and the label as plain text
  */
-function AffiliationWithRor({ affiliation }: { affiliation: IBoardMemberAffiliation }): React.JSX.Element {
+function AffiliationWithRor({
+  affiliation,
+}: {
+  affiliation: IBoardMemberAffiliation;
+}): React.JSX.Element {
   if (affiliation.rorId) {
     return (
       <span className="swiperBoardCard-affiliation-with-ror">
@@ -46,7 +52,7 @@ interface ISwiperBoardCardProps {
   member: IBoardMember;
 }
 
-export default function SwiperBoardCard({
+function SwiperBoardCard({
   language,
   t,
   member,
@@ -56,7 +62,13 @@ export default function SwiperBoardCard({
       <div className="swiperBoardCard-person">
         <div className="swiperBoardCard-person-picture">
           {member.picture ? (
-            <img src={member.picture} alt={`${member.firstname} ${member.lastname} picture`} />
+            <Image
+              src={member.picture}
+              alt={`${member.firstname} ${member.lastname}`}
+              width={64}
+              height={64}
+              unoptimized
+            />
           ) : (
             <UserIcon
               size={48}
@@ -117,3 +129,5 @@ export default function SwiperBoardCard({
     </div>
   );
 }
+
+export default memo(SwiperBoardCard);

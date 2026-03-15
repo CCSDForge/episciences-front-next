@@ -2,6 +2,7 @@ import { ISection } from '@/types/section';
 import { formatArticle } from '@/utils/article';
 import { API_URL, API_PATHS } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { safeFetchData } from '@/utils/api-error-handler';
 
 interface FetchSectionParams {
   sid: string;
@@ -14,29 +15,30 @@ interface FetchSectionsParams {
   itemsPerPage?: number;
 }
 
-export async function fetchSection({ sid, rvcode }: FetchSectionParams): Promise<ISection> {
+export async function fetchSection({ sid, rvcode }: FetchSectionParams): Promise<ISection | null> {
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
-  const response = await fetch(`${apiRoot}${API_PATHS.sections}/${sid}`, {
-    next: {
-      revalidate: 3600, // Section details - revalidate every hour
-      tags: ['sections'], // Tag for on-demand revalidation
+  return safeFetchData(
+    async () => {
+      const response = await fetch(`${apiRoot}${API_PATHS.sections}/${sid}`, {
+        next: {
+          revalidate: 3600,
+          tags: ['sections'],
+        },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const rawSection = await response.json();
+      return {
+        ...rawSection,
+        id: rawSection.sid,
+        title: rawSection.titles,
+        description: rawSection.descriptions,
+        articles: rawSection.papers,
+        committee: rawSection.committee,
+      };
     },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch section: ${response.statusText}`);
-  }
-
-  const rawSection = await response.json();
-
-  return {
-    ...rawSection,
-    id: rawSection.sid,
-    title: rawSection.titles,
-    description: rawSection.descriptions,
-    articles: rawSection.papers,
-    committee: rawSection.committee,
-  };
+    null,
+    `fetchSection(${sid})`
+  );
 }
 
 /**

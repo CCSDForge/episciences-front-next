@@ -43,6 +43,16 @@
       gap: 8px;
       border-bottom: 1px solid var(--primary-border);
       cursor: pointer;
+      // Button reset
+      background: none;
+      border-top: none;
+      border-right: none;
+      border-left: none;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      width: 100%;
 
       &-closed {
         width: 100px;
@@ -87,8 +97,7 @@
         gap: 8px;
       }
 
-      &-download,
-      &-cite {
+      &-download {
         display: flex;
         gap: 4px;
         color: var(--primary-text);
@@ -105,6 +114,28 @@
 
       &-cite {
         position: relative;
+
+        &-trigger {
+          display: flex;
+          gap: 4px;
+          align-items: center;
+          color: var(--primary-text);
+          font-size: 13px;
+          // Button reset
+          background: none;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          font-family: inherit;
+        }
+
+        &-text {
+          @media (max-width: breakpoints.$sm) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+          }
+        }
 
         &-content {
           position: absolute;
@@ -128,8 +159,14 @@
             box-shadow: 0px 3px 6px var(--grey);
             font-size: 14px;
 
-            span {
+            button {
               cursor: pointer;
+              background: none;
+              border: none;
+              padding: 0;
+              font: inherit;
+              color: inherit;
+              text-align: left;
 
               &:hover {
                 color: var(--grey-dark);

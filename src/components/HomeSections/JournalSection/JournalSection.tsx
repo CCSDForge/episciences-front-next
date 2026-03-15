@@ -2,7 +2,7 @@
 
 import { ExternalLinkBlackIcon } from '@/components/icons';
 import { Link } from '@/components/Link/Link';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 
 import { AvailableLanguage } from '@/utils/i18n';
 import './JournalSection.scss';
@@ -19,7 +19,7 @@ export default function JournalSection({
   return (
     <div className="journalSection">
       {content && (
-        <ReactMarkdown
+        <MarkdownRenderer
           components={{
             a: ({ ...props }) => (
               <Link href={props.href!} target="_blank">
@@ -30,7 +30,7 @@ export default function JournalSection({
           }}
         >
           {content[language]}
-        </ReactMarkdown>
+        </MarkdownRenderer>
       )}
     </div>
   );

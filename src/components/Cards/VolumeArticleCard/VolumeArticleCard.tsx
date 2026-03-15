@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Link } from '@/components/Link/Link';
-import { useRouter } from 'next/navigation';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
 import { CaretUpBlackIcon, CaretDownBlackIcon, DownloadBlackIcon } from '@/components/icons';
@@ -10,7 +9,7 @@ import './VolumeArticleCard.scss';
 
 import { PATHS } from '@/config/paths';
 import { IArticle } from '@/types/article';
-import { articleTypes, getAbstractText } from '@/utils/article';
+import { getArticleTypeLabel, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
@@ -21,18 +20,14 @@ interface IVolumeArticleCardProps {
   article: IArticle;
 }
 
-export default function VolumeArticleCard({
+function VolumeArticleCard({
   language,
   t,
   article,
 }: IVolumeArticleCardProps): React.JSX.Element {
-  const router = useRouter();
   const [openedAbstract, setOpenedAbstract] = useState(false);
 
-  const navigateToArticle = () => {
-    const path = `${PATHS.articles}/${article.id}`.replace(/^\//, '');
-    router.push(`/${language}/${path}`);
-  };
+  const articlePath = `/${PATHS.articles}/${article.id}`.replace(/\/\/+/g, '/');
 
   const toggleAbstract = (): void => setOpenedAbstract(!openedAbstract);
 
@@ -40,19 +35,17 @@ export default function VolumeArticleCard({
     <div className="volumeArticleCard">
       {article.tag && (
         <div className="volumeArticleCard-tag">
-          {t(articleTypes.find(tag => tag.value === article.tag)?.labelPath!)}
+          {t(getArticleTypeLabel(article.tag))}
         </div>
       )}
-      <div
+      <Link
+        href={articlePath}
+        lang={language}
         className="volumeArticleCard-title"
-        
-        role="button"
-        tabIndex={0}
-        
-        onClick={navigateToArticle}
-        style={{ cursor: 'pointer' }}        onKeyDown={(e) => handleKeyboardClick(e, navigateToArticle)}>
+        style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
+      >
         <MathJax dynamic>{article.title}</MathJax>
-      </div>
+      </Link>
       <div className="volumeArticleCard-authors">
         {article.authors.map(author => author.fullname).join(', ')}
       </div>
@@ -60,11 +53,11 @@ export default function VolumeArticleCard({
         <div className="volumeArticleCard-abstract">
           <div
             className={`volumeArticleCard-abstract-title ${!openedAbstract && 'volumeArticleCard-abstract-title-closed'}`}
-            
-        role="button"
-        tabIndex={0}
-        
-        onClick={toggleAbstract}        onKeyDown={(e) => handleKeyboardClick(e, toggleAbstract)}>
+            role="button"
+            tabIndex={0}
+            onClick={toggleAbstract}
+            onKeyDown={e => handleKeyboardClick(e, toggleAbstract)}
+          >
             <div className="volumeArticleCard-abstract-title-text">{t('common.abstract')}</div>
             {openedAbstract ? (
               <CaretUpBlackIcon
@@ -111,3 +104,5 @@ export default function VolumeArticleCard({
     </div>
   );
 }
+
+export default memo(VolumeArticleCard);

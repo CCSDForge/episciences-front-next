@@ -51,13 +51,9 @@ export function PDFProxyIframe({
 
   return (
     <div className={`pdf-proxy-iframe-container ${className}`} style={{ height }}>
-      {isLoading && (
-        <div className="pdf-proxy-iframe-loading">Loading PDF preview...</div>
-      )}
+      {isLoading && <div className="pdf-proxy-iframe-loading">Loading PDF preview...</div>}
       {hasError && (
-        <div className="pdf-proxy-iframe-error">
-          Failed to load PDF. Please try again later.
-        </div>
+        <div className="pdf-proxy-iframe-error">Failed to load PDF. Please try again later.</div>
       )}
       {proxyUrl && (
         <iframe

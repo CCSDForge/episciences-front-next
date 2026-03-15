@@ -33,7 +33,7 @@ export default function CollapsibleSectionWrapper({
         aria-expanded={isOpen}
         className={`articleDetails-content-article-section-title ${!isOpen && 'articleDetails-content-article-section-closed'}`}
         onClick={toggleSection}
-        onKeyDown={(e) => handleKeyboardClick(e, toggleSection)}
+        onKeyDown={e => handleKeyboardClick(e, toggleSection)}
       >
         <div className="articleDetails-content-article-section-title-text">{title}</div>
         {isOpen ? (

@@ -43,7 +43,7 @@ export default function ArticlesAcceptedSidebar({
                 role="button"
                 tabIndex={0}
                 onClick={(): void => onCheckTypeCallback(type.value)}
-                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
+                onKeyDown={e => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
               >
                 {t(type.labelPath)}
               </span>

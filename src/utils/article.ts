@@ -403,7 +403,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
             (p): p is typeof p & { keywords: unknown } =>
               p && typeof p === 'object' && 'keywords' in p && !!p.keywords
           )
-        : (articleContent.program as any)?.keywords
+        : (articleContent.program as { keywords?: unknown })?.keywords
           ? articleContent.program
           : null;
 
@@ -535,7 +535,7 @@ export function getLicenseLabelInfo(licenseUrl: string): { parent: string; key: 
   if (!licenseUrl) return null;
 
   const CC_TYPE_MAP: Record<string, string> = {
-    'by': 'generic',
+    by: 'generic',
     'by-nc': 'nonCommercial',
     'by-nd': 'noDerivatives',
     'by-sa': 'shareAlike',
@@ -549,7 +549,10 @@ export function getLicenseLabelInfo(licenseUrl: string): { parent: string; key: 
   if (ccMatch) {
     const typeKey = CC_TYPE_MAP[ccMatch[1]];
     if (typeKey) {
-      return { parent: 'pages.articleDetails.licenses.creativeCommons', key: `${typeKey}${ccMatch[2]}` };
+      return {
+        parent: 'pages.articleDetails.licenses.creativeCommons',
+        key: `${typeKey}${ccMatch[2]}`,
+      };
     }
   }
 
@@ -605,6 +608,11 @@ export const articleTypes: { labelPath: string; value: string }[] = [
   { labelPath: 'pages.articles.types.report', value: ARTICLE_TYPE.REPORT },
   { labelPath: 'pages.articles.types.software', value: ARTICLE_TYPE.SOFTWARE },
 ];
+
+export function getArticleTypeLabel(tag: string | undefined): string {
+  if (!tag) return '';
+  return articleTypes.find(type => type.value === tag)?.labelPath ?? '';
+}
 
 export const getCitations = async (csl?: string): Promise<ICitation[]> => {
   if (!csl || csl.trim() === '') {

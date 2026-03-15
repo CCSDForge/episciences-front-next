@@ -1,25 +1,23 @@
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { safeFetchData } from '@/utils/api-error-handler';
 
-/**
- * Fetch acknowledgements page content for a journal
- * @param rvcode - Journal code
- * @returns Page data from API
- */
 export async function fetchAcknowledgementsPage(rvcode: string) {
   const apiUrl = getJournalApiUrl(rvcode);
-  const response = await fetch(
-    `${apiUrl}/pages?page_code=journal-acknowledgements&rvcode=${rvcode}`,
-    {
-      next: {
-        revalidate: false, // Static content - no revalidation needed
-        tags: ['acknowledgements'],
-      },
-    }
+  return safeFetchData(
+    async () => {
+      const response = await fetch(
+        `${apiUrl}/pages?page_code=journal-acknowledgements&rvcode=${rvcode}`,
+        {
+          next: {
+            revalidate: false,
+            tags: ['acknowledgements'],
+          },
+        }
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    },
+    null,
+    `fetchAcknowledgementsPage(${rvcode})`
   );
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch acknowledgements page');
-  }
-
-  return await response.json();
 }

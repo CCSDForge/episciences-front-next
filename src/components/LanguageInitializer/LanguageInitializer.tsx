@@ -43,7 +43,7 @@ function LanguageInitializerClient({ initialLanguage }: LanguageInitializerProps
     const lang = initialLanguage || getLanguageFromPathname(pathname || '/');
 
     // Update Redux state
-    dispatch(setLanguage(lang as any));
+    dispatch(setLanguage(lang));
 
     // Update i18next and wait for translations to load
     if (i18next.language !== lang) {

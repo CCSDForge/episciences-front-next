@@ -52,7 +52,7 @@ export default function ArticlesSidebar({
                 role="button"
                 tabIndex={0}
                 onClick={(): void => onCheckTypeCallback(type.value)}
-                onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
+                onKeyDown={e => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
               >
                 {t(type.labelPath)}
               </span>
@@ -77,7 +77,7 @@ export default function ArticlesSidebar({
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onCheckYearCallback(y.year)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))}
                 >
                   {y.year}
                 </span>

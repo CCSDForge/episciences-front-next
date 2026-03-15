@@ -6,7 +6,11 @@ import AuthorsSearchInput from '../AuthorsSearchInput';
 
 // Mock the icon component with proper ARIA role
 vi.mock('@/components/icons', () => ({
-  SearchIcon: ({ size, ariaLabel, className }: {
+  SearchIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
     size: number;
     ariaLabel?: string;
     className?: string;
@@ -167,12 +171,7 @@ describe('AuthorsSearchInput', () => {
 
   describe('Different placeholder texts', () => {
     it('renders with custom placeholder', () => {
-      render(
-        <AuthorsSearchInput
-          {...defaultProps}
-          placeholder="Type author name..."
-        />
-      );
+      render(<AuthorsSearchInput {...defaultProps} placeholder="Type author name..." />);
 
       expect(screen.getByPlaceholderText('Type author name...')).toBeInTheDocument();
     });
@@ -221,9 +220,7 @@ describe('AuthorsSearchInput', () => {
     });
 
     it('should have no violations with value', async () => {
-      const { container } = render(
-        <AuthorsSearchInput {...defaultProps} value="John Smith" />
-      );
+      const { container } = render(<AuthorsSearchInput {...defaultProps} value="John Smith" />);
 
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();

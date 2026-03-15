@@ -89,7 +89,9 @@ export default function SearchResultsSidebar({
                     role="button"
                     tabIndex={0}
                     onClick={(): void => onCheckTypeCallback(type.value)}
-                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
+                    onKeyDown={e =>
+                      handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))
+                    }
                   >
                     {t(type.labelPath)}
                   </span>
@@ -121,7 +123,9 @@ export default function SearchResultsSidebar({
                       role="button"
                       tabIndex={0}
                       onClick={(): void => onCheckYearCallback(y.year)}
-                      onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))}
+                      onKeyDown={e =>
+                        handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))
+                      }
                     >
                       {y.year}
                     </span>
@@ -158,7 +162,7 @@ export default function SearchResultsSidebar({
                     role="button"
                     tabIndex={0}
                     onClick={(): void => onCheckVolumeCallback(v.id)}
-                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckVolumeCallback(v.id))}
+                    onKeyDown={e => handleKeyboardClick(e, (): void => onCheckVolumeCallback(v.id))}
                   >
                     {v.label[language]}
                   </span>
@@ -191,7 +195,9 @@ export default function SearchResultsSidebar({
                     role="button"
                     tabIndex={0}
                     onClick={(): void => onCheckSectionCallback(s.id)}
-                    onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckSectionCallback(s.id))}
+                    onKeyDown={e =>
+                      handleKeyboardClick(e, (): void => onCheckSectionCallback(s.id))
+                    }
                   >
                     {s.label[language]}
                   </span>
@@ -225,7 +231,9 @@ export default function SearchResultsSidebar({
                       role="button"
                       tabIndex={0}
                       onClick={(): void => onCheckAuthorCallback(a.fullname)}
-                      onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckAuthorCallback(a.fullname))}
+                      onKeyDown={e =>
+                        handleKeyboardClick(e, (): void => onCheckAuthorCallback(a.fullname))
+                      }
                     >
                       {a.fullname}
                     </span>

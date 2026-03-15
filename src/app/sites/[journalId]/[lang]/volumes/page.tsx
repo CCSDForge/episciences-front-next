@@ -64,7 +64,16 @@ export default async function VolumesPage(props: {
   const currentPage = typeof pageParam === 'string' ? parseInt(pageParam, 10) : 1;
   const validPage = isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
 
-  console.log('VolumesPage searchParams types:', types, 'years:', years, 'page:', validPage, 'journalId:', journalId);
+  console.log(
+    'VolumesPage searchParams types:',
+    types,
+    'years:',
+    years,
+    'page:',
+    validPage,
+    'journalId:',
+    journalId
+  );
 
   try {
     if (!journalId) {
@@ -73,7 +82,7 @@ export default async function VolumesPage(props: {
 
     const isFiltering = types.length > 0 || years.length > 0;
 
-    // Strategy: Fetch the requested page normally. 
+    // Strategy: Fetch the requested page normally.
     // We also fetch a full range in parallel to get facets for the sidebar.
     const volumePromise = fetchVolumes({
       rvcode: journalId,
@@ -88,8 +97,8 @@ export default async function VolumesPage(props: {
       rvcode: journalId,
       language: lang,
       page: 1,
-      itemsPerPage: 250, 
-      types: [], 
+      itemsPerPage: 250,
+      types: [],
       years: [],
     });
 
@@ -119,27 +128,35 @@ export default async function VolumesPage(props: {
 
     // Logic for counts:
     // 1. If we are filtering, we trust the volumesData counts (matching volumes)
-    // 2. If we are NOT filtering, we prefer the counts from fullRangeData if they are higher 
+    // 2. If we are NOT filtering, we prefer the counts from fullRangeData if they are higher
     //    (since fullRangeData fetches 250 items and might have better fallback counts)
     if (!isFiltering) {
       if (fullRangeData?.totalItems && fullRangeData.totalItems > totalItems) {
         totalItems = fullRangeData.totalItems;
       }
-      if (fullRangeData?.articlesCount && (articlesCount === undefined || articlesCount === 0 || fullRangeData.articlesCount > articlesCount)) {
+      if (
+        fullRangeData?.articlesCount &&
+        (articlesCount === undefined ||
+          articlesCount === 0 ||
+          fullRangeData.articlesCount > articlesCount)
+      ) {
         articlesCount = fullRangeData.articlesCount;
       }
     }
 
-    // FINAL FALLBACK: If articlesCount is still 0 but we have volumes, 
+    // FINAL FALLBACK: If articlesCount is still 0 but we have volumes,
     // it's likely the API didn't return the aggregate count.
     // In that case, we can sum the papers in the volumes we have.
     if (articlesCount === 0 && displayData.length > 0) {
-       articlesCount = displayData.reduce((acc, vol) => acc + (vol.articles?.length || 0), 0);
-       
-       // If we're not filtering and fullRangeData has more volumes, use that sum instead
-       if (!isFiltering && fullRangeData?.data && fullRangeData.data.length > displayData.length) {
-         articlesCount = fullRangeData.data.reduce((acc, vol) => acc + (vol.articles?.length || 0), 0);
-       }
+      articlesCount = displayData.reduce((acc, vol) => acc + (vol.articles?.length || 0), 0);
+
+      // If we're not filtering and fullRangeData has more volumes, use that sum instead
+      if (!isFiltering && fullRangeData?.data && fullRangeData.data.length > displayData.length) {
+        articlesCount = fullRangeData.data.reduce(
+          (acc, vol) => acc + (vol.articles?.length || 0),
+          0
+        );
+      }
     }
 
     const finalVolumesData = {

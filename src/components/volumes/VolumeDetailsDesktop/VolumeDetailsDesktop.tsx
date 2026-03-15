@@ -4,7 +4,7 @@ import { useAppSelector } from '@/hooks/store';
 import { IVolume, IVolumeMetadata } from '@/types/volume';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { formatDate } from '@/utils/date';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import './VolumeDetailsDesktop.scss';
 
 interface IVolumeDetailsDesktopProps {
@@ -108,7 +108,7 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
 
       {volume?.description && volume.description[language] && (
         <div className="volumeDetailsDesktop-description">
-          <ReactMarkdown>{volume.description[language]}</ReactMarkdown>
+          <MarkdownRenderer>{volume.description[language]}</MarkdownRenderer>
         </div>
       )}
 
@@ -138,7 +138,7 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
         <div className="volumeDetailsDesktop-edito">
           <div className="volumeDetailsDesktop-edito-title">{edito.title?.[language]}</div>
           <div className="volumeDetailsDesktop-edito-content">
-            <ReactMarkdown>{edito.content?.[language] || ''}</ReactMarkdown>
+            <MarkdownRenderer>{edito.content?.[language] || ''}</MarkdownRenderer>
           </div>
         </div>
       )}

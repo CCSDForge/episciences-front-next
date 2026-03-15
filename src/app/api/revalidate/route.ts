@@ -9,25 +9,29 @@ import { NextRequest, NextResponse } from 'next/server';
  * 2. Header-based Authentication (x-episciences-token)
  * 3. Journal-specific Secrets (REVALIDATION_TOKEN_[JOURNAL_CODE])
  * 4. Path validation to prevent traversal attacks
- * 5. Rate limiting (10 requests/minute per IP)
+ * 5. Rate limiting (configurable via env vars)
  *
- * Multi-Server Support:
- * When PEER_SERVERS env var is set, the server broadcasts revalidation
- * requests to all peer servers to ensure cache consistency across the cluster.
+ * Cache consistency across the cluster is handled by the shared Valkey cache
+ * (see src/lib/cache-handler.js). PEER_SERVERS broadcasting is no longer needed.
  */
-
-// Peer servers for multi-server deployments (comma-separated URLs)
-const PEER_SERVERS = process.env.PEER_SERVERS
-  ? process.env.PEER_SERVERS.split(',').map(url => url.trim()).filter(Boolean)
-  : [];
-
-// Header to identify forwarded revalidation requests (prevents infinite loops)
-const FORWARDED_HEADER = 'x-forwarded-revalidation';
 
 // Simple in-memory rate limiter (Configurable via env)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = Number(process.env.REVALIDATE_RATE_LIMIT) || 100;
 const RATE_WINDOW = Number(process.env.REVALIDATE_RATE_WINDOW) || 60000; // 1 minute default
+
+// Cleanup expired entries every 5 minutes to prevent memory leak
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, record] of rateLimitMap.entries()) {
+      if (now > record.resetAt) {
+        rateLimitMap.delete(key);
+      }
+    }
+  },
+  5 * 60 * 1000
+);
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -44,47 +48,6 @@ function checkRateLimit(ip: string): boolean {
 
   record.count++;
   return true;
-}
-
-/**
- * Broadcast revalidation request to peer servers
- * Uses Promise.allSettled to not block if some peers are unavailable
- */
-async function broadcastToPeers(
-  payload: { tag?: string; path?: string; journalId?: string },
-  authToken: string
-): Promise<void> {
-  if (PEER_SERVERS.length === 0) return;
-
-  const results = await Promise.allSettled(
-    PEER_SERVERS.map(async peerUrl => {
-      const response = await fetch(`${peerUrl}/api/revalidate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-episciences-token': authToken,
-          [FORWARDED_HEADER]: 'true',
-        },
-        body: JSON.stringify(payload),
-      });
-      return { peerUrl, status: response.status };
-    })
-  );
-
-  // Log broadcast results
-  const successful = results.filter(r => r.status === 'fulfilled').length;
-  const failed = results.filter(r => r.status === 'rejected').length;
-  console.log(
-    `[Revalidate API] Broadcast complete: ${successful}/${PEER_SERVERS.length} peers updated` +
-      (failed > 0 ? `, ${failed} failed` : '')
-  );
-
-  // Log individual failures for debugging
-  results.forEach((result, index) => {
-    if (result.status === 'rejected') {
-      console.warn(`[Revalidate API] Broadcast to ${PEER_SERVERS[index]} failed:`, result.reason);
-    }
-  });
 }
 
 /**
@@ -110,24 +73,22 @@ function isValidRevalidatePath(path: string, journalId?: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if this is a forwarded request from another peer server
-    const isForwarded = request.headers.get(FORWARDED_HEADER) === 'true';
-
-    // 1. IP Whitelist Check (skip for forwarded requests from trusted peers)
+    // 1. IP Whitelist Check
     const allowedIps = process.env.ALLOWED_IPS
       ? process.env.ALLOWED_IPS.split(',').map(ip => ip.trim())
       : [];
-    // Cast to any because NextRequest.ip might be missing in some type definitions despite existing at runtime
     const clientIp =
-      request.headers.get('x-forwarded-for')?.split(',')[0] || (request as any).ip || '';
+      request.headers.get('x-forwarded-for')?.split(',')[0] ||
+      request.headers.get('x-real-ip') ||
+      '';
 
-    if (allowedIps.length > 0 && !allowedIps.includes(clientIp) && !isForwarded) {
+    if (allowedIps.length > 0 && !allowedIps.includes(clientIp)) {
       console.warn(`[Revalidate API] Blocked unauthorized IP: ${clientIp}`);
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    // 2. Rate Limiting Check (skip for forwarded requests to avoid double-counting)
-    if (!isForwarded && !checkRateLimit(clientIp)) {
+    // 2. Rate Limiting Check
+    if (!checkRateLimit(clientIp)) {
       console.warn(`[Revalidate API] Rate limit exceeded for IP: ${clientIp}`);
       return NextResponse.json({ message: 'Too many requests' }, { status: 429 });
     }
@@ -168,9 +129,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Execution
     if (tag) {
-      console.log(
-        `[Revalidate API] Revalidating tag: ${tag}${isForwarded ? ' (forwarded)' : ''}`
-      );
+      console.log(`[Revalidate API] Revalidating tag: ${tag}`);
       revalidateTag(tag, { expire: 0 });
     } else if (path) {
       // Validate path format to prevent path traversal attacks
@@ -179,20 +138,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: 'Invalid path format' }, { status: 400 });
       }
 
-      console.log(
-        `[Revalidate API] Revalidating path: ${path}${isForwarded ? ' (forwarded)' : ''}`
-      );
+      console.log(`[Revalidate API] Revalidating path: ${path}`);
       revalidatePath(path);
     } else {
       return NextResponse.json({ message: 'Missing tag or path' }, { status: 400 });
-    }
-
-    // 6. Broadcast to peer servers (only for original requests, not forwarded ones)
-    if (!isForwarded && PEER_SERVERS.length > 0 && headerToken) {
-      // Fire and forget - don't wait for broadcast to complete
-      broadcastToPeers({ tag, path, journalId }, headerToken).catch(err => {
-        console.error('[Revalidate API] Broadcast error:', err);
-      });
     }
 
     return NextResponse.json({
@@ -200,7 +149,6 @@ export async function POST(request: NextRequest) {
       now: Date.now(),
       journalId: journalId || 'global',
       tag: tag || undefined,
-      broadcast: !isForwarded && PEER_SERVERS.length > 0,
     });
   } catch (error) {
     console.error('[Revalidate API] Error:', error);

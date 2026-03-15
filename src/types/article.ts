@@ -266,13 +266,15 @@ interface IRawArticleContent {
                 value: string;
               }[];
             };
-        license_ref?: {
-          value: string;
-          '@applies_to'?: string;
-        } | {
-          value: string;
-          '@applies_to'?: string;
-        }[];
+        license_ref?:
+          | {
+              value: string;
+              '@applies_to'?: string;
+            }
+          | {
+              value: string;
+              '@applies_to'?: string;
+            }[];
         related_item?:
           | {
               inter_work_relation?: {
@@ -316,13 +318,15 @@ interface IRawArticleContent {
                 value: string;
               }[];
             };
-        license_ref?: {
-          value: string;
-          '@applies_to'?: string;
-        } | {
-          value: string;
-          '@applies_to'?: string;
-        }[];
+        license_ref?:
+          | {
+              value: string;
+              '@applies_to'?: string;
+            }
+          | {
+              value: string;
+              '@applies_to'?: string;
+            }[];
         related_item?:
           | {
               inter_work_relation?: {

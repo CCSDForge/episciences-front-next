@@ -1,0 +1,14 @@
+FROM nginx:alpine
+
+# Copy the template to the directory where the official Nginx image 
+# will perform envsubst and move it to /etc/nginx/conf.d/
+COPY nginx-config/episciences.conf.template /etc/nginx/templates/
+
+# Default environment variables
+ENV EPI_ENV=test
+ENV DOMAIN_SUFFIX=episciences.test
+
+# Create required directories for volumes
+RUN mkdir -p /data/epi /data/user_photo
+
+# Nginx will run as the default CMD from the base image

@@ -1,0 +1,41 @@
+[Unit]
+Description=Episciences Revalidation Worker
+Documentation=https://github.com/episciences/episciences-front-next
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+
+WorkingDirectory=/var/www/episciences-front-next/current
+
+# Load environment variables from a secure file (not world-readable)
+# Create with: install -m 0640 -o root -g www-data /dev/null /etc/episciences/worker.env
+# Then populate: VALKEY_SENTINEL_HOSTS, REVALIDATION_SECRET, etc.
+EnvironmentFile=/etc/episciences/worker.env
+
+ExecStart=/usr/bin/node scripts/revalidate-worker.mjs
+
+# Restart on failure
+Restart=always
+RestartSec=5
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/var/www/episciences-front-next/current
+
+# Resource limits
+LimitNOFILE=65536
+
+# Logging — journal with identifier for easy filtering:
+# journalctl -u episciences-revalidate-worker -f
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=episciences-revalidate-worker
+
+[Install]
+WantedBy=multi-user.target

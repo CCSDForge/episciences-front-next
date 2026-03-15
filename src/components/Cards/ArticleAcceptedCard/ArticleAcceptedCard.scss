@@ -43,6 +43,15 @@
       gap: 8px;
       border-bottom: 1px solid var(--primary-border);
       cursor: pointer;
+      background: none;
+      border-top: none;
+      border-right: none;
+      border-left: none;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      width: 100%;
 
       &-closed {
         width: 100px;

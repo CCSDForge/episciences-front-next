@@ -8,6 +8,7 @@ import { setFooterVisibility } from '@/store/features/footer/footer.slice';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import './NewsMobileModal.scss';
+import FocusTrap from 'focus-trap-react';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
@@ -99,15 +100,24 @@ export default function NewsMobileModal({
     openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
-    <div className="newsMobileModal" ref={modalRef}>
-      <div className="newsMobileModal-title">
-        <div className="newsMobileModal-title-text">{t('common.filters.filter')}</div>
+    <FocusTrap>
+      <div
+        className="newsMobileModal"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="news-modal-title"
+      >
+        <div className="newsMobileModal-title">
+          <h2 id="news-modal-title" className="newsMobileModal-title-text">
+            {t('common.filters.filter')}
+          </h2>
         <CloseBlackIcon
           size={24}
           className="newsMobileModal-title-close"
           ariaLabel="Close"
           onClick={onClose}
-          onKeyDown={(e) => handleKeyboardClick(e, onClose)}
+          onKeyDown={e => handleKeyboardClick(e, onClose)}
           role="button"
           tabIndex={0}
         />
@@ -120,7 +130,7 @@ export default function NewsMobileModal({
               role="button"
               tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-              onKeyDown={(e) => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.YEAR))}
+              onKeyDown={e => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.YEAR))}
             >
               {t('common.filters.years')}
             </div>
@@ -157,7 +167,7 @@ export default function NewsMobileModal({
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onSelectYear(y.year)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onSelectYear(y.year))}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onSelectYear(y.year))}
                 >
                   {y.year}
                 </span>
@@ -173,5 +183,6 @@ export default function NewsMobileModal({
         />
       </div>
     </div>
+    </FocusTrap>
   );
 }

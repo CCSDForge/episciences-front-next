@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
@@ -19,7 +19,7 @@ interface ISectionCardProps {
   section: ISection;
 }
 
-export default function SectionCard({
+function SectionCard({
   language,
   t,
   section,
@@ -28,15 +28,15 @@ export default function SectionCard({
   const toggleDescription = (): void => setOpenedDescription(!openedDescription);
 
   const titleText = section.title ? getLocalizedContent(section.title, language).value || '' : '';
-  const descriptionResult = section.description ? getLocalizedContent(section.description, language) : null;
+  const descriptionResult = section.description
+    ? getLocalizedContent(section.description, language)
+    : null;
 
   return (
     <div className="sectionCard">
       <div className="sectionCard-title">
         <Link href={`${PATHS.sections}/${section.id}`} lang={language}>
-          <div className="sectionCard-title-text">
-            {titleText}
-          </div>
+          <div className="sectionCard-title-text">{titleText}</div>
         </Link>
         <div className="sectionCard-title-count">
           {section.articles.length > 1
@@ -48,11 +48,11 @@ export default function SectionCard({
         <div className="sectionCard-description">
           <div
             className={`sectionCard-description-title ${!openedDescription && 'sectionCard-description-title-closed'}`}
-
-        role="button"
-        tabIndex={0}
-
-        onClick={toggleDescription}        onKeyDown={(e) => handleKeyboardClick(e, toggleDescription)}>
+            role="button"
+            tabIndex={0}
+            onClick={toggleDescription}
+            onKeyDown={e => handleKeyboardClick(e, toggleDescription)}
+          >
             <div className="sectionCard-description-title-text">{t('common.about')}</div>
             {openedDescription ? (
               <CaretUpBlackIcon
@@ -83,3 +83,5 @@ export default function SectionCard({
     </div>
   );
 }
+
+export default React.memo(SectionCard);

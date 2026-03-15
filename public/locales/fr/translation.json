@@ -122,7 +122,8 @@
         "forAuthors": "Pour les auteurs",
         "ethicalCharter": "Charte éthique",
         "forReviewers": "Pour les relecteurs",
-        "forConferenceOrganisers": "Pour les organisateurs de conférences"
+        "forConferenceOrganisers": "Pour les organisateurs de conférences",
+        "proposingSpecialIssues": "Proposer des numéros spéciaux"
       },
       "search": {
         "placeholder": "rechercher",
@@ -512,6 +513,10 @@
     "forConferenceOrganisers": {
       "title": "Pour les organisateurs de conférences",
       "noContent": "Aucune information pour les organisateurs de conférences disponible pour cette revue."
+    },
+    "proposingSpecialIssues": {
+      "title": "Proposer des numéros spéciaux",
+      "noContent": "Aucune information sur la proposition de numéros spéciaux disponible pour cette revue."
     },
     "accessibility": {
       "title": "Accessibilité",

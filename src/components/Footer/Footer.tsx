@@ -40,10 +40,10 @@ export default function Footer(): React.JSX.Element {
     return `${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/feed/rss/${code}`;
   };
 
-  const getLogoOfJournal = (size: 'small' | 'big'): string => {
+  const getLogoOfJournal = (): string => {
     const code = currentJournal?.code;
     if (!code) return 'default';
-    return `/logos/logo-${code}-${size}.svg`;
+    return `/logos/logo-${code}.svg`;
   };
 
   const getDocumentationLink = (): string =>
@@ -81,10 +81,10 @@ export default function Footer(): React.JSX.Element {
     <footer className={`footer ${!enabled && 'footer-disabled'}`}>
       <div className="footer-journal">
         <Image
-          src={getLogoOfJournal('small')}
+          src={getLogoOfJournal()}
           alt={currentJournal?.name || 'Journal logo'}
-          width={150}
-          height={50}
+          width={42}
+          height={42}
           className="footer-journal-logo"
           unoptimized
         />

@@ -6,7 +6,11 @@ import ArticlesSidebar, { IArticleTypeSelection, IArticleYearSelection } from '.
 
 // Mock the Checkbox component
 vi.mock('@/components/Checkbox/Checkbox', () => ({
-  default: ({ checked, onChangeCallback, ariaLabel }: {
+  default: ({
+    checked,
+    onChangeCallback,
+    ariaLabel,
+  }: {
     checked: boolean;
     onChangeCallback: () => void;
     ariaLabel?: string;
@@ -257,17 +261,13 @@ describe('ArticlesSidebar', () => {
 
   describe('Empty states', () => {
     it('handles empty types array', () => {
-      const { container } = render(
-        <ArticlesSidebar {...defaultProps} types={[]} />
-      );
+      const { container } = render(<ArticlesSidebar {...defaultProps} types={[]} />);
 
       expect(container.querySelector('.articlesSidebar-typesSection-types')).toBeInTheDocument();
     });
 
     it('handles empty years array', () => {
-      const { container } = render(
-        <ArticlesSidebar {...defaultProps} years={[]} />
-      );
+      const { container } = render(<ArticlesSidebar {...defaultProps} years={[]} />);
 
       expect(container.querySelector('.articlesSidebar-yearsSection-years')).toBeInTheDocument();
     });
@@ -309,9 +309,7 @@ describe('ArticlesSidebar', () => {
 
     it('should have no violations with all types checked', async () => {
       const allCheckedTypes = defaultTypes.map(t => ({ ...t, isChecked: true }));
-      const { container } = render(
-        <ArticlesSidebar {...defaultProps} types={allCheckedTypes} />
-      );
+      const { container } = render(<ArticlesSidebar {...defaultProps} types={allCheckedTypes} />);
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();
@@ -319,9 +317,7 @@ describe('ArticlesSidebar', () => {
 
     it('should have no violations with all years checked', async () => {
       const allCheckedYears = defaultYears.map(y => ({ ...y, isChecked: true }));
-      const { container } = render(
-        <ArticlesSidebar {...defaultProps} years={allCheckedYears} />
-      );
+      const { container } = render(<ArticlesSidebar {...defaultProps} years={allCheckedYears} />);
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();

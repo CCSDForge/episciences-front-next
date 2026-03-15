@@ -138,6 +138,12 @@ export const menuConfig: MenuStructure = {
         path: '/for-conference-organisers',
         envKey: 'JOURNAL_FOR_CONFERENCE_ORGANISERS',
       },
+      {
+        key: 'PROPOSING_SPECIAL_ISSUES',
+        label: 'components.header.links.proposingSpecialIssues',
+        path: '/proposing-special-issues',
+        envKey: 'JOURNAL_PROPOSING_SPECIAL_ISSUES',
+      },
     ],
   },
 

@@ -1,12 +1,12 @@
 'use client';
 
+import { memo } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
 
 import { PATHS } from '@/config/paths';
-import { FetchedArticle, truncatedArticleAuthorsName } from '@/utils/article';
-import { articleTypes } from '@/utils/article';
+import { FetchedArticle, truncatedArticleAuthorsName, getArticleTypeLabel } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import './SwiperArticleCard.scss';
@@ -19,7 +19,7 @@ interface ISwiperArticleCardProps {
   article: FetchedArticle;
 }
 
-export default function SwiperArticleCard({
+function SwiperArticleCard({
   language,
   t,
   article,
@@ -32,7 +32,7 @@ export default function SwiperArticleCard({
     <div className="swiperArticleCard">
       {article?.tag && (
         <div className="swiperArticleCard-tag">
-          {t(articleTypes.find(tag => tag.value === article.tag)?.labelPath!)}
+          {t(getArticleTypeLabel(article.tag))}
         </div>
       )}
       <Link href={`${PATHS.articles}/${article?.id}`} lang={language}>
@@ -45,3 +45,5 @@ export default function SwiperArticleCard({
     </div>
   );
 }
+
+export default memo(SwiperArticleCard);

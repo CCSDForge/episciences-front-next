@@ -24,7 +24,7 @@ export default function Button({
 }: IButtonProps): React.JSX.Element {
   if (IconComponent) {
     return (
-      <button className="button button-withIcon" onClick={onClickCallback}>
+      <button type="button" className="button button-withIcon" onClick={onClickCallback}>
         {text}
         <IconComponent size={iconSize} className="button-withIcon-icon" />
       </button>
@@ -32,7 +32,7 @@ export default function Button({
   }
 
   return (
-    <button className="button" onClick={onClickCallback}>
+    <button type="button" className="button" onClick={onClickCallback}>
       {text}
     </button>
   );

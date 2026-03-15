@@ -36,9 +36,7 @@ describe('Pagination', () => {
     });
 
     it('does not render when totalItems is 0', () => {
-      const { container } = render(
-        <Pagination {...defaultProps} totalItems={0} />
-      );
+      const { container } = render(<Pagination {...defaultProps} totalItems={0} />);
 
       expect(container.querySelector('.pagination')).not.toBeInTheDocument();
     });
@@ -74,9 +72,7 @@ describe('Pagination', () => {
     });
 
     it('highlights the current active page', () => {
-      const { container } = render(
-        <Pagination {...defaultProps} currentPage={3} />
-      );
+      const { container } = render(<Pagination {...defaultProps} currentPage={3} />);
 
       // The active page should have the active class
       const activePage = container.querySelector('.pagination-page-active');
@@ -206,13 +202,7 @@ describe('Pagination', () => {
     });
 
     it('uses default items per page when not provided', () => {
-      render(
-        <Pagination
-          currentPage={1}
-          totalItems={100}
-          onPageChange={vi.fn()}
-        />
-      );
+      render(<Pagination currentPage={1} totalItems={100} onPageChange={vi.fn()} />);
 
       // Should render with default items per page
       expect(screen.getByText('1')).toBeInTheDocument();
@@ -223,14 +213,10 @@ describe('Pagination', () => {
     it('component is memoized to prevent unnecessary re-renders', () => {
       const handlePageChange = vi.fn();
 
-      const { rerender } = render(
-        <Pagination {...defaultProps} onPageChange={handlePageChange} />
-      );
+      const { rerender } = render(<Pagination {...defaultProps} onPageChange={handlePageChange} />);
 
       // Re-render with same props should not cause issues
-      rerender(
-        <Pagination {...defaultProps} onPageChange={handlePageChange} />
-      );
+      rerender(<Pagination {...defaultProps} onPageChange={handlePageChange} />);
 
       expect(screen.getByText('1')).toBeInTheDocument();
     });
@@ -256,18 +242,14 @@ describe('Pagination', () => {
     });
 
     it('should have no violations on middle page', async () => {
-      const { container } = render(
-        <Pagination {...defaultProps} currentPage={5} />
-      );
+      const { container } = render(<Pagination {...defaultProps} currentPage={5} />);
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();
     });
 
     it('should have no violations on last page', async () => {
-      const { container } = render(
-        <Pagination {...defaultProps} currentPage={10} />
-      );
+      const { container } = render(<Pagination {...defaultProps} currentPage={10} />);
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();

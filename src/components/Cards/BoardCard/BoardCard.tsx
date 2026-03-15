@@ -24,7 +24,11 @@ import { handleKeyboardClick } from '@/utils/keyboard';
  * Renders an affiliation with optional ROR link
  * If rorId is present, displays the ROR icon as a link followed by a non-breaking space and the label as plain text
  */
-function AffiliationWithRor({ affiliation }: { affiliation: IBoardMemberAffiliation }): React.JSX.Element {
+function AffiliationWithRor({
+  affiliation,
+}: {
+  affiliation: IBoardMemberAffiliation;
+}): React.JSX.Element {
   if (affiliation.rorId) {
     return (
       <span className="boardCard-affiliation-with-ror">
@@ -90,11 +94,13 @@ export default function BoardCard({
 
   if (fullCard) {
     return (
-      <div className="boardCard boardCard-full" 
+      <div
+        className="boardCard boardCard-full"
         role="button"
         tabIndex={0}
-        
-        onClick={setFullMemberIndexCallback}        onKeyDown={(e) => handleKeyboardClick(e, setFullMemberIndexCallback)}>
+        onClick={setFullMemberIndexCallback}
+        onKeyDown={e => handleKeyboardClick(e, setFullMemberIndexCallback)}
+      >
         <div className="boardCard-full-initial">
           <div className="boardCard-full-initial-person">
             <div className="boardCard-full-initial-person-picture">
@@ -236,11 +242,11 @@ export default function BoardCard({
   return (
     <div
       className={blurCard ? 'boardCard boardCard-blur' : 'boardCard'}
-      
-        role="button"
-        tabIndex={0}
-        
-        onClick={setFullMemberIndexCallback}        onKeyDown={(e) => handleKeyboardClick(e, setFullMemberIndexCallback)}>
+      role="button"
+      tabIndex={0}
+      onClick={setFullMemberIndexCallback}
+      onKeyDown={e => handleKeyboardClick(e, setFullMemberIndexCallback)}
+    >
       <div className="boardCard-person">
         <div className="boardCard-person-picture">
           {member.picture ? (

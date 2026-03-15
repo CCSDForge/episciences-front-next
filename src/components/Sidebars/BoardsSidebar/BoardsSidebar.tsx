@@ -33,7 +33,7 @@ export default function BoardsSidebar({
             role="button"
             tabIndex={0}
             onClick={(): void => onSetActiveGroupCallback(index)}
-            onKeyDown={(e) => handleKeyboardClick(e, (): void => onSetActiveGroupCallback(index))}
+            onKeyDown={e => handleKeyboardClick(e, (): void => onSetActiveGroupCallback(index))}
           >
             {group}
           </div>

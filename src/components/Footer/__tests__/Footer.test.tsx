@@ -56,14 +56,22 @@ vi.mock('@/hooks/store', () => ({
 
 // Mock Link component
 vi.mock('@/components/Link/Link', () => ({
-  Link: ({ children, href, target, rel, ...props }: {
+  Link: ({
+    children,
+    href,
+    target,
+    rel,
+    ...props
+  }: {
     children: React.ReactNode;
     href: string;
     target?: string;
     rel?: string;
     [key: string]: unknown;
   }) => (
-    <a href={href} target={target} rel={rel} {...props}>{children}</a>
+    <a href={href} target={target} rel={rel} {...props}>
+      {children}
+    </a>
   ),
 }));
 
@@ -159,9 +167,9 @@ describe('Footer', () => {
     it('external links have target="_blank"', () => {
       render(<Footer />);
 
-      const externalLinks = screen.getAllByRole('link').filter(
-        link => link.getAttribute('target') === '_blank'
-      );
+      const externalLinks = screen
+        .getAllByRole('link')
+        .filter(link => link.getAttribute('target') === '_blank');
 
       expect(externalLinks.length).toBeGreaterThan(0);
     });
@@ -169,9 +177,9 @@ describe('Footer', () => {
     it('external links have rel="noopener noreferrer"', () => {
       render(<Footer />);
 
-      const externalLinks = screen.getAllByRole('link').filter(
-        link => link.getAttribute('target') === '_blank'
-      );
+      const externalLinks = screen
+        .getAllByRole('link')
+        .filter(link => link.getAttribute('target') === '_blank');
 
       externalLinks.forEach(link => {
         expect(link).toHaveAttribute('rel', 'noopener noreferrer');
@@ -224,7 +232,7 @@ describe('Footer', () => {
       render(<Footer />);
 
       const journalLogo = screen.getByAltText('Test Journal');
-      expect(journalLogo).toHaveAttribute('src', '/logos/logo-test-small.svg');
+      expect(journalLogo).toHaveAttribute('src', '/logos/logo-test.svg');
     });
 
     it('episciences logo has proper src attribute', () => {

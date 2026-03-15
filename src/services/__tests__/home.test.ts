@@ -18,7 +18,7 @@ vi.mock('@/utils/env-loader', () => ({
 }));
 
 vi.mock('@/utils/article', () => ({
-  formatArticle: vi.fn((raw) => ({
+  formatArticle: vi.fn(raw => ({
     id: raw.paperid,
     title: raw.title || 'Formatted Article',
     authors: [],
@@ -43,7 +43,7 @@ vi.mock('@/utils/volume', () => ({
 }));
 
 vi.mock('@/utils/board-transforms', () => ({
-  transformBoardMembers: vi.fn((members) =>
+  transformBoardMembers: vi.fn(members =>
     members.map((m: any) => ({
       id: m.uid,
       firstname: m.firstname,
@@ -78,7 +78,9 @@ describe('home service', () => {
     it('should fetch all home data in parallel', async () => {
       // Setup mocks for all API calls
       const mockAboutPage = {
-        'hydra:member': [{ id: 1, page_code: 'about', title: { en: 'About' }, content: { en: 'Content' } }],
+        'hydra:member': [
+          { id: 1, page_code: 'about', title: { en: 'About' }, content: { en: 'Content' } },
+        ],
       };
       const mockArticles = {
         'hydra:member': [{ paperid: 1 }, { paperid: 2 }],
@@ -88,9 +90,7 @@ describe('home service', () => {
         'hydra:member': [{ id: 1, title: 'News 1' }],
         'hydra:totalItems': 1,
       };
-      const mockMembers = [
-        { uid: 1, firstname: 'John', lastname: 'Doe', roles: ['editor'] },
-      ];
+      const mockMembers = [{ uid: 1, firstname: 'John', lastname: 'Doe', roles: ['editor'] }];
       const mockStats = {
         'hydra:member': [{ id: 1, label: 'Articles', value: 100 }],
       };
@@ -124,9 +124,15 @@ describe('home service', () => {
 
       // Mock fetchWithRetry for individual article fetches
       vi.mocked(fetchWithRetry)
-        .mockResolvedValueOnce({ json: () => Promise.resolve({ paperid: 1, title: 'Article 1' }) } as Response)
-        .mockResolvedValueOnce({ json: () => Promise.resolve({ paperid: 2, title: 'Article 2' }) } as Response)
-        .mockResolvedValueOnce({ json: () => Promise.resolve({ paperid: 3, title: 'Article 3' }) } as Response);
+        .mockResolvedValueOnce({
+          json: () => Promise.resolve({ paperid: 1, title: 'Article 1' }),
+        } as Response)
+        .mockResolvedValueOnce({
+          json: () => Promise.resolve({ paperid: 2, title: 'Article 2' }),
+        } as Response)
+        .mockResolvedValueOnce({
+          json: () => Promise.resolve({ paperid: 3, title: 'Article 3' }),
+        } as Response);
 
       const result = await fetchHomeData('testjournal', 'en');
 
@@ -142,7 +148,9 @@ describe('home service', () => {
 
     it('should make correct API calls with proper URLs', async () => {
       // Setup minimal mocks
-      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 }));
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 })
+      );
       vi.mocked(fetchWithRetry).mockResolvedValue({ json: () => Promise.resolve({}) } as Response);
 
       await fetchHomeData('myjournal', 'fr');
@@ -197,9 +205,7 @@ describe('home service', () => {
 
     it('should handle members response as hydra collection', async () => {
       const mockMembersHydra = {
-        'hydra:member': [
-          { uid: 1, firstname: 'Charlie', lastname: 'Brown', roles: ['member'] },
-        ],
+        'hydra:member': [{ uid: 1, firstname: 'Charlie', lastname: 'Brown', roles: ['member'] }],
         'hydra:totalItems': 1,
       };
 
@@ -291,13 +297,13 @@ describe('home service', () => {
     });
 
     it('should include language parameter in volume requests', async () => {
-      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 }));
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 })
+      );
 
       await fetchHomeData('testjournal', 'fr');
 
-      const volumeCalls = mockFetch.mock.calls.filter((call: any) =>
-        call[0].includes('/volumes/')
-      );
+      const volumeCalls = mockFetch.mock.calls.filter((call: any) => call[0].includes('/volumes/'));
       volumeCalls.forEach((call: any) => {
         expect(call[0]).toContain('language=fr');
       });
@@ -325,7 +331,9 @@ describe('home service', () => {
     });
 
     it('should use ensureApiEndpoint to add /api suffix', async () => {
-      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 }));
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 })
+      );
 
       await fetchHomeData('testjournal', 'en');
 
@@ -336,7 +344,9 @@ describe('home service', () => {
     });
 
     it('should handle empty hydra:member arrays', async () => {
-      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 }));
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 })
+      );
 
       const result = await fetchHomeData('testjournal', 'en');
 
@@ -367,8 +377,12 @@ describe('home service', () => {
         .mockResolvedValueOnce(createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 }));
 
       vi.mocked(fetchWithRetry)
-        .mockResolvedValueOnce({ json: () => Promise.resolve({ paperid: 100, title: 'Full Article 1' }) } as Response)
-        .mockResolvedValueOnce({ json: () => Promise.resolve({ paperid: 200, title: 'Full Article 2' }) } as Response);
+        .mockResolvedValueOnce({
+          json: () => Promise.resolve({ paperid: 100, title: 'Full Article 1' }),
+        } as Response)
+        .mockResolvedValueOnce({
+          json: () => Promise.resolve({ paperid: 200, title: 'Full Article 2' }),
+        } as Response);
 
       await fetchHomeData('testjournal', 'en');
 
@@ -386,7 +400,9 @@ describe('home service', () => {
 
   describe('ensureApiEndpoint (tested through fetchHomeData)', () => {
     it('should add /api to URLs without it', async () => {
-      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 }));
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 })
+      );
 
       await fetchHomeData('testjournal', 'en');
 
@@ -397,7 +413,9 @@ describe('home service', () => {
 
   describe('HomeData interface', () => {
     it('should return all expected fields', async () => {
-      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 }));
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 })
+      );
 
       const result = await fetchHomeData('testjournal', 'en');
 

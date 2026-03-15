@@ -50,17 +50,18 @@ export default function MobileBurgerMenu({ sections, lang }: MobileBurgerMenuPro
   };
 
   return (
-    <div
-      className="header-postheader-burger"
-      ref={ref}
-      onClick={() => setShowMenu(prev => !prev)}
-      onKeyDown={handleKeyDown}
-      role="button"
-      aria-label="Toggle mobile menu"
-      aria-expanded={showMenu}
-      tabIndex={0}
-    >
-      <BurgerIcon size={24} className="header-postheader-burger-icon" ariaLabel="Menu" />
+    <div className="header-postheader-burger" ref={ref}>
+      <button
+        type="button"
+        className="header-postheader-burger-trigger"
+        onClick={() => setShowMenu(prev => !prev)}
+        onKeyDown={handleKeyDown}
+        aria-label="Toggle mobile menu"
+        aria-expanded={showMenu}
+        aria-haspopup="true"
+      >
+        <BurgerIcon size={24} className="header-postheader-burger-icon" ariaLabel="Menu" />
+      </button>
       {showMenu && (
         <div className="header-postheader-burger-content header-postheader-burger-content-displayed">
           <div className="header-postheader-burger-content-links">

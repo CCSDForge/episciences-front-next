@@ -24,10 +24,11 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/hooks/store', () => ({
-  useAppSelector: (selector: any) => selector({
-    i18nReducer: { language: 'fr' },
-    journalReducer: { currentJournal: { code: 'journal', name: 'Journal' } },
-  }),
+  useAppSelector: (selector: any) =>
+    selector({
+      i18nReducer: { language: 'fr' },
+      journalReducer: { currentJournal: { code: 'journal', name: 'Journal' } },
+    }),
 }));
 
 // Mock the MathJax component
@@ -93,24 +94,24 @@ describe('VolumesClient', () => {
     // Find the sidebar specifically
     const sidebar = document.querySelector('.volumesSidebar');
     expect(sidebar).toBeTruthy();
-    
+
     // Find label in sidebar
     const label = within(sidebar as HTMLElement).getByText('pages.volumes.types.specialIssues');
     expect(label).toBeInTheDocument();
-    
+
     const container = label.closest('.volumesSidebar-typesSection-types-choice');
     const checkbox = container?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    
+
     await waitFor(() => {
-        expect(checkbox.checked).toBe(true);
+      expect(checkbox.checked).toBe(true);
     });
   });
 
   it('should call router.push when a filter is clicked', async () => {
-     const mockPush = vi.fn();
-     vi.mocked(useRouter).mockReturnValue({ push: mockPush } as any);
+    const mockPush = vi.fn();
+    vi.mocked(useRouter).mockReturnValue({ push: mockPush } as any);
 
-     render(
+    render(
       <VolumesClient
         initialVolumes={mockVolumes}
         initialPage={1}
@@ -120,12 +121,12 @@ describe('VolumesClient', () => {
         journalId="journal"
       />
     );
-    
+
     // Click on 'proceedings' label in sidebar
     const sidebar = document.querySelector('.volumesSidebar');
     const label = within(sidebar as HTMLElement).getByText('pages.volumes.types.proceedings');
     label.click();
-    
+
     expect(mockPush).toHaveBeenCalled();
     const calledUrl = mockPush.mock.calls[0][0];
     expect(calledUrl).toContain('type=proceedings');

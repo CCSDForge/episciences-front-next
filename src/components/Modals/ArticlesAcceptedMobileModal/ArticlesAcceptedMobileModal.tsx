@@ -10,6 +10,7 @@ import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import Tag from '@/components/Tag/Tag';
 import './ArticlesAcceptedMobileModal.scss';
+import FocusTrap from 'focus-trap-react';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 enum FILTERS_SECTION {
@@ -152,15 +153,24 @@ export default function ArticlesAcceptedMobileModal({
     openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
-    <div className="articlesAcceptedMobileModal" ref={modalRef}>
-      <div className="articlesAcceptedMobileModal-title">
-        <div className="articlesAcceptedMobileModal-title-text">{t('common.filters.filter')}</div>
+    <FocusTrap>
+      <div
+        className="articlesAcceptedMobileModal"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="articles-accepted-modal-title"
+      >
+        <div className="articlesAcceptedMobileModal-title">
+          <h2 id="articles-accepted-modal-title" className="articlesAcceptedMobileModal-title-text">
+            {t('common.filters.filter')}
+          </h2>
         <CloseBlackIcon
           size={24}
           className="articlesAcceptedMobileModal-title-close"
           ariaLabel="Close"
           onClick={onClose}
-          onKeyDown={(e) => handleKeyboardClick(e, onClose)}
+          onKeyDown={e => handleKeyboardClick(e, onClose)}
           role="button"
           tabIndex={0}
         />
@@ -181,7 +191,7 @@ export default function ArticlesAcceptedMobileModal({
             role="button"
             tabIndex={0}
             onClick={clearTaggedFilters}
-            onKeyDown={(e) => handleKeyboardClick(e, clearTaggedFilters)}
+            onKeyDown={e => handleKeyboardClick(e, clearTaggedFilters)}
           >
             {t('common.filters.clearAll')}
           </div>
@@ -195,7 +205,7 @@ export default function ArticlesAcceptedMobileModal({
               role="button"
               tabIndex={0}
               onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
-              onKeyDown={(e) => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.TYPE))}
+              onKeyDown={e => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.TYPE))}
             >
               {t('common.filters.documentTypes')}
             </div>
@@ -232,7 +242,7 @@ export default function ArticlesAcceptedMobileModal({
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onCheckType(type.value)}
-                  onKeyDown={(e) => handleKeyboardClick(e, (): void => onCheckType(type.value))}
+                  onKeyDown={e => handleKeyboardClick(e, (): void => onCheckType(type.value))}
                 >
                   {t(type.labelPath)}
                 </span>
@@ -248,5 +258,6 @@ export default function ArticlesAcceptedMobileModal({
         />
       </div>
     </div>
+    </FocusTrap>
   );
 }

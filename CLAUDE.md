@@ -17,18 +17,18 @@ npm run dev          # Development server (port 8080)
 npm run build        # Production build
 npm run test         # Run tests
 npm run lint         # Linter
-make build && make up  # Test with Apache (production-like)
+make build && make up  # Test with Nginx (production-like)
 ```
 
 ## Directory Structure
 
-| Path | Description |
-|------|-------------|
-| `src/app/sites/[journalId]/[lang]/` | Multi-tenant page routes |
-| `src/middleware.ts` | Hostname → journalId routing |
-| `src/services/` | API fetching with `safeFetch()` |
-| `external-assets/` | Per-journal config and logos |
-| `docs/` | Detailed documentation |
+| Path                                | Description                     |
+| ----------------------------------- | ------------------------------- |
+| `src/app/sites/[journalId]/[lang]/` | Multi-tenant page routes        |
+| `src/middleware.ts`                 | Hostname → journalId routing    |
+| `src/services/`                     | API fetching with `safeFetch()` |
+| `external-assets/`                  | Per-journal config and logos    |
+| `docs/`                             | Detailed documentation          |
 
 ## Critical Patterns
 
@@ -46,18 +46,19 @@ make build && make up  # Test with Apache (production-like)
 
 ### ISR Strategy
 
-| Content Type | Revalidate | On-demand |
-|--------------|------------|-----------|
-| Static (about, credits) | `false` | Yes |
-| Dynamic (home, volumes) | `86400` (24h) | Yes |
-| News | `3600` (1h) | Yes |
-| Details (articles) | `604800` (7d) | Yes |
+| Content Type            | Revalidate    | On-demand |
+| ----------------------- | ------------- | --------- |
+| Static (about, credits) | `false`       | Yes       |
+| Dynamic (home, volumes) | `86400` (24h) | Yes       |
+| News                    | `3600` (1h)   | Yes       |
+| Details (articles)      | `604800` (7d) | Yes       |
 
 Layouts MUST NOT define `revalidate`. See `docs/ISR_STRATEGY.md`.
 
 ### Accessibility
 
 Use semantic CSS variables for text colors (WCAG compliance):
+
 - `var(--primary-text)` for text (not `var(--primary)`)
 - See `docs/ACCESSIBLE_COLOR_SYSTEM.md`
 
@@ -74,15 +75,15 @@ Use semantic CSS variables for text colors (WCAG compliance):
 
 ## Documentation
 
-| Topic | File |
-|-------|------|
-| ISR & Caching | `docs/ISR_STRATEGY.md` |
-| Webhooks & Revalidation | `docs/REVALIDATION_GUIDE.md` |
-| Runtime Configuration | `docs/CONFIGURATION_GUIDE.md` |
-| Local Testing | `docs/LOCAL_TESTING_GUIDE.md` |
-| Apache & Docker | `docs/APACHE_INTEGRATION.md` |
-| Color Accessibility | `docs/ACCESSIBLE_COLOR_SYSTEM.md` |
-| Code Standards | `docs/CODING_STANDARDS.md` |
+| Topic                   | File                              |
+| ----------------------- | --------------------------------- |
+| ISR & Caching           | `docs/ISR_STRATEGY.md`            |
+| Webhooks & Revalidation | `docs/REVALIDATION_GUIDE.md`      |
+| Runtime Configuration   | `docs/CONFIGURATION_GUIDE.md`     |
+| Local Testing           | `docs/LOCAL_TESTING_GUIDE.md`     |
+| Nginx & Docker          | `docs/NGINX_INTEGRATION.md`       |
+| Color Accessibility     | `docs/ACCESSIBLE_COLOR_SYSTEM.md` |
+| Code Standards          | `docs/CODING_STANDARDS.md`        |
 
 ## Token Efficiency
 

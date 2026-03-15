@@ -1,0 +1,135 @@
+# Docker Compose for Valkey Cluster with Sentinel (HA)
+# Usage: docker compose -f docker-compose.yml -f docker-compose.valkey.yml up -d
+
+services:
+  valkey-node-1:
+    image: valkey/valkey:8.0
+    container_name: valkey-node-1
+    command: >
+      valkey-server --port 6379
+      ${VALKEY_PASSWORD:+--requirepass ${VALKEY_PASSWORD}}
+    volumes:
+      - valkey-data-1:/data
+    networks:
+      - episciences
+    healthcheck:
+      test: ['CMD-SHELL', 'valkey-cli ${VALKEY_PASSWORD:+-a $VALKEY_PASSWORD} ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  valkey-node-2:
+    image: valkey/valkey:8.0
+    container_name: valkey-node-2
+    command: >
+      valkey-server --port 6379
+      --replicaof valkey-node-1 6379
+      ${VALKEY_PASSWORD:+--requirepass ${VALKEY_PASSWORD}}
+      ${VALKEY_PASSWORD:+--masterauth ${VALKEY_PASSWORD}}
+    volumes:
+      - valkey-data-2:/data
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
+    healthcheck:
+      test: ['CMD-SHELL', 'valkey-cli ${VALKEY_PASSWORD:+-a $VALKEY_PASSWORD} ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  valkey-node-3:
+    image: valkey/valkey:8.0
+    container_name: valkey-node-3
+    command: >
+      valkey-server --port 6379
+      --replicaof valkey-node-1 6379
+      ${VALKEY_PASSWORD:+--requirepass ${VALKEY_PASSWORD}}
+      ${VALKEY_PASSWORD:+--masterauth ${VALKEY_PASSWORD}}
+    volumes:
+      - valkey-data-3:/data
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
+    healthcheck:
+      test: ['CMD-SHELL', 'valkey-cli ${VALKEY_PASSWORD:+-a $VALKEY_PASSWORD} ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  sentinel-1:
+    image: valkey/valkey:8.0
+    container_name: sentinel-1
+    command: valkey-sentinel /etc/valkey/sentinel.conf
+    environment:
+      - VALKEY_PASSWORD=${VALKEY_PASSWORD:-}
+    volumes:
+      - ./docker/valkey/sentinel.conf:/etc/valkey/sentinel.conf:ro
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
+
+  sentinel-2:
+    image: valkey/valkey:8.0
+    container_name: sentinel-2
+    command: valkey-sentinel /etc/valkey/sentinel.conf
+    environment:
+      - VALKEY_PASSWORD=${VALKEY_PASSWORD:-}
+    volumes:
+      - ./docker/valkey/sentinel.conf:/etc/valkey/sentinel.conf:ro
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
+
+  sentinel-3:
+    image: valkey/valkey:8.0
+    container_name: sentinel-3
+    command: valkey-sentinel /etc/valkey/sentinel.conf
+    environment:
+      - VALKEY_PASSWORD=${VALKEY_PASSWORD:-}
+    volumes:
+      - ./docker/valkey/sentinel.conf:/etc/valkey/sentinel.conf:ro
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+    networks:
+      - episciences
+
+  revalidate-worker:
+    image: node:22-alpine
+    container_name: revalidate-worker
+    working_dir: /app
+    command: node scripts/revalidate-worker.mjs
+    volumes:
+      - ./scripts/revalidate-worker.mjs:/app/scripts/revalidate-worker.mjs:ro
+      - ./node_modules:/app/node_modules:ro
+    depends_on:
+      sentinel-1:
+        condition: service_started
+      sentinel-2:
+        condition: service_started
+      sentinel-3:
+        condition: service_started
+    environment:
+      - NODE_ENV=production
+      - VALKEY_SENTINEL_HOSTS=sentinel-1:26379,sentinel-2:26379,sentinel-3:26379
+      - VALKEY_MASTER_NAME=${VALKEY_MASTER_NAME:-mymaster}
+      - VALKEY_PASSWORD=${VALKEY_PASSWORD:-}
+      - VALKEY_SENTINEL_PASSWORD=${VALKEY_SENTINEL_PASSWORD:-}
+      - REVALIDATION_SECRET=${REVALIDATION_SECRET}
+      - NEXT_APP_URL=http://app:3000
+    restart: unless-stopped
+    networks:
+      - episciences
+
+volumes:
+  valkey-data-1:
+  valkey-data-2:
+  valkey-data-3:
