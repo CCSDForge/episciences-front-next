@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
 import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
@@ -131,7 +132,7 @@ export default async function HeaderServer({
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <Link href={episciencesUrl} lang={lang}>
-            <img src={logoEpisciences} alt="Episciences" loading="lazy" />
+            <Image src={logoEpisciences} alt="Episciences" width={120} height={30} loading="lazy" unoptimized />
           </Link>
         </div>
         <div className="header-preheader-links">
@@ -157,12 +158,13 @@ export default async function HeaderServer({
                   <span className="header-signin-text">
                     {t('components.header.signIn', translations)}
                   </span>
-                  <img
+                  <Image
                     className="header-signin-icon"
                     src="/icons/user-circle.svg"
                     alt={t('components.header.signIn', translations)}
                     width={28}
                     height={28}
+                    unoptimized
                   />
                   <span className="sr-only">{t('components.header.newWindow', translations)}</span>
                 </Link>
@@ -176,7 +178,7 @@ export default async function HeaderServer({
       <div className="header-journal">
         <div className="header-journal-logo">
           <Link href="/" lang={lang}>
-            <img src={logoSrc} alt={`${journalName} logo`} loading="eager" width={160} height={160} />
+            <Image src={logoSrc} alt={`${journalName} logo`} priority width={160} height={160} sizes="160px" unoptimized />
           </Link>
         </div>
         <div className="header-journal-title">{journalName}</div>
@@ -186,7 +188,7 @@ export default async function HeaderServer({
       <div className="header-reduced-journal">
         <div className="header-reduced-journal-logo">
           <Link href="/" lang={lang}>
-            <img src={logoSrc} alt={`${journalName} logo`} loading="lazy" width={42} height={42} />
+            <Image src={logoSrc} alt={`${journalName} logo`} width={42} height={42} loading="lazy" unoptimized />
           </Link>
         </div>
         <div className="header-reduced-journal-blank">{journalName}</div>

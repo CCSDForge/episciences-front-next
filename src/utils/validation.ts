@@ -5,19 +5,46 @@
  * meet security requirements and prevent path traversal or injection attacks.
  */
 
-import { isIP } from 'net';
+/**
+ * Pure-JS IP validator (no Node.js built-ins) — safe for middleware/edge bundling.
+ * Returns true for structurally valid IPv4 or IPv6 addresses.
+ */
+function isValidIp(ip: string): boolean {
+  // IPv4: exactly 4 decimal octets 0-255, no leading zeros (except "0")
+  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+  const m = ipv4.exec(ip);
+  if (m) {
+    return m.slice(1, 5).every(oct => {
+      const n = Number(oct);
+      return n >= 0 && n <= 255 && String(n) === oct;
+    });
+  }
+
+  // IPv6: only hex digits and colons, at least one colon
+  if (!/^[0-9a-fA-F:]+$/.test(ip)) return false;
+  if (!ip.includes(':')) return false;
+  // At most one '::' (zero-compression) allowed
+  if ((ip.match(/::/g) ?? []).length > 1) return false;
+
+  const parts = ip.split(':');
+  // Without '::': exactly 8 groups; with '::': fewer allowed (creates empty strings)
+  if (!ip.includes('::') && parts.length !== 8) return false;
+  if (parts.length > 9) return false;
+
+  return parts.every(p => /^[0-9a-fA-F]{0,4}$/.test(p));
+}
 
 /**
  * Sanitize an IP address from request headers to prevent IP spoofing bypasses in rate limiting.
  * Takes the first IP from a potentially comma-separated x-forwarded-for value and validates its
- * structure (IPv4 or IPv6) using Node.js net.isIP().
+ * structure (IPv4 or IPv6) using a pure-JS regex validator compatible with edge/middleware bundles.
  *
  * @param raw - Raw header value (may be null or comma-separated list)
  * @returns A structurally valid IP string or 'unknown'
  */
 export function sanitizeIp(raw: string | null): string {
   const first = raw?.split(',')[0]?.trim() ?? '';
-  return isIP(first) !== 0 ? first : 'unknown';
+  return isValidIp(first) ? first : 'unknown';
 }
 
 /**
