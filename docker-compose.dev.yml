@@ -1,0 +1,29 @@
+# Dev mode: Nginx only, proxies to a local `npm run dev` server on port 3000.
+#
+# Usage:
+#   npm run dev &          # Start Next.js dev server (hot-reload)
+#   make dev-nginx         # Start Nginx container
+#
+# Then access: http://epijinfo.episciences.test:8080/
+#
+# Stops with: make dev-nginx-down
+
+services:
+  nginx:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.nginx
+    container_name: episciences-nginx-dev
+    ports:
+      - '${PORT:-8080}:80'
+    environment:
+      - EPI_ENV=${EPI_ENV:-test}
+      - DOMAIN_SUFFIX=${DOMAIN_SUFFIX:-episciences.test}
+      # Proxy target: host machine's npm run dev server
+      - NEXT_UPSTREAM=host.docker.internal:3000
+    volumes:
+      - ./docker/mock-data:/data:ro
+    # host.docker.internal resolves automatically on macOS/Windows Docker Desktop.
+    # On Linux, host-gateway maps to the Docker bridge host IP.
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

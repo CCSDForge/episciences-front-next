@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
@@ -242,7 +243,7 @@ export default function AboutClient({
                       <MarkdownRenderer
                         components={{
                           img: ({ src, alt }) => (
-                            <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />
+                            <Image src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt || ''} width={0} height={0} sizes="100vw" style={{ width: 'auto', height: 'auto' }} />
                           ),
                           a: ({ href, children }) => (
                             <a
@@ -282,7 +283,7 @@ export default function AboutClient({
                   <MarkdownRenderer
                     components={{
                       img: ({ src, alt }) => (
-                        <img src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt} />
+                        <Image src={getMarkdownImageURL(src || '', rvcode || '')} alt={alt || ''} width={0} height={0} sizes="100vw" style={{ width: 'auto', height: 'auto' }} />
                       ),
                       a: ({ href, children }) => (
                         <a

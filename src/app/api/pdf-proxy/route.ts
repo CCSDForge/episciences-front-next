@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
     let contentDisposition = disposition;
     if (disposition === 'attachment' && filename) {
       // Sanitize filename and add to header
-      const sanitizedFilename = filename.replace(/[^\w\s.-]/g, '_');
+      const sanitizedFilename = filename.replace(/[^\w\s.-]/g, '_').slice(0, 200);
       contentDisposition = `attachment; filename="${sanitizedFilename}"`;
     }
 

@@ -54,6 +54,67 @@ function AffiliationWithRor({
   return <span>{affiliation.label}</span>;
 }
 
+interface IBoardCardPersonProps {
+  member: IBoardMember;
+  /** CSS class prefix, e.g. "boardCard-person" or "boardCard-full-initial-person" */
+  base: string;
+  displayRoles: (roles: string[]) => string;
+  defaultRoleLabel: string | null;
+}
+
+/** Shared person header (photo/name/role) used by both full and collapsed layouts */
+function BoardCardPerson({
+  member,
+  base,
+  displayRoles,
+  defaultRoleLabel,
+}: IBoardCardPersonProps): React.JSX.Element {
+  return (
+    <>
+      <div className={`${base}-picture`}>
+        {member.picture ? (
+          <Image
+            src={member.picture}
+            alt={`${member.firstname} ${member.lastname}`}
+            width={80}
+            height={80}
+            placeholder="blur"
+            blurDataURL={USER_PHOTO_BLUR}
+          />
+        ) : (
+          <UserIcon
+            size={80}
+            className="boardCard-person-picture-placeholder"
+            ariaLabel="User photo"
+          />
+        )}
+      </div>
+      <div className={`${base}-title`}>
+        <div className={`${base}-title-name`}>
+          <div className={`${base}-title-name-text`}>
+            {member.firstname} {member.lastname}
+          </div>
+          {member.orcid && member.orcid.length > 0 && (
+            <Link
+              href={`${process.env.NEXT_PUBLIC_ORCID_HOMEPAGE}/${member.orcid}`}
+              title={member.orcid}
+              target="_blank"
+              onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
+            >
+              <OrcidIcon size={16} className={`${base}-title-name-orcid`} ariaLabel="ORCID iD" />
+            </Link>
+          )}
+        </div>
+        {member.roles && member.roles.length > 0 ? (
+          <div className={`${base}-title-role`}>{displayRoles(member.roles)}</div>
+        ) : (
+          <div className={`${base}-title-role`}>{defaultRoleLabel}</div>
+        )}
+      </div>
+    </>
+  );
+}
+
 interface IBoardCardProps {
   language: AvailableLanguage;
   t: TFunction<'translation', undefined>;
@@ -103,52 +164,12 @@ export default function BoardCard({
       >
         <div className="boardCard-full-initial">
           <div className="boardCard-full-initial-person">
-            <div className="boardCard-full-initial-person-picture">
-              {member.picture ? (
-                <Image
-                  src={member.picture}
-                  alt={`${member.firstname} ${member.lastname}`}
-                  width={80}
-                  height={80}
-                  placeholder="blur"
-                  blurDataURL={USER_PHOTO_BLUR}
-                />
-              ) : (
-                <UserIcon
-                  size={80}
-                  className="boardCard-person-picture-placeholder"
-                  ariaLabel="User photo"
-                />
-              )}
-            </div>
-            <div className="boardCard-full-initial-person-title">
-              <div className="boardCard-full-initial-person-title-name">
-                <div className="boardCard-full-initial-person-title-name-text">
-                  {member.firstname} {member.lastname}
-                </div>
-                {member.orcid && member.orcid.length > 0 && (
-                  <Link
-                    href={`${process.env.NEXT_PUBLIC_ORCID_HOMEPAGE}/${member.orcid}`}
-                    title={member.orcid}
-                    target="_blank"
-                    onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
-                  >
-                    <OrcidIcon
-                      size={16}
-                      className="boardCard-full-initial-person-title-name-orcid"
-                      ariaLabel="ORCID iD"
-                    />
-                  </Link>
-                )}
-              </div>
-              {member.roles && member.roles.length > 0 ? (
-                <div className="boardCard-full-initial-person-title-role">
-                  {displayRoles(member.roles)}
-                </div>
-              ) : (
-                <div className="boardCard-full-initial-person-title-role">{defaultRoleLabel}</div>
-              )}
-            </div>
+            <BoardCardPerson
+              member={member}
+              base="boardCard-full-initial-person"
+              displayRoles={displayRoles}
+              defaultRoleLabel={defaultRoleLabel}
+            />
           </div>
           {member.affiliations && member.affiliations.length > 0 && (
             <div className="boardCard-full-initial-affiliations">
@@ -248,50 +269,12 @@ export default function BoardCard({
       onKeyDown={e => handleKeyboardClick(e, setFullMemberIndexCallback)}
     >
       <div className="boardCard-person">
-        <div className="boardCard-person-picture">
-          {member.picture ? (
-            <Image
-              src={member.picture}
-              alt={`${member.firstname} ${member.lastname}`}
-              width={80}
-              height={80}
-              placeholder="blur"
-              blurDataURL={USER_PHOTO_BLUR}
-            />
-          ) : (
-            <UserIcon
-              size={80}
-              className="boardCard-person-picture-placeholder"
-              ariaLabel="User photo"
-            />
-          )}
-        </div>
-        <div className="boardCard-person-title">
-          <div className="boardCard-person-title-name">
-            <div className="boardCard-person-title-name-text">
-              {member.firstname} {member.lastname}
-            </div>
-            {member.orcid && member.orcid.length > 0 && (
-              <Link
-                href={`${process.env.NEXT_PUBLIC_ORCID_HOMEPAGE}/${member.orcid}`}
-                title={member.orcid}
-                target="_blank"
-                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
-              >
-                <OrcidIcon
-                  size={16}
-                  className="boardCard-person-title-name-orcid"
-                  ariaLabel="ORCID iD"
-                />
-              </Link>
-            )}
-          </div>
-          {member.roles && member.roles.length > 0 ? (
-            <div className="boardCard-person-title-role">{displayRoles(member.roles)}</div>
-          ) : (
-            <div className="boardCard-person-title-role">{defaultRoleLabel}</div>
-          )}
-        </div>
+        <BoardCardPerson
+          member={member}
+          base="boardCard-person"
+          displayRoles={displayRoles}
+          defaultRoleLabel={defaultRoleLabel}
+        />
       </div>
       {member.affiliations && member.affiliations.length > 0 && (
         <div className="boardCard-affiliations">

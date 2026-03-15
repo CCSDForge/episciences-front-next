@@ -1,10 +1,8 @@
 'use client';
 
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TFunction } from 'i18next';
-import { useAppDispatch, useAppSelector } from '@/hooks/store';
-import { setFooterVisibility } from '@/store/features/footer/footer.slice';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import Tag from '@/components/Tag/Tag';
@@ -12,6 +10,8 @@ import LiveRegion from '@/components/LiveRegion/LiveRegion';
 import FocusTrap from 'focus-trap-react';
 import './ArticlesMobileModal.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { useMobileModal } from '@/hooks/useMobileModal';
+import { useFilterSections } from '@/hooks/useFilterSections';
 
 enum FILTERS_SECTION {
   TYPE = 'type',
@@ -55,119 +55,62 @@ export default function ArticlesMobileModal({
   onUpdateYearsCallback,
   onCloseCallback,
 }: IArticlesMobileModalProps): React.JSX.Element {
-  const dispatch = useAppDispatch();
-  const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  const [openedSections, setOpenedSections] = useState<
-    { key: FILTERS_SECTION; isOpened: boolean }[]
-  >([
-    { key: FILTERS_SECTION.TYPE, isOpened: false },
-    { key: FILTERS_SECTION.YEAR, isOpened: false },
-  ]);
-
   const [types, setTypes] = useState<IArticlesTypeSelection[]>(initialTypes);
   const [years, setYears] = useState<IArticlesYearSelection[]>(initialYears);
   const [taggedFilters, setTaggedFilters] = useState<IArticlesFilter[]>([]);
   const [announcement, setAnnouncement] = useState('');
 
-  const onCheckType = (value: string): void => {
-    const updatedTypes = types.map(t => {
-      if (t.value === value) {
-        return { ...t, isChecked: !t.isChecked };
-      }
-      return { ...t };
-    });
-
-    setTypes(updatedTypes);
-  };
-
-  const onCheckYear = (value: number): void => {
-    const updatedYears = years.map(y => {
-      if (y.year === value) {
-        return { ...y, isChecked: !y.isChecked };
-      }
-      return { ...y };
-    });
-
-    setYears(updatedYears);
-  };
-
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: IArticlesFilter[] = [];
-
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({
-          type: 'type',
-          value: t.value,
-          labelPath: t.labelPath,
-        });
-      });
-
-    years
-      .filter(y => y.isChecked)
-      .forEach(y => {
-        initFilters.push({
-          type: 'year',
-          value: y.year,
-          label: y.year,
-        });
-      });
-
-    setTaggedFilters(initFilters);
-  }, [types, years]);
-
-  const onCloseTaggedFilter = (type: ArticlesTypeFilter, value: string | number) => {
-    if (type === 'type') {
-      const updatedTypes = types.map(t => {
-        if (t.value === value) {
-          return { ...t, isChecked: false };
-        }
-        return t;
-      });
-
-      setTypes(updatedTypes);
-    } else if (type === 'year') {
-      const updatedYears = years.map(y => {
-        if (y.year === value) {
-          return { ...y, isChecked: false };
-        }
-        return y;
-      });
-
-      setYears(updatedYears);
-    }
-  };
-
   const clearTaggedFilters = useCallback((): void => {
-    setTypes(prev =>
-      prev.map(t => {
-        return { ...t, isChecked: false };
-      })
-    );
-
-    setYears(prev =>
-      prev.map(y => {
-        return { ...y, isChecked: false };
-      })
-    );
-
+    setTypes(prev => prev.map(t => ({ ...t, isChecked: false })));
+    setYears(prev => prev.map(y => ({ ...y, isChecked: false })));
     setTaggedFilters([]);
   }, []);
 
-  const onClose = useCallback((): void => {
-    clearTaggedFilters();
-    onCloseCallback();
-    dispatch(setFooterVisibility(true));
-  }, [clearTaggedFilters, onCloseCallback, dispatch]);
+  const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
+    onBeforeClose: clearTaggedFilters,
+    lockBodyScroll: true,
+  });
+
+  const { toggle: toggleSection, isOpened: isOpenedSection } = useFilterSections([
+    { key: FILTERS_SECTION.TYPE, isOpened: false },
+    { key: FILTERS_SECTION.YEAR, isOpened: false },
+  ]);
+
+  const setAllTaggedFilters = useCallback((): void => {
+    const initFilters: IArticlesFilter[] = [];
+    types.filter(t => t.isChecked).forEach(t => {
+      initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
+    });
+    years.filter(y => y.isChecked).forEach(y => {
+      initFilters.push({ type: 'year', value: y.year, label: y.year });
+    });
+    setTaggedFilters(initFilters);
+  }, [types, years]);
+
+  useEffect(() => {
+    setAllTaggedFilters();
+  }, [setAllTaggedFilters]);
+
+  const onCheckType = (value: string): void => {
+    setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: !t.isChecked } : t)));
+  };
+
+  const onCheckYear = (value: number): void => {
+    setYears(prev => prev.map(y => (y.year === value ? { ...y, isChecked: !y.isChecked } : y)));
+  };
+
+  const onCloseTaggedFilter = (type: ArticlesTypeFilter, value: string | number) => {
+    if (type === 'type') {
+      setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: false } : t)));
+    } else if (type === 'year') {
+      setYears(prev => prev.map(y => (y.year === value ? { ...y, isChecked: false } : y)));
+    }
+  };
 
   const onApplyFilters = (): void => {
     onUpdateTypesCallback(types);
     onUpdateYearsCallback(years);
 
-    // Announce filter count to screen readers
     const filterCount = taggedFilters.length;
     if (filterCount > 0) {
       setAnnouncement(t('common.filters.filtersActive', { count: filterCount }));
@@ -175,59 +118,8 @@ export default function ArticlesMobileModal({
       setAnnouncement(t('common.filters.noFilters'));
     }
 
-    onCloseCallback();
-    dispatch(setFooterVisibility(true));
+    closeModal();
   };
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-
-    // Prevent background scroll
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
-    };
-  }, [onClose]);
-
-  useEffect(() => {
-    if (isFooterEnabled) {
-      dispatch(setFooterVisibility(false));
-    }
-  }, [isFooterEnabled, dispatch]);
-
-  const toggleSection = (sectionKey: FILTERS_SECTION) => {
-    const updatedSections = openedSections.map(section => {
-      if (section.key === sectionKey) {
-        return { ...section, isOpened: !section.isOpened };
-      }
-      return { ...section };
-    });
-
-    setOpenedSections(updatedSections);
-  };
-
-  const isOpenedSection = (sectionKey: FILTERS_SECTION): boolean | undefined =>
-    openedSections.find(section => section.key === sectionKey)?.isOpened;
 
   return (
     <FocusTrap>

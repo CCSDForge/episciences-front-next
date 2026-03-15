@@ -2,17 +2,15 @@
 
 import { CloseBlackIcon } from '@/components/icons';
 import FocusTrap from 'focus-trap-react';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { TFunction } from 'i18next';
-
-import { useAppDispatch, useAppSelector } from '@/hooks/store';
-import { setFooterVisibility } from '@/store/features/footer/footer.slice';
 import { IVolume } from '@/types/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 import Button from '@/components/Button/Button';
 import './VolumeDetailsMobileModal.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { useMobileModal } from '@/hooks/useMobileModal';
 
 interface IVolumeDetailsMobileModalProps {
   language: AvailableLanguage;
@@ -31,52 +29,29 @@ export default function VolumeDetailsMobileModal({
   onSelectRelatedVolumeCallback,
   onCloseCallback,
 }: IVolumeDetailsMobileModalProps): React.JSX.Element {
-  const dispatch = useAppDispatch();
-
-  const isFooterEnabled = useAppSelector(state => state.footerReducer.enabled);
-
-  const modalRef = useRef<HTMLDivElement>(null);
-
   const [chosenVolume, setChosenVolume] = useState<IVolume | undefined>(volume);
 
-  const onClose = useCallback((): void => {
-    setChosenVolume(undefined);
-    onCloseCallback();
-    dispatch(setFooterVisibility(true));
-  }, [onCloseCallback, dispatch]);
+  const clearChosenVolume = useCallback(() => setChosenVolume(undefined), []);
+
+  const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
+    onBeforeClose: clearChosenVolume,
+  });
 
   const onApplyFilters = (): void => {
     if (!chosenVolume) return;
-
     onSelectRelatedVolumeCallback(chosenVolume.id);
-    onCloseCallback();
-    dispatch(setFooterVisibility(true));
+    closeModal();
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [onClose]);
 
   const getTitle = (): string => {
     if (volume?.types && volume.types.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.proceedings');
       }
-
       if (volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
         return t('pages.volumeDetails.relatedVolumes.specialIssues');
       }
     }
-
     return t('pages.volumeDetails.relatedVolumes.volumes');
   };
 
@@ -85,20 +60,12 @@ export default function VolumeDetailsMobileModal({
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.lookAtSelectedProceedings');
       }
-
       if (volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
         return t('pages.volumeDetails.relatedVolumes.lookAtSelectedIssue');
       }
     }
-
     return t('pages.volumeDetails.relatedVolumes.lookAtSelectedVolume');
   };
-
-  useEffect(() => {
-    if (isFooterEnabled) {
-      dispatch(setFooterVisibility(false));
-    }
-  }, [isFooterEnabled, dispatch]);
 
   return (
     <FocusTrap>

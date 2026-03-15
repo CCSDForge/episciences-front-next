@@ -32,6 +32,7 @@ services:
     environment:
       - EPI_ENV=${EPI_ENV:-test}
       - DOMAIN_SUFFIX=${DOMAIN_SUFFIX:-episciences.test}
+      - NEXT_UPSTREAM=app:3000
     volumes:
       - ./docker/mock-data:/data:ro
     networks:

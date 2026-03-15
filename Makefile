@@ -1,4 +1,4 @@
-.PHONY: build up down logs clean hosts rebuild help
+.PHONY: build up down logs clean hosts rebuild help dev-nginx dev-nginx-down dev-nginx-logs dev-nginx-rebuild
 
 # Default journals for testing
 JOURNALS ?= epijinfo,dmtcs
@@ -13,31 +13,42 @@ endif
 help:
 	@echo "Episciences Nginx Test Environment"
 	@echo ""
-	@echo "Usage:"
-	@echo "  make build       Build everything (App + Docker)"
-	@echo "  make build-app   Build only the Next.js application"
-	@echo "  make build-docker Build only Docker images"
-	@echo "  make up          Start containers"
-	@echo "  make down        Stop containers"
-	@echo "  make logs        Show container logs"
-	@echo "  make rebuild     Rebuild and restart"
-	@echo "  make clean       Remove images and volumes"
-	@echo "  make test        Run application tests"
-	@echo "  make lint        Check code style (ESLint)"
-	@echo "  make format      Format code (Prettier)"
-	@echo "  make format-check Check code formatting (Prettier)"
-	@echo "  make quality     Run all quality checks (lint + format)"
-	@echo "  make hosts       Show /etc/hosts entries"
-	@echo "  valkey-status    Show Valkey cluster status"
+	@echo "--- Production-like (full Docker build) ---"
+	@echo "  make build            Build everything (App + Docker)"
+	@echo "  make build-app        Build only the Next.js application"
+	@echo "  make build-docker     Build only Docker images"
+	@echo "  make up               Start all containers (Nginx + Next.js)"
+	@echo "  make down             Stop all containers"
+	@echo "  make logs             Stream container logs"
+	@echo "  make rebuild          Full rebuild and restart"
+	@echo "  make clean            Remove images and volumes"
+	@echo ""
+	@echo "--- Dev mode (npm run dev + Nginx) ---"
+	@echo "  make dev-nginx        Start Nginx only (proxy → localhost:3000)"
+	@echo "  make dev-nginx-down   Stop dev Nginx"
+	@echo "  make dev-nginx-logs   Stream dev Nginx logs"
+	@echo "  make dev-nginx-rebuild Rebuild dev Nginx image and restart"
+	@echo ""
+	@echo "--- Code quality ---"
+	@echo "  make test             Run application tests"
+	@echo "  make lint             Check code style (ESLint)"
+	@echo "  make format           Format code (Prettier)"
+	@echo "  make format-check     Check code formatting (Prettier)"
+	@echo "  make quality          Run all quality checks (lint + format)"
+	@echo ""
+	@echo "--- Misc ---"
+	@echo "  make hosts            Show /etc/hosts entries"
+	@echo "  make valkey-status    Show Valkey cluster status"
 	@echo ""
 	@echo "Variables:"
-	@echo "  JOURNALS=$(JOURNALS) (Used for /etc/hosts only)"
+	@echo "  JOURNALS=$(JOURNALS)  (used for /etc/hosts)"
 	@echo "  PORT=$(PORT)"
-	@echo "  WITH_VALKEY=$(WITH_VALKEY) (1 to enable, 0 to disable)"
+	@echo "  WITH_VALKEY=$(WITH_VALKEY) (1=enabled, 0=disabled)"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make build                              # Build images"
-	@echo "  make up PORT=9000                       # Start on different port"
+	@echo "  make build && make up           # Full production-like stack"
+	@echo "  npm run dev & make dev-nginx    # Dev mode with hot-reload"
+	@echo "  make up PORT=9000               # Custom port"
 
 build: build-app build-docker
 
@@ -63,6 +74,30 @@ logs:
 	docker compose $(COMPOSE_ARGS) logs -f
 
 rebuild: down build up
+
+# ---------------------------------------------------------------------------
+# Dev mode: Nginx in Docker → npm run dev on host (hot-reload friendly)
+# ---------------------------------------------------------------------------
+
+dev-nginx:
+	@echo "Starting Nginx (dev mode → localhost:3000)..."
+	@echo "Make sure 'npm run dev' is running first."
+	PORT=$(PORT) docker compose -f docker-compose.dev.yml up -d --build
+	@echo ""
+	@$(MAKE) hosts --no-print-directory
+
+dev-nginx-down:
+	docker compose -f docker-compose.dev.yml down
+
+dev-nginx-logs:
+	docker compose -f docker-compose.dev.yml logs -f
+
+dev-nginx-rebuild:
+	docker compose -f docker-compose.dev.yml down
+	docker compose -f docker-compose.dev.yml build --no-cache
+	PORT=$(PORT) docker compose -f docker-compose.dev.yml up -d
+	@echo ""
+	@$(MAKE) hosts --no-print-directory
 
 test:
 	@echo "Running tests..."

@@ -197,20 +197,22 @@ Additional documentation is available in the `docs/` folder:
 
 ### Architecture & Caching
 
-- [ISR Strategy](docs/ISR_STRATEGY.md) - Detailed ISR configuration by page type
+- [ISR Strategy](docs/ISR_STRATEGY.md) - ISR configuration by page type
 - [Revalidation Guide](docs/REVALIDATION_GUIDE.md) - On-demand revalidation API & webhooks
+- [Valkey Cache Strategy](docs/VALKEY_CACHE_STRATEGY.md) - Distributed cache design and circuit breaker
 
 ### Configuration & Development
 
 - [Configuration Guide](docs/CONFIGURATION_GUIDE.md) - Dynamic runtime configuration
-- [Local Testing Guide](docs/LOCAL_TESTING_GUIDE.md) - Local development setup with subdomains
+- [Local Testing Guide](docs/LOCAL_TESTING_GUIDE.md) - Local development with Nginx, subdomains, and journal config
 - [Coding Standards](docs/CODING_STANDARDS.md) - Code conventions and best practices
 - [Accessible Color System](docs/ACCESSIBLE_COLOR_SYSTEM.md) - WCAG-compliant color generation
 
 ### Deployment & Infrastructure
 
-- [Production Deployment](docs/PRODUCTION_DEPLOYMENT.md) - Guide for production setup and standalone execution
-- [Nginx Integration](docs/NGINX_INTEGRATION.md) - Reverse proxy setup and Docker testing
+- [Production Deployment](docs/PRODUCTION_DEPLOYMENT.md) - Production setup, symlink rotation, rollback
+- [Nginx Integration](docs/NGINX_INTEGRATION.md) - Nginx config, CSP headers, Docker dev mode
+- [Valkey Deployment](docs/DEPLOYMENT_VALKEY.md) - Valkey Sentinel cluster setup and migration from PEER_SERVERS
 
 ## Production Deployment
 
@@ -240,22 +242,104 @@ docker build -f docker/Dockerfile -t episciences-front .
 docker run -p 3000:3000 episciences-front
 ```
 
-### Testing with Nginx (Production-like)
+### Nginx Reverse Proxy
 
-To test the multi-tenant setup with Nginx reverse proxy locally:
+In production, Nginx sits in front of the Next.js process (managed by systemd) and handles:
+
+- **Multi-tenant routing** — journal code extracted from the hostname via regex (`server_name`)
+- **Static asset serving** — NFS-mounted files (`/volumes-full/`, `/public/documents/`, etc.) bypass Node.js entirely
+- **Security headers** — set by Nginx so they apply uniformly regardless of Next.js version:
+  - `Content-Security-Policy` (MathJax CDN, Matomo analytics, API images)
+  - `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`
+- **Gzip compression** and `server_tokens off`
+
+The template is at `deployment/production/nginx-episciences.conf.template`.
+Deploy it with `envsubst`:
 
 ```bash
-# Build and start containers
-make build
-make up
+export EPI_ENV=prod
+export DOMAIN_SUFFIX=episciences.org
+export HAPROXY_CIDR=10.0.0.0/8   # HAProxy IP range
 
-# Add hosts entries (see output)
-make hosts
+envsubst '${EPI_ENV} ${DOMAIN_SUFFIX} ${HAPROXY_CIDR}' \
+  < deployment/production/nginx-episciences.conf.template \
+  > /etc/nginx/conf.d/episciences.conf
 
-# Access journals
-# http://epijinfo.episciences.test:8080
-# http://dmtcs.episciences.test:8080
+nginx -t && systemctl reload nginx
 ```
+
+The same Nginx config (minus NFS paths) is used in the Docker test environment via
+`docker/nginx-config/episciences.conf.template`, ensuring local tests reflect production behaviour.
+
+### Local Testing with Nginx
+
+Two modes are available depending on what you want to test.
+
+#### Dev mode — hot-reload + Nginx headers (recommended for daily development)
+
+Nginx runs in Docker and proxies to your local `npm run dev` server.
+Security headers (CSP, `X-Frame-Options`, etc.) are applied exactly as in production,
+while Next.js hot-reload and fast refresh remain fully functional.
+
+```bash
+# Terminal 1: start the Next.js dev server
+npm run dev
+
+# Terminal 2: start the Nginx container
+make dev-nginx
+
+# Stream Nginx logs (optional)
+make dev-nginx-logs
+
+# Stop
+make dev-nginx-down
+```
+
+#### Production-like mode — full Docker build
+
+Both the Next.js app and Nginx run inside Docker. Requires a full build first.
+Use this to validate ISR behaviour, standalone output, or Docker-specific issues.
+
+```bash
+make build        # compile Next.js + build Docker images
+make up           # start all containers
+make logs         # stream logs
+make down         # stop
+```
+
+#### /etc/hosts entries
+
+Both modes serve journals on `*.episciences.test`. Add the relevant entries:
+
+```bash
+make hosts        # prints the required lines for the current JOURNALS variable
+```
+
+Default entries (edit `JOURNALS` in the Makefile or pass it on the command line):
+
+```text
+127.0.0.1  epijinfo.episciences.test
+127.0.0.1  dmtcs.episciences.test
+```
+
+Then access: `http://epijinfo.episciences.test:8080`
+
+#### All Makefile targets
+
+| Target | Description |
+|---|---|
+| `make dev-nginx` | Start Nginx only (dev mode, proxies to `localhost:3000`) |
+| `make dev-nginx-down` | Stop dev Nginx |
+| `make dev-nginx-logs` | Stream dev Nginx logs |
+| `make dev-nginx-rebuild` | Rebuild the Nginx image and restart (dev mode) |
+| `make build` | Build Next.js app + Docker images |
+| `make up` | Start full stack (Nginx + Next.js in Docker) |
+| `make down` | Stop full stack |
+| `make logs` | Stream all container logs |
+| `make rebuild` | `down` + `build` + `up` |
+| `make clean` | Remove images and volumes |
+| `make hosts` | Print required `/etc/hosts` entries |
+| `make valkey-status` | Show Valkey cluster and Sentinel status |
 
 See [Nginx Integration](docs/NGINX_INTEGRATION.md) for full documentation.
 
