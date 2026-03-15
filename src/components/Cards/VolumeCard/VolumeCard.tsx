@@ -212,6 +212,7 @@ function VolumeCard({
               tabIndex={0}
               onClick={toggleDescription}
               onKeyDown={e => handleKeyboardClick(e, toggleDescription)}
+              aria-expanded={openedDescription}
             >
               <div className="volumeCard-content-description-title-text">{t('common.about')}</div>
               {openedDescription ? (

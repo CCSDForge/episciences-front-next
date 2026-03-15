@@ -67,7 +67,7 @@ function SwiperBoardCard({
               alt={`${member.firstname} ${member.lastname}`}
               width={64}
               height={64}
-              unoptimized
+              sizes="64px"
             />
           ) : (
             <UserIcon

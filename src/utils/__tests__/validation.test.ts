@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isValidJournalId } from '../validation';
+import { isValidJournalId, sanitizeIp } from '../validation';
 
 describe('isValidJournalId', () => {
   describe('valid journal IDs', () => {
@@ -97,6 +97,74 @@ describe('isValidJournalId', () => {
 
     it('rejects ID that is only hyphens', () => {
       expect(isValidJournalId('--')).toBe(true); // matches /^[a-z0-9-]{2,50}$/
+    });
+  });
+});
+
+describe('sanitizeIp', () => {
+  describe('valid inputs', () => {
+    it('returns a plain IPv4 address unchanged', () => {
+      expect(sanitizeIp('192.168.1.1')).toBe('192.168.1.1');
+    });
+
+    it('returns the first IP from a comma-separated x-forwarded-for list', () => {
+      expect(sanitizeIp('10.0.0.1, 172.16.0.1, 8.8.8.8')).toBe('10.0.0.1');
+    });
+
+    it('trims surrounding whitespace from the first IP', () => {
+      expect(sanitizeIp('  192.168.1.1  , 10.0.0.1')).toBe('192.168.1.1');
+    });
+
+    it('returns a valid IPv6 address (loopback)', () => {
+      expect(sanitizeIp('::1')).toBe('::1');
+    });
+
+    it('returns a full IPv6 address (abbreviated)', () => {
+      expect(sanitizeIp('2001:db8::1')).toBe('2001:db8::1');
+    });
+
+    it('returns a full expanded IPv6 address', () => {
+      expect(sanitizeIp('2001:db8:85a3:0000:0000:8a2e:0370:7334')).toBe(
+        '2001:db8:85a3:0000:0000:8a2e:0370:7334'
+      );
+    });
+  });
+
+  describe('invalid / untrusted inputs', () => {
+    it('returns "unknown" for null', () => {
+      expect(sanitizeIp(null)).toBe('unknown');
+    });
+
+    it('returns "unknown" for an empty string', () => {
+      expect(sanitizeIp('')).toBe('unknown');
+    });
+
+    it('returns "unknown" for a hostname (non-IP)', () => {
+      expect(sanitizeIp('evil.host.com')).toBe('unknown');
+    });
+
+    it('returns "unknown" for XSS payload', () => {
+      expect(sanitizeIp('<script>alert(1)</script>')).toBe('unknown');
+    });
+
+    it('returns "unknown" when value contains spaces (header injection)', () => {
+      expect(sanitizeIp('127.0.0.1 AND 1=1')).toBe('unknown');
+    });
+
+    it('returns "unknown" when value contains a newline (header injection)', () => {
+      expect(sanitizeIp('127.0.0.1\nX-Injected: evil')).toBe('unknown');
+    });
+
+    it('returns "unknown" for octets out of IPv4 range (999.999.999.999)', () => {
+      expect(sanitizeIp('999.999.999.999')).toBe('unknown');
+    });
+
+    it('returns "unknown" for structurally invalid input that only contains valid chars (e.g. ...:::)', () => {
+      expect(sanitizeIp('...:::')).toBe('unknown');
+    });
+
+    it('returns "unknown" for an IPv4 with too many octets (1.2.3.4.5)', () => {
+      expect(sanitizeIp('1.2.3.4.5')).toBe('unknown');
     });
   });
 });

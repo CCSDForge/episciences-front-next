@@ -223,6 +223,46 @@ describe('VolumeCard', () => {
       ).toBeInTheDocument();
     });
 
+    it('description toggle has aria-expanded="false" when collapsed', () => {
+      const volumeWithDesc: IVolume = {
+        ...baseVolume,
+        description: { en: 'Description text', fr: 'Description' },
+      };
+      render(
+        <VolumeCard
+          language="en"
+          t={mockT as any}
+          mode={RENDERING_MODE.LIST}
+          volume={volumeWithDesc}
+        />
+      );
+      expect(screen.getByRole('button', { name: /About/ })).toHaveAttribute(
+        'aria-expanded',
+        'false'
+      );
+    });
+
+    it('description toggle has aria-expanded="true" after opening', async () => {
+      const user = userEvent.setup();
+      const volumeWithDesc: IVolume = {
+        ...baseVolume,
+        description: { en: 'Description text', fr: 'Description' },
+      };
+      render(
+        <VolumeCard
+          language="en"
+          t={mockT as any}
+          mode={RENDERING_MODE.LIST}
+          volume={volumeWithDesc}
+        />
+      );
+      await user.click(screen.getByRole('button', { name: /About/ }));
+      expect(screen.getByRole('button', { name: /About/ })).toHaveAttribute(
+        'aria-expanded',
+        'true'
+      );
+    });
+
     it('description toggle is keyboard accessible', async () => {
       const user = userEvent.setup();
       const volumeWithDesc: IVolume = {

@@ -68,6 +68,7 @@ function NewsCard({
             }
             role="button"
             tabIndex={0}
+            aria-expanded={showFullContent}
             className="newsCard-content-content-toggle"
           >
             {showFullContent ? t('common.readLess') : t('common.readMore')}

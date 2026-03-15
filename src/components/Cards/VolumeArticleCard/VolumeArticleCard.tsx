@@ -57,6 +57,7 @@ function VolumeArticleCard({
             tabIndex={0}
             onClick={toggleAbstract}
             onKeyDown={e => handleKeyboardClick(e, toggleAbstract)}
+            aria-expanded={openedAbstract}
           >
             <div className="volumeArticleCard-abstract-title-text">{t('common.abstract')}</div>
             {openedAbstract ? (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
 import { useRouter, usePathname } from 'next/navigation';
@@ -88,35 +88,42 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   }, [mobileMenuDropdownRef]);
 
   useEffect(() => {
+    let rafId: number | null = null;
     const handleScroll = () => {
-      const position = window.scrollY;
-      setIsReduced(position > reducedScrollPosition);
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        setIsReduced(window.scrollY > reducedScrollPosition);
+        rafId = null;
+      });
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, [reducedScrollPosition]);
 
   useEffect(() => {
     setShowDropdown({ content: false, about: false, publish: false });
   }, [pathname]);
 
-  const toggleDropdown = (menu: string, opened: boolean): void => {
+  const toggleDropdown = useCallback((menu: string, opened: boolean): void => {
     setShowDropdown(prev => ({ ...prev, [menu]: opened }));
-  };
+  }, []);
 
-  const updateSearch = (updatedSearch: string): void => {
+  const updateSearch = useCallback((updatedSearch: string): void => {
     dispatch(setSearch(updatedSearch));
-  };
+  }, [dispatch]);
 
-  const submitSearch = (): void => {
+  const submitSearch = useCallback((): void => {
     if (!search) {
       return;
     }
 
     setIsSearching(false);
     router.push(`${PATHS.search}?terms=${encodeURIComponent(search)}`);
-  };
+  }, [search, router]);
 
   const getEpisciencesHomePageLink = (): string =>
     language === 'fr'
@@ -155,7 +162,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
 
   const submitManagerLink = getSubmitManagerLink();
 
-  const getPostHeaderLinks = (): React.JSX.Element => {
+  const postHeaderLinks = useMemo((): React.JSX.Element => {
     // Prepare visible menu items with dynamic path replacements
     const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content).map(item =>
       processMenuItemPath(item, {
@@ -242,9 +249,9 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
         </div>
       </>
     );
-  };
+  }, [showDropdown, lastVolume, language, isReduced, isSearching, search, submitManagerLink, t, toggleDropdown, updateSearch, submitSearch, setIsSearching]);
 
-  const getPostHeaderBurgerLinks = (): React.JSX.Element => {
+  const postHeaderBurgerLinks = useMemo((): React.JSX.Element => {
     if (!showMobileMenu) return <></>;
 
     // Prepare visible menu items with dynamic path replacements
@@ -321,7 +328,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
         </div>
       </div>
     );
-  };
+  }, [showMobileMenu, lastVolume, router, t]);
 
   if (isReduced) {
     return (
@@ -383,10 +390,10 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
               tabIndex={0}
             >
               <BurgerIcon size={24} className="header-postheader-burger-icon" ariaLabel="Menu" />
-              {getPostHeaderBurgerLinks()}
+              {postHeaderBurgerLinks}
             </div>
           )}
-          {getPostHeaderLinks()}
+          {postHeaderLinks}
         </nav>
       </header>
     );
@@ -473,10 +480,10 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
             tabIndex={0}
           >
             <BurgerIcon size={24} className="header-postheader-burger-icon" ariaLabel="Menu" />
-            {getPostHeaderBurgerLinks()}
+            {postHeaderBurgerLinks}
           </div>
         )}
-        {getPostHeaderLinks()}
+        {postHeaderLinks}
       </nav>
     </header>
   );

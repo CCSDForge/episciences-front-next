@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { TFunction } from 'i18next';
 import { Cell, Pie, PieChart as RechartsPieChart, ResponsiveContainer } from 'recharts';
 import { IStatValueDetailsAsPieChart } from '@/types/stat';
@@ -11,13 +12,16 @@ interface IPieChartProps {
 }
 
 export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element {
-  // Dynamically load the chart colors from the environment
-  const CHART_COLORS = [
-    process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_0 || '#9A312C',
-    process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_1 || '#C9605B',
-    process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_2 || '#FF9994',
-    process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_3 || '#FFC9C7',
-  ];
+  // Memoize chart colors — env vars are static after build, avoids array recreation per render
+  const CHART_COLORS = useMemo(
+    () => [
+      process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_0 || '#9A312C',
+      process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_1 || '#C9605B',
+      process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_2 || '#FF9994',
+      process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_3 || '#FFC9C7',
+    ],
+    []
+  );
 
   const getLegend = (): React.JSX.Element => {
     const notBeingToPublishStatuses = data.filter(singleData => !singleData.isBeingToPublishStatus);

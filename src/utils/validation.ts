@@ -5,6 +5,21 @@
  * meet security requirements and prevent path traversal or injection attacks.
  */
 
+import { isIP } from 'net';
+
+/**
+ * Sanitize an IP address from request headers to prevent IP spoofing bypasses in rate limiting.
+ * Takes the first IP from a potentially comma-separated x-forwarded-for value and validates its
+ * structure (IPv4 or IPv6) using Node.js net.isIP().
+ *
+ * @param raw - Raw header value (may be null or comma-separated list)
+ * @returns A structurally valid IP string or 'unknown'
+ */
+export function sanitizeIp(raw: string | null): string {
+  const first = raw?.split(',')[0]?.trim() ?? '';
+  return isIP(first) !== 0 ? first : 'unknown';
+}
+
 /**
  * Validate journal ID format
  *
@@ -22,6 +37,7 @@
  * isValidJournalId('Journal123') // false (uppercase not allowed)
  * ```
  */
+
 export function isValidJournalId(journalId: string): boolean {
   if (!journalId) {
     return false;

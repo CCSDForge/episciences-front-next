@@ -110,6 +110,18 @@ describe('page service', () => {
       );
     });
 
+    it('encodes page_code with URLSearchParams (prevents query injection)', async () => {
+      mockFetch.mockResolvedValue(createMockResponse([]));
+
+      await fetchPage('foo&admin=true', 'testjournal');
+
+      const calledUrl = mockFetch.mock.calls[0][0] as string;
+      // The injected parameter must NOT appear as a separate key
+      expect(calledUrl).not.toContain('admin=true');
+      // The ampersand must be percent-encoded, not left raw
+      expect(calledUrl).not.toMatch(/page_code=foo&/);
+    });
+
     it('includes a page-specific tag for on-demand revalidation', async () => {
       mockFetch.mockResolvedValue(createMockResponse([mockPage]));
 

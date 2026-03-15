@@ -288,6 +288,24 @@ describe('ArticlesAcceptedMobileModal', () => {
       expect(onClose).toHaveBeenCalledOnce();
     });
 
+    it('calls onCloseCallback when Escape key is pressed', () => {
+      const onClose = vi.fn();
+      renderWithStore(
+        <ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />
+      );
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onClose).toHaveBeenCalledOnce();
+    });
+
+    it('does not close when a non-Escape key is pressed', () => {
+      const onClose = vi.fn();
+      renderWithStore(
+        <ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />
+      );
+      fireEvent.keyDown(document, { key: 'Tab' });
+      expect(onClose).not.toHaveBeenCalled();
+    });
+
     it('does not close when clicking inside the modal', async () => {
       const user = userEvent.setup();
       const onClose = vi.fn();
