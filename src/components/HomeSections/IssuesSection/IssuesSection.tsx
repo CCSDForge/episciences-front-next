@@ -1,7 +1,7 @@
 'use client';
 
+import React, { Fragment } from 'react';
 import { FileGreyIcon, DownloadBlackIcon } from '@/components/icons';
-import { Fragment } from 'react';
 import Image from 'next/image';
 import { TFunction } from 'i18next';
 import { Link } from '@/components/Link/Link';
@@ -19,7 +19,7 @@ interface IIssuesSectionProps {
   journalId?: string;
 }
 
-export default function IssuesSection({
+function IssuesSection({
   language,
   t,
   issues = [],
@@ -105,3 +105,5 @@ export default function IssuesSection({
     </div>
   );
 }
+
+export default React.memo(IssuesSection);

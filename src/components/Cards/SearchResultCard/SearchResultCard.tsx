@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
@@ -30,7 +31,7 @@ interface ISearchResultCardProps {
   toggleAbstractCallback: () => void;
 }
 
-export default function SearchResultCard({
+function SearchResultCard({
   language,
   rvcode,
   t,
@@ -166,3 +167,5 @@ export default function SearchResultCard({
     </div>
   );
 }
+
+export default memo(SearchResultCard);

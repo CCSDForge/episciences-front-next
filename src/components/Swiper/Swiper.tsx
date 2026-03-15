@@ -3,7 +3,7 @@
 import { TFunction } from 'i18next';
 import { Swiper as SwiperReactLib, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import Card, { SwiperCardType, SwiperCardContent } from '@/components/SwiperCards/SwiperCard';
 import { CaretLeftBlackIcon, CaretRightBlackIcon } from '@/components/icons';
@@ -55,8 +55,8 @@ export default function Swiper({
     return () => window.removeEventListener('resize', checkDevice);
   }, []);
 
-  // Fonction pour filtrer les cartes comme dans la version d'origine
-  const getRenderedCards = (): SwiperCardContent[] => {
+  // Mémoïser les cartes filtrées pour éviter les recalculs à chaque rendu
+  const renderedCards = useMemo((): SwiperCardContent[] => {
     const filteredCards = cards.filter(Boolean);
 
     // Pendant le rendu initial (SSR + première passe client), on retourne toutes les cartes
@@ -74,7 +74,7 @@ export default function Swiper({
     }
 
     return filteredCards;
-  };
+  }, [cards, isMounted, isMobile, isTablet]);
 
   // Si aucune carte à afficher, ne rien rendre
   if (!cards || cards.length === 0) {
@@ -115,7 +115,7 @@ export default function Swiper({
             },
           }}
         >
-          {getRenderedCards().map((content: SwiperCardContent, key: number) => (
+          {renderedCards.map((content: SwiperCardContent, key: number) => (
             <SwiperSlide key={key}>
               <Card language={language} t={t} type={type} content={content} />
             </SwiperSlide>

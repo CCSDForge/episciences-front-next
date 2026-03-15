@@ -5,19 +5,20 @@ import { Cell, Pie, PieChart as RechartsPieChart, ResponsiveContainer } from 're
 import { IStatValueDetailsAsPieChart } from '@/types/stat';
 import './PieChart.scss';
 
+// Load chart colors once at module level (env vars are static after build)
+const CHART_COLORS = [
+  process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_0 || '#9A312C',
+  process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_1 || '#C9605B',
+  process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_2 || '#FF9994',
+  process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_3 || '#FFC9C7',
+];
+
 interface IPieChartProps {
   t: TFunction<'translation', undefined>;
   data: IStatValueDetailsAsPieChart[];
 }
 
 export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element {
-  // Dynamically load the chart colors from the environment
-  const CHART_COLORS = [
-    process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_0 || '#9A312C',
-    process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_1 || '#C9605B',
-    process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_2 || '#FF9994',
-    process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_3 || '#FFC9C7',
-  ];
 
   const getLegend = (): React.JSX.Element => {
     const notBeingToPublishStatuses = data.filter(singleData => !singleData.isBeingToPublishStatus);
