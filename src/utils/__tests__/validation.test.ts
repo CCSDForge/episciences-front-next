@@ -119,8 +119,14 @@ describe('sanitizeIp', () => {
       expect(sanitizeIp('::1')).toBe('::1');
     });
 
-    it('returns a full IPv6 address', () => {
+    it('returns a full IPv6 address (abbreviated)', () => {
       expect(sanitizeIp('2001:db8::1')).toBe('2001:db8::1');
+    });
+
+    it('returns a full expanded IPv6 address', () => {
+      expect(sanitizeIp('2001:db8:85a3:0000:0000:8a2e:0370:7334')).toBe(
+        '2001:db8:85a3:0000:0000:8a2e:0370:7334'
+      );
     });
   });
 
@@ -147,6 +153,18 @@ describe('sanitizeIp', () => {
 
     it('returns "unknown" when value contains a newline (header injection)', () => {
       expect(sanitizeIp('127.0.0.1\nX-Injected: evil')).toBe('unknown');
+    });
+
+    it('returns "unknown" for octets out of IPv4 range (999.999.999.999)', () => {
+      expect(sanitizeIp('999.999.999.999')).toBe('unknown');
+    });
+
+    it('returns "unknown" for structurally invalid input that only contains valid chars (e.g. ...:::)', () => {
+      expect(sanitizeIp('...:::')).toBe('unknown');
+    });
+
+    it('returns "unknown" for an IPv4 with too many octets (1.2.3.4.5)', () => {
+      expect(sanitizeIp('1.2.3.4.5')).toBe('unknown');
     });
   });
 });

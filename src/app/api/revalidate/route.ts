@@ -18,7 +18,7 @@ import { sanitizeIp } from '@/utils/validation';
  */
 
 if (process.env.NODE_ENV === 'production' && !process.env.REVALIDATION_SECRET) {
-  console.error('[Revalidate API] CRITICAL: REVALIDATION_SECRET is not set in production!');
+  console.warn('[Revalidate API] CRITICAL: REVALIDATION_SECRET is not set in production!');
 }
 
 // Simple in-memory rate limiter (Configurable via env)

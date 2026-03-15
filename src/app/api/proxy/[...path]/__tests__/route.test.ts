@@ -55,6 +55,15 @@ describe('GET /api/proxy/[...path]', () => {
       expect(body.error).toMatch(/missing rvcode/i);
     });
 
+    it('returns 400 when rvcode is an empty string', async () => {
+      const { GET } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers'] }) };
+      const res = await GET(makeGetRequest('papers', '?rvcode='), context);
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toMatch(/missing rvcode/i);
+    });
+
     it('returns 400 when rvcode contains invalid characters', async () => {
       const { GET } = await import('../route');
       const context = { params: Promise.resolve({ path: ['papers'] }) };
