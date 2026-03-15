@@ -22,6 +22,18 @@
  * isValidJournalId('Journal123') // false (uppercase not allowed)
  * ```
  */
+/**
+ * Sanitize an IP address from request headers to prevent IP spoofing bypasses in rate limiting.
+ * Takes the first IP from a potentially comma-separated x-forwarded-for value and validates it.
+ *
+ * @param raw - Raw header value (may be null or comma-separated list)
+ * @returns A validated IP string or 'unknown'
+ */
+export function sanitizeIp(raw: string | null): string {
+  const first = raw?.split(',')[0]?.trim() ?? '';
+  return /^[\d.:a-fA-F]+$/.test(first) ? first : 'unknown';
+}
+
 export function isValidJournalId(journalId: string): boolean {
   if (!journalId) {
     return false;

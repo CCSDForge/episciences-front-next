@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { sanitizeIp } from '@/utils/validation';
 
 // Whitelist of allowed PDF sources
 const ALLOWED_DOMAINS = [
@@ -68,10 +69,9 @@ function isAllowedDomain(url: string): boolean {
  */
 export async function GET(request: NextRequest) {
   // Get client IP
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0] ||
-    request.headers.get('x-real-ip') ||
-    'unknown';
+  const ip = sanitizeIp(
+    request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip')
+  );
 
   // Check rate limit
   if (!checkRateLimit(ip)) {

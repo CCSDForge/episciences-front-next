@@ -1,6 +1,7 @@
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { sanitizeIp } from '@/utils/validation';
 
 /**
  * API Route for Secure On-Demand Revalidation
@@ -82,10 +83,9 @@ export async function POST(request: NextRequest) {
     const allowedIps = process.env.ALLOWED_IPS
       ? process.env.ALLOWED_IPS.split(',').map(ip => ip.trim())
       : [];
-    const clientIp =
-      request.headers.get('x-forwarded-for')?.split(',')[0] ||
-      request.headers.get('x-real-ip') ||
-      '';
+    const clientIp = sanitizeIp(
+      request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip')
+    );
 
     if (allowedIps.length > 0 && !allowedIps.includes(clientIp)) {
       console.warn(`[Revalidate API] Blocked unauthorized IP: ${clientIp}`);
