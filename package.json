@@ -86,7 +86,7 @@
     "happy-dom": "^20.0.5",
     "jsdom": "^27.0.1",
     "postcss-flexbugs-fixes": "^5.0.2",
-    "postcss-preset-env": "^10.1.5",
+    "postcss-preset-env": "^11.0.0",
     "prettier": "^3.7.4",
     "sass": "^1.85.1",
     "sass-loader": "^16.0.5",
