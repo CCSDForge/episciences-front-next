@@ -1,4 +1,4 @@
-.PHONY: build up down logs clean hosts rebuild help dev-nginx dev-nginx-down dev-nginx-logs dev-nginx-rebuild
+.PHONY: build up down logs clean hosts rebuild help dev-nginx dev-nginx-down dev-nginx-logs dev-nginx-rebuild deploy-preprod deploy-production rollback-preprod rollback-production
 
 # Default journals for testing
 JOURNALS ?= epijinfo,dmtcs
@@ -35,6 +35,12 @@ help:
 	@echo "  make format           Format code (Prettier)"
 	@echo "  make format-check     Check code formatting (Prettier)"
 	@echo "  make quality          Run all quality checks (lint + format)"
+	@echo ""
+	@echo "--- Deployment (Ansistrano) ---"
+	@echo "  make deploy-preprod      Deploy to preprod (2 VMs)"
+	@echo "  make deploy-production   Deploy to production"
+	@echo "  make rollback-preprod    Rollback preprod to previous release"
+	@echo "  make rollback-production Rollback production to previous release"
 	@echo ""
 	@echo "--- Misc ---"
 	@echo "  make hosts            Show /etc/hosts entries"
@@ -126,6 +132,28 @@ valkey-status:
 	@echo ""
 	@echo "Sentinel Status:"
 	@docker exec sentinel-1 valkey-cli -p 26379 sentinel masters
+
+# ---------------------------------------------------------------------------
+# Deployment (Ansistrano)
+# ---------------------------------------------------------------------------
+
+ANSIBLE_DIR = deployment/ansible
+
+deploy-preprod:
+	@echo "Deploying to preprod..."
+	cd $(ANSIBLE_DIR) && ansible-playbook deploy.yml -i inventory/preprod.ini
+
+deploy-production:
+	@echo "Deploying to production..."
+	cd $(ANSIBLE_DIR) && ansible-playbook deploy.yml -i inventory/production.ini
+
+rollback-preprod:
+	@echo "Rolling back preprod..."
+	cd $(ANSIBLE_DIR) && ansible-playbook rollback.yml -i inventory/preprod.ini
+
+rollback-production:
+	@echo "Rolling back production..."
+	cd $(ANSIBLE_DIR) && ansible-playbook rollback.yml -i inventory/production.ini
 
 hosts:
 	@echo ""
