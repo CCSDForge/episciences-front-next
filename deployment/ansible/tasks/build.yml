@@ -14,6 +14,7 @@
     dest: "{{ ansistrano_release_path.stdout }}/external-assets/"
     delete: false
     recursive: true
+    delay_updates: false
   delegate_to: localhost
 
 - name: Remove stale Next.js build directory if present
