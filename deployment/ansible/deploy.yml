@@ -13,5 +13,13 @@
   hosts: all
   gather_facts: true
 
+  pre_tasks:
+    - name: Prune stale git remote refs in ansistrano repo cache
+      ansible.builtin.command:
+        cmd: git remote prune origin
+        chdir: "{{ ansistrano_deploy_to }}/repo"
+      failed_when: false
+      changed_when: false
+
   roles:
     - ansistrano.deploy
