@@ -45,5 +45,12 @@ export default defineConfig({
 
     // Exclude patterns
     exclude: ['node_modules', 'dist', 'external-assets', '.next', 'coverage'],
+
+    // Force vitest to use the compiled dist output (not source .tsx) for these packages
+    server: {
+      deps: {
+        inline: ['react-loader-spinner'],
+      },
+    },
   },
 });
