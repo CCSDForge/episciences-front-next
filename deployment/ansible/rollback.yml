@@ -6,7 +6,7 @@
 #   ansible-playbook rollback.yml -i inventory/production.ini
 
 - name: Rollback Episciences Front-Next
-  hosts: episciences_front
+  hosts: all
   gather_facts: false
   vars:
     ansistrano_deploy_to: "{{ deploy_to }}"

@@ -9,7 +9,7 @@
 #   ansible-galaxy install -r requirements.yml
 
 - name: Deploy Episciences Front-Next
-  hosts: episciences_front
+  hosts: all
   gather_facts: true
   vars:
     ansistrano_deploy_via: git
