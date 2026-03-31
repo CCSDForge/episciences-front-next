@@ -1,0 +1,29 @@
+---
+# Episciences Front-Next — Ansistrano deployment playbook
+#
+# Usage:
+#   ansible-playbook deploy.yml -i inventory/preprod.ini
+#   ansible-playbook deploy.yml -i inventory/production.ini
+#
+# Prerequisites:
+#   ansible-galaxy install -r requirements.yml
+
+- name: Deploy Episciences Front-Next
+  hosts: episciences_front
+  gather_facts: true
+  vars:
+    ansistrano_deploy_via: git
+    ansistrano_git_repo: "{{ git_repo }}"
+    ansistrano_git_branch: "{{ git_branch }}"
+    ansistrano_deploy_to: "{{ deploy_to }}"
+    ansistrano_keep_releases: "{{ keep_releases }}"
+    ansistrano_shared_files:
+      - .env
+    ansistrano_shared_paths:
+      - external-assets
+      - logs
+    ansistrano_before_symlink_tasks_file: "{{ playbook_dir }}/tasks/build.yml"
+    ansistrano_after_symlink_tasks_file: "{{ playbook_dir }}/tasks/restart.yml"
+
+  roles:
+    - ansistrano.deploy

@@ -1,0 +1,16 @@
+---
+# Episciences Front-Next — Ansistrano rollback playbook
+#
+# Usage:
+#   ansible-playbook rollback.yml -i inventory/preprod.ini
+#   ansible-playbook rollback.yml -i inventory/production.ini
+
+- name: Rollback Episciences Front-Next
+  hosts: episciences_front
+  gather_facts: false
+  vars:
+    ansistrano_deploy_to: "{{ deploy_to }}"
+    ansistrano_after_symlink_tasks_file: "{{ playbook_dir }}/tasks/restart.yml"
+
+  roles:
+    - ansistrano.rollback

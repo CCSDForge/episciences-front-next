@@ -1,0 +1,11 @@
+---
+# Production — non-sensitive deployment variables
+
+git_repo: "https://github.com/CCSDForge/episciences-front-next.git"
+git_branch: "main"
+
+deploy_to: "/var/www/episciences-front-next"
+keep_releases: 5
+
+# Node.js binary path (override if using nvm or custom install)
+# node_bin: "/usr/local/bin/node"
