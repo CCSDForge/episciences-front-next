@@ -3,7 +3,7 @@
 
 ansistrano_deploy_via: git
 ansistrano_git_repo: "https://github.com/CCSDForge/episciences-front-next.git"
-ansistrano_git_branch: "develop"
+ansistrano_git_branch: "preprod"
 ansistrano_deploy_to: "/var/www/episciences-front-next"
 ansistrano_keep_releases: 3
 ansistrano_shared_files:
