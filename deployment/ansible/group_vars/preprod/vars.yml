@@ -9,7 +9,6 @@ ansistrano_keep_releases: 3
 ansistrano_shared_files:
   - .env
 ansistrano_shared_paths:
-  - external-assets
   - logs
   - node_modules
 ansistrano_before_symlink_tasks_file: "tasks/build.yml"

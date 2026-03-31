@@ -2,17 +2,23 @@
 # Tasks executed in the release directory BEFORE the symlink switch
 # The shared .env and external-assets are already symlinked at this point
 
-- name: Sync external-assets to shared directory
+- name: Create external-assets directory in release
+  ansible.builtin.file:
+    path: "{{ ansistrano_release_path.stdout }}/external-assets"
+    state: directory
+    mode: '0755'
+
+- name: Sync external-assets directly into release directory
   ansible.posix.synchronize:
     src: "{{ playbook_dir }}/../../external-assets/"
-    dest: "{{ ansistrano_deploy_to }}/shared/external-assets/"
+    dest: "{{ ansistrano_release_path.stdout }}/external-assets/"
     delete: false
     recursive: true
   delegate_to: localhost
 
-- name: Remove stale Next.js build lock if present
+- name: Remove stale Next.js build directory if present
   ansible.builtin.file:
-    path: "{{ ansistrano_release_path.stdout }}/.next/lock"
+    path: "{{ ansistrano_release_path.stdout }}/.next"
     state: absent
 
 - name: Install Node.js dependencies
