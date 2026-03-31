@@ -23,7 +23,7 @@ From the `deployment/ansible/` directory:
 
 ```bash
 ansible-galaxy install -r requirements.yml
-ansible-galaxy collection install community.general
+ansible-galaxy collection install community.general ansible.posix
 # Note: if ansistrano.rollback fails, install it separately:
 # ansible-galaxy install ansistrano.rollback,4.0.1
 ```
