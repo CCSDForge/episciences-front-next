@@ -1,0 +1,17 @@
+---
+# Episciences Front-Next — Ansistrano deployment playbook
+#
+# Usage:
+#   ansible-playbook deploy.yml -i inventory/preprod.ini
+#   ansible-playbook deploy.yml -i inventory/production.ini
+#
+# Prerequisites:
+#   ansible-galaxy install -r requirements.yml
+#   ansible-galaxy collection install community.general
+
+- name: Deploy Episciences Front-Next
+  hosts: all
+  gather_facts: true
+
+  roles:
+    - ansistrano.deploy

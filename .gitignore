@@ -1,5 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Ansible deployment — sensitive files (inventories, secrets)
+/deployment/ansible/inventory/*.ini
+/deployment/ansible/group_vars/**/secrets.yml
+# Ansistrano installed roles
+/deployment/ansible/roles/
+
 # dependencies
 /node_modules
 /.pnp

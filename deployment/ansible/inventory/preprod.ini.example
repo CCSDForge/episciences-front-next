@@ -1,0 +1,9 @@
+# Preprod inventory — copy to preprod.ini and fill in real values
+# preprod.ini is gitignored
+
+[preprod]
+preprod-front-01 ansible_host=<VM1_IP_OR_HOSTNAME>
+preprod-front-02 ansible_host=<VM2_IP_OR_HOSTNAME>
+
+[preprod:vars]
+ansible_port=22
