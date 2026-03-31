@@ -71,13 +71,17 @@ function getValkeyClient() {
     Redis = typeof _ioredis === 'function' ? _ioredis : (_ioredis.Redis || _ioredis.default);
   }
 
+  const username = process.env.VALKEY_USERNAME || undefined;
   const password = process.env.VALKEY_PASSWORD || undefined;
+  const sentinelUsername = process.env.VALKEY_SENTINEL_USERNAME || undefined;
   const sentinelPassword = process.env.VALKEY_SENTINEL_PASSWORD || undefined;
 
   _client = new Redis({
     sentinels: sentinelHosts,
     name: process.env.VALKEY_MASTER_NAME || 'mymaster',
+    username,
     password,
+    sentinelUsername,
     sentinelPassword,
     keyPrefix: process.env.VALKEY_KEY_PREFIX || 'next:',
     lazyConnect: true,

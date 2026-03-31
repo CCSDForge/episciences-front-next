@@ -46,7 +46,8 @@ These variables are **identical for all journals** in a given environment. They 
 | `VALKEY_ENABLED` | Enable/disable the distributed Valkey cache |
 | `VALKEY_SENTINEL_HOSTS` | Comma-separated Sentinel host:port list |
 | `VALKEY_MASTER_NAME` | Sentinel master group name |
-| `VALKEY_PASSWORD` / `VALKEY_SENTINEL_PASSWORD` | Auth credentials |
+| `VALKEY_USERNAME` / `VALKEY_PASSWORD` | Valkey node ACL credentials |
+| `VALKEY_SENTINEL_USERNAME` / `VALKEY_SENTINEL_PASSWORD` | Sentinel ACL credentials |
 | `VALKEY_KEY_PREFIX` | Cache key prefix |
 | `VALKEY_CIRCUIT_BREAKER_*` | Circuit breaker tuning |
 
@@ -56,7 +57,7 @@ These variables are **identical for all journals** in a given environment. They 
 | :--- | :--- | :--- |
 | `.env` | Yes | Shared defaults (non-secret, all environments) |
 | `.env.local` | No | Local dev overrides |
-| `.env.production.local` | No | Production secrets (Valkey passwords, token) |
+| `.env.production.local` | No | Production secrets (Valkey credentials, token) — use `.env.production.local.example` as template |
 | `.env.staging.local` | No | Staging/preprod secrets |
 
 > The files `.env.*.local` are gitignored by Next.js and must be deployed separately (secrets manager, CI/CD injection, Ansible, etc.).

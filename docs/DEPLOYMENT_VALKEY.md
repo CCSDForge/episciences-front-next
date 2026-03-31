@@ -64,8 +64,10 @@ POST /api/revalidate (localhost)
 | `VALKEY_ENABLED` | Yes | `false` | Enable distributed cache (`true` in staging/prod) |
 | `VALKEY_SENTINEL_HOSTS` | Yes* | — | Comma-separated `host:port` pairs for sentinels |
 | `VALKEY_MASTER_NAME` | No | `mymaster` | Sentinel master group name |
-| `VALKEY_PASSWORD` | No | — | Valkey node authentication password |
-| `VALKEY_SENTINEL_PASSWORD` | No | — | Sentinel authentication password |
+| `VALKEY_USERNAME` | No | — | Valkey node ACL username |
+| `VALKEY_PASSWORD` | No | — | Valkey node ACL password |
+| `VALKEY_SENTINEL_USERNAME` | No | — | Sentinel ACL username |
+| `VALKEY_SENTINEL_PASSWORD` | No | — | Sentinel ACL password |
 | `VALKEY_KEY_PREFIX` | No | `next:` | Key prefix for Next.js cache entries |
 | `VALKEY_CIRCUIT_BREAKER_THRESHOLD` | No | `5` | Consecutive errors before circuit opens |
 | `VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL` | No | `30` | Seconds before probing Valkey recovery |
@@ -96,7 +98,9 @@ Add to your `.env.local` (or `external-assets/.env.local.epijinfo`):
 VALKEY_ENABLED=true
 VALKEY_SENTINEL_HOSTS=sentinel-1:26379,sentinel-2:26379,sentinel-3:26379
 VALKEY_MASTER_NAME=mymaster
+VALKEY_USERNAME=           # leave empty for local dev (no ACL)
 VALKEY_PASSWORD=           # leave empty for local dev
+VALKEY_SENTINEL_USERNAME=  # leave empty for local dev
 VALKEY_SENTINEL_PASSWORD=  # leave empty for local dev
 REVALIDATION_SECRET=dev-secret-change-me
 ```
@@ -212,11 +216,16 @@ In `/etc/episciences/app.env` (loaded by your deploy script or systemd):
 VALKEY_ENABLED=true
 VALKEY_SENTINEL_HOSTS=vm1-ip:26379,vm2-ip:26379,vm3-ip:26379
 VALKEY_MASTER_NAME=mymaster
+VALKEY_USERNAME=nextjs-prod          # ACL username for the Valkey node
 VALKEY_PASSWORD=YOUR_STRONG_PASSWORD
-VALKEY_SENTINEL_PASSWORD=  # same as VALKEY_PASSWORD unless configured separately
-VALKEY_KEY_PREFIX=next:
+VALKEY_SENTINEL_USERNAME=sentinel-prod  # ACL username for Sentinel (if configured)
+VALKEY_SENTINEL_PASSWORD=YOUR_SENTINEL_PASSWORD
+VALKEY_KEY_PREFIX=next:prod:
 REVALIDATION_SECRET=YOUR_REVALIDATION_SECRET
 ```
+
+> Copy `.env.production.local.example` (tracked) to `.env.production.local` (gitignored) and fill in the values above.
+> Deploy `.env.production.local` out-of-band (secrets manager, Ansible vault, CI/CD injection — never commit it).
 
 ---
 
@@ -232,7 +241,10 @@ sudo install -m 0640 -o root -g www-data /dev/null /etc/episciences/worker.env
 sudo tee /etc/episciences/worker.env <<EOF
 VALKEY_SENTINEL_HOSTS=vm1-ip:26379,vm2-ip:26379,vm3-ip:26379
 VALKEY_MASTER_NAME=mymaster
+VALKEY_USERNAME=nextjs-prod
 VALKEY_PASSWORD=YOUR_STRONG_PASSWORD
+VALKEY_SENTINEL_USERNAME=sentinel-prod
+VALKEY_SENTINEL_PASSWORD=YOUR_SENTINEL_PASSWORD
 REVALIDATION_SECRET=YOUR_REVALIDATION_SECRET
 NEXT_APP_URL=http://localhost:3000
 EOF
