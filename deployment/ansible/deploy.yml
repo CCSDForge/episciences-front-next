@@ -12,6 +12,7 @@
 - name: Deploy Episciences Front-Next
   hosts: all
   gather_facts: true
+  become: true
 
   roles:
     - ansistrano.deploy
