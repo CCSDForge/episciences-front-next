@@ -15,5 +15,5 @@
   ansible.builtin.wait_for:
     host: 127.0.0.1
     port: 3000
-    delay: 3
-    timeout: 60
+    delay: 10
+    timeout: 120
