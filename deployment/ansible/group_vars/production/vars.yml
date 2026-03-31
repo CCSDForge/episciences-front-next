@@ -1,11 +1,15 @@
 ---
 # Production — non-sensitive deployment variables
 
-git_repo: "https://github.com/CCSDForge/episciences-front-next.git"
-git_branch: "main"
-
-deploy_to: "/var/www/episciences-front-next"
-keep_releases: 5
-
-# Node.js binary path (override if using nvm or custom install)
-# node_bin: "/usr/local/bin/node"
+ansistrano_deploy_via: git
+ansistrano_git_repo: "https://github.com/CCSDForge/episciences-front-next.git"
+ansistrano_git_branch: "main"
+ansistrano_deploy_to: "/var/www/episciences-front-next"
+ansistrano_keep_releases: 5
+ansistrano_shared_files:
+  - .env
+ansistrano_shared_paths:
+  - external-assets
+  - logs
+ansistrano_before_symlink_tasks_file: "tasks/build.yml"
+ansistrano_after_symlink_tasks_file: "tasks/restart.yml"

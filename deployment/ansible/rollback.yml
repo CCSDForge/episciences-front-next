@@ -8,9 +8,6 @@
 - name: Rollback Episciences Front-Next
   hosts: all
   gather_facts: false
-  vars:
-    ansistrano_deploy_to: "{{ deploy_to }}"
-    ansistrano_after_symlink_tasks_file: "{{ playbook_dir }}/tasks/restart.yml"
 
   roles:
     - ansistrano.rollback
