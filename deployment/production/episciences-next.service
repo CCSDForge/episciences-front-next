@@ -8,7 +8,7 @@ User=epi-preprod-deploy
 Group=www-data
 # ansistrano deploys to current/ symlink
 WorkingDirectory=/var/www/episciences-front-next/current
-ExecStart=/usr/bin/node /var/www/episciences-front-next/current/server.js
+ExecStart=/usr/bin/node /var/www/episciences-front-next/current/.next/standalone/server.js
 Restart=always
 Environment=NODE_ENV=production
 Environment=PORT=3000
