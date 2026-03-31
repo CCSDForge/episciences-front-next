@@ -3,7 +3,7 @@
 
 ansistrano_deploy_via: git
 ansistrano_git_repo: "https://github.com/CCSDForge/episciences-front-next.git"
-ansistrano_git_branch: "preprod"
+ansistrano_git_branch: "main"
 ansistrano_deploy_to: "/var/www/episciences-front-next"
 ansistrano_keep_releases: 3
 ansistrano_shared_files:
@@ -11,5 +11,6 @@ ansistrano_shared_files:
 ansistrano_shared_paths:
   - external-assets
   - logs
+  - node_modules
 ansistrano_before_symlink_tasks_file: "tasks/build.yml"
 ansistrano_after_symlink_tasks_file: "tasks/restart.yml"

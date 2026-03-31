@@ -18,7 +18,7 @@
 - name: Install Node.js dependencies
   community.general.npm:
     path: "{{ ansistrano_release_path.stdout }}"
-    ci: true
+    ci: false
     production: false
 
 - name: Build Next.js application
