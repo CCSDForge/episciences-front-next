@@ -7,8 +7,6 @@
     path: "{{ ansistrano_release_path.stdout }}"
     ci: true
     production: false
-  environment:
-    NODE_ENV: production
 
 - name: Build Next.js application
   ansible.builtin.command:
