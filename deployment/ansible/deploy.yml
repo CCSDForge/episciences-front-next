@@ -14,9 +14,11 @@
   gather_facts: true
 
   pre_tasks:
-    - name: Prune stale git remote refs in ansistrano repo cache
-      ansible.builtin.command:
-        cmd: git remote prune origin
+    - name: Fix stale git packed-refs in ansistrano repo cache
+      ansible.builtin.shell: |
+        rm -f packed-refs.lock
+        git pack-refs --all
+      args:
         chdir: "{{ ansistrano_deploy_to }}/repo"
       failed_when: false
       changed_when: false
