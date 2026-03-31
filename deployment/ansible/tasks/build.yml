@@ -18,7 +18,7 @@
   delegate_to: localhost
 
 - name: Kill any stale next build process
-  ansible.builtin.shell: pkill -9 -f "next build" 2>/dev/null || true
+  ansible.builtin.shell: pgrep -f "node.*next" | xargs -r kill -9 2>/dev/null; true
   changed_when: false
 
 - name: Remove stale Next.js build directory if present
