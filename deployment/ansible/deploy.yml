@@ -12,6 +12,7 @@
 - name: Deploy Episciences Front-Next
   hosts: all
   gather_facts: true
+  serial: 1
 
   pre_tasks:
     - name: Clear stale git remote refs in ansistrano repo cache
