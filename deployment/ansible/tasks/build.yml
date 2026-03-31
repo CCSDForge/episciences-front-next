@@ -17,10 +17,13 @@
     delay_updates: false
   delegate_to: localhost
 
+- name: Kill any stale next build process
+  ansible.builtin.shell: pkill -9 -f "next build" 2>/dev/null || true
+  changed_when: false
+
 - name: Remove stale Next.js build directory if present
-  ansible.builtin.file:
-    path: "{{ ansistrano_release_path.stdout }}/.next"
-    state: absent
+  ansible.builtin.shell: rm -rf "{{ ansistrano_release_path.stdout | trim }}/.next"
+  changed_when: false
 
 - name: Install Node.js dependencies
   community.general.npm:
