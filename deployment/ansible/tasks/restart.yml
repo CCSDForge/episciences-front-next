@@ -1,12 +1,15 @@
 ---
 # Tasks executed AFTER the symlink switch to current release
 
+- name: Reload systemd daemon
+  ansible.builtin.command:
+    cmd: sudo /bin/systemctl daemon-reload
+  changed_when: true
+
 - name: Restart episciences-next service
-  ansible.builtin.systemd:
-    name: episciences-front-next
-    state: restarted
-    daemon_reload: true
-  become: true
+  ansible.builtin.command:
+    cmd: sudo /bin/systemctl restart episciences-front-next
+  changed_when: true
 
 - name: Wait for service to be healthy
   ansible.builtin.wait_for:
