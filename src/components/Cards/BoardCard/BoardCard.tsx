@@ -115,13 +115,14 @@ function BoardCardPerson({
   );
 }
 
+export type BoardCardState = 'expanded' | 'blurred' | 'default';
+
 interface IBoardCardProps {
   language: AvailableLanguage;
   t: TFunction<'translation', undefined>;
   member: IBoardMember;
-  fullCard: boolean;
-  blurCard: boolean;
-  setFullMemberIndexCallback: () => void;
+  state: BoardCardState;
+  onToggle: () => void;
   rolesLabels?: Record<string, string>;
 }
 
@@ -129,9 +130,8 @@ export default function BoardCard({
   language,
   t,
   member,
-  fullCard,
-  blurCard,
-  setFullMemberIndexCallback,
+  state,
+  onToggle,
   rolesLabels,
 }: IBoardCardProps): React.JSX.Element {
   const getRoleLabel = (role: string) => {
@@ -153,14 +153,14 @@ export default function BoardCard({
 
   const defaultRoleLabel = rolesLabels ? rolesLabels['member'] : defaultBoardRole(t).label;
 
-  if (fullCard) {
+  if (state === 'expanded') {
     return (
       <div
         className="boardCard boardCard-full"
         role="button"
         tabIndex={0}
-        onClick={setFullMemberIndexCallback}
-        onKeyDown={e => handleKeyboardClick(e, setFullMemberIndexCallback)}
+        onClick={onToggle}
+        onKeyDown={e => handleKeyboardClick(e, onToggle)}
       >
         <div className="boardCard-full-initial">
           <div className="boardCard-full-initial-person">
@@ -262,11 +262,11 @@ export default function BoardCard({
 
   return (
     <div
-      className={blurCard ? 'boardCard boardCard-blur' : 'boardCard'}
+      className={state === 'blurred' ? 'boardCard boardCard-blur' : 'boardCard'}
       role="button"
       tabIndex={0}
-      onClick={setFullMemberIndexCallback}
-      onKeyDown={e => handleKeyboardClick(e, setFullMemberIndexCallback)}
+      onClick={onToggle}
+      onKeyDown={e => handleKeyboardClick(e, onToggle)}
     >
       <div className="boardCard-person">
         <BoardCardPerson

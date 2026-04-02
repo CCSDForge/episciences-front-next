@@ -91,9 +91,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByText('Alice Martin')).toBeInTheDocument();
@@ -105,9 +105,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByText('Member')).toBeInTheDocument();
@@ -119,9 +119,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={{ ...baseMember, roles: ['editor'] }}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByText('editor')).toBeInTheDocument();
@@ -133,9 +133,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByTestId('user-icon')).toBeInTheDocument();
@@ -147,9 +147,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={fullMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       const img = screen.getByRole('img');
@@ -163,9 +163,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={true}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          state="blurred"
+          onToggle={vi.fn()}
         />
       );
       expect(container.querySelector('.boardCard-blur')).toBeInTheDocument();
@@ -177,9 +177,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(container.querySelector('.boardCard-blur')).not.toBeInTheDocument();
@@ -191,9 +191,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={fullMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByText('University of Paris')).toBeInTheDocument();
@@ -206,9 +206,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={fullMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       // fullMember has CNRS with a rorId
@@ -221,9 +221,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={fullMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByText('Mathematics')).toBeInTheDocument();
@@ -235,9 +235,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={fullMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByTestId('orcid-icon')).toBeInTheDocument();
@@ -251,9 +251,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={callback}
+          state="default"
+          
+          onToggle={callback}
         />
       );
       await user.click(screen.getByRole('button'));
@@ -268,9 +268,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={callback}
+          state="default"
+          
+          onToggle={callback}
         />
       );
       const card = screen.getByRole('button');
@@ -287,9 +287,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={fullMember}
-          fullCard={true}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="expanded"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByText('Prof. Bob Smith is an expert in...')).toBeInTheDocument();
@@ -301,9 +301,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={fullMember}
-          fullCard={true}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="expanded"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByTestId('twitter-icon')).toBeInTheDocument();
@@ -317,9 +317,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={fullMember}
-          fullCard={true}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="expanded"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.getByText('Website')).toBeInTheDocument();
@@ -331,9 +331,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={true}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="expanded"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(screen.queryByTestId('twitter-icon')).not.toBeInTheDocument();
@@ -345,9 +345,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={true}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="expanded"
+          
+          onToggle={vi.fn()}
         />
       );
       expect(container.querySelector('.boardCard-full')).toBeInTheDocument();
@@ -362,9 +362,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={{ ...baseMember, roles: ['editor'] }}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
           rolesLabels={rolesLabels}
         />
       );
@@ -378,9 +378,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
           rolesLabels={rolesLabels}
         />
       );
@@ -395,9 +395,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       const results = await checkA11y(container);
@@ -410,9 +410,9 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          fullCard={false}
-          blurCard={false}
-          setFullMemberIndexCallback={vi.fn()}
+          state="default"
+          
+          onToggle={vi.fn()}
         />
       );
       const card = screen.getByRole('button');

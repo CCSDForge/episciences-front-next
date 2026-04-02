@@ -173,9 +173,14 @@ export default function BoardsClient({
                       language={currentLang}
                       t={t}
                       member={member}
-                      fullCard={fullMemberIndex === index}
-                      blurCard={fullMemberIndex !== -1 && fullMemberIndex !== index}
-                      setFullMemberIndexCallback={(): void =>
+                      state={
+                        fullMemberIndex === index
+                          ? 'expanded'
+                          : fullMemberIndex !== -1
+                            ? 'blurred'
+                            : 'default'
+                      }
+                      onToggle={(): void =>
                         fullMemberIndex !== index
                           ? setFullMemberIndex(index)
                           : setFullMemberIndex(-1)
