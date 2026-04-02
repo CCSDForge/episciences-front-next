@@ -79,6 +79,49 @@ interface ISearchResultsMobileModalProps {
   onCloseCallback: () => void;
 }
 
+interface IFilterSectionProps {
+  id: string;
+  title: string;
+  baseClass: string;
+  isOpened: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}
+
+function FilterSection({
+  id,
+  title,
+  baseClass,
+  isOpened,
+  onToggle,
+  children,
+}: IFilterSectionProps): React.JSX.Element {
+  return (
+    <div className={baseClass}>
+      <button
+        type="button"
+        className={`${baseClass}-title`}
+        onClick={onToggle}
+        aria-expanded={isOpened}
+        aria-controls={id}
+      >
+        <span className={`${baseClass}-title-text`}>{title}</span>
+        {isOpened ? (
+          <CaretUpGreyIcon size={16} className={`${baseClass}-title-caret`} />
+        ) : (
+          <CaretDownGreyIcon size={16} className={`${baseClass}-title-caret`} />
+        )}
+      </button>
+      <div
+        id={id}
+        className={`${baseClass}-list ${isOpened ? `${baseClass}-list-opened` : ''}`}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function SearchResultsMobileModal({
   language,
   t,
@@ -245,276 +288,167 @@ export default function SearchResultsMobileModal({
           </div>
         )}
         <div className="searchResultsMobileModal-filters">
-          <div className="searchResultsMobileModal-filters-types">
-            <button
-              type="button"
-              className="searchResultsMobileModal-filters-types-title"
-              onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
-              aria-expanded={isOpenedSection(FILTERS_SECTION.TYPE)}
-              aria-controls="filter-section-types"
-            >
-              <span className="searchResultsMobileModal-filters-types-title-text">
-                {t('common.filters.documentTypes')}
-              </span>
-              {isOpenedSection(FILTERS_SECTION.TYPE) ? (
-                <CaretUpGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-types-title-caret"
-                />
-              ) : (
-                <CaretDownGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-types-title-caret"
-                />
-              )}
-            </button>
-            <div
-              id="filter-section-types"
-              className={`searchResultsMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'searchResultsMobileModal-filters-types-list-opened'}`}
-            >
-              {types.map((type, index) => (
-                <div key={index} className="searchResultsMobileModal-filters-types-list-choice">
-                  <div className="searchResultsMobileModal-filters-types-list-choice-row">
-                    <div className="searchResultsMobileModal-filters-types-list-choice-row-checkbox">
-                      <Checkbox
-                        checked={type.isChecked}
-                        onChangeCallback={(): void => onCheckType(type.value)}
-                        ariaLabel={t(type.labelPath)}
-                      />
-                    </div>
-                    <span
-                      className={`searchResultsMobileModal-filters-types-list-choice-row-label ${type.isChecked && 'searchResultsMobileModal-filters-types-list-choice-row-label-checked'}`}
-                      role="button"
-                      tabIndex={0}
-                      onClick={(): void => onCheckType(type.value)}
-                      onKeyDown={e => handleKeyboardClick(e, (): void => onCheckType(type.value))}
-                    >
-                      {t(type.labelPath)}
-                    </span>
+          <FilterSection
+            id="filter-section-types"
+            title={t('common.filters.documentTypes')}
+            baseClass="searchResultsMobileModal-filters-types"
+            isOpened={isOpenedSection(FILTERS_SECTION.TYPE)}
+            onToggle={(): void => toggleSection(FILTERS_SECTION.TYPE)}
+          >
+            {types.map((type, index) => (
+              <div key={index} className="searchResultsMobileModal-filters-types-list-choice">
+                <div className="searchResultsMobileModal-filters-types-list-choice-row">
+                  <div className="searchResultsMobileModal-filters-types-list-choice-row-checkbox">
+                    <Checkbox
+                      checked={type.isChecked}
+                      onChangeCallback={(): void => onCheckType(type.value)}
+                      ariaLabel={t(type.labelPath)}
+                    />
                   </div>
-                  <div className="searchResultsMobileModal-filters-types-list-choice-badge">
-                    {type.count}
-                  </div>
+                  <span
+                    className={`searchResultsMobileModal-filters-types-list-choice-row-label ${type.isChecked && 'searchResultsMobileModal-filters-types-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={(): void => onCheckType(type.value)}
+                    onKeyDown={e => handleKeyboardClick(e, (): void => onCheckType(type.value))}
+                  >
+                    {t(type.labelPath)}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="searchResultsMobileModal-filters-years">
-            <button
-              type="button"
-              className="searchResultsMobileModal-filters-years-title"
-              onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-              aria-expanded={isOpenedSection(FILTERS_SECTION.YEAR)}
-              aria-controls="filter-section-years"
-            >
-              <span className="searchResultsMobileModal-filters-years-title-text">
-                {t('common.filters.years')}
-              </span>
-              {isOpenedSection(FILTERS_SECTION.YEAR) ? (
-                <CaretUpGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-years-title-caret"
-                />
-              ) : (
-                <CaretDownGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-years-title-caret"
-                />
-              )}
-            </button>
-            <div
-              id="filter-section-years"
-              className={`searchResultsMobileModal-filters-years-list ${isOpenedSection(FILTERS_SECTION.YEAR) && 'searchResultsMobileModal-filters-years-list-opened'}`}
-            >
-              {years.map((y, index) => (
-                <div key={index} className="searchResultsMobileModal-filters-years-list-choice">
-                  <div className="searchResultsMobileModal-filters-years-list-choice-row">
-                    <div className="searchResultsMobileModal-filters-years-list-choice-row-checkbox">
-                      <Checkbox
-                        checked={y.isChecked}
-                        onChangeCallback={(): void => onCheckYear(y.year)}
-                        ariaLabel={String(y.year)}
-                      />
-                    </div>
-                    <span
-                      className={`searchResultsMobileModal-filters-years-list-choice-row-label ${y.isChecked && 'searchResultsMobileModal-filters-years-list-choice-row-label-checked'}`}
-                      role="button"
-                      tabIndex={0}
-                      onClick={(): void => onCheckYear(y.year)}
-                      onKeyDown={e => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
-                    >
-                      {y.year}
-                    </span>
-                  </div>
-                  <div className="searchResultsMobileModal-filters-years-list-choice-badge">
-                    {y.count}
-                  </div>
+                <div className="searchResultsMobileModal-filters-types-list-choice-badge">
+                  {type.count}
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="searchResultsMobileModal-filters-volumes">
-            <button
-              type="button"
-              className="searchResultsMobileModal-filters-volumes-title"
-              onClick={(): void => toggleSection(FILTERS_SECTION.VOLUME)}
-              aria-expanded={isOpenedSection(FILTERS_SECTION.VOLUME)}
-              aria-controls="filter-section-volumes"
-            >
-              <span className="searchResultsMobileModal-filters-volumes-title-text">
-                {t('common.filters.volumes')}
-              </span>
-              {isOpenedSection(FILTERS_SECTION.VOLUME) ? (
-                <CaretUpGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-volumes-title-caret"
-                />
-              ) : (
-                <CaretDownGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-volumes-title-caret"
-                />
-              )}
-            </button>
-            <div
-              id="filter-section-volumes"
-              className={`searchResultsMobileModal-filters-volumes-list ${isOpenedSection(FILTERS_SECTION.VOLUME) && 'searchResultsMobileModal-filters-volumes-list-opened'}`}
-            >
-              {volumes.map((volume, index) => (
-                <div key={index} className="searchResultsMobileModal-filters-volumes-list-choice">
-                  <div className="searchResultsMobileModal-filters-volumes-list-choice-row">
-                    <div className="searchResultsMobileModal-filters-volumes-list-choice-row-checkbox">
-                      <Checkbox
-                        checked={volume.isChecked}
-                        onChangeCallback={(): void => onCheckVolume(volume.id)}
-                        ariaLabel={volume.label[language]}
-                      />
-                    </div>
-                    <span
-                      className={`searchResultsMobileModal-filters-volumes-list-choice-row-label ${volume.isChecked && 'searchResultsMobileModal-filters-volumes-list-choice-row-label-checked'}`}
-                      role="button"
-                      tabIndex={0}
-                      onClick={(): void => onCheckVolume(volume.id)}
-                      onKeyDown={e =>
-                        handleKeyboardClick(e, (): void => onCheckVolume(volume.id))
-                      }
-                    >
-                      {volume.label[language]}
-                    </span>
+              </div>
+            ))}
+          </FilterSection>
+          <FilterSection
+            id="filter-section-years"
+            title={t('common.filters.years')}
+            baseClass="searchResultsMobileModal-filters-years"
+            isOpened={isOpenedSection(FILTERS_SECTION.YEAR)}
+            onToggle={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+          >
+            {years.map((y, index) => (
+              <div key={index} className="searchResultsMobileModal-filters-years-list-choice">
+                <div className="searchResultsMobileModal-filters-years-list-choice-row">
+                  <div className="searchResultsMobileModal-filters-years-list-choice-row-checkbox">
+                    <Checkbox
+                      checked={y.isChecked}
+                      onChangeCallback={(): void => onCheckYear(y.year)}
+                      ariaLabel={String(y.year)}
+                    />
                   </div>
+                  <span
+                    className={`searchResultsMobileModal-filters-years-list-choice-row-label ${y.isChecked && 'searchResultsMobileModal-filters-years-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={(): void => onCheckYear(y.year)}
+                    onKeyDown={e => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
+                  >
+                    {y.year}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="searchResultsMobileModal-filters-sections">
-            <button
-              type="button"
-              className="searchResultsMobileModal-filters-sections-title"
-              onClick={(): void => toggleSection(FILTERS_SECTION.SECTION)}
-              aria-expanded={isOpenedSection(FILTERS_SECTION.SECTION)}
-              aria-controls="filter-section-sections"
-            >
-              <span className="searchResultsMobileModal-filters-sections-title-text">
-                {t('common.filters.sections')}
-              </span>
-              {isOpenedSection(FILTERS_SECTION.SECTION) ? (
-                <CaretUpGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-sections-title-caret"
-                />
-              ) : (
-                <CaretDownGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-sections-title-caret"
-                />
-              )}
-            </button>
-            <div
-              id="filter-section-sections"
-              className={`searchResultsMobileModal-filters-sections-list ${isOpenedSection(FILTERS_SECTION.SECTION) && 'searchResultsMobileModal-filters-sections-list-opened'}`}
-            >
-              {sections.map((section, index) => (
-                <div key={index} className="searchResultsMobileModal-filters-sections-list-choice">
-                  <div className="searchResultsMobileModal-filters-sections-list-choice-row">
-                    <div className="searchResultsMobileModal-filters-sections-list-choice-row-checkbox">
-                      <Checkbox
-                        checked={section.isChecked}
-                        onChangeCallback={(): void => onCheckSection(section.id)}
-                        ariaLabel={section.label[language]}
-                      />
-                    </div>
-                    <span
-                      className={`searchResultsMobileModal-filters-sections-list-choice-row-label ${section.isChecked && 'searchResultsMobileModal-filters-sections-list-choice-row-label-checked'}`}
-                      role="button"
-                      tabIndex={0}
-                      onClick={(): void => onCheckSection(section.id)}
-                      onKeyDown={e =>
-                        handleKeyboardClick(e, (): void => onCheckSection(section.id))
-                      }
-                    >
-                      {section.label[language]}
-                    </span>
-                  </div>
+                <div className="searchResultsMobileModal-filters-years-list-choice-badge">
+                  {y.count}
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="searchResultsMobileModal-filters-authors">
-            <button
-              type="button"
-              className="searchResultsMobileModal-filters-authors-title"
-              onClick={(): void => toggleSection(FILTERS_SECTION.AUTHOR)}
-              aria-expanded={isOpenedSection(FILTERS_SECTION.AUTHOR)}
-              aria-controls="filter-section-authors"
-            >
-              <span className="searchResultsMobileModal-filters-authors-title-text">
-                {t('common.filters.authors')}
-              </span>
-              {isOpenedSection(FILTERS_SECTION.AUTHOR) ? (
-                <CaretUpGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-authors-title-caret"
-                />
-              ) : (
-                <CaretDownGreyIcon
-                  size={16}
-                  className="searchResultsMobileModal-filters-authors-title-caret"
-                />
-              )}
-            </button>
-            <div
-              id="filter-section-authors"
-              className={`searchResultsMobileModal-filters-authors-list ${isOpenedSection(FILTERS_SECTION.AUTHOR) && 'searchResultsMobileModal-filters-authors-list-opened'}`}
-            >
-              {authors.map((author, index) => (
-                <div key={index} className="searchResultsMobileModal-filters-authors-list-choice">
-                  <div className="searchResultsMobileModal-filters-authors-list-choice-row">
-                    <div className="searchResultsMobileModal-filters-authors-list-choice-row-checkbox">
-                      <Checkbox
-                        checked={author.isChecked}
-                        onChangeCallback={(): void => onCheckAuthor(author.fullname)}
-                        ariaLabel={author.fullname}
-                      />
-                    </div>
-                    <span
-                      className={`searchResultsMobileModal-filters-authors-list-choice-row-label ${author.isChecked && 'searchResultsMobileModal-filters-authors-list-choice-row-label-checked'}`}
-                      role="button"
-                      tabIndex={0}
-                      onClick={(): void => onCheckAuthor(author.fullname)}
-                      onKeyDown={e =>
-                        handleKeyboardClick(e, (): void => onCheckAuthor(author.fullname))
-                      }
-                    >
-                      {author.fullname}
-                    </span>
+              </div>
+            ))}
+          </FilterSection>
+          <FilterSection
+            id="filter-section-volumes"
+            title={t('common.filters.volumes')}
+            baseClass="searchResultsMobileModal-filters-volumes"
+            isOpened={isOpenedSection(FILTERS_SECTION.VOLUME)}
+            onToggle={(): void => toggleSection(FILTERS_SECTION.VOLUME)}
+          >
+            {volumes.map((volume, index) => (
+              <div key={index} className="searchResultsMobileModal-filters-volumes-list-choice">
+                <div className="searchResultsMobileModal-filters-volumes-list-choice-row">
+                  <div className="searchResultsMobileModal-filters-volumes-list-choice-row-checkbox">
+                    <Checkbox
+                      checked={volume.isChecked}
+                      onChangeCallback={(): void => onCheckVolume(volume.id)}
+                      ariaLabel={volume.label[language]}
+                    />
                   </div>
-                  <div className="searchResultsMobileModal-filters-authors-list-choice-badge">
-                    {author.count}
-                  </div>
+                  <span
+                    className={`searchResultsMobileModal-filters-volumes-list-choice-row-label ${volume.isChecked && 'searchResultsMobileModal-filters-volumes-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={(): void => onCheckVolume(volume.id)}
+                    onKeyDown={e => handleKeyboardClick(e, (): void => onCheckVolume(volume.id))}
+                  >
+                    {volume.label[language]}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            ))}
+          </FilterSection>
+          <FilterSection
+            id="filter-section-sections"
+            title={t('common.filters.sections')}
+            baseClass="searchResultsMobileModal-filters-sections"
+            isOpened={isOpenedSection(FILTERS_SECTION.SECTION)}
+            onToggle={(): void => toggleSection(FILTERS_SECTION.SECTION)}
+          >
+            {sections.map((section, index) => (
+              <div key={index} className="searchResultsMobileModal-filters-sections-list-choice">
+                <div className="searchResultsMobileModal-filters-sections-list-choice-row">
+                  <div className="searchResultsMobileModal-filters-sections-list-choice-row-checkbox">
+                    <Checkbox
+                      checked={section.isChecked}
+                      onChangeCallback={(): void => onCheckSection(section.id)}
+                      ariaLabel={section.label[language]}
+                    />
+                  </div>
+                  <span
+                    className={`searchResultsMobileModal-filters-sections-list-choice-row-label ${section.isChecked && 'searchResultsMobileModal-filters-sections-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={(): void => onCheckSection(section.id)}
+                    onKeyDown={e => handleKeyboardClick(e, (): void => onCheckSection(section.id))}
+                  >
+                    {section.label[language]}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </FilterSection>
+          <FilterSection
+            id="filter-section-authors"
+            title={t('common.filters.authors')}
+            baseClass="searchResultsMobileModal-filters-authors"
+            isOpened={isOpenedSection(FILTERS_SECTION.AUTHOR)}
+            onToggle={(): void => toggleSection(FILTERS_SECTION.AUTHOR)}
+          >
+            {authors.map((author, index) => (
+              <div key={index} className="searchResultsMobileModal-filters-authors-list-choice">
+                <div className="searchResultsMobileModal-filters-authors-list-choice-row">
+                  <div className="searchResultsMobileModal-filters-authors-list-choice-row-checkbox">
+                    <Checkbox
+                      checked={author.isChecked}
+                      onChangeCallback={(): void => onCheckAuthor(author.fullname)}
+                      ariaLabel={author.fullname}
+                    />
+                  </div>
+                  <span
+                    className={`searchResultsMobileModal-filters-authors-list-choice-row-label ${author.isChecked && 'searchResultsMobileModal-filters-authors-list-choice-row-label-checked'}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={(): void => onCheckAuthor(author.fullname)}
+                    onKeyDown={e =>
+                      handleKeyboardClick(e, (): void => onCheckAuthor(author.fullname))
+                    }
+                  >
+                    {author.fullname}
+                  </span>
+                </div>
+                <div className="searchResultsMobileModal-filters-authors-list-choice-badge">
+                  {author.count}
+                </div>
+              </div>
+            ))}
+          </FilterSection>
         </div>
         <div className="searchResultsMobileModal-submit">
           <Button
