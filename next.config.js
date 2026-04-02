@@ -5,11 +5,21 @@ const nextConfig = {
   reactStrictMode: true,
 
   // Required when running behind a reverse proxy (HAProxy → Nginx → Node.js).
-  // Without this, Next.js uses X-Forwarded-Proto: https to build its internal
-  // proxy URL after middleware rewrites, causing EPROTO (https://localhost:3000).
+  //
+  // trustHostHeader: true  → resolve-routes.js builds initUrl from the Host header
+  //                          (e.g. https://epijinfo.episciences.org/) instead of
+  //                          the server's internal address (https://localhost:3000/).
+  //
+  // skipProxyUrlNormalize: true → runMiddleware() uses the same initUrl stored in
+  //                          request metadata instead of re-building it from
+  //                          fetchHostname. Without this the two URLs have different
+  //                          origins, getRelativeURL() cannot relativize the rewrite
+  //                          destination, and Next.js falls back to an external
+  //                          HTTPS proxy to localhost:3000 → EPROTO.
   experimental: {
     trustHostHeader: true,
   },
+  skipProxyUrlNormalize: true,
 
   // Distributed cache handler (Valkey/ioredis)
   // Activated only when VALKEY_ENABLED=true for backward compatibility and local dev without Valkey
