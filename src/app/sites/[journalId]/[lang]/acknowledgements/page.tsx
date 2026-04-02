@@ -37,6 +37,8 @@ export default async function AcknowledgementsPage(props: {
   let pageData = null;
   const { journalId, lang } = params;
 
+  const translationsPromise = getServerTranslations(lang);
+
   try {
     if (journalId) {
       const rawData = await fetchAcknowledgementsPage(journalId);
@@ -54,7 +56,7 @@ export default async function AcknowledgementsPage(props: {
     );
   }
 
-  const translations = await getServerTranslations(lang);
+  const translations = await translationsPromise;
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/acknowledgements', translations),
     current: t('pages.acknowledgements.title', translations),

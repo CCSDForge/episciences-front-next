@@ -53,6 +53,7 @@ export default async function SectionDetailsPage(props: {
   const params = await props.params;
   const language = getLanguageFromParams(params);
   const { journalId } = params;
+  const translationsPromise = getServerTranslations(language);
 
   try {
     // Check for placeholder ID
@@ -102,7 +103,7 @@ export default async function SectionDetailsPage(props: {
       }
     }
 
-    const translations = await getServerTranslations(language);
+    const translations = await translationsPromise;
     const breadcrumbLabels = {
       home: t('pages.home.title', translations),
       content: t('common.content', translations),

@@ -45,6 +45,8 @@ export default async function ProposingSpecialIssuesPage(props: {
     notFound();
   }
 
+  const translationsPromise = getServerTranslations(lang);
+
   try {
     if (journalId) {
       const rawData = await fetchProposingSpecialIssuesPage(journalId);
@@ -62,7 +64,7 @@ export default async function ProposingSpecialIssuesPage(props: {
     );
   }
 
-  const translations = await getServerTranslations(lang);
+  const translations = await translationsPromise;
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/proposing-special-issues', translations),
     current: t('pages.proposingSpecialIssues.title', translations),

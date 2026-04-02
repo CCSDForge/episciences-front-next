@@ -37,6 +37,8 @@ export default async function EthicalCharterPage(props: {
   let pageData = null;
   const { journalId, lang } = params;
 
+  const translationsPromise = getServerTranslations(lang);
+
   try {
     if (journalId) {
       pageData = await fetchEthicalCharterPage(journalId);
@@ -50,7 +52,7 @@ export default async function EthicalCharterPage(props: {
     console.warn(`[Build] Could not reach API for Ethical Charter page of journal "${journalId}".`);
   }
 
-  const translations = await getServerTranslations(lang);
+  const translations = await translationsPromise;
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/ethical-charter', translations),
     current: t('pages.ethicalCharter.title', translations),

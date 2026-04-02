@@ -45,6 +45,8 @@ export default async function ForConferenceOrganisersPage(props: {
     notFound();
   }
 
+  const translationsPromise = getServerTranslations(lang);
+
   try {
     if (journalId) {
       const rawData = await fetchForConferenceOrganisersPage(journalId);
@@ -62,7 +64,7 @@ export default async function ForConferenceOrganisersPage(props: {
     );
   }
 
-  const translations = await getServerTranslations(lang);
+  const translations = await translationsPromise;
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/for-conference-organisers', translations),
     current: t('pages.forConferenceOrganisers.title', translations),

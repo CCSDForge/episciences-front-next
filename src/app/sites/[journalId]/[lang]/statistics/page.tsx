@@ -40,6 +40,7 @@ export default async function StatisticsPage(props: Props) {
   const { journalId, lang } = params;
 
   // Pre-fetch stats and translations server-side to avoid flashing
+  const translationsPromise = getServerTranslations(lang);
   let initialStats: IStatResponse | undefined = undefined;
   try {
     if (journalId) {
@@ -70,7 +71,7 @@ export default async function StatisticsPage(props: Props) {
     console.warn(`[Build] Could not reach API for Statistics of journal "${journalId}".`);
   }
 
-  const translations = await getServerTranslations(lang);
+  const translations = await translationsPromise;
   const breadcrumbLabels = {
     home: t('pages.home.title', translations),
     statistics: t('pages.statistics.title', translations),

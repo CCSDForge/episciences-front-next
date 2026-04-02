@@ -54,8 +54,7 @@ export default async function ArticlesPage(props: {
   // Extract page number from searchParams
   const page = searchParams?.page ? Math.max(1, parseInt(searchParams.page as string, 10)) : 1;
 
-  // Fetch translations server-side
-  const translations = await getServerTranslations(lang);
+  const translationsPromise = getServerTranslations(lang);
 
   try {
     const ARTICLES_PER_PAGE = 20; // Default page size for SSR
@@ -64,14 +63,17 @@ export default async function ArticlesPage(props: {
       throw new Error('Journal code not available');
     }
 
-    // Récupération dynamique des articles
-    const articles = await fetchArticles({
-      rvcode: journalId,
-      page: page,
-      itemsPerPage: ARTICLES_PER_PAGE,
-      onlyAccepted: false,
-      types: [],
-    });
+    // Récupération dynamique des articles (en parallèle avec les traductions)
+    const [translations, articles] = await Promise.all([
+      translationsPromise,
+      fetchArticles({
+        rvcode: journalId,
+        page: page,
+        itemsPerPage: ARTICLES_PER_PAGE,
+        onlyAccepted: false,
+        types: [],
+      }),
+    ]);
 
     // S'assurer que les données sont dans le bon format
     const formattedArticles: ArticlesData = {
@@ -106,7 +108,7 @@ export default async function ArticlesPage(props: {
     );
   } catch (error) {
     console.error('Error fetching articles:', error);
-    // Retourner un état vide en cas d'erreur
+    const translations = await translationsPromise;
     const emptyState: ArticlesData = {
       data: [],
       totalItems: 0,
@@ -114,10 +116,6 @@ export default async function ArticlesPage(props: {
         years: [],
       },
     };
-
-    // Fetch translations again for error case (or use cached ones if available, but here we just re-fetch to be safe or use what we have)
-    // Actually translations variable is available here because it's defined outside try block?
-    // No, I put it before try block.
 
     return (
       <Suspense fallback={<Loader />}>

@@ -41,10 +41,8 @@ export default async function BoardsPage(props: {
       throw new Error('journalId is not defined');
     }
 
-    // Fetch translations server-side
-    const translations = await getServerTranslations(lang);
-
-    const [pages, members] = await Promise.all([
+    const [translations, pages, members] = await Promise.all([
+      getServerTranslations(lang),
       fetchBoardPages(journalId),
       fetchBoardMembers(journalId),
     ]);

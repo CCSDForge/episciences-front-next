@@ -45,6 +45,8 @@ export default async function ForReviewersPage(props: {
     notFound();
   }
 
+  const translationsPromise = getServerTranslations(lang);
+
   try {
     if (journalId) {
       const rawData = await fetchForReviewersPage(journalId);
@@ -60,7 +62,7 @@ export default async function ForReviewersPage(props: {
     console.warn(`[Build] Could not reach API for For Reviewers page of journal "${journalId}".`);
   }
 
-  const translations = await getServerTranslations(lang);
+  const translations = await translationsPromise;
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/for-reviewers', translations),
     current: t('pages.forReviewers.title', translations),

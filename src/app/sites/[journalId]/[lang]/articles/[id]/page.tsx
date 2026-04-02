@@ -108,10 +108,6 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
 
     const language = getLanguageFromParams(params);
 
-    // Fetch translations server-side
-
-    const translations = await getServerTranslations(language);
-
     // Vérifier si nous avons un ID factice
 
     if (id === 'no-articles-found') {
@@ -128,18 +124,21 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       throw new Error('journalId parameter is required');
     }
 
-    // Fetch all data server-side for complete pre-rendering
+    // Fetch all data server-side for complete pre-rendering (translations en parallèle)
 
-    const [article, metadataCSL, metadataBibTeX] = await Promise.all([
-      fetchArticle(id, journalId),
+    const [translations, [article, metadataCSL, metadataBibTeX]] = await Promise.all([
+      getServerTranslations(language),
+      Promise.all([
+        fetchArticle(id, journalId),
 
-      fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.CSL }).catch(
-        () => null
-      ),
+        fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.CSL }).catch(
+          () => null
+        ),
 
-      fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.BIBTEX }).catch(
-        () => null
-      ),
+        fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.BIBTEX }).catch(
+          () => null
+        ),
+      ]),
     ]);
 
     // Fetch related volume if article has volumeId
