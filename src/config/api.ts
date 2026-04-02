@@ -1,9 +1,6 @@
-// Root API endpoint (server-side only or for preconnect)
+// Root API endpoint (server-side only)
 export const API_ROOT_ENDPOINT =
   process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || 'https://api-preprod.episciences.org/api';
-
-// API Domain for preconnect/dns-prefetch
-export const API_DOMAIN = API_ROOT_ENDPOINT.replace(/\/api$/, '');
 
 // Use the API root endpoint directly since it already includes /api
 // Server-side: use direct API URL, Client-side: use dynamic proxy to avoid CORS
