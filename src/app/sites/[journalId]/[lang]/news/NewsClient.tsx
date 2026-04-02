@@ -17,7 +17,8 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { RENDERING_MODE } from '@/utils/card';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
-import NewsCard from '@/components/Cards/NewsCard/NewsCard';
+import NewsListCard from '@/components/Cards/NewsCard/NewsListCard';
+import NewsTileCard from '@/components/Cards/NewsCard/NewsTileCard';
 import NewsSidebar, { INewsYearSelection } from '@/components/Sidebars/NewsSidebar/NewsSidebar';
 import Pagination from '@/components/Pagination/Pagination';
 import { INews, Range, fetchNews } from '@/services/news';
@@ -243,26 +244,35 @@ export default function NewsClient({
             <div
               className={`news-content-results-cards ${mode === RENDERING_MODE.TILE && 'news-content-results-cards-grid'}`}
             >
-              {news?.data?.map((singleNews, index) => (
-                <NewsCard
-                  key={index}
-                  language={language}
-                  t={t}
-                  mode={mode}
-                  fullCard={mode === RENDERING_MODE.TILE && fullNewsIndex === index}
-                  blurCard={
-                    mode === RENDERING_MODE.TILE && fullNewsIndex !== -1 && fullNewsIndex !== index
-                  }
-                  setFullNewsIndexCallback={(): void =>
-                    mode === RENDERING_MODE.TILE
-                      ? fullNewsIndex !== index
+              {news?.data?.map((singleNews, index) =>
+                mode === RENDERING_MODE.TILE ? (
+                  <NewsTileCard
+                    key={index}
+                    language={language}
+                    t={t}
+                    news={singleNews}
+                    state={
+                      fullNewsIndex === index
+                        ? 'expanded'
+                        : fullNewsIndex !== -1
+                          ? 'blurred'
+                          : 'default'
+                    }
+                    onToggle={(): void =>
+                      fullNewsIndex !== index
                         ? setFullNewsIndex(index)
                         : setFullNewsIndex(-1)
-                      : void null
-                  }
-                  news={singleNews}
-                />
-              ))}
+                    }
+                  />
+                ) : (
+                  <NewsListCard
+                    key={index}
+                    language={language}
+                    t={t}
+                    news={singleNews}
+                  />
+                )
+              )}
             </div>
           )}
         </div>
