@@ -37,8 +37,9 @@
 
 - name: Copy static assets into standalone output
   ansible.builtin.shell: |
-    cp -r "{{ ansistrano_release_path.stdout | trim }}/.next/static" \
-          "{{ ansistrano_release_path.stdout | trim }}/.next/standalone/.next/static"
-    cp -r "{{ ansistrano_release_path.stdout | trim }}/public" \
-          "{{ ansistrano_release_path.stdout | trim }}/.next/standalone/public"
+    RELEASE="{{ ansistrano_release_path.stdout | trim }}"
+    mkdir -p "$RELEASE/.next/standalone/.next/static"
+    mkdir -p "$RELEASE/.next/standalone/public"
+    cp -r "$RELEASE/.next/static/." "$RELEASE/.next/standalone/.next/static/"
+    cp -r "$RELEASE/public/." "$RELEASE/.next/standalone/public/"
   changed_when: true
