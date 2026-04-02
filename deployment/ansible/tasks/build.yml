@@ -34,3 +34,11 @@
   environment:
     NODE_ENV: production
   changed_when: true
+
+- name: Copy static assets into standalone output
+  ansible.builtin.shell: |
+    cp -r "{{ ansistrano_release_path.stdout | trim }}/.next/static" \
+          "{{ ansistrano_release_path.stdout | trim }}/.next/standalone/.next/static"
+    cp -r "{{ ansistrano_release_path.stdout | trim }}/public" \
+          "{{ ansistrano_release_path.stdout | trim }}/.next/standalone/public"
+  changed_when: true
