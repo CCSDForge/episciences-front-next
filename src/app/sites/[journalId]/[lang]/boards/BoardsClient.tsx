@@ -67,7 +67,7 @@ export default function BoardsClient({
     [initialPages, initialMembers]
   );
 
-  const [activeGroupIndex, setActiveGroupIndex] = useState(0);
+  const [openGroups, setOpenGroups] = useState<Set<number>>(new Set([0]));
   const [fullMemberIndex, setFullMemberIndex] = useState(-1);
 
   const getPagesLabels = (): string[] => {
@@ -85,7 +85,15 @@ export default function BoardsClient({
   }, [boardsData.pages, boardsData.members, currentLang]);
 
   const handleGroupToggle = (index: number): void => {
-    setActiveGroupIndex(prev => (prev === index ? 0 : index));
+    setOpenGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
   };
 
   const breadcrumbItems = [
@@ -124,7 +132,7 @@ export default function BoardsClient({
         <BoardsSidebar
           t={t}
           groups={getPagesLabels()}
-          activeGroupIndex={activeGroupIndex}
+          openGroups={openGroups}
           onSetActiveGroupCallback={handleGroupToggle}
           tableOfContentsLabel={tableOfContentsLabel}
         />
@@ -135,18 +143,12 @@ export default function BoardsClient({
                 className="boards-content-groups-group-title"
                 role="button"
                 tabIndex={0}
-                aria-expanded={activeGroupIndex === index}
-                onClick={(): void =>
-                  activeGroupIndex === index ? handleGroupToggle(-1) : handleGroupToggle(index)
-                }
-                onKeyDown={e =>
-                  handleKeyboardClick(e, () =>
-                    activeGroupIndex === index ? handleGroupToggle(-1) : handleGroupToggle(index)
-                  )
-                }
+                aria-expanded={openGroups.has(index)}
+                onClick={(): void => handleGroupToggle(index)}
+                onKeyDown={e => handleKeyboardClick(e, () => handleGroupToggle(index))}
               >
                 <h2>{boardPerTitle.title}</h2>
-                {activeGroupIndex === index ? (
+                {openGroups.has(index) ? (
                   <CaretUpBlackIcon
                     size={16}
                     className="boards-content-groups-group-caret"
@@ -161,7 +163,7 @@ export default function BoardsClient({
                 )}
               </div>
               <div
-                className={`boards-content-groups-group-content ${activeGroupIndex === index && 'boards-content-groups-group-content-active'}`}
+                className={`boards-content-groups-group-content ${openGroups.has(index) && 'boards-content-groups-group-content-active'}`}
               >
                 <div className="boards-content-groups-group-content-description">
                   <MarkdownRenderer>{boardPerTitle.description}</MarkdownRenderer>

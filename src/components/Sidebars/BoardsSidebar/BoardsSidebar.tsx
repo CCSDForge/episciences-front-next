@@ -8,7 +8,7 @@ import { handleKeyboardClick } from '@/utils/keyboard';
 interface IBoardsSidebarProps {
   t: TFunction<'translation', undefined>;
   groups: string[];
-  activeGroupIndex: number;
+  openGroups: Set<number>;
   onSetActiveGroupCallback: (index: number) => void;
   tableOfContentsLabel?: string;
 }
@@ -16,7 +16,7 @@ interface IBoardsSidebarProps {
 export default function BoardsSidebar({
   t,
   groups,
-  activeGroupIndex,
+  openGroups,
   onSetActiveGroupCallback,
   tableOfContentsLabel,
 }: IBoardsSidebarProps): React.JSX.Element {
@@ -29,7 +29,7 @@ export default function BoardsSidebar({
         {groups.map((group, index) => (
           <div
             key={index}
-            className={`boardsSidebar-links-row ${index === activeGroupIndex && 'boardsSidebar-links-row-active'}`}
+            className={`boardsSidebar-links-row ${openGroups.has(index) && 'boardsSidebar-links-row-active'}`}
             role="button"
             tabIndex={0}
             onClick={(): void => onSetActiveGroupCallback(index)}
