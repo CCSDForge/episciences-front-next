@@ -76,7 +76,7 @@ export const articleApi = createApi({
         const fullArticles: IArticle[] = await Promise.all(
           articles.data.map(async (article: IArticle) => {
             const rawArticle: RawArticle = await (
-              await fetch(`${API_URL}/papers/${article?.id}`)
+              await fetch(`${API_URL}/papers/${article?.id}?rvcode=${rvcode}`)
             ).json();
             const formattedArticle = formatArticle(rawArticle);
             if (!formattedArticle) {

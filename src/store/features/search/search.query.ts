@@ -80,7 +80,7 @@ export const searchApi = createApi({
         const fullResults: FetchedArticle[] = await Promise.all(
           searchResults.data.map(async (searchResult: FetchedArticle) => {
             const rawArticle: RawArticle = await (
-              await fetch(`${API_URL}/papers/${searchResult?.id}`)
+              await fetch(`${API_URL}/papers/${searchResult?.id}?rvcode=${rvcode}`)
             ).json();
             return formatArticle(rawArticle);
           })
