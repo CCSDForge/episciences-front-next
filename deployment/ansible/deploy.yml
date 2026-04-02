@@ -12,6 +12,18 @@
 - name: Deploy Episciences Front-Next
   hosts: all
   gather_facts: true
+  serial: 1
+
+  pre_tasks:
+    - name: Clear stale git remote refs in ansistrano repo cache
+      ansible.builtin.shell: |
+        find refs/remotes -type f -delete 2>/dev/null || true
+        rm -f packed-refs.lock .git/index.lock
+        git pack-refs --all
+      args:
+        chdir: "{{ ansistrano_deploy_to }}/repo"
+      failed_when: false
+      changed_when: false
 
   roles:
     - ansistrano.deploy

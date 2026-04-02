@@ -1,0 +1,23 @@
+---
+# Upload environment secrets to shared/.env.local BEFORE shared symlinks are created.
+# Source: local_env_secrets_file (group_vars per environment, gitignored)
+# Destination: {{ ansistrano_deploy_to }}/shared/.env.local
+
+- name: Check local secrets file exists
+  ansible.builtin.stat:
+    path: "{{ local_env_secrets_file }}"
+  register: local_env_stat
+  delegate_to: localhost
+
+- name: Fail if local secrets file is missing
+  ansible.builtin.fail:
+    msg: >-
+      Local secrets file not found: {{ local_env_secrets_file }}.
+      Copy the .example file and fill in real values before deploying.
+  when: not local_env_stat.stat.exists
+
+- name: Upload .env.local to shared directory
+  ansible.builtin.copy:
+    src: "{{ local_env_secrets_file }}"
+    dest: "{{ ansistrano_deploy_to }}/shared/.env.local"
+    mode: '0640'

@@ -4,11 +4,11 @@ After=network.target
 
 [Service]
 Type=simple
-User=www-data
+User=epi-preprod-deploy
 Group=www-data
-# Path to the application root on the server
-WorkingDirectory=/var/www/episciences-front-next
-ExecStart=/usr/bin/node server.js
+# ansistrano deploys to current/ symlink
+WorkingDirectory=/var/www/episciences-front-next/current
+ExecStart=/usr/bin/node /var/www/episciences-front-next/current/.next/standalone/server.js
 Restart=always
 Environment=NODE_ENV=production
 Environment=PORT=3000
