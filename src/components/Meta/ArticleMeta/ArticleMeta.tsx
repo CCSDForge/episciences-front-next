@@ -9,6 +9,7 @@ interface IArticleMetaProps {
   currentJournal?: IJournal;
   keywords: string[];
   authors: IArticleAuthor[];
+  coarInboxUrl?: string;
 }
 
 // Helper function to extract abstract as string
@@ -32,6 +33,7 @@ export function generateArticleMetadata({
   currentJournal,
   keywords,
   authors,
+  coarInboxUrl,
 }: IArticleMetaProps): Metadata {
   const metadataTitle = article?.title
     ? `${article.title}${currentJournal?.name ? ` | ${currentJournal.name}` : ''}`
@@ -56,7 +58,7 @@ export function generateArticleMetadata({
     'DC.date': article?.publicationDate || '',
     'DC.relation.ispartof': currentJournal?.name || '',
     'DC.publisher': 'Episciences.org',
-    'http://www.w3.org/ns/ldp#inbox': 'https://inbox.episciences.org/',
+    'http://www.w3.org/ns/ldp#inbox': coarInboxUrl || 'https://inbox.episciences.org/',
     'DC.identifier': [
       article?.id?.toString() || '',
       article?.docLink || '',

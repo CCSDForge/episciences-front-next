@@ -1,3 +1,6 @@
+import { preconnect, prefetchDNS } from 'react-dom';
+import { loadJournalConfig } from '@/utils/env-loader';
+
 interface JournalLayoutProps {
   children: React.ReactNode;
   params: Promise<{ journalId: string }>;
@@ -11,6 +14,16 @@ interface JournalLayoutProps {
 export default async function JournalLayout(props: JournalLayoutProps) {
   const params = await props.params;
   const { children } = props;
+  const { journalId } = params;
+
+  const config = loadJournalConfig(journalId);
+  const apiRootEndpoint = config.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ?? '';
+  const apiDomain = apiRootEndpoint.replace(/\/api$/, '').replace(/\/$/, '');
+
+  if (apiDomain) {
+    preconnect(apiDomain);
+    prefetchDNS(apiDomain);
+  }
 
   return <>{children}</>;
 }

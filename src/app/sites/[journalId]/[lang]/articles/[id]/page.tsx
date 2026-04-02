@@ -14,6 +14,7 @@ import { combineWithLanguageParams } from '@/utils/static-params-helper';
 import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
 import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 import { AvailableLanguage } from '@/utils/i18n';
+import { loadJournalConfig } from '@/utils/env-loader';
 
 interface ArticleDetailsPageProps {
   params: Promise<{
@@ -42,7 +43,14 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
       };
     }
 
-    const article = await fetchArticle(id, journalId);
+    const [article, currentJournal] = await Promise.all([
+      fetchArticle(id, journalId),
+      getJournalByCode(journalId).catch((error: unknown) => {
+        console.error('Error fetching journal for metadata:', error);
+        return undefined;
+      }),
+    ]);
+
     if (!article) {
       return {
         title: 'Article non trouvé',
@@ -51,16 +59,6 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
 
     // Get language from params
     const language = getLanguageFromParams(params) as AvailableLanguage;
-
-    // Fetch journal data for complete metadata
-    let currentJournal = undefined;
-    if (journalId) {
-      try {
-        currentJournal = await getJournalByCode(journalId);
-      } catch (error) {
-        console.error('Error fetching journal for metadata:', error);
-      }
-    }
 
     // Extract keywords - handle both array and object formats
     let keywords: string[] = [];
@@ -77,18 +75,16 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
     // Extract authors
     const authors = article.authors || [];
 
-    // Generate complete metadata using the utility function
+    const journalConfig = loadJournalConfig(journalId);
+    const coarInboxUrl = journalConfig.env.NEXT_PUBLIC_COAR_NOTIFY_INBOX_URL;
 
     return generateArticleMetadata({
       language,
-
       article,
-
       currentJournal,
-
       keywords,
-
       authors,
+      coarInboxUrl,
     });
   } catch (error) {
     console.error(
