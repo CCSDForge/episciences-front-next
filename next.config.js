@@ -4,6 +4,13 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
 
+  // Required when running behind a reverse proxy (HAProxy → Nginx → Node.js).
+  // Without this, Next.js uses X-Forwarded-Proto: https to build its internal
+  // proxy URL after middleware rewrites, causing EPROTO (https://localhost:3000).
+  experimental: {
+    trustHostHeader: true,
+  },
+
   // Distributed cache handler (Valkey/ioredis)
   // Activated only when VALKEY_ENABLED=true for backward compatibility and local dev without Valkey
   ...(process.env.VALKEY_ENABLED === 'true' && {
