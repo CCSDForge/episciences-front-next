@@ -18,7 +18,8 @@ import { RENDERING_MODE } from '@/utils/card';
 import { volumeTypes } from '@/utils/volume';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
-import VolumeCard from '@/components/Cards/VolumeCard/VolumeCard';
+import VolumeTileCard from '@/components/Cards/VolumeCard/VolumeTileCard';
+import VolumeListCard from '@/components/Cards/VolumeCard/VolumeListCard';
 import VolumesSidebar, {
   IVolumeTypeSelection,
   IVolumeYearSelection,
@@ -625,17 +626,25 @@ export default function VolumesClient({
             <div
               className={`volumes-content-results-cards ${mode === RENDERING_MODE.TILE && 'volumes-content-results-cards-tiles'}`}
             >
-              {volumesData?.data.map((volume: IVolume, index: number) => (
-                <VolumeCard
-                  key={index}
-                  language={language}
-                  t={t}
-                  mode={mode}
-                  volume={volume}
-                  currentJournal={currentJournal}
-                  journalCode={journalId}
-                />
-              ))}
+              {volumesData?.data.map((volume: IVolume, index: number) =>
+                mode === RENDERING_MODE.TILE ? (
+                  <VolumeTileCard
+                    key={index}
+                    language={language}
+                    t={t}
+                    volume={volume}
+                    currentJournal={currentJournal}
+                    journalCode={journalId}
+                  />
+                ) : (
+                  <VolumeListCard
+                    key={index}
+                    language={language}
+                    t={t}
+                    volume={volume}
+                  />
+                )
+              )}
             </div>
           )}
         </div>

@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { checkA11y } from '@/test-utils/axe-helper';
-import VolumeCard from '../VolumeCard';
-import { RENDERING_MODE } from '@/utils/card';
+import VolumeTileCard from '../VolumeTileCard';
+import VolumeListCard from '../VolumeListCard';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { IVolume } from '@/types/volume';
 
@@ -69,357 +69,194 @@ const baseVolume: IVolume = {
   downloadLink: '/volumes/42/download',
 };
 
-describe('VolumeCard', () => {
-  describe('LIST mode', () => {
-    it('renders the volume number', () => {
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={baseVolume}
-        />
-      );
-      expect(screen.getAllByText(/Volume 7/).length).toBeGreaterThan(0);
-    });
-
-    it('renders the volume title in the requested language', () => {
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={baseVolume}
-        />
-      );
-      expect(screen.getByText('English Volume Title')).toBeInTheDocument();
-    });
-
-    it('renders the volume title in French', () => {
-      render(
-        <VolumeCard
-          language="fr"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={baseVolume}
-        />
-      );
-      expect(screen.getByText('Titre du volume en français')).toBeInTheDocument();
-    });
-
-    it('renders the article count', () => {
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={baseVolume}
-        />
-      );
-      expect(screen.getByText(/2 articles/)).toBeInTheDocument();
-    });
-
-    it('renders singular article for single article', () => {
-      const singleArticleVolume: IVolume = { ...baseVolume, articles: [{ id: 1 } as any] };
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={singleArticleVolume}
-        />
-      );
-      expect(screen.getByText(/1 article/)).toBeInTheDocument();
-    });
-
-    it('renders the year', () => {
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={baseVolume}
-        />
-      );
-      expect(screen.getByText('2024')).toBeInTheDocument();
-    });
-
-    it('renders download link when available', () => {
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={baseVolume}
-        />
-      );
-      expect(screen.getByText('PDF')).toBeInTheDocument();
-    });
-
-    it('does not render download link when not available', () => {
-      const noDownload: IVolume = { ...baseVolume, downloadLink: '' };
-      render(
-        <VolumeCard language="en" t={mockT as any} mode={RENDERING_MODE.LIST} volume={noDownload} />
-      );
-      expect(screen.queryByText('PDF')).not.toBeInTheDocument();
-    });
-
-    it('shows "Special Issue" label for special issue type', () => {
-      const specialIssue: IVolume = { ...baseVolume, types: [VOLUME_TYPE.SPECIAL_ISSUE] };
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={specialIssue}
-        />
-      );
-      expect(screen.getAllByText(/Special Issue/).length).toBeGreaterThan(0);
-    });
-
-    it('shows "Proceedings" label for proceedings type', () => {
-      const proceedings: IVolume = { ...baseVolume, types: [VOLUME_TYPE.PROCEEDINGS] };
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={proceedings}
-        />
-      );
-      expect(screen.getAllByText(/Proceedings/).length).toBeGreaterThan(0);
-    });
-
-    it('toggles description open/closed on click', async () => {
-      const user = userEvent.setup();
-      const volumeWithDesc: IVolume = {
-        ...baseVolume,
-        description: { en: 'A detailed description', fr: 'Une description détaillée' },
-      };
-      const { container } = render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={volumeWithDesc}
-        />
-      );
-
-      // Initially closed
-      expect(
-        container.querySelector('.volumeCard-content-description-title-closed')
-      ).toBeInTheDocument();
-
-      // Click to open
-      await user.click(screen.getByRole('button', { name: /About/ }));
-      expect(
-        container.querySelector('.volumeCard-content-description-title-closed')
-      ).not.toBeInTheDocument();
-
-      // Click to close again
-      await user.click(screen.getByRole('button', { name: /About/ }));
-      expect(
-        container.querySelector('.volumeCard-content-description-title-closed')
-      ).toBeInTheDocument();
-    });
-
-    it('description toggle has aria-expanded="false" when collapsed', () => {
-      const volumeWithDesc: IVolume = {
-        ...baseVolume,
-        description: { en: 'Description text', fr: 'Description' },
-      };
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={volumeWithDesc}
-        />
-      );
-      expect(screen.getByRole('button', { name: /About/ })).toHaveAttribute(
-        'aria-expanded',
-        'false'
-      );
-    });
-
-    it('description toggle has aria-expanded="true" after opening', async () => {
-      const user = userEvent.setup();
-      const volumeWithDesc: IVolume = {
-        ...baseVolume,
-        description: { en: 'Description text', fr: 'Description' },
-      };
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={volumeWithDesc}
-        />
-      );
-      await user.click(screen.getByRole('button', { name: /About/ }));
-      expect(screen.getByRole('button', { name: /About/ })).toHaveAttribute(
-        'aria-expanded',
-        'true'
-      );
-    });
-
-    it('description toggle is keyboard accessible', async () => {
-      const user = userEvent.setup();
-      const volumeWithDesc: IVolume = {
-        ...baseVolume,
-        description: { en: 'Description text', fr: 'Description' },
-      };
-      const { container } = render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={volumeWithDesc}
-        />
-      );
-
-      const toggle = screen.getByRole('button', { name: /About/ });
-      toggle.focus();
-      await user.keyboard('{Enter}');
-
-      expect(
-        container.querySelector('.volumeCard-content-description-title-closed')
-      ).not.toBeInTheDocument();
-    });
-
-    it('renders committee members when present', () => {
-      const volumeWithCommittee: IVolume = {
-        ...baseVolume,
-        committee: [
-          { uuid: '1', screenName: 'Alice Martin' },
-          { uuid: '2', screenName: 'Bob Smith' },
-        ],
-      };
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={volumeWithCommittee}
-        />
-      );
-      expect(screen.getByText('Alice Martin, Bob Smith')).toBeInTheDocument();
-    });
+describe('VolumeListCard', () => {
+  it('renders the volume number', () => {
+    render(<VolumeListCard language="en" t={mockT as any} volume={baseVolume} />);
+    expect(screen.getAllByText(/Volume 7/).length).toBeGreaterThan(0);
   });
 
-  describe('TILE mode', () => {
-    it('renders the volume number in tile mode', () => {
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.TILE}
-          volume={baseVolume}
-        />
-      );
-      expect(screen.getByText(/Volume 7/)).toBeInTheDocument();
-    });
-
-    it('renders tile cover image when tileImageURL is provided', () => {
-      const volumeWithImage: IVolume = {
-        ...baseVolume,
-        tileImageURL: 'https://example.com/cover.jpg',
-      };
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.TILE}
-          volume={volumeWithImage}
-        />
-      );
-      const img = screen.getByRole('img');
-      expect(img).toHaveAttribute('src', 'https://example.com/cover.jpg');
-    });
-
-    it('renders fallback template when no tileImageURL', () => {
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.TILE}
-          volume={baseVolume}
-          journalCode="jpe"
-        />
-      );
-      // Fallback template shows journal code in uppercase
-      expect(screen.getByText('JPE')).toBeInTheDocument();
-    });
-
-    it('uses journalCode prop for display', () => {
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.TILE}
-          volume={baseVolume}
-          journalCode="test"
-        />
-      );
-      expect(screen.getByText('TEST')).toBeInTheDocument();
-    });
-
-    it('renders year in tile mode', () => {
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.TILE}
-          volume={baseVolume}
-        />
-      );
-      // Year appears in both the cover template and the tile text area
-      expect(screen.getAllByText('2024').length).toBeGreaterThan(0);
-    });
+  it('renders the volume title in the requested language', () => {
+    render(<VolumeListCard language="en" t={mockT as any} volume={baseVolume} />);
+    expect(screen.getByText('English Volume Title')).toBeInTheDocument();
   });
 
-  describe('accessibility', () => {
-    it('should have no violations in list mode', async () => {
-      const { container } = render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={baseVolume}
-        />
-      );
-      const results = await checkA11y(container);
-      expect(results).toHaveNoViolations();
-    });
+  it('renders the volume title in French', () => {
+    render(<VolumeListCard language="fr" t={mockT as any} volume={baseVolume} />);
+    expect(screen.getByText('Titre du volume en français')).toBeInTheDocument();
+  });
 
-    it('should have no violations in tile mode', async () => {
-      const { container } = render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.TILE}
-          volume={baseVolume}
-        />
-      );
-      const results = await checkA11y(container);
-      expect(results).toHaveNoViolations();
-    });
+  it('renders the article count', () => {
+    render(<VolumeListCard language="en" t={mockT as any} volume={baseVolume} />);
+    expect(screen.getByText(/2 articles/)).toBeInTheDocument();
+  });
 
-    it('description toggle has role="button" and tabIndex=0', () => {
-      const volumeWithDesc: IVolume = {
-        ...baseVolume,
-        description: { en: 'Desc', fr: 'Desc' },
-      };
-      render(
-        <VolumeCard
-          language="en"
-          t={mockT as any}
-          mode={RENDERING_MODE.LIST}
-          volume={volumeWithDesc}
-        />
-      );
-      const toggle = screen.getByRole('button', { name: /About/ });
-      expect(toggle).toHaveAttribute('tabIndex', '0');
-    });
+  it('renders singular article for single article', () => {
+    const singleArticleVolume: IVolume = { ...baseVolume, articles: [{ id: 1 } as any] };
+    render(<VolumeListCard language="en" t={mockT as any} volume={singleArticleVolume} />);
+    expect(screen.getByText(/1 article/)).toBeInTheDocument();
+  });
+
+  it('renders the year', () => {
+    render(<VolumeListCard language="en" t={mockT as any} volume={baseVolume} />);
+    expect(screen.getByText('2024')).toBeInTheDocument();
+  });
+
+  it('renders download link when available', () => {
+    render(<VolumeListCard language="en" t={mockT as any} volume={baseVolume} />);
+    expect(screen.getByText('PDF')).toBeInTheDocument();
+  });
+
+  it('does not render download link when not available', () => {
+    const noDownload: IVolume = { ...baseVolume, downloadLink: '' };
+    render(<VolumeListCard language="en" t={mockT as any} volume={noDownload} />);
+    expect(screen.queryByText('PDF')).not.toBeInTheDocument();
+  });
+
+  it('shows "Special Issue" label for special issue type', () => {
+    const specialIssue: IVolume = { ...baseVolume, types: [VOLUME_TYPE.SPECIAL_ISSUE] };
+    render(<VolumeListCard language="en" t={mockT as any} volume={specialIssue} />);
+    expect(screen.getAllByText(/Special Issue/).length).toBeGreaterThan(0);
+  });
+
+  it('shows "Proceedings" label for proceedings type', () => {
+    const proceedings: IVolume = { ...baseVolume, types: [VOLUME_TYPE.PROCEEDINGS] };
+    render(<VolumeListCard language="en" t={mockT as any} volume={proceedings} />);
+    expect(screen.getAllByText(/Proceedings/).length).toBeGreaterThan(0);
+  });
+
+  it('toggles description open/closed on click', async () => {
+    const user = userEvent.setup();
+    const volumeWithDesc: IVolume = {
+      ...baseVolume,
+      description: { en: 'A detailed description', fr: 'Une description détaillée' },
+    };
+    const { container } = render(
+      <VolumeListCard language="en" t={mockT as any} volume={volumeWithDesc} />
+    );
+
+    expect(
+      container.querySelector('.volumeCard-content-description-title-closed')
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /About/ }));
+    expect(
+      container.querySelector('.volumeCard-content-description-title-closed')
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /About/ }));
+    expect(
+      container.querySelector('.volumeCard-content-description-title-closed')
+    ).toBeInTheDocument();
+  });
+
+  it('description toggle has aria-expanded="false" when collapsed', () => {
+    const volumeWithDesc: IVolume = {
+      ...baseVolume,
+      description: { en: 'Description text', fr: 'Description' },
+    };
+    render(<VolumeListCard language="en" t={mockT as any} volume={volumeWithDesc} />);
+    expect(screen.getByRole('button', { name: /About/ })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('description toggle has aria-expanded="true" after opening', async () => {
+    const user = userEvent.setup();
+    const volumeWithDesc: IVolume = {
+      ...baseVolume,
+      description: { en: 'Description text', fr: 'Description' },
+    };
+    render(<VolumeListCard language="en" t={mockT as any} volume={volumeWithDesc} />);
+    await user.click(screen.getByRole('button', { name: /About/ }));
+    expect(screen.getByRole('button', { name: /About/ })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('description toggle is keyboard accessible', async () => {
+    const user = userEvent.setup();
+    const volumeWithDesc: IVolume = {
+      ...baseVolume,
+      description: { en: 'Description text', fr: 'Description' },
+    };
+    const { container } = render(
+      <VolumeListCard language="en" t={mockT as any} volume={volumeWithDesc} />
+    );
+    const toggle = screen.getByRole('button', { name: /About/ });
+    toggle.focus();
+    await user.keyboard('{Enter}');
+    expect(
+      container.querySelector('.volumeCard-content-description-title-closed')
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders committee members when present', () => {
+    const volumeWithCommittee: IVolume = {
+      ...baseVolume,
+      committee: [
+        { uuid: '1', screenName: 'Alice Martin' },
+        { uuid: '2', screenName: 'Bob Smith' },
+      ],
+    };
+    render(<VolumeListCard language="en" t={mockT as any} volume={volumeWithCommittee} />);
+    expect(screen.getByText('Alice Martin, Bob Smith')).toBeInTheDocument();
+  });
+
+  it('should have no a11y violations', async () => {
+    const { container } = render(
+      <VolumeListCard language="en" t={mockT as any} volume={baseVolume} />
+    );
+    const results = await checkA11y(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('description toggle has role="button" and tabIndex=0', () => {
+    const volumeWithDesc: IVolume = {
+      ...baseVolume,
+      description: { en: 'Desc', fr: 'Desc' },
+    };
+    render(<VolumeListCard language="en" t={mockT as any} volume={volumeWithDesc} />);
+    const toggle = screen.getByRole('button', { name: /About/ });
+    expect(toggle).toHaveAttribute('tabIndex', '0');
+  });
+});
+
+describe('VolumeTileCard', () => {
+  it('renders the volume number in tile mode', () => {
+    render(<VolumeTileCard language="en" t={mockT as any} volume={baseVolume} />);
+    expect(screen.getByText(/Volume 7/)).toBeInTheDocument();
+  });
+
+  it('renders tile cover image when tileImageURL is provided', () => {
+    const volumeWithImage: IVolume = {
+      ...baseVolume,
+      tileImageURL: 'https://example.com/cover.jpg',
+    };
+    render(<VolumeTileCard language="en" t={mockT as any} volume={volumeWithImage} />);
+    const img = screen.getByRole('img');
+    expect(img).toHaveAttribute('src', 'https://example.com/cover.jpg');
+  });
+
+  it('renders fallback template when no tileImageURL', () => {
+    render(
+      <VolumeTileCard language="en" t={mockT as any} volume={baseVolume} journalCode="jpe" />
+    );
+    expect(screen.getByText('JPE')).toBeInTheDocument();
+  });
+
+  it('uses journalCode prop for display', () => {
+    render(
+      <VolumeTileCard language="en" t={mockT as any} volume={baseVolume} journalCode="test" />
+    );
+    expect(screen.getByText('TEST')).toBeInTheDocument();
+  });
+
+  it('renders year in tile mode', () => {
+    render(<VolumeTileCard language="en" t={mockT as any} volume={baseVolume} />);
+    expect(screen.getAllByText('2024').length).toBeGreaterThan(0);
+  });
+
+  it('should have no a11y violations', async () => {
+    const { container } = render(
+      <VolumeTileCard language="en" t={mockT as any} volume={baseVolume} />
+    );
+    const results = await checkA11y(container);
+    expect(results).toHaveNoViolations();
   });
 });

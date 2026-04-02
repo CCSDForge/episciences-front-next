@@ -1,50 +1,28 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
-import {
-  FileGreyIcon,
-  DownloadBlackIcon,
-  CaretUpBlackIcon,
-  CaretDownBlackIcon,
-} from '@/components/icons';
-import { VOLUME_COVER_BLUR } from '@/utils/image-placeholders';
+import { FileGreyIcon, DownloadBlackIcon, CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import './VolumeCard.scss';
 
 import { PATHS } from '@/config/paths';
-import { IJournal } from '@/types/journal';
 import { IVolume } from '@/types/volume';
-import { RENDERING_MODE } from '@/utils/card';
 import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
-interface IVolumeCardProps {
+interface IVolumeListCardProps {
   language: AvailableLanguage;
   t: TFunction<'translation', undefined>;
-  mode: RENDERING_MODE;
   volume: IVolume;
-  currentJournal?: IJournal;
-  journalCode?: string;
 }
 
-function VolumeCard({
-  language,
-  t,
-  mode,
-  volume,
-  currentJournal,
-  journalCode,
-}: IVolumeCardProps): React.JSX.Element {
+function VolumeListCard({ language, t, volume }: IVolumeListCardProps): React.JSX.Element {
   const [openedDescription, setOpenedDescription] = useState(false);
 
-  // Construire le chemin vers la page de détail du volume
   const volumeDetailPath = `/${PATHS.volumes}/${volume.id}`.replace(/\/\/+/g, '/');
-
-  const displayJournalCode = (journalCode || currentJournal?.code || '').toUpperCase();
 
   const toggleDescription = (): void => setOpenedDescription(prev => !prev);
 
@@ -60,17 +38,6 @@ function VolumeCard({
     return `${t('common.volumeCard.volume')} ${volume.num}`;
   };
 
-  const renderVolumeTileNum = (): React.JSX.Element => (
-    <Link
-      href={volumeDetailPath}
-      prefetch={false}
-      lang={language}
-      className="volumeCard-tile-text-volume"
-    >
-      {formatVolumeNum()}
-    </Link>
-  );
-
   const renderVolumeListNum = (isMobile: boolean): React.JSX.Element => (
     <Link
       href={volumeDetailPath}
@@ -81,83 +48,6 @@ function VolumeCard({
       {formatVolumeNum()}
     </Link>
   );
-
-  if (mode === RENDERING_MODE.TILE) {
-    return (
-      <div className="volumeCard volumeCard-tile">
-        {volume.tileImageURL ? (
-          <Link href={volumeDetailPath} prefetch={false} lang={language}>
-            <Image
-              className="volumeCard-tile-img"
-              src={volume.tileImageURL}
-              alt={`${t('common.volumeCard.volume')} ${volume.num} cover`}
-              width={300}
-              height={400}
-              placeholder="blur"
-              blurDataURL={VOLUME_COVER_BLUR}
-              sizes="(max-width: 768px) 100vw, 300px"
-            />
-          </Link>
-        ) : (
-          <Link
-            href={volumeDetailPath}
-            prefetch={false}
-            lang={language}
-            className="volumeCard-tile-template"
-          >
-            <div className="volumeCard-tile-template-jpe">{displayJournalCode}</div>
-            <div className="volumeCard-tile-template-volume">{t('common.volumeCard.volume')}</div>
-            {volume.types && volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE) && (
-              <div className="volumeCard-tile-template-issue">
-                {t('common.volumeCard.specialIssue')}
-              </div>
-            )}
-            <div className="volumeCard-tile-template-number">{volume.num}</div>
-            <div className="volumeCard-tile-template-year">{volume.year}</div>
-          </Link>
-        )}
-        <div className="volumeCard-tile-text">
-          {renderVolumeTileNum()}
-          <Link
-            href={volumeDetailPath}
-            prefetch={false}
-            lang={language}
-            className="volumeCard-tile-text-title"
-          >
-            {volume.title ? volume.title[language] : ''}
-          </Link>
-          <div className="volumeCard-tile-text-year">{volume.year}</div>
-          <div className="volumeCard-tile-text-count">
-            <FileGreyIcon
-              size={16}
-              className="volumeCard-tile-text-count-icon"
-              ariaLabel="Articles"
-            />
-            <div className="volumeCard-tile-text-count-text">
-              {volume.articles.length > 1
-                ? `${volume.articles.length} ${t('common.articles')}`
-                : `${volume.articles.length} ${t('common.article')}`}
-            </div>
-          </div>
-          {volume.downloadLink && (
-            <Link
-              href={volume.downloadLink}
-              target="_blank"
-              lang={language}
-              className="volumeCard-tile-text-download"
-            >
-              <DownloadBlackIcon
-                size={16}
-                className="volumeCard-tile-text-download-icon"
-                ariaLabel="Download PDF"
-              />
-              <div className="volumeCard-tile-text-download-text">{t('common.pdf')}</div>
-            </Link>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="volumeCard">
@@ -240,4 +130,4 @@ function VolumeCard({
   );
 }
 
-export default React.memo(VolumeCard);
+export default React.memo(VolumeListCard);
