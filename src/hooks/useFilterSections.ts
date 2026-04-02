@@ -18,8 +18,8 @@ export function useFilterSections<K extends string>(initialSections: FilterSecti
     setSections(prev => prev.map(s => (s.key === key ? { ...s, isOpened: !s.isOpened } : s)));
   };
 
-  const isOpened = (key: K): boolean | undefined =>
-    sections.find(s => s.key === key)?.isOpened;
+  const isOpened = (key: K): boolean =>
+    sections.find(s => s.key === key)?.isOpened ?? false;
 
   return { toggle, isOpened };
 }
