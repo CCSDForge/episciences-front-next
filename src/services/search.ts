@@ -112,7 +112,8 @@ export async function fetchSearchResults({
       const articleId = searchResult.docid;
       try {
         const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
-        const response = await fetch(`${apiRoot}${API_PATHS.papers}${articleId}`, {
+        const rvcodeParam = typeof window !== 'undefined' && rvcode ? `?rvcode=${rvcode}` : '';
+        const response = await fetch(`${apiRoot}${API_PATHS.papers}${articleId}${rvcodeParam}`, {
           next: {
             tags: ['article', `article-${articleId}`],
           },
