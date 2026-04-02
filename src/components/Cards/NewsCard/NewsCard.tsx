@@ -43,7 +43,7 @@ function NewsCard({
 
   const toggleFullContent = (e: MouseEvent): void => {
     e.stopPropagation();
-    setShowFullContent(!showFullContent);
+    setShowFullContent(prev => !prev);
   };
 
   const renderContent = (): React.JSX.Element | null => {

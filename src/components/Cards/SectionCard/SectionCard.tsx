@@ -25,7 +25,7 @@ function SectionCard({
   section,
 }: ISectionCardProps): React.JSX.Element {
   const [openedDescription, setOpenedDescription] = useState(false);
-  const toggleDescription = (): void => setOpenedDescription(!openedDescription);
+  const toggleDescription = (): void => setOpenedDescription(prev => !prev);
 
   const titleText = section.title ? getLocalizedContent(section.title, language).value || '' : '';
   const descriptionResult = section.description

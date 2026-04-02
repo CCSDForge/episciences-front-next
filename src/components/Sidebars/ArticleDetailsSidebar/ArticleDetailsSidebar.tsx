@@ -115,9 +115,9 @@ export default function ArticleDetailsSidebar({
   }, [citationsDropdownRef, metadatasDropdownRef, sharingDropdownRef]);
 
   const togglePublicationDetails = (): void =>
-    setOpenedPublicationDetails(!openedPublicationDetails);
+    setOpenedPublicationDetails(prev => !prev);
 
-  const toggleFunding = (): void => setOpenedFunding(!openedFunding);
+  const toggleFunding = (): void => setOpenedFunding(prev => !prev);
 
   /**
    * Get multilingual title with language fallback
@@ -322,10 +322,10 @@ export default function ArticleDetailsSidebar({
             className="articleDetailsSidebar-links-link articleDetailsSidebar-links-link-modal"
             onMouseEnter={(): void => setShowCitationsDropdown(true)}
             onMouseLeave={(): void => setShowCitationsDropdown(false)}
-            onTouchStart={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
-            onClick={(): void => setShowCitationsDropdown(!showCitationsDropdown)}
+            onTouchStart={(): void => setShowCitationsDropdown(prev => !prev)}
+            onClick={(): void => setShowCitationsDropdown(prev => !prev)}
             onKeyDown={e =>
-              handleKeyboardClick(e, () => setShowCitationsDropdown(!showCitationsDropdown))
+              handleKeyboardClick(e, () => setShowCitationsDropdown(prev => !prev))
             }
             role="button"
             tabIndex={0}
@@ -366,10 +366,10 @@ export default function ArticleDetailsSidebar({
             className="articleDetailsSidebar-links-link articleDetailsSidebar-links-link-modal"
             onMouseEnter={(): void => setShowMetadatasDropdown(true)}
             onMouseLeave={(): void => setShowMetadatasDropdown(false)}
-            onTouchStart={(): void => setShowMetadatasDropdown(!showMetadatasDropdown)}
-            onClick={(): void => setShowMetadatasDropdown(!showMetadatasDropdown)}
+            onTouchStart={(): void => setShowMetadatasDropdown(prev => !prev)}
+            onClick={(): void => setShowMetadatasDropdown(prev => !prev)}
             onKeyDown={e =>
-              handleKeyboardClick(e, () => setShowMetadatasDropdown(!showMetadatasDropdown))
+              handleKeyboardClick(e, () => setShowMetadatasDropdown(prev => !prev))
             }
             role="button"
             tabIndex={0}
@@ -417,10 +417,10 @@ export default function ArticleDetailsSidebar({
           className="articleDetailsSidebar-links-link articleDetailsSidebar-links-link-modal"
           onMouseEnter={(): void => setShowSharingDropdown(true)}
           onMouseLeave={(): void => setShowSharingDropdown(false)}
-          onTouchStart={(): void => setShowSharingDropdown(!showSharingDropdown)}
-          onClick={(): void => setShowSharingDropdown(!showSharingDropdown)}
+          onTouchStart={(): void => setShowSharingDropdown(prev => !prev)}
+          onClick={(): void => setShowSharingDropdown(prev => !prev)}
           onKeyDown={e =>
-            handleKeyboardClick(e, () => setShowSharingDropdown(!showSharingDropdown))
+            handleKeyboardClick(e, () => setShowSharingDropdown(prev => !prev))
           }
           role="button"
           tabIndex={0}

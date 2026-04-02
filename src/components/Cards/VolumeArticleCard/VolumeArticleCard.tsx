@@ -29,7 +29,7 @@ function VolumeArticleCard({
 
   const articlePath = `/${PATHS.articles}/${article.id}`.replace(/\/\/+/g, '/');
 
-  const toggleAbstract = (): void => setOpenedAbstract(!openedAbstract);
+  const toggleAbstract = (): void => setOpenedAbstract(prev => !prev);
 
   return (
     <div className="volumeArticleCard">

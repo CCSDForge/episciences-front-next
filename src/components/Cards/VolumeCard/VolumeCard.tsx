@@ -46,7 +46,7 @@ function VolumeCard({
 
   const displayJournalCode = (journalCode || currentJournal?.code || '').toUpperCase();
 
-  const toggleDescription = (): void => setOpenedDescription(!openedDescription);
+  const toggleDescription = (): void => setOpenedDescription(prev => !prev);
 
   const formatVolumeNum = (): string => {
     if (volume.types && volume.types.length) {

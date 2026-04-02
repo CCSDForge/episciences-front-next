@@ -27,7 +27,7 @@ export default function SectionArticleCard({
 }: ISectionArticleCardProps): React.JSX.Element {
   const [openedAbstract, setOpenedAbstract] = useState(false);
 
-  const toggleAbstract = (): void => setOpenedAbstract(!openedAbstract);
+  const toggleAbstract = (): void => setOpenedAbstract(prev => !prev);
 
   return (
     <div className="sectionArticleCard">

@@ -185,7 +185,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   const handleBurgerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      setShowMobileMenu(!showMobileMenu);
+      setShowMobileMenu(prev => !prev);
     } else if (event.key === 'Escape') {
       event.preventDefault();
       setShowMobileMenu(false);
