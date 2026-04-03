@@ -10,6 +10,7 @@ import { PaginatedResponseWithCount, Range } from '@/utils/pagination';
 import { API_URL } from '@/config/api';
 import { getJournalCode } from './journal';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 export const formatVolume = (
   rvcode: string,
@@ -115,7 +116,7 @@ export async function fetchVolumes({
       headers: {
         Accept: 'application/json',
       },
-      next: { tags: ['volumes', `volumes-${rvcode}`] },
+      next: { revalidate: CACHE_TTL.volumes, tags: ['volumes', `volumes-${rvcode}`] },
     });
 
     if (!response.ok) {
@@ -198,7 +199,7 @@ export async function fetchVolume(
       headers: {
         Accept: 'application/json',
       },
-      next: { tags: ['volumes', `volume-${vid}`, `volumes-${rvcode}`] },
+      next: { revalidate: CACHE_TTL.volumes, tags: ['volumes', `volume-${vid}`, `volumes-${rvcode}`] },
     });
 
     if (!response.ok) {

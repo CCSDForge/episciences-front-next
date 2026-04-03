@@ -10,6 +10,7 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { fetchWithRetry } from '@/utils/fetch-with-retry';
 import { transformBoardMembers, RawBoardMember } from '@/utils/board-transforms';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 // Interface PageContent pour les pages about et indexation
 interface PageContent {
@@ -75,22 +76,22 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
     // Créer les promesses pour tous les appels API en parallèle
     const aboutPagePromise = fetch(
       `${apiBaseUrl}${API_PATHS.pages}?page_code=about&rvcode=${rvcode}`,
-      { next: { tags: ['pages', `page-about-${rvcode}`] } }
+      { next: { revalidate: CACHE_TTL.pages, tags: ['pages', `page-about-${rvcode}`, 'about', `about-${rvcode}`] } }
     ).then(res => (res.ok ? res.json() : null));
 
     const articlesPromise = fetch(
       `${apiBaseUrl}${API_PATHS.papers}?page=1&itemsPerPage=20&rvcode=${rvcode}`,
-      { next: { tags: ['articles', `articles-${rvcode}`] } }
+      { next: { revalidate: CACHE_TTL.articles, tags: ['articles', `articles-${rvcode}`] } }
     ).then(res => (res.ok ? res.json() : { 'hydra:member': [], 'hydra:totalItems': 0 }));
 
     const newsPromise = fetch(
       `${apiBaseUrl}${API_PATHS.news}?page=1&itemsPerPage=3&rvcode=${rvcode}`,
-      { next: { tags: ['news', `news-${rvcode}`] } }
+      { next: { revalidate: CACHE_TTL.news, tags: ['news', `news-${rvcode}`] } }
     ).then(res => (res.ok ? res.json() : { 'hydra:member': [], 'hydra:totalItems': 0 }));
 
     // Correction du chemin pour récupérer les membres correctement
     const membersPromise = fetch(`${apiBaseUrl}${API_PATHS.members}${rvcode}`, {
-      next: { tags: ['members', `members-${rvcode}`] },
+      next: { revalidate: CACHE_TTL.members, tags: ['members', `members-${rvcode}`, 'boards', `boards-${rvcode}`] },
     }).then(res => {
       // console.log(`Fetching board members from home with URL: ${apiBaseUrl}${API_PATHS.members}${rvcode}, status: ${res.status}`);
       // Le endpoint des membres peut retourner directement un tableau au lieu d'une collection Hydra
@@ -107,27 +108,27 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
 
     const statsPromise = fetch(
       `${apiBaseUrl}${API_PATHS.statistics}?page=1&itemsPerPage=3&rvcode=${rvcode}`,
-      { next: { tags: ['stats', `stats-${rvcode}`] } }
+      { next: { revalidate: CACHE_TTL.statistics, tags: ['stats', `stats-${rvcode}`] } }
     ).then(res => (res.ok ? res.json() : { 'hydra:member': [], 'hydra:totalItems': 0 }));
 
     const indexationPromise = fetch(
       `${apiBaseUrl}${API_PATHS.pages}?page_code=journal-indexing&rvcode=${rvcode}`,
-      { next: { tags: ['pages', `page-journal-indexing-${rvcode}`] } }
+      { next: { revalidate: CACHE_TTL.pages, tags: ['pages', `page-journal-indexing-${rvcode}`, 'indexing', `indexing-${rvcode}`] } }
     ).then(res => (res.ok ? res.json() : null));
 
     const volumesPromise = fetch(
       `${apiBaseUrl}${API_PATHS.volumes}?page=1&itemsPerPage=2&rvcode=${rvcode}&language=${language}`,
-      { next: { tags: ['volumes', `volumes-${rvcode}`] } }
+      { next: { revalidate: CACHE_TTL.volumes, tags: ['volumes', `volumes-${rvcode}`] } }
     ).then(res => (res.ok ? res.json() : { 'hydra:member': [], 'hydra:totalItems': 0 }));
 
     const issuesPromise = fetch(
       `${apiBaseUrl}${API_PATHS.volumes}?page=1&itemsPerPage=2&rvcode=${rvcode}&language=${language}&types[]=special_issue`,
-      { next: { tags: ['volumes', `volumes-${rvcode}`] } }
+      { next: { revalidate: CACHE_TTL.volumes, tags: ['volumes', `volumes-${rvcode}`] } }
     ).then(res => (res.ok ? res.json() : { 'hydra:member': [], 'hydra:totalItems': 0 }));
 
     const acceptedArticlesPromise = fetch(
       `${apiBaseUrl}${API_PATHS.papers}?page=1&itemsPerPage=20&rvcode=${rvcode}&only_accepted=true`,
-      { next: { tags: ['articles', `articles-${rvcode}`] } }
+      { next: { revalidate: CACHE_TTL.articles, tags: ['articles', `articles-${rvcode}`] } }
     ).then(res => (res.ok ? res.json() : { 'hydra:member': [], 'hydra:totalItems': 0 }));
 
     // Attendre tous les résultats
@@ -163,7 +164,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
         try {
           const articleId = partialArticle.paperid;
           const rawArticle = await fetchWithRetry(`${apiBaseUrl}${API_PATHS.papers}${articleId}`, {
-            next: { tags: ['articles', `article-${articleId}`, `articles-${rvcode}`] },
+            next: { revalidate: CACHE_TTL.articles, tags: ['articles', `article-${articleId}`, `articles-${rvcode}`] },
           }).then((res: Response) => res.json());
           return formatArticle(rawArticle);
         } catch (error) {
@@ -195,7 +196,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
         try {
           const articleId = partialArticle.paperid;
           const rawArticle = await fetchWithRetry(`${apiBaseUrl}${API_PATHS.papers}${articleId}`, {
-            next: { tags: ['articles', `article-${articleId}`, `articles-${rvcode}`] },
+            next: { revalidate: CACHE_TTL.articles, tags: ['articles', `article-${articleId}`, `articles-${rvcode}`] },
           }).then((res: Response) => res.json());
           return formatArticle(rawArticle);
         } catch (error) {

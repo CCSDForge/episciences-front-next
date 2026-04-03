@@ -2,6 +2,7 @@ import { API_URL } from '@/config/api';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { transformBoardMembers, RawBoardMember } from '@/utils/board-transforms';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 export interface IBoardMemberAffiliation {
   label: string;
@@ -138,6 +139,7 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
       headers: {
         Accept: 'application/json',
       },
+      next: { revalidate: CACHE_TTL.pages, tags: ['boards', `boards-${rvcode}`] },
     });
 
     if (!response.ok) {
@@ -164,7 +166,9 @@ export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]>
   try {
     const apiUrl = getJournalApiUrl(rvcode);
     const url = `${apiUrl}/journals/boards/${rvcode}`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      next: { revalidate: CACHE_TTL.members, tags: ['members', `members-${rvcode}`, 'boards', `boards-${rvcode}`] },
+    });
 
     if (!response.ok) {
       console.warn(

@@ -1,6 +1,7 @@
 import { API_PATHS } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { fetchWithRetry } from '@/utils/fetch-with-retry';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 interface SitemapItem {
   url: string;
@@ -27,7 +28,7 @@ export async function fetchAllArticlesForSitemap(rvcode: string): Promise<RawSit
     `${apiRoot}${API_PATHS.papers}?rvcode=${rvcode}&itemsPerPage=1000&page=1`,
     {
       next: {
-        revalidate: 86400, // 24h par défaut
+        revalidate: CACHE_TTL.sitemap, // 24h par défaut
         tags: ['sitemap', `sitemap-${rvcode}`, `articles-${rvcode}`], // Invalidation via webhook
       },
     }
@@ -52,7 +53,7 @@ export async function fetchAllVolumesForSitemap(rvcode: string): Promise<RawSite
     `${apiRoot}${API_PATHS.volumes}?rvcode=${rvcode}&itemsPerPage=500`,
     {
       next: {
-        revalidate: 86400,
+        revalidate: CACHE_TTL.sitemap,
         tags: ['sitemap', `sitemap-${rvcode}`, `volumes-${rvcode}`],
       },
     }

@@ -1,5 +1,6 @@
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { safeFetchData } from '@/utils/api-error-handler';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 export async function fetchProposingSpecialIssuesPage(rvcode: string) {
   const apiUrl = getJournalApiUrl(rvcode);
@@ -9,8 +10,8 @@ export async function fetchProposingSpecialIssuesPage(rvcode: string) {
         `${apiUrl}/pages?page_code=proposing-special-issues&rvcode=${rvcode}`,
         {
           next: {
-            revalidate: false,
-            tags: ['proposing-special-issues'],
+            revalidate: CACHE_TTL.pages,
+            tags: ['proposing-special-issues', `proposing-special-issues-${rvcode}`],
           },
         }
       );

@@ -96,7 +96,8 @@ export default async function SectionDetailsPage(props: {
       if (paperIds.length > 0) {
         const fetchedArticles = await fetchSectionArticles(
           paperIds.map((id: number) => id.toString()),
-          journalId
+          journalId,
+          params.id
         );
         // Filter out null values
         articles = fetchedArticles.filter((article): article is IArticle => article !== null);

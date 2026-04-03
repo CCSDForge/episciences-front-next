@@ -1,6 +1,7 @@
 import { IStat } from '@/types/stat';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { safeFetchData } from '@/utils/api-error-handler';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 interface StatisticsParams {
   rvcode: string;
@@ -33,8 +34,8 @@ export async function fetchStatistics({
           'Content-Type': 'application/json',
         },
         next: {
-          revalidate: 3600,
-          tags: ['statistics'],
+          revalidate: CACHE_TTL.statistics,
+          tags: ['statistics', `statistics-${rvcode}`],
         },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);

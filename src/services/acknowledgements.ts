@@ -1,5 +1,6 @@
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { safeFetchData } from '@/utils/api-error-handler';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 export async function fetchAcknowledgementsPage(rvcode: string) {
   const apiUrl = getJournalApiUrl(rvcode);
@@ -9,8 +10,8 @@ export async function fetchAcknowledgementsPage(rvcode: string) {
         `${apiUrl}/pages?page_code=journal-acknowledgements&rvcode=${rvcode}`,
         {
           next: {
-            revalidate: false,
-            tags: ['acknowledgements'],
+            revalidate: CACHE_TTL.pages,
+            tags: ['acknowledgements', `acknowledgements-${rvcode}`],
           },
         }
       );

@@ -3,6 +3,7 @@ import { formatArticle } from '@/utils/article';
 import { API_URL, API_PATHS } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { safeFetchData } from '@/utils/api-error-handler';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 interface FetchSectionParams {
   sid: string;
@@ -21,8 +22,8 @@ export async function fetchSection({ sid, rvcode }: FetchSectionParams): Promise
     async () => {
       const response = await fetch(`${apiRoot}${API_PATHS.sections}/${sid}`, {
         next: {
-          revalidate: 3600,
-          tags: ['sections'],
+          revalidate: CACHE_TTL.sections,
+          tags: ['sections', `sections-${rvcode}`, `section-${sid}`, `section-${sid}-${rvcode}`].filter(Boolean),
         },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -57,8 +58,8 @@ export async function fetchSections({
       `${apiUrl}${API_PATHS.sections}?page=${page}&itemsPerPage=${itemsPerPage}&rvcode=${rvcode}`,
       {
         next: {
-          revalidate: 600, // Sections list - revalidate every 10 minutes
-          tags: ['sections'], // Tag for on-demand revalidation
+          revalidate: CACHE_TTL.sections,
+          tags: ['sections', `sections-${rvcode}`],
         },
       }
     );
@@ -90,13 +91,21 @@ export async function fetchSections({
   }
 }
 
-export async function fetchSectionArticles(paperIds: string[], rvcode?: string) {
+export async function fetchSectionArticles(paperIds: string[], rvcode?: string, sid?: string) {
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
   const articlesPromises = paperIds.map(async docid => {
+    const tags = [
+      'articles',
+      rvcode && `articles-${rvcode}`,
+      `article-${docid}`,
+      sid && `section-articles-${sid}`,
+      sid && rvcode && `section-articles-${sid}-${rvcode}`,
+    ].filter(Boolean) as string[];
+
     const response = await fetch(`${apiRoot}${API_PATHS.papers}${docid}`, {
       next: {
-        revalidate: 3600, // Article data - revalidate every hour
-        tags: ['articles'], // Tag for on-demand revalidation
+        revalidate: CACHE_TTL.articles,
+        tags,
       },
     });
 

@@ -1,6 +1,7 @@
 import { API_URL } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { safeFetchData } from '@/utils/api-error-handler';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 /**
  * Fetch credits page content
@@ -15,8 +16,8 @@ export async function fetchCreditsPage(rvcode: string) {
     async () => {
       const response = await fetch(`${apiUrl}/pages?page_code=credits&rvcode=${rvcode}`, {
         next: {
-          revalidate: 86400, // Static content - revalidate once per day (24 hours)
-          tags: ['credits'], // Tag for on-demand revalidation
+          revalidate: CACHE_TTL.pages,
+          tags: ['credits', `credits-${rvcode}`],
         },
       });
 

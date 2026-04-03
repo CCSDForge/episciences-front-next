@@ -5,6 +5,7 @@ import { getJournalApiUrl } from '@/utils/env-loader';
 import { METADATA_TYPE, FetchedArticle, formatArticle } from '@/utils/article';
 import { fetchWithRetry } from '@/utils/fetch-with-retry';
 import { batchFetchWithFallback } from '@/utils/batch-fetch';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 interface FetchArticlesParams {
   rvcode: string;
@@ -50,7 +51,7 @@ export async function fetchArticles({
   try {
     const apiRoot = getJournalApiUrl(rvcode);
     const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}?${params}`, {
-      next: { tags: ['articles', `articles-${rvcode}`] },
+      next: { revalidate: CACHE_TTL.articles, tags: ['articles', `articles-${rvcode}`] },
     });
 
     const data = await response.json();
@@ -121,7 +122,7 @@ export async function fetchAcceptedArticles(
     headers: {
       Accept: 'application/json',
     },
-    next: { tags: ['articles-accepted', `articles-accepted-${rvcode}`] },
+    next: { revalidate: CACHE_TTL.articles, tags: ['articles-accepted', `articles-accepted-${rvcode}`] },
   });
 
   if (!response.ok) {
@@ -143,7 +144,7 @@ export async function fetchAcceptedArticles(
 async function fetchRawArticle(paperid: string | number, rvcode: string = ''): Promise<RawArticle> {
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
   const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, {
-    next: { tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] },
+    next: { revalidate: CACHE_TTL.articles, tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] },
   });
   return response.json();
 }
@@ -158,6 +159,7 @@ export async function fetchArticle(
   try {
     const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
     const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, {
+      cache: 'force-cache',
       next: { tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] },
     });
     const rawArticle: RawArticle = await response.json();

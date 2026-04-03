@@ -1,6 +1,7 @@
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { safeFetchData } from '@/utils/api-error-handler';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 export interface IPage {
   id: number;
@@ -18,7 +19,7 @@ export async function fetchPage(pageCode: string, rvcode: string): Promise<IPage
     async () => {
       const params = new URLSearchParams({ page_code: pageCode, rvcode });
       const response = await fetch(`${apiUrl}/pages?${params}`, {
-        next: { tags: ['pages', `page-${pageCode}`, `page-${pageCode}-${rvcode}`] },
+        next: { revalidate: CACHE_TTL.pages, tags: ['pages', `page-${pageCode}`, `page-${pageCode}-${rvcode}`] },
       });
 
       if (!response.ok) {

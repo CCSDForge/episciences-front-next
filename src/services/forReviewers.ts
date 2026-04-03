@@ -1,5 +1,6 @@
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { safeFetchData } from '@/utils/api-error-handler';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 export async function fetchForReviewersPage(rvcode: string) {
   const apiUrl = getJournalApiUrl(rvcode);
@@ -9,8 +10,8 @@ export async function fetchForReviewersPage(rvcode: string) {
         `${apiUrl}/pages?page_code=for-reviewers&rvcode=${rvcode}`,
         {
           next: {
-            revalidate: false,
-            tags: ['for-reviewers'],
+            revalidate: CACHE_TTL.pages,
+            tags: ['for-reviewers', `for-reviewers-${rvcode}`],
           },
         }
       );

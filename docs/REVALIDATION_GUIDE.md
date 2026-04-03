@@ -1,311 +1,517 @@
-# Revalidation & Security Guide
+# Revalidation & Webhook Guide
 
-This document details how to configure webhook security and how to trigger revalidation for different content types (Articles, Pages, Volumes, etc.).
+This document explains how to configure webhook security, which cache tag to use for each
+content type, and how to call the revalidation endpoint from your Symfony application.
+It also covers the Pub/Sub alternative and server-side systemd setup.
+
+---
 
 ## 1. Security Configuration
 
-Webhook security relies on 3 levels. Variables must be defined in the `.env` or `.env.local` file.
+Security is enforced at three levels. Variables must be defined in `.env.production.local`
+(or the equivalent for your environment).
 
-### A. IP Restriction (Network Level)
+### A. IP Whitelist (Network Level)
 
-Define the IP addresses authorized to call the webhook (e.g., your Symfony server IP).
+Only the IP addresses listed here may call the webhook. Use your Symfony server's IP.
 
 ```env
-# List of IPs separated by commas
-ALLOWED_IPS=127.0.0.1,192.168.1.50,10.0.0.1
+# Comma-separated list
+ALLOWED_IPS=10.0.1.5,10.0.1.6
 ```
 
-### B. Tokens per Journal (Recommended)
+If `ALLOWED_IPS` is empty, all IPs are allowed (not recommended in production).
 
-You can define a specific token for each journal. The format is `REVALIDATION_TOKEN_[JOURNAL_CODE_UPPERCASE]`.
-Hyphens `-` in the journal code must be replaced by underscores `_`.
+### B. Per-Journal Tokens (Recommended)
+
+Define a secret for each journal. The environment variable name follows the pattern
+`REVALIDATION_TOKEN_<JOURNAL_CODE_UPPERCASE>` — hyphens become underscores.
 
 ```env
-# For the journal 'epijinfo'
-REVALIDATION_TOKEN_EPIJINFO=long_and_complex_secret_123
-
-# For the journal 'jsedi-preprod'
-REVALIDATION_TOKEN_JSEDI_PREPROD=other_secret_456
+REVALIDATION_TOKEN_EPIJINFO=a_long_random_secret_for_epijinfo
+REVALIDATION_TOKEN_JTAM=another_secret_for_jtam
+REVALIDATION_TOKEN_JSEDI_PREPROD=yet_another_secret
 ```
 
-### C. Global Token (Fallback)
+Generate secrets with: `openssl rand -base64 32`
 
-A fallback token if no specific token is found.
+### C. Global Fallback Token
+
+Used when no per-journal token matches.
 
 ```env
-REVALIDATION_SECRET=my_global_default_secret
+REVALIDATION_SECRET=global_fallback_secret
 ```
 
 ---
 
-## 2. Using the Webhook (Symfony Side)
+## 2. Webhook Endpoint
 
-To invalidate the cache, perform a **POST** request to `/api/revalidate`.
+```
+POST /api/revalidate
+```
 
 ### Required Headers
 
-- `Content-Type: application/json`
-- `x-episciences-token`: The token corresponding to the journal (or the global one).
+| Header | Value |
+|--------|-------|
+| `Content-Type` | `application/json` |
+| `x-episciences-token` | The secret for the journal (or the global one) |
 
-### Body Structure (JSON)
+### Request Body
 
-| Field       | Required | Description                                                      |
-| ----------- | -------- | ---------------------------------------------------------------- |
-| `journalId` | **YES**  | The journal code (e.g., `epijinfo`). Used to validate the token. |
-| `tag`       | **YES**  | The cache tag to invalidate (see list below).                    |
+```json
+{
+  "journalId": "epijinfo",
+  "tag": "<cache-tag>"
+}
+```
 
-### Call Example (PHP / Symfony)
+`journalId` is used to look up the correct token (`REVALIDATION_TOKEN_EPIJINFO`).
+
+### Success Response
+
+```json
+{ "revalidated": true, "now": 1712150400000, "journalId": "epijinfo", "tag": "article-4256" }
+```
+
+### Rate Limiting
+
+- Default: 100 requests / minute / IP
+- Override with `REVALIDATE_RATE_LIMIT` and `REVALIDATE_RATE_WINDOW` (ms)
+
+---
+
+## 3. Complete Cache Tag Reference
+
+Replace `{rvcode}` with the journal code (e.g. `epijinfo`) and `{id}` with the numeric
+identifier.
+
+> **Cross-page content** — Some data appears on multiple pages (e.g. board members on
+> the home page and the Boards page, the About text on the About page and the home page,
+> the Indexing text on the Indexing page and a home page section). The fetch calls in all
+> these pages are tagged consistently, so **a single `revalidateTag` call invalidates
+> the data everywhere it is displayed**.
+
+---
+
+### Articles
+
+| Scenario | Tag | Pages invalidated |
+|----------|-----|-------------------|
+| One article (title, abstract, DOI…) | `article-{id}` | Article detail, home, volume detail |
+| All articles of a journal | `articles-{rvcode}` | Article list, home, accepted list |
+| Accepted articles only | `articles-accepted-{rvcode}` | Accepted articles list |
+
+---
+
+### Volumes
+
+| Scenario | Tag | Pages invalidated |
+|----------|-----|-------------------|
+| Volume metadata (title, description) | `volume-{id}` | Volume detail page |
+| Article order changed inside a volume | `volume-{id}` | Volume detail page |
+| New volume / volume list changed | `volumes-{rvcode}` | Volume list + home |
+
+---
+
+### Sections
+
+| Scenario | Tag | Pages invalidated |
+|----------|-----|-------------------|
+| Section metadata (title, description) | `section-{id}-{rvcode}` | Section detail page |
+| Article order changed in a section | `section-articles-{id}-{rvcode}` | Section article list |
+| All sections of a journal | `sections-{rvcode}` | Sections list page |
+
+---
+
+### News
+
+| Scenario | Tag | Pages invalidated |
+|----------|-----|-------------------|
+| All news of a journal | `news-{rvcode}` | News list + home news block |
+
+---
+
+### Boards (Editorial / Scientific Committee)
+
+The Boards page and the home page **share the same data source** for board members. A
+single tag invalidates both.
+
+| Scenario | Tag | Pages invalidated |
+|----------|-----|-------------------|
+| Board member list (roles, names, affiliations) | `members-{rvcode}` | Boards page + home members block |
+| Everything on the Boards page (members + section structure) | `boards-{rvcode}` | Boards page + home members block |
+
+`boards-{rvcode}` is the broadest tag: it covers both board section pages
+(`fetchBoardPages`) and board member data (`fetchBoardMembers`).
+
+---
+
+### About Page
+
+The About text appears on **two routes**: the dedicated `/about` page and a section of
+the home page. Both are invalidated by the same tag.
+
+| Scenario | Tag | Pages invalidated |
+|----------|-----|-------------------|
+| About page content | `about-{rvcode}` | About page + home about section |
+
+---
+
+### Indexing Page
+
+The "journal indexing" editorial page appears both on the standalone `/indexing` route
+and as a section on the home page. Both are invalidated together.
+
+| Scenario | Tag | Pages invalidated |
+|----------|-----|-------------------|
+| Indexing editorial content | `indexing-{rvcode}` | Indexing page + home indexing section |
+
+> **Note:** `indexation-{rvcode}` is a **separate tag** for the journal metrics endpoint
+> (`/journals/{rvcode}/indexation`) — different data, different page.
+
+| Scenario | Tag | Pages invalidated |
+|----------|-----|-------------------|
+| Journal indexation metrics | `indexation-{rvcode}` | Indexation metrics page |
+
+---
+
+### Other Editorial Pages
+
+Each of these pages has its own tag. They do **not** appear on the home page.
+
+| Page | Tag |
+|------|-----|
+| Credits | `credits-{rvcode}` |
+| For reviewers | `for-reviewers-{rvcode}` |
+| For conference organisers | `for-conference-organisers-{rvcode}` |
+| Proposing special issues | `proposing-special-issues-{rvcode}` |
+| Acknowledgements | `acknowledgements-{rvcode}` |
+
+---
+
+### Statistics
+
+| Scenario | Tag | Pages invalidated |
+|----------|-----|-------------------|
+| Journal statistics (homepage block) | `stats-{rvcode}` | Home stats block |
+| Full statistics page | `statistics-{rvcode}` | Statistics page |
+
+---
+
+### Sitemap
+
+| Scenario | Tag |
+|----------|-----|
+| Force sitemap regeneration | `sitemap-{rvcode}` |
+
+The sitemap is also implicitly refreshed when `articles-{rvcode}` or `volumes-{rvcode}`
+are invalidated, because it shares those data sources.
+
+---
+
+### Broad Invalidation (All Journals)
+
+Omit the `{rvcode}` suffix to invalidate across **all** journals at once.
+Use with caution in a multi-tenant setup.
+
+| Tag | Invalidates |
+|-----|-------------|
+| `articles` | All articles, all journals |
+| `volumes` | All volumes, all journals |
+| `news` | All news, all journals |
+| `sections` | All sections, all journals |
+| `boards` | All board pages, all journals |
+
+---
+
+## 4. Symfony Examples
+
+### 4.1 Direct HTTP Call (HttpClient)
 
 ```php
-$client->request('POST', 'https://journal.episciences.org/api/revalidate', [
-    'headers' => [
-        'x-episciences-token' => $_ENV['REVALIDATION_TOKEN_EPIJINFO'],
-    ],
-    'json' => [
-        'journalId' => 'epijinfo',
-        'tag' => 'article-123', // Invalidates the specific article
-    ],
-]);
+// src/Service/NextRevalidationService.php
+
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
+class NextRevalidationService
+{
+    public function __construct(
+        private readonly HttpClientInterface $client,
+        private readonly string $nextBaseUrl,   // e.g. https://epijinfo.episciences.org
+        private readonly string $globalSecret,  // REVALIDATION_SECRET
+    ) {}
+
+    public function revalidate(string $journalId, string $tag): void
+    {
+        $token = $_ENV['REVALIDATION_TOKEN_' . strtoupper(str_replace('-', '_', $journalId))]
+            ?? $this->globalSecret;
+
+        $this->client->request('POST', $this->nextBaseUrl . '/api/revalidate', [
+            'headers' => [
+                'Content-Type'        => 'application/json',
+                'x-episciences-token' => $token,
+            ],
+            'json' => [
+                'journalId' => $journalId,
+                'tag'       => $tag,
+            ],
+        ]);
+    }
+}
 ```
 
----
+### 4.2 Common Use Cases
 
-## 3. Revalidation Strategy by Content
+```php
+// Article updated
+$revalidation->revalidate('epijinfo', 'article-4256');
 
-Here is which tag to call depending on what you modified in the Back-Office.
+// Article published → also refresh the article list and home page
+$revalidation->revalidate('epijinfo', 'article-4256');
+$revalidation->revalidate('epijinfo', 'articles-epijinfo');
 
-### 📄 Static Pages (About, Credits, etc.)
+// Article order changed inside a volume
+$revalidation->revalidate('epijinfo', 'volume-12');
 
-To update a specific content page.
+// Article order changed inside a section
+$revalidation->revalidate('epijinfo', 'section-articles-7-epijinfo');
 
-- **Target:** Page `/about`, `/credits`, etc.
-- **Specific Tag:** `page-[page_code]` (e.g., `page-about`, `page-credits`)
-- **Journal Tag:** `page-[page_code]-[journalId]` (e.g., `page-about-epijinfo`)
-- **Action:**
-  ```json
-  { "journalId": "epijinfo", "tag": "page-about-epijinfo" }
-  ```
+// Section metadata changed (title, description)
+$revalidation->revalidate('epijinfo', 'section-7-epijinfo');
 
-### 📝 Articles
+// New volume published
+$revalidation->revalidate('epijinfo', 'volume-42');
+$revalidation->revalidate('epijinfo', 'volumes-epijinfo');
 
-When an article is modified, published, or unpublished.
+// About page content updated
+$revalidation->revalidate('epijinfo', 'about-epijinfo');
 
-- **Target:** The article detail page AND the lists where it appears.
-- **Unit Tag:** `article-[ID]` (e.g., `article-4256`)
-- **Global Journal Tag:** `articles-[journalId]` (to refresh article lists)
-- **Recommendation:** It is often necessary to invalidate the article AND the list. You can make two calls or use the collection tag.
-- **Action (Article only):**
-  ```json
-  { "journalId": "epijinfo", "tag": "article-4256" }
-  ```
-- **Action (Refresh all):**
-  ```json
-  { "journalId": "epijinfo", "tag": "articles-epijinfo" }
-  ```
+// News added
+$revalidation->revalidate('epijinfo', 'news-epijinfo');
 
-### 📚 Volumes & Sections
-
-To update a volume (title, intro) or the table of contents.
-
-- **Target:** Volume detail page `/volumes/10`.
-- **Unit Tag:** `volume-[ID]` (e.g., `volume-12`)
-- **Global Tag:** `volumes-[journalId]`
-- **Action:**
-  ```json
-  { "journalId": "epijinfo", "tag": "volume-12" }
-  ```
-
-### 📰 News
-
-- **Target:** Homepage and `/news` page.
-- **Tag:** `news-[journalId]`
-- **Action:**
-  ```json
-  { "journalId": "epijinfo", "tag": "news-epijinfo" }
-  ```
-
-### 🏠 Full Homepage
-
-To update everything on the homepage (stats, edito, latest articles).
-
-- **Involved Tags:** `home`, `stats-[journalId]`, `news-[journalId]`, `articles-[journalId]`.
-- **Note:** The homepage is composed of several blocks. Invalidate the specific block that changed.
-
----
-
-## 4. Summary of Tags and Concrete Examples
-
-Here is the comprehensive list of tags to use. Replace `{rvcode}` with the journal code (e.g., `epijinfo`) and `{id}` with the numeric identifier.
-
-### 📝 Single Article
-
-Update of a title, abstract, or metadata of a specific article.
-
-- **Tag:** `article-{id}`
-- **Example Payload:**
-  ```json
-  {
-    "journalId": "epijinfo",
-    "tag": "article-4256"
-  }
-  ```
-
-### 📑 Articles List
-
-Update of the article list (new paper published), impacts Homepage and Articles page.
-
-- **Tag:** `articles-{rvcode}`
-- **Example Payload:**
-  ```json
-  {
-    "journalId": "epijinfo",
-    "tag": "articles-epijinfo"
-  }
-  ```
-
-### 📚 Single Volume
-
-Update of the title or description of a volume.
-
-- **Tag:** `volume-{id}`
-- **Example Payload:**
-  ```json
-  {
-    "journalId": "epijinfo",
-    "tag": "volume-12"
-  }
-  ```
-
-### 📦 Volumes List
-
-Addition of a new volume to the global list.
-
-- **Tag:** `volumes-{rvcode}`
-- **Example Payload:**
-  ```json
-  {
-    "journalId": "epijinfo",
-    "tag": "volumes-epijinfo"
-  }
-  ```
-
-### 📰 News
-
-Addition or modification of news on Homepage or News page.
-
-- **Tag:** `news-{rvcode}`
-- **Example Payload:**
-  ```json
-  {
-    "journalId": "epijinfo",
-    "tag": "news-epijinfo"
-  }
-  ```
-
-### 📄 Content Page (About, Credits...)
-
-Update of the text of a static page. Common codes are: `about`, `credits`, `mentions-legales`.
-
-- **Tag:** `page-{code}-{rvcode}`
-- **Example Payload (About Page):**
-  ```json
-  {
-    "journalId": "epijinfo",
-    "tag": "page-about-epijinfo"
-  }
-  ```
-
-### 👥 Editorial Board (Board)
-
-Update of the board members list.
-
-- **Tag:** `members-{rvcode}`
-- **Example Payload:**
-  ```json
-  {
-    "journalId": "epijinfo",
-    "tag": "members-epijinfo"
-  }
-  ```
-
-### 📊 Statistics
-
-Update of figures on the Homepage.
-
-- **Tag:** `stats-{rvcode}`
-- **Example Payload:**
-  ```json
-  {
-    "journalId": "epijinfo",
-    "tag": "stats-epijinfo"
-  }
-  ```
-
-### 🗺️ Sitemap (XML)
-
-The `sitemap.xml` is automatically generated and cached. It uses the same cache tags as the content lists.
-
-- **Automatic Update:**
-  - Invalidating `articles-{rvcode}` will update the sitemap with new articles.
-  - Invalidating `volumes-{rvcode}` will update the sitemap with new volumes.
-- **Specific Tag:** You can also force a sitemap-only update (though rarely needed).
-  - **Tag:** `sitemap-{rvcode}`
-  - **Action:**
-    ```json
-    { "journalId": "epijinfo", "tag": "sitemap-epijinfo" }
-    ```
-
----
-
-## 5. Architecture Recommendation (Symfony)
-
-To ensure system robustness, especially during mass imports or frequent modifications, it is **strongly recommended** not to call the webhook synchronously (blocking).
-
-### Using Symfony Messenger
-
-Use the **Symfony Messenger** component to offload API calls to a queue.
-
-**Benefits:**
-
-1.  **Performance:** The user does not wait for the Next.js response during saving.
-2.  **Reliability (Retries):** If Next.js is restarting or temporarily unavailable, Symfony Messenger will automatically retry sending (using _Exponential Backoff_) until success.
-
-**Suggested Workflow:**
-
-1.  An `EntityListener` detects the change (e.g., `postUpdate` on an Article).
-2.  Dispatch a `RevalidateCacheMessage` to the bus.
-3.  A Worker consumes the message and performs the HTTP `POST` call to Next.js.
-4.  In case of error (HTTP 500/503), the message is placed back in the queue for a later retry.
-
----
-
-## 6. Multi-Server Deployment
-
-When deploying Next.js across multiple servers behind a load balancer, all nodes share a
-**Valkey distributed cache** (Redis-compatible). A webhook sent to any node invalidates
-the cache for the entire cluster — no per-node coordination needed.
-
-```
-Webhook → VM2 → revalidateTag("article-123")
-                  → Valkey (shared) ← VM1, VM3, VM4 read from same cache
+// Editorial board updated
+$revalidation->revalidate('epijinfo', 'members-epijinfo');
 ```
 
-### Configuration
+### 4.3 Async via Symfony Messenger (Recommended)
 
-Enable Valkey in the systemd service on every node:
+Avoid blocking the user by dispatching revalidation to a background queue.
+
+```php
+// src/Message/RevalidateCacheMessage.php
+class RevalidateCacheMessage
+{
+    public function __construct(
+        public readonly string $journalId,
+        public readonly string $tag,
+    ) {}
+}
+
+// src/MessageHandler/RevalidateCacheMessageHandler.php
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+
+#[AsMessageHandler]
+class RevalidateCacheMessageHandler
+{
+    public function __construct(
+        private readonly NextRevalidationService $revalidation,
+    ) {}
+
+    public function __invoke(RevalidateCacheMessage $message): void
+    {
+        $this->revalidation->revalidate($message->journalId, $message->tag);
+    }
+}
+
+// In your entity listener or event subscriber:
+$this->bus->dispatch(new RevalidateCacheMessage('epijinfo', 'article-4256'));
+```
+
+Configure retries in `config/packages/messenger.yaml`:
+
+```yaml
+framework:
+    messenger:
+        failure_transport: failed
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                retry_strategy:
+                    max_retries: 5
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 60000
+        routing:
+            'App\Message\RevalidateCacheMessage': async
+```
+
+### 4.4 Via Valkey Pub/Sub (Alternative)
+
+If the Symfony server cannot reach the Next.js servers directly, publish a message on
+the Valkey channel. The `revalidate-worker` running on each Next.js server will pick it
+up and call the local API.
+
+```php
+// Using Predis or ioredis-compatible PHP client
+$redis->publish('revalidate-cache', json_encode([
+    'journalId' => 'epijinfo',
+    'tag'       => 'article-4256',
+]));
+```
+
+The message schema must match what `scripts/revalidate-worker.mjs` expects.
+See section 5 below for the worker setup.
+
+---
+
+## 5. Server-Side Setup: revalidate-worker (systemd)
+
+The worker listens to the Valkey Pub/Sub channel `revalidate-cache` and forwards
+messages to the local Next.js API. Run one instance per Next.js node.
+
+### Installation
+
+```bash
+# Copy the service file
+sudo cp scripts/revalidate-worker.service /etc/systemd/system/
+
+# Reload systemd and enable the service
+sudo systemctl daemon-reload
+sudo systemctl enable --now revalidate-worker.service
+
+# Check status
+sudo systemctl status revalidate-worker.service
+sudo journalctl -u revalidate-worker.service -f
+```
+
+### Service Configuration (`/etc/systemd/system/revalidate-worker.service`)
 
 ```ini
-Environment=VALKEY_ENABLED=true
+[Unit]
+Description=Episciences Next.js Revalidation Worker
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/episciences-next/current
+ExecStart=/usr/bin/node scripts/revalidate-worker.mjs
+Restart=always
+RestartSec=5
+
+Environment=NODE_ENV=production
 Environment=VALKEY_SENTINEL_HOSTS=sentinel-1:26379,sentinel-2:26379,sentinel-3:26379
 Environment=VALKEY_MASTER_NAME=mymaster
 Environment=VALKEY_PASSWORD=<secret>
+Environment=REVALIDATION_SECRET=<global_secret>
+Environment=NEXT_APP_URL=http://localhost:3000
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-All nodes connect to the same Sentinel cluster. Cache keys are prefixed with `next:`
-(configurable via `VALKEY_KEY_PREFIX`).
+> **Note for Ansistrano deployments:** `WorkingDirectory` should point to the symlinked
+> `current/` directory. Restart the worker after each deployment:
+> ```bash
+> sudo systemctl restart revalidate-worker.service
+> ```
 
-A built-in circuit breaker falls back to an in-memory LRU cache if Valkey becomes
-unavailable, so the application keeps serving content even during cache outages.
+### Verifying the Worker
 
-See [Valkey Cache Strategy](VALKEY_CACHE_STRATEGY.md) and
-[Valkey Deployment Guide](DEPLOYMENT_VALKEY.md) for the full setup.
+```bash
+# Publish a test message from any server with redis-cli
+redis-cli -h sentinel-1 -p 26379
+> SENTINEL get-master-addr-by-name mymaster
+# Use the returned master host/port:
+redis-cli -h <master-host> -p 6379 -a <password> \
+  PUBLISH revalidate-cache '{"journalId":"epijinfo","tag":"news-epijinfo"}'
+```
+
+Then check `journalctl -u revalidate-worker.service` for the log line:
+`[Worker] Revalidated tag: news-epijinfo for journal: epijinfo`
+
+---
+
+## 6. Webhook Deployment: Nginx / Apache Config
+
+If Next.js runs behind a reverse proxy, ensure the revalidation endpoint is reachable
+from your Symfony server but **not exposed publicly**.
+
+### Nginx: Restrict `/api/revalidate` to Internal IPs
+
+```nginx
+location /api/revalidate {
+    # Allow only Symfony server and monitoring
+    allow 10.0.1.5;
+    allow 10.0.1.6;
+    deny all;
+
+    proxy_pass http://nextjs_upstream;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+}
+```
+
+### Passing the Real IP to Next.js
+
+The route handler reads `x-forwarded-for` or `x-real-ip` for IP whitelisting:
+
+```nginx
+proxy_set_header X-Real-IP       $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+```
+
+Set `ALLOWED_IPS` in your `.env` to the Symfony server's IP. The Next.js app will then
+enforce the whitelist at the application level as a second layer of defence.
+
+---
+
+## 7. Configurable Cache TTL
+
+Cache durations are controlled via environment variables (see `.env.production.local.example`).
+All default to **3600 seconds (1 hour)** if not set.
+
+| Variable | Content | Default |
+|----------|---------|---------|
+| `CACHE_TTL_NEWS` | News articles | 3600 |
+| `CACHE_TTL_VOLUMES` | Volumes & issues | 3600 |
+| `CACHE_TTL_ARTICLES` | Published articles | 3600 |
+| `CACHE_TTL_PAGES` | Static editorial pages | 3600 |
+| `CACHE_TTL_STATISTICS` | Journal statistics | 3600 |
+| `CACHE_TTL_MEMBERS` | Editorial board | 3600 |
+| `CACHE_TTL_SECTIONS` | Sections | 3600 |
+| `CACHE_TTL_SITEMAP` | Sitemap data | 3600 |
+
+Set to `false` to cache indefinitely (on-demand revalidation only):
+
+```env
+CACHE_TTL_ARTICLES=false   # Cache until revalidateTag('articles-epijinfo') is called
+```
+
+> **Note:** These TTLs control the **Data Cache** (fetch-level responses stored in Valkey).
+> They are independent from the page-level `export const revalidate` which controls how
+> often the HTML is regenerated (Full Route Cache).
+
+---
+
+## 8. Troubleshooting
+
+| Symptom | Likely Cause | Fix |
+|---------|-------------|-----|
+| `403 Forbidden` | IP not in `ALLOWED_IPS` | Add server IP or leave `ALLOWED_IPS` empty |
+| `401 Invalid secret` | Token mismatch | Check `REVALIDATION_TOKEN_*` or `REVALIDATION_SECRET` |
+| `400 Missing tag or path` | Empty request body | Check JSON payload |
+| `429 Too many requests` | Rate limit hit | Increase `REVALIDATE_RATE_LIMIT` or use Messenger |
+| Cache not updating | Tag not used in fetch | Check `next: { tags: [...] }` in the service file |
+| All journals invalidated | Using generic tag (`articles`) | Use journal-specific tag (`articles-epijinfo`) |
+
+---
+
+## Related Documentation
+
+- [ISR Strategy](./ISR_STRATEGY.md)
+- [Valkey Cache Strategy](./VALKEY_CACHE_STRATEGY.md)
+- [Valkey Deployment](./DEPLOYMENT_VALKEY.md)
