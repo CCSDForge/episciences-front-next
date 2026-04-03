@@ -27,7 +27,9 @@ const { getValkeyClient } = require('./valkey-client');
 // Increment when the serialization format changes to invalidate stale entries.
 // v1: initial (no __v field, ReadableStream silently lost as {})
 // v2: ReadableStream preserved via preprocessValue + __t:'ReadableStream'
-const CACHE_FORMAT_VERSION = 2;
+// v3: Uint8Array stored as __t:'Buffer' (base64) — Buffer.isBuffer() now true
+//     on restore; Map/Set values processed recursively in preprocessValue
+const CACHE_FORMAT_VERSION = 3;
 
 // ---------------------------------------------------------------------------
 // Serialization — preserves Map, Set, Buffer, Uint8Array across JSON round-trips
@@ -47,8 +49,12 @@ function serialize(data) {
     if (Buffer.isBuffer(value)) {
       return { __t: 'Buffer', v: value.toString('base64') };
     }
+    // Store Uint8Array as Buffer (base64) so Buffer.isBuffer() holds on restore.
+    // Next.js RenderResult.readable only checks Buffer.isBuffer(), not instanceof
+    // Uint8Array, so a plain Uint8Array would fall through to `return this.response`
+    // and cause "a.pipeTo is not a function" on every cache hit.
     if (value instanceof Uint8Array) {
-      return { __t: 'Uint8Array', v: Array.from(value) };
+      return { __t: 'Buffer', v: Buffer.from(value).toString('base64') };
     }
     return value;
   });
@@ -60,7 +66,9 @@ function deserialize(raw) {
       if (value.__t === 'Map') return new Map(value.v);
       if (value.__t === 'Set') return new Set(value.v);
       if (value.__t === 'Buffer') return Buffer.from(value.v, 'base64');
-      if (value.__t === 'Uint8Array') return new Uint8Array(value.v);
+      // Legacy entries (pre-fix) stored Uint8Array as number array — restore as
+      // Buffer so Buffer.isBuffer() is true and RenderResult can stream it.
+      if (value.__t === 'Uint8Array') return Buffer.from(new Uint8Array(value.v));
       if (value.__t === 'ReadableStream') {
         const buf = Buffer.from(value.v, 'base64');
         return new ReadableStream({
@@ -98,9 +106,20 @@ async function preprocessValue(val) {
     const buf = Buffer.concat(chunks);
     return { __t: 'ReadableStream', v: buf.toString('base64') };
   }
-  // Let serialize() handle these special types unchanged
-  if (Buffer.isBuffer(val) || val instanceof Uint8Array || val instanceof Map || val instanceof Set) {
-    return val;
+  // Buffer and Uint8Array: pass through as-is; serialize() handles them.
+  if (Buffer.isBuffer(val) || val instanceof Uint8Array) return val;
+  // Map: process values recursively so nested ReadableStreams/Uint8Arrays are
+  // handled (e.g. segmentData: Map<string, Buffer|Uint8Array>).
+  if (val instanceof Map) {
+    const entries = await Promise.all(
+      Array.from(val.entries()).map(async ([k, v]) => [k, await preprocessValue(v)])
+    );
+    return new Map(entries);
+  }
+  // Set: process values recursively.
+  if (val instanceof Set) {
+    const values = await Promise.all(Array.from(val.values()).map(preprocessValue));
+    return new Set(values);
   }
   if (Array.isArray(val)) {
     return Promise.all(val.map(preprocessValue));
