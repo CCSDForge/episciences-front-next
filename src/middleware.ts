@@ -48,7 +48,11 @@ export function middleware(request: NextRequest) {
   // 1. Journal Detection (Multi-tenancy)
   let journalId = 'epijinfo'; // Default fallback
 
-  if (hostname.includes('episciences.org')) {
+  const productionDomain = process.env.NEXT_PUBLIC_EPISCIENCES_DOMAIN || 'episciences.org';
+  const isProductionHost =
+    hostname === productionDomain || hostname.endsWith(`.${productionDomain}`);
+
+  if (isProductionHost) {
     // production: epijinfo.episciences.org -> epijinfo
     const extractedId = hostname.split('.')[0];
 
