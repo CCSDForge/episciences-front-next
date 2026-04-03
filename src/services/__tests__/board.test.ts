@@ -302,7 +302,10 @@ describe('board service', () => {
 
       await fetchBoardMembers('myjournal');
 
-      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/journals/boards/myjournal'));
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/journals/boards/myjournal'),
+        expect.objectContaining({ next: expect.objectContaining({ tags: expect.arrayContaining(['members-myjournal']) }) })
+      );
     });
   });
 });
