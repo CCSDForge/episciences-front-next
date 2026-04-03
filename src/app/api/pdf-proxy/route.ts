@@ -49,12 +49,18 @@ function checkRateLimit(ip: string): boolean {
 }
 
 /**
- * Validate if URL domain is in allowed list
+ * Validate if URL domain is in allowed list.
+ * Requires HTTPS and an exact hostname match or a proper subdomain
+ * (e.g. "data.zenodo.org" is allowed, "evilzenodo.org" is not).
  */
 function isAllowedDomain(url: string): boolean {
   try {
     const urlObj = new URL(url);
-    return ALLOWED_DOMAINS.some(domain => urlObj.hostname.includes(domain));
+    if (urlObj.protocol !== 'https:') return false;
+    const hostname = urlObj.hostname;
+    return ALLOWED_DOMAINS.some(
+      domain => hostname === domain || hostname.endsWith(`.${domain}`)
+    );
   } catch {
     return false;
   }
