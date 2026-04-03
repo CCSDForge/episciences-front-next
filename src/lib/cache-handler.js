@@ -56,9 +56,55 @@ function deserialize(raw) {
       if (value.__t === 'Set') return new Set(value.v);
       if (value.__t === 'Buffer') return Buffer.from(value.v, 'base64');
       if (value.__t === 'Uint8Array') return new Uint8Array(value.v);
+      if (value.__t === 'ReadableStream') {
+        const buf = Buffer.from(value.v, 'base64');
+        return new ReadableStream({
+          start(controller) {
+            controller.enqueue(new Uint8Array(buf));
+            controller.close();
+          },
+        });
+      }
     }
     return value;
   });
+}
+
+/**
+ * Recursively consume ReadableStream instances before JSON serialization.
+ * JSON.stringify cannot handle ReadableStream — it silently becomes {}.
+ * Next.js 16 stores ReadableStream in value.body (APP_ROUTE kind), which
+ * must be piped back on cache hit. Without this pre-pass, .pipeTo() fails.
+ */
+async function preprocessValue(val) {
+  if (val === null || val === undefined || typeof val !== 'object') return val;
+  if (typeof ReadableStream !== 'undefined' && val instanceof ReadableStream) {
+    const reader = val.getReader();
+    const chunks = [];
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) chunks.push(Buffer.isBuffer(value) ? value : Buffer.from(value));
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    const buf = Buffer.concat(chunks);
+    return { __t: 'ReadableStream', v: buf.toString('base64') };
+  }
+  // Let serialize() handle these special types unchanged
+  if (Buffer.isBuffer(val) || val instanceof Uint8Array || val instanceof Map || val instanceof Set) {
+    return val;
+  }
+  if (Array.isArray(val)) {
+    return Promise.all(val.map(preprocessValue));
+  }
+  const result = {};
+  for (const [k, v] of Object.entries(val)) {
+    result[k] = await preprocessValue(v);
+  }
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -238,8 +284,9 @@ class CacheHandler {
     const { revalidate, tags = [] } = ctx || {};
     const dataKey = this._dataKey(key);
 
+    const processedData = await preprocessValue(data);
     const entry = {
-      value: data,
+      value: processedData,
       lastModified: Date.now(),
       tags,
     };
@@ -346,4 +393,5 @@ module.exports._internals = {
   // Serialization utilities exposed for testing
   serialize,
   deserialize,
+  preprocessValue,
 };
