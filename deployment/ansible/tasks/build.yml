@@ -43,3 +43,9 @@
     cp -r "$RELEASE/.next/static/." "$RELEASE/.next/standalone/.next/static/"
     cp -r "$RELEASE/public/." "$RELEASE/.next/standalone/public/"
   changed_when: true
+
+- name: Copy .env.local into standalone output
+  ansible.builtin.shell: |
+    cp -L "{{ ansistrano_release_path.stdout | trim }}/.env.local" \
+          "{{ ansistrano_release_path.stdout | trim }}/.next/standalone/.env.local"
+  changed_when: true
