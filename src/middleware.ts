@@ -7,7 +7,7 @@ import {
   hasLanguagePrefix,
   removeLanguagePrefix,
 } from '@/utils/language-utils';
-import { isValidJournalId } from '@/utils/validation';
+import { isValidJournalId, sanitizeForLog } from '@/utils/validation';
 // import { journalExists } from '@/utils/static-paths'; // REMOVE: Uses fs, incompatible with Edge
 import { journals } from '@/config/journals-generated';
 
@@ -22,7 +22,7 @@ export function middleware(request: NextRequest) {
   const hostname = hostHeader.split(':')[0]; // Remove port if present
   const pathname = url.pathname;
 
-  console.log(`[Middleware] Incoming request: ${pathname} (Host: ${hostname})`);
+  console.log(`[Middleware] Incoming request: ${sanitizeForLog(pathname)} (Host: ${sanitizeForLog(hostname)})`);
 
   // Ignore static files with extensions
   const staticExtensions = [
@@ -104,7 +104,7 @@ export function middleware(request: NextRequest) {
   // NOTE: We use 'sites' not '_sites' because folders starting with _ are private in Next.js
   const internalPath = `/sites/${journalId}/${targetLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
 
-  console.log(`[Middleware] Rewriting to: ${internalPath}`);
+  console.log(`[Middleware] Rewriting to: ${sanitizeForLog(internalPath)}`);
 
   const rewriteUrl = new URL(internalPath, request.url);
   rewriteUrl.search = url.search;

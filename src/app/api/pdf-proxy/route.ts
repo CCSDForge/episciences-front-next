@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sanitizeIp } from '@/utils/validation';
+import { sanitizeIp, sanitizeForLog } from '@/utils/validation';
 
 // Whitelist of allowed PDF sources
 const ALLOWED_DOMAINS = [
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
 
   // Validate domain
   if (!isAllowedDomain(pdfUrl)) {
-    console.warn(`[PDF Proxy] Blocked non-whitelisted domain: ${pdfUrl}`);
+    console.warn(`[PDF Proxy] Blocked non-whitelisted domain: ${sanitizeForLog(pdfUrl)}`);
     return new NextResponse('Domain not allowed', { status: 403 });
   }
 
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error(`[PDF Proxy] Failed to fetch PDF: ${response.statusText} (${pdfUrl})`);
+      console.error(`[PDF Proxy] Failed to fetch PDF: ${sanitizeForLog(response.statusText)} (${sanitizeForLog(pdfUrl)})`);
       return new NextResponse(`Failed to fetch PDF: ${response.statusText}`, {
         status: response.status,
       });
@@ -165,7 +165,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      console.error(`[PDF Proxy] Request timeout for: ${pdfUrl}`);
+      console.error(`[PDF Proxy] Request timeout for: ${sanitizeForLog(pdfUrl)}`);
       return new NextResponse('Request timeout', { status: 504 });
     }
 

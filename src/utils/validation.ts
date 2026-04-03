@@ -48,6 +48,18 @@ export function sanitizeIp(raw: string | null): string {
 }
 
 /**
+ * Sanitize a value for safe logging (prevents log injection via newlines/control chars)
+ *
+ * @param value - Raw user-controlled value to sanitize
+ * @param maxLength - Maximum length to truncate to (default 200)
+ * @returns Sanitized string safe for log output
+ */
+export function sanitizeForLog(value: string | null | undefined, maxLength = 200): string {
+  if (value == null) return '(null)';
+  return value.replace(/[\r\n\t]/g, ' ').slice(0, maxLength);
+}
+
+/**
  * Validate journal ID format
  *
  * Journal IDs must consist only of lowercase letters, digits, and hyphens
