@@ -97,6 +97,39 @@ describe('CacheHandler', () => {
       expect(result).toBeNull();
     });
 
+    it('restores Map values after JSON round-trip', async () => {
+      const map = new Map([['key1', 'val1'], ['key2', 42]]);
+      const entry = { value: { segmentData: map }, lastModified: 1000, tags: [] };
+      mockClient.get.mockResolvedValue(_internals.serialize(entry));
+      const handler = makeHandler();
+      const result = await handler.get('map-key');
+      expect(result?.value.segmentData).toBeInstanceOf(Map);
+      expect(result?.value.segmentData.get('key1')).toBe('val1');
+      expect(result?.value.segmentData.get('key2')).toBe(42);
+    });
+
+    it('restores Set values after JSON round-trip', async () => {
+      const set = new Set(['a', 'b', 'c']);
+      const entry = { value: { tags: set }, lastModified: 1000, tags: [] };
+      mockClient.get.mockResolvedValue(_internals.serialize(entry));
+      const handler = makeHandler();
+      const result = await handler.get('set-key');
+      expect(result?.value.tags).toBeInstanceOf(Set);
+      expect(result?.value.tags.has('b')).toBe(true);
+    });
+
+    it('restores Buffer values after JSON round-trip', async () => {
+      // Use Uint8Array directly (happy-dom env does not expose Node.js Buffer globally)
+      const bytes = new TextEncoder().encode('hello cache');
+      const entry = { value: { body: bytes }, lastModified: 1000, tags: [] };
+      mockClient.get.mockResolvedValue(_internals.serialize(entry));
+      const handler = makeHandler();
+      const result = await handler.get('buffer-key');
+      const body = result?.value.body;
+      // Decoded content must match regardless of exact Buffer/Uint8Array type
+      expect(new TextDecoder().decode(body)).toBe('hello cache');
+    });
+
     it('falls back to in-memory when Valkey throws', async () => {
       // Preload in-memory
       const entry = { value: 'stale', lastModified: 900, tags: [] };

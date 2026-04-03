@@ -25,6 +25,43 @@
 const { getValkeyClient } = require('./valkey-client');
 
 // ---------------------------------------------------------------------------
+// Serialization — preserves Map, Set, Buffer, Uint8Array across JSON round-trips
+// Next.js 16 stores Map objects in cache entries (e.g. segmentData). Plain
+// JSON.stringify/parse loses the Map type, causing "o.segmentData.get is not
+// a function" errors when the entry is read back from Valkey.
+// ---------------------------------------------------------------------------
+
+function serialize(data) {
+  return JSON.stringify(data, (_key, value) => {
+    if (value instanceof Map) {
+      return { __t: 'Map', v: Array.from(value.entries()) };
+    }
+    if (value instanceof Set) {
+      return { __t: 'Set', v: Array.from(value.values()) };
+    }
+    if (Buffer.isBuffer(value)) {
+      return { __t: 'Buffer', v: value.toString('base64') };
+    }
+    if (value instanceof Uint8Array) {
+      return { __t: 'Uint8Array', v: Array.from(value) };
+    }
+    return value;
+  });
+}
+
+function deserialize(raw) {
+  return JSON.parse(raw, (_key, value) => {
+    if (value && typeof value === 'object' && typeof value.__t === 'string') {
+      if (value.__t === 'Map') return new Map(value.v);
+      if (value.__t === 'Set') return new Set(value.v);
+      if (value.__t === 'Buffer') return Buffer.from(value.v, 'base64');
+      if (value.__t === 'Uint8Array') return new Uint8Array(value.v);
+    }
+    return value;
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Circuit Breaker
 // ---------------------------------------------------------------------------
 
@@ -182,7 +219,7 @@ class CacheHandler {
         }
         try {
           if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] HIT  ${key}`);
-          return JSON.parse(raw);
+          return deserialize(raw);
         } catch {
           return null;
         }
@@ -206,7 +243,7 @@ class CacheHandler {
       lastModified: Date.now(),
       tags,
     };
-    const serialized = JSON.stringify(entry);
+    const serialized = serialize(entry);
 
     // TTL safety net: revalidate * 3 to allow stale-while-revalidate.
     // If revalidate is false (static), no TTL.
@@ -306,4 +343,7 @@ module.exports._internals = {
   clearTestClient: () => {
     _testClientOverride = null;
   },
+  // Serialization utilities exposed for testing
+  serialize,
+  deserialize,
 };
