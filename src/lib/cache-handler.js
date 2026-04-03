@@ -176,8 +176,12 @@ class CacheHandler {
     return this._withValkey(
       async client => {
         const raw = await client.get(dataKey);
-        if (!raw) return null;
+        if (!raw) {
+          if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] MISS ${key}`);
+          return null;
+        }
         try {
+          if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] HIT  ${key}`);
           return JSON.parse(raw);
         } catch {
           return null;
@@ -225,9 +229,11 @@ class CacheHandler {
         }
 
         await pipeline.exec();
+        if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] SET  ${key} ttl=${ttl ?? 'none'} tags=${tags.join(',')}`);
       },
       () => {
         memSet(dataKey, entry, ttl);
+        if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] SET(mem) ${key}`);
       }
     );
   }
