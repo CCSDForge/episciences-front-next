@@ -24,6 +24,11 @@
 
 const { getValkeyClient } = require('./valkey-client');
 
+// Increment when the serialization format changes to invalidate stale entries.
+// v1: initial (no __v field, ReadableStream silently lost as {})
+// v2: ReadableStream preserved via preprocessValue + __t:'ReadableStream'
+const CACHE_FORMAT_VERSION = 2;
+
 // ---------------------------------------------------------------------------
 // Serialization — preserves Map, Set, Buffer, Uint8Array across JSON round-trips
 // Next.js 16 stores Map objects in cache entries (e.g. segmentData). Plain
@@ -264,8 +269,14 @@ class CacheHandler {
           return null;
         }
         try {
+          const entry = deserialize(raw);
+          if (!entry || entry.__v !== CACHE_FORMAT_VERSION) {
+            // Stale or incompatible format — treat as miss so Next.js re-renders
+            if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] STALE (version mismatch) ${key}`);
+            return null;
+          }
           if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] HIT  ${key}`);
-          return deserialize(raw);
+          return entry;
         } catch {
           return null;
         }
@@ -286,6 +297,7 @@ class CacheHandler {
 
     const processedData = await preprocessValue(data);
     const entry = {
+      __v: CACHE_FORMAT_VERSION,
       value: processedData,
       lastModified: Date.now(),
       tags,
@@ -394,4 +406,5 @@ module.exports._internals = {
   serialize,
   deserialize,
   preprocessValue,
+  CACHE_FORMAT_VERSION,
 };

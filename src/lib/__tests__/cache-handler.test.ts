@@ -83,7 +83,7 @@ describe('CacheHandler', () => {
     });
 
     it('returns parsed entry on cache hit', async () => {
-      const entry = { value: { html: '<p>Hello</p>' }, lastModified: 1000, tags: ['articles'] };
+      const entry = { __v: _internals.CACHE_FORMAT_VERSION, value: { html: '<p>Hello</p>' }, lastModified: 1000, tags: ['articles'] };
       mockClient.get.mockResolvedValue(JSON.stringify(entry));
       const handler = makeHandler();
       const result = await handler.get('some-key');
@@ -99,7 +99,7 @@ describe('CacheHandler', () => {
 
     it('restores Map values after JSON round-trip', async () => {
       const map = new Map([['key1', 'val1'], ['key2', 42]]);
-      const entry = { value: { segmentData: map }, lastModified: 1000, tags: [] };
+      const entry = { __v: _internals.CACHE_FORMAT_VERSION, value: { segmentData: map }, lastModified: 1000, tags: [] };
       mockClient.get.mockResolvedValue(_internals.serialize(entry));
       const handler = makeHandler();
       const result = await handler.get('map-key');
@@ -110,7 +110,7 @@ describe('CacheHandler', () => {
 
     it('restores Set values after JSON round-trip', async () => {
       const set = new Set(['a', 'b', 'c']);
-      const entry = { value: { tags: set }, lastModified: 1000, tags: [] };
+      const entry = { __v: _internals.CACHE_FORMAT_VERSION, value: { tags: set }, lastModified: 1000, tags: [] };
       mockClient.get.mockResolvedValue(_internals.serialize(entry));
       const handler = makeHandler();
       const result = await handler.get('set-key');
@@ -121,7 +121,7 @@ describe('CacheHandler', () => {
     it('restores Buffer values after JSON round-trip', async () => {
       // Use Uint8Array directly (happy-dom env does not expose Node.js Buffer globally)
       const bytes = new TextEncoder().encode('hello cache');
-      const entry = { value: { body: bytes }, lastModified: 1000, tags: [] };
+      const entry = { __v: _internals.CACHE_FORMAT_VERSION, value: { body: bytes }, lastModified: 1000, tags: [] };
       mockClient.get.mockResolvedValue(_internals.serialize(entry));
       const handler = makeHandler();
       const result = await handler.get('buffer-key');
