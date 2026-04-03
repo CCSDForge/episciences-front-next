@@ -80,7 +80,18 @@ export function loadJournalConfig(journalCode: string): JournalConfig {
 
   try {
     const fs = require('fs');
-    const envPath = path.join(process.cwd(), `external-assets/.env.local.${journalCode}`);
+    const baseDir = path.resolve(process.cwd(), 'external-assets');
+    const envPath = path.resolve(baseDir, `.env.local.${journalCode}`);
+
+    // Containment check: ensure the resolved path stays within external-assets/.
+    // isValidJournalId() already rejects any non-[a-z0-9-] input, so this check
+    // should never fail — it is here to satisfy static analysis (CodeQL #187).
+    if (!envPath.startsWith(baseDir + path.sep)) {
+      console.warn(`[env-loader] Path traversal attempt blocked for: ${journalCode}`);
+      const emptyConfig = { code: journalCode, env: {} };
+      configCache.set(journalCode, emptyConfig);
+      return emptyConfig;
+    }
 
     // If file doesn't exist, cache and return empty config
     if (!fs.existsSync(envPath)) {
