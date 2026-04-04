@@ -13,6 +13,7 @@ vi.mock('@/utils/validation', () => ({
     const first = raw?.split(',')[0]?.trim() ?? '';
     return /^[\d.:a-fA-F]+$/.test(first) ? first : 'unknown';
   }),
+  sanitizeForLog: vi.fn((value: string | null | undefined) => String(value ?? '').slice(0, 200)),
 }));
 
 // Helper to create a NextRequest for the revalidate endpoint
