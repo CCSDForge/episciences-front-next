@@ -60,6 +60,22 @@ function serialize(data) {
   });
 }
 
+/**
+ * Ensure a value is a proper Node.js Buffer (Buffer.isBuffer() === true).
+ * JSON.parse can produce Uint8Array instead of Buffer in some contexts, and
+ * Buffer.isBuffer(Uint8Array) returns false, causing RenderResult.readable to
+ * fall through to `return this.response` (which lacks .pipeTo()).
+ */
+function ensureBuffer(val) {
+  if (Buffer.isBuffer(val)) return val;
+  if (val instanceof Uint8Array) return Buffer.from(val);
+  // Fallback: Buffer serialized via its default toJSON: { type: 'Buffer', data: [...] }
+  if (val && typeof val === 'object' && val.type === 'Buffer' && Array.isArray(val.data)) {
+    return Buffer.from(val.data);
+  }
+  return val; // Unknown type — return as-is; pipeTo will fail with a clear error
+}
+
 function deserialize(raw) {
   return JSON.parse(raw, (_key, value) => {
     if (value && typeof value === 'object' && typeof value.__t === 'string') {
@@ -294,7 +310,27 @@ class CacheHandler {
             if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] STALE (version mismatch) ${key}`);
             return null;
           }
-          if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] HIT  ${key}`);
+          // Defensive: ensure Buffer-typed fields are proper Node.js Buffers so that
+          // Buffer.isBuffer() returns true in the render-result.js readable getter.
+          // A Uint8Array or { type:'Buffer', data:[] } would cause the fallthrough
+          // path in RenderResult.readable, returning the raw value which lacks .pipeTo().
+          const v = entry.value;
+          if (v && typeof v === 'object') {
+            if (v.rscData !== undefined && v.rscData !== null) {
+              v.rscData = ensureBuffer(v.rscData);
+            }
+            if (v.segmentData instanceof Map) {
+              for (const [k, seg] of v.segmentData) {
+                v.segmentData.set(k, ensureBuffer(seg));
+              }
+            }
+          }
+          if (process.env.CACHE_DEBUG === 'true') {
+            const segInfo = v?.segmentData instanceof Map
+              ? `Map(${v.segmentData.size}) valTypes=[${Array.from(v.segmentData.values()).slice(0, 3).map(x => Buffer.isBuffer(x) ? 'Buffer' : (x instanceof Uint8Array ? 'Uint8Array' : typeof x)).join(',')}]`
+              : String(v?.segmentData);
+            console.log(`[CacheHandler] HIT  ${key} kind=${v?.kind} htmlType=${typeof v?.html} rscDataIsBuffer=${Buffer.isBuffer(v?.rscData)} rscDataCtor=${v?.rscData?.constructor?.name || typeof v?.rscData} segmentData=${segInfo} postponedType=${typeof v?.postponed} postponed=${String(v?.postponed).slice(0, 40)}`);
+          }
           return entry;
         } catch {
           return null;
@@ -425,5 +461,6 @@ module.exports._internals = {
   serialize,
   deserialize,
   preprocessValue,
+  ensureBuffer,
   CACHE_FORMAT_VERSION,
 };

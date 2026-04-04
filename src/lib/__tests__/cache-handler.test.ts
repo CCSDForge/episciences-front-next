@@ -130,6 +130,51 @@ describe('CacheHandler', () => {
       expect(new TextDecoder().decode(body)).toBe('hello cache');
     });
 
+    it('ensures rscData is a proper Buffer (defensive ensureBuffer)', async () => {
+      // Simulate a Uint8Array returned from deserialization (should be re-wrapped as Buffer)
+      const bytes = new TextEncoder().encode('rsc payload');
+      const entry = { __v: _internals.CACHE_FORMAT_VERSION, value: { kind: 'APP_PAGE', html: '<html/>', rscData: bytes }, lastModified: 1000, tags: [] };
+      mockClient.get.mockResolvedValue(_internals.serialize(entry));
+      const handler = makeHandler();
+      const result = await handler.get('rsc-key');
+      // After ensureBuffer, rscData must pass Buffer.isBuffer() so render-result.js
+      // calls streamFromBuffer() instead of falling through to `return this.response`
+      expect(Buffer.isBuffer(result?.value.rscData)).toBe(true);
+    });
+
+    it('ensures segmentData Map values are proper Buffers (defensive ensureBuffer)', async () => {
+      const bytes = new TextEncoder().encode('segment payload');
+      const segMap = new Map([['/_tree', bytes], ['/_full', bytes]]);
+      const entry = { __v: _internals.CACHE_FORMAT_VERSION, value: { kind: 'APP_PAGE', html: '<html/>', segmentData: segMap }, lastModified: 1000, tags: [] };
+      mockClient.get.mockResolvedValue(_internals.serialize(entry));
+      const handler = makeHandler();
+      const result = await handler.get('seg-key');
+      const seg = result?.value.segmentData;
+      expect(seg).toBeInstanceOf(Map);
+      expect(Buffer.isBuffer(seg?.get('/_tree'))).toBe(true);
+      expect(Buffer.isBuffer(seg?.get('/_full'))).toBe(true);
+    });
+
+    it('ensureBuffer: Uint8Array → Buffer', () => {
+      const u8 = new Uint8Array([1, 2, 3]);
+      const result = _internals.ensureBuffer(u8);
+      expect(Buffer.isBuffer(result)).toBe(true);
+      expect(Array.from(result)).toEqual([1, 2, 3]);
+    });
+
+    it('ensureBuffer: {type:Buffer,data:[]} → Buffer', () => {
+      const legacyJson = { type: 'Buffer', data: [65, 66, 67] };
+      const result = _internals.ensureBuffer(legacyJson);
+      expect(Buffer.isBuffer(result)).toBe(true);
+      expect(result.toString()).toBe('ABC');
+    });
+
+    it('ensureBuffer: Buffer → Buffer (no-op)', () => {
+      const buf = Buffer.from('hello');
+      const result = _internals.ensureBuffer(buf);
+      expect(result).toBe(buf);
+    });
+
     it('falls back to in-memory when Valkey throws', async () => {
       // Preload in-memory
       const entry = { value: 'stale', lastModified: 900, tags: [] };
