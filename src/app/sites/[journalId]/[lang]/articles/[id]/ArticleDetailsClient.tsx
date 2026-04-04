@@ -1,7 +1,7 @@
 'use client';
 
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
 import MathJax from '@/components/MathJax/MathJax';
@@ -116,8 +116,25 @@ export default function ArticleDetailsClient({
     { key: ARTICLE_SECTION.CITED_BY, isOpened: true },
     { key: ARTICLE_SECTION.PREVIEW, isOpened: true },
   ]);
-  const [authors, setAuthors] = useState<EnhancedArticleAuthor[]>([]);
-  const [institutions, setInstitutions] = useState<IInstitution[]>([]);
+  // Derive authors with institution keys from article data.
+  // Using useMemo avoids an extra render cycle that useState+useEffect would cause.
+  const { authors, institutions } = useMemo(() => {
+    if (!article?.authors) return { authors: [], institutions: [] };
+    const allAuthors: EnhancedArticleAuthor[] = [];
+    const allInstitutionsMap = new Map<string, IInstitution>();
+    article.authors.forEach(author => {
+      const enhancedAuthor: EnhancedArticleAuthor = { ...author, institutionsKeys: [] };
+      author.institutions?.forEach(institution => {
+        if (!allInstitutionsMap.has(institution.name)) {
+          allInstitutionsMap.set(institution.name, institution);
+        }
+        const institutionIndex = Array.from(allInstitutionsMap.keys()).indexOf(institution.name);
+        enhancedAuthor.institutionsKeys.push(institutionIndex);
+      });
+      allAuthors.push(enhancedAuthor);
+    });
+    return { authors: allAuthors, institutions: Array.from(allInstitutionsMap.values()) };
+  }, [article]);
   const [citations, setCitations] = useState<ICitation[]>([]);
 
   useEffect(() => {
@@ -169,31 +186,6 @@ export default function ArticleDetailsClient({
     initialMetadataCSL,
     initialMetadataBibTeX,
   ]);
-
-  useEffect(() => {
-    if (article && article.authors && authors.length === 0 && institutions.length === 0) {
-      const allAuthors: EnhancedArticleAuthor[] = [];
-      const allInstitutionsMap = new Map<string, IInstitution>();
-
-      article.authors.forEach(author => {
-        const enhancedAuthor: EnhancedArticleAuthor = { ...author, institutionsKeys: [] };
-
-        author.institutions?.forEach(institution => {
-          if (!allInstitutionsMap.has(institution.name)) {
-            allInstitutionsMap.set(institution.name, institution);
-          }
-
-          const institutionIndex = Array.from(allInstitutionsMap.keys()).indexOf(institution.name);
-          enhancedAuthor.institutionsKeys.push(institutionIndex);
-        });
-
-        allAuthors.push(enhancedAuthor);
-      });
-
-      setAuthors(allAuthors);
-      setInstitutions(Array.from(allInstitutionsMap.values()));
-    }
-  }, [article, authors.length, institutions.length]);
 
   const renderArticleTitleAndAuthors = (isMobile: boolean): React.JSX.Element => {
     return (

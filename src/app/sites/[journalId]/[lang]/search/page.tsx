@@ -25,8 +25,7 @@ export default async function SearchPage(props: SearchPageProps) {
   // Déférer au runtime, pas de cache (résultats de recherche dynamiques par utilisateur)
   await connection();
 
-  const searchParams = await props.searchParams;
-  const params = await props.params;
+  const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
   const { lang, journalId } = params;
 
   // Extract search params

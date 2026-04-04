@@ -22,8 +22,7 @@ export default async function AuthorsPage(props: AuthorsPageProps) {
   // Dynamic rendering: uses searchParams (search, letter, pagination)
   await connection();
 
-  const searchParams = await props.searchParams;
-  const params = await props.params;
+  const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
   const { lang } = params;
 
   // Extract initial params

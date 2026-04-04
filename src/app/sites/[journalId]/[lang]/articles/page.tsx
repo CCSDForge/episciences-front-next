@@ -46,8 +46,7 @@ export default async function ArticlesPage(props: {
   params: Promise<{ lang: string; journalId: string }>;
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const searchParams = await props.searchParams;
-  const params = await props.params;
+  const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
   const lang = params.lang || 'en';
   const { journalId } = params;
 

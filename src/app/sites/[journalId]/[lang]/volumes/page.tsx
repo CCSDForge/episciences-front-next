@@ -38,8 +38,7 @@ export default async function VolumesPage(props: {
   params: Promise<{ lang: string; journalId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const params = await props.params;
-  const searchParams = await props.searchParams;
+  const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
   const { lang, journalId } = params;
 
   // Parse types from searchParams
