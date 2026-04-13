@@ -26,7 +26,7 @@ RestartSec=5
 NoNewPrivileges=yes
 PrivateTmp=yes
 ProtectSystem=strict
-ReadWritePaths=/var/www/episciences-front-next/current
+ReadWritePaths=/var/www/episciences-front-next
 
 # Resource limits
 LimitNOFILE=65536
