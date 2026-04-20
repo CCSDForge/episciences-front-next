@@ -78,7 +78,7 @@
     "axe-core": "^4.11.1",
     "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.0",
+    "eslint-config-next": "^16.0.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "fs-extra": "^11.3.3",
