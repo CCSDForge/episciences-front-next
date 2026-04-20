@@ -103,7 +103,7 @@ services:
       - episciences
 
   revalidate-worker:
-    image: node:22-alpine
+    image: node:24-alpine
     container_name: revalidate-worker
     working_dir: /app
     command: node scripts/revalidate-worker.mjs
