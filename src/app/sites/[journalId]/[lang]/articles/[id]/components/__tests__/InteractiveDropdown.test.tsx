@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import InteractiveDropdown from '../InteractiveDropdown';
@@ -176,7 +176,9 @@ describe('InteractiveDropdown', () => {
       await user.click(getTrigger());
 
       expect(screen.getByText(/common.loading/i)).toBeInTheDocument();
-      resolve!([]);
+      await act(async () => {
+        resolve!([]);
+      });
     });
 
     it('shows citation keys after generation', async () => {

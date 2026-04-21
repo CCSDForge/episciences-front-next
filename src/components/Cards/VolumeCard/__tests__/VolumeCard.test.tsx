@@ -13,11 +13,15 @@ vi.mock('@/components/Link/Link', () => ({
     href,
     children,
     className,
+    prefetch: _prefetch,
+    lang: _lang,
     ...rest
   }: {
     href: string;
     children: React.ReactNode;
     className?: string;
+    prefetch?: boolean;
+    lang?: string;
     [key: string]: unknown;
   }) => (
     <a href={href} className={className} {...rest}>

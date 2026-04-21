@@ -27,15 +27,16 @@ function VolumeListCard({ language, t, volume }: IVolumeListCardProps): React.JS
   const toggleDescription = (): void => setOpenedDescription(prev => !prev);
 
   const formatVolumeNum = (): string => {
+    const num = volume.num != null ? ` ${volume.num}` : '';
     if (volume.types && volume.types.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
-        return `${t('common.volumeCard.proceeding')} ${volume.num}`;
+        return `${t('common.volumeCard.proceeding')}${num}`;
       }
       if (volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
-        return `${t('common.volumeCard.specialIssue')} ${volume.num}`;
+        return `${t('common.volumeCard.specialIssue')}${num}`;
       }
     }
-    return `${t('common.volumeCard.volume')} ${volume.num}`;
+    return `${t('common.volumeCard.volume')}${num}`;
   };
 
   const renderVolumeListNum = (isMobile: boolean): React.JSX.Element => (
