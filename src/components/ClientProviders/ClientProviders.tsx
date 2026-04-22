@@ -74,16 +74,9 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
         });
         return inst;
       }
-    } else {
-      // CLIENT SIDE
-      // Hydrate the singleton i18n with translations
-      // Language change happens in useEffect to avoid React 19 render-time mutation error
-      if (initialLanguage && translations) {
-        if (!i18n.hasResourceBundle(initialLanguage, 'translation')) {
-          i18n.addResourceBundle(initialLanguage, 'translation', translations, true, true);
-        }
-      }
     }
+    // CLIENT SIDE: return singleton without mutating it during render
+    // addResourceBundle is called in useEffect to avoid updating other components during render
     return i18n;
   });
 
@@ -93,13 +86,15 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
   useEffect(() => {
     setIsClient(true);
 
-    // Detect language from pathname on client-side (after hydration)
-    const clientLang =
-      typeof window !== 'undefined'
-        ? getLanguageFromPathname(window.location.pathname)
-        : initialLang;
+    // Add resource bundle here (not in useState) to avoid mutating i18n during render,
+    // which would trigger events and update other components (e.g. Link) mid-render.
+    if (initialLanguage && translations && !i18n.hasResourceBundle(initialLanguage, 'translation')) {
+      i18n.addResourceBundle(initialLanguage, 'translation', translations, true, true);
+    }
 
-    // Update i18next language (moved here from useState to fix React 19 render-time mutation error)
+    // Detect language from pathname on client-side (after hydration)
+    const clientLang = getLanguageFromPathname(window.location.pathname);
+
     // Use initialLanguage for initial hydration, then clientLang for subsequent updates
     const targetLang = initialLanguage || clientLang;
     if (i18n.language !== targetLang) {
@@ -123,7 +118,7 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
     if (journalConfig) {
       store.dispatch(setJournalConfig(journalConfig));
     }
-  }, [initialLang, initialLanguage, initialJournal, apiEndpoint, journalConfig]);
+  }, [initialLang, initialLanguage, translations, initialJournal, apiEndpoint, journalConfig]);
 
   return (
     <Provider store={store}>
