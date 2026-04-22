@@ -163,7 +163,6 @@ describe('BoardCard', () => {
           language="en"
           t={mockT as any}
           member={baseMember}
-          state="default"
           state="blurred"
           onToggle={vi.fn()}
         />
