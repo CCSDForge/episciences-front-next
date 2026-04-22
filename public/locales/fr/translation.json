@@ -8,13 +8,13 @@
     "volumes": "volumes",
     "section": "rubrique",
     "sections": "rubriques",
-    "author": "auteur",
-    "authorFor": "auteur pour",
-    "authors": "auteurs",
-    "authorsFor": "auteurs pour",
+    "author": "auteur/autrice",
+    "authorFor": "auteur/autrice pour",
+    "authors": "auteurs/autrices",
+    "authorsFor": "auteurs/autrices pour",
     "member": "membre",
     "members": "membres",
-    "editors": "Rédacteurs",
+    "editors": "Rédacteurs/Rédactrices",
     "about": "À propos",
     "resultsFor": "résultats pour",
     "resultFor": "résultat pour",
@@ -76,12 +76,12 @@
       "volumeTypes": "Types de volume",
       "volumes": "Volumes",
       "sections": "Rubriques",
-      "authors": "Auteurs"
+      "authors": "Auteurs/Autrices"
     },
     "roles": {
-      "chief-editor": "Rédacteur en chef",
-      "editor": "Rédacteur",
-      "guest-editor": "Rédacteur invité",
+      "chief-editor": "Rédacteur/Rédactrice en chef",
+      "editor": "Rédacteur/Rédactrice",
+      "guest-editor": "Rédacteur invité/Rédactrice invitée",
       "secretary": "Secrétaire de rédaction",
       "webmaster": "Webmaster"
     },
@@ -111,17 +111,17 @@
         "sections": "Rubriques",
         "specialIssues": "Volumes spéciaux",
         "proceedings": "Actes de conférences",
-        "authors": "Auteurs",
+        "authors": "Auteurs/Autrice",
         "about": "À propos",
         "acknowledgements": "Remerciements",
-        "indexing": "Indexation",
+        "indexing": "Référencement",
         "theJournal": "La revue",
         "news": "Actualités",
         "statistics": "Statistiques",
         "boards": "Comités",
-        "forAuthors": "Pour les auteurs",
+        "forAuthors": "Pour les auteurs/autrices",
         "ethicalCharter": "Charte éthique",
-        "forReviewers": "Pour les relecteurs",
+        "forReviewers": "Pour les relecteurs/relectrices",
         "forConferenceOrganisers": "Pour les organisateurs de conférences",
         "proposingSpecialIssues": "Proposer des numéros spéciaux"
       },
@@ -209,7 +209,7 @@
           "see": "Voir tous les membres"
         },
         "indexation": {
-          "subtitle": "Indexation de la revue"
+          "subtitle": "Référencement de la revue"
         },
         "specialIssues": {
           "subtitle": "Volumes spéciaux",
@@ -249,7 +249,7 @@
       },
       "citedBySection": {
         "source": "Source : ",
-        "authors": "Auteurs",
+        "authors": "Auteurs/Autrices",
         "reference": "Référence de la revue",
         "volume": "Volume",
         "page": "pp.",
@@ -433,7 +433,7 @@
       "title": "Rubrique"
     },
     "authors": {
-      "title": "Auteurs",
+      "title": "Auteurs/Autrices",
       "searchName": "rechercher un nom",
       "others": "Autres"
     },
@@ -480,19 +480,19 @@
         "operatingCharterBoard": "Charte de fonctionnement"
       },
       "roles": {
-        "chiefEditor": "Rédacteur en chef",
-        "managingEditor": "Rédacteur en chef adjoint",
-        "editor": "Rédacteur",
-        "handlingEditor": "Rédacteur associé",
-        "guestEditor": "Rédacteur invité",
+        "chiefEditor": "Rédacteur/Rédactrice en chef",
+        "managingEditor": "Rédacteur/Rédactrice en chef adjoint/adjointe",
+        "editor": "Rédacteur/Rédactrice",
+        "handlingEditor": "Rédacteur associé/Rédactrice associée",
+        "guestEditor": "Rédacteur invité/Rédactrice invitée",
         "secretary": "Secrétaire",
         "advisoryBoard": "Membre du comité consultatif",
         "member": "Membre",
-        "formerMember": "Ancien membre"
+        "formerMember": "Ancien/Ancienne membre"
       }
     },
     "forAuthors": {
-      "title": "Pour les auteurs"
+      "title": "Pour les auteurs/autrices"
     },
     "acknowledgements": {
       "title": "Remerciements",
@@ -500,7 +500,7 @@
     },
     "indexing": {
       "title": "Indexation",
-      "noContent": "Aucune information d'indexation disponible pour cette revue."
+      "noContent": "Aucune information de référencement disponible pour cette revue."
     },
     "ethicalCharter": {
       "title": "Charte éthique",
@@ -508,7 +508,7 @@
     },
     "forReviewers": {
       "title": "Pour les relecteurs",
-      "noContent": "Aucune information pour les relecteurs disponible pour cette revue."
+      "noContent": "Aucune information pour les relecteurs/relectrices disponible pour cette revue."
     },
     "forConferenceOrganisers": {
       "title": "Pour les organisateurs de conférences",

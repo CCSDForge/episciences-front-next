@@ -85,14 +85,14 @@
   },
   "components": {
     "header": {
-      "journal": "Open Access journals",
+      "journal": "Open Access Journals",
       "content": "Articles & Issues",
       "about": "About",
       "publish": "Publish",
       "skipToMain": "Skip to main content",
       "skipToSearch": "Skip to search",
       "links": {
-        "openAccessJournals": "Open Access journals",
+        "openAccessJournals": "Open Access Journals",
         "articlesAndIssues": "Articles & Issues",
         "allArticles": "All articles",
         "articles": "All articles",
