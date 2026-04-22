@@ -10,6 +10,7 @@ import './NewsCard.scss';
 import { INews } from '@/types/news';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import { truncate } from '@/utils/string';
 import { generateIdFromText } from '@/utils/markdown';
 import { handleKeyboardClick } from '@/utils/keyboard';
@@ -37,9 +38,17 @@ function NewsTileCard({
   const cardId = generateIdFromText(news.id.toString());
 
   const renderContent = (): React.JSX.Element | null => {
-    if (!news.content || !news.content[language]) return null;
+    const { value: content, isAvailable } = getLocalizedContent(news.content, language);
 
-    const content = news.content[language];
+    if (!isAvailable) {
+      if (!news.content) return null;
+      return (
+        <div className="newsCard-content-content">
+          <em>{t('common.contentNotInLanguage')}</em>
+        </div>
+      );
+    }
+
     const isTruncated = content.length > MAX_CONTENT_LENGTH;
 
     return (
@@ -84,7 +93,7 @@ function NewsTileCard({
         <div className="newsCard-tile-full-initial">
           <div className="newsCard-content newsCard-content-tile-full">
             <div className="newsCard-content-title newsCard-content-title-tile">
-              {news.title[language]}
+              {getLocalizedContent(news.title, language).value}
             </div>
             <div className="newsCard-tile-anchor">
               <div className="newsCard-publicationDate newsCard-publicationDate-tile">
@@ -131,7 +140,7 @@ function NewsTileCard({
     >
       <div className="newsCard-content newsCard-content-tile">
         <div className="newsCard-content-title newsCard-content-title-tile">
-          {news.title[language]}
+          {getLocalizedContent(news.title, language).value}
         </div>
         <div className="newsCard-tile-anchor">
           <div className="newsCard-publicationDate newsCard-publicationDate-tile">

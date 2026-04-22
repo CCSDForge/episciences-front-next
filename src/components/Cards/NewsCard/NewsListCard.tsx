@@ -10,6 +10,7 @@ import './NewsCard.scss';
 import { INews } from '@/types/news';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
+import { getLocalizedContent } from '@/utils/content-fallback';
 import { truncate } from '@/utils/string';
 import { generateIdFromText } from '@/utils/markdown';
 import { handleKeyboardClick } from '@/utils/keyboard';
@@ -31,9 +32,17 @@ function NewsListCard({ language, t, news }: INewsListCardProps): React.JSX.Elem
   };
 
   const renderContent = (): React.JSX.Element | null => {
-    if (!news.content || !news.content[language]) return null;
+    const { value: content, isAvailable } = getLocalizedContent(news.content, language);
 
-    const content = news.content[language];
+    if (!isAvailable) {
+      if (!news.content) return null;
+      return (
+        <div className="newsCard-content-content">
+          <em>{t('common.contentNotInLanguage')}</em>
+        </div>
+      );
+    }
+
     const isTruncated = content.length > MAX_CONTENT_LENGTH;
 
     return (
@@ -66,7 +75,7 @@ function NewsListCard({ language, t, news }: INewsListCardProps): React.JSX.Elem
     <div id={generateIdFromText(news.id.toString())} className="newsCard">
       <div className="newsCard-publicationDate">{formatDate(news.publicationDate, language)}</div>
       <div className="newsCard-content">
-        <div className="newsCard-content-title">{news.title[language]}</div>
+        <div className="newsCard-content-title">{getLocalizedContent(news.title, language).value}</div>
         {renderContent()}
         {news.link && (
           <div className="newsCard-content-read">
