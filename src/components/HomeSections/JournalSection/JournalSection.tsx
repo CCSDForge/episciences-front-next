@@ -1,6 +1,5 @@
 'use client';
 
-import { ExternalLinkBlackIcon } from '@/components/icons';
 import { Link } from '@/components/Link/Link';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 
@@ -22,9 +21,8 @@ export default function JournalSection({
         <MarkdownRenderer
           components={{
             a: ({ ...props }) => (
-              <Link href={props.href!} target="_blank">
-                <span>{props.children?.toString()}</span>
-                <ExternalLinkBlackIcon size={16} ariaLabel="External link" />
+              <Link href={props.href!} target="_blank" rel="noopener noreferrer">
+                {props.children}
               </Link>
             ),
           }}
