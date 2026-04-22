@@ -60,13 +60,13 @@ export default function VolumesModal({
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-        <div className="typesSection">
-          <h2 id="modal-title" className="typesSectionTitle">
+        <div className="volumesModal-typesSection">
+          <h2 id="modal-title" className="volumesModal-typesSection-title">
             {t('common.filters.volumeTypes')}
           </h2>
-          <div className="typesSectionTypes">
+          <div className="volumesModal-typesSection-types">
             {types.map((type, index) => (
-              <div key={index} className="typesSectionTypesChoice">
+              <div key={index} className="volumesModal-typesSection-types-choice">
                 <div>
                   <Checkbox
                     checked={type.isChecked}
@@ -75,7 +75,7 @@ export default function VolumesModal({
                   />
                 </div>
                 <span
-                  className={`typesSectionTypesChoiceLabel ${type.isChecked ? 'typesSectionTypesChoiceLabelChecked' : ''}`}
+                  className={`volumesModal-typesSection-types-choice-label ${type.isChecked ? 'volumesModal-typesSection-types-choice-label-checked' : ''}`}
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onCheckTypeCallback(type.value)}
@@ -89,14 +89,14 @@ export default function VolumesModal({
             ))}
           </div>
         </div>
-        <div className="yearsSection">
-          <div className="yearsSectionTitle">{t('common.filters.years')}</div>
-          <div className="yearsSectionYears">
-            <div className="yearsSectionYearsList">
+        <div className="volumesModal-yearsSection">
+          <div className="volumesModal-yearsSection-title">{t('common.filters.years')}</div>
+          <div className="volumesModal-yearsSection-years">
+            <div className="volumesModal-yearsSection-years-list">
               {years.map(y => (
                 <div
                   key={y.year}
-                  className={`yearsSectionYearsListYear ${y.isSelected ? 'yearsSectionYearsListYearSelected' : ''}`}
+                  className={`volumesModal-yearsSection-years-list-year ${y.isSelected ? 'volumesModal-yearsSection-years-list-year-selected' : ''}`}
                   role="button"
                   tabIndex={0}
                   onClick={(): void => onSelectYearCallback(y.year)}

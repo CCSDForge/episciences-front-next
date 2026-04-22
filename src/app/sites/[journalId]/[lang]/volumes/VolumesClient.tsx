@@ -231,12 +231,12 @@ export default function VolumesClient({
 
       if (Array.isArray(volumes.range?.years) && volumes.range.years.length > 0) {
         // Ensure years are numbers
-        yearsToUse = volumes.range.years.map(y => Number(y)).filter(n => !isNaN(n));
+        yearsToUse = volumes.range.years.map(y => Number(y)).filter(n => !isNaN(n) && n > 0);
       } else if (Array.isArray(volumes.data)) {
         // Fallback: extract years from current data if range is missing
         const extractedYears = volumes.data
           .map(v => Number(v.year))
-          .filter((y): y is number => !isNaN(y));
+          .filter((y): y is number => !isNaN(y) && y > 0);
         yearsToUse = Array.from(new Set(extractedYears));
       }
 
