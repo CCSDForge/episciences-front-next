@@ -21,7 +21,6 @@ import {
 } from '@/store/features/journal/journal.slice';
 import { IVolume } from '@/types/volume';
 import { IJournal } from '@/types/journal';
-import { getLanguageFromPathname } from '@/utils/language-utils';
 
 interface ClientProvidersProps {
   initialVolume?: IVolume | null;
@@ -53,72 +52,41 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
   // Client-side detection happens in useEffect to avoid mismatch
   const initialLang = initialLanguage || 'en';
 
-  // Create a dedicated i18n instance for the server to avoid singleton issues
-  // On the client, we use the singleton from @/config/i18n
+  // Always create a fresh i18next instance pre-loaded with translations.
+  // Using `resources` initializes synchronously (no async backend), so the instance
+  // is ready before the first render on both server and client — no singleton mutation,
+  // no "update during render" warning, no hydration mismatch.
   const [i18nInstance] = useState(() => {
-    if (typeof window === 'undefined') {
-      // SERVER SIDE
-      if (initialLanguage && translations) {
-        const inst = i18next.createInstance();
-        inst.use(initReactI18next).init({
-          lng: initialLanguage,
-          fallbackLng: 'en',
-          resources: {
-            [initialLanguage]: {
-              translation: translations,
-            },
+    if (initialLanguage && translations) {
+      const inst = i18next.createInstance();
+      inst.use(initReactI18next).init({
+        lng: initialLanguage,
+        fallbackLng: 'en',
+        resources: {
+          [initialLanguage]: {
+            translation: translations,
           },
-          interpolation: {
-            escapeValue: false,
-          },
-        });
-        return inst;
-      }
+        },
+        interpolation: {
+          escapeValue: false,
+        },
+      });
+      return inst;
     }
-    // CLIENT SIDE: return singleton without mutating it during render
-    // addResourceBundle is called in useEffect to avoid updating other components during render
     return i18n;
   });
 
   const [isClient, setIsClient] = useState(false);
 
-  // Initialize Redux and i18next after hydration
+  // Sync Redux store after hydration.
+  // i18n language is already set in the instance created above — no changeLanguage needed.
   useEffect(() => {
     setIsClient(true);
-
-    // Add resource bundle here (not in useState) to avoid mutating i18n during render,
-    // which would trigger events and update other components (e.g. Link) mid-render.
-    if (initialLanguage && translations && !i18n.hasResourceBundle(initialLanguage, 'translation')) {
-      i18n.addResourceBundle(initialLanguage, 'translation', translations, true, true);
-    }
-
-    // Detect language from pathname on client-side (after hydration)
-    const clientLang = getLanguageFromPathname(window.location.pathname);
-
-    // Use initialLanguage for initial hydration, then clientLang for subsequent updates
-    const targetLang = initialLanguage || clientLang;
-    if (i18n.language !== targetLang) {
-      i18n.changeLanguage(targetLang);
-    }
-
-    // Update Redux store
-    store.dispatch(setLanguage(targetLang as any));
-
-    // Initialize Journal if provided
-    if (initialJournal) {
-      store.dispatch(setCurrentJournal(initialJournal));
-    }
-
-    // Initialize API Endpoint if provided
-    if (apiEndpoint) {
-      store.dispatch(setApiEndpoint(apiEndpoint));
-    }
-
-    // Initialize Journal Configuration if provided
-    if (journalConfig) {
-      store.dispatch(setJournalConfig(journalConfig));
-    }
-  }, [initialLang, initialLanguage, translations, initialJournal, apiEndpoint, journalConfig]);
+    store.dispatch(setLanguage((initialLanguage || initialLang) as any));
+    if (initialJournal) store.dispatch(setCurrentJournal(initialJournal));
+    if (apiEndpoint) store.dispatch(setApiEndpoint(apiEndpoint));
+    if (journalConfig) store.dispatch(setJournalConfig(journalConfig));
+  }, [initialLang, initialLanguage, initialJournal, apiEndpoint, journalConfig]);
 
   return (
     <Provider store={store}>
