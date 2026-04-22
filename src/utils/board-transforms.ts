@@ -133,6 +133,7 @@ export function transformBoardMembers(rawMembers: RawBoardMember[]): IBoardMembe
  * Board with title, description and members for display
  */
 export interface IBoardPerTitle {
+  page_code: string;
   title: string;
   description: string;
   members: IBoardMember[];
@@ -224,6 +225,7 @@ export function getBoardsPerTitle(
     });
 
     return {
+      page_code: page.page_code,
       title,
       description,
       members: sortedMembers,

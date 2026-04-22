@@ -71,10 +71,11 @@ export default function BoardsClient({
   const [fullMemberIndex, setFullMemberIndex] = useState(-1);
 
   const getPagesLabels = (): string[] => {
-    if (!boardsData?.pages || !boardsData.pages.length) return [];
+    if (!boardsPerTitle.length) return [];
 
-    // Use currentLang for consistent rendering
-    return boardsData.pages.map(page => page.title[currentLang] || page.title['en'] || '');
+    return boardsPerTitle.map(
+      board => rolesLabels?.[board.page_code] || board.title
+    );
   };
 
   const boardsPerTitle = useMemo(() => {
@@ -147,7 +148,7 @@ export default function BoardsClient({
                 onClick={(): void => handleGroupToggle(index)}
                 onKeyDown={e => handleKeyboardClick(e, () => handleGroupToggle(index))}
               >
-                <h2>{boardPerTitle.title}</h2>
+                <h2>{rolesLabels?.[boardPerTitle.page_code] || boardPerTitle.title}</h2>
                 {openGroups.has(index) ? (
                   <CaretUpBlackIcon
                     size={16}
