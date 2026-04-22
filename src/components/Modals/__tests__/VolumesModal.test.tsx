@@ -207,7 +207,7 @@ describe('VolumesModal', () => {
       render(<VolumesModal {...defaultProps} />);
 
       const selectedYear = screen.getByText('2023');
-      expect(selectedYear).toHaveClass('yearsSectionYearsListYearSelected');
+      expect(selectedYear).toHaveClass('volumesModal-yearsSection-years-list-year-selected');
     });
   });
 
