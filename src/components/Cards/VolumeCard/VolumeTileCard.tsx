@@ -67,7 +67,7 @@ function VolumeTileCard({
           lang={language}
           className="volumeCard-tile-template"
         >
-          <div className="volumeCard-tile-template-jpe">{displayJournalCode}</div>
+          <div className="volumeCard-tile-template-code">{displayJournalCode}</div>
           <div className="volumeCard-tile-template-volume">{t('common.volumeCard.volume')}</div>
           {volume.types && volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE) && (
             <div className="volumeCard-tile-template-issue">

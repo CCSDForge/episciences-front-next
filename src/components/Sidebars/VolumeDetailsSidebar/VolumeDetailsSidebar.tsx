@@ -134,7 +134,7 @@ export default function VolumeDetailsSidebar({
         />
       ) : (
         <div className="volumeDetailsSidebar-template">
-          <div className="volumeDetailsSidebar-template-jpe">{displayJournalCode}</div>
+          <div className="volumeDetailsSidebar-template-code">{displayJournalCode}</div>
           {renderVolumeTemplateSpecial()}
           {renderVolumeTemplateNumber()}
           <div className="volumeDetailsSidebar-template-year">{volume?.year}</div>

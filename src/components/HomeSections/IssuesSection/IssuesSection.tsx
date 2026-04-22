@@ -58,7 +58,7 @@ function IssuesSection({
               />
             ) : (
               <div className="issuesSection-card-template">
-                <div className="issuesSection-card-template-jpe">{displayJournalCode}</div>
+                <div className="issuesSection-card-template-code">{displayJournalCode}</div>
                 <div className="issuesSection-card-template-volume">
                   {t('common.volumeCard.specialIssue')}
                 </div>
