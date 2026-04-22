@@ -129,6 +129,6 @@ export const config = {
      * - locales (translation files)
      * - fonts (font files)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|icons|logos|locales|fonts).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|icons|logos|locales|fonts|sites).*)',
   ],
 };
