@@ -39,9 +39,9 @@ export default async function ForEditorsPage(props: {
   let pageData = null;
   const { journalId, lang } = params;
 
-  // Check if this page should be rendered for this journal
+  // Hidden by default — requires explicit opt-in via env var
   const journalConfig = getPublicJournalConfig(journalId);
-  if (journalConfig.NEXT_PUBLIC_JOURNAL_MENU_JOURNAL_FOR_EDITORS_RENDER === 'false') {
+  if (journalConfig.NEXT_PUBLIC_JOURNAL_MENU_JOURNAL_FOR_EDITORS_RENDER !== 'true') {
     notFound();
   }
 

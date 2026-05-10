@@ -9,6 +9,7 @@ export interface MenuItemConfig {
   path: string;
   envKey?: string; // Environment variable suffix (without NEXT_PUBLIC_JOURNAL_MENU_ prefix)
   alwaysVisible?: boolean; // If true, item is always visible regardless of env vars
+  defaultHidden?: boolean; // If true, item is hidden by default (requires env var = 'true' to show)
 }
 
 export interface MenuStructure {
@@ -137,6 +138,7 @@ export const menuConfig: MenuStructure = {
         label: 'components.header.links.forEditors',
         path: '/for-editors',
         envKey: 'JOURNAL_FOR_EDITORS',
+        defaultHidden: true,
       },
       {
         key: 'FOR_CONFERENCE_ORGANISERS',
@@ -183,7 +185,10 @@ export const shouldRenderMenuItem = (item: MenuItemConfig): boolean => {
   // Check environment variable: NEXT_PUBLIC_JOURNAL_MENU_{envKey}_RENDER
   const envValue = process.env[`NEXT_PUBLIC_JOURNAL_MENU_${item.envKey}_RENDER`];
 
-  // Default behavior: undefined or 'true' → show item, 'false' → hide item
+  // defaultHidden items require explicit opt-in; others require explicit opt-out
+  if (item.defaultHidden) {
+    return envValue === 'true';
+  }
   return envValue === undefined || envValue === 'true';
 };
 
