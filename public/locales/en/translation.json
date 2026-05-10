@@ -115,6 +115,7 @@
         "forAuthors": "For authors",
         "ethicalCharter": "Ethical charter",
         "forReviewers": "For reviewers",
+        "forEditors": "For editors",
         "forConferenceOrganisers": "For conference organisers",
         "proposingSpecialIssues": "Proposing special issues"
       },
@@ -502,6 +503,10 @@
     "forReviewers": {
       "title": "For Reviewers",
       "noContent": "No information for reviewers available for this journal."
+    },
+    "forEditors": {
+      "title": "For Editors",
+      "noContent": "No information for editors available for this journal."
     },
     "forConferenceOrganisers": {
       "title": "For Conference Organisers",

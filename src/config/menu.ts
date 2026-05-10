@@ -133,6 +133,12 @@ export const menuConfig: MenuStructure = {
         envKey: 'JOURNAL_FOR_REVIEWERS',
       },
       {
+        key: 'FOR_EDITORS',
+        label: 'components.header.links.forEditors',
+        path: '/for-editors',
+        envKey: 'JOURNAL_FOR_EDITORS',
+      },
+      {
         key: 'FOR_CONFERENCE_ORGANISERS',
         label: 'components.header.links.forConferenceOrganisers',
         path: '/for-conference-organisers',

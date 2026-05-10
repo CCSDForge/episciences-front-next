@@ -122,6 +122,7 @@
         "forAuthors": "Pour les auteurs/autrices",
         "ethicalCharter": "Charte éthique",
         "forReviewers": "Pour les relecteurs/relectrices",
+        "forEditors": "Pour les rédacteurs/rédactrices",
         "forConferenceOrganisers": "Pour les organisateurs de conférences",
         "proposingSpecialIssues": "Proposer des numéros spéciaux"
       },
@@ -509,6 +510,10 @@
     "forReviewers": {
       "title": "Pour les relecteurs",
       "noContent": "Aucune information pour les relecteurs/relectrices disponible pour cette revue."
+    },
+    "forEditors": {
+      "title": "Pour les rédacteurs/rédactrices",
+      "noContent": "Aucune information pour les rédacteurs/rédactrices disponible pour cette revue."
     },
     "forConferenceOrganisers": {
       "title": "Pour les organisateurs de conférences",

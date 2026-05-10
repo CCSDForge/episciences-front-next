@@ -115,6 +115,7 @@
         "forAuthors": "Para autores",
         "ethicalCharter": "Carta ética",
         "forReviewers": "Para revisores",
+        "forEditors": "Para editores",
         "forConferenceOrganisers": "Para organizadores de congresos",
         "proposingSpecialIssues": "Propuesta de monográficos"
       },
@@ -502,6 +503,10 @@
     "forReviewers": {
       "title": "Para revisores",
       "noContent": "No hay información para revisores disponible para esta revista."
+    },
+    "forEditors": {
+      "title": "Para editores",
+      "noContent": "No hay información para editores disponible para esta revista."
     },
     "forConferenceOrganisers": {
       "title": "Para organizadores de congresos",

@@ -23,6 +23,7 @@ export const PATHS = {
   forAuthors: 'for-authors',
   ethicalCharter: 'ethical-charter',
   forReviewers: 'for-reviewers',
+  forEditors: 'for-editors',
   forConferenceOrganisers: 'for-conference-organisers',
 } as const;
 
