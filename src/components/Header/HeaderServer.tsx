@@ -132,7 +132,7 @@ export default async function HeaderServer({
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <Link href={episciencesUrl} lang={lang}>
-            <Image src={logoEpisciences} alt="Episciences" width={120} height={30} loading="lazy" unoptimized />
+            <Image src={logoEpisciences} alt="Episciences" width={156} height={45} loading="lazy" unoptimized />
           </Link>
         </div>
         <div className="header-preheader-links">
@@ -191,7 +191,7 @@ export default async function HeaderServer({
             <Image src={logoSrc} alt={`${journalName} logo`} width={42} height={42} loading="lazy" unoptimized />
           </Link>
         </div>
-        <div className="header-reduced-journal-blank">{journalName}</div>
+        <div className="header-reduced-journal-blank"><span>{journalName}</span></div>
         <div className="header-reduced-journal-dropdown">
           <LanguageDropdownWrapper lang={lang} acceptedLanguages={acceptedLanguages} />
           {signInUrl && (

@@ -55,7 +55,8 @@
     }
 
     &-blank {
-      width: 100%;
+      min-width: 0;
+      flex: 1;
       background: var(--primary);
       color: var(--button-text-on-primary-bg);
       display: flex;
@@ -64,6 +65,13 @@
       padding-right: 80px;
       font-size: 16px;
       font-weight: bold;
+      overflow: hidden;
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
       @media (max-width: breakpoints.$sm) {
         padding-right: 25px;
