@@ -16,9 +16,7 @@ const nextConfig = {
   //                          origins, getRelativeURL() cannot relativize the rewrite
   //                          destination, and Next.js falls back to an external
   //                          HTTPS proxy to localhost:3000 → EPROTO.
-  experimental: {
-    trustHostHeader: true,
-  },
+  trustHostHeader: true,
   skipProxyUrlNormalize: true,
 
   // Distributed cache handler (Valkey/ioredis)
