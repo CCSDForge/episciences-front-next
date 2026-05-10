@@ -32,7 +32,6 @@
     "he": "^1.2.0",
     "i18next": "^23.16.8",
     "i18next-browser-languagedetector": "^8.0.4",
-    "i18next-http-backend": "^2.7.3",
     "i18next-resources-to-backend": "^1.2.1",
     "ioredis": "^5.9.3",
     "next": "^16.2.2",
@@ -92,5 +91,10 @@
     "typescript": "^5.2.2",
     "vitest": "4.1.2",
     "vitest-axe": "^0.1.0"
+  },
+  "overrides": {
+    "@babel/plugin-transform-modules-systemjs": ">=7.29.4",
+    "postcss": ">=8.5.10",
+    "glob": ">=10.5.0"
   }
 }
