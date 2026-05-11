@@ -115,12 +115,12 @@ export default async function HeaderServer({
   const translations = await getServerTranslations(lang);
 
   // Prepare visible menu items with dynamic path replacements
-  const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content).map(item =>
+  const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content, journalPublicConfig).map(item =>
     processMenuItemPath(item, { lastVolumeId })
   );
-  const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about);
-  const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish);
-  const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone);
+  const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about, journalPublicConfig);
+  const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish, journalPublicConfig);
+  const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone, journalPublicConfig);
 
   return (
     <header className="header" role="banner">

@@ -167,23 +167,19 @@ export const menuConfig: MenuStructure = {
 };
 
 /**
- * Check if a menu item should be rendered based on environment variables
- * @param item - Menu item configuration
- * @returns true if item should be displayed, false otherwise
+ * Check if a menu item should be rendered.
+ * Priority: journal-specific config (runtime, per-journal) > process.env (build-time global).
  */
-export const shouldRenderMenuItem = (item: MenuItemConfig): boolean => {
-  // Always visible items bypass env var checks
-  if (item.alwaysVisible) {
-    return true;
-  }
+export const shouldRenderMenuItem = (
+  item: MenuItemConfig,
+  journalConfig?: Record<string, string>
+): boolean => {
+  if (item.alwaysVisible) return true;
+  if (!item.envKey) return true;
 
-  // If no env key specified, item is visible by default
-  if (!item.envKey) {
-    return true;
-  }
-
-  // Check environment variable: NEXT_PUBLIC_JOURNAL_MENU_{envKey}_RENDER
-  const envValue = process.env[`NEXT_PUBLIC_JOURNAL_MENU_${item.envKey}_RENDER`];
+  const envKey = `NEXT_PUBLIC_JOURNAL_MENU_${item.envKey}_RENDER`;
+  // Journal-specific runtime config takes priority over build-time process.env
+  const envValue = journalConfig?.[envKey] ?? process.env[envKey];
 
   // defaultHidden items require explicit opt-in; others require explicit opt-out
   if (item.defaultHidden) {
@@ -193,12 +189,14 @@ export const shouldRenderMenuItem = (item: MenuItemConfig): boolean => {
 };
 
 /**
- * Filter menu items to return only visible ones based on environment configuration
- * @param items - Array of menu item configurations
- * @returns Filtered array of visible menu items
+ * Filter menu items to return only visible ones.
+ * Pass journalConfig to apply per-journal overrides from external-assets/.env.local.<code>.
  */
-export const getVisibleMenuItems = (items: MenuItemConfig[]): MenuItemConfig[] => {
-  return items.filter(shouldRenderMenuItem);
+export const getVisibleMenuItems = (
+  items: MenuItemConfig[],
+  journalConfig?: Record<string, string>
+): MenuItemConfig[] => {
+  return items.filter(item => shouldRenderMenuItem(item, journalConfig));
 };
 
 /**

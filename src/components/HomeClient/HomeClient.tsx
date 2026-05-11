@@ -11,6 +11,7 @@ import {
   HOMEPAGE_LAST_INFORMATION_BLOCK,
   blocksConfiguration,
 } from '@/config/homepage';
+import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 import { PATHS } from '@/config/paths';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { IVolume } from '@/types/volume';
@@ -35,6 +36,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
   const { t, i18n } = useTranslation();
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code) || journalId;
+  const journalConfig = useAppSelector(selectJournalConfig);
 
   // Use initial data from Server Component (ISR handles freshness via Cache Components)
   const currentHomeData = homeData;
@@ -51,41 +53,27 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
     acceptedArticles = { data: [] },
   } = currentHomeData || {};
 
-  // Vérifier si un bloc doit être affiché ou non
   const getBlockRendering = (blockKey: HOMEPAGE_BLOCK) => {
-    const config = blocksConfiguration().find(config => config.key === blockKey);
+    const config = blocksConfiguration().find(c => c.key === blockKey);
 
-    // Vérifier les variables d'environnement pour éventuellement désactiver certains blocs
-    let envValue;
-    switch (blockKey) {
-      case HOMEPAGE_BLOCK.MEMBERS_CAROUSEL:
-        envValue = process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_MEMBERS_CAROUSEL_RENDER;
-        break;
-      case HOMEPAGE_BLOCK.SPECIAL_ISSUES:
-        envValue = process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_SPECIAL_ISSUES_RENDER;
-        break;
-      case HOMEPAGE_BLOCK.JOURNAL_INDEXATION:
-        envValue = process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_JOURNAL_INDEXATION_RENDER;
-        break;
-      case HOMEPAGE_BLOCK.LATEST_ARTICLES_CAROUSEL:
-        envValue = process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_ARTICLES_CAROUSEL_RENDER;
-        break;
-      case HOMEPAGE_BLOCK.LATEST_NEWS_CAROUSEL:
-        envValue = process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_NEWS_CAROUSEL_RENDER;
-        break;
-      case HOMEPAGE_BLOCK.LATEST_ACCEPTED_ARTICLES_CAROUSEL:
-        envValue =
-          process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_ACCEPTED_ARTICLES_CAROUSEL_RENDER;
-        break;
-      case HOMEPAGE_BLOCK.STATS:
-        envValue = process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_STATS_RENDER;
-        break;
-    }
+    const BLOCK_ENV_KEYS: Partial<Record<HOMEPAGE_BLOCK, string>> = {
+      [HOMEPAGE_BLOCK.MEMBERS_CAROUSEL]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_MEMBERS_CAROUSEL_RENDER',
+      [HOMEPAGE_BLOCK.SPECIAL_ISSUES]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_SPECIAL_ISSUES_RENDER',
+      [HOMEPAGE_BLOCK.JOURNAL_INDEXATION]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_JOURNAL_INDEXATION_RENDER',
+      [HOMEPAGE_BLOCK.LATEST_ARTICLES_CAROUSEL]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_ARTICLES_CAROUSEL_RENDER',
+      [HOMEPAGE_BLOCK.LATEST_NEWS_CAROUSEL]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_NEWS_CAROUSEL_RENDER',
+      [HOMEPAGE_BLOCK.LATEST_ACCEPTED_ARTICLES_CAROUSEL]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_ACCEPTED_ARTICLES_CAROUSEL_RENDER',
+      [HOMEPAGE_BLOCK.STATS]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_STATS_RENDER',
+    };
 
-    if (envValue === 'false') {
-      return { ...config, render: false };
-    }
+    const envKey = BLOCK_ENV_KEYS[blockKey];
+    if (!envKey) return config;
 
+    // Journal-specific runtime config takes priority over build-time process.env
+    const envValue = journalConfig?.[envKey] ?? process.env[envKey];
+
+    if (envValue === 'false') return { ...config, render: false };
+    if (envValue === 'true') return { ...config, render: true };
     return config;
   };
 
@@ -165,7 +153,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
       validAcceptedArticles,
       shouldRenderAcceptedArticles,
     };
-  }, [aboutPage, articles, news, members, stats, indexation, issues, acceptedArticles]);
+  }, [aboutPage, articles, news, members, stats, indexation, issues, acceptedArticles, journalConfig]);
 
   return (
     <main className="home">

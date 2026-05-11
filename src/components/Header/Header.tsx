@@ -19,6 +19,7 @@ import { statisticsBlocksConfiguration } from '@/config/statistics';
 import { menuConfig, getVisibleMenuItems, processMenuItemPath } from '@/config/menu';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setSearch } from '@/store/features/search/search.slice';
+import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 import { availableLanguages } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 import Button from '@/components/Button/Button';
@@ -89,6 +90,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   const language = useAppSelector(state => state.i18nReducer.language);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
   const lastVolume = useAppSelector(state => state.volumeReducer.lastVolume);
+  const journalConfig = useAppSelector(selectJournalConfig);
 
   // Définir un titre par défaut pour le build statique
   const defaultJournalTitle =
@@ -204,14 +206,14 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
 
   const postHeaderLinks = useMemo((): React.JSX.Element => {
     // Prepare visible menu items with dynamic path replacements
-    const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content).map(item =>
+    const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content, journalConfig ?? undefined).map(item =>
       processMenuItemPath(item, {
         lastVolumeId: lastVolume?.id?.toString() || '',
       })
     );
-    const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about);
-    const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish);
-    const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone);
+    const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about, journalConfig ?? undefined);
+    const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish, journalConfig ?? undefined);
+    const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone, journalConfig ?? undefined);
 
     return (
       <>
@@ -289,20 +291,20 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
         </div>
       </>
     );
-  }, [showDropdown, lastVolume, language, isReduced, isSearching, search, submitManagerLink, t, toggleDropdown, updateSearch, submitSearch, setIsSearching]);
+  }, [showDropdown, lastVolume, language, isReduced, isSearching, search, submitManagerLink, t, toggleDropdown, updateSearch, submitSearch, setIsSearching, journalConfig]);
 
   const postHeaderBurgerLinks = useMemo((): React.JSX.Element => {
     if (!showMobileMenu) return <></>;
 
     // Prepare visible menu items with dynamic path replacements
-    const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content).map(item =>
+    const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content, journalConfig ?? undefined).map(item =>
       processMenuItemPath(item, {
         lastVolumeId: lastVolume?.id?.toString() || '',
       })
     );
-    const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about);
-    const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish);
-    const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone);
+    const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about, journalConfig ?? undefined);
+    const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish, journalConfig ?? undefined);
+    const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone, journalConfig ?? undefined);
 
     return (
       <div
@@ -368,7 +370,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
         </div>
       </div>
     );
-  }, [showMobileMenu, lastVolume, router, t]);
+  }, [showMobileMenu, lastVolume, router, t, journalConfig]);
 
   if (isReduced) {
     return (
