@@ -15,6 +15,10 @@
     border-bottom: 4px solid var(--primary-border);
     flex-basis: 66.6%;
 
+    &--full {
+      flex-basis: 100%;
+    }
+
     &-content {
       font-size: 18px;
       flex: 1;

@@ -16,6 +16,7 @@ import { VOLUME_TYPE } from '@/utils/volume';
 import './PresentationSection.scss';
 
 const MAX_ABOUT_CONTENT_LENGTH = 400;
+const MAX_ABOUT_CONTENT_LENGTH_FULL = 800;
 const MAX_NEWS_CONTENT_LENGTH = 350;
 
 interface IPresentationSectionProps {
@@ -141,13 +142,14 @@ export default function PresentationSection({
 
   const aboutText = getAboutContent();
   const hasValidAboutContent = !!aboutText;
+  const hasRightBlock = !!(lastInformation && lastInformation.information);
 
   return (
     <div className="presentationSection">
       {hasValidAboutContent && (
-        <div className="presentationSection-about">
+        <div className={`presentationSection-about${!hasRightBlock ? ' presentationSection-about--full' : ''}`}>
           <div className="presentationSection-about-content">
-            <MarkdownRenderer>{truncate(aboutText, MAX_ABOUT_CONTENT_LENGTH)}</MarkdownRenderer>
+            <MarkdownRenderer>{truncate(aboutText, hasRightBlock ? MAX_ABOUT_CONTENT_LENGTH : MAX_ABOUT_CONTENT_LENGTH_FULL)}</MarkdownRenderer>
           </div>
           <Link href={PATHS.about} lang={language}>
             <div className="presentationSection-about-seeMore">
