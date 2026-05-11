@@ -10,6 +10,7 @@ import {
   HOMEPAGE_BLOCK,
   HOMEPAGE_LAST_INFORMATION_BLOCK,
   blocksConfiguration,
+  lastInformationBlockConfiguration,
 } from '@/config/homepage';
 import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 import { PATHS } from '@/config/paths';
@@ -49,6 +50,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
     members = [],
     stats = [],
     indexation = { content: {} },
+    volumes = { data: [] },
     issues = { data: [] },
     acceptedArticles = { data: [] },
   } = currentHomeData || {};
@@ -79,14 +81,20 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
 
   // Créer un objet lastInformation valide pour PresentationSection
   const lastInformation = useMemo(() => {
+    const { key, render } = lastInformationBlockConfiguration();
+    if (!render) return undefined;
+
+    if (key === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME && volumes?.data?.[0]) {
+      return { type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME, information: volumes.data[0] as IVolume };
+    }
+    if (key === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_SPECIAL_ISSUE && issues?.data?.[0]) {
+      return { type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_SPECIAL_ISSUE, information: issues.data[0] as IVolume };
+    }
     if (news?.data?.[0]) {
-      return {
-        type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS,
-        information: news.data[0] as INews,
-      };
+      return { type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS, information: news.data[0] as INews };
     }
     return undefined;
-  }, [news]);
+  }, [news, volumes, issues]);
 
   // Préparer les données pour le rendu
   const {
@@ -153,7 +161,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
       validAcceptedArticles,
       shouldRenderAcceptedArticles,
     };
-  }, [aboutPage, articles, news, members, stats, indexation, issues, acceptedArticles, journalConfig]);
+  }, [aboutPage, articles, news, members, stats, indexation, volumes, issues, acceptedArticles, journalConfig]);
 
   return (
     <main className="home">

@@ -68,7 +68,7 @@ export const blocksConfiguration = (): BlockConfig[] => [
 export const lastInformationBlockConfiguration = () => ({
   key:
     (process.env
-      .NEXT_PUBLIC_JOURNAL_HOMEPAGE_LAST_INFORMATION_BLOCK_KEY as HOMEPAGE_LAST_INFORMATION_BLOCK) ||
+      .NEXT_PUBLIC_JOURNAL_HOMEPAGE_LAST_INFORMATION_RENDER_TYPE as HOMEPAGE_LAST_INFORMATION_BLOCK) ||
     HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS,
   render: process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_LAST_INFORMATION_BLOCK_RENDER !== 'false',
 });
