@@ -22,7 +22,23 @@
  * loads the cache handler via require().
  */
 
+const fs = require('fs');
+const path = require('path');
 const { getValkeyClient } = require('./valkey-client');
+
+// Read the Next.js Build ID so we can reject cache entries from a previous build.
+// Each `npm run build` regenerates .next/BUILD_ID with a unique hash; entries
+// stored under a different build ID reference stale JS/CSS chunks and must be
+// treated as misses rather than served to the browser.
+function readBuildId() {
+  try {
+    return fs.readFileSync(path.join(process.cwd(), '.next', 'BUILD_ID'), 'utf-8').trim();
+  } catch {
+    return null; // Build ID unavailable (e.g. during tests) — disable the check
+  }
+}
+
+const BUILD_ID = readBuildId();
 
 // Increment when the serialization format changes to invalidate stale entries.
 // v1: initial (no __v field, ReadableStream silently lost as {})
@@ -310,6 +326,12 @@ class CacheHandler {
             if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] STALE (version mismatch) ${key}`);
             return null;
           }
+          if (BUILD_ID && entry.__buildId !== BUILD_ID) {
+            // Entry was stored by a previous build — its JS/CSS chunk references are
+            // stale. Treat as miss so the current build can re-render and re-cache.
+            if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] STALE (build mismatch) ${key}`);
+            return null;
+          }
           // Defensive: ensure Buffer-typed fields are proper Node.js Buffers so that
           // Buffer.isBuffer() returns true in the render-result.js readable getter.
           // A Uint8Array or { type:'Buffer', data:[] } would cause the fallthrough
@@ -353,6 +375,7 @@ class CacheHandler {
     const processedData = await preprocessValue(data);
     const entry = {
       __v: CACHE_FORMAT_VERSION,
+      __buildId: BUILD_ID,
       value: processedData,
       lastModified: Date.now(),
       tags,
@@ -385,6 +408,77 @@ class CacheHandler {
       () => {
         memSet(dataKey, entry, ttl);
         if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] SET(mem) ${key}`);
+      }
+    );
+  }
+
+  /**
+   * Called once by Next.js at server startup.
+   * Scans Valkey for data entries from previous builds and deletes them so that
+   * stale HTML (referencing old JS/CSS chunk hashes) is never served from cache.
+   *
+   * Only entries without a TTL (revalidate: false) accumulate across builds —
+   * dynamic entries expire on their own. This cleanup is mainly for static pages
+   * (about, credits…).
+   *
+   * ioredis keyPrefix note: keyPrefix is NOT added to SCAN MATCH patterns by
+   * ioredis, so we include the full prefix explicitly in the match string.
+   * Returned raw Redis keys include the prefix; we strip it before handing back
+   * to ioredis operations (which would otherwise double-add it).
+   */
+  async initialize() {
+    if (!BUILD_ID) return;
+
+    const prefix = process.env.VALKEY_KEY_PREFIX || 'next:';
+
+    await this._withValkey(
+      async client => {
+        let scanned = 0;
+        let deleted = 0;
+
+        const stream = client.scanStream({ match: `${prefix}data:*`, count: 200 });
+
+        for await (const rawKeys of stream) {
+          if (!rawKeys.length) continue;
+          scanned += rawKeys.length;
+
+          // Strip keyPrefix so ioredis re-adds it correctly in pipeline calls.
+          const ioKeys = rawKeys.map(k => (k.startsWith(prefix) ? k.slice(prefix.length) : k));
+
+          // Batch-GET all entries in this scan page via pipeline.
+          const getPipeline = client.pipeline();
+          for (const ioKey of ioKeys) {
+            getPipeline.get(ioKey);
+          }
+          const results = await getPipeline.exec();
+
+          // Collect entries whose buildId does not match the current build.
+          const staleKeys = [];
+          for (let i = 0; i < ioKeys.length; i++) {
+            const [err, raw] = results[i];
+            if (err || !raw) continue;
+            try {
+              const entry = JSON.parse(raw);
+              if (entry && entry.__buildId !== BUILD_ID) staleKeys.push(ioKeys[i]);
+            } catch {
+              // Malformed entry — leave it; get() will treat it as a miss.
+            }
+          }
+
+          if (staleKeys.length > 0) {
+            const delPipeline = client.pipeline();
+            for (const ioKey of staleKeys) delPipeline.del(ioKey);
+            await delPipeline.exec();
+            deleted += staleKeys.length;
+          }
+        }
+
+        console.log(
+          `[CacheHandler] initialize(): scanned ${scanned} entries, removed ${deleted} stale (build ${BUILD_ID})`
+        );
+      },
+      () => {
+        console.log('[CacheHandler] initialize(): Valkey unavailable, skipping stale entry cleanup');
       }
     );
   }
@@ -463,4 +557,6 @@ module.exports._internals = {
   preprocessValue,
   ensureBuffer,
   CACHE_FORMAT_VERSION,
+  BUILD_ID,
+  readBuildId,
 };
