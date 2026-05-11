@@ -32,7 +32,7 @@ const { getValkeyClient } = require('./valkey-client');
 // treated as misses rather than served to the browser.
 function readBuildId() {
   try {
-    return fs.readFileSync(path.join(process.cwd(), '.next', 'BUILD_ID'), 'utf-8').trim();
+    return fs.readFileSync(path.join(__dirname, '..', '..', '.next', 'BUILD_ID'), 'utf-8').trim();
   } catch {
     return null; // Build ID unavailable (e.g. during tests) — disable the check
   }
