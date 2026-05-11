@@ -1,7 +1,7 @@
 # Revalidation & Webhook Guide
 
 This document explains how to configure webhook security, which cache tag to use for each
-content type, and how to call the revalidation endpoint from your Symfony application.
+content type, and how to call the revalidation endpoint from your PHP application.
 It also covers the Pub/Sub alternative and server-side systemd setup.
 
 ---
@@ -13,7 +13,7 @@ Security is enforced at three levels. Variables must be defined in `.env.product
 
 ### A. IP Whitelist (Network Level)
 
-Only the IP addresses listed here may call the webhook. Use your Symfony server's IP.
+Only the IP addresses listed here may call the webhook. Use your PHP server's IP.
 
 ```env
 # Comma-separated list
@@ -93,14 +93,18 @@ identifier.
 > these pages are tagged consistently, so **a single `revalidateTag` call invalidates
 > the data everywhere it is displayed**.
 
+> **Two-tag pattern** — Every fetch carries both a generic tag (e.g. `articles`) and a
+> journal-specific tag (e.g. `articles-epijinfo`). Invalidating the generic tag clears
+> the data for **all** journals at once; invalidating the journal-specific tag is targeted.
+
 ---
 
 ### Articles
 
 | Scenario | Tag | Pages invalidated |
 |----------|-----|-------------------|
-| One article (title, abstract, DOI…) | `article-{id}` | Article detail, home, volume detail |
-| All articles of a journal | `articles-{rvcode}` | Article list, home, accepted list |
+| One article (title, abstract, DOI…) | `article-{id}` | Article detail, home, volume detail, section detail |
+| All articles of a journal | `articles-{rvcode}` | Article list, home, volume detail |
 | Accepted articles only | `articles-accepted-{rvcode}` | Accepted articles list |
 
 ---
@@ -189,14 +193,30 @@ Each of these pages has its own tag. They do **not** appear on the home page.
 | Proposing special issues | `proposing-special-issues-{rvcode}` |
 | Acknowledgements | `acknowledgements-{rvcode}` |
 
+> **⚠ For Authors sub-pages not revalidatable on demand** — The three sub-pages of the
+> "For Authors" section (`editorial-workflow`, `ethical-charter`, `prepare-submission`)
+> use raw `fetch()` without Next.js cache tags. They can only be refreshed via time-based
+> TTL or a full server restart. This is a known gap; avoid triggering webhook calls for
+> these pages.
+
 ---
 
 ### Statistics
 
+The statistics data is served by two distinct endpoints with **two separate tags**:
+
 | Scenario | Tag | Pages invalidated |
 |----------|-----|-------------------|
-| Journal statistics (homepage block) | `stats-{rvcode}` | Home stats block |
-| Full statistics page | `statistics-{rvcode}` | Statistics page |
+| Homepage stats block (quick metrics) | `stats-{rvcode}` | Home stats block |
+| Full statistics page (detailed breakdown) | `statistics-{rvcode}` | Statistics page |
+
+Use both tags together when a statistics update should be reflected everywhere:
+
+```json
+// Call twice — once for the homepage block, once for the full page
+{ "journalId": "epijinfo", "tag": "stats-epijinfo" }
+{ "journalId": "epijinfo", "tag": "statistics-epijinfo" }
+```
 
 ---
 
@@ -211,29 +231,79 @@ are invalidated, because it shares those data sources.
 
 ---
 
+### Generic Page Service
+
+The `fetchPage(pageCode, rvcode)` utility is tagged with two complementary patterns:
+
+| Pattern | Example | Scope |
+|---------|---------|-------|
+| `page-{pageCode}` | `page-accessibility` | All journals |
+| `page-{pageCode}-{rvcode}` | `page-accessibility-epijinfo` | One journal |
+
+Use these tags for any CMS page fetched through the generic page API that is not covered
+by a dedicated tag above.
+
+---
+
 ### Broad Invalidation (All Journals)
 
-Omit the `{rvcode}` suffix to invalidate across **all** journals at once.
+Use the journal-agnostic form of a tag to invalidate across **all** journals at once.
 Use with caution in a multi-tenant setup.
 
 | Tag | Invalidates |
 |-----|-------------|
 | `articles` | All articles, all journals |
+| `articles-accepted` | All accepted articles, all journals |
 | `volumes` | All volumes, all journals |
 | `news` | All news, all journals |
 | `sections` | All sections, all journals |
 | `boards` | All board pages, all journals |
+| `members` | All member lists, all journals |
+| `stats` | Homepage stats block, all journals |
+| `statistics` | Full statistics page, all journals |
+| `pages` | All generic editorial pages, all journals |
+| `sitemap` | All sitemaps, all journals |
 
 ---
 
-## 4. Symfony Examples
+## 4. Complete Tag-by-Tag Summary
 
-### 4.1 Direct HTTP Call (HttpClient)
+| Tag | Service file | Also tagged with |
+|-----|-------------|-----------------|
+| `about-{rvcode}` | `about.ts`, `home.ts` | `about`, `pages`, `page-about-{rvcode}` |
+| `acknowledgements-{rvcode}` | `acknowledgements.ts` | `acknowledgements` |
+| `article-{id}` | `article.ts`, `home.ts`, `search.ts` | `articles`, `articles-{rvcode}` |
+| `articles-{rvcode}` | `article.ts`, `home.ts`, `sitemap.ts` | `articles` |
+| `articles-accepted-{rvcode}` | `article.ts` | `articles-accepted` |
+| `boards-{rvcode}` | `board.ts`, `home.ts` | `boards`, `members`, `members-{rvcode}` |
+| `credits-{rvcode}` | `credits.ts` | `credits` |
+| `for-conference-organisers-{rvcode}` | `forConferenceOrganisers.ts` | `for-conference-organisers` |
+| `for-reviewers-{rvcode}` | `forReviewers.ts` | `for-reviewers` |
+| `indexation-{rvcode}` | `indexation.ts` | `indexation` |
+| `indexing-{rvcode}` | `indexing.ts`, `home.ts` | `indexing`, `pages`, `page-journal-indexing-{rvcode}` |
+| `members-{rvcode}` | `board.ts`, `home.ts` | `members`, `boards`, `boards-{rvcode}` |
+| `news-{rvcode}` | `news.ts`, `home.ts` | `news` |
+| `proposing-special-issues-{rvcode}` | `proposingSpecialIssues.ts` | `proposing-special-issues` |
+| `section-{id}-{rvcode}` | `section.ts` | `sections`, `sections-{rvcode}`, `section-{id}` |
+| `section-articles-{id}-{rvcode}` | `section.ts` (fetchSectionArticles) | `articles`, `articles-{rvcode}`, `article-{id}` |
+| `sections-{rvcode}` | `section.ts` | `sections` |
+| `sitemap-{rvcode}` | `sitemap.ts` | `sitemap`, `articles-{rvcode}`, `volumes-{rvcode}` |
+| `stats-{rvcode}` | `stat.ts`, `home.ts` | `stats` |
+| `statistics-{rvcode}` | `statistics.ts` | `statistics` |
+| `volume-{id}` | `volume.ts` | `volumes`, `volumes-{rvcode}` |
+| `volumes-{rvcode}` | `volume.ts`, `home.ts`, `sitemap.ts` | `volumes` |
+
+---
+
+## 5. PHP Examples
+
+### 5.1 Symfony — Direct HTTP Call (HttpClient)
 
 ```php
 // src/Service/NextRevalidationService.php
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Psr\Log\LoggerInterface;
 
 class NextRevalidationService
 {
@@ -241,6 +311,7 @@ class NextRevalidationService
         private readonly HttpClientInterface $client,
         private readonly string $nextBaseUrl,   // e.g. https://epijinfo.episciences.org
         private readonly string $globalSecret,  // REVALIDATION_SECRET
+        private readonly LoggerInterface $logger,
     ) {}
 
     public function revalidate(string $journalId, string $tag): void
@@ -248,32 +319,54 @@ class NextRevalidationService
         $token = $_ENV['REVALIDATION_TOKEN_' . strtoupper(str_replace('-', '_', $journalId))]
             ?? $this->globalSecret;
 
-        $this->client->request('POST', $this->nextBaseUrl . '/api/revalidate', [
-            'headers' => [
-                'Content-Type'        => 'application/json',
-                'x-episciences-token' => $token,
-            ],
-            'json' => [
-                'journalId' => $journalId,
-                'tag'       => $tag,
-            ],
-        ]);
+        try {
+            $this->client->request('POST', $this->nextBaseUrl . '/api/revalidate', [
+                'headers' => [
+                    'Content-Type'        => 'application/json',
+                    'x-episciences-token' => $token,
+                ],
+                'json' => [
+                    'journalId' => $journalId,
+                    'tag'       => $tag,
+                ],
+                'timeout' => 5,
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->error('[Revalidation] Failed', [
+                'journal' => $journalId,
+                'tag'     => $tag,
+                'error'   => $e->getMessage(),
+            ]);
+        }
     }
 }
 ```
 
-### 4.2 Common Use Cases
+### 5.2 Common Use Cases
 
 ```php
-// Article updated
+// Article updated (title, abstract, authors…)
 $revalidation->revalidate('epijinfo', 'article-4256');
 
-// Article published → also refresh the article list and home page
+// Article published → refresh article, article list, accepted list, sitemap
 $revalidation->revalidate('epijinfo', 'article-4256');
 $revalidation->revalidate('epijinfo', 'articles-epijinfo');
+$revalidation->revalidate('epijinfo', 'articles-accepted-epijinfo');
+$revalidation->revalidate('epijinfo', 'sitemap-epijinfo');
+
+// Article accepted (not yet published)
+$revalidation->revalidate('epijinfo', 'article-4256');
+$revalidation->revalidate('epijinfo', 'articles-accepted-epijinfo');
 
 // Article order changed inside a volume
 $revalidation->revalidate('epijinfo', 'volume-12');
+
+// Volume metadata updated (title, description)
+$revalidation->revalidate('epijinfo', 'volume-12');
+
+// New volume published
+$revalidation->revalidate('epijinfo', 'volumes-epijinfo');
+$revalidation->revalidate('epijinfo', 'sitemap-epijinfo');
 
 // Article order changed inside a section
 $revalidation->revalidate('epijinfo', 'section-articles-7-epijinfo');
@@ -281,21 +374,47 @@ $revalidation->revalidate('epijinfo', 'section-articles-7-epijinfo');
 // Section metadata changed (title, description)
 $revalidation->revalidate('epijinfo', 'section-7-epijinfo');
 
-// New volume published
-$revalidation->revalidate('epijinfo', 'volume-42');
-$revalidation->revalidate('epijinfo', 'volumes-epijinfo');
+// New section created or deleted
+$revalidation->revalidate('epijinfo', 'sections-epijinfo');
 
 // About page content updated
 $revalidation->revalidate('epijinfo', 'about-epijinfo');
 
-// News added
+// Indexing editorial content updated
+$revalidation->revalidate('epijinfo', 'indexing-epijinfo');
+
+// Indexation metrics updated
+$revalidation->revalidate('epijinfo', 'indexation-epijinfo');
+
+// News added or updated
 $revalidation->revalidate('epijinfo', 'news-epijinfo');
 
-// Editorial board updated
+// Editorial board updated (members/roles)
 $revalidation->revalidate('epijinfo', 'members-epijinfo');
+
+// Homepage stats block updated
+$revalidation->revalidate('epijinfo', 'stats-epijinfo');
+
+// Full statistics page updated
+$revalidation->revalidate('epijinfo', 'statistics-epijinfo');
+
+// Credits page updated
+$revalidation->revalidate('epijinfo', 'credits-epijinfo');
+
+// For reviewers page updated
+$revalidation->revalidate('epijinfo', 'for-reviewers-epijinfo');
+
+// For conference organisers page updated
+$revalidation->revalidate('epijinfo', 'for-conference-organisers-epijinfo');
+
+// Proposing special issues page updated
+$revalidation->revalidate('epijinfo', 'proposing-special-issues-epijinfo');
+
+// Acknowledgements page updated
+$revalidation->revalidate('epijinfo', 'acknowledgements-epijinfo');
 ```
 
-### 4.3 Async via Symfony Messenger (Recommended)
+### 5.3 Symfony — Async via Messenger (Recommended)
 
 Avoid blocking the user by dispatching revalidation to a background queue.
 
@@ -347,14 +466,14 @@ framework:
             'App\Message\RevalidateCacheMessage': async
 ```
 
-### 4.4 Via Valkey Pub/Sub (Alternative)
+### 5.4 Via Valkey Pub/Sub (Alternative)
 
-If the Symfony server cannot reach the Next.js servers directly, publish a message on
+If the PHP server cannot reach the Next.js servers directly, publish a message on
 the Valkey channel. The `revalidate-worker` running on each Next.js server will pick it
 up and call the local API.
 
 ```php
-// Using Predis or ioredis-compatible PHP client
+// Using Predis
 $redis->publish('revalidate-cache', json_encode([
     'journalId' => 'epijinfo',
     'tag'       => 'article-4256',
@@ -362,11 +481,11 @@ $redis->publish('revalidate-cache', json_encode([
 ```
 
 The message schema must match what `scripts/revalidate-worker.mjs` expects.
-See section 5 below for the worker setup.
+See section 6 below for the worker setup.
 
 ---
 
-## 5. Server-Side Setup: revalidate-worker (systemd)
+## 6. Server-Side Setup: revalidate-worker (systemd)
 
 The worker listens to the Valkey Pub/Sub channel `revalidate-cache` and forwards
 messages to the local Next.js API. Run one instance per Next.js node.
@@ -434,16 +553,16 @@ Then check `journalctl -u revalidate-worker.service` for the log line:
 
 ---
 
-## 6. Webhook Deployment: Nginx / Apache Config
+## 7. Webhook Deployment: Nginx / Apache Config
 
 If Next.js runs behind a reverse proxy, ensure the revalidation endpoint is reachable
-from your Symfony server but **not exposed publicly**.
+from your PHP server but **not exposed publicly**.
 
 ### Nginx: Restrict `/api/revalidate` to Internal IPs
 
 ```nginx
 location /api/revalidate {
-    # Allow only Symfony server and monitoring
+    # Allow only PHP server and monitoring
     allow 10.0.1.5;
     allow 10.0.1.6;
     deny all;
@@ -464,12 +583,12 @@ proxy_set_header X-Real-IP       $remote_addr;
 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 ```
 
-Set `ALLOWED_IPS` in your `.env` to the Symfony server's IP. The Next.js app will then
+Set `ALLOWED_IPS` in your `.env` to the PHP server's IP. The Next.js app will then
 enforce the whitelist at the application level as a second layer of defence.
 
 ---
 
-## 7. Configurable Cache TTL
+## 8. Configurable Cache TTL
 
 Cache durations are controlled via environment variables (see `.env.production.local.example`).
 All default to **3600 seconds (1 hour)** if not set.
@@ -497,7 +616,7 @@ CACHE_TTL_ARTICLES=false   # Cache until revalidateTag('articles-epijinfo') is c
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
@@ -507,6 +626,8 @@ CACHE_TTL_ARTICLES=false   # Cache until revalidateTag('articles-epijinfo') is c
 | `429 Too many requests` | Rate limit hit | Increase `REVALIDATE_RATE_LIMIT` or use Messenger |
 | Cache not updating | Tag not used in fetch | Check `next: { tags: [...] }` in the service file |
 | All journals invalidated | Using generic tag (`articles`) | Use journal-specific tag (`articles-epijinfo`) |
+| For Authors sub-pages not updating | No cache tags on those fetches | Redeploy or wait for TTL; see note in §3 |
+| `stats-epijinfo` updated but stats page stale | Two separate tags | Also call `statistics-epijinfo` |
 
 ---
 
@@ -515,3 +636,5 @@ CACHE_TTL_ARTICLES=false   # Cache until revalidateTag('articles-epijinfo') is c
 - [ISR Strategy](./ISR_STRATEGY.md)
 - [Valkey Cache Strategy](./VALKEY_CACHE_STRATEGY.md)
 - [Valkey Deployment](./DEPLOYMENT_VALKEY.md)
+- [Symfony Implementation Spec](./REVALIDATION_IMPLEMENTATION_SPEC_SYMFONY.md)
+- [ZF1 Implementation Spec](./REVALIDATION_IMPLEMENTATION_SPEC_ZF1.md)
