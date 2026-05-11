@@ -41,7 +41,7 @@ export default async function ProposingSpecialIssuesPage(props: {
 
   // Check if this page should be rendered for this journal
   const journalConfig = getPublicJournalConfig(journalId);
-  if (journalConfig.NEXT_PUBLIC_JOURNAL_MENU_JOURNAL_PROPOSING_SPECIAL_ISSUES_RENDER === 'false') {
+  if (journalConfig.NEXT_PUBLIC_JOURNAL_MENU_JOURNAL_PROPOSING_SPECIAL_ISSUES_RENDER !== 'true') {
     notFound();
   }
 

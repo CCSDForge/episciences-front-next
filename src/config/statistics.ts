@@ -17,57 +17,63 @@ export interface BlockConfig {
   title: string;
 }
 
-export const statisticsBlocksConfiguration = (): BlockConfig[] => [
+const getEnv = (key: string, journalConfig?: Record<string, string>): string | undefined =>
+  journalConfig?.[key] ?? process.env[key];
+
+export const statisticsBlocksConfiguration = (journalConfig?: Record<string, string>): BlockConfig[] => [
   {
     key: STATISTIC_BLOCK.ACCEPTANCE_RATE,
-    render: process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_ACCEPTANCE_RATE_RENDER !== 'false',
-    order: parseInt(process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_ACCEPTANCE_RATE_ORDER ?? '0'),
+    render: getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_ACCEPTANCE_RATE_RENDER', journalConfig) !== 'false',
+    order: parseInt(getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_ACCEPTANCE_RATE_ORDER', journalConfig) ?? '0'),
     title: 'Acceptance Rate',
   },
   {
     key: STATISTIC_BLOCK.NB_SUBMISSIONS,
-    render: process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_RENDER !== 'false',
-    order: parseInt(process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_ORDER || '2', 10),
+    render: getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_RENDER', journalConfig) !== 'false',
+    order: parseInt(getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_ORDER', journalConfig) || '2', 10),
     title: 'Submissions',
   },
   {
     key: STATISTIC_BLOCK.NB_SUBMISSIONS_DETAILS,
-    render: process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_DETAILS_RENDER !== 'false',
+    render: getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_DETAILS_RENDER', journalConfig) !== 'false',
     order: parseInt(
-      process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_DETAILS_ORDER || '3',
+      getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_DETAILS_ORDER', journalConfig) || '3',
       10
     ),
     title: 'Submissions Details',
   },
   {
     key: STATISTIC_BLOCK.REVIEWS_REQUESTED,
-    render: process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_REQUESTED_RENDER !== 'false',
-    order: parseInt(process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_REQUESTED_ORDER || '1', 10),
+    render: getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_REQUESTED_RENDER', journalConfig) !== 'false',
+    order: parseInt(getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_REQUESTED_ORDER', journalConfig) || '1', 10),
     title: 'Reviews Requested',
   },
   {
     key: STATISTIC_BLOCK.REVIEWS_RECEIVED,
-    render: process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_RECEIVED_RENDER !== 'false',
-    order: parseInt(process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_RECEIVED_ORDER || '2', 10),
+    render: getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_RECEIVED_RENDER', journalConfig) !== 'false',
+    order: parseInt(getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_RECEIVED_ORDER', journalConfig) || '2', 10),
     title: 'Reviews Received',
   },
   {
     key: STATISTIC_BLOCK.MEDIAN_SUBMISSION_PUBLICATION,
     render:
-      process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_SUBMISSION_PUBLICATION_RENDER !== 'false',
+      getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_SUBMISSION_PUBLICATION_RENDER', journalConfig) !== 'false',
     order: parseInt(
-      process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_SUBMISSION_PUBLICATION_ORDER || '3',
+      getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_SUBMISSION_PUBLICATION_ORDER', journalConfig) || '3',
       10
     ),
     title: 'Median Submission-Publication Time',
   },
   {
     key: STATISTIC_BLOCK.MEDIAN_REVIEWS_NUMBER,
-    render: process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_REVIEWS_NUMBER_RENDER !== 'false',
+    render: getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_REVIEWS_NUMBER_RENDER', journalConfig) !== 'false',
     order: parseInt(
-      process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_REVIEWS_NUMBER_ORDER || '4',
+      getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_REVIEWS_NUMBER_ORDER', journalConfig) || '4',
       10
     ),
     title: 'Median Reviews Number',
   },
 ];
+
+export const hasAnyStatisticsBlock = (journalConfig?: Record<string, string>): boolean =>
+  statisticsBlocksConfiguration(journalConfig).some(block => block.render);

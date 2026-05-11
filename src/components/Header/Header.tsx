@@ -15,7 +15,6 @@ import {
 import './Header.scss';
 
 import { PATHS } from '@/config/paths';
-import { statisticsBlocksConfiguration } from '@/config/statistics';
 import { menuConfig, getVisibleMenuItems, processMenuItemPath } from '@/config/menu';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setSearch } from '@/store/features/search/search.slice';
@@ -178,10 +177,6 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
       : process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE!;
 
   const isMobileReduced = (): boolean => isReduced && isMobileOnly;
-
-  const shouldRenderStatistics: boolean = statisticsBlocksConfiguration().some(
-    config => config.render
-  );
 
   // Keyboard handler for burger menu
   const handleBurgerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {

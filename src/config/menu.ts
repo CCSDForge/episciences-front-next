@@ -3,6 +3,8 @@
  * Supports hierarchical dropdown structure with conditional rendering based on environment variables
  */
 
+import { hasAnyStatisticsBlock } from '@/config/statistics';
+
 export interface MenuItemConfig {
   key: string;
   label: string; // i18n key (e.g., 'components.header.links.articles')
@@ -10,6 +12,7 @@ export interface MenuItemConfig {
   envKey?: string; // Environment variable suffix (without NEXT_PUBLIC_JOURNAL_MENU_ prefix)
   alwaysVisible?: boolean; // If true, item is always visible regardless of env vars
   defaultHidden?: boolean; // If true, item is hidden by default (requires env var = 'true' to show)
+  additionalCheck?: (journalConfig?: Record<string, string>) => boolean; // Extra condition that must be true
 }
 
 export interface MenuStructure {
@@ -110,6 +113,7 @@ export const menuConfig: MenuStructure = {
         label: 'components.header.links.statistics',
         path: '/statistics',
         envKey: 'STATISTICS',
+        additionalCheck: hasAnyStatisticsBlock,
       },
     ],
 
@@ -151,6 +155,7 @@ export const menuConfig: MenuStructure = {
         label: 'components.header.links.proposingSpecialIssues',
         path: '/proposing-special-issues',
         envKey: 'JOURNAL_PROPOSING_SPECIAL_ISSUES',
+        defaultHidden: true,
       },
     ],
   },
@@ -182,10 +187,17 @@ export const shouldRenderMenuItem = (
   const envValue = journalConfig?.[envKey] ?? process.env[envKey];
 
   // defaultHidden items require explicit opt-in; others require explicit opt-out
+  let visible: boolean;
   if (item.defaultHidden) {
-    return envValue === 'true';
+    visible = envValue === 'true';
+  } else {
+    visible = envValue === undefined || envValue === 'true';
   }
-  return envValue === undefined || envValue === 'true';
+
+  if (visible && item.additionalCheck) {
+    return item.additionalCheck(journalConfig);
+  }
+  return visible;
 };
 
 /**
