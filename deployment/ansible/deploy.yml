@@ -9,10 +9,13 @@
 #   ansible-galaxy install -r requirements.yml
 #   ansible-galaxy collection install community.general
 
-- name: Deploy Episciences Front-Next
+# Strategy: two-play deployment for zero-downtime rolling restarts
+#   Play 1 (parallel): git clone + build on all servers simultaneously
+#   Play 2 (serial: 1): restart one server at a time — load balancer always has live servers
+
+- name: Deploy Episciences Front-Next (parallel build)
   hosts: all
   gather_facts: true
-  serial: 1
 
   pre_tasks:
     - name: Clear stale git remote refs in ansistrano repo cache
@@ -27,3 +30,26 @@
 
   roles:
     - ansistrano.deploy
+
+- name: Rolling restart (one server at a time)
+  hosts: all
+  gather_facts: false
+  serial: 1
+
+  tasks:
+    - name: Reload systemd daemon
+      ansible.builtin.command:
+        cmd: sudo /bin/systemctl daemon-reload
+      changed_when: true
+
+    - name: Restart episciences-next service
+      ansible.builtin.command:
+        cmd: sudo /bin/systemctl restart episciences-front-next
+      changed_when: true
+
+    - name: Wait for service to be healthy
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 3000
+        delay: 3
+        timeout: 30
