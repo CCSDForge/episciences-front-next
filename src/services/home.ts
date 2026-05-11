@@ -230,7 +230,10 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
     //  console.log('First 3 articles from API:', formattedArticles.slice(0, 3));
     //  console.log('Board members count:', transformedMembers.length);
 
-    // Formater les issues pour qu'ils aient la bonne structure (comme dans la version originale)
+    const formattedVolumes = (volumesResponse?.['hydra:member'] || []).map((rawVolume: any) =>
+      formatVolume(rvcode, language as AvailableLanguage, rawVolume)
+    );
+
     const formattedIssues = (issuesResponse?.['hydra:member'] || []).map((rawVolume: any) =>
       formatVolume(rvcode, language as AvailableLanguage, rawVolume)
     );
@@ -249,7 +252,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
       stats: statsResponse?.['hydra:member'] || [],
       indexation,
       volumes: {
-        data: volumesResponse?.['hydra:member'] || [],
+        data: formattedVolumes,
         totalItems: volumesResponse?.['hydra:totalItems'] || 0,
       },
       issues: {
