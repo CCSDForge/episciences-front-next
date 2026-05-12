@@ -22,8 +22,8 @@
  *   REVALIDATE_CHANNEL      — Pub/Sub channel (default: revalidate-cache)
  */
 
-import { createClient } from 'ioredis';
-import { Redis } from 'ioredis';
+import pkg from 'ioredis';
+const { Redis } = pkg;
 
 const CHANNEL = process.env.REVALIDATE_CHANNEL || 'revalidate-cache';
 const NEXT_APP_URL = (process.env.NEXT_APP_URL || 'http://localhost:3000').replace(/\/$/, '');
