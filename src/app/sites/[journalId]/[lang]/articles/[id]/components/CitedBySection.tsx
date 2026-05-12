@@ -5,6 +5,7 @@ import { Fragment, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@/components/Link/Link';
 import { IArticleCitedBy } from '@/types/article';
+import { buildOrcidUrl, buildDoiUrl } from '@/config/external-urls';
 
 interface CitedBySectionProps {
   citedBy: IArticleCitedBy[];
@@ -43,7 +44,7 @@ export default function CitedBySection({ citedBy }: CitedBySectionProps): React.
                         <span>{author.fullname}</span>
                         {author.orcid && (
                           <Link
-                            href={`${process.env.NEXT_PUBLIC_VITE_ORCID_HOMEPAGE}/${author.orcid}`}
+                            href={buildOrcidUrl(author.orcid)}
                             title={author.orcid}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -63,7 +64,7 @@ export default function CitedBySection({ citedBy }: CitedBySectionProps): React.
                   {citation.reference.page}
                 </p>
                 <Link
-                  href={`${process.env.NEXT_PUBLIC_VITE_DOI_HOMEPAGE}/${citation.doi}`}
+                  href={buildDoiUrl(citation.doi)}
                   className="articleDetails-content-article-section-content-citedBy-row-citations-citation-doi"
                   target="_blank"
                   rel="noopener noreferrer"

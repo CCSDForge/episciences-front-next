@@ -9,6 +9,7 @@ import { IBoardMember, IBoardMemberAffiliation } from '@/types/board';
 import { AvailableLanguage } from '@/utils/i18n';
 import { defaultBoardRole, getBoardRoles } from '@/services/board';
 import './SwiperBoardCard.scss';
+import { ORCID_URL } from '@/config/external-urls';
 
 /**
  * Renders an affiliation with optional ROR link
@@ -84,7 +85,7 @@ function SwiperBoardCard({
             </div>
             {member.orcid && member.orcid.length > 0 && (
               <Link
-                href={`${process.env.NEXT_PUBLIC_ORCID_HOMEPAGE}/${member.orcid}`}
+                href={`${ORCID_URL}/${member.orcid}`}
                 title={member.orcid}
                 target="_blank"
                 rel="noopener noreferrer"

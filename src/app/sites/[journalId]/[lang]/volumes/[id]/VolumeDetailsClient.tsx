@@ -31,6 +31,7 @@ import {
   CaretDownGreyLightIcon,
 } from '@/components/icons';
 import './VolumeDetails.scss';
+import { DOI_URL } from '@/config/external-urls';
 
 // Lazy load mobile modal
 const VolumeDetailsMobileModal = dynamic(
@@ -457,7 +458,7 @@ export default function VolumeDetailsClient({
                       </div>
                       {renderProceedingDOI() && (
                         <Link
-                          href={`${process.env.NEXT_PUBLIC_DOI_HOMEPAGE}/${renderProceedingDOI()}`}
+                          href={`${DOI_URL}/${renderProceedingDOI()}`}
                           className="volumeDetails-content-results-content-proceedingSettings-setting volumeDetails-content-results-content-proceedingSettings-setting-doi"
                           target="_blank"
                           rel="noopener noreferrer"

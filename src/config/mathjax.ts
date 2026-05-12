@@ -1,4 +1,5 @@
 import { MathJax3Config } from 'better-react-mathjax';
+import { MATHJAX_URL } from '@/config/external-urls';
 
 export const mathJaxConfig: MathJax3Config = {
   startup: {
@@ -16,4 +17,4 @@ export const mathJaxConfig: MathJax3Config = {
   },
 };
 
-export const mathJaxSrc = `${process.env.NEXT_PUBLIC_MATHJAX_HOMEPAGE}/3.2.2/es5/tex-mml-chtml.js`;
+export const mathJaxSrc = `${MATHJAX_URL}/3.2.2/es5/tex-mml-chtml.js`;

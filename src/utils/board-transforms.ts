@@ -16,6 +16,7 @@ import {
 } from '@/services/board';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
+import { TWITTER_URL } from '@/config/external-urls';
 
 /**
  * Raw board member data structure from the API
@@ -75,7 +76,7 @@ export function transformBoardMember(rawMember: RawBoardMember): IBoardMember {
 
       if (atCount === 1) {
         // Twitter/X format: @username
-        twitter = `${process.env.NEXT_PUBLIC_TWITTER_HOMEPAGE}/${socialMedias.slice(1)}`;
+        twitter = `${TWITTER_URL}/${socialMedias.slice(1)}`;
       } else if (atCount > 1) {
         // Mastodon format: @username@instance.com
         const parts = socialMedias.split('@');

@@ -19,6 +19,7 @@ import { IBoardMember, IBoardMemberAffiliation } from '@/types/board';
 import { AvailableLanguage } from '@/utils/i18n';
 import { defaultBoardRole, getBoardRoles } from '@/services/board';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { ORCID_URL } from '@/config/external-urls';
 
 /**
  * Renders an affiliation with optional ROR link
@@ -96,7 +97,7 @@ function BoardCardPerson({
           </div>
           {member.orcid && member.orcid.length > 0 && (
             <Link
-              href={`${process.env.NEXT_PUBLIC_ORCID_HOMEPAGE}/${member.orcid}`}
+              href={`${ORCID_URL}/${member.orcid}`}
               title={member.orcid}
               target="_blank"
               onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}

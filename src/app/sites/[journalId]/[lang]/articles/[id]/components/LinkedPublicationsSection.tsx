@@ -10,6 +10,7 @@ import {
   LINKED_PUBLICATION_IDENTIFIER_TYPE,
 } from '@/utils/article';
 import { decodeText } from '@/utils/markdown';
+import { DOI_URL, ARXIV_URL, HAL_URL, SOFTWARE_HERITAGE_URL } from '@/config/external-urls';
 
 interface LinkedPublicationsSectionProps {
   relatedItems: IArticleRelatedItem[];
@@ -94,7 +95,7 @@ export default function LinkedPublicationsSection({
             </div>
           )}
           <Link
-            href={`${process.env.NEXT_PUBLIC_VITE_DOI_HOMEPAGE}/${relatedItem.value}`}
+            href={`${DOI_URL}/${relatedItem.value}`}
             className="articleDetails-content-article-section-content-linkedPublications-publication-doi"
             target="_blank"
             rel="noopener noreferrer"
@@ -114,7 +115,7 @@ export default function LinkedPublicationsSection({
             </div>
           )}
           <Link
-            href={`${process.env.NEXT_PUBLIC_VITE_ARXIV_HOMEPAGE}/abs/${relatedItem.value}`}
+            href={`${ARXIV_URL}/abs/${relatedItem.value}`}
             className="articleDetails-content-article-section-content-linkedPublications-publication-arxiv"
             target="_blank"
             rel="noopener noreferrer"
@@ -134,7 +135,7 @@ export default function LinkedPublicationsSection({
             </div>
           )}
           <Link
-            href={`${process.env.NEXT_PUBLIC_VITE_HAL_HOMEPAGE}/${relatedItem.value}`}
+            href={`${HAL_URL}/${relatedItem.value}`}
             className="articleDetails-content-article-section-content-linkedPublications-publication-hal"
             target="_blank"
             rel="noopener noreferrer"
@@ -150,8 +151,7 @@ export default function LinkedPublicationsSection({
       relatedItem.value.includes('swh')
     ) {
       const swhHomepage =
-        process.env.NEXT_PUBLIC_VITE_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE ||
-        'https://archive.softwareheritage.org';
+        SOFTWARE_HERITAGE_URL;
 
       return (
         <div className="articleDetails-content-article-section-content-linkedPublications-publication">

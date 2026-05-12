@@ -11,6 +11,7 @@ import { IAuthor } from '@/types/author';
 import { useFetchAuthorArticlesQuery } from '@/store/features/author/author.query';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
+import { DOI_URL } from '@/config/external-urls';
 
 export interface IAuthorDetailsSidebarProps {
   language: AvailableLanguage;
@@ -54,7 +55,7 @@ export default function AuthorDetailsSidebar({
                   {t('common.doi')} :
                 </div>
                 <Link
-                  href={`${process.env.NEXT_PUBLIC_DOI_HOMEPAGE}/${article.doi}`}
+                  href={`${DOI_URL}/${article.doi}`}
                   className="authorDetailsSidebar-content-article-doi-link"
                   target="_blank"
                   rel="noopener noreferrer"
