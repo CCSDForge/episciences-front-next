@@ -13,13 +13,15 @@
  * Managed by systemd via revalidate-worker.service.
  *
  * Environment variables:
- *   VALKEY_SENTINEL_HOSTS   — comma-separated "host:port" pairs
- *   VALKEY_MASTER_NAME      — sentinel master group name (default: mymaster)
- *   VALKEY_PASSWORD         — Valkey auth password
+ *   VALKEY_SENTINEL_HOSTS    — comma-separated "host:port" pairs
+ *   VALKEY_MASTER_NAME       — sentinel master group name (default: mymaster)
+ *   VALKEY_USERNAME          — Valkey ACL username (optional, for non-default user)
+ *   VALKEY_PASSWORD          — Valkey auth password
+ *   VALKEY_SENTINEL_USERNAME — Sentinel ACL username (optional, for non-default user)
  *   VALKEY_SENTINEL_PASSWORD — Sentinel auth password
- *   REVALIDATION_SECRET     — token sent to /api/revalidate
- *   NEXT_APP_URL            — Next.js base URL (default: http://localhost:3000)
- *   REVALIDATE_CHANNEL      — Pub/Sub channel (default: revalidate-cache)
+ *   REVALIDATION_SECRET      — token sent to /api/revalidate
+ *   NEXT_APP_URL             — Next.js base URL (default: http://localhost:3000)
+ *   REVALIDATE_CHANNEL       — Pub/Sub channel (default: revalidate-cache)
  */
 
 import pkg from 'ioredis';
@@ -67,7 +69,9 @@ function createSubscriberClient() {
   return new Redis({
     sentinels,
     name: process.env.VALKEY_MASTER_NAME || 'mymaster',
+    username: process.env.VALKEY_USERNAME || undefined,
     password: process.env.VALKEY_PASSWORD || undefined,
+    sentinelUsername: process.env.VALKEY_SENTINEL_USERNAME || undefined,
     sentinelPassword: process.env.VALKEY_SENTINEL_PASSWORD || undefined,
     lazyConnect: true,
     enableOfflineQueue: false,
