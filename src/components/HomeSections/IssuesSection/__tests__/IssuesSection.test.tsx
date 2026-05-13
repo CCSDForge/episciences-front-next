@@ -35,7 +35,7 @@ const mockT = vi.fn((key: string) => {
     'common.pdf': 'PDF',
   };
   return t[key] ?? key;
-});
+}) as any;
 
 const baseIssue: any = {
   id: 1,

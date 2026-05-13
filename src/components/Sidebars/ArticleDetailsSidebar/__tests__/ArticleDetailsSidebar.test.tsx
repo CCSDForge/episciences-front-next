@@ -97,10 +97,11 @@ const mockT = vi.fn((key: string) => {
     'pages.articleDetails.volumeDetails.proceeding': 'Proceeding',
   };
   return t[key] ?? key;
-});
+}) as any;
 
 const baseArticle: any = {
   id: 42,
+  title: 'Test Article Title',
   pdfLink: 'https://example.com/article.pdf',
   docLink: 'https://hal.science/hal-001',
   repositoryName: 'HAL',

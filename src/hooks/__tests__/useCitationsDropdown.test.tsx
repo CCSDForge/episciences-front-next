@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCitationsDropdown } from '../useCitationsDropdown';
-import { getCitations, copyToClipboardCitation } from '@/utils/article';
+import { getCitations, copyToClipboardCitation, CITATION_TEMPLATE, ICitation } from '@/utils/article';
 import { useFetchArticleMetadataQuery } from '@/store/features/article/article.query';
 
 // --- Mocks ---
@@ -134,8 +134,8 @@ describe('useCitationsDropdown', () => {
     it('populates citations when both CSL and BibTeX data are available', async () => {
       vi.mocked(useFetchArticleMetadataQuery).mockReturnValue({ data: 'mock-data' } as any);
       vi.mocked(getCitations).mockResolvedValue([
-        { key: 'APA', citation: 'Author et al. 2024' },
-        { key: 'BibTeX', citation: '@article{...}' },
+        { key: CITATION_TEMPLATE.APA, citation: 'Author et al. 2024' },
+        { key: CITATION_TEMPLATE.BIBTEX, citation: '@article{...}' },
       ]);
 
       const { result } = renderHook(() => useCitationsDropdown(42, 'rv', mockT as any));
@@ -143,14 +143,14 @@ describe('useCitationsDropdown', () => {
       await act(async () => {});
 
       expect(result.current.citations).toHaveLength(2);
-      expect(result.current.citations[0].key).toBe('APA');
+      expect(result.current.citations[0].key).toBe(CITATION_TEMPLATE.APA);
     });
 
     it('fills BibTeX citation when metadataBibTeX is present', async () => {
       vi.mocked(useFetchArticleMetadataQuery).mockReturnValue({ data: 'bibtex-raw' } as any);
       vi.mocked(getCitations).mockResolvedValue([
-        { key: 'APA', citation: 'APA text' },
-        { key: 'BibTeX', citation: '' }, // initially empty
+        { key: CITATION_TEMPLATE.APA, citation: 'APA text' },
+        { key: CITATION_TEMPLATE.BIBTEX, citation: '' }, // initially empty
       ]);
 
       const { result } = renderHook(() => useCitationsDropdown(42, 'rv', mockT as any));
@@ -189,7 +189,7 @@ describe('useCitationsDropdown', () => {
   describe('copyCitation', () => {
     it('calls copyToClipboardCitation with the citation and t', () => {
       const { result } = renderHook(() => useCitationsDropdown(42, 'rv', mockT as any));
-      const citation = { key: 'APA', citation: 'Author 2024' };
+      const citation: ICitation = { key: CITATION_TEMPLATE.APA, citation: 'Author 2024' };
 
       act(() => result.current.copyCitation(citation));
 
@@ -202,7 +202,7 @@ describe('useCitationsDropdown', () => {
       act(() => result.current.handleTriggerMouseEnter());
       expect(result.current.showCitationsDropdown).toBe(true);
 
-      act(() => result.current.copyCitation({ key: 'APA', citation: 'Author 2024' }));
+      act(() => result.current.copyCitation({ key: CITATION_TEMPLATE.APA, citation: 'Author 2024' }));
       expect(result.current.showCitationsDropdown).toBe(false);
     });
   });

@@ -7,6 +7,7 @@ import {
   VOLUME_TYPE,
   volumeTypes,
 } from '../volume';
+import { RawVolume } from '@/types/volume';
 
 // Mock dependencies
 vi.mock('@/utils/env-loader', () => ({
@@ -76,7 +77,7 @@ describe('volume service', () => {
         settings_proceeding: [],
       };
 
-      const result = formatVolume('testjournal', 'en', rawVolume);
+      const result = formatVolume('testjournal', 'en', rawVolume as unknown as RawVolume);
 
       expect(result.id).toBe(123);
       expect(result.num).toBe('1');
@@ -108,7 +109,7 @@ describe('volume service', () => {
         settings_proceeding: [],
       };
 
-      const result = formatVolume('myjournal', 'en', rawVolume);
+      const result = formatVolume('myjournal', 'en', rawVolume as unknown as RawVolume);
 
       expect(result.tileImageURL).toBe(
         'https://myjournal.episciences.org/public/volumes/456/cover.jpg'
@@ -134,7 +135,7 @@ describe('volume service', () => {
         settings_proceeding: [],
       };
 
-      const result = formatVolume('myjournal', 'en', rawVolume);
+      const result = formatVolume('myjournal', 'en', rawVolume as unknown as RawVolume);
 
       expect(result.tileImageURL).toBeUndefined();
     });
@@ -150,7 +151,7 @@ describe('volume service', () => {
         papers: [],
       };
 
-      const result = formatVolume('testjournal', 'fr', rawVolume);
+      const result = formatVolume('testjournal', 'fr', rawVolume as unknown as RawVolume);
 
       expect(result.metadatas).toEqual([]);
       expect(result.tileImageURL).toBeUndefined();
@@ -173,7 +174,7 @@ describe('volume service', () => {
         settings_proceeding: settingsProceeding,
       };
 
-      const result = formatVolume('testjournal', 'fr', rawVolume);
+      const result = formatVolume('testjournal', 'fr', rawVolume as unknown as RawVolume);
 
       expect(result.settingsProceeding).toEqual(settingsProceeding);
     });

@@ -116,7 +116,7 @@ describe('getValkeyClient()', () => {
     vi.stubEnv('VALKEY_SENTINEL_HOSTS', 'sentinel-1:26379');
     getValkeyClient();
 
-    const registeredEvents = mockOn.mock.calls.map(([event]: [string]) => event);
+    const registeredEvents = mockOn.mock.calls.map(([event]: string[]) => event);
     expect(registeredEvents).toContain('connect');
     expect(registeredEvents).toContain('ready');
     expect(registeredEvents).toContain('error');

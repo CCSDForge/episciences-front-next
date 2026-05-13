@@ -46,7 +46,7 @@ const mockT = vi.fn((key: string) => {
     'pages.volumeDetails.relatedVolumes.lookAtSelectedIssue': 'View selected issue',
   };
   return translations[key] ?? key;
-});
+}) as any;
 
 const makeVolume = (id: number, types?: string[]) => ({
   id,

@@ -65,7 +65,7 @@ const mockT = vi.fn((key: string) => {
     'common.filters.applyFilters': 'Apply Filters',
   };
   return translations[key] ?? key;
-});
+}) as any;
 
 const defaultYears = [
   { year: 2024, isChecked: false },

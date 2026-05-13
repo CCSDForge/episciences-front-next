@@ -14,11 +14,12 @@ describe('useBaseUrl', () => {
   afterEach(() => {
     process.env = originalEnv;
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   describe('development mode', () => {
     it('returns localhost URL in development', () => {
-      process.env.NODE_ENV = 'development';
+      vi.stubEnv('NODE_ENV', 'development');
 
       const result = useBaseUrl();
 
@@ -26,7 +27,7 @@ describe('useBaseUrl', () => {
     });
 
     it('returns localhost regardless of NEXT_PUBLIC_SITE_URL in dev', () => {
-      process.env.NODE_ENV = 'development';
+      vi.stubEnv('NODE_ENV', 'development');
       process.env.NEXT_PUBLIC_SITE_URL = 'https://production.example.com';
 
       const result = useBaseUrl();
@@ -37,7 +38,7 @@ describe('useBaseUrl', () => {
 
   describe('production mode with NEXT_PUBLIC_SITE_URL', () => {
     it('returns NEXT_PUBLIC_SITE_URL when set in production', () => {
-      process.env.NODE_ENV = 'production';
+      vi.stubEnv('NODE_ENV', 'production');
       process.env.NEXT_PUBLIC_SITE_URL = 'https://episciences.org/';
 
       const result = useBaseUrl();
@@ -46,7 +47,7 @@ describe('useBaseUrl', () => {
     });
 
     it('returns NEXT_PUBLIC_SITE_URL with trailing slash', () => {
-      process.env.NODE_ENV = 'production';
+      vi.stubEnv('NODE_ENV', 'production');
       process.env.NEXT_PUBLIC_SITE_URL = 'https://episciences.org/';
 
       const result = useBaseUrl();
@@ -57,7 +58,7 @@ describe('useBaseUrl', () => {
 
   describe('production mode without NEXT_PUBLIC_SITE_URL', () => {
     it('returns window origin URL when window is available', () => {
-      process.env.NODE_ENV = 'production';
+      vi.stubEnv('NODE_ENV', 'production');
       delete process.env.NEXT_PUBLIC_SITE_URL;
 
       vi.stubGlobal('window', {
@@ -73,7 +74,7 @@ describe('useBaseUrl', () => {
     });
 
     it('returns "/" fallback during SSR (no window)', () => {
-      process.env.NODE_ENV = 'production';
+      vi.stubEnv('NODE_ENV', 'production');
       delete process.env.NEXT_PUBLIC_SITE_URL;
 
       // Simulate SSR: window is undefined

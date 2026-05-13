@@ -22,7 +22,7 @@ describe('ScrollManager', () => {
     getElementByIdMock = vi.fn();
 
     vi.stubGlobal('scrollTo', scrollToMock);
-    vi.spyOn(document, 'getElementById').mockImplementation(getElementByIdMock);
+    vi.spyOn(document, 'getElementById').mockImplementation(getElementByIdMock as any);
 
     // Default: no hash in URL
     Object.defineProperty(window, 'location', {
@@ -60,7 +60,7 @@ describe('ScrollManager', () => {
     });
 
     it('scrolls to top when hash is empty', () => {
-      window.location = { hash: '' } as Location;
+      Object.defineProperty(window, 'location', { value: { hash: '' }, writable: true, configurable: true });
 
       render(<ScrollManager />);
 

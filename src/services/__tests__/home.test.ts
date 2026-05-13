@@ -252,8 +252,8 @@ describe('home service', () => {
 
       // Should have fallback article data
       expect(result.articles?.data).toHaveLength(1);
-      expect(result.articles?.data[0].id).toBe(1);
-      expect(result.articles?.data[0].doi).toBe('10.1234/test');
+      expect(result.articles?.data?.[0]?.id).toBe(1);
+      expect(result.articles?.data?.[0]?.doi).toBe('10.1234/test');
 
       consoleSpy.mockRestore();
     });

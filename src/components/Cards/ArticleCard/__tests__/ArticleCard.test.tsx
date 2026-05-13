@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { checkA11y } from '@/test-utils/axe-helper';
 import ArticleCard, { IArticleCard } from '../ArticleCard';
-import { getCitations, copyToClipboardCitation } from '@/utils/article';
+import { getCitations, copyToClipboardCitation, CITATION_TEMPLATE } from '@/utils/article';
 import { useFetchArticleMetadataQuery } from '@/store/features/article/article.query';
 
 // --- Mocks ---
@@ -294,8 +294,8 @@ describe('ArticleCard', () => {
     it('renders citation buttons once data is available', async () => {
       vi.mocked(useFetchArticleMetadataQuery).mockReturnValue({ data: 'mock-data' } as any);
       vi.mocked(getCitations).mockResolvedValue([
-        { key: 'APA', citation: 'Author et al. 2024' },
-        { key: 'BibTeX', citation: '@article{...}' },
+        { key: CITATION_TEMPLATE.APA, citation: 'Author et al. 2024' },
+        { key: CITATION_TEMPLATE.BIBTEX, citation: '@article{...}' },
       ]);
 
       const user = userEvent.setup();
@@ -312,7 +312,7 @@ describe('ArticleCard', () => {
     });
 
     it('calls copyToClipboardCitation on citation button click', async () => {
-      const fakeCitation = { key: 'APA', citation: 'Author et al. 2024' };
+      const fakeCitation = { key: CITATION_TEMPLATE.APA, citation: 'Author et al. 2024' };
       vi.mocked(useFetchArticleMetadataQuery).mockReturnValue({ data: 'mock-data' } as any);
       vi.mocked(getCitations).mockResolvedValue([fakeCitation]);
 

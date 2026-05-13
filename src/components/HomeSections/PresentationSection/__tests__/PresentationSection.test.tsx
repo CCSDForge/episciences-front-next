@@ -40,7 +40,7 @@ vi.mock('@/utils/i18n', () => ({
 
 // --- Fixtures ---
 
-const mockT = vi.fn((key: string) => key);
+const mockT = vi.fn((key: string) => key) as any;
 
 const defaultProps = {
   language: 'en' as const,

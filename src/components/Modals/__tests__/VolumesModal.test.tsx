@@ -35,7 +35,7 @@ const mockT = vi.fn((key: string) => {
     'volume.type.special': 'Special Issue',
   };
   return translations[key] || key;
-});
+}) as any;
 
 const defaultProps = {
   t: mockT,

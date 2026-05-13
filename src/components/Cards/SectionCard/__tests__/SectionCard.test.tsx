@@ -46,7 +46,7 @@ const mockT = vi.fn((key: string) => {
     'common.about': 'About',
   };
   return translations[key] ?? key;
-});
+}) as any;
 
 const sectionWithDescription: ISection = {
   id: 1,

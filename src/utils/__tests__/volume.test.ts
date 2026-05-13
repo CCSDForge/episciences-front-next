@@ -8,7 +8,7 @@ describe('volume utilities', () => {
       const metadata: RawVolumeMetadata = {
         file: 'cover.pdf',
         title: { en: 'Cover Page', fr: 'Page de couverture' },
-        content: 'PDF content description',
+        content: 'PDF content description' as any,
         date_creation: '2024-01-01',
         date_updated: '2024-01-15',
       };
@@ -18,7 +18,7 @@ describe('volume utilities', () => {
       expect(result).toEqual({
         file: 'cover.pdf',
         title: { en: 'Cover Page', fr: 'Page de couverture' },
-        content: 'PDF content description',
+        content: 'PDF content description' as any,
         createdAt: '2024-01-01',
         updatedAt: '2024-01-15',
       });
@@ -28,7 +28,7 @@ describe('volume utilities', () => {
       const metadata: RawVolumeMetadata = {
         file: 'document.pdf',
         title: { en: 'Document' },
-        content: '',
+        content: '' as any,
         date_creation: '2024-01-01',
         date_updated: '2024-01-01',
       };
@@ -45,7 +45,7 @@ describe('volume utilities', () => {
       const metadata: RawVolumeMetadata = {
         file: 'abstract.pdf',
         title: { en: 'Abstract', fr: 'Résumé', es: 'Resumen' },
-        content: 'Multi-language abstract',
+        content: 'Multi-language abstract' as any,
         date_creation: '2023-12-01',
         date_updated: '2024-02-01',
       };
@@ -65,13 +65,11 @@ describe('volume utilities', () => {
       titles: { en: 'Volume 1', fr: 'Tome 1' },
       descriptions: { en: 'First volume', fr: 'Premier tome' },
       vol_year: 2024,
-      vol_type: VOLUME_TYPE.SPECIAL_ISSUE,
+      vol_type: [VOLUME_TYPE.SPECIAL_ISSUE],
       papers: [],
       metadata: [],
       settings_proceeding: [],
-      date_creation: '2024-01-01',
-      date_updated: '2024-01-15',
-    };
+    } as unknown as RawVolume;
 
     it('should format complete volume without metadata', () => {
       const result = formatVolume('testjournal', 'en', baseVolume);
@@ -81,7 +79,7 @@ describe('volume utilities', () => {
       expect(result.title).toEqual({ en: 'Volume 1', fr: 'Tome 1' });
       expect(result.description).toEqual({ en: 'First volume', fr: 'Premier tome' });
       expect(result.year).toBe(2024);
-      expect(result.types).toBe(VOLUME_TYPE.SPECIAL_ISSUE);
+      expect(result.types).toEqual([VOLUME_TYPE.SPECIAL_ISSUE]);
       expect(result.articles).toEqual([]);
       expect(result.metadatas).toEqual([]);
       expect(result.downloadLink).toBe(
@@ -106,7 +104,7 @@ describe('volume utilities', () => {
           {
             file: 'cover.pdf',
             title: { en: 'Cover', fr: 'Couverture' },
-            content: 'Cover page',
+            content: 'Cover page' as any,
             date_creation: '2024-01-01',
             date_updated: '2024-01-01',
           },
@@ -116,7 +114,7 @@ describe('volume utilities', () => {
       const result = formatVolume('journal', 'en', volumeWithMetadata);
 
       expect(result.metadatas).toHaveLength(1);
-      expect(result.metadatas[0].file).toBe('cover.pdf');
+      expect(result.metadatas![0].file).toBe('cover.pdf');
       expect(result.tileImageURL).toBeUndefined();
     });
 
@@ -127,7 +125,7 @@ describe('volume utilities', () => {
           {
             file: 'tile.png',
             title: { en: 'tile', fr: 'tile' },
-            content: 'Tile image',
+            content: 'Tile image' as any,
             date_creation: '2024-01-01',
             date_updated: '2024-01-01',
           },
@@ -148,7 +146,7 @@ describe('volume utilities', () => {
           {
             file: 'tuile.png',
             title: { en: 'cover', fr: 'tile' },
-            content: 'Tile in French',
+            content: 'Tile in French' as any,
             date_creation: '2024-01-01',
             date_updated: '2024-01-01',
           },
@@ -169,7 +167,7 @@ describe('volume utilities', () => {
           {
             file: 'cover.png',
             title: { en: 'cover', fr: 'couverture' },
-            content: 'Not a tile',
+            content: 'Not a tile' as any,
             date_creation: '2024-01-01',
             date_updated: '2024-01-01',
           },
@@ -188,14 +186,14 @@ describe('volume utilities', () => {
           {
             file: 'cover.pdf',
             title: { en: 'Cover', fr: 'Couverture' },
-            content: 'Cover',
+            content: 'Cover' as any,
             date_creation: '2024-01-01',
             date_updated: '2024-01-01',
           },
           {
             file: 'abstract.pdf',
             title: { en: 'Abstract', fr: 'Résumé' },
-            content: 'Abstract',
+            content: 'Abstract' as any,
             date_creation: '2024-01-01',
             date_updated: '2024-01-01',
           },
@@ -220,7 +218,7 @@ describe('volume utilities', () => {
     it('should handle settings proceeding', () => {
       const volumeWithProceedings: RawVolume = {
         ...baseVolume,
-        vol_type: VOLUME_TYPE.PROCEEDINGS,
+        vol_type: [VOLUME_TYPE.PROCEEDINGS],
         settings_proceeding: [
           { key: 'conference', value: 'ICML 2024' },
           { key: 'location', value: 'Vienna' },
@@ -230,7 +228,7 @@ describe('volume utilities', () => {
       const result = formatVolume('journal', 'en', volumeWithProceedings);
 
       expect(result.settingsProceeding).toHaveLength(2);
-      expect(result.types).toBe(VOLUME_TYPE.PROCEEDINGS);
+      expect(result.types).toEqual([VOLUME_TYPE.PROCEEDINGS]);
     });
 
     it('should handle empty settings proceeding', () => {

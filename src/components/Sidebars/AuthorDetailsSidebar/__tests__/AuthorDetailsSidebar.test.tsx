@@ -46,7 +46,7 @@ const mockT = vi.fn((key: string) => {
     'common.seeMore': 'See more',
   };
   return t[key] ?? key;
-});
+}) as any;
 
 const mockAuthor: any = {
   name: 'Jane Doe',

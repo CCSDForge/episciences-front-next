@@ -35,7 +35,7 @@ describe('VolumesSidebar', () => {
       'volume.type.proceeding': 'Conference Proceeding',
     };
     return translations[key] || key;
-  });
+  }) as any;
 
   const defaultTypes: IVolumeTypeSelection[] = [
     { labelPath: 'volume.type.regular', value: 'regular', isChecked: false },

@@ -86,7 +86,7 @@ const mockT = vi.fn((key: string) => {
     'common.volumeTypes.proceedings': 'Proceedings',
   };
   return translations[key] ?? key;
-});
+}) as any;
 
 const defaultTypes = [
   { labelPath: 'common.volumeTypes.issue', value: 'issue', isChecked: false },

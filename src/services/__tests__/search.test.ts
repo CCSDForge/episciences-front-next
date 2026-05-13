@@ -173,7 +173,7 @@ describe('fetchSearchResults', () => {
     const result = await fetchSearchResults({ terms: 'partial' });
 
     expect(result.data).toHaveLength(1);
-    expect(result.data[0].id).toBe(102);
+    expect(result.data?.[0]?.id).toBe(102);
 
     consoleSpy.mockRestore();
   });

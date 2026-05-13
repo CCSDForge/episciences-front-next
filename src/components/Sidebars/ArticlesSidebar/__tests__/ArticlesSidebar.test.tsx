@@ -35,7 +35,7 @@ describe('ArticlesSidebar', () => {
       'article.type.editorial': 'Editorial',
     };
     return translations[key] || key;
-  });
+  }) as any;
 
   const defaultTypes: IArticleTypeSelection[] = [
     { labelPath: 'article.type.article', value: 'article', isChecked: false },

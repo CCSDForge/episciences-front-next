@@ -52,7 +52,7 @@ const mockT = vi.fn((key: string) => {
     'pages.volumeDetails.relatedVolumes.proceedings': 'Other Proceedings',
   };
   return t[key] ?? key;
-});
+}) as any;
 
 const baseVolume: any = {
   id: 7,

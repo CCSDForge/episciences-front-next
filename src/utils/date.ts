@@ -21,7 +21,7 @@ const parseDateParts = (
   const month = parsed[monthIndex];
   const day = parsed[dayIndex];
 
-  return createValidDate(new Date(year, month - 1, day));
+  return createValidDate(new Date(Date.UTC(year, month - 1, day)));
 };
 
 const parseDate = (dateString: string): Date | null => {
@@ -68,12 +68,12 @@ export const formatDateForScholar = (dateString: string | undefined): string => 
   // DD/MM/YYYY
   const dmyMatch = dateString.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
   if (dmyMatch) return `${dmyMatch[3]}/${dmyMatch[2]}/${dmyMatch[1]}`;
-  // Fallback: use local time methods (consistent with parseDateParts local construction)
+  // Fallback: use UTC methods (parseDateParts creates Date.UTC dates)
   const date = parseDate(dateString);
   if (!date) return '';
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(date.getUTCDate()).padStart(2, '0');
   return `${y}/${m}/${d}`;
 };
 

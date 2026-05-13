@@ -76,7 +76,7 @@ vi.mock('@/components/SwiperCards/SwiperCard', () => ({
 }));
 
 describe('Swiper', () => {
-  const mockT = vi.fn((key: string) => key);
+  const mockT = vi.fn((key: string) => key) as any;
 
   const defaultProps = {
     id: 'test-swiper',
@@ -89,7 +89,7 @@ describe('Swiper', () => {
       { title: 'Article 1', id: 1 },
       { title: 'Article 2', id: 2 },
       { title: 'Article 3', id: 3 },
-    ],
+    ] as any,
   };
 
   beforeEach(() => {
@@ -237,7 +237,7 @@ describe('Swiper', () => {
         { name: 'Member 2', id: 2 },
       ];
 
-      render(<Swiper {...defaultProps} type="board" cards={boardCards} />);
+      render(<Swiper {...defaultProps} type="board" cards={boardCards as any} />);
 
       const cards = screen.getAllByTestId('swiper-card');
       cards.forEach(card => {
@@ -326,7 +326,7 @@ describe('Swiper', () => {
         { name: 'Member 2', id: 2 },
       ];
 
-      const { container } = render(<Swiper {...defaultProps} type="board" cards={boardCards} />);
+      const { container } = render(<Swiper {...defaultProps} type="board" cards={boardCards as any} />);
 
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();
@@ -338,7 +338,7 @@ describe('Swiper', () => {
         id: i + 1,
       }));
 
-      const { container } = render(<Swiper {...defaultProps} cards={manyCards} />);
+      const { container } = render(<Swiper {...defaultProps} cards={manyCards as any} />);
 
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();

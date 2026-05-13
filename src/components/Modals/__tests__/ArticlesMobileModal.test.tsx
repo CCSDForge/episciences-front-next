@@ -96,7 +96,7 @@ const mockT = vi.fn((key: string, options?: { count?: number }) => {
     'document.type.review': 'Review',
   };
   return translations[key] || key;
-});
+}) as any;
 
 const defaultProps = {
   t: mockT,

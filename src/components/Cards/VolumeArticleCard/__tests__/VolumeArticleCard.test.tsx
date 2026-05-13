@@ -71,8 +71,8 @@ const baseArticle: IArticle = {
   id: 101,
   title: 'A Study on Quantum Computing',
   authors: [
-    { id: 1, fullname: 'Alice Martin', affiliations: [] },
-    { id: 2, fullname: 'Bob Smith', affiliations: [] },
+    { fullname: 'Alice Martin' },
+    { fullname: 'Bob Smith' },
   ],
   publicationDate: '2024-01-01',
   repositoryName: 'HAL',

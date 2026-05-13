@@ -86,7 +86,7 @@ const mockT = vi.fn((key: string) => {
     'pages.articles.types.report': 'Report',
   };
   return translations[key] ?? key;
-});
+}) as any;
 
 const defaultTypes = [
   { labelPath: 'pages.articles.types.article', value: 'article', isChecked: false },

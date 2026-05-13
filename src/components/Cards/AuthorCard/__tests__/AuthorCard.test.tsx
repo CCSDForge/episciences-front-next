@@ -28,7 +28,7 @@ const mockT = vi.fn((key: string) => {
     'common.article': 'article',
   };
   return translations[key] ?? key;
-});
+}) as any;
 
 const singleArticleAuthor = { name: 'Alice Martin', count: 1 };
 const multiArticleAuthor = { name: 'Bob Dupont', count: 5 };

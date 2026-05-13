@@ -110,7 +110,7 @@ describe('CacheHandler', () => {
     });
 
     it('restores Map values after JSON round-trip', async () => {
-      const map = new Map([['key1', 'val1'], ['key2', 42]]);
+      const map = new Map<string, unknown>([['key1', 'val1'], ['key2', 42]]);
       const entry = { __v: _internals.CACHE_FORMAT_VERSION, __buildId: _internals.BUILD_ID, value: { segmentData: map }, lastModified: 1000, tags: [] };
       mockClient.get.mockResolvedValue(_internals.serialize(entry));
       const handler = makeHandler();

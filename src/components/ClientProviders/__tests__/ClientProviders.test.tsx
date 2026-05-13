@@ -195,6 +195,7 @@ describe('ClientProviders', () => {
         id: 1,
         code: 'test',
         name: 'Test Journal',
+        title: { en: 'Test Journal' } as Record<string, string>,
         settings: [],
       };
 
@@ -275,6 +276,7 @@ describe('ClientProviders', () => {
         id: 1,
         code: 'test',
         name: 'Test Journal',
+        title: { en: 'Test Journal' } as Record<string, string>,
         settings: [],
       };
 
