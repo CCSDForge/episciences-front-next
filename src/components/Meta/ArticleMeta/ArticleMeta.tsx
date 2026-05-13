@@ -1,7 +1,9 @@
 import { Metadata } from 'next';
 import { IArticle, IArticleAuthor, IArticleAbstracts } from '@/types/article';
 import { IJournal } from '@/types/journal';
+import { IVolume } from '@/types/volume';
 import { AvailableLanguage } from '@/utils/i18n';
+import { formatDateForScholar } from '@/utils/date';
 
 interface IArticleMetaProps {
   language: AvailableLanguage;
@@ -10,6 +12,7 @@ interface IArticleMetaProps {
   keywords: string[];
   authors: IArticleAuthor[];
   coarInboxUrl?: string;
+  relatedVolume?: IVolume | null;
 }
 
 // Helper function to extract abstract as string
@@ -34,6 +37,7 @@ export function generateArticleMetadata({
   keywords,
   authors,
   coarInboxUrl,
+  relatedVolume,
 }: IArticleMetaProps): Metadata {
   const metadataTitle = article?.title
     ? `${article.title}${currentJournal?.name ? ` | ${currentJournal.name}` : ''}`
@@ -43,7 +47,8 @@ export function generateArticleMetadata({
   const otherMetadata: Record<string, string | string[]> = {
     citation_journal_title: currentJournal?.name || '',
     citation_title: article?.title || '',
-    citation_publication_date: article?.publicationDate || '',
+    citation_publication_date: formatDateForScholar(article?.publicationDate),
+    citation_volume: relatedVolume?.num || '',
     citation_doi: article?.doi || '',
     citation_fulltext_world_readable: '',
     citation_pdf_url: article?.pdfLink || '',
@@ -55,7 +60,7 @@ export function generateArticleMetadata({
     'DC.title': article?.title || '',
     'DC.type': 'journal',
     'DC.description': abstractString,
-    'DC.date': article?.publicationDate || '',
+    'DC.date': formatDateForScholar(article?.publicationDate),
     'DC.relation.ispartof': currentJournal?.name || '',
     'DC.publisher': 'Episciences.org',
     'http://www.w3.org/ns/ldp#inbox': coarInboxUrl || 'https://inbox.episciences.org/',
@@ -65,9 +70,9 @@ export function generateArticleMetadata({
       article?.pdfLink || '',
     ].filter(Boolean),
     citation_author: authors.map(author => author.fullname),
-    citation_author_institution: authors.flatMap(
-      author => author.institutions?.map(inst => inst.name) || []
-    ),
+    citation_author_institution: authors
+      .map(a => a.institutions?.[0]?.name || '')
+      .filter(Boolean),
     citation_author_orcid: authors
       .filter(author => author.orcid)
       .map(author => author.orcid as string),

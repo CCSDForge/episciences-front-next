@@ -1,5 +1,35 @@
 import { describe, it, expect } from 'vitest';
-import { formatDate } from '../date';
+import { formatDate, formatDateForScholar } from '../date';
+
+describe('formatDateForScholar', () => {
+  it('should format YYYY-MM-DD to YYYY/MM/DD', () => {
+    expect(formatDateForScholar('2024-03-15')).toBe('2024/03/15');
+  });
+
+  it('should format ISO date with time to YYYY/MM/DD', () => {
+    expect(formatDateForScholar('2024-03-15T10:00:00Z')).toBe('2024/03/15');
+  });
+
+  it('should format DD/MM/YYYY to YYYY/MM/DD', () => {
+    expect(formatDateForScholar('15/03/2024')).toBe('2024/03/15');
+  });
+
+  it('should pad single-digit month and day', () => {
+    expect(formatDateForScholar('2024-01-05')).toBe('2024/01/05');
+  });
+
+  it('should return empty string for undefined', () => {
+    expect(formatDateForScholar(undefined)).toBe('');
+  });
+
+  it('should return empty string for empty string', () => {
+    expect(formatDateForScholar('')).toBe('');
+  });
+
+  it('should return empty string for invalid date', () => {
+    expect(formatDateForScholar('not-a-date')).toBe('');
+  });
+});
 
 describe('formatDate', () => {
   describe('valid date formats', () => {

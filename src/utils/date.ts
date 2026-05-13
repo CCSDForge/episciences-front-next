@@ -60,6 +60,23 @@ const parseDate = (dateString: string): Date | null => {
   return null;
 };
 
+export const formatDateForScholar = (dateString: string | undefined): string => {
+  if (!dateString) return '';
+  // YYYY-MM-DD or YYYY-MM-DDTHH:... — extract parts directly to avoid timezone shift
+  const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[1]}/${isoMatch[2]}/${isoMatch[3]}`;
+  // DD/MM/YYYY
+  const dmyMatch = dateString.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (dmyMatch) return `${dmyMatch[3]}/${dmyMatch[2]}/${dmyMatch[1]}`;
+  // Fallback: use local time methods (consistent with parseDateParts local construction)
+  const date = parseDate(dateString);
+  if (!date) return '';
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}/${m}/${d}`;
+};
+
 export const formatDate = (
   dateString: string | undefined,
   language: AvailableLanguage,

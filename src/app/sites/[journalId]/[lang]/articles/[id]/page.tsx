@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import { Metadata } from 'next';
 import { fetchArticle, fetchArticles, fetchArticleMetadata } from '@/services/article';
 import { fetchVolume } from '@/services/volume';
@@ -24,8 +24,11 @@ interface ArticleDetailsPageProps {
   }>;
 }
 
-// Article details rarely change after publication - long revalidation time
-// Use on-demand revalidation API for critical updates
+const getCachedArticle = cache((id: string, journalId: string) => fetchArticle(id, journalId));
+const getCachedVolume = cache((journalId: string, volumeId: number, lang: AvailableLanguage) =>
+  fetchVolume(journalId, volumeId, lang)
+);
+
 export const revalidate = 604800; // 7 days
 
 export async function generateStaticParams() {
@@ -43,8 +46,10 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
       };
     }
 
+    const language = getLanguageFromParams(params) as AvailableLanguage;
+
     const [article, currentJournal] = await Promise.all([
-      fetchArticle(id, journalId),
+      getCachedArticle(id, journalId),
       getJournalByCode(journalId).catch((error: unknown) => {
         console.error('Error fetching journal for metadata:', error);
         return undefined;
@@ -56,9 +61,6 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
         title: 'Article non trouvé',
       };
     }
-
-    // Get language from params
-    const language = getLanguageFromParams(params) as AvailableLanguage;
 
     // Extract keywords - handle both array and object formats
     let keywords: string[] = [];
@@ -78,6 +80,13 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
     const journalConfig = loadJournalConfig(journalId);
     const coarInboxUrl = journalConfig.env.NEXT_PUBLIC_COAR_NOTIFY_INBOX_URL;
 
+    let relatedVolume = null;
+    if (article.volumeId) {
+      relatedVolume = await getCachedVolume(journalId, Number(article.volumeId), language).catch(
+        () => null
+      );
+    }
+
     return generateArticleMetadata({
       language,
       article,
@@ -85,6 +94,7 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
       keywords,
       authors,
       coarInboxUrl,
+      relatedVolume,
     });
   } catch (error) {
     console.error(
@@ -129,7 +139,7 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
     const [translations, [article, metadataCSL, metadataBibTeX]] = await Promise.all([
       getServerTranslations(language),
       Promise.all([
-        fetchArticle(id, journalId),
+        getCachedArticle(id, journalId),
 
         fetchArticleMetadata({ rvcode: journalId, paperid: id, type: METADATA_TYPE.CSL }).catch(
           () => null
@@ -147,13 +157,7 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
 
     if (article?.volumeId && journalId) {
       try {
-        relatedVolume = await fetchVolume(
-          journalId,
-
-          Number(article.volumeId),
-
-          language
-        );
+        relatedVolume = await getCachedVolume(journalId, Number(article.volumeId), language);
       } catch (error) {
         console.error('Error fetching volume:', error);
       }
