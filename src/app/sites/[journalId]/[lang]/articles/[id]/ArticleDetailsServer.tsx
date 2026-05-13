@@ -276,6 +276,7 @@ export default function ArticleDetailsServer({
           metadataBibTeX={metadataBibTeX}
           translations={translations}
           language={language}
+          rvcode={rvcode}
         />
         <div className="articleDetails-content-article">
           {renderArticleTitleAndAuthors(false)}

@@ -44,9 +44,18 @@ vi.mock('@/components/icons', () => ({
   ),
 }));
 
-// Mock formatDate
 vi.mock('@/utils/date', () => ({
   formatDate: vi.fn(() => 'Jan 1, 2024'),
+}));
+
+vi.mock('@/hooks/store', () => ({
+  useAppSelector: vi.fn(() => 'testjournal'),
+}));
+
+vi.mock('@/components/DownloadArticleButton/DownloadArticleButton', () => ({
+  default: ({ children, downloadHref }: { children: React.ReactNode; downloadHref: string }) => (
+    <a href={downloadHref}>{children}</a>
+  ),
 }));
 
 const mockT = vi.fn((key: string) => {

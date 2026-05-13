@@ -19,6 +19,7 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useCitationsDropdown } from '@/hooks/useCitationsDropdown';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
+import { generateArticleFilename } from '@/utils/pdf';
 
 export interface IArticleCard extends IArticle {
   openedAbstract: boolean;
@@ -109,6 +110,7 @@ function ArticleCard({
             <DownloadArticleButton
               pdfLink={article.pdfLink}
               downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
+              filename={generateArticleFilename(rvcode ?? '', article.id, article.title)}
             >
               <div className="articleCard-anchor-icons-download">
                 <DownloadBlackIcon

@@ -14,6 +14,8 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
+import { generateArticleFilename } from '@/utils/pdf';
+import { useAppSelector } from '@/hooks/store';
 
 interface ISectionArticleCardProps {
   language: AvailableLanguage;
@@ -27,6 +29,7 @@ export default function SectionArticleCard({
   article,
 }: ISectionArticleCardProps): React.JSX.Element {
   const [openedAbstract, setOpenedAbstract] = useState(false);
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const toggleAbstract = (): void => setOpenedAbstract(prev => !prev);
 
@@ -85,6 +88,7 @@ export default function SectionArticleCard({
             <DownloadArticleButton
               pdfLink={article.pdfLink}
               downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
+              filename={generateArticleFilename(rvcode ?? '', article.id, article.title)}
             >
               <div className="sectionArticleCard-anchor-icons-download">
                 <DownloadBlackIcon

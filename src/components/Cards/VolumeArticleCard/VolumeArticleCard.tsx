@@ -14,6 +14,8 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
+import { generateArticleFilename } from '@/utils/pdf';
+import { useAppSelector } from '@/hooks/store';
 
 interface IVolumeArticleCardProps {
   language: AvailableLanguage;
@@ -27,6 +29,7 @@ function VolumeArticleCard({
   article,
 }: IVolumeArticleCardProps): React.JSX.Element {
   const [openedAbstract, setOpenedAbstract] = useState(false);
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const articlePath = `/${PATHS.articles}/${article.id}`.replace(/\/\/+/g, '/');
 
@@ -91,6 +94,7 @@ function VolumeArticleCard({
             <DownloadArticleButton
               pdfLink={article.pdfLink}
               downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
+              filename={generateArticleFilename(rvcode ?? '', article.id, article.title)}
             >
               <div className="volumeArticleCard-anchor-icons-download">
                 <DownloadBlackIcon

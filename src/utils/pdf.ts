@@ -2,6 +2,20 @@
  * PDF utility functions for proxy URL generation and validation
  */
 
+export function generateArticleFilename(
+  journalCode: string,
+  articleId: string | number,
+  title: string
+): string {
+  const sanitizedTitle = title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '_')
+    .substring(0, 50);
+  const prefix = journalCode ? `${journalCode}_` : '';
+  return `${prefix}article_${articleId}_${sanitizedTitle}.pdf`;
+}
+
 /**
  * Generate proxy URL for PDF to bypass CORS and control Content-Disposition
  * @param originalUrl - The original PDF URL from external source

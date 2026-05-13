@@ -40,6 +40,7 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
+import { generateArticleFilename } from '@/utils/pdf';
 
 import './ArticleDetailsSidebar.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
@@ -288,6 +289,7 @@ export default function ArticleDetailsSidebar({
             <DownloadArticleButton
               pdfLink={article.pdfLink!}
               downloadHref={`/${PATHS.articles}/${article.id}/download`}
+              filename={generateArticleFilename(rvcode ?? '', article.id, article.title)}
             >
               <div className="articleDetailsSidebar-links-link">
                 <DownloadBlackIcon

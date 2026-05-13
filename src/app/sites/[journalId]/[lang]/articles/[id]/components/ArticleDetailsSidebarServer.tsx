@@ -11,6 +11,7 @@ import { ExternalLinkBlackIcon, DownloadBlackIcon } from '@/components/icons';
 import InteractiveDropdown from './InteractiveDropdown';
 import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
+import { generateArticleFilename } from '@/utils/pdf';
 
 import '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar.scss';
 
@@ -22,6 +23,7 @@ interface ArticleDetailsSidebarServerProps {
   metrics?: React.JSX.Element;
   translations: Translations;
   language?: string;
+  rvcode?: string;
 }
 
 export default function ArticleDetailsSidebarServer({
@@ -32,6 +34,7 @@ export default function ArticleDetailsSidebarServer({
   metrics,
   translations,
   language = 'en',
+  rvcode = '',
 }: ArticleDetailsSidebarServerProps): React.JSX.Element {
   /**
    * Get localized path for server-side rendering
@@ -251,6 +254,7 @@ export default function ArticleDetailsSidebarServer({
           <DownloadArticleButton
             pdfLink={article.pdfLink}
             downloadHref={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)}
+            filename={generateArticleFilename(rvcode, article.id, article.title)}
           >
             <div className="articleDetailsSidebar-links-link">
               <DownloadBlackIcon

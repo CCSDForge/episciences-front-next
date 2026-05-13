@@ -19,6 +19,7 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useCitationsDropdown } from '@/hooks/useCitationsDropdown';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
+import { generateArticleFilename } from '@/utils/pdf';
 
 export interface ISearchResultCard extends IArticle {
   openedAbstract: boolean;
@@ -112,6 +113,7 @@ function SearchResultCard({
             <DownloadArticleButton
               pdfLink={searchResult.pdfLink}
               downloadHref={`/${language}/${PATHS.articles}/${searchResult.id}/download`}
+              filename={generateArticleFilename(rvcode ?? '', searchResult.id, searchResult.title)}
             >
               <div className="searchResultCardAnchorIconsDownload">
                 <DownloadBlackIcon
