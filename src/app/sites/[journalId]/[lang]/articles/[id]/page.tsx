@@ -166,6 +166,7 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
         <ArticleDetailsServer
           article={article as IArticle}
           id={id}
+          journalId={journalId}
           relatedVolume={relatedVolume}
           metadataCSL={metadataCSL}
           metadataBibTeX={metadataBibTeX}

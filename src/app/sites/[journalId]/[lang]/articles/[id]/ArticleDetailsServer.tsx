@@ -24,6 +24,7 @@ import './ArticleDetails.scss';
 interface ArticleDetailsServerProps {
   article: IArticle;
   id: string;
+  journalId?: string;
   relatedVolume?: IVolume | null;
   metadataCSL?: string | null;
   metadataBibTeX?: string | null;
@@ -49,6 +50,7 @@ enum ARTICLE_SECTION {
 export default function ArticleDetailsServer({
   article,
   id,
+  journalId,
   relatedVolume,
   metadataCSL,
   metadataBibTeX,
@@ -79,7 +81,7 @@ export default function ArticleDetailsServer({
   // Pass metadata to client-side component for dynamic citation generation
   // Don't generate citations server-side, let the client handle it
 
-  const rvcode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || process.env.NEXT_PUBLIC_RVCODE || '';
+  const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || process.env.NEXT_PUBLIC_RVCODE || '';
 
   const renderArticleTitleAndAuthors = (isMobile: boolean): React.JSX.Element => {
     return (
