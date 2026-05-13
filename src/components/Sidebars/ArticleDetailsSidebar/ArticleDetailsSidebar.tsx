@@ -39,6 +39,7 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
+import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
 import './ArticleDetailsSidebar.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
@@ -284,7 +285,10 @@ export default function ArticleDetailsSidebar({
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
           <>
-            <a href={`/${PATHS.articles}/${article.id}/download`}>
+            <DownloadArticleButton
+              pdfLink={article.pdfLink!}
+              downloadHref={`/${PATHS.articles}/${article.id}/download`}
+            >
               <div className="articleDetailsSidebar-links-link">
                 <DownloadBlackIcon
                   size={14}
@@ -295,7 +299,7 @@ export default function ArticleDetailsSidebar({
                   {t('pages.articleDetails.actions.download')}
                 </div>
               </div>
-            </a>
+            </DownloadArticleButton>
           </>
         )}
         {article?.docLink && (

@@ -13,6 +13,7 @@ import { getArticleTypeLabel, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
 interface IVolumeArticleCardProps {
   language: AvailableLanguage;
@@ -87,7 +88,10 @@ function VolumeArticleCard({
         </div>
         <div className="volumeArticleCard-anchor-icons">
           {article.pdfLink && (
-            <a href={`/${language}/${PATHS.articles}/${article.id}/download`}>
+            <DownloadArticleButton
+              pdfLink={article.pdfLink}
+              downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
+            >
               <div className="volumeArticleCard-anchor-icons-download">
                 <DownloadBlackIcon
                   size={16}
@@ -98,7 +102,7 @@ function VolumeArticleCard({
                   {t('common.pdf')}
                 </div>
               </div>
-            </a>
+            </DownloadArticleButton>
           )}
         </div>
       </div>

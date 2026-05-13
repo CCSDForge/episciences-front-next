@@ -18,6 +18,7 @@ import { getArticleTypeLabel, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useCitationsDropdown } from '@/hooks/useCitationsDropdown';
+import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
 export interface IArticleCard extends IArticle {
   openedAbstract: boolean;
@@ -105,7 +106,10 @@ function ArticleCard({
         </div>
         <div className="articleCard-anchor-icons">
           {article.pdfLink && (
-            <a href={`/${language}/${PATHS.articles}/${article.id}/download`}>
+            <DownloadArticleButton
+              pdfLink={article.pdfLink}
+              downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
+            >
               <div className="articleCard-anchor-icons-download">
                 <DownloadBlackIcon
                   size={16}
@@ -114,7 +118,7 @@ function ArticleCard({
                 />
                 <div className="articleCard-anchor-icons-download-text">{t('common.pdf')}</div>
               </div>
-            </a>
+            </DownloadArticleButton>
           )}
           {article.id && (
             <div

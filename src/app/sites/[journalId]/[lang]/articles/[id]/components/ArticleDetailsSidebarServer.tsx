@@ -10,6 +10,7 @@ import { getLicenseLabelInfo } from '@/utils/article';
 import { ExternalLinkBlackIcon, DownloadBlackIcon } from '@/components/icons';
 import InteractiveDropdown from './InteractiveDropdown';
 import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
+import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
 import '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar.scss';
 
@@ -247,7 +248,10 @@ export default function ArticleDetailsSidebarServer({
     <div className="articleDetailsSidebar">
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
-          <a href={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)}>
+          <DownloadArticleButton
+            pdfLink={article.pdfLink}
+            downloadHref={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)}
+          >
             <div className="articleDetailsSidebar-links-link">
               <DownloadBlackIcon
                 size={14}
@@ -258,7 +262,7 @@ export default function ArticleDetailsSidebarServer({
                 {t('pages.articleDetails.actions.download', translations)}
               </div>
             </div>
-          </a>
+          </DownloadArticleButton>
         )}
         {article?.docLink && (
           <a

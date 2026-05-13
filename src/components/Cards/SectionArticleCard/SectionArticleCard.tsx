@@ -13,6 +13,7 @@ import { getArticleTypeLabel, getAbstractText } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
 interface ISectionArticleCardProps {
   language: AvailableLanguage;
@@ -81,7 +82,10 @@ export default function SectionArticleCard({
         </div>
         <div className="sectionArticleCard-anchor-icons">
           {article.pdfLink && (
-            <a href={`/${language}/${PATHS.articles}/${article.id}/download`}>
+            <DownloadArticleButton
+              pdfLink={article.pdfLink}
+              downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
+            >
               <div className="sectionArticleCard-anchor-icons-download">
                 <DownloadBlackIcon
                   size={16}
@@ -92,7 +96,7 @@ export default function SectionArticleCard({
                   {t('common.pdf')}
                 </div>
               </div>
-            </a>
+            </DownloadArticleButton>
           )}
         </div>
       </div>

@@ -18,6 +18,7 @@ import { getArticleTypeLabel } from '@/utils/article';
 import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useCitationsDropdown } from '@/hooks/useCitationsDropdown';
+import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
 export interface ISearchResultCard extends IArticle {
   openedAbstract: boolean;
@@ -108,7 +109,10 @@ function SearchResultCard({
         </div>
         <div className="searchResultCardAnchorIcons">
           {searchResult.pdfLink && (
-            <a href={`/${language}/${PATHS.articles}/${searchResult.id}/download`}>
+            <DownloadArticleButton
+              pdfLink={searchResult.pdfLink}
+              downloadHref={`/${language}/${PATHS.articles}/${searchResult.id}/download`}
+            >
               <div className="searchResultCardAnchorIconsDownload">
                 <DownloadBlackIcon
                   size={16}
@@ -117,7 +121,7 @@ function SearchResultCard({
                 />
                 <div className="searchResultCardAnchorIconsDownloadText">{t('common.pdf')}</div>
               </div>
-            </a>
+            </DownloadArticleButton>
           )}
           {searchResult.id && (
             <div
