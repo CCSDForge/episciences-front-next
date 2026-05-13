@@ -12,6 +12,7 @@ export default function Footer(): React.JSX.Element {
 
   const language = useAppSelector(state => state.i18nReducer.language);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
+  const apiEndpoint = useAppSelector(state => state.journalReducer.apiEndpoint);
   const enabled = useAppSelector(state => state.footerReducer.enabled);
 
   const getJournalNotice = (): string | undefined => {
@@ -34,10 +35,14 @@ export default function Footer(): React.JSX.Element {
 
   const getRSS = (): string | undefined => {
     const code = currentJournal?.code;
-
     if (!code) return;
+    return `${apiEndpoint}/feed/rss/${code}`;
+  };
 
-    return `${process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT}/feed/rss/${code}`;
+  const getATOM = (): string | undefined => {
+    const code = currentJournal?.code;
+    if (!code) return;
+    return `${apiEndpoint}/feed/atom/${code}`;
   };
 
   const getLogoOfJournal = (): string => {
@@ -118,6 +123,14 @@ export default function Footer(): React.JSX.Element {
               <Link href={getRSS()!} prefetch={false} target="_blank" rel="noopener noreferrer">
                 {t('components.footer.links.rss')}
               </Link>
+            )}
+            {getATOM() && (
+              <>
+                <div className="footer-journal-links-rss-divider">|</div>
+                <Link href={getATOM()!} prefetch={false} target="_blank" rel="noopener noreferrer">
+                  {t('components.footer.links.atom')}
+                </Link>
+              </>
             )}
           </div>
         </div>

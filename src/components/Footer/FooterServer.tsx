@@ -3,7 +3,7 @@ import { Link } from '@/components/Link/Link';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
 import { PATHS } from '@/config/paths';
-import { API_ROOT_ENDPOINT } from '@/config/api';
+import { getJournalApiUrl } from '@/utils/env-loader';
 import fs from 'fs';
 import path from 'path';
 import './Footer.scss';
@@ -21,7 +21,6 @@ export default async function FooterServer({
   journalId,
 }: FooterServerProps): Promise<React.JSX.Element> {
   const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'journal';
-  const apiEndpoint = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || API_ROOT_ENDPOINT;
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 
   // Fetch journal data
@@ -40,7 +39,9 @@ export default async function FooterServer({
   )?.value;
   const issn = journal?.settings?.find((s: any) => s.setting === 'ISSN')?.value;
   const contactEmail = `mailto:${rvcode}@episciences.org`;
-  const rssUrl = `${apiEndpoint}/feed/rss/${rvcode}`;
+  const journalApiEndpoint = getJournalApiUrl(rvcode);
+  const rssUrl = `${journalApiEndpoint}/feed/rss/${rvcode}`;
+  const atomUrl = `${journalApiEndpoint}/feed/atom/${rvcode}`;
 
   // Episciences links (language-aware)
   const docUrl =
@@ -152,6 +153,16 @@ export default async function FooterServer({
               lang={lang}
             >
               {t('components.footer.links.rss', translations)}
+            </Link>
+            <div className="footer-journal-links-rss-divider">|</div>
+            <Link
+              href={atomUrl}
+              prefetch={false}
+              target="_blank"
+              rel="noopener noreferrer"
+              lang={lang}
+            >
+              {t('components.footer.links.atom', translations)}
             </Link>
           </div>
         </div>
