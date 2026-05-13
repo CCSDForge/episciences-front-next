@@ -35,5 +35,15 @@ declare module '@citation-js/core' {
     format(style: string, options?: any): string;
     data: any;
   }
+  export const plugins: {
+    config: {
+      get(name: string): {
+        templates: {
+          has(name: string): boolean;
+          add(name: string, xml: string): void;
+        };
+      };
+    };
+  };
   export default Cite;
 }

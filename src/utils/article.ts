@@ -19,9 +19,12 @@ export interface ICitation {
 }
 
 export enum CITATION_TEMPLATE {
+  AMS = 'AMS',
   APA = 'APA',
-  MLA = 'MLA',
   BIBTEX = 'BibTeX',
+  IEEE = 'IEEE',
+  MLA = 'MLA',
+  VANCOUVER = 'Vancouver',
 }
 
 export enum METADATA_TYPE {
@@ -634,6 +637,17 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
     // Register plugins
     await import('@citation-js/plugin-csl');
 
+    // Register custom CSL templates (IEEE and AMS are not bundled in plugin-csl)
+    const [{ AMS_CSL, IEEE_CSL }, coreModule] = await Promise.all([
+      import('@/config/csl-styles'),
+      import('@citation-js/core') as Promise<any>,
+    ]);
+    const cslTemplates = coreModule.plugins?.config?.get('@csl')?.templates;
+    if (cslTemplates) {
+      if (!cslTemplates.has('ams')) cslTemplates.add('ams', AMS_CSL);
+      if (!cslTemplates.has('ieee')) cslTemplates.add('ieee', IEEE_CSL);
+    }
+
     // Parse CSL data - it might be a JSON string, so try to parse it
     let cslData = csl;
     try {
@@ -642,26 +656,17 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
       // If not JSON, use as is (already a string or object)
     }
 
-    // Parse CSL data
     const cite = new Cite(cslData);
-
-    // Format citations in different styles
-    const apaCitation = cite.format('bibliography', {
-      format: 'text',
-      template: 'apa',
-      lang: 'en-US',
-    });
-
-    const mlaCitation = cite.format('bibliography', {
-      format: 'text',
-      template: 'mla',
-      lang: 'en-US',
-    });
+    const format = (template: string) =>
+      cite.format('bibliography', { format: 'text', template, lang: 'en-US' });
 
     return [
-      { key: CITATION_TEMPLATE.APA, citation: apaCitation },
-      { key: CITATION_TEMPLATE.MLA, citation: mlaCitation },
+      { key: CITATION_TEMPLATE.AMS, citation: format('ams') },
+      { key: CITATION_TEMPLATE.APA, citation: format('apa') },
       { key: CITATION_TEMPLATE.BIBTEX, citation: '' }, // Empty initially, will be filled from metadataBibTeX API response
+      { key: CITATION_TEMPLATE.IEEE, citation: format('ieee') },
+      { key: CITATION_TEMPLATE.MLA, citation: format('mla') },
+      { key: CITATION_TEMPLATE.VANCOUVER, citation: format('vancouver') },
     ];
   } catch (error) {
     console.error('[getCitations] Error formatting citations:', error);
