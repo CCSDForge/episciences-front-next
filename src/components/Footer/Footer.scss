@@ -1,4 +1,7 @@
 @use '@/styles/breakpoints.scss';
+
+$footer-mobile: 768px;
+
 .footer {
   min-height: 65px;
   height: auto;
@@ -12,19 +15,21 @@
 
   &-journal {
     display: flex;
+    align-items: center;
     padding: 25px 80px 25px 25px;
     border-bottom: 2px solid var(--primary-border);
     box-shadow: 0px 0px 6px var(--black-shadow);
 
-    @media (max-width: breakpoints.$sm) {
+    @media (max-width: $footer-mobile) {
       padding: 25px;
+      align-items: flex-start;
       flex-direction: column;
     }
 
     &-logo {
       margin-right: 25px;
 
-      @media (max-width: breakpoints.$sm) {
+      @media (max-width: $footer-mobile) {
         margin-right: 0;
         margin-bottom: 15px;
       }
@@ -36,7 +41,7 @@
       display: flex;
       justify-content: space-between;
 
-      @media (max-width: breakpoints.$sm) {
+      @media (max-width: $footer-mobile) {
         flex-direction: column;
         gap: 15px;
       }
@@ -47,7 +52,7 @@
         align-items: center;
         gap: 25px;
 
-        @media (max-width: breakpoints.$sm) {
+        @media (max-width: $footer-mobile) {
           gap: 12px;
         }
 
@@ -66,17 +71,19 @@
 
   &-episciences {
     display: flex;
+    align-items: center;
     padding: 25px 80px 25px 25px;
 
-    @media (max-width: breakpoints.$sm) {
+    @media (max-width: $footer-mobile) {
       padding: 25px;
+      align-items: flex-start;
       flex-direction: column;
     }
 
     &-logo {
       margin-right: 25px;
 
-      @media (max-width: breakpoints.$sm) {
+      @media (max-width: $footer-mobile) {
         margin-right: 0;
         margin-bottom: 15px;
       }
@@ -88,7 +95,7 @@
       display: flex;
       justify-content: space-between;
 
-      @media (max-width: breakpoints.$sm) {
+      @media (max-width: $footer-mobile) {
         flex-direction: column;
         gap: 15px;
       }
@@ -99,7 +106,7 @@
         align-items: center;
         gap: 25px;
 
-        @media (max-width: breakpoints.$sm) {
+        @media (max-width: $footer-mobile) {
           gap: 8px;
         }
 
