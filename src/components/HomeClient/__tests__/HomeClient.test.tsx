@@ -12,9 +12,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@/hooks/store', () => ({
-  useAppSelector: vi.fn((selector: any) =>
-    selector({ journalReducer: { currentJournal: null } })
-  ),
+  useAppSelector: vi.fn((selector: any) => selector({ journalReducer: { currentJournal: null } })),
 }));
 
 vi.mock('@/components/icons', () => ({
@@ -39,27 +37,19 @@ vi.mock('@/components/HomeSections/PresentationSection/PresentationSection', () 
 }));
 
 vi.mock('@/components/HomeSections/NewsSection/NewsSection', () => ({
-  default: ({ news }: any) => (
-    <div data-testid="news-section" data-count={news?.length} />
-  ),
+  default: ({ news }: any) => <div data-testid="news-section" data-count={news?.length} />,
 }));
 
 vi.mock('@/components/HomeSections/StatisticsSection/StatisticsSection', () => ({
-  default: ({ stats }: any) => (
-    <div data-testid="statistics-section" data-count={stats?.length} />
-  ),
+  default: ({ stats }: any) => <div data-testid="statistics-section" data-count={stats?.length} />,
 }));
 
 vi.mock('@/components/HomeSections/JournalSection/JournalSection', () => ({
-  default: ({ language }: any) => (
-    <div data-testid="journal-section" data-language={language} />
-  ),
+  default: ({ language }: any) => <div data-testid="journal-section" data-language={language} />,
 }));
 
 vi.mock('@/components/HomeSections/IssuesSection/IssuesSection', () => ({
-  default: ({ issues }: any) => (
-    <div data-testid="issues-section" data-count={issues?.length} />
-  ),
+  default: ({ issues }: any) => <div data-testid="issues-section" data-count={issues?.length} />,
 }));
 
 vi.mock('@/components/Swiper/Swiper', () => ({
@@ -84,10 +74,22 @@ const ALL_BLOCK_ENV_VARS = [
 const mockArticle = { id: 1, title: { en: 'Article 1', fr: 'Article 1' } } as any;
 const mockAcceptedArticle = { id: 2, title: { en: 'Accepted 1', fr: 'Accepté 1' } } as any;
 const mockNews = { id: 10, title: { en: 'News 1', fr: 'Actualité 1' } } as any;
-const mockIssue = { id: 20, num: '1', title: { en: 'Issue 1', fr: 'Numéro 1' }, articles: [], downloadLink: '' } as any;
+const mockIssue = {
+  id: 20,
+  num: '1',
+  title: { en: 'Issue 1', fr: 'Numéro 1' },
+  articles: [],
+  downloadLink: '',
+} as any;
 const mockMember = { uuid: 'u1', fullName: 'Alice Dupont', roles: [] } as any;
 const mockStat = { type: 'articles', value: 42 } as any;
-const mockContent = { id: 1, page_code: 'about', rvcode: 'test', title: { en: 'T', fr: 'T' }, content: { en: 'Content', fr: 'Contenu' } } as any;
+const mockContent = {
+  id: 1,
+  page_code: 'about',
+  rvcode: 'test',
+  title: { en: 'T', fr: 'T' },
+  content: { en: 'Content', fr: 'Contenu' },
+} as any;
 
 const fullHomeData = {
   aboutPage: mockContent,

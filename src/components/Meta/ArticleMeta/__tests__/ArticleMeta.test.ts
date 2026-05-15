@@ -144,9 +144,7 @@ describe('generateArticleMetadata', () => {
     });
 
     it('should return empty array when no author has an institution', () => {
-      const authors = [
-        { fullname: 'No Affiliation', orcid: undefined, institutions: [] },
-      ];
+      const authors = [{ fullname: 'No Affiliation', orcid: undefined, institutions: [] }];
       const result = generateArticleMetadata({
         language: 'en',
         article: baseArticle,
@@ -154,9 +152,7 @@ describe('generateArticleMetadata', () => {
         keywords: [],
         authors,
       });
-      expect(
-        (result.other as Record<string, unknown>)['citation_author_institution']
-      ).toEqual([]);
+      expect((result.other as Record<string, unknown>)['citation_author_institution']).toEqual([]);
     });
   });
 
@@ -169,9 +165,7 @@ describe('generateArticleMetadata', () => {
         keywords: [],
         authors: baseArticle.authors,
       });
-      const orcids = (result.other as Record<string, unknown>)[
-        'citation_author_orcid'
-      ] as string[];
+      const orcids = (result.other as Record<string, unknown>)['citation_author_orcid'] as string[];
       expect(orcids).toEqual(['0000-0001-2345-6789', '0000-0002-9876-5432']);
     });
   });

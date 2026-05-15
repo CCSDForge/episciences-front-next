@@ -2,19 +2,19 @@
 # Production — non-sensitive deployment variables
 
 ansistrano_deploy_via: git
-ansistrano_git_repo: "https://github.com/CCSDForge/episciences-front-next.git"
-ansistrano_git_branch: "main"
-ansistrano_deploy_to: "/var/www/episciences-front-next"
+ansistrano_git_repo: 'https://github.com/CCSDForge/episciences-front-next.git'
+ansistrano_git_branch: 'main'
+ansistrano_deploy_to: '/var/www/episciences-front-next'
 ansistrano_keep_releases: 3
 ansistrano_shared_files:
   - .env.local
 ansistrano_shared_paths:
   - logs
-ansistrano_deploy_user: "epi-deploy"
-ansistrano_deploy_group: "www-data"
-ansistrano_before_symlink_shared_tasks_file: "tasks/upload-env.yml"
-ansistrano_before_symlink_tasks_file: "tasks/build.yml"
+ansistrano_deploy_user: 'epi-deploy'
+ansistrano_deploy_group: 'www-data'
+ansistrano_before_symlink_shared_tasks_file: 'tasks/upload-env.yml'
+ansistrano_before_symlink_tasks_file: 'tasks/build.yml'
 # restart is handled by the rolling-restart play in deploy.yml (serial: 1)
 
 # Local secrets file (gitignored) uploaded to shared/.env.local on each deploy
-local_env_secrets_file: "{{ playbook_dir }}/../../.env.production.local"
+local_env_secrets_file: '{{ playbook_dir }}/../../.env.production.local'

@@ -60,7 +60,11 @@ describe('ScrollManager', () => {
     });
 
     it('scrolls to top when hash is empty', () => {
-      Object.defineProperty(window, 'location', { value: { hash: '' }, writable: true, configurable: true });
+      Object.defineProperty(window, 'location', {
+        value: { hash: '' },
+        writable: true,
+        configurable: true,
+      });
 
       render(<ScrollManager />);
 

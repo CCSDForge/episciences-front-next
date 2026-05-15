@@ -259,18 +259,11 @@ export default function NewsClient({
                           : 'default'
                     }
                     onToggle={(): void =>
-                      fullNewsIndex !== index
-                        ? setFullNewsIndex(index)
-                        : setFullNewsIndex(-1)
+                      fullNewsIndex !== index ? setFullNewsIndex(index) : setFullNewsIndex(-1)
                     }
                   />
                 ) : (
-                  <NewsListCard
-                    key={index}
-                    language={language}
-                    t={t}
-                    news={singleNews}
-                  />
+                  <NewsListCard key={index} language={language} t={t} news={singleNews} />
                 )
               )}
             </div>

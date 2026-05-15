@@ -53,9 +53,9 @@ POST /api/revalidate
 
 ### Required Headers
 
-| Header | Value |
-|--------|-------|
-| `Content-Type` | `application/json` |
+| Header                | Value                                          |
+| --------------------- | ---------------------------------------------- |
+| `Content-Type`        | `application/json`                             |
 | `x-episciences-token` | The secret for the journal (or the global one) |
 
 ### Request Body
@@ -101,38 +101,38 @@ identifier.
 
 ### Articles
 
-| Scenario | Tag | Pages invalidated |
-|----------|-----|-------------------|
-| One article (title, abstract, DOI…) | `article-{id}` | Article detail, home, volume detail, section detail |
-| All articles of a journal | `articles-{rvcode}` | Article list, home, volume detail |
-| Accepted articles only | `articles-accepted-{rvcode}` | Accepted articles list |
+| Scenario                            | Tag                          | Pages invalidated                                   |
+| ----------------------------------- | ---------------------------- | --------------------------------------------------- |
+| One article (title, abstract, DOI…) | `article-{id}`               | Article detail, home, volume detail, section detail |
+| All articles of a journal           | `articles-{rvcode}`          | Article list, home, volume detail                   |
+| Accepted articles only              | `articles-accepted-{rvcode}` | Accepted articles list                              |
 
 ---
 
 ### Volumes
 
-| Scenario | Tag | Pages invalidated |
-|----------|-----|-------------------|
-| Volume metadata (title, description) | `volume-{id}` | Volume detail page |
-| Article order changed inside a volume | `volume-{id}` | Volume detail page |
-| New volume / volume list changed | `volumes-{rvcode}` | Volume list + home |
+| Scenario                              | Tag                | Pages invalidated  |
+| ------------------------------------- | ------------------ | ------------------ |
+| Volume metadata (title, description)  | `volume-{id}`      | Volume detail page |
+| Article order changed inside a volume | `volume-{id}`      | Volume detail page |
+| New volume / volume list changed      | `volumes-{rvcode}` | Volume list + home |
 
 ---
 
 ### Sections
 
-| Scenario | Tag | Pages invalidated |
-|----------|-----|-------------------|
-| Section metadata (title, description) | `section-{id}-{rvcode}` | Section detail page |
-| Article order changed in a section | `section-articles-{id}-{rvcode}` | Section article list |
-| All sections of a journal | `sections-{rvcode}` | Sections list page |
+| Scenario                              | Tag                              | Pages invalidated    |
+| ------------------------------------- | -------------------------------- | -------------------- |
+| Section metadata (title, description) | `section-{id}-{rvcode}`          | Section detail page  |
+| Article order changed in a section    | `section-articles-{id}-{rvcode}` | Section article list |
+| All sections of a journal             | `sections-{rvcode}`              | Sections list page   |
 
 ---
 
 ### News
 
-| Scenario | Tag | Pages invalidated |
-|----------|-----|-------------------|
+| Scenario              | Tag             | Pages invalidated           |
+| --------------------- | --------------- | --------------------------- |
 | All news of a journal | `news-{rvcode}` | News list + home news block |
 
 ---
@@ -142,10 +142,10 @@ identifier.
 The Boards page and the home page **share the same data source** for board members. A
 single tag invalidates both.
 
-| Scenario | Tag | Pages invalidated |
-|----------|-----|-------------------|
-| Board member list (roles, names, affiliations) | `members-{rvcode}` | Boards page + home members block |
-| Everything on the Boards page (members + section structure) | `boards-{rvcode}` | Boards page + home members block |
+| Scenario                                                    | Tag                | Pages invalidated                |
+| ----------------------------------------------------------- | ------------------ | -------------------------------- |
+| Board member list (roles, names, affiliations)              | `members-{rvcode}` | Boards page + home members block |
+| Everything on the Boards page (members + section structure) | `boards-{rvcode}`  | Boards page + home members block |
 
 `boards-{rvcode}` is the broadest tag: it covers both board section pages
 (`fetchBoardPages`) and board member data (`fetchBoardMembers`).
@@ -157,8 +157,8 @@ single tag invalidates both.
 The About text appears on **two routes**: the dedicated `/about` page and a section of
 the home page. Both are invalidated by the same tag.
 
-| Scenario | Tag | Pages invalidated |
-|----------|-----|-------------------|
+| Scenario           | Tag              | Pages invalidated               |
+| ------------------ | ---------------- | ------------------------------- |
 | About page content | `about-{rvcode}` | About page + home about section |
 
 ---
@@ -168,15 +168,15 @@ the home page. Both are invalidated by the same tag.
 The "journal indexing" editorial page appears both on the standalone `/indexing` route
 and as a section on the home page. Both are invalidated together.
 
-| Scenario | Tag | Pages invalidated |
-|----------|-----|-------------------|
+| Scenario                   | Tag                 | Pages invalidated                     |
+| -------------------------- | ------------------- | ------------------------------------- |
 | Indexing editorial content | `indexing-{rvcode}` | Indexing page + home indexing section |
 
 > **Note:** `indexation-{rvcode}` is a **separate tag** for the journal metrics endpoint
 > (`/journals/{rvcode}/indexation`) — different data, different page.
 
-| Scenario | Tag | Pages invalidated |
-|----------|-----|-------------------|
+| Scenario                   | Tag                   | Pages invalidated       |
+| -------------------------- | --------------------- | ----------------------- |
 | Journal indexation metrics | `indexation-{rvcode}` | Indexation metrics page |
 
 ---
@@ -185,13 +185,13 @@ and as a section on the home page. Both are invalidated together.
 
 Each of these pages has its own tag. They do **not** appear on the home page.
 
-| Page | Tag |
-|------|-----|
-| Credits | `credits-{rvcode}` |
-| For reviewers | `for-reviewers-{rvcode}` |
+| Page                      | Tag                                  |
+| ------------------------- | ------------------------------------ |
+| Credits                   | `credits-{rvcode}`                   |
+| For reviewers             | `for-reviewers-{rvcode}`             |
 | For conference organisers | `for-conference-organisers-{rvcode}` |
-| Proposing special issues | `proposing-special-issues-{rvcode}` |
-| Acknowledgements | `acknowledgements-{rvcode}` |
+| Proposing special issues  | `proposing-special-issues-{rvcode}`  |
+| Acknowledgements          | `acknowledgements-{rvcode}`          |
 
 > **⚠ For Authors sub-pages not revalidatable on demand** — The three sub-pages of the
 > "For Authors" section (`editorial-workflow`, `ethical-charter`, `prepare-submission`)
@@ -205,10 +205,10 @@ Each of these pages has its own tag. They do **not** appear on the home page.
 
 The statistics data is served by two distinct endpoints with **two separate tags**:
 
-| Scenario | Tag | Pages invalidated |
-|----------|-----|-------------------|
-| Homepage stats block (quick metrics) | `stats-{rvcode}` | Home stats block |
-| Full statistics page (detailed breakdown) | `statistics-{rvcode}` | Statistics page |
+| Scenario                                  | Tag                   | Pages invalidated |
+| ----------------------------------------- | --------------------- | ----------------- |
+| Homepage stats block (quick metrics)      | `stats-{rvcode}`      | Home stats block  |
+| Full statistics page (detailed breakdown) | `statistics-{rvcode}` | Statistics page   |
 
 Use both tags together when a statistics update should be reflected everywhere:
 
@@ -222,8 +222,8 @@ Use both tags together when a statistics update should be reflected everywhere:
 
 ### Sitemap
 
-| Scenario | Tag |
-|----------|-----|
+| Scenario                   | Tag                |
+| -------------------------- | ------------------ |
 | Force sitemap regeneration | `sitemap-{rvcode}` |
 
 The sitemap is also implicitly refreshed when `articles-{rvcode}` or `volumes-{rvcode}`
@@ -235,10 +235,10 @@ are invalidated, because it shares those data sources.
 
 The `fetchPage(pageCode, rvcode)` utility is tagged with two complementary patterns:
 
-| Pattern | Example | Scope |
-|---------|---------|-------|
-| `page-{pageCode}` | `page-accessibility` | All journals |
-| `page-{pageCode}-{rvcode}` | `page-accessibility-epijinfo` | One journal |
+| Pattern                    | Example                       | Scope        |
+| -------------------------- | ----------------------------- | ------------ |
+| `page-{pageCode}`          | `page-accessibility`          | All journals |
+| `page-{pageCode}-{rvcode}` | `page-accessibility-epijinfo` | One journal  |
 
 Use these tags for any CMS page fetched through the generic page API that is not covered
 by a dedicated tag above.
@@ -250,48 +250,48 @@ by a dedicated tag above.
 Use the journal-agnostic form of a tag to invalidate across **all** journals at once.
 Use with caution in a multi-tenant setup.
 
-| Tag | Invalidates |
-|-----|-------------|
-| `articles` | All articles, all journals |
-| `articles-accepted` | All accepted articles, all journals |
-| `volumes` | All volumes, all journals |
-| `news` | All news, all journals |
-| `sections` | All sections, all journals |
-| `boards` | All board pages, all journals |
-| `members` | All member lists, all journals |
-| `stats` | Homepage stats block, all journals |
-| `statistics` | Full statistics page, all journals |
-| `pages` | All generic editorial pages, all journals |
-| `sitemap` | All sitemaps, all journals |
+| Tag                 | Invalidates                               |
+| ------------------- | ----------------------------------------- |
+| `articles`          | All articles, all journals                |
+| `articles-accepted` | All accepted articles, all journals       |
+| `volumes`           | All volumes, all journals                 |
+| `news`              | All news, all journals                    |
+| `sections`          | All sections, all journals                |
+| `boards`            | All board pages, all journals             |
+| `members`           | All member lists, all journals            |
+| `stats`             | Homepage stats block, all journals        |
+| `statistics`        | Full statistics page, all journals        |
+| `pages`             | All generic editorial pages, all journals |
+| `sitemap`           | All sitemaps, all journals                |
 
 ---
 
 ## 4. Complete Tag-by-Tag Summary
 
-| Tag | Service file | Also tagged with |
-|-----|-------------|-----------------|
-| `about-{rvcode}` | `about.ts`, `home.ts` | `about`, `pages`, `page-about-{rvcode}` |
-| `acknowledgements-{rvcode}` | `acknowledgements.ts` | `acknowledgements` |
-| `article-{id}` | `article.ts`, `home.ts`, `search.ts` | `articles`, `articles-{rvcode}` |
-| `articles-{rvcode}` | `article.ts`, `home.ts`, `sitemap.ts` | `articles` |
-| `articles-accepted-{rvcode}` | `article.ts` | `articles-accepted` |
-| `boards-{rvcode}` | `board.ts`, `home.ts` | `boards`, `members`, `members-{rvcode}` |
-| `credits-{rvcode}` | `credits.ts` | `credits` |
-| `for-conference-organisers-{rvcode}` | `forConferenceOrganisers.ts` | `for-conference-organisers` |
-| `for-reviewers-{rvcode}` | `forReviewers.ts` | `for-reviewers` |
-| `indexation-{rvcode}` | `indexation.ts` | `indexation` |
-| `indexing-{rvcode}` | `indexing.ts`, `home.ts` | `indexing`, `pages`, `page-journal-indexing-{rvcode}` |
-| `members-{rvcode}` | `board.ts`, `home.ts` | `members`, `boards`, `boards-{rvcode}` |
-| `news-{rvcode}` | `news.ts`, `home.ts` | `news` |
-| `proposing-special-issues-{rvcode}` | `proposingSpecialIssues.ts` | `proposing-special-issues` |
-| `section-{id}-{rvcode}` | `section.ts` | `sections`, `sections-{rvcode}`, `section-{id}` |
-| `section-articles-{id}-{rvcode}` | `section.ts` (fetchSectionArticles) | `articles`, `articles-{rvcode}`, `article-{id}` |
-| `sections-{rvcode}` | `section.ts` | `sections` |
-| `sitemap-{rvcode}` | `sitemap.ts` | `sitemap`, `articles-{rvcode}`, `volumes-{rvcode}` |
-| `stats-{rvcode}` | `stat.ts`, `home.ts` | `stats` |
-| `statistics-{rvcode}` | `statistics.ts` | `statistics` |
-| `volume-{id}` | `volume.ts` | `volumes`, `volumes-{rvcode}` |
-| `volumes-{rvcode}` | `volume.ts`, `home.ts`, `sitemap.ts` | `volumes` |
+| Tag                                  | Service file                          | Also tagged with                                      |
+| ------------------------------------ | ------------------------------------- | ----------------------------------------------------- |
+| `about-{rvcode}`                     | `about.ts`, `home.ts`                 | `about`, `pages`, `page-about-{rvcode}`               |
+| `acknowledgements-{rvcode}`          | `acknowledgements.ts`                 | `acknowledgements`                                    |
+| `article-{id}`                       | `article.ts`, `home.ts`, `search.ts`  | `articles`, `articles-{rvcode}`                       |
+| `articles-{rvcode}`                  | `article.ts`, `home.ts`, `sitemap.ts` | `articles`                                            |
+| `articles-accepted-{rvcode}`         | `article.ts`                          | `articles-accepted`                                   |
+| `boards-{rvcode}`                    | `board.ts`, `home.ts`                 | `boards`, `members`, `members-{rvcode}`               |
+| `credits-{rvcode}`                   | `credits.ts`                          | `credits`                                             |
+| `for-conference-organisers-{rvcode}` | `forConferenceOrganisers.ts`          | `for-conference-organisers`                           |
+| `for-reviewers-{rvcode}`             | `forReviewers.ts`                     | `for-reviewers`                                       |
+| `indexation-{rvcode}`                | `indexation.ts`                       | `indexation`                                          |
+| `indexing-{rvcode}`                  | `indexing.ts`, `home.ts`              | `indexing`, `pages`, `page-journal-indexing-{rvcode}` |
+| `members-{rvcode}`                   | `board.ts`, `home.ts`                 | `members`, `boards`, `boards-{rvcode}`                |
+| `news-{rvcode}`                      | `news.ts`, `home.ts`                  | `news`                                                |
+| `proposing-special-issues-{rvcode}`  | `proposingSpecialIssues.ts`           | `proposing-special-issues`                            |
+| `section-{id}-{rvcode}`              | `section.ts`                          | `sections`, `sections-{rvcode}`, `section-{id}`       |
+| `section-articles-{id}-{rvcode}`     | `section.ts` (fetchSectionArticles)   | `articles`, `articles-{rvcode}`, `article-{id}`       |
+| `sections-{rvcode}`                  | `section.ts`                          | `sections`                                            |
+| `sitemap-{rvcode}`                   | `sitemap.ts`                          | `sitemap`, `articles-{rvcode}`, `volumes-{rvcode}`    |
+| `stats-{rvcode}`                     | `stat.ts`, `home.ts`                  | `stats`                                               |
+| `statistics-{rvcode}`                | `statistics.ts`                       | `statistics`                                          |
+| `volume-{id}`                        | `volume.ts`                           | `volumes`, `volumes-{rvcode}`                         |
+| `volumes-{rvcode}`                   | `volume.ts`, `home.ts`, `sitemap.ts`  | `volumes`                                             |
 
 ---
 
@@ -452,18 +452,18 @@ Configure retries in `config/packages/messenger.yaml`:
 
 ```yaml
 framework:
-    messenger:
-        failure_transport: failed
-        transports:
-            async:
-                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
-                retry_strategy:
-                    max_retries: 5
-                    delay: 1000
-                    multiplier: 2
-                    max_delay: 60000
-        routing:
-            'App\Message\RevalidateCacheMessage': async
+  messenger:
+    failure_transport: failed
+    transports:
+      async:
+        dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+        retry_strategy:
+          max_retries: 5
+          delay: 1000
+          multiplier: 2
+          max_delay: 60000
+    routing:
+      'App\Message\RevalidateCacheMessage': async
 ```
 
 ### 5.4 Via Valkey Pub/Sub (Alternative)
@@ -533,6 +533,7 @@ WantedBy=multi-user.target
 
 > **Note for Ansistrano deployments:** `WorkingDirectory` should point to the symlinked
 > `current/` directory. Restart the worker after each deployment:
+>
 > ```bash
 > sudo systemctl restart revalidate-worker.service
 > ```
@@ -593,16 +594,16 @@ enforce the whitelist at the application level as a second layer of defence.
 Cache durations are controlled via environment variables (see `.env.production.local.example`).
 All default to **3600 seconds (1 hour)** if not set.
 
-| Variable | Content | Default |
-|----------|---------|---------|
-| `CACHE_TTL_NEWS` | News articles | 3600 |
-| `CACHE_TTL_VOLUMES` | Volumes & issues | 3600 |
-| `CACHE_TTL_ARTICLES` | Published articles | 3600 |
-| `CACHE_TTL_PAGES` | Static editorial pages | 3600 |
-| `CACHE_TTL_STATISTICS` | Journal statistics | 3600 |
-| `CACHE_TTL_MEMBERS` | Editorial board | 3600 |
-| `CACHE_TTL_SECTIONS` | Sections | 3600 |
-| `CACHE_TTL_SITEMAP` | Sitemap data | 3600 |
+| Variable               | Content                | Default |
+| ---------------------- | ---------------------- | ------- |
+| `CACHE_TTL_NEWS`       | News articles          | 3600    |
+| `CACHE_TTL_VOLUMES`    | Volumes & issues       | 3600    |
+| `CACHE_TTL_ARTICLES`   | Published articles     | 3600    |
+| `CACHE_TTL_PAGES`      | Static editorial pages | 3600    |
+| `CACHE_TTL_STATISTICS` | Journal statistics     | 3600    |
+| `CACHE_TTL_MEMBERS`    | Editorial board        | 3600    |
+| `CACHE_TTL_SECTIONS`   | Sections               | 3600    |
+| `CACHE_TTL_SITEMAP`    | Sitemap data           | 3600    |
 
 Set to `false` to cache indefinitely (on-demand revalidation only):
 
@@ -618,16 +619,16 @@ CACHE_TTL_ARTICLES=false   # Cache until revalidateTag('articles-epijinfo') is c
 
 ## 9. Troubleshooting
 
-| Symptom | Likely Cause | Fix |
-|---------|-------------|-----|
-| `403 Forbidden` | IP not in `ALLOWED_IPS` | Add server IP or leave `ALLOWED_IPS` empty |
-| `401 Invalid secret` | Token mismatch | Check `REVALIDATION_TOKEN_*` or `REVALIDATION_SECRET` |
-| `400 Missing tag or path` | Empty request body | Check JSON payload |
-| `429 Too many requests` | Rate limit hit | Increase `REVALIDATE_RATE_LIMIT` or use Messenger |
-| Cache not updating | Tag not used in fetch | Check `next: { tags: [...] }` in the service file |
-| All journals invalidated | Using generic tag (`articles`) | Use journal-specific tag (`articles-epijinfo`) |
-| For Authors sub-pages not updating | No cache tags on those fetches | Redeploy or wait for TTL; see note in §3 |
-| `stats-epijinfo` updated but stats page stale | Two separate tags | Also call `statistics-epijinfo` |
+| Symptom                                       | Likely Cause                   | Fix                                                   |
+| --------------------------------------------- | ------------------------------ | ----------------------------------------------------- |
+| `403 Forbidden`                               | IP not in `ALLOWED_IPS`        | Add server IP or leave `ALLOWED_IPS` empty            |
+| `401 Invalid secret`                          | Token mismatch                 | Check `REVALIDATION_TOKEN_*` or `REVALIDATION_SECRET` |
+| `400 Missing tag or path`                     | Empty request body             | Check JSON payload                                    |
+| `429 Too many requests`                       | Rate limit hit                 | Increase `REVALIDATE_RATE_LIMIT` or use Messenger     |
+| Cache not updating                            | Tag not used in fetch          | Check `next: { tags: [...] }` in the service file     |
+| All journals invalidated                      | Using generic tag (`articles`) | Use journal-specific tag (`articles-epijinfo`)        |
+| For Authors sub-pages not updating            | No cache tags on those fetches | Redeploy or wait for TTL; see note in §3              |
+| `stats-epijinfo` updated but stats page stale | Two separate tags              | Also call `statistics-epijinfo`                       |
 
 ---
 

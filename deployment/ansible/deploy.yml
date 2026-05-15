@@ -24,7 +24,7 @@
         rm -f packed-refs.lock .git/index.lock
         git pack-refs --all
       args:
-        chdir: "{{ ansistrano_deploy_to }}/repo"
+        chdir: '{{ ansistrano_deploy_to }}/repo'
       failed_when: false
       changed_when: false
 

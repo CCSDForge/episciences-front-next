@@ -81,10 +81,7 @@ describe('LastVolumeHook', () => {
     it('skips query when currentJournal is null', () => {
       mockSelector({ currentJournal: null });
       renderHook(() => LastVolumeHook());
-      expect(useFetchVolumesQuery).toHaveBeenCalledWith(
-        expect.anything(),
-        { skip: true }
-      );
+      expect(useFetchVolumesQuery).toHaveBeenCalledWith(expect.anything(), { skip: true });
     });
 
     it('passes the current language to the volumes query', () => {

@@ -19,11 +19,7 @@ interface ISwiperArticleCardProps {
   article: FetchedArticle;
 }
 
-function SwiperArticleCard({
-  language,
-  t,
-  article,
-}: ISwiperArticleCardProps): React.JSX.Element {
+function SwiperArticleCard({ language, t, article }: ISwiperArticleCardProps): React.JSX.Element {
   if (!article) {
     return <></>;
   }
@@ -31,9 +27,7 @@ function SwiperArticleCard({
   return (
     <div className="swiperArticleCard">
       {article?.tag && (
-        <div className="swiperArticleCard-tag">
-          {t(getArticleTypeLabel(article.tag))}
-        </div>
+        <div className="swiperArticleCard-tag">{t(getArticleTypeLabel(article.tag))}</div>
       )}
       <Link href={`${PATHS.articles}/${article?.id}`} lang={language}>
         <div className="swiperArticleCard-title">

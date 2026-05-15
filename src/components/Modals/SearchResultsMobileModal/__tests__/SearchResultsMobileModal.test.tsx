@@ -101,17 +101,11 @@ const defaultProps = {
     { year: 2023, count: 8, isChecked: false },
   ],
   onUpdateYearsCallback: vi.fn(),
-  initialVolumes: [
-    { id: 1, label: { en: 'Volume 1', fr: 'Volume 1' }, isChecked: false },
-  ],
+  initialVolumes: [{ id: 1, label: { en: 'Volume 1', fr: 'Volume 1' }, isChecked: false }],
   onUpdateVolumesCallback: vi.fn(),
-  initialSections: [
-    { id: 10, label: { en: 'Section A', fr: 'Section A' }, isChecked: false },
-  ],
+  initialSections: [{ id: 10, label: { en: 'Section A', fr: 'Section A' }, isChecked: false }],
   onUpdateSectionsCallback: vi.fn(),
-  initialAuthors: [
-    { fullname: 'Alice Dupont', count: 3, isChecked: false },
-  ],
+  initialAuthors: [{ fullname: 'Alice Dupont', count: 3, isChecked: false }],
   onUpdateAuthorsCallback: vi.fn(),
   onCloseCallback: vi.fn(),
 };

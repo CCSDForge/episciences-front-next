@@ -22,7 +22,9 @@ export function middleware(request: NextRequest) {
   const hostname = hostHeader.split(':')[0]; // Remove port if present
   const pathname = url.pathname;
 
-  console.log(`[Middleware] Incoming request: ${sanitizeForLog(pathname)} (Host: ${sanitizeForLog(hostname)})`); // lgtm[js/log-injection]
+  console.log(
+    `[Middleware] Incoming request: ${sanitizeForLog(pathname)} (Host: ${sanitizeForLog(hostname)})`
+  ); // lgtm[js/log-injection]
 
   // Ignore static files with extensions
   const staticExtensions = [

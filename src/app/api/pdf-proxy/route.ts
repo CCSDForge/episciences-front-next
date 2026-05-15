@@ -58,9 +58,7 @@ function isAllowedDomain(url: string): boolean {
     const urlObj = new URL(url);
     if (urlObj.protocol !== 'https:') return false;
     const hostname = urlObj.hostname;
-    return ALLOWED_DOMAINS.some(
-      domain => hostname === domain || hostname.endsWith(`.${domain}`)
-    );
+    return ALLOWED_DOMAINS.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
   } catch {
     return false;
   }
@@ -75,9 +73,7 @@ function isAllowedDomain(url: string): boolean {
  */
 export async function GET(request: NextRequest) {
   // Get client IP
-  const ip = sanitizeIp(
-    request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip')
-  );
+  const ip = sanitizeIp(request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip'));
 
   // Check rate limit
   if (!checkRateLimit(ip)) {
@@ -123,7 +119,9 @@ export async function GET(request: NextRequest) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error(`[PDF Proxy] Failed to fetch PDF: ${sanitizeForLog(response.statusText)} (${sanitizeForLog(pdfUrl)})`); // lgtm[js/log-injection]
+      console.error(
+        `[PDF Proxy] Failed to fetch PDF: ${sanitizeForLog(response.statusText)} (${sanitizeForLog(pdfUrl)})`
+      ); // lgtm[js/log-injection]
       return new NextResponse(`Failed to fetch PDF: ${response.statusText}`, {
         status: response.status,
       });

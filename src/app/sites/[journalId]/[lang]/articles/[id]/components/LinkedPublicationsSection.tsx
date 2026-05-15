@@ -150,8 +150,7 @@ export default function LinkedPublicationsSection({
       relatedItem.identifierType === LINKED_PUBLICATION_IDENTIFIER_TYPE.OTHER &&
       relatedItem.value.includes('swh')
     ) {
-      const swhHomepage =
-        SOFTWARE_HERITAGE_URL;
+      const swhHomepage = SOFTWARE_HERITAGE_URL;
 
       return (
         <div className="articleDetails-content-article-section-content-linkedPublications-publication">

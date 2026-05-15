@@ -2,7 +2,12 @@ import { renderHook, act } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCitationsDropdown } from '../useCitationsDropdown';
-import { getCitations, copyToClipboardCitation, CITATION_TEMPLATE, ICitation } from '@/utils/article';
+import {
+  getCitations,
+  copyToClipboardCitation,
+  CITATION_TEMPLATE,
+  ICitation,
+} from '@/utils/article';
 import { useFetchArticleMetadataQuery } from '@/store/features/article/article.query';
 
 // --- Mocks ---
@@ -125,7 +130,9 @@ describe('useCitationsDropdown', () => {
       expect(result.current.showCitationsDropdown).toBe(true);
       act(() => result.current.handleTriggerMouseLeave());
       expect(result.current.showCitationsDropdown).toBe(true); // not yet
-      await act(async () => { vi.advanceTimersByTime(150); });
+      await act(async () => {
+        vi.advanceTimersByTime(150);
+      });
       expect(result.current.showCitationsDropdown).toBe(false);
       vi.useRealTimers();
     });
@@ -136,7 +143,9 @@ describe('useCitationsDropdown', () => {
       act(() => result.current.handleTriggerMouseEnter());
       act(() => result.current.handleTriggerMouseLeave());
       act(() => result.current.handleDropdownMouseEnter());
-      await act(async () => { vi.advanceTimersByTime(200); });
+      await act(async () => {
+        vi.advanceTimersByTime(200);
+      });
       expect(result.current.showCitationsDropdown).toBe(true);
       vi.useRealTimers();
     });
@@ -225,7 +234,9 @@ describe('useCitationsDropdown', () => {
       act(() => result.current.handleTriggerMouseEnter());
       expect(result.current.showCitationsDropdown).toBe(true);
 
-      act(() => result.current.copyCitation({ key: CITATION_TEMPLATE.APA, citation: 'Author 2024' }));
+      act(() =>
+        result.current.copyCitation({ key: CITATION_TEMPLATE.APA, citation: 'Author 2024' })
+      );
       expect(result.current.showCitationsDropdown).toBe(false);
     });
   });

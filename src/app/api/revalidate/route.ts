@@ -136,7 +136,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isAuthorized) {
-      console.warn(`[Revalidate API] Invalid token provided for journal: ${sanitizeForLog(journalId) || 'global'}`); // lgtm[js/log-injection]
+      console.warn(
+        `[Revalidate API] Invalid token provided for journal: ${sanitizeForLog(journalId) || 'global'}`
+      ); // lgtm[js/log-injection]
       return NextResponse.json({ message: 'Invalid secret' }, { status: 401 });
     }
 

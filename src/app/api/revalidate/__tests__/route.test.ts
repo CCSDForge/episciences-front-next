@@ -17,11 +17,7 @@ vi.mock('@/utils/validation', () => ({
 }));
 
 // Helper to create a NextRequest for the revalidate endpoint
-function makeRequest(
-  body: object,
-  token: string | null,
-  ip = '127.0.0.1'
-): NextRequest {
+function makeRequest(body: object, token: string | null, ip = '127.0.0.1'): NextRequest {
   return new NextRequest('http://localhost/api/revalidate', {
     method: 'POST',
     headers: {
@@ -81,7 +77,9 @@ describe('POST /api/revalidate', () => {
     it('returns 200 with a journal-specific token', async () => {
       process.env['REVALIDATION_TOKEN_MYJRNL'] = 'journal-token-abc';
       const { POST } = await import('../route');
-      const res = await POST(makeRequest({ tag: 'pages', journalId: 'myjrnl' }, 'journal-token-abc'));
+      const res = await POST(
+        makeRequest({ tag: 'pages', journalId: 'myjrnl' }, 'journal-token-abc')
+      );
       expect(res.status).toBe(200);
       delete process.env['REVALIDATION_TOKEN_MYJRNL'];
     });

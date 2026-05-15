@@ -5,7 +5,7 @@
 
 - name: Check local secrets file exists
   ansible.builtin.stat:
-    path: "{{ local_env_secrets_file }}"
+    path: '{{ local_env_secrets_file }}'
   register: local_env_stat
   delegate_to: localhost
 
@@ -18,6 +18,6 @@
 
 - name: Upload .env.local to shared directory
   ansible.builtin.copy:
-    src: "{{ local_env_secrets_file }}"
-    dest: "{{ ansistrano_deploy_to }}/shared/.env.local"
+    src: '{{ local_env_secrets_file }}'
+    dest: '{{ ansistrano_deploy_to }}/shared/.env.local'
     mode: '0640'

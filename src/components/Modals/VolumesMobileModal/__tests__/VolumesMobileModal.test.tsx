@@ -43,13 +43,7 @@ vi.mock('@/components/Checkbox/Checkbox', () => ({
 }));
 
 vi.mock('@/components/Tag/Tag', () => ({
-  default: ({
-    text,
-    onCloseCallback,
-  }: {
-    text: string;
-    onCloseCallback: () => void;
-  }) => (
+  default: ({ text, onCloseCallback }: { text: string; onCloseCallback: () => void }) => (
     <div data-testid="tag">
       <span>{text}</span>
       <button onClick={onCloseCallback} aria-label={`Remove ${text} filter`}>

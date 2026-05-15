@@ -57,7 +57,9 @@ function parseSentinels(hostsStr) {
 
 const sentinels = parseSentinels(process.env.VALKEY_SENTINEL_HOSTS);
 if (sentinels.length === 0) {
-  console.error('[Worker] VALKEY_SENTINEL_HOSTS env var is required (e.g. "sentinel-1:26379,sentinel-2:26379")');
+  console.error(
+    '[Worker] VALKEY_SENTINEL_HOSTS env var is required (e.g. "sentinel-1:26379,sentinel-2:26379")'
+  );
   process.exit(1);
 }
 
@@ -113,7 +115,9 @@ async function callRevalidateApi(payload) {
       }
 
       const text = await response.text();
-      console.warn(`[Worker] Revalidation API returned ${response.status}: ${text} (attempt ${attempt})`);
+      console.warn(
+        `[Worker] Revalidation API returned ${response.status}: ${text} (attempt ${attempt})`
+      );
     } catch (err) {
       console.error(`[Worker] Failed to call revalidation API (attempt ${attempt}):`, err.message);
     }
@@ -195,7 +199,9 @@ async function start() {
           process.exit(1);
         }
         const delay = Math.min(retries * 1000, 30000);
-        console.log(`[Worker] Connection ended, restarting in ${delay}ms (retry ${retries}/${MAX_RETRIES})...`);
+        console.log(
+          `[Worker] Connection ended, restarting in ${delay}ms (retry ${retries}/${MAX_RETRIES})...`
+        );
         setTimeout(() => start(), delay);
       }
     });

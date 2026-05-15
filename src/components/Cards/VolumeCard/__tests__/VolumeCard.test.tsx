@@ -238,9 +238,7 @@ describe('VolumeTileCard', () => {
   });
 
   it('renders fallback template when no tileImageURL', () => {
-    render(
-      <VolumeTileCard language="en" t={mockT as any} volume={baseVolume} journalCode="jpe" />
-    );
+    render(<VolumeTileCard language="en" t={mockT as any} volume={baseVolume} journalCode="jpe" />);
     expect(screen.getByText('JPE')).toBeInTheDocument();
   });
 

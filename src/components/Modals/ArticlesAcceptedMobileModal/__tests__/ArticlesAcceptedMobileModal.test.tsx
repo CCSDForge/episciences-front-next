@@ -43,13 +43,7 @@ vi.mock('@/components/Checkbox/Checkbox', () => ({
 }));
 
 vi.mock('@/components/Tag/Tag', () => ({
-  default: ({
-    text,
-    onCloseCallback,
-  }: {
-    text: string;
-    onCloseCallback: () => void;
-  }) => (
+  default: ({ text, onCloseCallback }: { text: string; onCloseCallback: () => void }) => (
     <div data-testid="tag">
       <span>{text}</span>
       <button onClick={onCloseCallback} aria-label={`Remove ${text} filter`}>
@@ -257,9 +251,7 @@ describe('ArticlesAcceptedMobileModal', () => {
     it('calls onCloseCallback when apply is clicked', async () => {
       const user = userEvent.setup();
       const onClose = vi.fn();
-      renderWithStore(
-        <ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />
-      );
+      renderWithStore(<ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />);
       await user.click(screen.getByRole('button', { name: 'Apply Filters' }));
       expect(onClose).toHaveBeenCalledOnce();
     });
@@ -272,36 +264,28 @@ describe('ArticlesAcceptedMobileModal', () => {
     it('calls onCloseCallback when close icon is clicked', async () => {
       const user = userEvent.setup();
       const onClose = vi.fn();
-      renderWithStore(
-        <ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />
-      );
+      renderWithStore(<ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />);
       await user.click(screen.getByTestId('close-icon'));
       expect(onClose).toHaveBeenCalledOnce();
     });
 
     it('calls onCloseCallback when clicking outside the modal', () => {
       const onClose = vi.fn();
-      renderWithStore(
-        <ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />
-      );
+      renderWithStore(<ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />);
       fireEvent.mouseDown(document.body);
       expect(onClose).toHaveBeenCalledOnce();
     });
 
     it('calls onCloseCallback when Escape key is pressed', () => {
       const onClose = vi.fn();
-      renderWithStore(
-        <ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />
-      );
+      renderWithStore(<ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(onClose).toHaveBeenCalledOnce();
     });
 
     it('does not close when a non-Escape key is pressed', () => {
       const onClose = vi.fn();
-      renderWithStore(
-        <ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />
-      );
+      renderWithStore(<ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />);
       fireEvent.keyDown(document, { key: 'Tab' });
       expect(onClose).not.toHaveBeenCalled();
     });
@@ -309,9 +293,7 @@ describe('ArticlesAcceptedMobileModal', () => {
     it('does not close when clicking inside the modal', async () => {
       const user = userEvent.setup();
       const onClose = vi.fn();
-      renderWithStore(
-        <ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />
-      );
+      renderWithStore(<ArticlesAcceptedMobileModal {...defaultProps} onCloseCallback={onClose} />);
       await user.click(screen.getByRole('dialog'));
       expect(onClose).not.toHaveBeenCalled();
     });

@@ -153,9 +153,12 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
     setShowDropdown(prev => ({ ...prev, [menu]: opened }));
   }, []);
 
-  const updateSearch = useCallback((updatedSearch: string): void => {
-    dispatch(setSearch(updatedSearch));
-  }, [dispatch]);
+  const updateSearch = useCallback(
+    (updatedSearch: string): void => {
+      dispatch(setSearch(updatedSearch));
+    },
+    [dispatch]
+  );
 
   const submitSearch = useCallback((): void => {
     if (!search) {
@@ -201,14 +204,26 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
 
   const postHeaderLinks = useMemo((): React.JSX.Element => {
     // Prepare visible menu items with dynamic path replacements
-    const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content, journalConfig ?? undefined).map(item =>
+    const visibleContentItems = getVisibleMenuItems(
+      menuConfig.dropdowns.content,
+      journalConfig ?? undefined
+    ).map(item =>
       processMenuItemPath(item, {
         lastVolumeId: lastVolume?.id?.toString() || '',
       })
     );
-    const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about, journalConfig ?? undefined);
-    const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish, journalConfig ?? undefined);
-    const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone, journalConfig ?? undefined);
+    const visibleAboutItems = getVisibleMenuItems(
+      menuConfig.dropdowns.about,
+      journalConfig ?? undefined
+    );
+    const visiblePublishItems = getVisibleMenuItems(
+      menuConfig.dropdowns.publish,
+      journalConfig ?? undefined
+    );
+    const visibleStandaloneItems = getVisibleMenuItems(
+      menuConfig.standalone,
+      journalConfig ?? undefined
+    );
 
     return (
       <>
@@ -286,25 +301,49 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
         </div>
       </>
     );
-  }, [showDropdown, lastVolume, language, isReduced, isSearching, search, submitManagerLink, t, toggleDropdown, updateSearch, submitSearch, setIsSearching, journalConfig]);
+  }, [
+    showDropdown,
+    lastVolume,
+    language,
+    isReduced,
+    isSearching,
+    search,
+    submitManagerLink,
+    t,
+    toggleDropdown,
+    updateSearch,
+    submitSearch,
+    setIsSearching,
+    journalConfig,
+  ]);
 
   const postHeaderBurgerLinks = useMemo((): React.JSX.Element => {
     if (!showMobileMenu) return <></>;
 
     // Prepare visible menu items with dynamic path replacements
-    const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content, journalConfig ?? undefined).map(item =>
+    const visibleContentItems = getVisibleMenuItems(
+      menuConfig.dropdowns.content,
+      journalConfig ?? undefined
+    ).map(item =>
       processMenuItemPath(item, {
         lastVolumeId: lastVolume?.id?.toString() || '',
       })
     );
-    const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about, journalConfig ?? undefined);
-    const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish, journalConfig ?? undefined);
-    const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone, journalConfig ?? undefined);
+    const visibleAboutItems = getVisibleMenuItems(
+      menuConfig.dropdowns.about,
+      journalConfig ?? undefined
+    );
+    const visiblePublishItems = getVisibleMenuItems(
+      menuConfig.dropdowns.publish,
+      journalConfig ?? undefined
+    );
+    const visibleStandaloneItems = getVisibleMenuItems(
+      menuConfig.standalone,
+      journalConfig ?? undefined
+    );
 
     return (
-      <div
-        className="header-postheader-burger-content header-postheader-burger-content-displayed"
-      >
+      <div className="header-postheader-burger-content header-postheader-burger-content-displayed">
         <div className="header-postheader-burger-content-links">
           {/* CONTENT Section */}
           <div className="header-postheader-burger-content-links-section header-postheader-burger-content-links-section-bordered">

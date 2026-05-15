@@ -58,11 +58,7 @@ function ArticleCard({
 
   return (
     <div className="articleCard">
-      {article.tag && (
-        <div className="articleCard-tag">
-          {t(getArticleTypeLabel(article.tag))}
-        </div>
-      )}
+      {article.tag && <div className="articleCard-tag">{t(getArticleTypeLabel(article.tag))}</div>}
       <Link
         href={getArticlePath()}
         lang={language}
@@ -125,10 +121,7 @@ function ArticleCard({
             </DownloadArticleButton>
           )}
           {article.id && (
-            <div
-              ref={citationsDropdownRef}
-              className="articleCard-anchor-icons-cite"
-            >
+            <div ref={citationsDropdownRef} className="articleCard-anchor-icons-cite">
               <button
                 type="button"
                 aria-haspopup="menu"

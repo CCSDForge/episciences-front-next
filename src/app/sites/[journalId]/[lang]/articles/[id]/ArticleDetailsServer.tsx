@@ -81,7 +81,8 @@ export default function ArticleDetailsServer({
   // Pass metadata to client-side component for dynamic citation generation
   // Don't generate citations server-side, let the client handle it
 
-  const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || process.env.NEXT_PUBLIC_RVCODE || '';
+  const rvcode =
+    journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || process.env.NEXT_PUBLIC_RVCODE || '';
 
   const renderArticleTitleAndAuthors = (isMobile: boolean): React.JSX.Element => {
     return (

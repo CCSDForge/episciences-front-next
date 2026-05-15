@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
  */
 
 // Import the CJS module
-const valkeyModule = await import('../valkey-client.js') as any;
+const valkeyModule = (await import('../valkey-client.js')) as any;
 const { parseSentinels, getValkeyClient, resetValkeyClient, _internals } = valkeyModule;
 
 // ---------------------------------------------------------------------------
@@ -68,7 +68,9 @@ describe('getValkeyClient()', () => {
     resetValkeyClient();
     mockDisconnect = vi.fn();
     mockOn = vi.fn().mockReturnThis();
-    MockRedisCtor = vi.fn(function () { return { on: mockOn, disconnect: mockDisconnect }; });
+    MockRedisCtor = vi.fn(function () {
+      return { on: mockOn, disconnect: mockDisconnect };
+    });
     _internals.setRedisFactory(MockRedisCtor);
   });
 
@@ -182,7 +184,9 @@ describe('resetValkeyClient()', () => {
     resetValkeyClient();
     mockDisconnect = vi.fn();
     mockOn = vi.fn().mockReturnThis();
-    MockRedisCtor = vi.fn(function () { return { on: mockOn, disconnect: mockDisconnect }; });
+    MockRedisCtor = vi.fn(function () {
+      return { on: mockOn, disconnect: mockDisconnect };
+    });
     _internals.setRedisFactory(MockRedisCtor);
   });
 

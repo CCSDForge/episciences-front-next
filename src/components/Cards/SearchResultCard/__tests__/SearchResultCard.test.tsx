@@ -9,15 +9,11 @@ import { useFetchArticleMetadataQuery } from '@/store/features/article/article.q
 // --- Mocks ---
 
 vi.mock('@/components/Link/Link', () => ({
-  Link: ({
-    href,
-    children,
-    lang,
-  }: {
-    href: string;
-    children: React.ReactNode;
-    lang?: string;
-  }) => <a href={href} lang={lang}>{children}</a>,
+  Link: ({ href, children, lang }: { href: string; children: React.ReactNode; lang?: string }) => (
+    <a href={href} lang={lang}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock('@/components/MathJax/MathJax', () => ({
@@ -95,21 +91,39 @@ describe('SearchResultCard', () => {
   describe('rendering', () => {
     it('renders the article title', () => {
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByText('Neural Networks for Climate Modeling')).toBeInTheDocument();
     });
 
     it('renders authors joined by comma', () => {
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByText('Claire Moreau, David Lee')).toBeInTheDocument();
     });
 
     it('renders publication date', () => {
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByText(/Published on/)).toBeInTheDocument();
     });
@@ -117,21 +131,39 @@ describe('SearchResultCard', () => {
     it('renders article tag when present', () => {
       const result: ISearchResultCard = { ...baseResult, tag: 'article' };
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={result} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={result}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByText('pages.articles.types.article')).toBeInTheDocument();
     });
 
     it('does not render tag when absent', () => {
       const { container } = render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(container.querySelector('.searchResultCardTag')).not.toBeInTheDocument();
     });
 
     it('title renders as a link to the article detail page', () => {
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       const link = screen.getByRole('link', { name: /Neural Networks/ });
       expect(link).toHaveAttribute('href', expect.stringContaining('77'));
@@ -139,7 +171,13 @@ describe('SearchResultCard', () => {
 
     it('does not render PDF link when pdfLink is absent', () => {
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.queryByText('PDF')).not.toBeInTheDocument();
     });
@@ -147,7 +185,13 @@ describe('SearchResultCard', () => {
     it('renders PDF download link when pdfLink is present', () => {
       const result: ISearchResultCard = { ...baseResult, pdfLink: 'https://example.com/p.pdf' };
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={result} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={result}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByText('PDF')).toBeInTheDocument();
     });
@@ -161,7 +205,13 @@ describe('SearchResultCard', () => {
 
     it('renders abstract toggle as a semantic button', () => {
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={resultWithAbstract} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={resultWithAbstract}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByRole('button', { name: /abstract/i })).toBeInTheDocument();
     });
@@ -169,7 +219,13 @@ describe('SearchResultCard', () => {
     it('calls toggleAbstractCallback on click', async () => {
       const user = userEvent.setup();
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={resultWithAbstract} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={resultWithAbstract}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       await user.click(screen.getByRole('button', { name: /abstract/i }));
       expect(mockToggle).toHaveBeenCalledOnce();
@@ -178,7 +234,13 @@ describe('SearchResultCard', () => {
     it('calls toggleAbstractCallback on Enter key', async () => {
       const user = userEvent.setup();
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={resultWithAbstract} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={resultWithAbstract}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       screen.getByRole('button', { name: /abstract/i }).focus();
       await user.keyboard('{Enter}');
@@ -187,17 +249,27 @@ describe('SearchResultCard', () => {
 
     it('shows closed modifier class when openedAbstract is false', () => {
       const { container } = render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={resultWithAbstract} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={resultWithAbstract}
+          toggleAbstractCallback={mockToggle}
+        />
       );
-      expect(
-        container.querySelector('.searchResultCardAbstractTitleClosed')
-      ).toBeInTheDocument();
+      expect(container.querySelector('.searchResultCardAbstractTitleClosed')).toBeInTheDocument();
     });
 
     it('removes closed modifier class when openedAbstract is true', () => {
       const result: ISearchResultCard = { ...resultWithAbstract, openedAbstract: true };
       const { container } = render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={result} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={result}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(
         container.querySelector('.searchResultCardAbstractTitleClosed')
@@ -206,7 +278,13 @@ describe('SearchResultCard', () => {
 
     it('shows caret-down when abstract is collapsed', () => {
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={resultWithAbstract} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={resultWithAbstract}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByTestId('caret-down')).toBeInTheDocument();
     });
@@ -214,7 +292,13 @@ describe('SearchResultCard', () => {
     it('shows caret-up when abstract is expanded', () => {
       const result: ISearchResultCard = { ...resultWithAbstract, openedAbstract: true };
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={result} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={result}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByTestId('caret-up')).toBeInTheDocument();
     });
@@ -226,7 +310,13 @@ describe('SearchResultCard', () => {
         openedAbstract: true,
       };
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={result} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={result}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByText('English abstract')).toBeInTheDocument();
     });
@@ -238,7 +328,13 @@ describe('SearchResultCard', () => {
         openedAbstract: true,
       };
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={result} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={result}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(screen.getByText('Résumé uniquement en français')).toBeInTheDocument();
     });
@@ -247,7 +343,13 @@ describe('SearchResultCard', () => {
   describe('lazy citation loading', () => {
     it('skips query initially', () => {
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(useFetchArticleMetadataQuery).toHaveBeenCalledWith(
         expect.anything(),
@@ -257,7 +359,13 @@ describe('SearchResultCard', () => {
 
     it('does not show cite dropdown initially', () => {
       const { container } = render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       expect(
         container.querySelector('.searchResultCardAnchorIconsCiteContentDisplayed')
@@ -267,7 +375,13 @@ describe('SearchResultCard', () => {
     it('shows loading text after clicking cite before data arrives', async () => {
       const user = userEvent.setup();
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       await user.click(screen.getByRole('button', { name: /cite/i }));
       expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -276,7 +390,13 @@ describe('SearchResultCard', () => {
     it('activates query fetch after hover on cite button', async () => {
       const user = userEvent.setup();
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       await user.hover(screen.getByRole('button', { name: /cite/i }));
       expect(useFetchArticleMetadataQuery).toHaveBeenCalledWith(
@@ -294,7 +414,13 @@ describe('SearchResultCard', () => {
 
       const user = userEvent.setup();
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
 
       await user.click(screen.getByRole('button', { name: /cite/i }));
@@ -311,9 +437,17 @@ describe('SearchResultCard', () => {
 
       const user = userEvent.setup();
       render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
-      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument()
+      );
       await user.click(screen.getByRole('menuitem', { name: 'APA' }));
 
       expect(copyToClipboardCitation).toHaveBeenCalledWith(fakeCitation, mockT);
@@ -323,7 +457,13 @@ describe('SearchResultCard', () => {
   describe('accessibility', () => {
     it('has no a11y violations in base state', async () => {
       const { container } = render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();
@@ -336,7 +476,13 @@ describe('SearchResultCard', () => {
         pdfLink: 'https://example.com/p.pdf',
       };
       const { container } = render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={result} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={result}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();
@@ -344,7 +490,13 @@ describe('SearchResultCard', () => {
 
     it('cite trigger is a semantic button', () => {
       const { container } = render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={baseResult}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       const citeTrigger = container.querySelector('.searchResultCardAnchorIconsCiteTrigger');
       expect(citeTrigger?.tagName).toBe('BUTTON');
@@ -353,7 +505,13 @@ describe('SearchResultCard', () => {
     it('abstract toggle is a semantic button', () => {
       const result: ISearchResultCard = { ...baseResult, abstract: 'Abstract text.' };
       const { container } = render(
-        <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={result} toggleAbstractCallback={mockToggle} />
+        <SearchResultCard
+          language="en"
+          rvcode="testjournal"
+          t={mockT as any}
+          searchResult={result}
+          toggleAbstractCallback={mockToggle}
+        />
       );
       const toggle = container.querySelector('.searchResultCardAbstractTitle');
       expect(toggle?.tagName).toBe('BUTTON');

@@ -41,7 +41,7 @@ const baseIssue: any = {
   id: 1,
   num: 3,
   year: 2024,
-  title: { en: 'Physics Today', fr: 'Physique Aujourd\'hui' },
+  title: { en: 'Physics Today', fr: "Physique Aujourd'hui" },
   articles: [{ id: 10 }, { id: 11 }, { id: 12 }],
 };
 
@@ -67,9 +67,7 @@ describe('IssuesSection', () => {
     });
 
     it('returns empty when issues prop is undefined', () => {
-      const { container } = render(
-        <IssuesSection {...defaultProps} issues={undefined as any} />
-      );
+      const { container } = render(<IssuesSection {...defaultProps} issues={undefined as any} />);
       expect(container.firstChild).toBeNull();
     });
 
@@ -97,7 +95,11 @@ describe('IssuesSection', () => {
     });
 
     it('img alt falls back to issue num when no title', () => {
-      const issueWithImage = { ...baseIssue, title: {}, tileImageURL: 'https://example.com/cover.jpg' };
+      const issueWithImage = {
+        ...baseIssue,
+        title: {},
+        tileImageURL: 'https://example.com/cover.jpg',
+      };
       render(<IssuesSection {...defaultProps} issues={[issueWithImage]} />);
       expect(screen.getByRole('img')).toHaveAttribute('alt', 'Issue 3');
     });
@@ -130,7 +132,7 @@ describe('IssuesSection', () => {
 
     it('renders French title when language=fr', () => {
       render(<IssuesSection {...defaultProps} language="fr" />);
-      expect(screen.getByText('Physique Aujourd\'hui')).toBeInTheDocument();
+      expect(screen.getByText("Physique Aujourd'hui")).toBeInTheDocument();
     });
 
     it('renders year', () => {

@@ -197,7 +197,10 @@ export async function fetchVolume(
       headers: {
         Accept: 'application/json',
       },
-      next: { revalidate: CACHE_TTL.volumes, tags: ['volumes', `volume-${vid}`, `volumes-${rvcode}`] },
+      next: {
+        revalidate: CACHE_TTL.volumes,
+        tags: ['volumes', `volume-${vid}`, `volumes-${rvcode}`],
+      },
     });
 
     if (!response.ok) {

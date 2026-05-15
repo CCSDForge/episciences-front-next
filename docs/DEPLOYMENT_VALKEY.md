@@ -39,6 +39,7 @@ POST /api/revalidate (localhost)
 ```
 
 **Key properties:**
+
 - Shared cache across all Next.js instances — no more cache inconsistency between VMs
 - Cache survives deployments (stored in Valkey, not local disk)
 - Stale-while-revalidate preserved — if the Episciences API is down, stale pages continue to be served
@@ -48,32 +49,32 @@ POST /api/revalidate (localhost)
 
 ## 2. Prerequisites
 
-| Component | Version |
-|-----------|---------|
-| Valkey | 8.0+ |
-| Node.js | 22+ |
-| ioredis | 5.4.0+ |
-| Debian | 12 (Bookworm) |
+| Component | Version       |
+| --------- | ------------- |
+| Valkey    | 8.0+          |
+| Node.js   | 22+           |
+| ioredis   | 5.4.0+        |
+| Debian    | 12 (Bookworm) |
 
 ---
 
 ## 3. Environment Variables Reference
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `VALKEY_ENABLED` | Yes | `false` | Enable distributed cache (`true` in staging/prod) |
-| `VALKEY_SENTINEL_HOSTS` | Yes* | — | Comma-separated `host:port` pairs for sentinels |
-| `VALKEY_MASTER_NAME` | No | `mymaster` | Sentinel master group name |
-| `VALKEY_USERNAME` | No | — | Valkey node ACL username |
-| `VALKEY_PASSWORD` | No | — | Valkey node ACL password |
-| `VALKEY_SENTINEL_USERNAME` | No | — | Sentinel ACL username |
-| `VALKEY_SENTINEL_PASSWORD` | No | — | Sentinel ACL password |
-| `VALKEY_KEY_PREFIX` | No | `next:` | Key prefix for Next.js cache entries |
-| `VALKEY_CIRCUIT_BREAKER_THRESHOLD` | No | `5` | Consecutive errors before circuit opens |
-| `VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL` | No | `30` | Seconds before probing Valkey recovery |
-| `REVALIDATION_SECRET` | Yes | — | Token for `/api/revalidate` calls from the worker |
+| Variable                                | Required | Default    | Description                                       |
+| --------------------------------------- | -------- | ---------- | ------------------------------------------------- |
+| `VALKEY_ENABLED`                        | Yes      | `false`    | Enable distributed cache (`true` in staging/prod) |
+| `VALKEY_SENTINEL_HOSTS`                 | Yes\*    | —          | Comma-separated `host:port` pairs for sentinels   |
+| `VALKEY_MASTER_NAME`                    | No       | `mymaster` | Sentinel master group name                        |
+| `VALKEY_USERNAME`                       | No       | —          | Valkey node ACL username                          |
+| `VALKEY_PASSWORD`                       | No       | —          | Valkey node ACL password                          |
+| `VALKEY_SENTINEL_USERNAME`              | No       | —          | Sentinel ACL username                             |
+| `VALKEY_SENTINEL_PASSWORD`              | No       | —          | Sentinel ACL password                             |
+| `VALKEY_KEY_PREFIX`                     | No       | `next:`    | Key prefix for Next.js cache entries              |
+| `VALKEY_CIRCUIT_BREAKER_THRESHOLD`      | No       | `5`        | Consecutive errors before circuit opens           |
+| `VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL` | No       | `30`       | Seconds before probing Valkey recovery            |
+| `REVALIDATION_SECRET`                   | Yes      | —          | Token for `/api/revalidate` calls from the worker |
 
-*Required when `VALKEY_ENABLED=true`
+\*Required when `VALKEY_ENABLED=true`
 
 ---
 
@@ -86,6 +87,7 @@ docker compose -f docker-compose.yml -f docker-compose.valkey.yml up -d
 ```
 
 The `docker-compose.valkey.yml` file adds:
+
 - `valkey-node-1/2/3` — Valkey master + 2 replicas
 - `sentinel-1/2/3` — Sentinel processes
 - `revalidate-worker` — Node.js Pub/Sub worker
@@ -149,6 +151,7 @@ docker start valkey-node-1 valkey-node-2 valkey-node-3
 ### Architecture
 
 3 Debian VMs, each running:
+
 - `valkey-server` (one master, two replicas)
 - `valkey-sentinel`
 - `node` (Next.js application)
@@ -167,6 +170,7 @@ sudo apt-get update && sudo apt-get install -y valkey
 ### Configure Valkey nodes
 
 **`/etc/valkey/valkey.conf` on VM1 (master):**
+
 ```conf
 bind 0.0.0.0
 port 6379
@@ -179,6 +183,7 @@ appendonly yes
 ```
 
 **`/etc/valkey/valkey.conf` on VM2 and VM3 (replicas):**
+
 ```conf
 bind 0.0.0.0
 port 6379
@@ -191,6 +196,7 @@ appendonly yes
 ### Configure Sentinel
 
 **`/etc/valkey/sentinel.conf` on all 3 VMs:**
+
 ```conf
 port 26379
 sentinel resolve-hostnames yes
@@ -303,6 +309,7 @@ user symfony on >SYMFONY_PASSWORD ~sess:* +@read +@write +@generic +@string
 ```
 
 Update environment variables accordingly:
+
 - `VALKEY_PASSWORD=NEXTJS_PASSWORD` for Next.js
 - Worker uses a separate password in `/etc/episciences/worker.env`
 
@@ -336,13 +343,13 @@ valkey-cli -a PASSWORD dbsize
 
 ### Common issues
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| `[Valkey] Connection error: ECONNREFUSED` | Valkey not running | Start `valkey` service |
-| Circuit breaker opens immediately | Wrong password | Check `VALKEY_PASSWORD` |
-| Pages served stale after revalidation | Worker not running | Check `episciences-revalidate-worker` service |
-| `[Worker] REVALIDATION_SECRET env var is required` | Missing env | Add to `/etc/episciences/worker.env` |
-| Sentinel failover not working | Quorum not reached | Ensure 2/3 sentinels are up |
+| Symptom                                            | Cause              | Fix                                           |
+| -------------------------------------------------- | ------------------ | --------------------------------------------- |
+| `[Valkey] Connection error: ECONNREFUSED`          | Valkey not running | Start `valkey` service                        |
+| Circuit breaker opens immediately                  | Wrong password     | Check `VALKEY_PASSWORD`                       |
+| Pages served stale after revalidation              | Worker not running | Check `episciences-revalidate-worker` service |
+| `[Worker] REVALIDATION_SECRET env var is required` | Missing env        | Add to `/etc/episciences/worker.env`          |
+| Sentinel failover not working                      | Quorum not reached | Ensure 2/3 sentinels are up                   |
 
 ### Sentinel failover test
 
@@ -374,6 +381,7 @@ CLOSED → (5 consecutive errors) → OPEN → (30s probe interval) → HALF_OPE
 - **HALF_OPEN**: One probe request allowed to test recovery.
 
 Configure via env vars:
+
 ```env
 VALKEY_CIRCUIT_BREAKER_THRESHOLD=5       # errors before OPEN
 VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL=30  # seconds before probe

@@ -4,7 +4,7 @@ Instructions for AI assistants working with this repository.
 
 ## Project Overview
 
-Next.js 16 multi-tenant application for Episciences academic journals (45+ journals).
+Next.js 16 (React 19) multi-tenant application for Episciences academic journals (45+ journals).
 
 - **Architecture**: Node.js server with ISR (Incremental Static Regeneration)
 - **Routing**: Middleware maps hostnames to journal codes → `/sites/[journalId]/[lang]/...`
@@ -14,10 +14,13 @@ Next.js 16 multi-tenant application for Episciences academic journals (45+ journ
 
 ```bash
 npm run dev          # Development server (port 8080)
+npm run dev:turbo    # Development server with Turbopack
 npm run build        # Production build
-npm run test         # Run tests
-npm run lint         # Linter
-make build && make up  # Test with Nginx (production-like)
+npm run test         # Run tests (Vitest)
+npm run test:coverage # Run tests with coverage
+npm run lint         # Linter (ESLint)
+npm run format       # Format code (Prettier)
+make build && make up # Test with Nginx (production-like)
 ```
 
 ## Directory Structure
@@ -27,6 +30,7 @@ make build && make up  # Test with Nginx (production-like)
 | `src/app/sites/[journalId]/[lang]/` | Multi-tenant page routes        |
 | `src/middleware.ts`                 | Hostname → journalId routing    |
 | `src/services/`                     | API fetching with `safeFetch()` |
+| `src/utils/`                        | Shared utility functions        |
 | `external-assets/`                  | Per-journal config and logos    |
 | `docs/`                             | Detailed documentation          |
 
@@ -36,12 +40,12 @@ make build && make up  # Test with Nginx (production-like)
 
 - Translations MUST be passed server-side as props
 - Client components use `lang` prop from server for first render
-- Use `useMemo`/`useCallback` to prevent infinite loops
+- Use `useMemo`/`useCallback` to prevent infinite loops in React 19
 
 ### Error Handling
 
 - Services use `safeFetch()` → returns fallback values, never throws
-- Pages wrap fetches in try/catch → pass `null` to client on failure
+- Pages wrap fetches in try/catch → pass `null` or fallback to client on failure
 - Client components handle `null` initialData gracefully
 
 ### ISR Strategy
@@ -61,19 +65,21 @@ Use semantic CSS variables for text colors (WCAG compliance):
 
 - `var(--primary-text)` for text (not `var(--primary)`)
 - See `docs/ACCESSIBLE_COLOR_SYSTEM.md`
+- Use `focus-trap-react` for modals and interactive overlays.
 
 ## Development Guidelines
 
 - **Language**: English for code, comments, documentation
 - **New pages**: Create in `src/app/sites/[journalId]/[lang]/`, fetch server-side, pass to client
-- **Security**: Validate `journalId` with `/^[a-z0-9-]{2,50}$/`
+- **Security**: Validate `journalId` with `/^[a-z0-9-]{2,50}$/` (see `src/utils/validation.ts`)
+- **Styling**: Sass/SCSS with CSS Variables for journal-specific theming.
 
 ## Git Workflow
 
 - Conventional commits: `feat`, `fix`, `refactor`, `chore`, etc.
 - Add files specifically: `git add <file>` (never `git add .` or `-A`)
 
-## Documentation
+## Documentation Index
 
 | Topic                   | File                              |
 | ----------------------- | --------------------------------- |

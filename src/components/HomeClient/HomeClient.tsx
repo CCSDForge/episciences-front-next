@@ -61,13 +61,22 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
     if (!render) return undefined;
 
     if (key === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME && volumes?.data?.[0]) {
-      return { type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME, information: volumes.data[0] as IVolume };
+      return {
+        type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME,
+        information: volumes.data[0] as IVolume,
+      };
     }
     if (key === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_SPECIAL_ISSUE && issues?.data?.[0]) {
-      return { type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_SPECIAL_ISSUE, information: issues.data[0] as IVolume };
+      return {
+        type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_SPECIAL_ISSUE,
+        information: issues.data[0] as IVolume,
+      };
     }
     if (news?.data?.[0]) {
-      return { type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS, information: news.data[0] as INews };
+      return {
+        type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS,
+        information: news.data[0] as INews,
+      };
     }
     return undefined;
   }, [news, volumes, issues]);
@@ -92,10 +101,14 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
       const BLOCK_ENV_KEYS: Partial<Record<HOMEPAGE_BLOCK, string>> = {
         [HOMEPAGE_BLOCK.MEMBERS_CAROUSEL]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_MEMBERS_CAROUSEL_RENDER',
         [HOMEPAGE_BLOCK.SPECIAL_ISSUES]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_SPECIAL_ISSUES_RENDER',
-        [HOMEPAGE_BLOCK.JOURNAL_INDEXATION]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_JOURNAL_INDEXATION_RENDER',
-        [HOMEPAGE_BLOCK.LATEST_ARTICLES_CAROUSEL]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_ARTICLES_CAROUSEL_RENDER',
-        [HOMEPAGE_BLOCK.LATEST_NEWS_CAROUSEL]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_NEWS_CAROUSEL_RENDER',
-        [HOMEPAGE_BLOCK.LATEST_ACCEPTED_ARTICLES_CAROUSEL]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_ACCEPTED_ARTICLES_CAROUSEL_RENDER',
+        [HOMEPAGE_BLOCK.JOURNAL_INDEXATION]:
+          'NEXT_PUBLIC_JOURNAL_HOMEPAGE_JOURNAL_INDEXATION_RENDER',
+        [HOMEPAGE_BLOCK.LATEST_ARTICLES_CAROUSEL]:
+          'NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_ARTICLES_CAROUSEL_RENDER',
+        [HOMEPAGE_BLOCK.LATEST_NEWS_CAROUSEL]:
+          'NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_NEWS_CAROUSEL_RENDER',
+        [HOMEPAGE_BLOCK.LATEST_ACCEPTED_ARTICLES_CAROUSEL]:
+          'NEXT_PUBLIC_JOURNAL_HOMEPAGE_LATEST_ACCEPTED_ARTICLES_CAROUSEL_RENDER',
         [HOMEPAGE_BLOCK.STATS]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_STATS_RENDER',
       };
 
@@ -161,7 +174,17 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
       validAcceptedArticles,
       shouldRenderAcceptedArticles,
     };
-  }, [aboutPage, articles, news, members, stats, indexation, issues, acceptedArticles, journalConfig]);
+  }, [
+    aboutPage,
+    articles,
+    news,
+    members,
+    stats,
+    indexation,
+    issues,
+    acceptedArticles,
+    journalConfig,
+  ]);
 
   return (
     <main className="home">

@@ -75,7 +75,9 @@ function NewsListCard({ language, t, news }: INewsListCardProps): React.JSX.Elem
     <div id={generateIdFromText(news.id.toString())} className="newsCard">
       <div className="newsCard-publicationDate">{formatDate(news.publicationDate, language)}</div>
       <div className="newsCard-content">
-        <div className="newsCard-content-title">{getLocalizedContent(news.title, language).value}</div>
+        <div className="newsCard-content-title">
+          {getLocalizedContent(news.title, language).value}
+        </div>
         {renderContent()}
         {news.link && (
           <div className="newsCard-content-read">

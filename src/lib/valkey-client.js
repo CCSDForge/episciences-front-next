@@ -68,7 +68,7 @@ function getValkeyClient() {
     Redis = _redisFactoryOverride;
   } else {
     const _ioredis = require('ioredis');
-    Redis = typeof _ioredis === 'function' ? _ioredis : (_ioredis.Redis || _ioredis.default);
+    Redis = typeof _ioredis === 'function' ? _ioredis : _ioredis.Redis || _ioredis.default;
   }
 
   const username = process.env.VALKEY_USERNAME || undefined;

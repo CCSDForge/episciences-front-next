@@ -65,9 +65,7 @@ function SearchResultCard({
   return (
     <div className="searchResultCard">
       {searchResult.tag && (
-        <div className="searchResultCardTag">
-          {t(getArticleTypeLabel(searchResult.tag))}
-        </div>
+        <div className="searchResultCardTag">{t(getArticleTypeLabel(searchResult.tag))}</div>
       )}
       <Link href={`/${PATHS.articles}/${searchResult.id}`} lang={language}>
         <div className="searchResultCardTitle">
@@ -128,10 +126,7 @@ function SearchResultCard({
             </DownloadArticleButton>
           )}
           {searchResult.id && (
-            <div
-              ref={citationsDropdownRef}
-              className="searchResultCardAnchorIconsCite"
-            >
+            <div ref={citationsDropdownRef} className="searchResultCardAnchorIconsCite">
               <button
                 type="button"
                 aria-haspopup="menu"

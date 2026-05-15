@@ -23,11 +23,7 @@ interface IVolumeArticleCardProps {
   article: IArticle;
 }
 
-function VolumeArticleCard({
-  language,
-  t,
-  article,
-}: IVolumeArticleCardProps): React.JSX.Element {
+function VolumeArticleCard({ language, t, article }: IVolumeArticleCardProps): React.JSX.Element {
   const [openedAbstract, setOpenedAbstract] = useState(false);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
@@ -38,9 +34,7 @@ function VolumeArticleCard({
   return (
     <div className="volumeArticleCard">
       {article.tag && (
-        <div className="volumeArticleCard-tag">
-          {t(getArticleTypeLabel(article.tag))}
-        </div>
+        <div className="volumeArticleCard-tag">{t(getArticleTypeLabel(article.tag))}</div>
       )}
       <Link
         href={articlePath}

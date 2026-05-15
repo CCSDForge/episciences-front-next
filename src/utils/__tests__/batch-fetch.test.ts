@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { batchFetchWithFallback, batchFetchWithRetry, batchFetchWithTracking } from '../batch-fetch';
+import {
+  batchFetchWithFallback,
+  batchFetchWithRetry,
+  batchFetchWithTracking,
+} from '../batch-fetch';
 
 describe('batchFetchWithFallback', () => {
   afterEach(() => {
@@ -7,7 +11,9 @@ describe('batchFetchWithFallback', () => {
   });
 
   it('returns all results when all fetches succeed', async () => {
-    const fetchFn = vi.fn().mockImplementation((id: number) => Promise.resolve({ id, name: `Item ${id}` }));
+    const fetchFn = vi
+      .fn()
+      .mockImplementation((id: number) => Promise.resolve({ id, name: `Item ${id}` }));
 
     const results = await batchFetchWithFallback([1, 2, 3], fetchFn);
 
@@ -18,7 +24,8 @@ describe('batchFetchWithFallback', () => {
 
   it('uses fallback for failed items and filters out null fallbacks', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const fetchFn = vi.fn()
+    const fetchFn = vi
+      .fn()
       .mockResolvedValueOnce({ id: 1 })
       .mockRejectedValueOnce(new Error('fetch failed'))
       .mockResolvedValueOnce({ id: 3 });
@@ -34,7 +41,8 @@ describe('batchFetchWithFallback', () => {
   it('uses custom fallback (non-null) for failed items', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     const fallback = { id: 0, name: 'Unknown' };
-    const fetchFn = vi.fn()
+    const fetchFn = vi
+      .fn()
       .mockResolvedValueOnce({ id: 1, name: 'Item 1' })
       .mockRejectedValueOnce(new Error('fail'));
 
@@ -103,8 +111,9 @@ describe('batchFetchWithRetry', () => {
   it('filters out items that fail even after retry', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const fetchFn = vi.fn()
-      .mockResolvedValueOnce('first')    // item[0] first attempt: success
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValueOnce('first') // item[0] first attempt: success
       .mockRejectedValueOnce(new Error('fail')) // item[1] first attempt: fail
       .mockRejectedValueOnce(new Error('fail again')); // item[1] retry: fail
 
@@ -140,7 +149,8 @@ describe('batchFetchWithTracking', () => {
 
   it('tracks success and failure counts accurately', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const fetchFn = vi.fn()
+    const fetchFn = vi
+      .fn()
       .mockResolvedValueOnce('a')
       .mockRejectedValueOnce(new Error('fail'))
       .mockResolvedValueOnce('c');
@@ -160,7 +170,10 @@ describe('batchFetchWithTracking', () => {
   it('returns correct total for empty input', async () => {
     const fetchFn = vi.fn();
 
-    const { results, successCount, failureCount, total } = await batchFetchWithTracking([], fetchFn);
+    const { results, successCount, failureCount, total } = await batchFetchWithTracking(
+      [],
+      fetchFn
+    );
 
     expect(total).toBe(0);
     expect(successCount).toBe(0);

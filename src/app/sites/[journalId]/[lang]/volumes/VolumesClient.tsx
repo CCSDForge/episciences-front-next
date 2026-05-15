@@ -637,12 +637,7 @@ export default function VolumesClient({
                     journalCode={journalId}
                   />
                 ) : (
-                  <VolumeListCard
-                    key={index}
-                    language={language}
-                    t={t}
-                    volume={volume}
-                  />
+                  <VolumeListCard key={index} language={language} t={t} volume={volume} />
                 )
               )}
             </div>

@@ -23,7 +23,10 @@ describe('fetchWithRetry', () => {
   });
 
   it('retries on 5xx errors and returns on subsequent success', async () => {
-    const errorResponse = new Response('Server Error', { status: 503, statusText: 'Service Unavailable' });
+    const errorResponse = new Response('Server Error', {
+      status: 503,
+      statusText: 'Service Unavailable',
+    });
     const successResponse = new Response('{}', { status: 200 });
 
     vi.mocked(global.fetch)
@@ -41,7 +44,10 @@ describe('fetchWithRetry', () => {
   });
 
   it('throws after all retries are exhausted on 5xx errors', async () => {
-    const errorResponse = new Response('Server Error', { status: 500, statusText: 'Internal Server Error' });
+    const errorResponse = new Response('Server Error', {
+      status: 500,
+      statusText: 'Internal Server Error',
+    });
 
     vi.mocked(global.fetch).mockResolvedValue(errorResponse);
 

@@ -110,12 +110,7 @@ describe('VolumeDetailsSidebar', () => {
     });
 
     it('renders journal code in uppercase from currentJournal.code', () => {
-      render(
-        <VolumeDetailsSidebar
-          {...defaultProps}
-          currentJournal={{ code: 'epijrn' } as any}
-        />
-      );
+      render(<VolumeDetailsSidebar {...defaultProps} currentJournal={{ code: 'epijrn' } as any} />);
       expect(screen.getByText('EPIJRN')).toBeInTheDocument();
     });
 

@@ -4,14 +4,14 @@
 
 - name: Create external-assets directory in release
   ansible.builtin.file:
-    path: "{{ ansistrano_release_path.stdout }}/external-assets"
+    path: '{{ ansistrano_release_path.stdout }}/external-assets'
     state: directory
     mode: '0755'
 
 - name: Sync external-assets directly into release directory
   ansible.posix.synchronize:
-    src: "{{ playbook_dir }}/../../external-assets/"
-    dest: "{{ ansistrano_release_path.stdout }}/external-assets/"
+    src: '{{ playbook_dir }}/../../external-assets/'
+    dest: '{{ ansistrano_release_path.stdout }}/external-assets/'
     delete: false
     recursive: true
     delay_updates: false
@@ -23,14 +23,14 @@
 
 - name: Install Node.js dependencies
   community.general.npm:
-    path: "{{ ansistrano_release_path.stdout }}"
+    path: '{{ ansistrano_release_path.stdout }}'
     ci: true
     production: false
 
 - name: Build Next.js application
   ansible.builtin.command:
     cmd: npm run build
-    chdir: "{{ ansistrano_release_path.stdout }}"
+    chdir: '{{ ansistrano_release_path.stdout }}'
   environment:
     NODE_ENV: production
   changed_when: true

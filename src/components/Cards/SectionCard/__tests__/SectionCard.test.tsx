@@ -19,9 +19,7 @@ vi.mock('@/components/MathJax/MathJax', () => ({
 }));
 
 vi.mock('@/components/icons', () => ({
-  CaretUpBlackIcon: ({ ariaLabel }: any) => (
-    <span data-testid="caret-up" aria-label={ariaLabel} />
-  ),
+  CaretUpBlackIcon: ({ ariaLabel }: any) => <span data-testid="caret-up" aria-label={ariaLabel} />,
   CaretDownBlackIcon: ({ ariaLabel }: any) => (
     <span data-testid="caret-down" aria-label={ariaLabel} />
   ),

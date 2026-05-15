@@ -154,9 +154,7 @@ describe('VolumeDetailsMobileModal', () => {
     it('shows "View selected proceedings" for PROCEEDINGS type', () => {
       const volume = makeVolume(1, [VOLUME_TYPE.PROCEEDINGS]);
       renderWithStore(<VolumeDetailsMobileModal {...defaultProps} volume={volume} />);
-      expect(
-        screen.getByRole('button', { name: 'View selected proceedings' })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'View selected proceedings' })).toBeInTheDocument();
     });
 
     it('shows "View selected issue" for SPECIAL_ISSUE type', () => {
@@ -178,9 +176,7 @@ describe('VolumeDetailsMobileModal', () => {
     });
 
     it('renders volume titles in the given language', () => {
-      renderWithStore(
-        <VolumeDetailsMobileModal {...defaultProps} language="fr" />
-      );
+      renderWithStore(<VolumeDetailsMobileModal {...defaultProps} language="fr" />);
       expect(screen.getByText('Numéro 10')).toBeInTheDocument();
     });
 
@@ -221,10 +217,7 @@ describe('VolumeDetailsMobileModal', () => {
       const user = userEvent.setup();
       const onSelect = vi.fn();
       renderWithStore(
-        <VolumeDetailsMobileModal
-          {...defaultProps}
-          onSelectRelatedVolumeCallback={onSelect}
-        />
+        <VolumeDetailsMobileModal {...defaultProps} onSelectRelatedVolumeCallback={onSelect} />
       );
       await user.click(screen.getByRole('button', { name: 'Volume 11' }));
       await user.click(screen.getByRole('button', { name: 'View selected volume' }));
@@ -250,9 +243,7 @@ describe('VolumeDetailsMobileModal', () => {
     it('calls onCloseCallback when apply is clicked with a selection', async () => {
       const user = userEvent.setup();
       const onClose = vi.fn();
-      renderWithStore(
-        <VolumeDetailsMobileModal {...defaultProps} onCloseCallback={onClose} />
-      );
+      renderWithStore(<VolumeDetailsMobileModal {...defaultProps} onCloseCallback={onClose} />);
       await user.click(screen.getByRole('button', { name: 'Volume 10' }));
       await user.click(screen.getByRole('button', { name: 'View selected volume' }));
       expect(onClose).toHaveBeenCalledOnce();

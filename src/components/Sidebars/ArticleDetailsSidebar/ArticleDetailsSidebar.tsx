@@ -116,8 +116,7 @@ export default function ArticleDetailsSidebar({
     };
   }, [citationsDropdownRef, metadatasDropdownRef, sharingDropdownRef]);
 
-  const togglePublicationDetails = (): void =>
-    setOpenedPublicationDetails(prev => !prev);
+  const togglePublicationDetails = (): void => setOpenedPublicationDetails(prev => !prev);
 
   const toggleFunding = (): void => setOpenedFunding(prev => !prev);
 
@@ -330,9 +329,7 @@ export default function ArticleDetailsSidebar({
             onMouseLeave={(): void => setShowCitationsDropdown(false)}
             onTouchStart={(): void => setShowCitationsDropdown(prev => !prev)}
             onClick={(): void => setShowCitationsDropdown(prev => !prev)}
-            onKeyDown={e =>
-              handleKeyboardClick(e, () => setShowCitationsDropdown(prev => !prev))
-            }
+            onKeyDown={e => handleKeyboardClick(e, () => setShowCitationsDropdown(prev => !prev))}
             role="button"
             tabIndex={0}
           >
@@ -374,9 +371,7 @@ export default function ArticleDetailsSidebar({
             onMouseLeave={(): void => setShowMetadatasDropdown(false)}
             onTouchStart={(): void => setShowMetadatasDropdown(prev => !prev)}
             onClick={(): void => setShowMetadatasDropdown(prev => !prev)}
-            onKeyDown={e =>
-              handleKeyboardClick(e, () => setShowMetadatasDropdown(prev => !prev))
-            }
+            onKeyDown={e => handleKeyboardClick(e, () => setShowMetadatasDropdown(prev => !prev))}
             role="button"
             tabIndex={0}
           >
@@ -425,9 +420,7 @@ export default function ArticleDetailsSidebar({
           onMouseLeave={(): void => setShowSharingDropdown(false)}
           onTouchStart={(): void => setShowSharingDropdown(prev => !prev)}
           onClick={(): void => setShowSharingDropdown(prev => !prev)}
-          onKeyDown={e =>
-            handleKeyboardClick(e, () => setShowSharingDropdown(prev => !prev))
-          }
+          onKeyDown={e => handleKeyboardClick(e, () => setShowSharingDropdown(prev => !prev))}
           role="button"
           tabIndex={0}
         >

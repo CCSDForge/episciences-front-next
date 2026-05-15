@@ -191,9 +191,7 @@ describe('StatisticsMobileModal', () => {
     it('calls onUpdateYearsCallback with current years when apply is clicked', async () => {
       const user = userEvent.setup();
       const onUpdate = vi.fn();
-      renderWithStore(
-        <StatisticsMobileModal {...defaultProps} onUpdateYearsCallback={onUpdate} />
-      );
+      renderWithStore(<StatisticsMobileModal {...defaultProps} onUpdateYearsCallback={onUpdate} />);
       // Check 2024 then apply
       await user.click(screen.getByRole('checkbox', { name: '2024' }));
       await user.click(screen.getByRole('button', { name: 'Apply Filters' }));
