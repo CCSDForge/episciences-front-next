@@ -136,22 +136,22 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isAuthorized) {
-      console.warn(`[Revalidate API] Invalid token provided for journal: ${sanitizeForLog(journalId) || 'global'}`);
+      console.warn(`[Revalidate API] Invalid token provided for journal: ${sanitizeForLog(journalId) || 'global'}`); // lgtm[js/log-injection]
       return NextResponse.json({ message: 'Invalid secret' }, { status: 401 });
     }
 
     // 5. Execution
     if (tag) {
-      console.log(`[Revalidate API] Revalidating tag: ${sanitizeForLog(tag)}`);
+      console.log(`[Revalidate API] Revalidating tag: ${sanitizeForLog(tag)}`); // lgtm[js/log-injection]
       revalidateTag(tag, { expire: 0 });
     } else if (path) {
       // Validate path format to prevent path traversal attacks
       if (!isValidRevalidatePath(path, journalId)) {
-        console.warn(`[Revalidate API] Invalid path format: ${sanitizeForLog(path)}`);
+        console.warn(`[Revalidate API] Invalid path format: ${sanitizeForLog(path)}`); // lgtm[js/log-injection]
         return NextResponse.json({ message: 'Invalid path format' }, { status: 400 });
       }
 
-      console.log(`[Revalidate API] Revalidating path: ${sanitizeForLog(path)}`);
+      console.log(`[Revalidate API] Revalidating path: ${sanitizeForLog(path)}`); // lgtm[js/log-injection]
       revalidatePath(path);
     } else {
       return NextResponse.json({ message: 'Missing tag or path' }, { status: 400 });

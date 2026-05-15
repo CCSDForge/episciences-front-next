@@ -303,7 +303,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
 
     return (
       <div
-        className={`header-postheader-burger-content ${showMobileMenu ? 'header-postheader-burger-content-displayed' : ''}`}
+        className="header-postheader-burger-content header-postheader-burger-content-displayed"
       >
         <div className="header-postheader-burger-content-links">
           {/* CONTENT Section */}

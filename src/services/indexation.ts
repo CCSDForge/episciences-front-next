@@ -1,4 +1,3 @@
-import { API_URL } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { CACHE_TTL } from '@/utils/cache-ttl';
 

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { formatSearchRange } from '../search';
-import { SearchRange } from '../pagination';
 
 describe('search utilities', () => {
   describe('formatSearchRange', () => {

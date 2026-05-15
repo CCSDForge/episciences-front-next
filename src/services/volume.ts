@@ -7,8 +7,6 @@ import {
 } from '@/types/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { PaginatedResponseWithCount, Range } from '@/utils/pagination';
-import { API_URL } from '@/config/api';
-import { getJournalCode } from './journal';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { CACHE_TTL } from '@/utils/cache-ttl';
 

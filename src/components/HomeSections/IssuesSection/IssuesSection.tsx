@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Fragment } from 'react';
+import React from 'react';
 import { FileGreyIcon, DownloadBlackIcon } from '@/components/icons';
 import Image from 'next/image';
 import { TFunction } from 'i18next';

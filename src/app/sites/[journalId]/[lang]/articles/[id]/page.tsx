@@ -130,10 +130,6 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       );
     }
 
-    if (!journalId) {
-      throw new Error('journalId parameter is required');
-    }
-
     // Fetch all data server-side for complete pre-rendering (translations en parallèle)
 
     const [translations, [article, metadataCSL, metadataBibTeX]] = await Promise.all([
@@ -155,7 +151,7 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
 
     let relatedVolume: IVolume | null = null;
 
-    if (article?.volumeId && journalId) {
+    if (article?.volumeId) {
       try {
         relatedVolume = await getCachedVolume(journalId, Number(article.volumeId), language);
       } catch (error) {

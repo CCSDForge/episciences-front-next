@@ -3,7 +3,6 @@ import { useBaseUrl } from '../useBaseUrl';
 
 describe('useBaseUrl', () => {
   const originalEnv = process.env;
-  const originalWindow = global.window;
 
   beforeEach(() => {
     // Reset env and window before each test
