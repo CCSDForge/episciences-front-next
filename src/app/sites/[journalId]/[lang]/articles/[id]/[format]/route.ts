@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { METADATA_TYPE } from '@/utils/article';
 import { sanitizeForLog } from '@/utils/validation';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { getJournalBaseUrl } from '@/utils/signposting';
 import { API_PATHS } from '@/config/api';
 
 const VALID_FORMATS = new Set<string>(Object.values(METADATA_TYPE));
@@ -12,8 +13,9 @@ function getMimeType(format: string): string {
       return 'application/x-bibtex';
     case METADATA_TYPE.RIS:
       return 'application/x-research-info-systems';
-    case METADATA_TYPE.JSON:
     case METADATA_TYPE.CSL:
+      return 'application/vnd.citationstyles.csl+json';
+    case METADATA_TYPE.JSON:
     case METADATA_TYPE.JSON_LD:
       return 'application/json';
     default:
@@ -40,7 +42,7 @@ export async function GET(
   _request: NextRequest,
   context: { params: Promise<{ journalId: string; lang: string; id: string; format: string }> }
 ) {
-  const { journalId, id, format } = await context.params;
+  const { journalId, lang, id, format } = await context.params;
 
   if (!/^\d+$/.test(id)) {
     return new NextResponse('Invalid article id', { status: 400 });
@@ -75,6 +77,7 @@ export async function GET(
 
     const body = await response.text();
     const ext = getFileExtension(format);
+    const articleUrl = `${getJournalBaseUrl(journalId)}/${lang}/articles/${id}`;
 
     return new NextResponse(body, {
       status: 200,
@@ -82,6 +85,7 @@ export async function GET(
         'Content-Type': getMimeType(format),
         'Content-Disposition': `inline; filename="article_${id}.${ext}"`,
         'Cache-Control': 'public, max-age=86400',
+        Link: `<${articleUrl}>; rel="describes"; type="text/html"`,
       },
     });
   } catch (error) {
