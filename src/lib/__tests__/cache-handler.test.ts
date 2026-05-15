@@ -1,4 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fs from 'fs';
+
+// Mock fs to provide a dummy BUILD_ID for initialize() tests
+vi.mock('fs', async () => {
+  const actual = await vi.importActual<typeof import('fs')>('fs');
+  return {
+    ...actual,
+    readFileSync: vi.fn((path: string, options: any) => {
+      if (path.endsWith('BUILD_ID')) return 'test-build-id';
+      return actual.readFileSync(path, options);
+    }),
+  };
+});
 
 /**
  * Tests for src/lib/cache-handler.js
