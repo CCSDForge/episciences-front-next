@@ -1,14 +1,10 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import robots from '../robots';
-import { ROBOTS_COMMON_DISALLOW } from '@/config/robots';
+import { ROBOTS_DISALLOW } from '@/config/robots';
 
-// Mock next/headers
 vi.mock('next/headers', () => ({
   headers: vi.fn().mockResolvedValue({
-    get: (key: string) => {
-      if (key === 'host') return 'epijinfo.episciences.org';
-      return null;
-    },
+    get: (key: string) => (key === 'host' ? 'epijinfo.episciences.org' : null),
   }),
 }));
 
@@ -17,7 +13,15 @@ describe('Robots.txt Generator', () => {
     vi.unstubAllEnvs();
   });
 
-  it('should generate correct sitemap URL based on host', async () => {
+  it('should only disallow /search', async () => {
+    const result = await robots();
+
+    expect((result.rules as any).disallow).toEqual(ROBOTS_DISALLOW);
+    expect((result.rules as any).disallow).toContain('/search');
+    expect((result.rules as any).disallow).toHaveLength(1);
+  });
+
+  it('should advertise the sitemap served by Nginx', async () => {
     vi.stubEnv('NODE_ENV', 'production');
 
     const result = await robots();
@@ -25,16 +29,11 @@ describe('Robots.txt Generator', () => {
     expect(result.sitemap).toBe('https://epijinfo.episciences.org/sitemap.xml');
   });
 
-  it('should include common disallow rules', async () => {
+  it('should use http protocol in development', async () => {
+    vi.stubEnv('NODE_ENV', 'development');
+
     const result = await robots();
 
-    expect(result.rules).toEqual({
-      userAgent: '*',
-      disallow: ROBOTS_COMMON_DISALLOW,
-    });
-
-    // Check for critical security rule
-    expect((result.rules as any).disallow).toContain('/login');
-    expect((result.rules as any).disallow).toContain('*/json');
+    expect(result.sitemap).toBe('http://epijinfo.episciences.org/sitemap.xml');
   });
 });

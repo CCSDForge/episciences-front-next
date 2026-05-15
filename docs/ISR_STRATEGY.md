@@ -102,7 +102,6 @@ when the variable is not set. Set to `false` to cache indefinitely (on-demand on
 | `CACHE_TTL_STATISTICS` | `stat.ts`, `statistics.ts`                                                                                                                                               | 3600    |
 | `CACHE_TTL_MEMBERS`    | `board.ts`, `home.ts` (members)                                                                                                                                          | 3600    |
 | `CACHE_TTL_SECTIONS`   | `section.ts`                                                                                                                                                             | 3600    |
-| `CACHE_TTL_SITEMAP`    | `sitemap.ts`                                                                                                                                                             | 3600    |
 
 ### Cache Tag Naming Convention
 
@@ -173,8 +172,6 @@ stats / statistics
 ├── stats-{rvcode}                ← home page stats block
 └── statistics-{rvcode}           ← full statistics page
 
-sitemap
-└── sitemap-{rvcode}
 ```
 
 ---
