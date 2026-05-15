@@ -524,6 +524,12 @@
     },
     "credits": {
       "title": "Credits"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "code": "404",
+      "description": "The page you are looking for does not exist or may have been moved.",
+      "backHome": "Back to home"
     }
   }
 }

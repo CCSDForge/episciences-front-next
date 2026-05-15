@@ -111,8 +111,11 @@ export function middleware(request: NextRequest) {
   const rewriteUrl = new URL(internalPath, request.url);
   rewriteUrl.search = url.search;
 
-  // Set custom headers for the detected language (for root layout lang attribute)
-  const response = NextResponse.rewrite(rewriteUrl);
+  // Forward language as a request header so Server Components (e.g. not-found.tsx) can read it
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-detected-language', targetLang);
+
+  const response = NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } });
   response.headers.set('x-detected-language', targetLang);
 
   return response;

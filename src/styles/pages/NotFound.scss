@@ -1,0 +1,69 @@
+@use '@/styles/breakpoints.scss' as breakpoints;
+
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px;
+  min-height: 50vh;
+
+  @media (max-width: breakpoints.$sm) {
+    padding: 48px 24px;
+  }
+
+  &-code {
+    font-size: 9rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--primary-text, #04005f);
+    letter-spacing: -4px;
+    margin: 0 0 16px;
+    opacity: 0.15;
+
+    @media (max-width: breakpoints.$xsm) {
+      font-size: 6rem;
+    }
+  }
+
+  &-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--heading-color, #04005f);
+    margin: 0 0 16px;
+
+    @media (max-width: breakpoints.$xsm) {
+      font-size: 1.5rem;
+    }
+  }
+
+  &-description {
+    font-size: 1.1rem;
+    color: var(--grey-dark);
+    max-width: 480px;
+    margin: 0 0 40px;
+    line-height: 1.6;
+  }
+
+  &-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--primary, #04005f);
+    color: var(--button-text-on-primary-bg, #ffffff);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 28px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 0.85;
+      outline: 3px solid var(--focus-color, #04005f);
+      outline-offset: 2px;
+    }
+  }
+}

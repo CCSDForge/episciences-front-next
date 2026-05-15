@@ -531,6 +531,12 @@
     },
     "credits": {
       "title": "Crédits"
+    },
+    "notFound": {
+      "title": "Page introuvable",
+      "code": "404",
+      "description": "La page que vous recherchez n’existe pas ou a peut-être été déplacée.",
+      "backHome": "Retour à l’accueil"
     }
   }
 }

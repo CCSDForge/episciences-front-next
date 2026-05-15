@@ -527,6 +527,12 @@
     },
     "common": {
       "noContent": "No hay contenido disponible para esta revista."
+    },
+    "notFound": {
+      "title": "Página no encontrada",
+      "code": "404",
+      "description": "La página que busca no existe o puede haber sido movida.",
+      "backHome": "Volver al inicio"
     }
   }
 }
