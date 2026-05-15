@@ -7,7 +7,6 @@ import { MAX_BREADCRUMB_TITLE } from '@/config/constants';
 import { truncate } from '@/utils/string';
 import { Translations, t } from '@/utils/server-i18n';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
-import SignpostingLinks from '@/components/SignpostingLinks/SignpostingLinks';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import MathJax from '@/components/MathJax/MathJax';
 import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServer';
@@ -57,7 +56,7 @@ export default function ArticleDetailsServer({
   metadataBibTeX,
   translations,
   language,
-}: ArticleDetailsServerProps): React.ReactNode {
+}: ArticleDetailsServerProps): React.JSX.Element {
   // Process authors and institutions
   const allAuthors: EnhancedArticleAuthor[] = [];
   const allInstitutionsMap = new Map<string, IInstitution>();
@@ -234,9 +233,7 @@ export default function ArticleDetailsServer({
   };
 
   return (
-    <>
-      <SignpostingLinks article={article} rvcode={rvcode} id={id} lang={language || defaultLanguage} />
-      <main className="articleDetails">
+    <main className="articleDetails">
       {/* Tracking pixel for article views - appears in Apache logs as /articles/[id]/preview */}
       {article?.id && (
         <img
@@ -329,6 +326,5 @@ export default function ArticleDetailsServer({
         </div>
       </div>
     </main>
-    </>
   );
 }

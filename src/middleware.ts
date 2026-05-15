@@ -111,9 +111,17 @@ export function middleware(request: NextRequest) {
   const rewriteUrl = new URL(internalPath, request.url);
   rewriteUrl.search = url.search;
 
-  // Set custom headers for the detected language (for root layout lang attribute)
   const response = NextResponse.rewrite(rewriteUrl);
   response.headers.set('x-detected-language', targetLang);
+
+  // FAIR Signposting Level 1: add Link header for article landing pages
+  const articleMatch = pathWithoutLang.match(/^\/articles\/(\d+)$/);
+  if (articleMatch) {
+    const articleId = articleMatch[1];
+    const origin = `${url.protocol}//${hostHeader}`;
+    const linksetUrl = `${origin}/${targetLang}/articles/${articleId}/linkset`;
+    response.headers.set('Link', `<${linksetUrl}>; rel="linkset"; type="application/linkset+json"`);
+  }
 
   return response;
 }
