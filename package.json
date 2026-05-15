@@ -27,7 +27,7 @@
     "@citation-js/core": "^0.7.14",
     "@citation-js/plugin-csl": "^0.7.14",
     "@citation-js/plugin-doi": "^0.7.14",
-    "better-react-mathjax": "^2.0.3",
+    "better-react-mathjax": "^3.0.0",
     "citation-js": "^0.7.22",
     "date-fns": "^4.1.0",
     "focus-trap-react": "^11.0.6",
