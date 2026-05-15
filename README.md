@@ -188,7 +188,7 @@ The project uses a **Dynamic Runtime Configuration** system.
 
 The project uses GitHub Actions for continuous integration:
 
-- **CI Tests** (`ci.yml`): Runs linting and tests on Node.js 18.x and 20.x
+- **CI Tests** (`ci.yml`): Runs linting and tests on Node.js 22.x
 - **CodeQL** (`codeql.yml`): Security analysis on push to main and scheduled weekly scans
 
 ## Documentation

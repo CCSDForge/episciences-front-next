@@ -2,6 +2,9 @@
   "name": "episciences-front-next",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "preflight": "node scripts/copy-logos.js && node scripts/generate-journals.js",
     "predev": "npm run preflight",
@@ -59,7 +62,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/he": "^1.2.3",
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/react-i18next": "^8.1.0",
