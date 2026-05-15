@@ -3,7 +3,7 @@
 
 services:
   valkey-node-1:
-    image: valkey/valkey:8.0
+    image: valkey/valkey:8.1
     container_name: valkey-node-1
     command: >
       valkey-server --port 6379
@@ -19,7 +19,7 @@ services:
       retries: 5
 
   valkey-node-2:
-    image: valkey/valkey:8.0
+    image: valkey/valkey:8.1
     container_name: valkey-node-2
     command: >
       valkey-server --port 6379
@@ -40,7 +40,7 @@ services:
       retries: 5
 
   valkey-node-3:
-    image: valkey/valkey:8.0
+    image: valkey/valkey:8.1
     container_name: valkey-node-3
     command: >
       valkey-server --port 6379
@@ -61,7 +61,7 @@ services:
       retries: 5
 
   sentinel-1:
-    image: valkey/valkey:8.0
+    image: valkey/valkey:8.1
     container_name: sentinel-1
     command: valkey-sentinel /etc/valkey/sentinel.conf
     environment:
@@ -75,7 +75,7 @@ services:
       - episciences
 
   sentinel-2:
-    image: valkey/valkey:8.0
+    image: valkey/valkey:8.1
     container_name: sentinel-2
     command: valkey-sentinel /etc/valkey/sentinel.conf
     environment:
@@ -89,7 +89,7 @@ services:
       - episciences
 
   sentinel-3:
-    image: valkey/valkey:8.0
+    image: valkey/valkey:8.1
     container_name: sentinel-3
     command: valkey-sentinel /etc/valkey/sentinel.conf
     environment:
