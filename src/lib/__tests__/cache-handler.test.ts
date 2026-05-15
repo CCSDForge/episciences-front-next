@@ -287,6 +287,15 @@ describe('CacheHandler', () => {
   // -------------------------------------------------------------------------
 
   describe('initialize()', () => {
+    beforeEach(() => {
+      // Ensure BUILD_ID is set so initialize() doesn't exit early (no .next/BUILD_ID in CI)
+      if (!_internals.BUILD_ID) _internals.setBuildId('test-build-id');
+    });
+
+    afterEach(() => {
+      _internals.setBuildId(_internals.readBuildId());
+    });
+
     function makeAsyncIterable(pages: string[][]) {
       let i = 0;
       return {

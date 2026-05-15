@@ -38,7 +38,7 @@ function readBuildId() {
   }
 }
 
-const BUILD_ID = readBuildId();
+let BUILD_ID = readBuildId();
 
 // Increment when the serialization format changes to invalidate stale entries.
 // v1: initial (no __v field, ReadableStream silently lost as {})
@@ -557,6 +557,7 @@ module.exports._internals = {
   preprocessValue,
   ensureBuffer,
   CACHE_FORMAT_VERSION,
-  BUILD_ID,
+  get BUILD_ID() { return BUILD_ID; },
+  setBuildId: id => { BUILD_ID = id; },
   readBuildId,
 };
