@@ -5,7 +5,7 @@
 roles:
   - name: ansistrano.deploy
     src: ansistrano.deploy
-    version: '3.14.0'
+    version: '4.4.0'
 
   - name: ansistrano.rollback
     src: ansistrano.rollback
