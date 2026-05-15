@@ -306,8 +306,8 @@ describe('ArticleCard', () => {
       await user.click(screen.getByRole('button', { name: /cite/i }));
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'APA' })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'BibTeX' })).toBeInTheDocument();
+        expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument();
+        expect(screen.getByRole('menuitem', { name: 'BibTeX' })).toBeInTheDocument();
       });
     });
 
@@ -321,14 +321,13 @@ describe('ArticleCard', () => {
         <ArticleCard language="en" rvcode="testjournal" t={mockT as any} article={baseArticle} toggleAbstractCallback={mockToggle} />
       );
 
-      await user.click(screen.getByRole('button', { name: /cite/i }));
-      await waitFor(() => expect(screen.getByRole('button', { name: 'APA' })).toBeInTheDocument());
-      await user.click(screen.getByRole('button', { name: 'APA' }));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument());
+      await user.click(screen.getByRole('menuitem', { name: 'APA' }));
 
       expect(copyToClipboardCitation).toHaveBeenCalledWith(fakeCitation, mockT);
     });
 
-    it('hides dropdown on mouseLeave from cite container', async () => {
+    it('hides dropdown on mouseLeave from cite menu', async () => {
       const user = userEvent.setup();
       const { container } = render(
         <ArticleCard language="en" rvcode="testjournal" t={mockT as any} article={baseArticle} toggleAbstractCallback={mockToggle} />
@@ -339,7 +338,10 @@ describe('ArticleCard', () => {
         container.querySelector('.articleCard-anchor-icons-cite-content-displayed')
       ).toBeInTheDocument();
 
-      await user.unhover(container.querySelector('.articleCard-anchor-icons-cite')!);
+      // Move pointer to the menu (cancels any close timer), then leave it
+      const menu = container.querySelector('[role="menu"]')!;
+      await user.hover(menu);
+      await user.unhover(menu);
       expect(
         container.querySelector('.articleCard-anchor-icons-cite-content-displayed')
       ).not.toBeInTheDocument();

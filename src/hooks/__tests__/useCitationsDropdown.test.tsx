@@ -115,14 +115,37 @@ describe('useCitationsDropdown', () => {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // handleContainerMouseLeave
+  // handleTriggerMouseLeave / handleDropdownMouseEnter / handleDropdownMouseLeave
   // ─────────────────────────────────────────────────────────────────────────
-  describe('handleContainerMouseLeave', () => {
-    it('closes the dropdown', () => {
+  describe('hover close handlers', () => {
+    it('handleTriggerMouseLeave closes the dropdown after 150 ms', async () => {
+      vi.useFakeTimers();
       const { result } = renderHook(() => useCitationsDropdown(42, 'rv', mockT as any));
       act(() => result.current.handleTriggerMouseEnter());
       expect(result.current.showCitationsDropdown).toBe(true);
-      act(() => result.current.handleContainerMouseLeave());
+      act(() => result.current.handleTriggerMouseLeave());
+      expect(result.current.showCitationsDropdown).toBe(true); // not yet
+      await act(async () => { vi.advanceTimersByTime(150); });
+      expect(result.current.showCitationsDropdown).toBe(false);
+      vi.useRealTimers();
+    });
+
+    it('handleDropdownMouseEnter cancels the scheduled close', async () => {
+      vi.useFakeTimers();
+      const { result } = renderHook(() => useCitationsDropdown(42, 'rv', mockT as any));
+      act(() => result.current.handleTriggerMouseEnter());
+      act(() => result.current.handleTriggerMouseLeave());
+      act(() => result.current.handleDropdownMouseEnter());
+      await act(async () => { vi.advanceTimersByTime(200); });
+      expect(result.current.showCitationsDropdown).toBe(true);
+      vi.useRealTimers();
+    });
+
+    it('handleDropdownMouseLeave closes the dropdown immediately', () => {
+      const { result } = renderHook(() => useCitationsDropdown(42, 'rv', mockT as any));
+      act(() => result.current.handleTriggerMouseEnter());
+      expect(result.current.showCitationsDropdown).toBe(true);
+      act(() => result.current.handleDropdownMouseLeave());
       expect(result.current.showCitationsDropdown).toBe(false);
     });
   });

@@ -300,7 +300,7 @@ describe('SearchResultCard', () => {
       await user.click(screen.getByRole('button', { name: /cite/i }));
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'APA' })).toBeInTheDocument();
+        expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument();
       });
     });
 
@@ -313,9 +313,8 @@ describe('SearchResultCard', () => {
       render(
         <SearchResultCard language="en" rvcode="testjournal" t={mockT as any} searchResult={baseResult} toggleAbstractCallback={mockToggle} />
       );
-      await user.click(screen.getByRole('button', { name: /cite/i }));
-      await waitFor(() => expect(screen.getByRole('button', { name: 'APA' })).toBeInTheDocument());
-      await user.click(screen.getByRole('button', { name: 'APA' }));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument());
+      await user.click(screen.getByRole('menuitem', { name: 'APA' }));
 
       expect(copyToClipboardCitation).toHaveBeenCalledWith(fakeCitation, mockT);
     });

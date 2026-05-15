@@ -15,10 +15,10 @@ vi.mock('@/components/icons', () => ({
     </button>
   ),
   CaretUpGreyIcon: ({ onClick, ariaLabel }: any) => (
-    <span data-testid={`caret-up-${ariaLabel ?? 'default'}`} onClick={onClick} role="img" />
+    <button type="button" data-testid={`caret-up-${ariaLabel ?? 'default'}`} onClick={onClick} />
   ),
   CaretDownGreyIcon: ({ onClick, ariaLabel }: any) => (
-    <span data-testid={`caret-down-${ariaLabel ?? 'default'}`} onClick={onClick} role="img" />
+    <button type="button" data-testid={`caret-down-${ariaLabel ?? 'default'}`} onClick={onClick} />
   ),
 }));
 

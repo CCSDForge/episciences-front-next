@@ -47,7 +47,9 @@ function SearchResultCard({
     copyCitation,
     handleTriggerMouseEnter,
     handleTriggerClick,
-    handleContainerMouseLeave,
+    handleTriggerMouseLeave,
+    handleDropdownMouseEnter,
+    handleDropdownMouseLeave,
   } = useCitationsDropdown(searchResult.id, rvcode, t);
 
   // Helper to extract abstract string from union type
@@ -129,12 +131,14 @@ function SearchResultCard({
             <div
               ref={citationsDropdownRef}
               className="searchResultCardAnchorIconsCite"
-              onMouseLeave={handleContainerMouseLeave}
             >
               <button
                 type="button"
+                aria-haspopup="menu"
+                aria-expanded={showCitationsDropdown}
                 className="searchResultCardAnchorIconsCiteTrigger"
                 onMouseEnter={handleTriggerMouseEnter}
+                onMouseLeave={handleTriggerMouseLeave}
                 onClick={handleTriggerClick}
               >
                 <QuoteBlackIcon
@@ -145,13 +149,19 @@ function SearchResultCard({
                 <div className="searchResultCardAnchorIconsCiteText">{t('common.cite')}</div>
               </button>
               <div
+                role="menu"
+                aria-label={t('common.cite')}
+                tabIndex={-1}
                 className={`searchResultCardAnchorIconsCiteContent ${showCitationsDropdown ? 'searchResultCardAnchorIconsCiteContentDisplayed' : ''}`}
+                onMouseEnter={handleDropdownMouseEnter}
+                onMouseLeave={handleDropdownMouseLeave}
               >
                 <div className="searchResultCardAnchorIconsCiteContentLinks">
                   {citations.length > 0 ? (
                     citations.map(citation => (
                       <button
                         type="button"
+                        role="menuitem"
                         key={citation.key}
                         onClick={(): void => copyCitation(citation)}
                         onTouchEnd={(): void => copyCitation(citation)}
@@ -160,7 +170,11 @@ function SearchResultCard({
                       </button>
                     ))
                   ) : (
-                    <span className="searchResultCardAnchorIconsCiteLoading">
+                    <span
+                      role="menuitem"
+                      aria-disabled="true"
+                      className="searchResultCardAnchorIconsCiteLoading"
+                    >
                       {t('common.loading')}
                     </span>
                   )}
