@@ -45,11 +45,11 @@ while `npm run dev` provides hot-reload.
 
 ### Useful commands
 
-| Command | Description |
-|---|---|
-| `make dev-nginx` | Start Nginx (builds image if needed) |
-| `make dev-nginx-down` | Stop Nginx |
-| `make dev-nginx-logs` | Stream Nginx access/error logs |
+| Command                  | Description                                  |
+| ------------------------ | -------------------------------------------- |
+| `make dev-nginx`         | Start Nginx (builds image if needed)         |
+| `make dev-nginx-down`    | Stop Nginx                                   |
+| `make dev-nginx-logs`    | Stream Nginx access/error logs               |
 | `make dev-nginx-rebuild` | Rebuild Nginx image (after template changes) |
 
 See [Nginx Integration](NGINX_INTEGRATION.md) for full details on the Docker setup.

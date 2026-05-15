@@ -46,9 +46,7 @@ describe('forConferenceOrganisers service', () => {
     });
 
     it('should request page_code=for-conference-organisers', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [] }));
 
       await fetchForConferenceOrganisersPage('myjournal');
 
@@ -59,9 +57,7 @@ describe('forConferenceOrganisers service', () => {
     });
 
     it('should include rvcode in request URL', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [] }));
 
       await fetchForConferenceOrganisersPage('myjournal');
 
@@ -97,9 +93,7 @@ describe('forConferenceOrganisers service', () => {
     });
 
     it('should use different journal codes', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [] }));
 
       await fetchForConferenceOrganisersPage('dmtcs');
 

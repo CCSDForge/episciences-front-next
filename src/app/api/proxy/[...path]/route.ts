@@ -63,9 +63,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
 
   // Get journal code from query params or header
   const rvcode =
-    searchParams.get('rvcode') ||
-    searchParams.get('code') ||
-    request.headers.get('x-journal-code');
+    searchParams.get('rvcode') || searchParams.get('code') || request.headers.get('x-journal-code');
 
   if (!rvcode) {
     return NextResponse.json({ error: 'Missing rvcode parameter' }, { status: 400 });
@@ -124,9 +122,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
   const searchParams = request.nextUrl.searchParams;
 
   const rvcode =
-    searchParams.get('rvcode') ||
-    searchParams.get('code') ||
-    request.headers.get('x-journal-code');
+    searchParams.get('rvcode') || searchParams.get('code') || request.headers.get('x-journal-code');
 
   if (!rvcode) {
     return NextResponse.json({ error: 'Missing rvcode parameter' }, { status: 400 });

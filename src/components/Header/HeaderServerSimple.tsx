@@ -14,14 +14,29 @@ export default function HeaderServerSimple({
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <a href="https://www.episciences.org">
-            <Image src="/logos/logo-episciences.svg" alt="Episciences" width={120} height={30} loading="lazy" unoptimized />
+            <Image
+              src="/logos/logo-episciences.svg"
+              alt="Episciences"
+              width={120}
+              height={30}
+              loading="lazy"
+              unoptimized
+            />
           </a>
         </div>
       </div>
       <div className="header-journal">
         <div className="header-journal-logo">
           <Link href="/" lang={lang}>
-            <Image src="/logos/logo-big.svg" alt="Journal logo" priority width={160} height={160} sizes="160px" unoptimized />
+            <Image
+              src="/logos/logo-big.svg"
+              alt="Journal logo"
+              priority
+              width={160}
+              height={160}
+              sizes="160px"
+              unoptimized
+            />
           </Link>
         </div>
         <div className="header-journal-title">Journal</div>

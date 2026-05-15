@@ -14,10 +14,10 @@ and data-level caching (Valkey).
 
 The application uses two complementary caches:
 
-| Level | What | Where | Controlled by |
-|-------|------|-------|---------------|
-| **Data Cache** | `fetch()` responses (API data) | Valkey (shared) | `next: { revalidate, tags }` in services |
-| **Full Route Cache** | Rendered HTML / RSC payload | Disk, per server | `export const revalidate` in page files |
+| Level                | What                           | Where            | Controlled by                            |
+| -------------------- | ------------------------------ | ---------------- | ---------------------------------------- |
+| **Data Cache**       | `fetch()` responses (API data) | Valkey (shared)  | `next: { revalidate, tags }` in services |
+| **Full Route Cache** | Rendered HTML / RSC payload    | Disk, per server | `export const revalidate` in page files  |
 
 Both must be configured for ISR to work end-to-end.
 
@@ -45,31 +45,31 @@ pages render even when the API is down (stale cache served).
 
 Pages that rarely change. On-demand revalidation is the only way to update them.
 
-| Page | Route |
-|------|-------|
-| About | `/sites/[journalId]/[lang]/about` |
-| Credits | `/sites/[journalId]/[lang]/credits` |
-| For authors | `/sites/[journalId]/[lang]/for-authors` |
-| For reviewers | `/sites/[journalId]/[lang]/for-reviewers` |
+| Page                      | Route                                                 |
+| ------------------------- | ----------------------------------------------------- |
+| About                     | `/sites/[journalId]/[lang]/about`                     |
+| Credits                   | `/sites/[journalId]/[lang]/credits`                   |
+| For authors               | `/sites/[journalId]/[lang]/for-authors`               |
+| For reviewers             | `/sites/[journalId]/[lang]/for-reviewers`             |
 | For conference organisers | `/sites/[journalId]/[lang]/for-conference-organisers` |
-| Acknowledgements | `/sites/[journalId]/[lang]/acknowledgements` |
-| Indexing | `/sites/[journalId]/[lang]/indexing` |
+| Acknowledgements          | `/sites/[journalId]/[lang]/acknowledgements`          |
+| Indexing                  | `/sites/[journalId]/[lang]/indexing`                  |
 
 ### Dynamic Pages (Daily ISR)
 
 **File:** `export const revalidate = 86400` (24 hours)
 
-| Page | Route |
-|------|-------|
-| Home | `/sites/[journalId]/[lang]` |
+| Page         | Route                               |
+| ------------ | ----------------------------------- |
+| Home         | `/sites/[journalId]/[lang]`         |
 | Volumes list | `/sites/[journalId]/[lang]/volumes` |
 
 ### Frequently Updated Pages (Hourly ISR)
 
 **File:** `export const revalidate = 3600` (1 hour)
 
-| Page | Route |
-|------|-------|
+| Page | Route                            |
+| ---- | -------------------------------- |
 | News | `/sites/[journalId]/[lang]/news` |
 
 ### Detail Pages (Weekly ISR + On-Demand)
@@ -78,10 +78,10 @@ Pages that rarely change. On-demand revalidation is the only way to update them.
 
 Published content is effectively immutable; on-demand revalidation handles corrections.
 
-| Page | Route |
-|------|-------|
+| Page           | Route                                     |
+| -------------- | ----------------------------------------- |
 | Article detail | `/sites/[journalId]/[lang]/articles/[id]` |
-| Volume detail | `/sites/[journalId]/[lang]/volumes/[id]` |
+| Volume detail  | `/sites/[journalId]/[lang]/volumes/[id]`  |
 | Section detail | `/sites/[journalId]/[lang]/sections/[id]` |
 
 ---
@@ -93,16 +93,16 @@ Published content is effectively immutable; on-demand revalidation handles corre
 All fetch-level cache durations are configurable. They default to **3600 s (1 hour)**
 when the variable is not set. Set to `false` to cache indefinitely (on-demand only).
 
-| Variable | Service(s) | Default |
-|----------|-----------|---------|
-| `CACHE_TTL_NEWS` | `news.ts` | 3600 |
-| `CACHE_TTL_VOLUMES` | `volume.ts` | 3600 |
-| `CACHE_TTL_ARTICLES` | `article.ts`, `section.ts` | 3600 |
-| `CACHE_TTL_PAGES` | `about.ts`, `credits.ts`, `forReviewers.ts`, `indexing.ts`, `indexation.ts`, `acknowledgements.ts`, `forConferenceOrganisers.ts`, `proposingSpecialIssues.ts`, `page.ts` | 3600 |
-| `CACHE_TTL_STATISTICS` | `stat.ts`, `statistics.ts` | 3600 |
-| `CACHE_TTL_MEMBERS` | `board.ts`, `home.ts` (members) | 3600 |
-| `CACHE_TTL_SECTIONS` | `section.ts` | 3600 |
-| `CACHE_TTL_SITEMAP` | `sitemap.ts` | 3600 |
+| Variable               | Service(s)                                                                                                                                                               | Default |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| `CACHE_TTL_NEWS`       | `news.ts`                                                                                                                                                                | 3600    |
+| `CACHE_TTL_VOLUMES`    | `volume.ts`                                                                                                                                                              | 3600    |
+| `CACHE_TTL_ARTICLES`   | `article.ts`, `section.ts`                                                                                                                                               | 3600    |
+| `CACHE_TTL_PAGES`      | `about.ts`, `credits.ts`, `forReviewers.ts`, `indexing.ts`, `indexation.ts`, `acknowledgements.ts`, `forConferenceOrganisers.ts`, `proposingSpecialIssues.ts`, `page.ts` | 3600    |
+| `CACHE_TTL_STATISTICS` | `stat.ts`, `statistics.ts`                                                                                                                                               | 3600    |
+| `CACHE_TTL_MEMBERS`    | `board.ts`, `home.ts` (members)                                                                                                                                          | 3600    |
+| `CACHE_TTL_SECTIONS`   | `section.ts`                                                                                                                                                             | 3600    |
+| `CACHE_TTL_SITEMAP`    | `sitemap.ts`                                                                                                                                                             | 3600    |
 
 ### Cache Tag Naming Convention
 
@@ -113,9 +113,9 @@ fetch(url, {
   next: {
     revalidate: CACHE_TTL.articles,
     tags: [
-      'articles',                         // All articles (all journals)
-      `articles-${rvcode}`,               // All articles of this journal
-      `article-${paperid}`,               // This specific article
+      'articles', // All articles (all journals)
+      `articles-${rvcode}`, // All articles of this journal
+      `article-${paperid}`, // This specific article
     ],
   },
 });
@@ -244,6 +244,7 @@ To make them time-based, set `CACHE_TTL_PAGES=86400` in your environment.
 
 With Valkey, the Data Cache persists across deployments. Pages will serve the
 previously cached API responses until:
+
 - their TTL expires, or
 - a revalidation webhook is called.
 

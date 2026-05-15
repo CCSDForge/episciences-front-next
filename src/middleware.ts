@@ -22,7 +22,9 @@ export function middleware(request: NextRequest) {
   const hostname = hostHeader.split(':')[0]; // Remove port if present
   const pathname = url.pathname;
 
-  console.log(`[Middleware] Incoming request: ${sanitizeForLog(pathname)} (Host: ${sanitizeForLog(hostname)})`);
+  console.log(
+    `[Middleware] Incoming request: ${sanitizeForLog(pathname)} (Host: ${sanitizeForLog(hostname)})`
+  ); // lgtm[js/log-injection]
 
   // Ignore static files with extensions
   const staticExtensions = [
@@ -46,7 +48,7 @@ export function middleware(request: NextRequest) {
   }
 
   // 1. Journal Detection (Multi-tenancy)
-  let journalId = 'epijinfo'; // Default fallback
+  let journalId: string;
 
   const productionDomain = process.env.NEXT_PUBLIC_EPISCIENCES_DOMAIN || 'episciences.org';
   const isProductionHost =
@@ -104,7 +106,7 @@ export function middleware(request: NextRequest) {
   // NOTE: We use 'sites' not '_sites' because folders starting with _ are private in Next.js
   const internalPath = `/sites/${journalId}/${targetLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
 
-  console.log(`[Middleware] Rewriting to: ${sanitizeForLog(internalPath)}`);
+  console.log(`[Middleware] Rewriting to: ${sanitizeForLog(internalPath)}`); // lgtm[js/log-injection]
 
   const rewriteUrl = new URL(internalPath, request.url);
   rewriteUrl.search = url.search;

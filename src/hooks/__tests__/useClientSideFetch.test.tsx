@@ -189,9 +189,7 @@ describe('useClientSideFetch', () => {
   it('should allow manual refetch after initial auto-fetch', async () => {
     const firstData = { id: 1, name: 'First' };
     const secondData = { id: 1, name: 'Second' };
-    mockFetchFn
-      .mockResolvedValueOnce(firstData)
-      .mockResolvedValueOnce(secondData);
+    mockFetchFn.mockResolvedValueOnce(firstData).mockResolvedValueOnce(secondData);
 
     const { result } = renderHook(() =>
       useClientSideFetch({

@@ -32,9 +32,7 @@ function ArticleAcceptedCard({
   return (
     <div className="articleAcceptedCard">
       {article.tag && (
-        <div className="articleAcceptedCard-tag">
-          {t(getArticleTypeLabel(article.tag))}
-        </div>
+        <div className="articleAcceptedCard-tag">{t(getArticleTypeLabel(article.tag))}</div>
       )}
       {article.docLink && (
         <Link href={article.docLink} target="_blank">

@@ -70,9 +70,7 @@ export function generateArticleMetadata({
       article?.pdfLink || '',
     ].filter(Boolean),
     citation_author: authors.map(author => author.fullname),
-    citation_author_institution: authors
-      .map(a => a.institutions?.[0]?.name || '')
-      .filter(Boolean),
+    citation_author_institution: authors.map(a => a.institutions?.[0]?.name || '').filter(Boolean),
     citation_author_orcid: authors
       .filter(author => author.orcid)
       .map(author => author.orcid as string),

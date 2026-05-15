@@ -99,10 +99,7 @@ describe('news service', () => {
 
       await fetchNews({ rvcode: 'myjournal', page: 2, itemsPerPage: 5 });
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('page=2'),
-        expect.any(Object)
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('page=2'), expect.any(Object));
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining('itemsPerPage=5'),
         expect.any(Object)

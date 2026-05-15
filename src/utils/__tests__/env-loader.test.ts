@@ -57,9 +57,7 @@ describe('env-loader', () => {
     });
 
     it('caches the result — readFileSync is called only once', async () => {
-      const readSpy = vi
-        .spyOn(fs, 'readFileSync')
-        .mockReturnValue('journal1\njournal2' as any);
+      const readSpy = vi.spyOn(fs, 'readFileSync').mockReturnValue('journal1\njournal2' as any);
       const { getJournalsList } = await import('@/utils/env-loader');
       getJournalsList();
       getJournalsList();
@@ -125,9 +123,7 @@ describe('env-loader', () => {
 
     it('preserves values that contain = signs (e.g. URLs with query strings)', () => {
       vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-      vi.spyOn(fs, 'readFileSync').mockReturnValue(
-        'URL=https://example.com/path?a=1&b=2' as any
-      );
+      vi.spyOn(fs, 'readFileSync').mockReturnValue('URL=https://example.com/path?a=1&b=2' as any);
       const result = loadJournalConfig('journal-url-with-eq');
       expect(result.env.URL).toBe('https://example.com/path?a=1&b=2');
     });

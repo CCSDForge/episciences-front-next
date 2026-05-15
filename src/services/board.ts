@@ -167,7 +167,10 @@ export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]>
     const apiUrl = getJournalApiUrl(rvcode);
     const url = `${apiUrl}/journals/boards/${rvcode}`;
     const response = await fetch(url, {
-      next: { revalidate: CACHE_TTL.members, tags: ['members', `members-${rvcode}`, 'boards', `boards-${rvcode}`] },
+      next: {
+        revalidate: CACHE_TTL.members,
+        tags: ['members', `members-${rvcode}`, 'boards', `boards-${rvcode}`],
+      },
     });
 
     if (!response.ok) {

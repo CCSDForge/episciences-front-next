@@ -3,7 +3,7 @@
 import { Fragment } from 'react';
 import { TFunction, i18n } from 'i18next';
 
-import { IStat, IStatValueEvaluation, isIStatValueDetails, isIStatValueEvaluation } from '@/types/stat';
+import { IStat, isIStatValueDetails, isIStatValueEvaluation } from '@/types/stat';
 
 type ISimpleStat = IStat & { value?: number };
 import { statTypes } from '@/utils/stat';

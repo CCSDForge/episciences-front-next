@@ -15,10 +15,10 @@ vi.mock('@/components/icons', () => ({
     </button>
   ),
   CaretUpGreyIcon: ({ onClick, ariaLabel }: any) => (
-    <span data-testid={`caret-up-${ariaLabel ?? 'default'}`} onClick={onClick} role="img" />
+    <button type="button" data-testid={`caret-up-${ariaLabel ?? 'default'}`} onClick={onClick} />
   ),
   CaretDownGreyIcon: ({ onClick, ariaLabel }: any) => (
-    <span data-testid={`caret-down-${ariaLabel ?? 'default'}`} onClick={onClick} role="img" />
+    <button type="button" data-testid={`caret-down-${ariaLabel ?? 'default'}`} onClick={onClick} />
   ),
 }));
 
@@ -43,13 +43,7 @@ vi.mock('@/components/Checkbox/Checkbox', () => ({
 }));
 
 vi.mock('@/components/Tag/Tag', () => ({
-  default: ({
-    text,
-    onCloseCallback,
-  }: {
-    text: string;
-    onCloseCallback: () => void;
-  }) => (
+  default: ({ text, onCloseCallback }: { text: string; onCloseCallback: () => void }) => (
     <div data-testid="tag">
       <span>{text}</span>
       <button onClick={onCloseCallback} aria-label={`Remove ${text} filter`}>

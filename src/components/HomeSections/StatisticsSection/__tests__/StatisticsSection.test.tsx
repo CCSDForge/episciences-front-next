@@ -47,17 +47,13 @@ describe('StatisticsSection', () => {
     });
 
     it('renders stat values', () => {
-      render(
-        <StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={mockStats} />
-      );
+      render(<StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={mockStats} />);
 
       expect(screen.getByText('150')).toBeInTheDocument();
     });
 
     it('renders stat labels via translation key', () => {
-      render(
-        <StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={mockStats} />
-      );
+      render(<StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={mockStats} />);
 
       expect(screen.getByText('Submissions')).toBeInTheDocument();
       expect(screen.getByText('Acceptance rate')).toBeInTheDocument();
@@ -76,11 +72,7 @@ describe('StatisticsSection', () => {
   describe('filtering IStatValueDetails stats', () => {
     it('filters out stats with IStatValueDetails values', () => {
       const { container } = render(
-        <StatisticsSection
-          t={mockT as any}
-          i18n={mockI18n as any}
-          stats={detailsStats}
-        />
+        <StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={detailsStats} />
       );
 
       expect(container.querySelectorAll('.statisticsSection-row')).toHaveLength(0);
@@ -90,11 +82,7 @@ describe('StatisticsSection', () => {
       const mixedStats = [...mockStats, ...detailsStats];
 
       const { container } = render(
-        <StatisticsSection
-          t={mockT as any}
-          i18n={mockI18n as any}
-          stats={mixedStats}
-        />
+        <StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={mixedStats} />
       );
 
       // Only 3 simple stats, not the details one
@@ -105,9 +93,7 @@ describe('StatisticsSection', () => {
   describe('units', () => {
     it('renders unit with stat value when unit exists in i18n', () => {
       // percent exists in i18n mock
-      render(
-        <StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={mockStats} />
-      );
+      render(<StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={mockStats} />);
 
       // i18n.exists returns true for "percent", so translated unit should be called
       expect(mockI18n.exists).toHaveBeenCalledWith('common.percent');
@@ -130,9 +116,7 @@ describe('StatisticsSection', () => {
     it('renders stat without unit correctly', () => {
       const statWithoutUnit: IStat[] = [{ name: 'nb-submissions', value: 42 }];
 
-      render(
-        <StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={statWithoutUnit} />
-      );
+      render(<StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={statWithoutUnit} />);
 
       expect(screen.getByText('42')).toBeInTheDocument();
     });
@@ -151,11 +135,7 @@ describe('StatisticsSection', () => {
 
     it('renders no dividers for single stat', () => {
       const { container } = render(
-        <StatisticsSection
-          t={mockT as any}
-          i18n={mockI18n as any}
-          stats={[mockStats[0]]}
-        />
+        <StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={[mockStats[0]]} />
       );
 
       const dividers = container.querySelectorAll('.statisticsSection-divider');
@@ -165,9 +145,7 @@ describe('StatisticsSection', () => {
 
   describe('no hydration risk', () => {
     it('renders all stats on first render (no isMounted guard)', () => {
-      render(
-        <StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={mockStats} />
-      );
+      render(<StatisticsSection t={mockT as any} i18n={mockI18n as any} stats={mockStats} />);
 
       // All 3 rows must render without waiting for isMounted
       const rows = screen.getAllByText(/Submissions|Acceptance rate|Median/);

@@ -4,7 +4,12 @@ import React, { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { TFunction } from 'i18next';
 import MathJax from '@/components/MathJax/MathJax';
-import { FileGreyIcon, DownloadBlackIcon, CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
+import {
+  FileGreyIcon,
+  DownloadBlackIcon,
+  CaretUpBlackIcon,
+  CaretDownBlackIcon,
+} from '@/components/icons';
 import './VolumeCard.scss';
 
 import { PATHS } from '@/config/paths';

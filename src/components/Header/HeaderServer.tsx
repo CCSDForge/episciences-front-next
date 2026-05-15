@@ -115,11 +115,15 @@ export default async function HeaderServer({
   const translations = await getServerTranslations(lang);
 
   // Prepare visible menu items with dynamic path replacements
-  const visibleContentItems = getVisibleMenuItems(menuConfig.dropdowns.content, journalPublicConfig).map(item =>
-    processMenuItemPath(item, { lastVolumeId })
-  );
+  const visibleContentItems = getVisibleMenuItems(
+    menuConfig.dropdowns.content,
+    journalPublicConfig
+  ).map(item => processMenuItemPath(item, { lastVolumeId }));
   const visibleAboutItems = getVisibleMenuItems(menuConfig.dropdowns.about, journalPublicConfig);
-  const visiblePublishItems = getVisibleMenuItems(menuConfig.dropdowns.publish, journalPublicConfig);
+  const visiblePublishItems = getVisibleMenuItems(
+    menuConfig.dropdowns.publish,
+    journalPublicConfig
+  );
   const visibleStandaloneItems = getVisibleMenuItems(menuConfig.standalone, journalPublicConfig);
 
   return (
@@ -132,7 +136,14 @@ export default async function HeaderServer({
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <Link href={episciencesUrl} lang={lang}>
-            <Image src={logoEpisciences} alt="Episciences" width={156} height={45} loading="lazy" unoptimized />
+            <Image
+              src={logoEpisciences}
+              alt="Episciences"
+              width={156}
+              height={45}
+              loading="lazy"
+              unoptimized
+            />
           </Link>
         </div>
         <div className="header-preheader-links">
@@ -178,7 +189,15 @@ export default async function HeaderServer({
       <div className="header-journal">
         <div className="header-journal-logo">
           <Link href="/" lang={lang}>
-            <Image src={logoSrc} alt={`${journalName} logo`} priority width={160} height={160} sizes="160px" unoptimized />
+            <Image
+              src={logoSrc}
+              alt={`${journalName} logo`}
+              priority
+              width={160}
+              height={160}
+              sizes="160px"
+              unoptimized
+            />
           </Link>
         </div>
         <div className="header-journal-title">{journalName}</div>
@@ -188,10 +207,19 @@ export default async function HeaderServer({
       <div className="header-reduced-journal">
         <div className="header-reduced-journal-logo">
           <Link href="/" lang={lang}>
-            <Image src={logoSrc} alt={`${journalName} logo`} width={42} height={42} loading="lazy" unoptimized />
+            <Image
+              src={logoSrc}
+              alt={`${journalName} logo`}
+              width={42}
+              height={42}
+              loading="lazy"
+              unoptimized
+            />
           </Link>
         </div>
-        <div className="header-reduced-journal-blank"><span>{journalName}</span></div>
+        <div className="header-reduced-journal-blank">
+          <span>{journalName}</span>
+        </div>
         <div className="header-reduced-journal-dropdown">
           <LanguageDropdownWrapper lang={lang} acceptedLanguages={acceptedLanguages} />
           {signInUrl && (

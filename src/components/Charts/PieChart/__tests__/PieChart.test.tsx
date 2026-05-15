@@ -113,10 +113,7 @@ describe('PieChart', () => {
     });
 
     it('cycles colors when data exceeds number of defined colors', () => {
-      const extraData: IStatValueDetailsAsPieChart[] = [
-        ...pieData,
-        { status: 'extra', count: 5 },
-      ];
+      const extraData: IStatValueDetailsAsPieChart[] = [...pieData, { status: 'extra', count: 5 }];
       render(<PieChart t={mockT as any} data={extraData} />);
       const cells = screen.getAllByTestId('recharts-cell');
       // 5th cell should cycle back to first color

@@ -101,8 +101,7 @@ const DEFAULT_CSL = 'csl-data';
 const DEFAULT_BIBTEX = '@article{...}';
 
 /** The trigger button always has aria-haspopup="menu". */
-const getTrigger = () =>
-  document.querySelector<HTMLButtonElement>('button[aria-haspopup="menu"]')!;
+const getTrigger = () => document.querySelector<HTMLButtonElement>('button[aria-haspopup="menu"]')!;
 
 // --- Tests ---
 
@@ -354,7 +353,9 @@ describe('InteractiveDropdown', () => {
         />
       );
       await user.click(getTrigger());
-      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument()
+      );
 
       const items = screen.getAllByRole('menuitem');
       items[0].focus();
@@ -372,7 +373,9 @@ describe('InteractiveDropdown', () => {
         />
       );
       await user.click(getTrigger());
-      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'MLA' })).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByRole('menuitem', { name: 'MLA' })).toBeInTheDocument()
+      );
 
       const items = screen.getAllByRole('menuitem');
       items[1].focus();
@@ -390,7 +393,9 @@ describe('InteractiveDropdown', () => {
         />
       );
       await user.click(getTrigger());
-      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'MLA' })).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByRole('menuitem', { name: 'MLA' })).toBeInTheDocument()
+      );
 
       const items = screen.getAllByRole('menuitem');
       items[items.length - 1].focus();

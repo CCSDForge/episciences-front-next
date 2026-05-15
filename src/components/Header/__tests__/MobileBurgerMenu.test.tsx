@@ -13,15 +13,7 @@ vi.mock('@/components/icons', () => ({
 
 // Mock Link
 vi.mock('@/components/Link/Link', () => ({
-  Link: ({
-    href,
-    children,
-    lang,
-  }: {
-    href: string;
-    children: React.ReactNode;
-    lang?: string;
-  }) => (
+  Link: ({ href, children, lang }: { href: string; children: React.ReactNode; lang?: string }) => (
     <a href={href} lang={lang}>
       {children}
     </a>
@@ -37,9 +29,7 @@ const sections = [
     ],
   },
   {
-    items: [
-      { key: 'submit', label: 'Submit', path: '/en/for-authors' },
-    ],
+    items: [{ key: 'submit', label: 'Submit', path: '/en/for-authors' }],
   },
 ];
 
@@ -92,9 +82,10 @@ describe('MobileBurgerMenu', () => {
       render(<MobileBurgerMenu sections={sections} lang="en" />);
 
       await user.click(screen.getByRole('button', { name: /Toggle mobile menu/i }));
-      expect(
-        screen.getByRole('button', { name: /Toggle mobile menu/i })
-      ).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('button', { name: /Toggle mobile menu/i })).toHaveAttribute(
+        'aria-expanded',
+        'true'
+      );
     });
 
     it('closes menu on second click', async () => {

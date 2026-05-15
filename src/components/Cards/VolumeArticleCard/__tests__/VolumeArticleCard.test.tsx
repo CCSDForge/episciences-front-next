@@ -70,10 +70,7 @@ const mockT = vi.fn((key: string) => {
 const baseArticle: IArticle = {
   id: 101,
   title: 'A Study on Quantum Computing',
-  authors: [
-    { fullname: 'Alice Martin' },
-    { fullname: 'Bob Smith' },
-  ],
+  authors: [{ fullname: 'Alice Martin' }, { fullname: 'Bob Smith' }],
   publicationDate: '2024-01-01',
   repositoryName: 'HAL',
   repositoryIdentifier: 'hal-123',
@@ -144,7 +141,9 @@ describe('VolumeArticleCard', () => {
       // No div[role="button"] for the title — only proper <a>
       const buttonDivs = Array.from(container.querySelectorAll('div[role="button"]'));
       // None should be the title
-      const titleButtons = buttonDivs.filter(el => el.classList.contains('volumeArticleCard-title'));
+      const titleButtons = buttonDivs.filter(el =>
+        el.classList.contains('volumeArticleCard-title')
+      );
       expect(titleButtons).toHaveLength(0);
     });
   });

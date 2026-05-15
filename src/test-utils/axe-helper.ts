@@ -1,4 +1,4 @@
-import axe, { AxeResults, RunOptions, Spec } from 'axe-core';
+import axe, { AxeResults, RunOptions } from 'axe-core';
 
 let axeOptions: RunOptions = {};
 

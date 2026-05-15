@@ -188,7 +188,7 @@ The project uses a **Dynamic Runtime Configuration** system.
 
 The project uses GitHub Actions for continuous integration:
 
-- **CI Tests** (`ci.yml`): Runs linting and tests on Node.js 18.x and 20.x
+- **CI Tests** (`ci.yml`): Runs linting and tests on Node.js 22.x
 - **CodeQL** (`codeql.yml`): Security analysis on push to main and scheduled weekly scans
 
 ## Documentation
@@ -326,20 +326,20 @@ Then access: `http://epijinfo.episciences.test:8080`
 
 #### All Makefile targets
 
-| Target | Description |
-|---|---|
-| `make dev-nginx` | Start Nginx only (dev mode, proxies to `localhost:3000`) |
-| `make dev-nginx-down` | Stop dev Nginx |
-| `make dev-nginx-logs` | Stream dev Nginx logs |
-| `make dev-nginx-rebuild` | Rebuild the Nginx image and restart (dev mode) |
-| `make build` | Build Next.js app + Docker images |
-| `make up` | Start full stack (Nginx + Next.js in Docker) |
-| `make down` | Stop full stack |
-| `make logs` | Stream all container logs |
-| `make rebuild` | `down` + `build` + `up` |
-| `make clean` | Remove images and volumes |
-| `make hosts` | Print required `/etc/hosts` entries |
-| `make valkey-status` | Show Valkey cluster and Sentinel status |
+| Target                   | Description                                              |
+| ------------------------ | -------------------------------------------------------- |
+| `make dev-nginx`         | Start Nginx only (dev mode, proxies to `localhost:3000`) |
+| `make dev-nginx-down`    | Stop dev Nginx                                           |
+| `make dev-nginx-logs`    | Stream dev Nginx logs                                    |
+| `make dev-nginx-rebuild` | Rebuild the Nginx image and restart (dev mode)           |
+| `make build`             | Build Next.js app + Docker images                        |
+| `make up`                | Start full stack (Nginx + Next.js in Docker)             |
+| `make down`              | Stop full stack                                          |
+| `make logs`              | Stream all container logs                                |
+| `make rebuild`           | `down` + `build` + `up`                                  |
+| `make clean`             | Remove images and volumes                                |
+| `make hosts`             | Print required `/etc/hosts` entries                      |
+| `make valkey-status`     | Show Valkey cluster and Sentinel status                  |
 
 See [Nginx Integration](docs/NGINX_INTEGRATION.md) for full documentation.
 

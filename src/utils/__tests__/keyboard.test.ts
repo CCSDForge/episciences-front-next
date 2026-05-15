@@ -2,7 +2,10 @@ import { describe, it, expect, vi } from 'vitest';
 import { handleKeyboardClick, Keys } from '../keyboard';
 
 // Minimal React.KeyboardEvent-like object
-function makeKeyEvent(key: string, extra: Partial<{ preventDefault: () => void; stopPropagation: () => void }> = {}) {
+function makeKeyEvent(
+  key: string,
+  extra: Partial<{ preventDefault: () => void; stopPropagation: () => void }> = {}
+) {
   return {
     key,
     preventDefault: extra.preventDefault ?? vi.fn(),

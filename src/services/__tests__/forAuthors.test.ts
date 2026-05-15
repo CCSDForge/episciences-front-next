@@ -34,9 +34,7 @@ describe('forAuthors service', () => {
 
   describe('fetchEditorialWorkflowPage', () => {
     it('should return editorial workflow page data on success', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [mockPageData] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [mockPageData] }));
 
       const result = await fetchEditorialWorkflowPage('myjournal');
 
@@ -44,9 +42,7 @@ describe('forAuthors service', () => {
     });
 
     it('should request page_code=editorial-workflow', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [mockPageData] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [mockPageData] }));
 
       await fetchEditorialWorkflowPage('myjournal');
 
@@ -55,9 +51,7 @@ describe('forAuthors service', () => {
     });
 
     it('should include rvcode in request URL', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [mockPageData] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [mockPageData] }));
 
       await fetchEditorialWorkflowPage('myjournal');
 
@@ -66,9 +60,7 @@ describe('forAuthors service', () => {
     });
 
     it('should return null when hydra:member is empty', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [] }));
 
       const result = await fetchEditorialWorkflowPage('myjournal');
 
@@ -95,9 +87,7 @@ describe('forAuthors service', () => {
   describe('fetchEthicalCharterPage', () => {
     it('should return ethical charter page data on success', async () => {
       const ethicalData = { title: { en: 'Ethics' }, content: { en: '<p>Ethics</p>' } };
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [ethicalData] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [ethicalData] }));
 
       const result = await fetchEthicalCharterPage('myjournal');
 
@@ -105,9 +95,7 @@ describe('forAuthors service', () => {
     });
 
     it('should request page_code=ethical-charter', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [mockPageData] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [mockPageData] }));
 
       await fetchEthicalCharterPage('myjournal');
 
@@ -135,9 +123,7 @@ describe('forAuthors service', () => {
   describe('fetchPrepareSubmissionPage', () => {
     it('should return prepare submission page data on success', async () => {
       const submissionData = { title: { en: 'Prepare' }, content: { en: '<p>Prepare</p>' } };
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [submissionData] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [submissionData] }));
 
       const result = await fetchPrepareSubmissionPage('myjournal');
 
@@ -145,9 +131,7 @@ describe('forAuthors service', () => {
     });
 
     it('should request page_code=prepare-submission', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [mockPageData] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [mockPageData] }));
 
       await fetchPrepareSubmissionPage('myjournal');
 
@@ -156,9 +140,7 @@ describe('forAuthors service', () => {
     });
 
     it('should return null when hydra:member is empty', async () => {
-      mockFetch.mockResolvedValue(
-        createMockResponse({ 'hydra:member': [] })
-      );
+      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [] }));
 
       const result = await fetchPrepareSubmissionPage('myjournal');
 

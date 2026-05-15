@@ -30,9 +30,7 @@ function SwiperArticleAcceptedCard({
   return (
     <div className="swiperArticleAcceptedCard">
       {article?.tag && (
-        <div className="swiperArticleAcceptedCard-tag">
-          {t(getArticleTypeLabel(article.tag))}
-        </div>
+        <div className="swiperArticleAcceptedCard-tag">{t(getArticleTypeLabel(article.tag))}</div>
       )}
       {article?.docLink && (
         <Link href={article?.docLink} target="_blank" lang={language}>

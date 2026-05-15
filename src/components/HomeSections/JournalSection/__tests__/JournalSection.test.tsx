@@ -13,7 +13,9 @@ vi.mock('@/components/Link/Link', () => ({
 }));
 
 vi.mock('@/components/icons', () => ({
-  ExternalLinkBlackIcon: ({ ariaLabel }: any) => <span data-testid="ext-link-icon" aria-label={ariaLabel} />,
+  ExternalLinkBlackIcon: ({ ariaLabel }: any) => (
+    <span data-testid="ext-link-icon" aria-label={ariaLabel} />
+  ),
 }));
 
 // ReactMarkdown: render children directly for easy text assertions
@@ -48,10 +50,7 @@ describe('JournalSection', () => {
 
     it('renders French content when language=fr', () => {
       render(
-        <JournalSection
-          language="fr"
-          content={{ en: 'English content', fr: 'Contenu français' }}
-        />
+        <JournalSection language="fr" content={{ en: 'English content', fr: 'Contenu français' }} />
       );
       expect(screen.getByText('Contenu français')).toBeInTheDocument();
     });
@@ -62,12 +61,7 @@ describe('JournalSection', () => {
     });
 
     it('renders nothing inside container when content has no entry for the language', () => {
-      render(
-        <JournalSection
-          language="en"
-          content={{ fr: 'Only French' } as any}
-        />
-      );
+      render(<JournalSection language="en" content={{ fr: 'Only French' } as any} />);
       // ReactMarkdown receives undefined — no content rendered
       expect(screen.queryByText('Only French')).not.toBeInTheDocument();
     });

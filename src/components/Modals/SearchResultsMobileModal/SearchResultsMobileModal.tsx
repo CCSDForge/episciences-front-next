@@ -112,10 +112,7 @@ function FilterSection({
           <CaretDownGreyIcon size={16} className={`${baseClass}-title-caret`} />
         )}
       </button>
-      <div
-        id={id}
-        className={`${baseClass}-list ${isOpened ? `${baseClass}-list-opened` : ''}`}
-      >
+      <div id={id} className={`${baseClass}-list ${isOpened ? `${baseClass}-list-opened` : ''}`}>
         {children}
       </div>
     </div>
@@ -169,21 +166,31 @@ export default function SearchResultsMobileModal({
 
   const setAllTaggedFilters = useCallback((): void => {
     const initFilters: ISearchResultsFilter[] = [];
-    types.filter(t => t.isChecked).forEach(t => {
-      initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
-    });
-    years.filter(y => y.isChecked).forEach(y => {
-      initFilters.push({ type: 'year', value: y.year, label: y.year });
-    });
-    volumes.filter(v => v.isChecked).forEach(v => {
-      initFilters.push({ type: 'volume', value: v.id, translatedLabel: v.label });
-    });
-    sections.filter(s => s.isChecked).forEach(s => {
-      initFilters.push({ type: 'section', value: s.id, translatedLabel: s.label });
-    });
-    authors.filter(a => a.isChecked).forEach(a => {
-      initFilters.push({ type: 'author', value: a.fullname, label: a.fullname });
-    });
+    types
+      .filter(t => t.isChecked)
+      .forEach(t => {
+        initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
+      });
+    years
+      .filter(y => y.isChecked)
+      .forEach(y => {
+        initFilters.push({ type: 'year', value: y.year, label: y.year });
+      });
+    volumes
+      .filter(v => v.isChecked)
+      .forEach(v => {
+        initFilters.push({ type: 'volume', value: v.id, translatedLabel: v.label });
+      });
+    sections
+      .filter(s => s.isChecked)
+      .forEach(s => {
+        initFilters.push({ type: 'section', value: s.id, translatedLabel: s.label });
+      });
+    authors
+      .filter(a => a.isChecked)
+      .forEach(a => {
+        initFilters.push({ type: 'author', value: a.fullname, label: a.fullname });
+      });
     setTaggedFilters(initFilters);
   }, [types, years, volumes, sections, authors]);
 
@@ -214,11 +221,16 @@ export default function SearchResultsMobileModal({
   };
 
   const onCloseTaggedFilter = (type: SearchResultsTypeFilter, value: string | number) => {
-    if (type === 'type') setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: false } : t)));
-    else if (type === 'year') setYears(prev => prev.map(y => (y.year === value ? { ...y, isChecked: false } : y)));
-    else if (type === 'volume') setVolumes(prev => prev.map(v => (v.id === value ? { ...v, isChecked: false } : v)));
-    else if (type === 'section') setSections(prev => prev.map(s => (s.id === value ? { ...s, isChecked: false } : s)));
-    else if (type === 'author') setAuthors(prev => prev.map(a => (a.fullname === value ? { ...a, isChecked: false } : a)));
+    if (type === 'type')
+      setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: false } : t)));
+    else if (type === 'year')
+      setYears(prev => prev.map(y => (y.year === value ? { ...y, isChecked: false } : y)));
+    else if (type === 'volume')
+      setVolumes(prev => prev.map(v => (v.id === value ? { ...v, isChecked: false } : v)));
+    else if (type === 'section')
+      setSections(prev => prev.map(s => (s.id === value ? { ...s, isChecked: false } : s)));
+    else if (type === 'author')
+      setAuthors(prev => prev.map(a => (a.fullname === value ? { ...a, isChecked: false } : a)));
   };
 
   const onApplyFilters = (): void => {

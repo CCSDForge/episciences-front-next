@@ -103,7 +103,9 @@ describe('AuthorCard', () => {
 
     it('does not apply expanded CSS class when collapsed', () => {
       render(<AuthorCard {...defaultProps} expandedCard={false} />);
-      expect(screen.getByText('Alice Martin')).not.toHaveClass('authorCard-title-name-text-expanded');
+      expect(screen.getByText('Alice Martin')).not.toHaveClass(
+        'authorCard-title-name-text-expanded'
+      );
     });
   });
 

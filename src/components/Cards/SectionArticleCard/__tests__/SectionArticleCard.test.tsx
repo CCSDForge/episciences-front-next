@@ -8,13 +8,9 @@ import { IArticle } from '@/types/article';
 // --- Mocks ---
 
 vi.mock('@/components/Link/Link', () => ({
-  Link: ({
-    href,
-    children,
-  }: {
-    href: string;
-    children: React.ReactNode;
-  }) => <a href={href}>{children}</a>,
+  Link: ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <a href={href}>{children}</a>
+  ),
 }));
 
 vi.mock('@/components/MathJax/MathJax', () => ({

@@ -73,9 +73,7 @@ export default function BoardsClient({
   const getPagesLabels = (): string[] => {
     if (!boardsPerTitle.length) return [];
 
-    return boardsPerTitle.map(
-      board => rolesLabels?.[board.page_code] || board.title
-    );
+    return boardsPerTitle.map(board => rolesLabels?.[board.page_code] || board.title);
   };
 
   const boardsPerTitle = useMemo(() => {

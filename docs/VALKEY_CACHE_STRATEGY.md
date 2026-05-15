@@ -80,12 +80,13 @@ VALKEY_KEY_PREFIX="next:"
 
 Symfony sessions use a separate prefix (`sess:*`). Access is controlled by Valkey ACLs:
 
-| Application | Valkey user | Prefix |
-|-------------|-------------|--------|
-| Next.js | `nextjs-user` | `next:*` |
+| Application        | Valkey user    | Prefix   |
+| ------------------ | -------------- | -------- |
+| Next.js            | `nextjs-user`  | `next:*` |
 | Symfony (sessions) | `symfony-user` | `sess:*` |
 
 ACL example:
+
 ```
 # Valkey ACL (valkey.conf or ACL commands)
 ACL SETUSER nextjs-user on >nextjs_password ~next:* +@all
@@ -106,13 +107,14 @@ ACL SETUSER symfony-user on >symfony_password ~sess:* +@all
 
 The circuit breaker in `cache-handler.js` adds an additional safety layer:
 
-| State | Behaviour |
-|-------|-----------|
-| CLOSED | Normal — all reads/writes go to Valkey |
-| OPEN (after 5 consecutive errors) | Immediate fallback to in-memory LRU |
-| HALF_OPEN (after 30 s) | One probe attempt to Valkey |
+| State                             | Behaviour                              |
+| --------------------------------- | -------------------------------------- |
+| CLOSED                            | Normal — all reads/writes go to Valkey |
+| OPEN (after 5 consecutive errors) | Immediate fallback to in-memory LRU    |
+| HALF_OPEN (after 30 s)            | One probe attempt to Valkey            |
 
 Configure thresholds with:
+
 ```env
 VALKEY_CIRCUIT_BREAKER_THRESHOLD=5      # errors before opening
 VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL=30 # seconds before probing
@@ -185,15 +187,15 @@ between variables and services.
 
 ## 8. Implementation Summary
 
-| Component | File | Status |
-|-----------|------|--------|
-| Cache Handler | `src/lib/cache-handler.js` | Implemented |
-| Valkey Client | `src/lib/valkey-client.js` | Implemented |
-| Cache TTL utility | `src/utils/cache-ttl.ts` | Implemented |
-| Revalidation API | `src/app/api/revalidate/route.ts` | Implemented |
-| Pub/Sub Worker | `scripts/revalidate-worker.mjs` | Implemented |
-| Docker Compose | `docker-compose.valkey.yml` | Available |
-| Ansible / Ansistrano | — | Manual setup (see DEPLOYMENT_VALKEY.md) |
+| Component            | File                              | Status                                  |
+| -------------------- | --------------------------------- | --------------------------------------- |
+| Cache Handler        | `src/lib/cache-handler.js`        | Implemented                             |
+| Valkey Client        | `src/lib/valkey-client.js`        | Implemented                             |
+| Cache TTL utility    | `src/utils/cache-ttl.ts`          | Implemented                             |
+| Revalidation API     | `src/app/api/revalidate/route.ts` | Implemented                             |
+| Pub/Sub Worker       | `scripts/revalidate-worker.mjs`   | Implemented                             |
+| Docker Compose       | `docker-compose.valkey.yml`       | Available                               |
+| Ansible / Ansistrano | —                                 | Manual setup (see DEPLOYMENT_VALKEY.md) |
 
 ---
 

@@ -53,11 +53,7 @@ interface ISwiperBoardCardProps {
   member: IBoardMember;
 }
 
-function SwiperBoardCard({
-  language,
-  t,
-  member,
-}: ISwiperBoardCardProps): React.JSX.Element {
+function SwiperBoardCard({ language, t, member }: ISwiperBoardCardProps): React.JSX.Element {
   return (
     <div className="swiperBoardCard">
       <div className="swiperBoardCard-person">

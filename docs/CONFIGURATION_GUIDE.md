@@ -39,26 +39,26 @@ The application uses two distinct layers that must not be mixed.
 
 These variables are **identical for all journals** in a given environment. They are read directly from `process.env` by Next.js at build time (`next.config.js`) or at runtime (cache handler, revalidation API). They must **not** appear in per-journal files.
 
-| Variable | Description |
-| :--- | :--- |
-| `REVALIDATION_SECRET` | Global token for on-demand cache revalidation |
-| `REVALIDATION_TOKEN_<JOURNAL>` | Optional per-journal token override |
-| `VALKEY_ENABLED` | Enable/disable the distributed Valkey cache |
-| `VALKEY_SENTINEL_HOSTS` | Comma-separated Sentinel host:port list |
-| `VALKEY_MASTER_NAME` | Sentinel master group name |
-| `VALKEY_USERNAME` / `VALKEY_PASSWORD` | Valkey node ACL credentials |
-| `VALKEY_SENTINEL_USERNAME` / `VALKEY_SENTINEL_PASSWORD` | Sentinel ACL credentials |
-| `VALKEY_KEY_PREFIX` | Cache key prefix |
-| `VALKEY_CIRCUIT_BREAKER_*` | Circuit breaker tuning |
+| Variable                                                | Description                                   |
+| :------------------------------------------------------ | :-------------------------------------------- |
+| `REVALIDATION_SECRET`                                   | Global token for on-demand cache revalidation |
+| `REVALIDATION_TOKEN_<JOURNAL>`                          | Optional per-journal token override           |
+| `VALKEY_ENABLED`                                        | Enable/disable the distributed Valkey cache   |
+| `VALKEY_SENTINEL_HOSTS`                                 | Comma-separated Sentinel host:port list       |
+| `VALKEY_MASTER_NAME`                                    | Sentinel master group name                    |
+| `VALKEY_USERNAME` / `VALKEY_PASSWORD`                   | Valkey node ACL credentials                   |
+| `VALKEY_SENTINEL_USERNAME` / `VALKEY_SENTINEL_PASSWORD` | Sentinel ACL credentials                      |
+| `VALKEY_KEY_PREFIX`                                     | Cache key prefix                              |
+| `VALKEY_CIRCUIT_BREAKER_*`                              | Circuit breaker tuning                        |
 
 **Where to set them — one file per environment:**
 
-| File | Tracked | Purpose |
-| :--- | :--- | :--- |
-| `.env` | Yes | Shared defaults (non-secret, all environments) |
-| `.env.local` | No | Local dev overrides |
-| `.env.production.local` | No | Production secrets (Valkey credentials, token) — use `.env.production.local.example` as template |
-| `.env.staging.local` | No | Staging/preprod secrets |
+| File                    | Tracked | Purpose                                                                                          |
+| :---------------------- | :------ | :----------------------------------------------------------------------------------------------- |
+| `.env`                  | Yes     | Shared defaults (non-secret, all environments)                                                   |
+| `.env.local`            | No      | Local dev overrides                                                                              |
+| `.env.production.local` | No      | Production secrets (Valkey credentials, token) — use `.env.production.local.example` as template |
+| `.env.staging.local`    | No      | Staging/preprod secrets                                                                          |
 
 > The files `.env.*.local` are gitignored by Next.js and must be deployed separately (secrets manager, CI/CD injection, Ansible, etc.).
 
@@ -66,11 +66,11 @@ These variables are **identical for all journals** in a given environment. They 
 
 These variables differ per journal. They are loaded at runtime from `external-assets/.env.local.<journalCode>` by the `env-loader` utility and are **never** part of `process.env`.
 
-| Config Type | Examples | Update Procedure | Lifecycle |
-| :--- | :--- | :--- | :--- |
-| **API URL** | `NEXT_PUBLIC_API_ROOT_ENDPOINT` | Restart Node.js | Runtime |
-| **Colors** | `NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR` | Restart Node.js | Runtime |
-| **Feature flags** | `NEXT_PUBLIC_..._RENDER` | Restart Node.js | Runtime |
+| Config Type       | Examples                            | Update Procedure | Lifecycle |
+| :---------------- | :---------------------------------- | :--------------- | :-------- |
+| **API URL**       | `NEXT_PUBLIC_API_ROOT_ENDPOINT`     | Restart Node.js  | Runtime   |
+| **Colors**        | `NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR` | Restart Node.js  | Runtime   |
+| **Feature flags** | `NEXT_PUBLIC_..._RENDER`            | Restart Node.js  | Runtime   |
 
 Use `.env.example` as the template for journal files. It intentionally omits infrastructure variables.
 

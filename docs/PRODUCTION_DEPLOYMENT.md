@@ -46,7 +46,7 @@ Run the preparation script on your build server. **You must specify a branch or 
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22+
 - Nginx 1.20+
 
 ### Nginx configuration

@@ -46,9 +46,7 @@ const mockNews: INews[] = [
 describe('NewsSection', () => {
   describe('rendering', () => {
     it('renders the newsSection container', () => {
-      const { container } = render(
-        <NewsSection language="en" t={mockT as any} news={mockNews} />
-      );
+      const { container } = render(<NewsSection language="en" t={mockT as any} news={mockNews} />);
 
       expect(container.querySelector('.newsSection')).toBeInTheDocument();
     });
@@ -76,9 +74,7 @@ describe('NewsSection', () => {
     });
 
     it('renders empty container when no news', () => {
-      const { container } = render(
-        <NewsSection language="en" t={mockT as any} news={[]} />
-      );
+      const { container } = render(<NewsSection language="en" t={mockT as any} news={[]} />);
 
       expect(container.querySelector('.newsSection')).toBeInTheDocument();
       expect(container.querySelectorAll('.newsSection-row')).toHaveLength(0);
@@ -87,9 +83,7 @@ describe('NewsSection', () => {
 
   describe('links', () => {
     it('renders links pointing to news page with item id', () => {
-      const { container } = render(
-        <NewsSection language="en" t={mockT as any} news={mockNews} />
-      );
+      const { container } = render(<NewsSection language="en" t={mockT as any} news={mockNews} />);
 
       const links = container.querySelectorAll('a');
       expect(links[0]).toHaveAttribute('href', expect.stringContaining('#1'));
@@ -100,9 +94,7 @@ describe('NewsSection', () => {
 
   describe('dividers', () => {
     it('renders dividers between news items (not after last)', () => {
-      const { container } = render(
-        <NewsSection language="en" t={mockT as any} news={mockNews} />
-      );
+      const { container } = render(<NewsSection language="en" t={mockT as any} news={mockNews} />);
 
       const dividers = container.querySelectorAll('.newsSection-divider');
       // Should have 2 dividers for 3 items (not after the last one)

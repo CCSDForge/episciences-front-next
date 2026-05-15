@@ -142,7 +142,8 @@ export default function VolumeDetailsClient({
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return (
           <h1 className="volumeDetails-id-text">
-            {t('pages.volumeDetails.titleProceeding')}{volume?.num ? ` ${volume.num}` : ''}
+            {t('pages.volumeDetails.titleProceeding')}
+            {volume?.num ? ` ${volume.num}` : ''}
           </h1>
         );
       }
@@ -150,7 +151,8 @@ export default function VolumeDetailsClient({
       if (volume.types.includes(VOLUME_TYPE.SPECIAL_ISSUE)) {
         return (
           <h1 className="volumeDetails-id-text">
-            {t('pages.volumeDetails.titleSpecialIssue')}{volume?.num ? ` ${volume.num}` : ''}
+            {t('pages.volumeDetails.titleSpecialIssue')}
+            {volume?.num ? ` ${volume.num}` : ''}
           </h1>
         );
       }
@@ -158,7 +160,8 @@ export default function VolumeDetailsClient({
 
     return (
       <h1 className="volumeDetails-id-text">
-        {t('pages.volumeDetails.title')}{volume?.num ? ` ${volume.num}` : ''}
+        {t('pages.volumeDetails.title')}
+        {volume?.num ? ` ${volume.num}` : ''}
       </h1>
     );
   };

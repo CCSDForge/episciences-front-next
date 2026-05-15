@@ -7,8 +7,6 @@ import {
 } from '@/types/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { PaginatedResponseWithCount, Range } from '@/utils/pagination';
-import { API_URL } from '@/config/api';
-import { getJournalCode } from './journal';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { CACHE_TTL } from '@/utils/cache-ttl';
 
@@ -199,7 +197,10 @@ export async function fetchVolume(
       headers: {
         Accept: 'application/json',
       },
-      next: { revalidate: CACHE_TTL.volumes, tags: ['volumes', `volume-${vid}`, `volumes-${rvcode}`] },
+      next: {
+        revalidate: CACHE_TTL.volumes,
+        tags: ['volumes', `volume-${vid}`, `volumes-${rvcode}`],
+      },
     });
 
     if (!response.ok) {

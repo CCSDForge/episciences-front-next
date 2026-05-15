@@ -48,43 +48,43 @@ No reload is needed when adding a new journal.
 
 **Static asset serving** — NFS-mounted files bypass Node.js entirely:
 
-| Location | NFS path |
-|---|---|
-| `/sitemap.xml` | `/data/epi/<env>/<journal>/sitemap/sitemap.xml` |
-| `/public/documents/` | `/data/epi/<env>/<journal>/public/documents/` |
-| `/volumes-full/` | `/data/epi/<env>/<journal>/public/volume-pdf/` |
-| `/volumes-doaj/` | `/data/epi/<env>/<journal>/public/volume-doaj/` |
-| `/public/volumes/` | `/data/epi/<env>/<journal>/public/volumes/` |
-| `/user/picture/` | `/data/user_photo/<env>/uuid/` |
+| Location             | NFS path                                        |
+| -------------------- | ----------------------------------------------- |
+| `/sitemap.xml`       | `/data/epi/<env>/<journal>/sitemap/sitemap.xml` |
+| `/public/documents/` | `/data/epi/<env>/<journal>/public/documents/`   |
+| `/volumes-full/`     | `/data/epi/<env>/<journal>/public/volume-pdf/`  |
+| `/volumes-doaj/`     | `/data/epi/<env>/<journal>/public/volume-doaj/` |
+| `/public/volumes/`   | `/data/epi/<env>/<journal>/public/volumes/`     |
+| `/user/picture/`     | `/data/user_photo/<env>/uuid/`                  |
 
 **Security headers** — applied by Nginx so they are consistent regardless of Next.js version.
 Next.js response headers are stripped first (`proxy_hide_header`) to avoid duplicates:
 
-| Header | Value |
-|---|---|
-| `Content-Security-Policy` | See below |
-| `X-Frame-Options` | `SAMEORIGIN` |
-| `X-Content-Type-Options` | `nosniff` |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
+| Header                    | Value                                      |
+| ------------------------- | ------------------------------------------ |
+| `Content-Security-Policy` | See below                                  |
+| `X-Frame-Options`         | `SAMEORIGIN`                               |
+| `X-Content-Type-Options`  | `nosniff`                                  |
+| `Referrer-Policy`         | `strict-origin-when-cross-origin`          |
+| `Permissions-Policy`      | `camera=(), microphone=(), geolocation=()` |
 
 **Content Security Policy** rationale:
 
-| Directive | Extra sources | Reason |
-|---|---|---|
-| `script-src` | `'unsafe-inline'` | Next.js hydration inline scripts |
-| | `cdnjs.cloudflare.com` | MathJax CDN |
-| | `piwik-episciences.ccsd.cnrs.fr` | Matomo analytics |
-| `style-src` | `'unsafe-inline'` | Next.js inline styles |
-| `img-src` | `data:` | Blur placeholders (Next.js Image) |
-| | `blob:` | MathJax canvas blobs |
-| | `https://*.episciences.org` | Article thumbnails, board photos (API) |
-| `font-src` | `cdnjs.cloudflare.com` | MathJax fonts |
-| `connect-src` | `https://*.episciences.org` | API calls |
-| | `https://piwik-episciences.ccsd.cnrs.fr` | Matomo beacon |
-| `worker-src` | `blob:` | MathJax Web Workers (blob URLs) |
-| | `cdnjs.cloudflare.com` | MathJax worker scripts from CDN |
-| `frame-src` / `object-src` | `'none'` | No embeds |
+| Directive                  | Extra sources                            | Reason                                 |
+| -------------------------- | ---------------------------------------- | -------------------------------------- |
+| `script-src`               | `'unsafe-inline'`                        | Next.js hydration inline scripts       |
+|                            | `cdnjs.cloudflare.com`                   | MathJax CDN                            |
+|                            | `piwik-episciences.ccsd.cnrs.fr`         | Matomo analytics                       |
+| `style-src`                | `'unsafe-inline'`                        | Next.js inline styles                  |
+| `img-src`                  | `data:`                                  | Blur placeholders (Next.js Image)      |
+|                            | `blob:`                                  | MathJax canvas blobs                   |
+|                            | `https://*.episciences.org`              | Article thumbnails, board photos (API) |
+| `font-src`                 | `cdnjs.cloudflare.com`                   | MathJax fonts                          |
+| `connect-src`              | `https://*.episciences.org`              | API calls                              |
+|                            | `https://piwik-episciences.ccsd.cnrs.fr` | Matomo beacon                          |
+| `worker-src`               | `blob:`                                  | MathJax Web Workers (blob URLs)        |
+|                            | `cdnjs.cloudflare.com`                   | MathJax worker scripts from CDN        |
+| `frame-src` / `object-src` | `'none'`                                 | No embeds                              |
 
 **Gzip compression** is enabled for text, JSON, JS, CSS, SVG, and WOFF2.
 
@@ -127,11 +127,11 @@ make down     # stop
 
 ### Template variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `EPI_ENV` | `test` | Data path segment (`/data/epi/<EPI_ENV>/...`) |
-| `DOMAIN_SUFFIX` | `episciences.test` | Matched in `server_name` regex |
-| `NEXT_UPSTREAM` | `app:3000` (prod-like) / `host.docker.internal:3000` (dev) | Proxy target |
+| Variable        | Default                                                    | Description                                   |
+| --------------- | ---------------------------------------------------------- | --------------------------------------------- |
+| `EPI_ENV`       | `test`                                                     | Data path segment (`/data/epi/<EPI_ENV>/...`) |
+| `DOMAIN_SUFFIX` | `episciences.test`                                         | Matched in `server_name` regex                |
+| `NEXT_UPSTREAM` | `app:3000` (prod-like) / `host.docker.internal:3000` (dev) | Proxy target                                  |
 
 ### /etc/hosts entries
 
@@ -153,11 +153,11 @@ Then access: `http://epijinfo.episciences.test:8080`
 Apache was previously used in production via `deployment/production/apache-episciences.conf`
 (macro-based, one `VirtualHost` per journal). It has been replaced by the Nginx template.
 
-| | Apache (legacy) | Nginx |
-|---|---|---|
-| Multi-tenancy | `mod_macro` + one VirtualHost per journal | Single `server` block with hostname regex |
-| New journal | Requires config edit + reload | Zero-config (regex matches automatically) |
-| Security headers | `mod_headers` | Native `add_header` + `proxy_hide_header` |
-| CSP | Not configured | Fully defined in template |
-| Static assets | `Alias` directives | `alias` / `location` blocks |
-| Gzip | `mod_deflate` | Native `gzip` module |
+|                  | Apache (legacy)                           | Nginx                                     |
+| ---------------- | ----------------------------------------- | ----------------------------------------- |
+| Multi-tenancy    | `mod_macro` + one VirtualHost per journal | Single `server` block with hostname regex |
+| New journal      | Requires config edit + reload             | Zero-config (regex matches automatically) |
+| Security headers | `mod_headers`                             | Native `add_header` + `proxy_hide_header` |
+| CSP              | Not configured                            | Fully defined in template                 |
+| Static assets    | `Alias` directives                        | `alias` / `location` blocks               |
+| Gzip             | `mod_deflate`                             | Native `gzip` module                      |

@@ -52,7 +52,7 @@ const shortAboutContent = { en: 'Short about content.', fr: 'Contenu court.' };
 const mockNews: any = {
   date_creation: '2024-01-15',
   title: { en: 'Latest News Title', fr: 'Titre Actualité' },
-  content: { en: 'News content body.', fr: 'Corps de l\'actualité.' },
+  content: { en: 'News content body.', fr: "Corps de l'actualité." },
 };
 
 const mockVolume: any = {
@@ -121,7 +121,10 @@ describe('PresentationSection', () => {
       render(
         <PresentationSection
           {...defaultProps}
-          lastInformation={{ type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS, information: mockNews }}
+          lastInformation={{
+            type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS,
+            information: mockNews,
+          }}
         />
       );
       expect(screen.getByText('Latest News Title')).toBeInTheDocument();
@@ -131,7 +134,10 @@ describe('PresentationSection', () => {
       render(
         <PresentationSection
           {...defaultProps}
-          lastInformation={{ type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS, information: mockNews }}
+          lastInformation={{
+            type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS,
+            information: mockNews,
+          }}
         />
       );
       expect(screen.getByText('News content body.')).toBeInTheDocument();
@@ -141,7 +147,10 @@ describe('PresentationSection', () => {
       render(
         <PresentationSection
           {...defaultProps}
-          lastInformation={{ type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS, information: mockNews }}
+          lastInformation={{
+            type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS,
+            information: mockNews,
+          }}
         />
       );
       const links = screen.getAllByRole('link');
@@ -153,7 +162,10 @@ describe('PresentationSection', () => {
       const { container } = render(
         <PresentationSection
           {...defaultProps}
-          lastInformation={{ type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS, information: newsNoTitle }}
+          lastInformation={{
+            type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS,
+            information: newsNoTitle,
+          }}
         />
       );
       expect(container.querySelector('.presentationSection-new')).toBeNull();
@@ -168,7 +180,10 @@ describe('PresentationSection', () => {
       render(
         <PresentationSection
           {...defaultProps}
-          lastInformation={{ type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME, information: mockVolume }}
+          lastInformation={{
+            type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME,
+            information: mockVolume,
+          }}
         />
       );
       expect(screen.getByText('Volume Title')).toBeInTheDocument();
@@ -178,10 +193,15 @@ describe('PresentationSection', () => {
       render(
         <PresentationSection
           {...defaultProps}
-          lastInformation={{ type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME, information: mockVolume }}
+          lastInformation={{
+            type: HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME,
+            information: mockVolume,
+          }}
         />
       );
-      expect(screen.getAllByRole('link').some(l => l.getAttribute('href') === 'volumes')).toBe(true);
+      expect(screen.getAllByRole('link').some(l => l.getAttribute('href') === 'volumes')).toBe(
+        true
+      );
     });
   });
 

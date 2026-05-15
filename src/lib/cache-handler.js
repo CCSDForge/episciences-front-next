@@ -38,7 +38,7 @@ function readBuildId() {
   }
 }
 
-const BUILD_ID = readBuildId();
+let BUILD_ID = readBuildId();
 
 // Increment when the serialization format changes to invalidate stale entries.
 // v1: initial (no __v field, ReadableStream silently lost as {})
@@ -168,7 +168,8 @@ async function preprocessValue(val) {
 // ---------------------------------------------------------------------------
 
 const CB_THRESHOLD = parseInt(process.env.VALKEY_CIRCUIT_BREAKER_THRESHOLD || '5', 10);
-const CB_PROBE_INTERVAL = parseInt(process.env.VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL || '30', 10) * 1000;
+const CB_PROBE_INTERVAL =
+  parseInt(process.env.VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL || '30', 10) * 1000;
 
 const CB_STATE = { CLOSED: 'CLOSED', OPEN: 'OPEN', HALF_OPEN: 'HALF_OPEN' };
 
@@ -189,7 +190,9 @@ function cbRecordFailure() {
   if (cbState === CB_STATE.CLOSED && cbErrors >= CB_THRESHOLD) {
     cbState = CB_STATE.OPEN;
     cbOpenedAt = Date.now();
-    console.warn(`[CacheHandler] Circuit breaker → OPEN (${cbErrors} consecutive errors, fallback to in-memory)`);
+    console.warn(
+      `[CacheHandler] Circuit breaker → OPEN (${cbErrors} consecutive errors, fallback to in-memory)`
+    );
   } else if (cbState === CB_STATE.HALF_OPEN) {
     cbState = CB_STATE.OPEN;
     cbOpenedAt = Date.now();
@@ -323,13 +326,15 @@ class CacheHandler {
           const entry = deserialize(raw);
           if (!entry || entry.__v !== CACHE_FORMAT_VERSION) {
             // Stale or incompatible format — treat as miss so Next.js re-renders
-            if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] STALE (version mismatch) ${key}`);
+            if (process.env.CACHE_DEBUG === 'true')
+              console.log(`[CacheHandler] STALE (version mismatch) ${key}`);
             return null;
           }
           if (BUILD_ID && entry.__buildId !== BUILD_ID) {
             // Entry was stored by a previous build — its JS/CSS chunk references are
             // stale. Treat as miss so the current build can re-render and re-cache.
-            if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] STALE (build mismatch) ${key}`);
+            if (process.env.CACHE_DEBUG === 'true')
+              console.log(`[CacheHandler] STALE (build mismatch) ${key}`);
             return null;
           }
           // Defensive: ensure Buffer-typed fields are proper Node.js Buffers so that
@@ -348,10 +353,22 @@ class CacheHandler {
             }
           }
           if (process.env.CACHE_DEBUG === 'true') {
-            const segInfo = v?.segmentData instanceof Map
-              ? `Map(${v.segmentData.size}) valTypes=[${Array.from(v.segmentData.values()).slice(0, 3).map(x => Buffer.isBuffer(x) ? 'Buffer' : (x instanceof Uint8Array ? 'Uint8Array' : typeof x)).join(',')}]`
-              : String(v?.segmentData);
-            console.log(`[CacheHandler] HIT  ${key} kind=${v?.kind} htmlType=${typeof v?.html} rscDataIsBuffer=${Buffer.isBuffer(v?.rscData)} rscDataCtor=${v?.rscData?.constructor?.name || typeof v?.rscData} segmentData=${segInfo} postponedType=${typeof v?.postponed} postponed=${String(v?.postponed).slice(0, 40)}`);
+            const segInfo =
+              v?.segmentData instanceof Map
+                ? `Map(${v.segmentData.size}) valTypes=[${Array.from(v.segmentData.values())
+                    .slice(0, 3)
+                    .map(x =>
+                      Buffer.isBuffer(x)
+                        ? 'Buffer'
+                        : x instanceof Uint8Array
+                          ? 'Uint8Array'
+                          : typeof x
+                    )
+                    .join(',')}]`
+                : String(v?.segmentData);
+            console.log(
+              `[CacheHandler] HIT  ${key} kind=${v?.kind} htmlType=${typeof v?.html} rscDataIsBuffer=${Buffer.isBuffer(v?.rscData)} rscDataCtor=${v?.rscData?.constructor?.name || typeof v?.rscData} segmentData=${segInfo} postponedType=${typeof v?.postponed} postponed=${String(v?.postponed).slice(0, 40)}`
+            );
           }
           return entry;
         } catch {
@@ -403,7 +420,8 @@ class CacheHandler {
         }
 
         await pipeline.exec();
-        if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] SET  ${key} ttl=${ttl ?? 'none'} tags=${tags.join(',')}`);
+        if (process.env.CACHE_DEBUG === 'true')
+          console.log(`[CacheHandler] SET  ${key} ttl=${ttl ?? 'none'} tags=${tags.join(',')}`);
       },
       () => {
         memSet(dataKey, entry, ttl);
@@ -478,7 +496,9 @@ class CacheHandler {
         );
       },
       () => {
-        console.log('[CacheHandler] initialize(): Valkey unavailable, skipping stale entry cleanup');
+        console.log(
+          '[CacheHandler] initialize(): Valkey unavailable, skipping stale entry cleanup'
+        );
       }
     );
   }
@@ -518,7 +538,9 @@ class CacheHandler {
             removed++;
           }
         }
-        console.log(`[CacheHandler] In-memory revalidated tag "${tag}": removed ${removed} entries`);
+        console.log(
+          `[CacheHandler] In-memory revalidated tag "${tag}": removed ${removed} entries`
+        );
       }
     );
   }
@@ -557,6 +579,11 @@ module.exports._internals = {
   preprocessValue,
   ensureBuffer,
   CACHE_FORMAT_VERSION,
-  BUILD_ID,
+  get BUILD_ID() {
+    return BUILD_ID;
+  },
+  setBuildId: id => {
+    BUILD_ID = id;
+  },
   readBuildId,
 };

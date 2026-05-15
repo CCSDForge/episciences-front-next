@@ -19,11 +19,7 @@ interface ISectionCardProps {
   section: ISection;
 }
 
-function SectionCard({
-  language,
-  t,
-  section,
-}: ISectionCardProps): React.JSX.Element {
+function SectionCard({ language, t, section }: ISectionCardProps): React.JSX.Element {
   const [openedDescription, setOpenedDescription] = useState(false);
   const toggleDescription = (): void => setOpenedDescription(prev => !prev);
 

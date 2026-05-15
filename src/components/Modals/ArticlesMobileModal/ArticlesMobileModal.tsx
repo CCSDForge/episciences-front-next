@@ -78,12 +78,16 @@ export default function ArticlesMobileModal({
 
   const setAllTaggedFilters = useCallback((): void => {
     const initFilters: IArticlesFilter[] = [];
-    types.filter(t => t.isChecked).forEach(t => {
-      initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
-    });
-    years.filter(y => y.isChecked).forEach(y => {
-      initFilters.push({ type: 'year', value: y.year, label: y.year });
-    });
+    types
+      .filter(t => t.isChecked)
+      .forEach(t => {
+        initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
+      });
+    years
+      .filter(y => y.isChecked)
+      .forEach(y => {
+        initFilters.push({ type: 'year', value: y.year, label: y.year });
+      });
     setTaggedFilters(initFilters);
   }, [types, years]);
 

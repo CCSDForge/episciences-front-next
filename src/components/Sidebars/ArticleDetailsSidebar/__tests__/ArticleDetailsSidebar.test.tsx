@@ -11,7 +11,8 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/hooks/store', () => ({
-  useAppSelector: (selector: any) => selector({ journalReducer: { currentJournal: { code: 'myjournal' } } }),
+  useAppSelector: (selector: any) =>
+    selector({ journalReducer: { currentJournal: { code: 'myjournal' } } }),
 }));
 
 vi.mock('@/components/Link/Link', () => ({
@@ -208,14 +209,20 @@ describe('ArticleDetailsSidebar', () => {
     });
 
     it('clicking cite button toggles dropdown visibility', () => {
-      const { container } = render(<ArticleDetailsSidebar {...defaultProps} citations={citations} />);
+      const { container } = render(
+        <ArticleDetailsSidebar {...defaultProps} citations={citations} />
+      );
       const citeButton = screen.getByText('Cite').closest('[role="button"]')!;
 
       // Initially not displayed
-      expect(container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')).toBeNull();
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeNull();
 
       fireEvent.click(citeButton);
-      expect(container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')).toBeInTheDocument();
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeInTheDocument();
     });
 
     it('clicking a citation format calls copyToClipboardCitation', () => {
@@ -316,12 +323,16 @@ describe('ArticleDetailsSidebar', () => {
       const { container } = render(<ArticleDetailsSidebar {...defaultProps} />);
 
       // Initially opened
-      expect(container.querySelector('.articleDetailsSidebar-publicationDetails-content-opened')).toBeInTheDocument();
+      expect(
+        container.querySelector('.articleDetailsSidebar-publicationDetails-content-opened')
+      ).toBeInTheDocument();
 
       const toggleButton = screen.getByText('Publication Details').closest('[role="button"]')!;
       await user.click(toggleButton);
 
-      expect(container.querySelector('.articleDetailsSidebar-publicationDetails-content-opened')).toBeNull();
+      expect(
+        container.querySelector('.articleDetailsSidebar-publicationDetails-content-opened')
+      ).toBeNull();
     });
   });
 
@@ -478,7 +489,9 @@ describe('ArticleDetailsSidebar', () => {
       const { container } = render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
 
       // Initially opened
-      expect(container.querySelector('.articleDetailsSidebar-funding-content-opened')).toBeInTheDocument();
+      expect(
+        container.querySelector('.articleDetailsSidebar-funding-content-opened')
+      ).toBeInTheDocument();
 
       const fundingToggle = screen.getByText('Funding').closest('[role="button"]')!;
       await user.click(fundingToggle);

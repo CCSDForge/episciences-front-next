@@ -47,7 +47,9 @@ function ArticleCard({
     copyCitation,
     handleTriggerMouseEnter,
     handleTriggerClick,
-    handleContainerMouseLeave,
+    handleTriggerMouseLeave,
+    handleDropdownMouseEnter,
+    handleDropdownMouseLeave,
   } = useCitationsDropdown(article.id, rvcode, t);
 
   const getArticlePath = () => {
@@ -56,11 +58,7 @@ function ArticleCard({
 
   return (
     <div className="articleCard">
-      {article.tag && (
-        <div className="articleCard-tag">
-          {t(getArticleTypeLabel(article.tag))}
-        </div>
-      )}
+      {article.tag && <div className="articleCard-tag">{t(getArticleTypeLabel(article.tag))}</div>}
       <Link
         href={getArticlePath()}
         lang={language}
@@ -123,15 +121,14 @@ function ArticleCard({
             </DownloadArticleButton>
           )}
           {article.id && (
-            <div
-              ref={citationsDropdownRef}
-              className="articleCard-anchor-icons-cite"
-              onMouseLeave={handleContainerMouseLeave}
-            >
+            <div ref={citationsDropdownRef} className="articleCard-anchor-icons-cite">
               <button
                 type="button"
+                aria-haspopup="menu"
+                aria-expanded={showCitationsDropdown}
                 className="articleCard-anchor-icons-cite-trigger"
                 onMouseEnter={handleTriggerMouseEnter}
+                onMouseLeave={handleTriggerMouseLeave}
                 onClick={handleTriggerClick}
               >
                 <QuoteBlackIcon
@@ -142,13 +139,19 @@ function ArticleCard({
                 <div className="articleCard-anchor-icons-cite-text">{t('common.cite')}</div>
               </button>
               <div
+                role="menu"
+                aria-label={t('common.cite')}
+                tabIndex={-1}
                 className={`articleCard-anchor-icons-cite-content ${showCitationsDropdown ? 'articleCard-anchor-icons-cite-content-displayed' : ''}`}
+                onMouseEnter={handleDropdownMouseEnter}
+                onMouseLeave={handleDropdownMouseLeave}
               >
                 <div className="articleCard-anchor-icons-cite-content-links">
                   {citations.length > 0 ? (
                     citations.map(citation => (
                       <button
                         type="button"
+                        role="menuitem"
                         key={citation.key}
                         onClick={(): void => copyCitation(citation)}
                         onTouchEnd={(): void => copyCitation(citation)}
@@ -157,7 +160,11 @@ function ArticleCard({
                       </button>
                     ))
                   ) : (
-                    <span className="articleCard-anchor-icons-cite-loading">
+                    <span
+                      role="menuitem"
+                      aria-disabled="true"
+                      className="articleCard-anchor-icons-cite-loading"
+                    >
                       {t('common.loading')}
                     </span>
                   )}

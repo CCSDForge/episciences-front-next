@@ -122,7 +122,10 @@ export async function fetchAcceptedArticles(
     headers: {
       Accept: 'application/json',
     },
-    next: { revalidate: CACHE_TTL.articles, tags: ['articles-accepted', `articles-accepted-${rvcode}`] },
+    next: {
+      revalidate: CACHE_TTL.articles,
+      tags: ['articles-accepted', `articles-accepted-${rvcode}`],
+    },
   });
 
   if (!response.ok) {
@@ -144,7 +147,10 @@ export async function fetchAcceptedArticles(
 async function fetchRawArticle(paperid: string | number, rvcode: string = ''): Promise<RawArticle> {
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
   const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, {
-    next: { revalidate: CACHE_TTL.articles, tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] },
+    next: {
+      revalidate: CACHE_TTL.articles,
+      tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''],
+    },
   });
   return response.json();
 }

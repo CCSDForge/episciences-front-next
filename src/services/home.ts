@@ -76,7 +76,12 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
     // Créer les promesses pour tous les appels API en parallèle
     const aboutPagePromise = fetch(
       `${apiBaseUrl}${API_PATHS.pages}?page_code=about&rvcode=${rvcode}`,
-      { next: { revalidate: CACHE_TTL.pages, tags: ['pages', `page-about-${rvcode}`, 'about', `about-${rvcode}`] } }
+      {
+        next: {
+          revalidate: CACHE_TTL.pages,
+          tags: ['pages', `page-about-${rvcode}`, 'about', `about-${rvcode}`],
+        },
+      }
     ).then(res => (res.ok ? res.json() : null));
 
     const articlesPromise = fetch(
@@ -91,7 +96,10 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
 
     // Correction du chemin pour récupérer les membres correctement
     const membersPromise = fetch(`${apiBaseUrl}${API_PATHS.members}${rvcode}`, {
-      next: { revalidate: CACHE_TTL.members, tags: ['members', `members-${rvcode}`, 'boards', `boards-${rvcode}`] },
+      next: {
+        revalidate: CACHE_TTL.members,
+        tags: ['members', `members-${rvcode}`, 'boards', `boards-${rvcode}`],
+      },
     }).then(res => {
       // console.log(`Fetching board members from home with URL: ${apiBaseUrl}${API_PATHS.members}${rvcode}, status: ${res.status}`);
       // Le endpoint des membres peut retourner directement un tableau au lieu d'une collection Hydra
@@ -113,7 +121,12 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
 
     const indexationPromise = fetch(
       `${apiBaseUrl}${API_PATHS.pages}?page_code=journal-indexing&rvcode=${rvcode}`,
-      { next: { revalidate: CACHE_TTL.pages, tags: ['pages', `page-journal-indexing-${rvcode}`, 'indexing', `indexing-${rvcode}`] } }
+      {
+        next: {
+          revalidate: CACHE_TTL.pages,
+          tags: ['pages', `page-journal-indexing-${rvcode}`, 'indexing', `indexing-${rvcode}`],
+        },
+      }
     ).then(res => (res.ok ? res.json() : null));
 
     const volumesPromise = fetch(
@@ -164,7 +177,10 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
         try {
           const articleId = partialArticle.paperid;
           const rawArticle = await fetchWithRetry(`${apiBaseUrl}${API_PATHS.papers}${articleId}`, {
-            next: { revalidate: CACHE_TTL.articles, tags: ['articles', `article-${articleId}`, `articles-${rvcode}`] },
+            next: {
+              revalidate: CACHE_TTL.articles,
+              tags: ['articles', `article-${articleId}`, `articles-${rvcode}`],
+            },
           }).then((res: Response) => res.json());
           return formatArticle(rawArticle);
         } catch (error) {
@@ -196,7 +212,10 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
         try {
           const articleId = partialArticle.paperid;
           const rawArticle = await fetchWithRetry(`${apiBaseUrl}${API_PATHS.papers}${articleId}`, {
-            next: { revalidate: CACHE_TTL.articles, tags: ['articles', `article-${articleId}`, `articles-${rvcode}`] },
+            next: {
+              revalidate: CACHE_TTL.articles,
+              tags: ['articles', `article-${articleId}`, `articles-${rvcode}`],
+            },
           }).then((res: Response) => res.json());
           return formatArticle(rawArticle);
         } catch (error) {

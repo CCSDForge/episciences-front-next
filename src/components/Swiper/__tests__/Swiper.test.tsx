@@ -326,7 +326,9 @@ describe('Swiper', () => {
         { name: 'Member 2', id: 2 },
       ];
 
-      const { container } = render(<Swiper {...defaultProps} type="board" cards={boardCards as any} />);
+      const { container } = render(
+        <Swiper {...defaultProps} type="board" cards={boardCards as any} />
+      );
 
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();

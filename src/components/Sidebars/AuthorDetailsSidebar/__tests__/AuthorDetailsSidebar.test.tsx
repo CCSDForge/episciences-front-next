@@ -186,10 +186,9 @@ describe('AuthorDetailsSidebar', () => {
 
     it('skips query when rvcode is not provided', () => {
       render(<AuthorDetailsSidebar {...defaultProps} rvcode={undefined} />);
-      expect(mockUseFetchAuthorArticlesQuery).toHaveBeenCalledWith(
-        expect.anything(),
-        { skip: true }
-      );
+      expect(mockUseFetchAuthorArticlesQuery).toHaveBeenCalledWith(expect.anything(), {
+        skip: true,
+      });
     });
   });
 });

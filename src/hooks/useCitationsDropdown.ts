@@ -18,7 +18,9 @@ export interface IUseCitationsDropdownReturn {
   copyCitation: (citation: ICitation) => void;
   handleTriggerMouseEnter: () => void;
   handleTriggerClick: () => void;
-  handleContainerMouseLeave: () => void;
+  handleTriggerMouseLeave: () => void;
+  handleDropdownMouseEnter: () => void;
+  handleDropdownMouseLeave: () => void;
 }
 
 export function useCitationsDropdown(
@@ -31,6 +33,7 @@ export function useCitationsDropdown(
   const [shouldLoadCitations, setShouldLoadCitations] = useState(false);
 
   const citationsDropdownRef = useRef<HTMLDivElement | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data: metadataCSL } = useFetchArticleMetadataQuery(
     {
@@ -53,6 +56,13 @@ export function useCitationsDropdown(
       skip: !articleId || !rvcode || !shouldLoadCitations,
     }
   );
+
+  // Cleanup close timer on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
 
   // Close dropdown on touch outside
   useEffect(() => {
@@ -107,7 +117,23 @@ export function useCitationsDropdown(
     setShowCitationsDropdown(prev => !prev);
   };
 
-  const handleContainerMouseLeave = (): void => {
+  const scheduleClose = (): void => {
+    closeTimerRef.current = setTimeout(() => setShowCitationsDropdown(false), 150);
+  };
+
+  const cancelClose = (): void => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const handleTriggerMouseLeave = (): void => scheduleClose();
+
+  const handleDropdownMouseEnter = (): void => cancelClose();
+
+  const handleDropdownMouseLeave = (): void => {
+    cancelClose();
     setShowCitationsDropdown(false);
   };
 
@@ -118,6 +144,8 @@ export function useCitationsDropdown(
     copyCitation,
     handleTriggerMouseEnter,
     handleTriggerClick,
-    handleContainerMouseLeave,
+    handleTriggerMouseLeave,
+    handleDropdownMouseEnter,
+    handleDropdownMouseLeave,
   };
 }

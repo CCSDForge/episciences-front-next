@@ -36,9 +36,7 @@ export default function SectionArticleCard({
   return (
     <div className="sectionArticleCard">
       {article.tag && (
-        <div className="volumeArticleCard-tag">
-          {t(getArticleTypeLabel(article.tag))}
-        </div>
+        <div className="volumeArticleCard-tag">{t(getArticleTypeLabel(article.tag))}</div>
       )}
       <Link href={`${PATHS.articles}/${article.id}`}>
         <div className="sectionArticleCard-title">

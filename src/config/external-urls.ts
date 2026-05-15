@@ -13,8 +13,7 @@ export const SOFTWARE_HERITAGE_URL =
   'https://archive.softwareheritage.org';
 export const TWITTER_URL = process.env.NEXT_PUBLIC_TWITTER_HOMEPAGE || 'https://x.com';
 export const MATHJAX_URL =
-  process.env.NEXT_PUBLIC_MATHJAX_HOMEPAGE ||
-  'https://cdnjs.cloudflare.com/ajax/libs/mathjax';
+  process.env.NEXT_PUBLIC_MATHJAX_HOMEPAGE || 'https://cdnjs.cloudflare.com/ajax/libs/mathjax';
 export const ZOTERO_URL = process.env.NEXT_PUBLIC_ZOTERO_HOMEPAGE || 'https://www.zotero.org';
 export const CREATIVE_COMMONS_URL =
   process.env.NEXT_PUBLIC_CREATIVE_COMMONS_HOMEPAGE || 'https://creativecommons.org';

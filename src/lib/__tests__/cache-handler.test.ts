@@ -1,4 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fs from 'fs';
+
+// Mock fs to provide a dummy BUILD_ID for initialize() tests
+vi.mock('fs', async () => {
+  const actual = await vi.importActual<typeof import('fs')>('fs');
+  return {
+    ...actual,
+    readFileSync: vi.fn((path: string, options: any) => {
+      if (typeof path === 'string' && path.endsWith('BUILD_ID')) return 'test-build-id';
+      return actual.readFileSync(path, options);
+    }),
+  };
+});
 
 /**
  * Tests for src/lib/cache-handler.js
@@ -84,7 +97,13 @@ describe('CacheHandler', () => {
     });
 
     it('returns parsed entry on cache hit', async () => {
-      const entry = { __v: _internals.CACHE_FORMAT_VERSION, __buildId: _internals.BUILD_ID, value: { html: '<p>Hello</p>' }, lastModified: 1000, tags: ['articles'] };
+      const entry = {
+        __v: _internals.CACHE_FORMAT_VERSION,
+        __buildId: _internals.BUILD_ID,
+        value: { html: '<p>Hello</p>' },
+        lastModified: 1000,
+        tags: ['articles'],
+      };
       mockClient.get.mockResolvedValue(JSON.stringify(entry));
       const handler = makeHandler();
       const result = await handler.get('some-key');
@@ -99,7 +118,13 @@ describe('CacheHandler', () => {
     });
 
     it('returns null when entry has a different build ID (stale after deploy)', async () => {
-      const entry = { __v: _internals.CACHE_FORMAT_VERSION, __buildId: 'old-build-id', value: { html: '<p>Old</p>' }, lastModified: 1000, tags: [] };
+      const entry = {
+        __v: _internals.CACHE_FORMAT_VERSION,
+        __buildId: 'old-build-id',
+        value: { html: '<p>Old</p>' },
+        lastModified: 1000,
+        tags: [],
+      };
       mockClient.get.mockResolvedValue(JSON.stringify(entry));
       const handler = makeHandler();
       const result = await handler.get('stale-build-key');
@@ -110,8 +135,17 @@ describe('CacheHandler', () => {
     });
 
     it('restores Map values after JSON round-trip', async () => {
-      const map = new Map<string, unknown>([['key1', 'val1'], ['key2', 42]]);
-      const entry = { __v: _internals.CACHE_FORMAT_VERSION, __buildId: _internals.BUILD_ID, value: { segmentData: map }, lastModified: 1000, tags: [] };
+      const map = new Map<string, unknown>([
+        ['key1', 'val1'],
+        ['key2', 42],
+      ]);
+      const entry = {
+        __v: _internals.CACHE_FORMAT_VERSION,
+        __buildId: _internals.BUILD_ID,
+        value: { segmentData: map },
+        lastModified: 1000,
+        tags: [],
+      };
       mockClient.get.mockResolvedValue(_internals.serialize(entry));
       const handler = makeHandler();
       const result = await handler.get('map-key');
@@ -122,7 +156,13 @@ describe('CacheHandler', () => {
 
     it('restores Set values after JSON round-trip', async () => {
       const set = new Set(['a', 'b', 'c']);
-      const entry = { __v: _internals.CACHE_FORMAT_VERSION, __buildId: _internals.BUILD_ID, value: { tags: set }, lastModified: 1000, tags: [] };
+      const entry = {
+        __v: _internals.CACHE_FORMAT_VERSION,
+        __buildId: _internals.BUILD_ID,
+        value: { tags: set },
+        lastModified: 1000,
+        tags: [],
+      };
       mockClient.get.mockResolvedValue(_internals.serialize(entry));
       const handler = makeHandler();
       const result = await handler.get('set-key');
@@ -133,7 +173,13 @@ describe('CacheHandler', () => {
     it('restores Buffer values after JSON round-trip', async () => {
       // Use Uint8Array directly (happy-dom env does not expose Node.js Buffer globally)
       const bytes = new TextEncoder().encode('hello cache');
-      const entry = { __v: _internals.CACHE_FORMAT_VERSION, __buildId: _internals.BUILD_ID, value: { body: bytes }, lastModified: 1000, tags: [] };
+      const entry = {
+        __v: _internals.CACHE_FORMAT_VERSION,
+        __buildId: _internals.BUILD_ID,
+        value: { body: bytes },
+        lastModified: 1000,
+        tags: [],
+      };
       mockClient.get.mockResolvedValue(_internals.serialize(entry));
       const handler = makeHandler();
       const result = await handler.get('buffer-key');
@@ -145,7 +191,13 @@ describe('CacheHandler', () => {
     it('ensures rscData is a proper Buffer (defensive ensureBuffer)', async () => {
       // Simulate a Uint8Array returned from deserialization (should be re-wrapped as Buffer)
       const bytes = new TextEncoder().encode('rsc payload');
-      const entry = { __v: _internals.CACHE_FORMAT_VERSION, __buildId: _internals.BUILD_ID, value: { kind: 'APP_PAGE', html: '<html/>', rscData: bytes }, lastModified: 1000, tags: [] };
+      const entry = {
+        __v: _internals.CACHE_FORMAT_VERSION,
+        __buildId: _internals.BUILD_ID,
+        value: { kind: 'APP_PAGE', html: '<html/>', rscData: bytes },
+        lastModified: 1000,
+        tags: [],
+      };
       mockClient.get.mockResolvedValue(_internals.serialize(entry));
       const handler = makeHandler();
       const result = await handler.get('rsc-key');
@@ -156,8 +208,17 @@ describe('CacheHandler', () => {
 
     it('ensures segmentData Map values are proper Buffers (defensive ensureBuffer)', async () => {
       const bytes = new TextEncoder().encode('segment payload');
-      const segMap = new Map([['/_tree', bytes], ['/_full', bytes]]);
-      const entry = { __v: _internals.CACHE_FORMAT_VERSION, __buildId: _internals.BUILD_ID, value: { kind: 'APP_PAGE', html: '<html/>', segmentData: segMap }, lastModified: 1000, tags: [] };
+      const segMap = new Map([
+        ['/_tree', bytes],
+        ['/_full', bytes],
+      ]);
+      const entry = {
+        __v: _internals.CACHE_FORMAT_VERSION,
+        __buildId: _internals.BUILD_ID,
+        value: { kind: 'APP_PAGE', html: '<html/>', segmentData: segMap },
+        lastModified: 1000,
+        tags: [],
+      };
       mockClient.get.mockResolvedValue(_internals.serialize(entry));
       const handler = makeHandler();
       const result = await handler.get('seg-key');
@@ -234,7 +295,11 @@ describe('CacheHandler', () => {
 
     it('indexes tags in Valkey sets', async () => {
       const handler = makeHandler();
-      await handler.set('article-1', { html: '' }, { revalidate: 86400, tags: ['articles', 'journal-epijinfo'] });
+      await handler.set(
+        'article-1',
+        { html: '' },
+        { revalidate: 86400, tags: ['articles', 'journal-epijinfo'] }
+      );
 
       const pipeline = mockClient._pipeline;
       expect(pipeline.sadd).toHaveBeenCalledWith('tags:articles', 'article-1');
@@ -274,13 +339,23 @@ describe('CacheHandler', () => {
   // -------------------------------------------------------------------------
 
   describe('initialize()', () => {
+    beforeEach(() => {
+      // Ensure BUILD_ID is set so initialize() doesn't exit early (no .next/BUILD_ID in CI)
+      if (!_internals.BUILD_ID) _internals.setBuildId('test-build-id');
+    });
+
+    afterEach(() => {
+      _internals.setBuildId(_internals.readBuildId());
+    });
+
     function makeAsyncIterable(pages: string[][]) {
       let i = 0;
       return {
         [Symbol.asyncIterator]() {
           return {
             next() {
-              if (i < pages.length) return Promise.resolve({ value: pages[i++], done: false as const });
+              if (i < pages.length)
+                return Promise.resolve({ value: pages[i++], done: false as const });
               return Promise.resolve({ value: undefined as any, done: true as const });
             },
           };
@@ -290,14 +365,30 @@ describe('CacheHandler', () => {
 
     it('deletes stale entries and keeps fresh ones', async () => {
       const prefix = 'next:';
-      const staleEntry = JSON.stringify({ __v: _internals.CACHE_FORMAT_VERSION, __buildId: 'old-build', value: {}, lastModified: 1, tags: [] });
-      const freshEntry = JSON.stringify({ __v: _internals.CACHE_FORMAT_VERSION, __buildId: _internals.BUILD_ID, value: {}, lastModified: 1, tags: [] });
+      const buildId = _internals.BUILD_ID || 'test-build-id';
+      const staleEntry = JSON.stringify({
+        __v: _internals.CACHE_FORMAT_VERSION,
+        __buildId: 'old-build',
+        value: {},
+        lastModified: 1,
+        tags: [],
+      });
+      const freshEntry = JSON.stringify({
+        __v: _internals.CACHE_FORMAT_VERSION,
+        __buildId: buildId,
+        value: {},
+        lastModified: 1,
+        tags: [],
+      });
 
       (mockClient as any).scanStream = vi.fn(() =>
         makeAsyncIterable([[`${prefix}data:stale-key`, `${prefix}data:fresh-key`]])
       );
       // First pipeline call (GET): return stale + fresh entries
-      mockClient._pipelineExec.mockResolvedValueOnce([[null, staleEntry], [null, freshEntry]]);
+      mockClient._pipelineExec.mockResolvedValueOnce([
+        [null, staleEntry],
+        [null, freshEntry],
+      ]);
 
       const handler = makeHandler();
       await handler.initialize();
@@ -317,9 +408,7 @@ describe('CacheHandler', () => {
 
     it('skips malformed entries without crashing', async () => {
       const prefix = 'next:';
-      (mockClient as any).scanStream = vi.fn(() =>
-        makeAsyncIterable([[`${prefix}data:bad-key`]])
-      );
+      (mockClient as any).scanStream = vi.fn(() => makeAsyncIterable([[`${prefix}data:bad-key`]]));
       mockClient._pipelineExec.mockResolvedValueOnce([[null, 'not-json{{']]);
       const handler = makeHandler();
       await expect(handler.initialize()).resolves.not.toThrow();

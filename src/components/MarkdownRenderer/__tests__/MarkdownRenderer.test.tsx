@@ -71,9 +71,7 @@ describe('MarkdownRenderer', () => {
     });
 
     it('renders task list checkboxes', () => {
-      const { container } = render(
-        <MarkdownRenderer>{'- [x] done\n- [ ] todo'}</MarkdownRenderer>
-      );
+      const { container } = render(<MarkdownRenderer>{'- [x] done\n- [ ] todo'}</MarkdownRenderer>);
       const checkboxes = container.querySelectorAll('input[type="checkbox"]');
       expect(checkboxes).toHaveLength(2);
     });
@@ -136,7 +134,9 @@ describe('MarkdownRenderer', () => {
       const TABLE = '| A |\n|---|\n| B |';
       const { container } = render(
         <MarkdownRenderer
-          components={{ table: ({ children }) => <table data-testid="custom-table">{children}</table> }}
+          components={{
+            table: ({ children }) => <table data-testid="custom-table">{children}</table>,
+          }}
         >
           {TABLE}
         </MarkdownRenderer>
@@ -150,9 +150,7 @@ describe('MarkdownRenderer', () => {
     it('applies urlTransform to image src', () => {
       const transform = (url: string) => url.replace('/public/', '/transformed/');
       const { container } = render(
-        <MarkdownRenderer urlTransform={transform}>
-          {'![alt](/public/image.png)'}
-        </MarkdownRenderer>
+        <MarkdownRenderer urlTransform={transform}>{'![alt](/public/image.png)'}</MarkdownRenderer>
       );
       const img = container.querySelector('img');
       expect(img?.getAttribute('src')).toContain('/transformed/');

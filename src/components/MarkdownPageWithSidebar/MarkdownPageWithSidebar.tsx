@@ -297,7 +297,10 @@ export default function MarkdownPageWithSidebar({
                       components={{
                         img: ({ src, alt }) => (
                           <Image
-                            src={getMarkdownImageURL(src || '', rvcode || '')}
+                            src={getMarkdownImageURL(
+                              typeof src === 'string' ? src : '',
+                              rvcode || ''
+                            )}
                             alt={alt || ''}
                             width={0}
                             height={0}

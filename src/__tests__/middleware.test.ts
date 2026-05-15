@@ -37,7 +37,7 @@ function makeRequest(host: string, pathname = '/en') {
 function lastRewritePath(): string {
   const calls = vi.mocked(NextResponse.rewrite).mock.calls;
   const arg = calls[calls.length - 1]?.[0];
-  return typeof arg === 'string' ? arg : (arg as URL).pathname ?? String(arg);
+  return typeof arg === 'string' ? arg : ((arg as URL).pathname ?? String(arg));
 }
 
 // ---------------------------------------------------------------------------

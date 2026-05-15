@@ -2,7 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { RawVolume, IVolume } from '@/types/volume';
 import { AvailableLanguage } from '@/utils/i18n';
-import { PaginatedResponseWithCount, Range } from '@/utils/pagination';
+import { PaginatedResponseWithCount } from '@/utils/pagination';
 import { formatVolume } from '@/utils/volume';
 import { createBaseQueryWithLdJsonAccept } from '@/store/utils';
 

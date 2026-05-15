@@ -191,7 +191,9 @@ export default function InteractiveDropdown({
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
 
-        toastSuccess(t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label }));
+        toastSuccess(
+          t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label })
+        );
         setShowDropdown(false);
       } catch (error) {
         if (controller.signal.aborted) return;

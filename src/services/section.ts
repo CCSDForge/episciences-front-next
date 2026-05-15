@@ -23,7 +23,12 @@ export async function fetchSection({ sid, rvcode }: FetchSectionParams): Promise
       const response = await fetch(`${apiRoot}${API_PATHS.sections}/${sid}`, {
         next: {
           revalidate: CACHE_TTL.sections,
-          tags: ['sections', `sections-${rvcode}`, `section-${sid}`, `section-${sid}-${rvcode}`].filter(Boolean),
+          tags: [
+            'sections',
+            `sections-${rvcode}`,
+            `section-${sid}`,
+            `section-${sid}-${rvcode}`,
+          ].filter(Boolean),
         },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);

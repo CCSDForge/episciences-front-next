@@ -147,9 +147,16 @@ export default function PresentationSection({
   return (
     <div className="presentationSection">
       {hasValidAboutContent && (
-        <div className={`presentationSection-about${!hasRightBlock ? ' presentationSection-about--full' : ''}`}>
+        <div
+          className={`presentationSection-about${!hasRightBlock ? ' presentationSection-about--full' : ''}`}
+        >
           <div className="presentationSection-about-content">
-            <MarkdownRenderer>{truncate(aboutText, hasRightBlock ? MAX_ABOUT_CONTENT_LENGTH : MAX_ABOUT_CONTENT_LENGTH_FULL)}</MarkdownRenderer>
+            <MarkdownRenderer>
+              {truncate(
+                aboutText,
+                hasRightBlock ? MAX_ABOUT_CONTENT_LENGTH : MAX_ABOUT_CONTENT_LENGTH_FULL
+              )}
+            </MarkdownRenderer>
           </div>
           <Link href={PATHS.about} lang={language}>
             <div className="presentationSection-about-seeMore">

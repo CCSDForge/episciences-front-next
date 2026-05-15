@@ -6,15 +6,12 @@ export async function fetchForReviewersPage(rvcode: string) {
   const apiUrl = getJournalApiUrl(rvcode);
   return safeFetchData(
     async () => {
-      const response = await fetch(
-        `${apiUrl}/pages?page_code=for-reviewers&rvcode=${rvcode}`,
-        {
-          next: {
-            revalidate: CACHE_TTL.pages,
-            tags: ['for-reviewers', `for-reviewers-${rvcode}`],
-          },
-        }
-      );
+      const response = await fetch(`${apiUrl}/pages?page_code=for-reviewers&rvcode=${rvcode}`, {
+        next: {
+          revalidate: CACHE_TTL.pages,
+          tags: ['for-reviewers', `for-reviewers-${rvcode}`],
+        },
+      });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
     },

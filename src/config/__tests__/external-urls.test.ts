@@ -80,10 +80,7 @@ describe('external-urls', () => {
     });
 
     it('SOFTWARE_HERITAGE_URL uses NEXT_PUBLIC_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE', async () => {
-      vi.stubEnv(
-        'NEXT_PUBLIC_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE',
-        'https://swh.example.org'
-      );
+      vi.stubEnv('NEXT_PUBLIC_ARCHIVE_SOFTWARE_HERITAGE_HOMEPAGE', 'https://swh.example.org');
       const { SOFTWARE_HERITAGE_URL } = await loadModule();
       expect(SOFTWARE_HERITAGE_URL).toBe('https://swh.example.org');
     });
@@ -129,9 +126,7 @@ describe('external-urls', () => {
     it('prepends ORCID_URL when given a bare identifier', async () => {
       vi.stubEnv('NEXT_PUBLIC_ORCID_HOMEPAGE', 'https://orcid.org');
       const { buildOrcidUrl } = await loadModule();
-      expect(buildOrcidUrl('0000-0002-3053-3946')).toBe(
-        'https://orcid.org/0000-0002-3053-3946'
-      );
+      expect(buildOrcidUrl('0000-0002-3053-3946')).toBe('https://orcid.org/0000-0002-3053-3946');
     });
 
     it('returns the value as-is when it is already a full URL', async () => {
@@ -145,9 +140,7 @@ describe('external-urls', () => {
     it('uses the fallback base URL when env var is empty', async () => {
       vi.stubEnv('NEXT_PUBLIC_ORCID_HOMEPAGE', '');
       const { buildOrcidUrl } = await loadModule();
-      expect(buildOrcidUrl('0000-0001-2345-6789')).toBe(
-        'https://orcid.org/0000-0001-2345-6789'
-      );
+      expect(buildOrcidUrl('0000-0001-2345-6789')).toBe('https://orcid.org/0000-0001-2345-6789');
     });
   });
 });

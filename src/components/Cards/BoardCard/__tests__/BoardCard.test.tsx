@@ -71,9 +71,7 @@ const fullMember: IBoardMember = {
     { label: 'University of Paris', rorId: '' },
     { label: 'CNRS', rorId: 'https://ror.org/02feahw73' },
   ],
-  assignedSections: [
-    { sid: 1, titles: { en: 'Mathematics', fr: 'Mathématiques' } },
-  ],
+  assignedSections: [{ sid: 1, titles: { en: 'Mathematics', fr: 'Mathématiques' } }],
   biography: 'Prof. Bob Smith is an expert in...',
   twitter: 'https://twitter.com/bobsmith',
   mastodon: 'https://mastodon.social/@bob',
@@ -92,7 +90,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -106,7 +103,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -120,7 +116,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={{ ...baseMember, roles: ['editor'] }}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -134,7 +129,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -148,7 +142,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={fullMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -177,7 +170,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -191,7 +183,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={fullMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -206,7 +197,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={fullMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -221,7 +211,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={fullMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -235,7 +224,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={fullMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -251,7 +239,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="default"
-          
           onToggle={callback}
         />
       );
@@ -268,7 +255,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="default"
-          
           onToggle={callback}
         />
       );
@@ -287,7 +273,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={fullMember}
           state="expanded"
-          
           onToggle={vi.fn()}
         />
       );
@@ -301,7 +286,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={fullMember}
           state="expanded"
-          
           onToggle={vi.fn()}
         />
       );
@@ -317,7 +301,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={fullMember}
           state="expanded"
-          
           onToggle={vi.fn()}
         />
       );
@@ -331,7 +314,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="expanded"
-          
           onToggle={vi.fn()}
         />
       );
@@ -345,7 +327,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="expanded"
-          
           onToggle={vi.fn()}
         />
       );
@@ -362,7 +343,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={{ ...baseMember, roles: ['editor'] }}
           state="default"
-          
           onToggle={vi.fn()}
           rolesLabels={rolesLabels}
         />
@@ -378,7 +358,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="default"
-          
           onToggle={vi.fn()}
           rolesLabels={rolesLabels}
         />
@@ -395,7 +374,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
@@ -410,7 +388,6 @@ describe('BoardCard', () => {
           t={mockT as any}
           member={baseMember}
           state="default"
-          
           onToggle={vi.fn()}
         />
       );
