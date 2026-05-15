@@ -24,5 +24,4 @@ export const CACHE_TTL = {
   statistics: parseTTL(process.env.CACHE_TTL_STATISTICS),
   members: parseTTL(process.env.CACHE_TTL_MEMBERS),
   sections: parseTTL(process.env.CACHE_TTL_SECTIONS),
-  sitemap: parseTTL(process.env.CACHE_TTL_SITEMAP),
 };

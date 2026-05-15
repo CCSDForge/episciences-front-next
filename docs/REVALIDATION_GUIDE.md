@@ -220,17 +220,6 @@ Use both tags together when a statistics update should be reflected everywhere:
 
 ---
 
-### Sitemap
-
-| Scenario                   | Tag                |
-| -------------------------- | ------------------ |
-| Force sitemap regeneration | `sitemap-{rvcode}` |
-
-The sitemap is also implicitly refreshed when `articles-{rvcode}` or `volumes-{rvcode}`
-are invalidated, because it shares those data sources.
-
----
-
 ### Generic Page Service
 
 The `fetchPage(pageCode, rvcode)` utility is tagged with two complementary patterns:
@@ -262,7 +251,6 @@ Use with caution in a multi-tenant setup.
 | `stats`             | Homepage stats block, all journals        |
 | `statistics`        | Full statistics page, all journals        |
 | `pages`             | All generic editorial pages, all journals |
-| `sitemap`           | All sitemaps, all journals                |
 
 ---
 
@@ -273,7 +261,7 @@ Use with caution in a multi-tenant setup.
 | `about-{rvcode}`                     | `about.ts`, `home.ts`                 | `about`, `pages`, `page-about-{rvcode}`               |
 | `acknowledgements-{rvcode}`          | `acknowledgements.ts`                 | `acknowledgements`                                    |
 | `article-{id}`                       | `article.ts`, `home.ts`, `search.ts`  | `articles`, `articles-{rvcode}`                       |
-| `articles-{rvcode}`                  | `article.ts`, `home.ts`, `sitemap.ts` | `articles`                                            |
+| `articles-{rvcode}`                  | `article.ts`, `home.ts`               | `articles`                                            |
 | `articles-accepted-{rvcode}`         | `article.ts`                          | `articles-accepted`                                   |
 | `boards-{rvcode}`                    | `board.ts`, `home.ts`                 | `boards`, `members`, `members-{rvcode}`               |
 | `credits-{rvcode}`                   | `credits.ts`                          | `credits`                                             |
@@ -287,11 +275,10 @@ Use with caution in a multi-tenant setup.
 | `section-{id}-{rvcode}`              | `section.ts`                          | `sections`, `sections-{rvcode}`, `section-{id}`       |
 | `section-articles-{id}-{rvcode}`     | `section.ts` (fetchSectionArticles)   | `articles`, `articles-{rvcode}`, `article-{id}`       |
 | `sections-{rvcode}`                  | `section.ts`                          | `sections`                                            |
-| `sitemap-{rvcode}`                   | `sitemap.ts`                          | `sitemap`, `articles-{rvcode}`, `volumes-{rvcode}`    |
 | `stats-{rvcode}`                     | `stat.ts`, `home.ts`                  | `stats`                                               |
 | `statistics-{rvcode}`                | `statistics.ts`                       | `statistics`                                          |
 | `volume-{id}`                        | `volume.ts`                           | `volumes`, `volumes-{rvcode}`                         |
-| `volumes-{rvcode}`                   | `volume.ts`, `home.ts`, `sitemap.ts`  | `volumes`                                             |
+| `volumes-{rvcode}`                   | `volume.ts`, `home.ts`                | `volumes`                                             |
 
 ---
 
@@ -348,11 +335,10 @@ class NextRevalidationService
 // Article updated (title, abstract, authors…)
 $revalidation->revalidate('epijinfo', 'article-4256');
 
-// Article published → refresh article, article list, accepted list, sitemap
+// Article published → refresh article, article list, accepted list
 $revalidation->revalidate('epijinfo', 'article-4256');
 $revalidation->revalidate('epijinfo', 'articles-epijinfo');
 $revalidation->revalidate('epijinfo', 'articles-accepted-epijinfo');
-$revalidation->revalidate('epijinfo', 'sitemap-epijinfo');
 
 // Article accepted (not yet published)
 $revalidation->revalidate('epijinfo', 'article-4256');
@@ -366,7 +352,6 @@ $revalidation->revalidate('epijinfo', 'volume-12');
 
 // New volume published
 $revalidation->revalidate('epijinfo', 'volumes-epijinfo');
-$revalidation->revalidate('epijinfo', 'sitemap-epijinfo');
 
 // Article order changed inside a section
 $revalidation->revalidate('epijinfo', 'section-articles-7-epijinfo');
@@ -603,7 +588,6 @@ All default to **3600 seconds (1 hour)** if not set.
 | `CACHE_TTL_STATISTICS` | Journal statistics     | 3600    |
 | `CACHE_TTL_MEMBERS`    | Editorial board        | 3600    |
 | `CACHE_TTL_SECTIONS`   | Sections               | 3600    |
-| `CACHE_TTL_SITEMAP`    | Sitemap data           | 3600    |
 
 Set to `false` to cache indefinitely (on-demand revalidation only):
 
