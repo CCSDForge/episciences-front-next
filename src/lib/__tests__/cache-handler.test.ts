@@ -1,4 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fs from 'fs';
+
+// Mock fs to provide a dummy BUILD_ID for initialize() tests
+vi.mock('fs', async () => {
+  const actual = await vi.importActual<typeof import('fs')>('fs');
+  return {
+    ...actual,
+    readFileSync: vi.fn((path: string, options: any) => {
+      if (typeof path === 'string' && path.endsWith('BUILD_ID')) return 'test-build-id';
+      return actual.readFileSync(path, options);
+    }),
+  };
+});
 
 /**
  * Tests for src/lib/cache-handler.js
@@ -290,8 +303,9 @@ describe('CacheHandler', () => {
 
     it('deletes stale entries and keeps fresh ones', async () => {
       const prefix = 'next:';
+      const buildId = _internals.BUILD_ID || 'test-build-id';
       const staleEntry = JSON.stringify({ __v: _internals.CACHE_FORMAT_VERSION, __buildId: 'old-build', value: {}, lastModified: 1, tags: [] });
-      const freshEntry = JSON.stringify({ __v: _internals.CACHE_FORMAT_VERSION, __buildId: _internals.BUILD_ID, value: {}, lastModified: 1, tags: [] });
+      const freshEntry = JSON.stringify({ __v: _internals.CACHE_FORMAT_VERSION, __buildId: buildId, value: {}, lastModified: 1, tags: [] });
 
       (mockClient as any).scanStream = vi.fn(() =>
         makeAsyncIterable([[`${prefix}data:stale-key`, `${prefix}data:fresh-key`]])
