@@ -23,8 +23,14 @@ export default function SignpostingLinks({ article, rvcode, id, lang }: Signpost
         ))}
       {article.pdfLink && <link rel="item" href={article.pdfLink} type="application/pdf" />}
       {article.license && <link rel="license" href={article.license} />}
-      {SIGNPOSTING_FORMATS.map(({ format, type }) => (
-        <link key={format} rel="describedby" href={`${articleUrl}/${format}`} type={type} />
+      {SIGNPOSTING_FORMATS.map(({ format, type, profile }) => (
+        <link
+          key={format}
+          rel="describedby"
+          href={`${articleUrl}/${format}`}
+          type={type}
+          {...(profile ? { profile } : {})}
+        />
       ))}
       <link rel="linkset" href={`${articleUrl}/linkset`} type="application/linkset+json" />
     </>

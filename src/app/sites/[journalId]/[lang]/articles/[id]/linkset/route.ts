@@ -41,9 +41,10 @@ export async function GET(
     entry['license'] = [{ href: article.license }];
   }
 
-  entry['describedby'] = SIGNPOSTING_FORMATS.map(({ format, type }) => ({
+  entry['describedby'] = SIGNPOSTING_FORMATS.map(({ format, type, profile }) => ({
     href: `${articleUrl}/${format}`,
     type,
+    ...(profile ? { profile } : {}),
   }));
 
   entry['linkset'] = [{ href: `${articleUrl}/linkset`, type: 'application/linkset+json' }];
