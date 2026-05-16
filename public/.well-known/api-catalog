@@ -1,6 +1,21 @@
 {
   "linkset": [
     {
+      "anchor": "https://episciences.org/.well-known/api-catalog",
+      "service-doc": [
+        {
+          "href": "https://signposting.org/FAIRiCat/",
+          "type": "text/html",
+          "title": "FAIRiCat - Signposting the Scholarly Web"
+        },
+        {
+          "href": "https://datatracker.ietf.org/doc/draft-ietf-httpapi-api-catalog/",
+          "type": "text/html",
+          "title": "draft-ietf-httpapi-api-catalog-00 - api-catalog: A well-known URI to help discovery of APIs"
+        }
+      ]
+    },
+    {
       "anchor": "https://inbox.episciences.org/",
       "service-doc": [
         {
@@ -27,18 +42,43 @@
       ]
     },
     {
-      "anchor": "https://api.episciences.org/",
+      "anchor": "https://api.episciences.org/api",
       "service-desc": [
         {
-          "href": "https://api.episciences.org/api/docs.yamlopenapi",
-          "type": "application/yaml"
+          "href": "https://api.episciences.org/api/docs.json",
+          "type": "application/json"
         }
       ],
       "service-doc": [
         {
-          "href": "https://api.episciences.org/api/docs.html",
+          "href": "https://api.episciences.org/api/docs",
           "type": "text/html",
-          "title": "Episciences API"
+          "title": "Episciences API Documentation"
+        },
+        {
+          "href": "https://spec.openapis.org/oas/v3.1.0",
+          "type": "text/html",
+          "title": "OpenAPI Specification v3.1.0"
+        }
+      ]
+    },
+    {
+      "anchor": "https://episciences.org/robots.txt",
+      "service-doc": [
+        {
+          "href": "https://datatracker.ietf.org/doc/rfc9309/",
+          "type": "text/html",
+          "title": "RFC 9309 - Robots Exclusion Protocol"
+        }
+      ]
+    },
+    {
+      "anchor": "https://episciences.org/sitemap.xml",
+      "service-doc": [
+        {
+          "href": "https://www.sitemaps.org/protocol.html",
+          "type": "text/html",
+          "title": "sitemaps.org - Protocol"
         }
       ]
     }

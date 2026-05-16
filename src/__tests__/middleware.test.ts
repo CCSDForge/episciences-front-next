@@ -14,9 +14,36 @@ vi.mock('next/server', async () => {
   return {
     ...actual,
     NextResponse: {
-      next: vi.fn(() => ({ headers: { set: vi.fn() } })),
-      rewrite: vi.fn(() => ({ headers: { set: vi.fn() } })),
-      redirect: vi.fn(() => ({ headers: { set: vi.fn() } })),
+      next: vi.fn(() => {
+        const headers = new Map();
+        return {
+          headers: {
+            set: vi.fn((k, v) => headers.set(k, v)),
+            append: vi.fn((k, v) => headers.set(k, v)),
+            get: (k: string) => headers.get(k),
+          },
+        };
+      }),
+      rewrite: vi.fn(() => {
+        const headers = new Map();
+        return {
+          headers: {
+            set: vi.fn((k, v) => headers.set(k, v)),
+            append: vi.fn((k, v) => headers.set(k, v)),
+            get: (k: string) => headers.get(k),
+          },
+        };
+      }),
+      redirect: vi.fn(() => {
+        const headers = new Map();
+        return {
+          headers: {
+            set: vi.fn((k, v) => headers.set(k, v)),
+            append: vi.fn((k, v) => headers.set(k, v)),
+            get: (k: string) => headers.get(k),
+          },
+        };
+      }),
     },
   };
 });
@@ -100,5 +127,35 @@ describe('middleware — hostname detection', () => {
     const { middleware } = await import('../middleware');
     await middleware(makeRequest('jtam.custom-domain.fr'));
     expect(lastRewritePath()).toContain('/sites/jtam/');
+  });
+
+  // -------------------------------------------------------------------------
+  // FAIRiCat & Signposting headers
+  // -------------------------------------------------------------------------
+
+  it('adds api-catalog discovery header on home page', async () => {
+    const { middleware } = await import('../middleware');
+    const response = await middleware(makeRequest('epijinfo.episciences.org', '/'));
+    expect(response.headers.append).toHaveBeenCalledWith(
+      'Link',
+      expect.stringContaining('rel="api-catalog"')
+    );
+    expect(response.headers.append).toHaveBeenCalledWith(
+      'Link',
+      expect.stringContaining('profile="https://signposting.org/FAIRiCat/"')
+    );
+  });
+
+  it('adds Signposting headers on article landing pages', async () => {
+    const { middleware } = await import('../middleware');
+    const response = await middleware(makeRequest('epijinfo.episciences.org', '/articles/1234'));
+    expect(response.headers.set).toHaveBeenCalledWith(
+      'Link',
+      expect.stringContaining('rel="linkset"')
+    );
+    expect(response.headers.append).toHaveBeenCalledWith(
+      'Link',
+      expect.stringContaining('rel="http://www.w3.org/ns/ldp#inbox"')
+    );
   });
 });

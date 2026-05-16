@@ -114,11 +114,21 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.rewrite(rewriteUrl);
   response.headers.set('x-detected-language', targetLang);
 
+  const origin = `${url.protocol}//${hostHeader}`;
+
+  // FAIRiCat discovery: add api-catalog link header on home page
+  if (pathWithoutLang === '/' || pathWithoutLang === '') {
+    const catalogUrl = `${origin}/.well-known/api-catalog`;
+    response.headers.append(
+      'Link',
+      `<${catalogUrl}>; rel="api-catalog"; type="application/linkset+json"; profile="https://signposting.org/FAIRiCat/"`
+    );
+  }
+
   // FAIR Signposting Level 1: add Link headers for article landing pages
   const articleMatch = pathWithoutLang.match(/^\/articles\/(\d+)$/);
   if (articleMatch) {
     const articleId = articleMatch[1];
-    const origin = `${url.protocol}//${hostHeader}`;
     const linksetUrl = `${origin}/${targetLang}/articles/${articleId}/linkset`;
     const inboxUrl =
       process.env.NEXT_PUBLIC_COAR_NOTIFY_INBOX_URL || 'https://inbox.episciences.org/';
