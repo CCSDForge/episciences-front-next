@@ -114,13 +114,16 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.rewrite(rewriteUrl);
   response.headers.set('x-detected-language', targetLang);
 
-  // FAIR Signposting Level 1: add Link header for article landing pages
+  // FAIR Signposting Level 1: add Link headers for article landing pages
   const articleMatch = pathWithoutLang.match(/^\/articles\/(\d+)$/);
   if (articleMatch) {
     const articleId = articleMatch[1];
     const origin = `${url.protocol}//${hostHeader}`;
     const linksetUrl = `${origin}/${targetLang}/articles/${articleId}/linkset`;
+    const inboxUrl =
+      process.env.NEXT_PUBLIC_COAR_NOTIFY_INBOX_URL || 'https://inbox.episciences.org/';
     response.headers.set('Link', `<${linksetUrl}>; rel="linkset"; type="application/linkset+json"`);
+    response.headers.append('Link', `<${inboxUrl}>; rel="http://www.w3.org/ns/ldp#inbox"`);
   }
 
   return response;

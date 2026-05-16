@@ -19,6 +19,7 @@ import CitedBySection from './components/CitedBySection';
 import ReferencesSection from './components/ReferencesSection';
 import PreviewSection from './components/PreviewSection';
 import CollapsibleSectionWrapper from './components/CollapsibleSectionWrapper';
+import SignpostingLinks from '@/components/SignpostingLinks/SignpostingLinks';
 import './ArticleDetails.scss';
 
 interface ArticleDetailsServerProps {
@@ -233,7 +234,9 @@ export default function ArticleDetailsServer({
   };
 
   return (
-    <main className="articleDetails">
+    <>
+      <SignpostingLinks article={article} rvcode={rvcode} id={id} lang={language || defaultLanguage} />
+      <main className="articleDetails">
       {/* Tracking pixel for article views - appears in Apache logs as /articles/[id]/preview */}
       {article?.id && (
         <img
@@ -326,5 +329,6 @@ export default function ArticleDetailsServer({
         </div>
       </div>
     </main>
+    </>
   );
 }
