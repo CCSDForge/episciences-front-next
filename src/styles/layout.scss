@@ -15,7 +15,7 @@ body {
   background: var(--white);
   color: var(--grey-dark);
   margin: auto;
-  font-family: var(--font-noto-sans), sans-serif;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 main {
@@ -86,6 +86,12 @@ a {
   text-decoration: none;
 }
 
+[lang='ar'],
+[dir='rtl'] {
+  font-family: 'Noto Sans Arabic', 'Noto Sans', sans-serif;
+  direction: rtl;
+}
+
 ul,
 ol {
   @media (max-width: breakpoints.$xsm) {
@@ -94,7 +100,7 @@ ol {
 }
 
 .toast-message {
-  font-family: var(--font-noto-sans), sans-serif;
+  font-family: 'Noto Sans', sans-serif;
   font-size: 14px;
 }
 
