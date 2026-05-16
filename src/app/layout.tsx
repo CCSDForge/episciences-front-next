@@ -32,7 +32,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="font/woff"
           crossOrigin="anonymous"
         />
-        {/* Preconnect hints are added per-journal in JournalLayout */}
+        <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
       </head>
       <body>
         {/* The JournalLayout at /sites/[journalId]/layout.tsx will provide ClientProviders */}
