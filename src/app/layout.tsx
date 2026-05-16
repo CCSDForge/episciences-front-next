@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
       </head>
-      <body>
+      <body className="light-theme">
         {/* The JournalLayout at /sites/[journalId]/layout.tsx will provide ClientProviders */}
         {children}
       </body>
