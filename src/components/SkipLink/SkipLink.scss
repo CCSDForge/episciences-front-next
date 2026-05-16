@@ -5,40 +5,34 @@
  * WCAG 2.4.1 Bypass Blocks (Level A)
  */
 
+// position: fixed positions relative to viewport (not header), ensuring the link
+// is always reachable regardless of parent overflow or stacking context.
+// No transition: Lighthouse checks visibility synchronously after focus(), a CSS
+// transition would leave the element off-screen at the moment of the check.
 .skip-link {
-  position: absolute;
-  top: -40px;
+  position: fixed;
+  top: -100%;
   left: 0;
-  z-index: 10000; // Above all content
+  z-index: 10001;
   padding: 8px 16px;
   background-color: var(--primary, #0066cc);
-  color: #ffffff;
+  color: var(--button-text-on-primary-bg, #fff);
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
-  border: 2px solid transparent;
   border-radius: 0 0 4px 0;
-  transition: top 0.2s ease-in-out;
 
-  // Only visible when focused (keyboard navigation)
-  &:focus {
+  &:focus,
+  &:focus-visible {
     top: 0;
-    outline: 2px solid #ffffff;
+    outline: 3px solid var(--focus-color, #0078d4);
     outline-offset: 2px;
   }
 
-  // Ensure high contrast on primary background
-  // Note: This assumes primary background is used.
-  // For multi-tenant safety, we use white text on primary.
-  // If primary is very light, the text color will be adjusted server-side.
   @media (prefers-contrast: high) {
-    &:focus {
-      outline-width: 3px;
+    &:focus,
+    &:focus-visible {
+      outline-width: 4px;
     }
-  }
-
-  // Smooth transition on blur (returning to hidden state)
-  &:not(:focus) {
-    transition: top 0.1s ease-in-out 0.2s;
   }
 }

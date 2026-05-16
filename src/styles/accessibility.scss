@@ -135,35 +135,6 @@ input[type='radio']:focus-visible {
 }
 
 /**
- * Skip Link
- *
- * Styles for skip-to-content links.
- * Hidden by default, visible when focused.
- *
- * WCAG: Supports 2.4.1 Bypass Blocks (Level A)
- */
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 9999;
-  padding: 1rem 2rem;
-  background-color: var(--primary, #000);
-  color: var(--button-text-on-primary-bg, #fff);
-  text-decoration: none;
-  font-weight: 600;
-  border-radius: 0 0 4px 4px;
-
-  &:focus {
-    left: 50%;
-    transform: translateX(-50%);
-    top: 0;
-    outline: 3px solid var(--focus-color, #0078d4);
-    outline-offset: 2px;
-  }
-}
-
-/**
  * Reduced Motion
  *
  * Respects user's prefers-reduced-motion preference.
