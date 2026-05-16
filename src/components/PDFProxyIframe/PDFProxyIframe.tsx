@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getPdfProxyUrl } from '@/utils/pdf';
 import './PDFProxyIframe.scss';
 
@@ -11,30 +11,15 @@ interface PDFProxyIframeProps {
   className?: string;
 }
 
-/**
- * PDFProxyIframe - Simple iframe-based PDF viewer using Next.js proxy
- *
- * Uses browser's native PDF rendering for optimal performance (0KB bundle, LCP < 1s)
- * All PDFs are routed through /pdf-proxy to:
- * - Bypass CORS restrictions
- * - Force inline display (Content-Disposition: inline)
- * - Provide consistent rendering across all sources
- */
 export function PDFProxyIframe({
   pdfUrl,
   title = 'PDF Preview',
   height = '600px',
   className = '',
 }: PDFProxyIframeProps) {
-  const [proxyUrl, setProxyUrl] = useState<string>('');
+  const proxyUrl = pdfUrl ? getPdfProxyUrl(pdfUrl, 'inline') : '';
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (pdfUrl) {
-      setProxyUrl(getPdfProxyUrl(pdfUrl, 'inline'));
-    }
-  }, [pdfUrl]);
 
   const handleLoad = () => {
     setIsLoading(false);
