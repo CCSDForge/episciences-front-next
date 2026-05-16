@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getPdfProxyUrl } from '@/utils/pdf';
 import './PDFProxyIframe.scss';
 
@@ -17,9 +17,15 @@ export function PDFProxyIframe({
   height = '600px',
   className = '',
 }: PDFProxyIframeProps) {
-  const proxyUrl = pdfUrl ? getPdfProxyUrl(pdfUrl, 'inline') : '';
+  const [proxyUrl, setProxyUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (pdfUrl) {
+      setProxyUrl(getPdfProxyUrl(pdfUrl, 'inline'));
+    }
+  }, [pdfUrl]);
 
   const handleLoad = () => {
     setIsLoading(false);
