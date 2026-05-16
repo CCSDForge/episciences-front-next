@@ -15,7 +15,7 @@ body {
   background: var(--white);
   color: var(--grey-dark);
   margin: auto;
-  font-family: 'Noto-Sans', sans-serif;
+  font-family: var(--font-noto-sans), sans-serif;
 }
 
 main {
@@ -94,7 +94,7 @@ ol {
 }
 
 .toast-message {
-  font-family: 'Noto-Sans', sans-serif;
+  font-family: var(--font-noto-sans), sans-serif;
   font-size: 14px;
 }
 

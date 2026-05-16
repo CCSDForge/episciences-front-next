@@ -1,15 +1,2 @@
-@font-face {
-  font-family: 'Noto-Sans';
-  src: url('/fonts/Noto-Sans/NotoSans-Regular.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Noto-Sans';
-  src: url('/fonts/Noto-Sans/NotoSans-Italic.woff') format('woff');
-  font-style: italic;
-  font-weight: normal;
-  font-display: swap;
-}
+// Font-face declarations are handled by next/font/local in src/app/layout.tsx.
+// This file is kept as a placeholder should additional fonts be needed.
