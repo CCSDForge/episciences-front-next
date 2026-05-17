@@ -32,9 +32,9 @@ export default function HeaderServerSimple({
               src="/logos/logo-big.svg"
               alt="Journal logo"
               priority
-              width={160}
-              height={160}
-              sizes="160px"
+              width={0}
+              height={0}
+              style={{ width: 'auto', height: 'auto' }}
               unoptimized
             />
           </Link>
