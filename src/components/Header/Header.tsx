@@ -11,6 +11,7 @@ import {
   LogoTextIcon,
   ArrowRightBlackIcon,
   ExternalLinkWhiteIcon,
+  UserCircleIcon,
 } from '@/components/icons';
 import './Header.scss';
 
@@ -52,13 +53,10 @@ function HeaderSignIn({
         rel="noopener noreferrer"
       >
         <span className="header-signin-text">{signInText}</span>
-        <Image
+        <UserCircleIcon
           className="header-signin-icon"
-          src="/icons/user-circle.svg"
-          alt={signInText}
-          width={28}
-          height={28}
-          unoptimized
+          ariaLabel={signInText}
+          size={28}
         />
         <span className="sr-only">{newWindowText}</span>
       </Link>
