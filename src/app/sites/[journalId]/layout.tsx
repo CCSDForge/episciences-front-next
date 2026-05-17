@@ -35,8 +35,8 @@ export default async function JournalLayout(props: JournalLayoutProps) {
     `--focus-color-on-dark:${sanitizeCssValue(variants.focusOnDark)}`,
   ].join(';');
 
-  // Injecting CSS custom properties server-side prevents CLS caused by applyThemeVariables()
-  // running in a useEffect after hydration. Values are sanitized to prevent </style> injection.
+  // Inject CSS custom properties before first paint to prevent CLS.
+  // Values are sanitized to prevent </style> injection.
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `:root{${cssVars}}` }} />

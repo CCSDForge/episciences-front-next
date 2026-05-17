@@ -2,18 +2,13 @@
 
 import React, { useEffect } from 'react';
 import { useAppSelector } from '@/hooks/store';
-import applyThemeVariables from '@/config/theme';
-import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 
+// CSS custom properties are injected server-side in JournalLayout via <style>:root{...}</style>.
+// This component only handles body class switching for light/dark mode toggling.
 const ThemeStyleSwitch: React.FC = () => {
   const theme = useAppSelector(state => state.themeReducer?.theme || 'light');
-  const journalConfig = useAppSelector(selectJournalConfig);
 
   useEffect(() => {
-    // Appliquer les variables de couleur du journal avec la config dynamique
-    applyThemeVariables(journalConfig);
-
-    // Appliquer le thème au body
     if (theme === 'dark') {
       document.body.classList.add('dark-theme');
       document.body.classList.remove('light-theme');
@@ -21,9 +16,9 @@ const ThemeStyleSwitch: React.FC = () => {
       document.body.classList.add('light-theme');
       document.body.classList.remove('dark-theme');
     }
-  }, [theme, journalConfig]);
+  }, [theme]);
 
-  return null; // Ce composant n'affiche rien, il gère juste le thème
+  return null;
 };
 
 export default ThemeStyleSwitch;
