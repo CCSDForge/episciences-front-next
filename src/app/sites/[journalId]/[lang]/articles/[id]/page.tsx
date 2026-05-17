@@ -15,6 +15,8 @@ import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
 import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 import { AvailableLanguage } from '@/utils/i18n';
 import { loadJournalConfig } from '@/utils/env-loader';
+import { getJournalBaseUrl } from '@/utils/signposting';
+import { acceptedLanguages } from '@/utils/language-utils';
 
 interface ArticleDetailsPageProps {
   params: Promise<{
@@ -87,6 +89,15 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
       );
     }
 
+    // SEO: Calculate canonical URL and alternates
+    const baseUrl = getJournalBaseUrl(journalId);
+    const canonicalUrl = `${baseUrl}/${language}/articles/${id}`;
+
+    const alternateLanguages: Record<string, string> = {};
+    acceptedLanguages.forEach(lang => {
+      alternateLanguages[lang] = `${baseUrl}/${lang}/articles/${id}`;
+    });
+
     return generateArticleMetadata({
       language,
       article,
@@ -95,6 +106,8 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
       authors,
       coarInboxUrl,
       relatedVolume,
+      canonicalUrl,
+      alternateLanguages,
     });
   } catch (error) {
     console.error(
