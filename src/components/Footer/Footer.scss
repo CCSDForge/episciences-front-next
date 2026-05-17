@@ -29,6 +29,14 @@ $footer-mobile: 768px;
     &-logo {
       margin-right: 25px;
 
+      img {
+        max-width: 160px;
+        max-height: 38px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+      }
+
       @media (max-width: $footer-mobile) {
         margin-right: 0;
         margin-bottom: 15px;

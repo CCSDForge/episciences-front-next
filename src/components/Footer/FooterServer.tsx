@@ -108,9 +108,10 @@ export default async function FooterServer({
             <Image
               src={footerLogoSrc}
               alt={`${journal?.name || rvcode} logo`}
-              width={42}
-              height={42}
+              width={0}
+              height={0}
               loading="lazy"
+              style={{ width: 'auto', height: 'auto' }}
               unoptimized
             />
           </Link>
