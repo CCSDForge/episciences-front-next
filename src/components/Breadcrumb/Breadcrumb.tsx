@@ -4,7 +4,7 @@ import { Link } from '@/components/Link/Link';
 import MathJax from '@/components/MathJax/MathJax';
 import { getLocalizedPath } from '@/utils/language-utils';
 import { getJournalBaseUrl } from '@/utils/signposting';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import './Breadcrumb.scss';
 
 interface IBreadcrumbProps {
@@ -23,6 +23,7 @@ export default function Breadcrumb({
 }: IBreadcrumbProps): React.JSX.Element {
   const params = useParams();
   const journalId = (params?.journalId as string) || '';
+  const pathname = usePathname();
 
   // JSON-LD Structured Data
   const generateJsonLd = () => {
@@ -56,9 +57,7 @@ export default function Breadcrumb({
         '@type': 'ListItem',
         position: parents.length + 1,
         name: crumbLabel,
-        // The last item usually doesn't need a URL or can point to the current page,
-        // but for breadcrumbs, it's better to provide it if possible.
-        // However, we don't have the current full path here easily.
+        item: pathname ? `${baseUrl}${pathname}` : undefined,
       },
     ].filter(Boolean);
 

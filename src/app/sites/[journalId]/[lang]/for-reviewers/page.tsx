@@ -1,10 +1,12 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
+import { notFound } from 'next/navigation';
 import { fetchForReviewersPage } from '@/services/forReviewers';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
+import { getPublicJournalConfig } from '@/utils/env-loader';
 import { generateSeoAlternates } from '@/utils/seo';
 
 const ForReviewersClient = dynamic(() => import('./ForReviewersClient'));
@@ -12,7 +14,7 @@ const ForReviewersClient = dynamic(() => import('./ForReviewersClient'));
 // Stable editorial content - no ISR, fully static at build time
 export const revalidate = false;
 
-// Pre-generate accessibility page for all journals at build time
+// Pre-generate for-reviewers page for all journals at build time
 export async function generateStaticParams() {
   const journals = getFilteredJournals();
   const params: { journalId: string; lang: string }[] = [];
@@ -31,8 +33,10 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
   return {
-    title: 'For reviewers',
+    title: t('pages.forReviewers.title', translations),
+    description: t('pages.forReviewers.description', translations),
     alternates: generateSeoAlternates(journalId, lang, '/for-reviewers'),
   };
 }
@@ -43,15 +47,21 @@ export default async function ForReviewersPage(props: {
   const params = await props.params;
   const { journalId, lang } = params;
 
+  const journalConfig = getPublicJournalConfig(journalId);
+  if (journalConfig.NEXT_PUBLIC_JOURNAL_MENU_JOURNAL_FOR_REVIEWERS_RENDER === 'false') {
+    notFound();
+  }
+
   let pageData = null;
   let translations = {};
 
   try {
-    // Fetch all pages and translations in parallel
-    [pageData, translations] = await Promise.all([
-      journalId ? fetchForReviewersPage(journalId) : null,
+    let rawData = null;
+    [rawData, translations] = await Promise.all([
+      fetchForReviewersPage(journalId),
       getServerTranslations(lang),
     ]);
+    pageData = rawData?.['hydra:member']?.[0] ?? null;
   } catch (error) {
     console.warn('[ForReviewersPage] Failed to fetch data:', error);
   }

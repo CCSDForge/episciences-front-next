@@ -32,9 +32,10 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
   return {
-    title: 'Statistiques',
-    description: 'Statistiques de la revue',
+    title: t('pages.statistics.title', translations),
+    description: t('pages.statistics.description', translations),
     alternates: generateSeoAlternates(journalId, lang, '/statistics'),
   };
 }

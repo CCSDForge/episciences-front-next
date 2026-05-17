@@ -18,9 +18,10 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
   return {
-    title: 'Recherche',
-    description: 'Rechercher des articles dans la revue',
+    title: t('pages.search.title', translations),
+    description: t('pages.search.description', translations),
     alternates: generateSeoAlternates(journalId, lang, '/search'),
   };
 }
@@ -31,7 +32,6 @@ interface SearchPageProps {
 }
 
 export default async function SearchPage(props: SearchPageProps) {
-  // Déférer au runtime, pas de cache (résultats de recherche dynamiques par utilisateur)
   await connection();
 
   const [searchParams, params] = await Promise.all([props.searchParams, props.params]);

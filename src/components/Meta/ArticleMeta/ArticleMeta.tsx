@@ -91,10 +91,12 @@ export function generateArticleMetadata({
       name: author.fullname,
       url: author.orcid,
     })),
-    alternates: {
-      canonical: canonicalUrl,
-      languages: alternateLanguages,
-    },
+    ...(canonicalUrl && {
+      alternates: {
+        canonical: canonicalUrl,
+        languages: alternateLanguages,
+      },
+    }),
     openGraph: {
       title: metadataTitle || '',
       type: 'article',

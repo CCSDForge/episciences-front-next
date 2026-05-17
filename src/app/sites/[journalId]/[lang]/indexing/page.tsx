@@ -12,7 +12,7 @@ const IndexingClient = dynamic(() => import('./IndexingClient'));
 // Stable editorial content - no ISR, fully static at build time
 export const revalidate = false;
 
-// Pre-generate accessibility page for all journals at build time
+// Pre-generate indexing page for all journals at build time
 export async function generateStaticParams() {
   const journals = getFilteredJournals();
   const params: { journalId: string; lang: string }[] = [];
@@ -31,8 +31,10 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
   return {
-    title: 'Indexation',
+    title: t('pages.indexing.title', translations),
+    description: t('pages.indexing.description', translations),
     alternates: generateSeoAlternates(journalId, lang, '/indexing'),
   };
 }
