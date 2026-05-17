@@ -191,8 +191,8 @@ export default async function HeaderServer({
               src={logoSrc}
               alt={`${journalName} logo`}
               priority
-              width={0}
-              height={0}
+              width={260}
+              height={150}
               style={{ width: 'auto', height: 'auto' }}
               unoptimized
             />
@@ -208,9 +208,9 @@ export default async function HeaderServer({
             <Image
               src={logoSrc}
               alt={`${journalName} logo`}
-              width={0}
-              height={0}
-              loading="lazy"
+              priority
+              width={160}
+              height={38}
               style={{ width: 'auto', height: 'auto' }}
               unoptimized
             />
