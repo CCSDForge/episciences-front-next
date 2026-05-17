@@ -5,13 +5,14 @@ import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
+import { generateSeoAlternates } from '@/utils/seo';
 
 const AcknowledgementsClient = dynamic(() => import('./AcknowledgementsClient'));
 
 // Stable editorial content - no ISR, fully static at build time
 export const revalidate = false;
 
-// Pre-generate acknowledgements page for all journals at build time
+// Pre-generate accessibility page for all journals at build time
 export async function generateStaticParams() {
   const journals = getFilteredJournals();
   const params: { journalId: string; lang: string }[] = [];
@@ -25,10 +26,16 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Acknowledgements',
-  description: 'Journal acknowledgements',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  return {
+    title: 'Acknowledgements',
+    alternates: generateSeoAlternates(journalId, lang, '/acknowledgements'),
+  };
+}
 
 export default async function AcknowledgementsPage(props: {
   params: Promise<{ journalId: string; lang: string }>;

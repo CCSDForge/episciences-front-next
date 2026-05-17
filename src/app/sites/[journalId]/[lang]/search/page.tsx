@@ -7,14 +7,23 @@ import { FetchedArticle } from '@/utils/article';
 import { SearchRange } from '@/utils/pagination';
 import { connection } from 'next/server';
 
+import { generateSeoAlternates } from '@/utils/seo';
+
 const SearchClient = dynamic(() => import('./SearchClient'), {
   loading: () => <div className="loader">Chargement...</div>,
 });
 
-export const metadata: Metadata = {
-  title: 'Recherche',
-  description: 'Rechercher des articles dans la revue',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  return {
+    title: 'Recherche',
+    description: 'Rechercher des articles dans la revue',
+    alternates: generateSeoAlternates(journalId, lang, '/search'),
+  };
+}
 
 interface SearchPageProps {
   params: Promise<{ lang: string; journalId: string }>;

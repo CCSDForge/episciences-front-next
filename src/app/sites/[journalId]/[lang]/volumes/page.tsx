@@ -9,6 +9,8 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import Loader from '@/components/Loader/Loader';
 
+import { generateSeoAlternates } from '@/utils/seo';
+
 const VolumesClient = dynamic(() => import('./VolumesClient'));
 
 const VOLUMES_PER_PAGE = 20;
@@ -30,9 +32,16 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Volumes',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  return {
+    title: 'Volumes',
+    alternates: generateSeoAlternates(journalId, lang, '/volumes'),
+  };
+}
 
 export default async function VolumesPage(props: {
   params: Promise<{ lang: string; journalId: string }>;

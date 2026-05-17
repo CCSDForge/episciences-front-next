@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
-
 import { fetchArticles } from '@/services/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
-
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import Loader from '@/components/Loader/Loader';
+import { generateSeoAlternates } from '@/utils/seo';
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
 
@@ -28,10 +27,17 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Articles',
-  description: 'Articles',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  return {
+    title: 'Articles',
+    description: 'Articles',
+    alternates: generateSeoAlternates(journalId, lang, '/articles'),
+  };
+}
 
 interface ArticlesData {
   data: any[];

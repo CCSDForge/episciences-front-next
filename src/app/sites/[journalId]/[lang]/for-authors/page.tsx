@@ -10,6 +10,8 @@ import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 
+import { generateSeoAlternates } from '@/utils/seo';
+
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
 
 // Stable editorial content - no ISR, fully static at build time
@@ -30,9 +32,14 @@ export async function generateStaticParams() {
 }
 
 // Cette fonction est aussi appelée au build time
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
   return {
     title: 'For Authors',
+    alternates: generateSeoAlternates(journalId, lang, '/for-authors'),
   };
 }
 

@@ -1,17 +1,14 @@
 import { Metadata } from 'next';
-import { Suspense } from 'react';
-
 import { fetchSections } from '@/services/section';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
-
+import { generateSeoAlternates } from '@/utils/seo';
 import dynamic from 'next/dynamic';
-import Loader from '@/components/Loader/Loader';
 
 const SectionsClient = dynamic(() => import('./SectionsClient'));
 
-// Sections list updates moderately - daily revalidation is appropriate
+// Section list updates moderately - daily revalidation
 export const revalidate = 86400; // 24 hours
 
 // Pre-generate sections page for all journals at build time
@@ -28,28 +25,30 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Sections',
-};
-
-const SECTIONS_PER_PAGE = 10;
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  return {
+    title: 'Sections',
+    alternates: generateSeoAlternates(journalId, lang, '/sections'),
+  };
+}
 
 export default async function SectionsPage(props: {
   params: Promise<{ lang: string; journalId: string }>;
 }) {
   const params = await props.params;
   const { lang, journalId } = params;
+
   try {
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
 
-    const [sectionsData, translations] = await Promise.all([
-      fetchSections({
-        rvcode: journalId,
-        page: 1,
-        itemsPerPage: SECTIONS_PER_PAGE,
-      }),
+    const [sections, translations] = await Promise.all([
+      fetchSections({ rvcode: journalId }),
       getServerTranslations(lang),
     ]);
 
@@ -60,14 +59,12 @@ export default async function SectionsPage(props: {
     };
 
     return (
-      <Suspense fallback={<Loader />}>
-        <SectionsClient
-          initialSections={sectionsData}
-          initialPage={1}
-          lang={lang}
-          breadcrumbLabels={breadcrumbLabels}
-        />
-      </Suspense>
+      <SectionsClient
+        initialSections={sections}
+        initialPage={1}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+      />
     );
   } catch (error) {
     console.error('Error fetching sections:', error);

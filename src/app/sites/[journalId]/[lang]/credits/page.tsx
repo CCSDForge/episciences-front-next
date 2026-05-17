@@ -5,13 +5,14 @@ import { fetchCreditsPage } from '@/services/credits';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
+import { generateSeoAlternates } from '@/utils/seo';
 
 const CreditsClient = dynamic(() => import('./CreditsClient'));
 
 // Stable editorial content - no ISR, fully static at build time
 export const revalidate = false;
 
-// Pre-generate credits page for all journals at build time
+// Pre-generate accessibility page for all journals at build time
 export async function generateStaticParams() {
   const journals = getFilteredJournals();
   const params: { journalId: string; lang: string }[] = [];
@@ -25,10 +26,16 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Crédits',
-  description: 'Crédits et mentions légales',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  return {
+    title: 'Crédits',
+    alternates: generateSeoAlternates(journalId, lang, '/credits'),
+  };
+}
 
 export default async function CreditsPage(props: {
   params: Promise<{ journalId: string; lang: string }>;
