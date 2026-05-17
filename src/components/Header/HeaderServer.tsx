@@ -3,6 +3,7 @@ import { Link } from '@/components/Link/Link';
 import SearchBar from './SearchBar';
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
 import MobileBurgerMenu from './MobileBurgerMenu';
+import UserCircleIcon from '@/components/icons/ui/UserCircleIcon';
 import SkipLink from '@/components/SkipLink/SkipLink';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getJournalByCode } from '@/services/journal';
@@ -169,13 +170,10 @@ export default async function HeaderServer({
                   <span className="header-signin-text">
                     {t('components.header.signIn', translations)}
                   </span>
-                  <Image
+                  <UserCircleIcon
                     className="header-signin-icon"
-                    src="/icons/user-circle.svg"
-                    alt={t('components.header.signIn', translations)}
-                    width={28}
-                    height={28}
-                    unoptimized
+                    ariaLabel={t('components.header.signIn', translations)}
+                    size={28}
                   />
                   <span className="sr-only">{t('components.header.newWindow', translations)}</span>
                 </Link>
@@ -240,13 +238,11 @@ export default async function HeaderServer({
                 <span className="header-signin-text">
                   {t('components.header.signIn', translations)}
                 </span>
-                <img
-                  className="header-signin-icon"
-                  src="/icons/user-circle.svg"
-                  alt={t('components.header.signIn', translations)}
-                  width={28}
-                  height={28}
-                />
+                  <UserCircleIcon
+                    className="header-signin-icon"
+                    ariaLabel={t('components.header.signIn', translations)}
+                    size={28}
+                  />
                 <span className="sr-only">{t('components.header.newWindow', translations)}</span>
               </Link>
             </>
