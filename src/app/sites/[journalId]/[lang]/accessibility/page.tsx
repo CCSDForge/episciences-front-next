@@ -6,6 +6,7 @@ import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages, defaultLanguage } from '@/utils/language-utils';
+import { generateSeoAlternates } from '@/utils/seo';
 
 export const revalidate = false;
 
@@ -24,15 +25,16 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(props: {
-  params: Promise<{ lang: string }>;
+  params: Promise<{ journalId: string; lang: string }>;
 }): Promise<Metadata> {
   const params = await props.params;
-  const { lang } = params;
+  const { journalId, lang } = params;
   const translations = await getServerTranslations(lang);
 
   return {
     title: translate('pages.accessibility.title', translations),
     description: translate('pages.accessibility.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/accessibility'),
   };
 }
 

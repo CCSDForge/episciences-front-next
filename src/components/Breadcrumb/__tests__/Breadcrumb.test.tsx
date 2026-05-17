@@ -1,6 +1,20 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { useParams, usePathname } from 'next/navigation';
 import Breadcrumb from '../Breadcrumb';
+
+vi.mock('next/navigation', () => ({
+  useParams: vi.fn(() => ({})),
+  usePathname: vi.fn(() => null),
+}));
+
+vi.mock('@/utils/signposting', () => ({
+  getJournalBaseUrl: (id: string) => `https://${id}.episciences.org`,
+}));
+
+vi.mock('@/utils/language-utils', () => ({
+  getLocalizedPath: (path: string, lang: string) => `/${lang}${path}`,
+}));
 
 // Mock the Link component
 vi.mock('@/components/Link/Link', () => ({
@@ -172,5 +186,79 @@ describe('Breadcrumb', () => {
 
     expect(screen.getByText('Home & Articles >')).toBeInTheDocument();
     expect(screen.getByText('Authors & Reviewers')).toBeInTheDocument();
+  });
+});
+
+describe('JSON-LD structured data', () => {
+  beforeEach(() => {
+    vi.mocked(useParams).mockReturnValue({ journalId: 'test-journal' });
+    vi.mocked(usePathname).mockReturnValue('/en/volumes');
+  });
+
+  const getJsonLd = (container: HTMLElement) => {
+    const script = container.querySelector('script[type="application/ld+json"]');
+    if (!script) return null;
+    return JSON.parse(script.innerHTML);
+  };
+
+  it('renders a JSON-LD script when journalId is present', () => {
+    const parents = [{ path: '/', label: 'Home >' }];
+    const { container } = render(<Breadcrumb parents={parents} crumbLabel="Volumes" />);
+    expect(container.querySelector('script[type="application/ld+json"]')).toBeInTheDocument();
+  });
+
+  it('outputs BreadcrumbList schema type', () => {
+    const parents = [{ path: '/', label: 'Home >' }];
+    const { container } = render(<Breadcrumb parents={parents} crumbLabel="Volumes" />);
+    const jsonLd = getJsonLd(container);
+    expect(jsonLd['@context']).toBe('https://schema.org');
+    expect(jsonLd['@type']).toBe('BreadcrumbList');
+  });
+
+  it('assigns sequential 1-based positions to items', () => {
+    const parents = [
+      { path: '/', label: 'Home >' },
+      { path: '/volumes', label: 'Volumes >' },
+    ];
+    const { container } = render(<Breadcrumb parents={parents} crumbLabel="Vol. 1" />);
+    const items = getJsonLd(container).itemListElement;
+    expect(items[0].position).toBe(1);
+    expect(items[1].position).toBe(2);
+    expect(items[2].position).toBe(3);
+  });
+
+  it('sets the last item URL from usePathname', () => {
+    const parents = [{ path: '/', label: 'Home >' }];
+    const { container } = render(<Breadcrumb parents={parents} crumbLabel="Volumes" />);
+    const items = getJsonLd(container).itemListElement;
+    const lastItem = items[items.length - 1];
+    expect(lastItem.item).toBe('https://test-journal.episciences.org/en/volumes');
+  });
+
+  it('filters out items with path === "#"', () => {
+    const parents = [
+      { path: '/', label: 'Home >' },
+      { path: '#', label: 'Publish >' },
+    ];
+    const { container } = render(<Breadcrumb parents={parents} crumbLabel="For Authors" />);
+    const items = getJsonLd(container).itemListElement;
+    const names = items.map((i: { name: string }) => i.name);
+    expect(names).not.toContain('Publish >');
+  });
+
+  it('does not render a JSON-LD script when journalId is absent', () => {
+    vi.mocked(useParams).mockReturnValue({});
+    const parents = [{ path: '/', label: 'Home >' }];
+    const { container } = render(<Breadcrumb parents={parents} crumbLabel="Volumes" />);
+    expect(container.querySelector('script[type="application/ld+json"]')).not.toBeInTheDocument();
+  });
+
+  it('sets last item item to undefined when pathname is null', () => {
+    vi.mocked(usePathname).mockReturnValue(null);
+    const parents = [{ path: '/', label: 'Home >' }];
+    const { container } = render(<Breadcrumb parents={parents} crumbLabel="Volumes" />);
+    const items = getJsonLd(container).itemListElement;
+    const lastItem = items[items.length - 1];
+    expect(lastItem.item).toBeUndefined();
   });
 });

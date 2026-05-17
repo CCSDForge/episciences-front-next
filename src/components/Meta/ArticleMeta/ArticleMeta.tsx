@@ -13,6 +13,8 @@ interface IArticleMetaProps {
   authors: IArticleAuthor[];
   coarInboxUrl?: string;
   relatedVolume?: IVolume | null;
+  canonicalUrl?: string;
+  alternateLanguages?: Record<string, string>;
 }
 
 // Helper function to extract abstract as string
@@ -38,6 +40,8 @@ export function generateArticleMetadata({
   authors,
   coarInboxUrl,
   relatedVolume,
+  canonicalUrl,
+  alternateLanguages,
 }: IArticleMetaProps): Metadata {
   const metadataTitle = article?.title
     ? `${article.title}${currentJournal?.name ? ` | ${currentJournal.name}` : ''}`
@@ -87,6 +91,12 @@ export function generateArticleMetadata({
       name: author.fullname,
       url: author.orcid,
     })),
+    ...(canonicalUrl && {
+      alternates: {
+        canonical: canonicalUrl,
+        languages: alternateLanguages,
+      },
+    }),
     openGraph: {
       title: metadataTitle || '',
       type: 'article',
@@ -95,7 +105,7 @@ export function generateArticleMetadata({
       authors: authors.map(author => author.fullname),
       tags: keywords,
       locale: language,
-      url: article?.docLink || '',
+      url: canonicalUrl || article?.docLink || '',
       description: abstractString,
       siteName: 'Episciences.org',
     },

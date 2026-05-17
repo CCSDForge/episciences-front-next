@@ -19,8 +19,9 @@ vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({
     push: vi.fn(),
   })),
-  usePathname: () => '/volumes',
-  useSearchParams: () => new URLSearchParams(),
+  useParams: vi.fn(() => ({})),
+  usePathname: vi.fn(() => '/volumes'),
+  useSearchParams: vi.fn(() => new URLSearchParams()),
 }));
 
 vi.mock('@/hooks/store', () => ({

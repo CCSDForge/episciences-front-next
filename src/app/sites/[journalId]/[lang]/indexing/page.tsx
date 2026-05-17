@@ -5,7 +5,7 @@ import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
-import './Indexing.scss';
+import { generateSeoAlternates } from '@/utils/seo';
 
 const IndexingClient = dynamic(() => import('./IndexingClient'));
 
@@ -26,40 +26,44 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Indexing',
-  description: 'Journal indexing information',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.indexing.title', translations),
+    description: t('pages.indexing.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/indexing'),
+  };
+}
 
 export default async function IndexingPage(props: {
   params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
-  let pageData = null;
   const { journalId, lang } = params;
 
-  const translationsPromise = getServerTranslations(lang);
+  let pageData = null;
+  let translations = {};
 
   try {
-    if (journalId) {
-      const rawData = await fetchIndexingPage(journalId);
-      if (rawData?.['hydra:member']?.[0]) {
-        pageData = rawData['hydra:member'][0];
-      } else {
-        console.warn(
-          `[Build] Indexing page content not found for journal "${journalId}" on API. It will be empty.`
-        );
-      }
-    }
+    // Fetch all pages and translations in parallel
+    [pageData, translations] = await Promise.all([
+      journalId ? fetchIndexingPage(journalId) : null,
+      getServerTranslations(lang),
+    ]);
   } catch (error) {
-    console.warn(`[Build] Could not reach API for Indexing page of journal "${journalId}".`);
+    console.warn('[IndexingPage] Failed to fetch data:', error);
   }
 
-  const translations = await translationsPromise;
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/indexing', translations),
     current: t('pages.indexing.title', translations),
   };
 
-  return <IndexingClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />;
+  return (
+    <IndexingClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+  );
 }

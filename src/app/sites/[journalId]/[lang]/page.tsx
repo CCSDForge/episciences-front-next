@@ -1,13 +1,10 @@
 import { Metadata } from 'next';
-
 import { fetchHomeData } from '@/services/home';
-
 import { getFormattedSiteTitle } from '@/utils/metadata';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { getFilteredJournals } from '@/utils/journal-filter';
-
 import dynamicImport from 'next/dynamic';
-
+import { generateSeoAlternates } from '@/utils/seo';
 import '@/styles/pages/Home.scss';
 
 const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'));
@@ -29,10 +26,17 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: getFormattedSiteTitle('Accueil'),
-  description: "Page d'accueil de la revue",
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  return {
+    title: getFormattedSiteTitle('Accueil'),
+    description: "Page d'accueil de la revue",
+    alternates: generateSeoAlternates(journalId, lang, '/'),
+  };
+}
 
 // Fonction pour obtenir la langue par défaut
 function getDefaultLanguage(): string {

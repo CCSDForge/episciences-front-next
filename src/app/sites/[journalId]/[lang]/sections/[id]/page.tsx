@@ -1,11 +1,12 @@
 import { Metadata } from 'next';
-import { fetchSection, fetchSections, fetchSectionArticles } from '@/services/section';
+import { fetchSection, fetchSectionArticles } from '@/services/section';
 import SectionDetailsClient from './SectionDetailsClient';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { ISection, PartialSectionArticle } from '@/types/section';
 import { IArticle } from '@/types/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
+import { generateSeoAlternates } from '@/utils/seo';
 
 // Section details change infrequently - long revalidation time
 // Use on-demand revalidation API for updates
@@ -19,30 +20,37 @@ export async function generateMetadata(props: {
   params: Promise<{ id: string; lang?: string; journalId: string }>;
 }): Promise<Metadata> {
   const params = await props.params;
+  const { id, journalId } = params;
+  const language = getLanguageFromParams(params);
   try {
-    if (params.id === 'no-sections-found') {
+    if (id === 'no-sections-found') {
       return {
         title: 'No sections found',
         description: 'No sections available for this journal',
       };
     }
 
-    const section = await fetchSection({ sid: params.id, rvcode: params.journalId });
+    const section = await fetchSection({ sid: id, rvcode: journalId });
     if (!section) {
-      return { title: 'Section Details', description: 'Section details page' };
+      return {
+        title: 'Section Details',
+        description: 'Section details page',
+        alternates: generateSeoAlternates(journalId, language, `/sections/${id}`),
+      };
     }
-    const sectionTitle = section.title?.en || section.title?.fr || `Section ${params.id}`;
+    const sectionTitle = section.title?.en || section.title?.fr || `Section ${id}`;
 
     return {
       title: `${sectionTitle} | Episciences`,
-      description:
-        section.description?.en || section.description?.fr || `Articles in ${sectionTitle}`,
+      description: section.description?.en || section.description?.fr || `Articles in ${sectionTitle}`,
+      alternates: generateSeoAlternates(journalId, language, `/sections/${id}`),
     };
   } catch (error) {
-    console.error(`Error generating metadata for section ${params.id}:`, error);
+    console.error(`Error generating metadata for section ${id}:`, error);
     return {
       title: 'Section Details',
       description: 'Section details page',
+      alternates: generateSeoAlternates(journalId, language, `/sections/${id}`),
     };
   }
 }

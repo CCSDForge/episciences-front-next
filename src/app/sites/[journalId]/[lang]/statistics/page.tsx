@@ -4,6 +4,7 @@ import { fetchStatistics } from '@/services/statistics';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
+import { generateSeoAlternates } from '@/utils/seo';
 import type { IStatResponse } from '@/types/stat';
 import './Statistics.scss';
 
@@ -26,10 +27,18 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Statistiques',
-  description: 'Statistiques de la revue',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.statistics.title', translations),
+    description: t('pages.statistics.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/statistics'),
+  };
+}
 
 type Props = {
   params: Promise<{ journalId: string; lang: string }>;

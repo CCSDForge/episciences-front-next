@@ -2,17 +2,25 @@ import type { Metadata } from 'next';
 
 import { fetchArticles } from '@/services/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { generateSeoAlternates } from '@/utils/seo';
 
 import dynamic from 'next/dynamic';
 import { connection } from 'next/server';
 
 const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'));
 
-// Métadonnées pour la page
-export const metadata: Metadata = {
-  title: 'Articles acceptés',
-  description: 'Articles acceptés',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.articlesAccepted.title', translations),
+    description: t('pages.articlesAccepted.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/articles-accepted'),
+  };
+}
 
 export default async function ArticlesAcceptedPage(props: {
   params: Promise<{ lang: string; journalId: string }>;
@@ -24,7 +32,6 @@ export default async function ArticlesAcceptedPage(props: {
   try {
     const ARTICLES_ACCEPTED_PER_PAGE = 10;
 
-    // Récupération dynamique des articles acceptés
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
@@ -40,12 +47,10 @@ export default async function ArticlesAcceptedPage(props: {
       getServerTranslations(lang),
     ]);
 
-    // S'assurer que les données sont correctement formatées pour le client
     const formattedArticles = {
       data: Array.isArray(articlesAccepted.data) ? articlesAccepted.data : [],
       totalItems: articlesAccepted.totalItems || 0,
       range: {
-        // Vérification explicite de l'existence des types dans range
         types:
           articlesAccepted.range && 'types' in articlesAccepted.range
             ? Array.isArray(articlesAccepted.range.types)
@@ -75,7 +80,6 @@ export default async function ArticlesAcceptedPage(props: {
     );
   } catch (error) {
     console.error('Error fetching articles accepted:', error);
-    // Retourner un état vide en cas d'erreur
     return (
       <ArticlesAcceptedClient
         initialArticles={{ data: [], totalItems: 0 }}
