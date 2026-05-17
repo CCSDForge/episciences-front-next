@@ -117,9 +117,18 @@ describe('language-utils', () => {
     });
 
     it('should handle paths correctly', () => {
-      // Test with default language
       const result = getLocalizedPath('/articles/123/comments', defaultLanguage);
       expect(result).toBe(`/${defaultLanguage}/articles/123/comments`);
+    });
+
+    it('should add separator when path has no leading slash', () => {
+      const result = getLocalizedPath('articles', defaultLanguage);
+      expect(result).toBe(`/${defaultLanguage}/articles`);
+    });
+
+    it('should handle empty path as root', () => {
+      const result = getLocalizedPath('', defaultLanguage);
+      expect(result).toBe(`/${defaultLanguage}`);
     });
   });
 
