@@ -4,13 +4,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
-import {
-  CaretUpBlackIcon,
-  CaretDownBlackIcon,
-  CaretUpWhiteIcon,
-  CaretDownWhiteIcon,
-  TranslateIcon,
-} from '@/components/icons';
+import { CaretUpIcon, CaretDownIcon, TranslateIcon } from '@/components/icons';
 import './LanguageDropdown.scss';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
@@ -29,13 +23,11 @@ const LANGUAGE_NAMES: Record<string, string> = {
 };
 
 interface ILanguageDropdownProps {
-  withWhiteCaret?: boolean;
   initialLanguage?: string;
   acceptedLanguages?: string[];
 }
 
 export default function LanguageDropdown({
-  withWhiteCaret,
   initialLanguage,
   acceptedLanguages: acceptedLanguagesProp,
 }: ILanguageDropdownProps): React.JSX.Element | null {
@@ -219,27 +211,13 @@ export default function LanguageDropdown({
         <TranslateIcon size={16} className="languageDropdown-button-icon" />
         <span className="languageDropdown-button-text">{language.toUpperCase()}</span>
         {showDropdown ? (
-          withWhiteCaret ? (
-            <CaretUpWhiteIcon
-              size={14}
-              className="languageDropdown-button-caret"
-              ariaLabel="Collapse language menu"
-            />
-          ) : (
-            <CaretUpBlackIcon
-              size={14}
-              className="languageDropdown-button-caret"
-              ariaLabel="Collapse language menu"
-            />
-          )
-        ) : withWhiteCaret ? (
-          <CaretDownWhiteIcon
+          <CaretUpIcon
             size={14}
             className="languageDropdown-button-caret"
-            ariaLabel="Expand language menu"
+            ariaLabel="Collapse language menu"
           />
         ) : (
-          <CaretDownBlackIcon
+          <CaretDownIcon
             size={14}
             className="languageDropdown-button-caret"
             ariaLabel="Expand language menu"

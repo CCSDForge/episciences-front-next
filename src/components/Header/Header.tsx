@@ -423,7 +423,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           <div className="header-reduced-journal-blank"></div>
           <div className="header-reduced-journal-dropdown">
             {availableLanguages.length > 1 && (
-              <LanguageDropdown withWhiteCaret={isMobileReduced()} />
+              <LanguageDropdown />
             )}
             {submitManagerLink && (
               <HeaderSignIn
