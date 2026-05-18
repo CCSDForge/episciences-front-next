@@ -500,20 +500,17 @@ export default function ArticleDetailsSidebar({
           {article?.submissionDate && (
             <div className="articleDetailsSidebar-publicationDetails-content-row">
               <div>
-                {article.document?.database?.current?.flag === 'imported'
-                  ? t('common.importedOn')
-                  : t('common.submittedOn')}
+                {article.isImported ? t('common.importedOn') : t('common.submittedOn')}
               </div>
               <div>{formatDate(article.submissionDate, language)}</div>
             </div>
           )}
-          {article?.acceptanceDate &&
-            article.document?.database?.current?.flag !== 'imported' && (
-              <div className="articleDetailsSidebar-publicationDetails-content-row">
-                <div>{t('common.acceptedOn')}</div>
-                <div>{formatDate(article.acceptanceDate, language)}</div>
-              </div>
-            )}
+          {article?.acceptanceDate && !article.isImported && (
+            <div className="articleDetailsSidebar-publicationDetails-content-row">
+              <div>{t('common.acceptedOn')}</div>
+              <div>{formatDate(article.acceptanceDate, language)}</div>
+            </div>
+          )}
           {article?.publicationDate && (
             <div className="articleDetailsSidebar-publicationDetails-content-row articleDetailsSidebar-publicationDetails-content-row-publicationDate">
               <div>{t('common.publishedOn')}</div>

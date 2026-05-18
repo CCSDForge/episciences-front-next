@@ -320,30 +320,20 @@ describe('ArticleDetailsSidebar', () => {
     });
 
     it('shows "Imported on" instead of "Submitted on" for imported articles', () => {
-      const article = {
-        ...baseArticle,
-        document: { database: { current: { flag: 'imported' } } },
-      };
+      const article = { ...baseArticle, isImported: true };
       render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
       expect(screen.getByText('Imported on')).toBeInTheDocument();
       expect(screen.queryByText('Submitted on')).not.toBeInTheDocument();
     });
 
     it('hides acceptance date for imported articles', () => {
-      const article = {
-        ...baseArticle,
-        document: { database: { current: { flag: 'imported' } } },
-      };
+      const article = { ...baseArticle, isImported: true };
       render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
       expect(screen.queryByText('Accepted on')).not.toBeInTheDocument();
     });
 
     it('shows "Submitted on" and "Accepted on" for non-imported articles', () => {
-      const article = {
-        ...baseArticle,
-        document: { database: { current: { flag: 'submitted' } } },
-      };
-      render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
+      render(<ArticleDetailsSidebar {...defaultProps} />);
       expect(screen.getByText('Submitted on')).toBeInTheDocument();
       expect(screen.getByText('Accepted on')).toBeInTheDocument();
     });
