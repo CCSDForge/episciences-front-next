@@ -34,6 +34,7 @@ interface IAboutSection {
   id: string;
   value: string;
   opened: boolean;
+  isIntro?: boolean;
 }
 
 interface AboutClientProps {
@@ -101,6 +102,7 @@ export default function AboutClient({
             id: 'intro',
             value: '',
             opened: true,
+            isIntro: true,
           };
         }
         currentSection.value += serializeMarkdown(node) + '\n';
@@ -231,65 +233,67 @@ export default function AboutClient({
                   key={section.id}
                   className={`about-content-body-section ${!section.opened && 'about-content-body-section-hidden'}`}
                 >
-                  <div
-                    className="about-content-body-section-subtitle"
-                    role="button"
-                    tabIndex={0}
-                    aria-expanded={section.opened}
-                    onClick={(): void => toggleSectionHeader(section.id)}
-                    onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(section.id))}
-                  >
-                    <h2 id={section.id} className="about-content-body-section-subtitle-text">
-                      <MarkdownRenderer
-                        components={{
-                          img: ({ src, alt }) => (
-                            <Image
-                              src={getMarkdownImageURL(
-                                typeof src === 'string' ? src : '',
-                                rvcode || ''
-                              )}
-                              alt={alt || ''}
-                              width={0}
-                              height={0}
-                              sizes="100vw"
-                              style={{ width: 'auto', height: 'auto' }}
-                            />
-                          ),
-                          a: ({ href, children }) => (
-                            <a
-                              href={href}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="about-content-body-section-link"
-                            >
-                              {children}
-                            </a>
-                          ),
-                          h1: ({ children }) => <>{children}</>,
-                          h2: ({ children }) => <>{children}</>,
-                          h3: ({ children }) => <>{children}</>,
-                          h4: ({ children }) => <>{children}</>,
-                          h5: ({ children }) => <>{children}</>,
-                          h6: ({ children }) => <>{children}</>,
-                        }}
-                      >
-                        {section.value.split('\n')[0]}
-                      </MarkdownRenderer>
-                    </h2>
-                    {section.opened ? (
-                      <CaretUpBlackIcon
-                        size={16}
-                        className="about-content-body-section-subtitle-caret"
-                        ariaLabel="Collapse section"
-                      />
-                    ) : (
-                      <CaretDownBlackIcon
-                        size={16}
-                        className="about-content-body-section-subtitle-caret"
-                        ariaLabel="Expand section"
-                      />
-                    )}
-                  </div>
+                  {!section.isIntro && (
+                    <div
+                      className="about-content-body-section-subtitle"
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={section.opened}
+                      onClick={(): void => toggleSectionHeader(section.id)}
+                      onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(section.id))}
+                    >
+                      <h2 id={section.id} className="about-content-body-section-subtitle-text">
+                        <MarkdownRenderer
+                          components={{
+                            img: ({ src, alt }) => (
+                              <Image
+                                src={getMarkdownImageURL(
+                                  typeof src === 'string' ? src : '',
+                                  rvcode || ''
+                                )}
+                                alt={alt || ''}
+                                width={0}
+                                height={0}
+                                sizes="100vw"
+                                style={{ width: 'auto', height: 'auto' }}
+                              />
+                            ),
+                            a: ({ href, children }) => (
+                              <a
+                                href={href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="about-content-body-section-link"
+                              >
+                                {children}
+                              </a>
+                            ),
+                            h1: ({ children }) => <>{children}</>,
+                            h2: ({ children }) => <>{children}</>,
+                            h3: ({ children }) => <>{children}</>,
+                            h4: ({ children }) => <>{children}</>,
+                            h5: ({ children }) => <>{children}</>,
+                            h6: ({ children }) => <>{children}</>,
+                          }}
+                        >
+                          {section.value.split('\n')[0]}
+                        </MarkdownRenderer>
+                      </h2>
+                      {section.opened ? (
+                        <CaretUpBlackIcon
+                          size={16}
+                          className="about-content-body-section-subtitle-caret"
+                          ariaLabel="Collapse section"
+                        />
+                      ) : (
+                        <CaretDownBlackIcon
+                          size={16}
+                          className="about-content-body-section-subtitle-caret"
+                          ariaLabel="Expand section"
+                        />
+                      )}
+                    </div>
+                  )}
                   <MarkdownRenderer
                     components={{
                       img: ({ src, alt }) => (
@@ -317,7 +321,9 @@ export default function AboutClient({
                       ),
                     }}
                   >
-                    {section.value.split('\n').slice(1).join('\n')}
+                    {section.isIntro
+                      ? section.value
+                      : section.value.split('\n').slice(1).join('\n')}
                   </MarkdownRenderer>
                 </div>
               ))
