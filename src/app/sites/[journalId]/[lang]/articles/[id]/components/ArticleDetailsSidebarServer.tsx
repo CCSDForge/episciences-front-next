@@ -165,11 +165,15 @@ export default function ArticleDetailsSidebarServer({
       <>
         {article?.submissionDate && (
           <div className="articleDetailsSidebar-publicationDetails-content-row">
-            <div>{t('pages.articleDetails.publicationDetails.submittedOn', translations)}</div>
+            <div>
+              {article.isImported
+                ? t('pages.articleDetails.publicationDetails.importedOn', translations)
+                : t('pages.articleDetails.publicationDetails.submittedOn', translations)}
+            </div>
             <div>{formatDate(article.submissionDate, 'en')}</div>
           </div>
         )}
-        {article?.acceptanceDate && (
+        {article?.acceptanceDate && !article.isImported && (
           <div className="articleDetailsSidebar-publicationDetails-content-row">
             <div>{t('pages.articleDetails.publicationDetails.acceptedOn', translations)}</div>
             <div>{formatDate(article.acceptanceDate, 'en')}</div>
