@@ -88,6 +88,7 @@
     "contentNotInLanguage": "Ce contenu n'est pas encore disponible dans la langue demandée.",
     "publicationDetails": "Détails de publication",
     "submittedOn": "Soumis le",
+    "importedOn": "Importé le",
     "lastModifiedOn": "Modifié le"
   },
   "components": {
