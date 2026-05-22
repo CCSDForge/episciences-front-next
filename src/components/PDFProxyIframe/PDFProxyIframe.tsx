@@ -25,7 +25,6 @@ export function PDFProxyIframe({
   const [status, setStatus] = useState<Status>('loading');
   const [retryKey, setRetryKey] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     setStatus('loading');
@@ -44,23 +43,12 @@ export function PDFProxyIframe({
 
   const handleLoad = () => {
     clearTimer();
-    // onLoad fires for both PDF responses and HTTP error responses (404, 504…).
-    // For a real PDF the browser's PDF viewer takes over and contentDocument is
-    // null/inaccessible. For an HTML/text error body it is accessible.
-    try {
-      const doc = iframeRef.current?.contentDocument;
-      if (doc != null) {
-        setStatus('error');
-        return;
-      }
-    } catch {
-      // SecurityError → PDF viewer running in sandboxed context → success
-    }
     setStatus('loaded');
   };
 
   const handleError = () => {
     clearTimer();
+    console.error('[PDFProxyIframe] Failed to load:', src);
     setStatus('error');
   };
 
@@ -88,7 +76,6 @@ export function PDFProxyIframe({
       {status !== 'error' && (
         <iframe
           key={retryKey}
-          ref={iframeRef}
           src={src}
           title={title}
           className="pdf-proxy-iframe"

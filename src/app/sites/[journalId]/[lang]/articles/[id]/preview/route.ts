@@ -17,10 +17,12 @@ export async function GET(
   const article = await fetchArticle(id, journalId);
 
   if (!article?.pdfLink) {
+    console.warn(`[preview] article ${id} (${journalId}): no pdfLink`);
     return new NextResponse(null, { status: 404 });
   }
 
   if (!isAllowedPdfDomain(article.pdfLink)) {
+    console.warn(`[preview] article ${id}: domain not allowed — ${article.pdfLink}`);
     return new NextResponse('Invalid PDF source', { status: 403 });
   }
 
@@ -36,6 +38,7 @@ export async function GET(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
+      console.error(`[preview] upstream ${response.status} for article ${id}: ${article.pdfLink}`);
       return new NextResponse('Failed to fetch PDF', { status: response.status });
     }
 
@@ -53,8 +56,10 @@ export async function GET(
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === 'AbortError') {
+      console.error(`[preview] timeout fetching PDF for article ${id}: ${article.pdfLink}`);
       return new NextResponse('Request timeout', { status: 504 });
     }
+    console.error(`[preview] error for article ${id}:`, error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
