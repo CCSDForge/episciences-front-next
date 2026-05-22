@@ -28,7 +28,7 @@ export async function GET(
   const sanitizedFilename = filename.replace(/[^\w\s.-]/g, '_').slice(0, 200);
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   try {
     const response = await fetch(article.pdfLink, {
