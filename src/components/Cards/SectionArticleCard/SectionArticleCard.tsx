@@ -14,7 +14,6 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
-import { generateArticleFilename } from '@/utils/pdf';
 import { useAppSelector } from '@/hooks/store';
 
 interface ISectionArticleCardProps {
@@ -84,9 +83,7 @@ export default function SectionArticleCard({
         <div className="sectionArticleCard-anchor-icons">
           {article.pdfLink && (
             <DownloadArticleButton
-              pdfLink={article.pdfLink}
               downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
-              filename={generateArticleFilename(rvcode ?? '', article.id, article.title)}
             >
               <div className="sectionArticleCard-anchor-icons-download">
                 <DownloadBlackIcon
