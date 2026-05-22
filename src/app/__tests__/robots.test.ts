@@ -13,12 +13,13 @@ describe('Robots.txt Generator', () => {
     vi.unstubAllEnvs();
   });
 
-  it('should only disallow /search', async () => {
+  it('should disallow /search and /api/', async () => {
     const result = await robots();
 
     expect((result.rules as any).disallow).toEqual(ROBOTS_DISALLOW);
     expect((result.rules as any).disallow).toContain('/search');
-    expect((result.rules as any).disallow).toHaveLength(1);
+    expect((result.rules as any).disallow).toContain('/api/');
+    expect((result.rules as any).disallow).toHaveLength(2);
   });
 
   it('should advertise the sitemap served by Nginx', async () => {

@@ -92,6 +92,7 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
     // SEO: Calculate canonical URL and alternates
     const baseUrl = getJournalBaseUrl(journalId);
     const canonicalUrl = `${baseUrl}/${language}/articles/${id}`;
+    const pdfDownloadUrl = article.pdfLink ? `${canonicalUrl}/download` : undefined;
 
     const alternateLanguages: Record<string, string> = {};
     acceptedLanguages.forEach(lang => {
@@ -108,6 +109,7 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
       relatedVolume,
       canonicalUrl,
       alternateLanguages,
+      pdfDownloadUrl,
     });
   } catch (error) {
     console.error(

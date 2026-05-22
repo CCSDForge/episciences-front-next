@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchArticle } from '@/services/article';
-import { isAllowedPdfDomain } from '@/utils/pdf';
+import { generateArticleFilename, isAllowedPdfDomain } from '@/utils/pdf';
 import { isValidJournalId } from '@/utils/validation';
 import { AvailableLanguage } from '@/utils/i18n';
 
@@ -24,6 +24,9 @@ export async function GET(
     return new NextResponse('Invalid PDF source', { status: 403 });
   }
 
+  const filename = generateArticleFilename(journalId, article.id, article.title);
+  const sanitizedFilename = filename.replace(/[^\w\s.-]/g, '_').slice(0, 200);
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
 
@@ -41,9 +44,8 @@ export async function GET(
 
     const headers = new Headers({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': 'inline',
+      'Content-Disposition': `attachment; filename="${sanitizedFilename}"`,
       'Cache-Control': 'public, max-age=604800, immutable',
-      'X-Robots-Tag': 'noindex',
     });
 
     const contentLength = response.headers.get('Content-Length');

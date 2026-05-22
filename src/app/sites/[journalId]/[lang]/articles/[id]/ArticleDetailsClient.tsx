@@ -352,12 +352,11 @@ export default function ArticleDetailsClient({
   };
 
   const getPreviewSection = (): React.JSX.Element | null => {
-    if (!article?.pdfLink) {
+    if (!article?.pdfLink || !article?.id) {
       return null;
     }
 
-    // PreviewSection handles the viewer choice (iframe vs PDF.js) internally
-    return <PreviewSection pdfLink={article.pdfLink} />;
+    return <PreviewSection previewHref={`/${language}/articles/${article.id}/preview`} />;
   };
 
   const renderMetrics = (): React.JSX.Element | undefined => {
@@ -418,17 +417,6 @@ export default function ArticleDetailsClient({
 
   return (
     <main className="articleDetails">
-      {/* Tracking pixel for article views - appears in Apache logs as /articles/[id]/preview */}
-      {article?.id && (
-        <img
-          src={`/articles/${article.id}/preview`}
-          alt=""
-          width="1"
-          height="1"
-          style={{ position: 'absolute', visibility: 'hidden' }}
-          aria-hidden="true"
-        />
-      )}
       <Breadcrumb
         parents={[
           {

@@ -11,7 +11,6 @@ import { ExternalLinkBlackIcon, DownloadBlackIcon } from '@/components/icons';
 import InteractiveDropdown from './InteractiveDropdown';
 import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
-import { generateArticleFilename } from '@/utils/pdf';
 
 import '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar.scss';
 
@@ -256,9 +255,7 @@ export default function ArticleDetailsSidebarServer({
       <div className="articleDetailsSidebar-links">
         {article?.pdfLink && (
           <DownloadArticleButton
-            pdfLink={article.pdfLink}
             downloadHref={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)}
-            filename={generateArticleFilename(rvcode, article.id, article.title)}
           >
             <div className="articleDetailsSidebar-links-link">
               <DownloadBlackIcon

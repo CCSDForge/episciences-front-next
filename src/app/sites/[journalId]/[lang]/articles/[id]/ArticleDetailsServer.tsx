@@ -208,12 +208,11 @@ export default function ArticleDetailsServer({
   };
 
   const getPreviewSection = (): React.JSX.Element | null => {
-    // All PDFs now routed through proxy which forces inline display
-    if (!article?.pdfLink) {
+    if (!article?.pdfLink || !article?.id) {
       return null;
     }
 
-    return <PreviewSection pdfLink={article.pdfLink} />;
+    return <PreviewSection previewHref={`/${language || defaultLanguage}/articles/${article.id}/preview`} />;
   };
 
   // Helper to render sections with collapsible wrapper
@@ -237,17 +236,6 @@ export default function ArticleDetailsServer({
     <>
       <SignpostingLinks article={article} rvcode={rvcode} id={id} lang={language || defaultLanguage} />
       <main className="articleDetails">
-      {/* Tracking pixel for article views - appears in Apache logs as /articles/[id]/preview */}
-      {article?.id && (
-        <img
-          src={`/articles/${article.id}/preview`}
-          alt=""
-          width="1"
-          height="1"
-          style={{ position: 'absolute', visibility: 'hidden' }}
-          aria-hidden="true"
-        />
-      )}
       <Breadcrumb
         parents={[
           {

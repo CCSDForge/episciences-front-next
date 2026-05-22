@@ -1,42 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getPdfProxyUrl } from '@/utils/pdf';
+import { useState } from 'react';
 import './PDFProxyIframe.scss';
 
 interface PDFProxyIframeProps {
-  pdfUrl: string;
+  src: string;
   title?: string;
   height?: string;
   className?: string;
 }
 
 export function PDFProxyIframe({
-  pdfUrl,
+  src,
   title = 'PDF Preview',
   height = '600px',
   className = '',
 }: PDFProxyIframeProps) {
-  const [proxyUrl, setProxyUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (pdfUrl) {
-      setProxyUrl(getPdfProxyUrl(pdfUrl, 'inline'));
-    }
-  }, [pdfUrl]);
-
-  const handleLoad = () => {
-    setIsLoading(false);
-  };
-
-  const handleError = () => {
-    setIsLoading(false);
-    setHasError(true);
-  };
-
-  if (!pdfUrl) {
+  if (!src) {
     return <div className="pdf-proxy-iframe-empty">No PDF URL provided</div>;
   }
 
@@ -46,17 +29,15 @@ export function PDFProxyIframe({
       {hasError && (
         <div className="pdf-proxy-iframe-error">Failed to load PDF. Please try again later.</div>
       )}
-      {proxyUrl && (
-        <iframe
-          src={proxyUrl}
-          title={title}
-          className="pdf-proxy-iframe"
-          onLoad={handleLoad}
-          onError={handleError}
-          loading="lazy"
-          allow="fullscreen"
-        />
-      )}
+      <iframe
+        src={src}
+        title={title}
+        className="pdf-proxy-iframe"
+        onLoad={() => setIsLoading(false)}
+        onError={() => { setIsLoading(false); setHasError(true); }}
+        loading="lazy"
+        allow="fullscreen"
+      />
     </div>
   );
 }

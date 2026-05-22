@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sanitizeIp, sanitizeForLog } from '@/utils/validation';
-
-// Whitelist of allowed PDF sources
-const ALLOWED_DOMAINS = [
-  'zenodo.org',
-  'arxiv.org',
-  'hal.archives-ouvertes.fr',
-  'hal.science', // New HAL domain
-  'archive.softwareheritage.org',
-];
+import { isAllowedPdfDomain } from '@/utils/pdf';
 
 // Rate limiting: 30 requests per minute per IP
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -48,21 +40,6 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-/**
- * Validate if URL domain is in allowed list.
- * Requires HTTPS and an exact hostname match or a proper subdomain
- * (e.g. "data.zenodo.org" is allowed, "evilzenodo.org" is not).
- */
-function isAllowedDomain(url: string): boolean {
-  try {
-    const urlObj = new URL(url);
-    if (urlObj.protocol !== 'https:') return false;
-    const hostname = urlObj.hostname;
-    return ALLOWED_DOMAINS.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
-  } catch {
-    return false;
-  }
-}
 
 /**
  * GET /api/pdf-proxy - Proxy PDF requests to bypass CORS and control Content-Disposition
@@ -99,7 +76,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Validate domain
-  if (!isAllowedDomain(pdfUrl)) {
+  if (!isAllowedPdfDomain(pdfUrl)) {
     console.warn(`[PDF Proxy] Blocked non-whitelisted domain: ${sanitizeForLog(pdfUrl)}`); // lgtm[js/log-injection]
     return new NextResponse('Domain not allowed', { status: 403 });
   }
@@ -142,6 +119,7 @@ export async function GET(request: NextRequest) {
       'Content-Disposition': contentDisposition, // 'inline' or 'attachment; filename="..."'
       'Cache-Control': 'public, max-age=604800, immutable', // 7 days cache
       'Access-Control-Allow-Methods': 'GET',
+      'X-Robots-Tag': 'noindex',
     };
     if (allowedOrigin) {
       corsHeaders['Access-Control-Allow-Origin'] = allowedOrigin;

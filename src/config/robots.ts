@@ -1,1 +1,1 @@
-export const ROBOTS_DISALLOW = ['/search'];
+export const ROBOTS_DISALLOW = ['/search', '/api/'];

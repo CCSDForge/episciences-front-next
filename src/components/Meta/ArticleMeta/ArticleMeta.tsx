@@ -15,6 +15,7 @@ interface IArticleMetaProps {
   relatedVolume?: IVolume | null;
   canonicalUrl?: string;
   alternateLanguages?: Record<string, string>;
+  pdfDownloadUrl?: string;
 }
 
 // Helper function to extract abstract as string
@@ -42,6 +43,7 @@ export function generateArticleMetadata({
   relatedVolume,
   canonicalUrl,
   alternateLanguages,
+  pdfDownloadUrl,
 }: IArticleMetaProps): Metadata {
   const metadataTitle = article?.title
     ? `${article.title}${currentJournal?.name ? ` | ${currentJournal.name}` : ''}`
@@ -55,7 +57,7 @@ export function generateArticleMetadata({
     citation_volume: relatedVolume?.num || '',
     citation_doi: article?.doi || '',
     citation_fulltext_world_readable: '',
-    citation_pdf_url: article?.pdfLink || '',
+    citation_pdf_url: pdfDownloadUrl || article?.pdfLink || '',
     citation_issn:
       currentJournal?.settings?.find(setting => setting.setting === 'ISSN')?.value || '',
     citation_language: language,
@@ -95,6 +97,9 @@ export function generateArticleMetadata({
       alternates: {
         canonical: canonicalUrl,
         languages: alternateLanguages,
+        ...(pdfDownloadUrl && {
+          types: { 'application/pdf': pdfDownloadUrl },
+        }),
       },
     }),
     openGraph: {
