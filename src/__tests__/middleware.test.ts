@@ -6,8 +6,9 @@ import { NextResponse } from 'next/server';
 // ---------------------------------------------------------------------------
 
 vi.mock('@/config/journals-generated', () => ({
-  journals: ['epijinfo', 'jtam', 'test-journal'],
+  journals: ['epijinfo', 'jtam', 'test-journal', 'pspa'],
 }));
+
 
 vi.mock('next/server', async () => {
   const actual = await vi.importActual<typeof import('next/server')>('next/server');
@@ -157,5 +158,73 @@ describe('middleware — hostname detection', () => {
       'Link',
       expect.stringContaining('rel="http://www.w3.org/ns/ldp#inbox"')
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Language rejection — non-accepted language prefix
+// ---------------------------------------------------------------------------
+
+describe('middleware — non-accepted language prefix redirect', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.resetModules();
+    delete process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES;
+    delete process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE;
+    delete process.env.NEXT_PUBLIC_EPISCIENCES_DOMAIN;
+    delete process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+  });
+
+  afterEach(() => {
+    delete process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES;
+    delete process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE;
+  });
+
+  it('redirects /en/about to /fr/about when journal only accepts fr', async () => {
+    process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES = 'fr';
+    process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE = 'fr';
+
+    vi.doMock('@/utils/language-utils', () => ({
+      acceptedLanguages: ['fr'],
+      defaultLanguage: 'fr',
+      allSupportedLanguages: ['en', 'fr', 'es'],
+      getLanguageFromPathname: (p: string) => (p.startsWith('/en') ? 'en' : p.startsWith('/fr') ? 'fr' : 'fr'),
+      hasLanguagePrefix: (p: string) => /^\/(en|fr|es)(\/|$)/.test(p),
+      removeLanguagePrefix: (p: string) => p.replace(/^\/(en|fr|es)/, '') || '/',
+      isDefaultLanguage: (l: string) => l === 'fr',
+      validateLanguage: (l: string) => (['en', 'fr', 'es'].includes(l) ? l : 'fr'),
+      getLocalizedPath: (p: string, l: string) => `/${l}${p}`,
+    }));
+
+    const { middleware } = await import('../middleware');
+    await middleware(makeRequest('pspa.episciences.org', '/en/about'));
+
+    expect(NextResponse.redirect).toHaveBeenCalledWith(
+      expect.objectContaining({ pathname: '/fr/about' }),
+      expect.objectContaining({ status: 302 })
+    );
+  });
+
+  it('does not redirect /fr/about when journal accepts fr', async () => {
+    process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES = 'fr';
+    process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE = 'fr';
+
+    vi.doMock('@/utils/language-utils', () => ({
+      acceptedLanguages: ['fr'],
+      defaultLanguage: 'fr',
+      allSupportedLanguages: ['en', 'fr', 'es'],
+      getLanguageFromPathname: (p: string) => (p.startsWith('/fr') ? 'fr' : p.startsWith('/en') ? 'en' : 'fr'),
+      hasLanguagePrefix: (p: string) => /^\/(en|fr|es)(\/|$)/.test(p),
+      removeLanguagePrefix: (p: string) => p.replace(/^\/(en|fr|es)/, '') || '/',
+      isDefaultLanguage: (l: string) => l === 'fr',
+      validateLanguage: (l: string) => (['en', 'fr', 'es'].includes(l) ? l : 'fr'),
+      getLocalizedPath: (p: string, l: string) => `/${l}${p}`,
+    }));
+
+    const { middleware } = await import('../middleware');
+    await middleware(makeRequest('pspa.episciences.org', '/fr/about'));
+
+    expect(NextResponse.redirect).not.toHaveBeenCalled();
+    expect(NextResponse.rewrite).toHaveBeenCalled();
   });
 });

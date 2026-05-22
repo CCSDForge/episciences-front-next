@@ -6,7 +6,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "preflight": "node scripts/copy-logos.js && node scripts/generate-journals.js",
+    "preflight": "node scripts/copy-logos.js && node scripts/generate-journals.js && node scripts/generate-journals-languages.js",
     "predev": "npm run preflight",
     "dev": "next dev -p 8080",
     "dev:turbo": "next dev --turbo -p 8080",
