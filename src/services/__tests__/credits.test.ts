@@ -39,15 +39,33 @@ describe('credits service', () => {
         page_code: 'credits',
         content: { en: '<p>Credits content</p>', fr: '<p>Contenu crédits</p>' },
       };
-      mockFetch.mockResolvedValue(createMockResponse([mockPage]));
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [mockPage], 'hydra:totalItems': 1 })
+      );
 
       const result = await fetchCreditsPage('myjournal');
 
       expect(result).toEqual(mockPage);
     });
 
+    it('should unwrap hydra:member — regression for plain-array bug', async () => {
+      const mockPage = { page_code: 'credits', content: { en: 'Credits' } };
+      // The real API returns a hydra collection, NOT a plain array.
+      // A plain array has no hydra:member → was always returning null before this fix.
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [mockPage], 'hydra:totalItems': 1 })
+      );
+
+      const result = await fetchCreditsPage('myjournal');
+
+      expect(result).not.toBeNull();
+      expect(result).toEqual(mockPage);
+    });
+
     it('should include rvcode in the request URL', async () => {
-      mockFetch.mockResolvedValue(createMockResponse([{}]));
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [{}], 'hydra:totalItems': 1 })
+      );
 
       await fetchCreditsPage('myjournal');
 
@@ -58,7 +76,9 @@ describe('credits service', () => {
     });
 
     it('should request page with page_code=credits', async () => {
-      mockFetch.mockResolvedValue(createMockResponse([{}]));
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [{}], 'hydra:totalItems': 1 })
+      );
 
       await fetchCreditsPage('myjournal');
 
@@ -68,8 +88,10 @@ describe('credits service', () => {
       );
     });
 
-    it('should return null when response array is empty', async () => {
-      mockFetch.mockResolvedValue(createMockResponse([]));
+    it('should return null when hydra:member is empty', async () => {
+      mockFetch.mockResolvedValue(
+        createMockResponse({ 'hydra:member': [], 'hydra:totalItems': 0 })
+      );
 
       const result = await fetchCreditsPage('myjournal');
 

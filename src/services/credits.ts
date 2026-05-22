@@ -25,7 +25,8 @@ export async function fetchCreditsPage(rvcode: string) {
         throw new Error(`Failed to fetch credits page: HTTP ${response.status}`);
       }
 
-      const pages = await response.json();
+      const data = await response.json();
+      const pages = data?.['hydra:member'] ?? [];
       return pages.length > 0 ? pages[0] : null;
     },
     // Fallback to null if API fails
