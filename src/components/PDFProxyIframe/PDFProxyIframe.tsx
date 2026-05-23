@@ -24,15 +24,21 @@ export function PDFProxyIframe({
 }: PDFProxyIframeProps) {
   const [status, setStatus] = useState<Status>('loading');
   const [retryKey, setRetryKey] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
     setStatus('loading');
     timerRef.current = setTimeout(() => setStatus('error'), LOAD_TIMEOUT_MS);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [src, retryKey]);
+  }, [src, retryKey, isMounted]);
 
   const clearTimer = () => {
     if (timerRef.current) {
@@ -73,15 +79,14 @@ export function PDFProxyIframe({
           </button>
         </div>
       )}
-      {status !== 'error' && (
+      {isMounted && status !== 'error' && (
         <iframe
-          key={retryKey}
+          key={`${src}-${retryKey}`}
           src={src}
           title={title}
           className="pdf-proxy-iframe"
           onLoad={handleLoad}
           onError={handleError}
-          loading="lazy"
           allow="fullscreen"
         />
       )}
