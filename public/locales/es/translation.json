@@ -255,6 +255,7 @@
       },
       "actions": {
         "download": "Descargar artículo",
+        "viewPDF": "Ver el PDF",
         "openOn": "Abrir en",
         "cite": "Citar",
         "citationError": "Error al generar las citas",

@@ -84,6 +84,7 @@ export default function SectionArticleCard({
           {article.pdfLink && (
             <DownloadArticleButton
               downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
+              ariaLabel={`${t('pages.articleDetails.download.openPDF')} - ${article.title}`}
             >
               <div className="sectionArticleCard-anchor-icons-download">
                 <DownloadBlackIcon

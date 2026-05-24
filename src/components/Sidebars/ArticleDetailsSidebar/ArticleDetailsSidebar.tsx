@@ -286,6 +286,7 @@ export default function ArticleDetailsSidebar({
           <>
             <DownloadArticleButton
               downloadHref={`/${PATHS.articles}/${article.id}/download`}
+              ariaLabel={`${t('pages.articleDetails.download.openPDF')} - ${article.title}`}
             >
               <div className="articleDetailsSidebar-links-link">
                 <DownloadBlackIcon

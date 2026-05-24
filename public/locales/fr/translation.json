@@ -262,6 +262,7 @@
       },
       "actions": {
         "download": "Télécharger l'article",
+        "viewPDF": "Voir le PDF",
         "openOn": "Ouvrir sur",
         "cite": "Citer",
         "citationError": "Erreur lors de la génération des citations",

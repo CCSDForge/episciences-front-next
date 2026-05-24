@@ -106,6 +106,7 @@ function ArticleCard({
           {article.pdfLink && (
             <DownloadArticleButton
               downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
+              ariaLabel={`${t('pages.articleDetails.download.openPDF')} - ${article.title}`}
             >
               <div className="articleCard-anchor-icons-download">
                 <DownloadBlackIcon

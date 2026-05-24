@@ -111,6 +111,7 @@ function SearchResultCard({
           {searchResult.pdfLink && (
             <DownloadArticleButton
               downloadHref={`/${language}/${PATHS.articles}/${searchResult.id}/download`}
+              ariaLabel={`${t('pages.articleDetails.download.openPDF')} - ${searchResult.title}`}
             >
               <div className="searchResultCardAnchorIconsDownload">
                 <DownloadBlackIcon

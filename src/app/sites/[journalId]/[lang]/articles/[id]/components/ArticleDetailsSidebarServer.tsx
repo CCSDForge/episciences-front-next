@@ -256,6 +256,7 @@ export default function ArticleDetailsSidebarServer({
         {article?.pdfLink && (
           <DownloadArticleButton
             downloadHref={getLocalizedPath(`${PATHS.articles}/${article.id}/download`)}
+            ariaLabel={`${t('pages.articleDetails.download.openPDF', translations)} - ${article.title}`}
           >
             <div className="articleDetailsSidebar-links-link">
               <DownloadBlackIcon

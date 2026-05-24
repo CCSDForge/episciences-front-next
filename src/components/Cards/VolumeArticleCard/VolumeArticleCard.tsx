@@ -86,6 +86,7 @@ function VolumeArticleCard({ language, t, article }: IVolumeArticleCardProps): R
           {article.pdfLink && (
             <DownloadArticleButton
               downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
+              ariaLabel={`${t('pages.articleDetails.download.openPDF')} - ${article.title}`}
             >
               <div className="volumeArticleCard-anchor-icons-download">
                 <DownloadBlackIcon

@@ -44,7 +44,7 @@ export async function GET(
 
     const headers = new Headers({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${sanitizedFilename}"`,
+      'Content-Disposition': `inline; filename="${sanitizedFilename}"`,
       'Cache-Control': 'public, max-age=604800, immutable',
     });
 
