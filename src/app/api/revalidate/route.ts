@@ -2,23 +2,12 @@ import { revalidateTag, revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { sanitizeIp, sanitizeForLog } from '@/utils/validation';
+import { apiLogger } from '@/lib/logger';
 
-/**
- * API Route for Secure On-Demand Revalidation
- *
- * Security Measures:
- * 1. IP Whitelisting (via ALLOWED_IPS env var)
- * 2. Header-based Authentication (x-episciences-token)
- * 3. Journal-specific Secrets (REVALIDATION_TOKEN_[JOURNAL_CODE])
- * 4. Path validation to prevent traversal attacks
- * 5. Rate limiting (configurable via env vars)
- *
- * Cache consistency across the cluster is handled by the shared Valkey cache
- * (see src/lib/cache-handler.js). PEER_SERVERS broadcasting is no longer needed.
- */
+const log = apiLogger.child({ route: 'revalidate' });
 
 if (process.env.NODE_ENV === 'production' && !process.env.REVALIDATION_SECRET) {
-  console.warn('[Revalidate API] CRITICAL: REVALIDATION_SECRET is not set in production!');
+  log.warn('CRITICAL: REVALIDATION_SECRET is not set in production');
 }
 
 // Simple in-memory rate limiter (Configurable via env)
@@ -88,13 +77,13 @@ export async function POST(request: NextRequest) {
     );
 
     if (allowedIps.length > 0 && !allowedIps.includes(clientIp)) {
-      console.warn(`[Revalidate API] Blocked unauthorized IP: ${clientIp}`);
+      log.warn({ clientIp }, 'Blocked unauthorized IP');
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
     // 2. Rate Limiting Check
     if (!checkRateLimit(clientIp)) {
-      console.warn(`[Revalidate API] Rate limit exceeded for IP: ${clientIp}`);
+      log.warn({ clientIp }, 'Rate limit exceeded');
       return NextResponse.json({ message: 'Too many requests' }, { status: 429 });
     }
 
@@ -136,24 +125,22 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isAuthorized) {
-      console.warn(
-        `[Revalidate API] Invalid token provided for journal: ${sanitizeForLog(journalId) || 'global'}`
-      ); // lgtm[js/log-injection]
+      log.warn({ journalId: sanitizeForLog(journalId) || 'global' }, 'Invalid token');
       return NextResponse.json({ message: 'Invalid secret' }, { status: 401 });
     }
 
     // 5. Execution
     if (tag) {
-      console.log(`[Revalidate API] Revalidating tag: ${sanitizeForLog(tag)}`); // lgtm[js/log-injection]
+      log.info({ tag: sanitizeForLog(tag) }, 'Revalidating tag');
       revalidateTag(tag, { expire: 0 });
     } else if (path) {
       // Validate path format to prevent path traversal attacks
       if (!isValidRevalidatePath(path, journalId)) {
-        console.warn(`[Revalidate API] Invalid path format: ${sanitizeForLog(path)}`); // lgtm[js/log-injection]
+        log.warn({ path: sanitizeForLog(path) }, 'Invalid path format');
         return NextResponse.json({ message: 'Invalid path format' }, { status: 400 });
       }
 
-      console.log(`[Revalidate API] Revalidating path: ${sanitizeForLog(path)}`); // lgtm[js/log-injection]
+      log.info({ path: sanitizeForLog(path) }, 'Revalidating path');
       revalidatePath(path);
     } else {
       return NextResponse.json({ message: 'Missing tag or path' }, { status: 400 });
@@ -166,7 +153,7 @@ export async function POST(request: NextRequest) {
       tag: tag || undefined,
     });
   } catch (error) {
-    console.error('[Revalidate API] Error:', error);
+    log.error({ error }, 'Revalidate API error');
     return NextResponse.json({ message: 'Error revalidating' }, { status: 500 });
   }
 }

@@ -11,6 +11,9 @@ import { getJournalApiUrl } from '@/utils/env-loader';
 import { fetchWithRetry } from '@/utils/fetch-with-retry';
 import { transformBoardMembers, RawBoardMember } from '@/utils/board-transforms';
 import { CACHE_TTL } from '@/utils/cache-ttl';
+import { serviceLogger } from '@/lib/logger';
+
+const log = serviceLogger.child({ service: 'home' });
 
 // Interface PageContent pour les pages about et indexation
 interface PageContent {
@@ -101,11 +104,9 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
         tags: ['members', `members-${rvcode}`, 'boards', `boards-${rvcode}`],
       },
     }).then(res => {
-      // console.log(`Fetching board members from home with URL: ${apiBaseUrl}${API_PATHS.members}${rvcode}, status: ${res.status}`);
       // Le endpoint des membres peut retourner directement un tableau au lieu d'une collection Hydra
       return res.ok
         ? res.json().then(data => {
-            //  console.log(`Successfully fetched board members from home, count: ${Array.isArray(data) ? data.length : 'N/A'}`);
             if (Array.isArray(data)) {
               return { 'hydra:member': data, 'hydra:totalItems': data.length };
             }
@@ -184,10 +185,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
           }).then((res: Response) => res.json());
           return formatArticle(rawArticle);
         } catch (error) {
-          console.error(
-            `Erreur lors de la récupération de l'article ${partialArticle.paperid}:`,
-            error
-          );
+          log.error({ error, paperid: partialArticle.paperid }, 'Failed to fetch article');
           // Retourner un article minimal pour éviter les erreurs
           return {
             id: Number(partialArticle.paperid),
@@ -219,10 +217,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
           }).then((res: Response) => res.json());
           return formatArticle(rawArticle);
         } catch (error) {
-          console.error(
-            `Erreur lors de la récupération de l'article accepté ${partialArticle.paperid}:`,
-            error
-          );
+          log.error({ error, paperid: partialArticle.paperid }, 'Failed to fetch accepted article');
           // Retourner un article minimal pour éviter les erreurs
           return {
             id: Number(partialArticle.paperid),
@@ -245,9 +240,6 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
     const rawMembers: RawBoardMember[] = membersResponse?.['hydra:member'] || [];
     const transformedMembers = transformBoardMembers(rawMembers);
 
-    //  console.log('Home data fetched successfully. Articles count:', formattedArticles.length);
-    //  console.log('First 3 articles from API:', formattedArticles.slice(0, 3));
-    //  console.log('Board members count:', transformedMembers.length);
 
     const formattedVolumes = (volumesResponse?.['hydra:member'] || []).map((rawVolume: any) =>
       formatVolume(rvcode, language as AvailableLanguage, rawVolume)
@@ -284,7 +276,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
       },
     };
   } catch (error) {
-    console.error('Error fetching home data:', error);
+    log.error({ error }, 'Error fetching home data');
     return {}; // Retourner un objet vide en cas d'erreur
   }
 }

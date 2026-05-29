@@ -5,6 +5,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // 'server-only' throws in browser bundles; in Vitest (Node.js) it's a no-op
+      'server-only': path.resolve(__dirname, './src/test-utils/server-only-mock.ts'),
     },
   },
   test: {

@@ -20,7 +20,6 @@ describe('safeFetch', () => {
   it('returns fallback with source "fallback" when fetch throws', async () => {
     const fallback = { items: [] };
     const fetchFn = vi.fn().mockRejectedValue(new Error('API is down'));
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const result = await safeFetch(fetchFn, fallback, 'test-context');
 
@@ -32,7 +31,6 @@ describe('safeFetch', () => {
 
   it('wraps non-Error rejections in an Error object', async () => {
     const fetchFn = vi.fn().mockRejectedValue('string error');
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const result = await safeFetch(fetchFn, null, 'test-context');
 
@@ -40,21 +38,21 @@ describe('safeFetch', () => {
     expect(result.error?.message).toBe('Unknown error');
   });
 
-  it('logs a warning with the context when fetch fails', async () => {
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('calls logger.warn with context when fetch fails', async () => {
+    const { safeFetchLogger } = await import('@/lib/logger');
+    const warnSpy = vi.spyOn(safeFetchLogger, 'warn');
     const fetchFn = vi.fn().mockRejectedValue(new Error('timeout'));
 
     await safeFetch(fetchFn, null, 'fetchArticles(epijinfo)');
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('fetchArticles(epijinfo)'),
-      expect.anything()
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ context: 'fetchArticles(epijinfo)' }),
+      expect.any(String)
     );
   });
 
   it('accepts null as fallback value', async () => {
     const fetchFn = vi.fn().mockRejectedValue(new Error('fail'));
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const result = await safeFetch(fetchFn, null, 'context');
 
@@ -80,7 +78,6 @@ describe('safeFetchData', () => {
   it('returns fallback directly on failure (unwrapped)', async () => {
     const fallback = [] as number[];
     const fetchFn = vi.fn().mockRejectedValue(new Error('API down'));
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const result = await safeFetchData(fetchFn, fallback, 'test-context');
 
@@ -89,7 +86,6 @@ describe('safeFetchData', () => {
 
   it('never throws even when fetch function throws', async () => {
     const fetchFn = vi.fn().mockRejectedValue(new Error('critical failure'));
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     await expect(safeFetchData(fetchFn, 'default', 'context')).resolves.toBe('default');
   });

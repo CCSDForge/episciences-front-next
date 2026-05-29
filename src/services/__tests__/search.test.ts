@@ -167,15 +167,10 @@ describe('fetchSearchResults', () => {
       json: async () => ({ id: 102, title: 'Article 2' }),
     });
 
-    // Spy on console.warn to suppress output
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
     const result = await fetchSearchResults({ terms: 'partial' });
 
     expect(result.data).toHaveLength(1);
     expect(result.data?.[0]?.id).toBe(102);
-
-    consoleSpy.mockRestore();
   });
 
   it('should use default API_URL when rvcode is missing', async () => {

@@ -55,9 +55,6 @@ describe('article service', () => {
         },
       };
 
-      // Restore console.error for this test or spy it
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
       const result = transformArticleForDisplay(rawArticle);
 
       expect(result).toEqual(
@@ -67,8 +64,6 @@ describe('article service', () => {
           metrics: { views: 0, downloads: 0 },
         })
       );
-
-      consoleSpy.mockRestore();
     });
 
     it('should handle undefined input', () => {

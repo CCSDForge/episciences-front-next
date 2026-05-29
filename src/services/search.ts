@@ -4,6 +4,9 @@ import { PaginatedResponseWithRange, SearchRange } from '@/utils/pagination';
 import { formatSearchRange } from '@/utils/search';
 import { ISearchResult } from '@/types/search';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { serviceLogger } from '@/lib/logger';
+
+const log = serviceLogger.child({ service: 'search' });
 
 interface SearchParams {
   terms: string;
@@ -120,14 +123,14 @@ export async function fetchSearchResults({
         });
 
         if (!response.ok) {
-          console.warn(`Failed to fetch article with ID ${articleId}: ${response.status}`);
+          log.warn({ articleId, status: response.status }, 'Failed to fetch article');
           return null;
         }
 
         const rawArticle = await response.json();
         return formatArticle(rawArticle);
       } catch (error) {
-        console.warn(`Error fetching article ${articleId}`, error);
+        log.warn({ articleId, error }, 'Error fetching article');
         return null;
       }
     });
@@ -141,7 +144,7 @@ export async function fetchSearchResults({
       range,
     };
   } catch (error) {
-    console.error('Error fetching search results:', error);
+    log.error({ error }, 'Error fetching search results');
     throw error;
   }
 }

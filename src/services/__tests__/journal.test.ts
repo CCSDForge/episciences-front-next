@@ -186,15 +186,9 @@ describe('journal service', () => {
         status: 500,
       });
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
       await expect(fetchJournal('badjournal')).rejects.toThrow(
         'Failed to fetch journal with code badjournal'
       );
-
-      expect(consoleSpy).toHaveBeenCalled();
-
-      consoleSpy.mockRestore();
     });
 
     it('should use correct API URL based on rvcode', async () => {

@@ -1,5 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'path';
+import { serviceLogger } from '@/lib/logger';
+
+const log = serviceLogger.child({ service: 'server-i18n' });
 
 export const defaultLanguage: string = process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE || 'en';
 
@@ -29,7 +32,7 @@ export async function getServerTranslations(
     const fileContents = await fs.readFile(translationPath, 'utf8');
     return JSON.parse(fileContents);
   } catch (error) {
-    console.error(`Failed to load translations for locale ${locale}:`, error);
+    log.error({ error, locale }, 'Failed to load translations');
     // Fallback to default language if specified locale fails
     if (locale !== defaultLanguage) {
       try {
@@ -43,7 +46,7 @@ export async function getServerTranslations(
         const fileContents = await fs.readFile(fallbackPath, 'utf8');
         return JSON.parse(fileContents);
       } catch (fallbackError) {
-        console.error(`Failed to load fallback translations:`, fallbackError);
+        log.error({ error: fallbackError }, 'Failed to load fallback translations');
         return {};
       }
     }
@@ -67,13 +70,13 @@ export function t(
     if (value && typeof value === 'object' && k in value) {
       value = value[k];
     } else {
-      console.warn(`Translation key not found: ${key}`);
+      log.warn({ key }, 'Translation key not found');
       return key;
     }
   }
 
   if (typeof value !== 'string') {
-    console.warn(`Translation key does not resolve to a string: ${key}`);
+    log.warn({ key }, 'Translation key does not resolve to a string');
     return key;
   }
 

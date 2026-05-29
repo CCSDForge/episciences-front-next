@@ -1,21 +1,7 @@
 'use strict';
 
-/**
- * Valkey (ioredis) Singleton Client with Sentinel HA
- *
- * Features:
- * - Connects to Valkey cluster via Sentinel for high availability
- * - lazyConnect: true — does NOT crash at startup if Valkey is absent
- * - enableOfflineQueue: false — rejects immediately when disconnected
- * - Configurable via environment variables
- *
- * Usage:
- *   const { getValkeyClient, parseSentinels } = require('./valkey-client');
- *   const client = getValkeyClient();
- *
- * Note: require('ioredis') is intentionally called inside getValkeyClient()
- * (not at module top-level) to allow Vitest to intercept it via vi.mock().
- */
+const { getChildLogger } = require('./logger.cjs');
+const log = getChildLogger('valkey');
 
 let _client = null;
 
@@ -107,33 +93,38 @@ function getValkeyClient() {
   });
 
   _client.on('connect', () => {
-    console.log('[Valkey] Connected to master');
+    log.info('Connected to master');
   });
 
   _client.on('ready', () => {
-    console.log('[Valkey] Client ready');
+    log.info('Client ready');
   });
 
   _client.on('error', err => {
     // Log but do NOT crash — cache-handler circuit breaker manages fallback
-    console.error('[Valkey] Connection error:', err.message);
+    log.error({ err: err.message }, 'Connection error');
   });
 
   _client.on('reconnecting', delay => {
-    console.log(`[Valkey] Reconnecting in ${delay}ms...`);
+    log.warn({ delay }, 'Reconnecting');
   });
 
   _client.on('close', () => {
-    console.warn('[Valkey] Connection closed');
+    log.warn('Connection closed');
   });
 
   _client.on('+sentinel', sentinel => {
-    console.log(`[Valkey] Sentinel discovered: ${sentinel.host}:${sentinel.port}`);
+    log.info({ host: sentinel.host, port: sentinel.port }, 'Sentinel discovered');
   });
 
   _client.on('+switch-master', (name, oldMaster, newMaster) => {
-    console.log(
-      `[Valkey] Master switched: ${name} from ${oldMaster.host}:${oldMaster.port} to ${newMaster.host}:${newMaster.port}`
+    log.info(
+      {
+        name,
+        from: `${oldMaster.host}:${oldMaster.port}`,
+        to: `${newMaster.host}:${newMaster.port}`,
+      },
+      'Master switched'
     );
   });
 

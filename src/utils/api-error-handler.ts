@@ -1,9 +1,4 @@
-/**
- * API Error Handler
- *
- * Provides utilities for safe API fetching with automatic fallback
- * and consistent error handling across the application.
- */
+import { safeFetchLogger } from '@/lib/logger';
 
 /**
  * Result of a safe fetch operation
@@ -56,8 +51,7 @@ export async function safeFetch<T>(
   } catch (error) {
     const err = error instanceof Error ? error : new Error('Unknown error');
 
-    // Log warning (not error) to indicate graceful degradation
-    console.warn(`[SafeFetch] ${context} failed, using fallback:`, err.message);
+    safeFetchLogger.warn({ context, err: err.message }, 'API unavailable, using fallback');
 
     return {
       data: fallback,

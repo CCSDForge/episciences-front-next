@@ -4,6 +4,10 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
 
+  // pino uses worker_threads (pino-pretty) and native bindings — must not be bundled
+  serverExternalPackages: ['pino', 'pino-pretty'],
+
+
   // Required when running behind a reverse proxy (HAProxy → Nginx → Node.js).
   //
   // trustHostHeader: true  → resolve-routes.js builds initUrl from the Host header

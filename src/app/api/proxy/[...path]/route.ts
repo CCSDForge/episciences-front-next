@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { isValidJournalId, sanitizeIp } from '@/utils/validation';
+import { apiLogger } from '@/lib/logger';
 
-/**
- * Dynamic API Proxy
- *
- * Routes API requests to the correct backend based on the journal.
- * This solves the CORS issue for client-side requests while supporting
- * multi-tenant architecture where each journal may have a different API endpoint.
- *
- * Usage: /api/proxy/papers/123?rvcode=transformations
- * The rvcode parameter determines which API endpoint to use.
- */
+const log = apiLogger.child({ route: 'api-proxy' });
 
 // Simple in-memory rate limiter: 60 req/min per IP
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -103,7 +95,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
       },
     });
   } catch (error) {
-    console.error(`[API Proxy] Error proxying to ${targetUrl}:`, error);
+    log.error({ targetUrl: String(targetUrl), error }, 'Error proxying GET request');
     return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }
 }
@@ -160,7 +152,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
       },
     });
   } catch (error) {
-    console.error(`[API Proxy] Error proxying POST to ${targetUrl}:`, error);
+    log.error({ targetUrl: String(targetUrl), error }, 'Error proxying POST request');
     return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }
 }

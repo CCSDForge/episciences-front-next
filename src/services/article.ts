@@ -6,6 +6,9 @@ import { METADATA_TYPE, FetchedArticle, formatArticle } from '@/utils/article';
 import { fetchWithRetry } from '@/utils/fetch-with-retry';
 import { batchFetchWithFallback } from '@/utils/batch-fetch';
 import { CACHE_TTL } from '@/utils/cache-ttl';
+import { serviceLogger } from '@/lib/logger';
+
+const log = serviceLogger.child({ service: 'article' });
 
 interface FetchArticlesParams {
   rvcode: string;
@@ -80,7 +83,7 @@ export async function fetchArticles({
         : undefined,
     };
   } catch (error) {
-    console.error('Erreur lors de la récupération des articles:', error);
+    log.error({ error }, 'Failed to fetch articles');
     return {
       data: [],
       totalItems: 0,
@@ -171,7 +174,7 @@ export async function fetchArticle(
     const rawArticle: RawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
   } catch (error) {
-    console.error(`Erreur lors de la récupération de l'article ${paperid}:`, error);
+    log.error({ error, paperid }, 'Failed to fetch article');
     return null;
   }
 }
@@ -202,7 +205,7 @@ export async function fetchExportLink(
 
     return await response.text();
   } catch (error) {
-    console.error(`Error fetching export link for paper ${paperid}:`, error);
+    log.error({ error, paperid }, 'Error fetching export link');
     return null;
   }
 }
@@ -230,7 +233,7 @@ export function transformArticleForDisplay(rawArticle: any): FetchedArticle | un
         return createMinimalArticle(rawArticle);
       }
     } catch (error) {
-      console.error('Error formatting article:', error);
+      log.error({ error }, 'Error formatting article');
 
       // Création d'un article minimal si le formatage échoue
       return createMinimalArticle(rawArticle);
@@ -279,7 +282,7 @@ export async function getArticleById(id: string | number): Promise<FetchedArticl
     const rawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
   } catch (error) {
-    console.error('Error fetching article:', error);
+    log.error({ error }, 'Error fetching article');
     return undefined;
   }
 }
@@ -308,13 +311,13 @@ export async function fetchArticleMetadata({
       if (response.status === 404) {
         return null;
       }
-      console.warn(`Failed to fetch article metadata. Status: ${response.status}`);
+      log.warn({ status: response.status }, 'Failed to fetch article metadata');
       return null;
     }
 
     return await response.text();
   } catch (error) {
-    console.error('Error fetching article metadata:', error);
+    log.error({ error }, 'Error fetching article metadata');
     return null;
   }
 }

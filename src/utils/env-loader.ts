@@ -1,8 +1,11 @@
 import path from 'path';
 import { isValidJournalId } from './validation';
 import { API_ROOT_ENDPOINT } from '@/config/api';
+import { serviceLogger } from '@/lib/logger';
 // On évite l'import statique de fs pour ne pas casser le build client
 // import fs from 'fs';
+
+const log = serviceLogger.child({ service: 'env-loader' });
 
 export interface JournalConfig {
   code: string;
@@ -48,7 +51,7 @@ export function getJournalsList(): string[] {
     journalsListCache = journals;
     return journals;
   } catch (error) {
-    console.warn('[env-loader] Could not read journals.txt', error);
+    log.warn({ error }, 'Could not read journals.txt');
     // Cache empty array to avoid repeated failed attempts
     journalsListCache = [];
     return [];
@@ -67,7 +70,7 @@ export function loadJournalConfig(journalCode: string): JournalConfig {
 
   // Validate journal code format to prevent path traversal attacks
   if (!isValidJournalId(journalCode)) {
-    console.warn(`[env-loader] Invalid journal code format: ${journalCode}`);
+    log.warn({ journalCode }, 'Invalid journal code format');
     const emptyConfig = { code: journalCode, env: {} };
     configCache.set(journalCode, emptyConfig);
     return emptyConfig;
@@ -87,7 +90,7 @@ export function loadJournalConfig(journalCode: string): JournalConfig {
     // isValidJournalId() already rejects any non-[a-z0-9-] input, so this check
     // should never fail — it is here to satisfy static analysis (CodeQL #187).
     if (!envPath.startsWith(baseDir + path.sep)) {
-      console.warn(`[env-loader] Path traversal attempt blocked for: ${journalCode}`);
+      log.warn({ journalCode }, 'Path traversal attempt blocked');
       const emptyConfig = { code: journalCode, env: {} };
       configCache.set(journalCode, emptyConfig);
       return emptyConfig;
@@ -129,7 +132,7 @@ export function loadJournalConfig(journalCode: string): JournalConfig {
     configCache.set(journalCode, config);
     return config;
   } catch (error) {
-    console.error(`[env-loader] Error loading config for ${journalCode}`, error);
+    log.error({ error, journalCode }, 'Error loading config');
     const errorConfig = { code: journalCode, env: {} };
     // Cache the error result to avoid repeated failed attempts
     configCache.set(journalCode, errorConfig);

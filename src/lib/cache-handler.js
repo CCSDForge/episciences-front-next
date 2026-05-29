@@ -25,6 +25,11 @@
 const fs = require('fs');
 const path = require('path');
 const { getValkeyClient } = require('./valkey-client');
+const { getChildLogger } = require('./logger.cjs');
+
+// CACHE_DEBUG=true activates debug-level logs for this module only (preserves legacy behavior)
+const debugLevel = process.env.CACHE_DEBUG === 'true' ? 'debug' : undefined;
+const log = getChildLogger('cache-handler', debugLevel);
 
 // Read the Next.js Build ID so we can reject cache entries from a previous build.
 // Each `npm run build` regenerates .next/BUILD_ID with a unique hash; entries
@@ -180,7 +185,7 @@ let cbOpenedAt = 0;
 function cbRecordSuccess() {
   cbErrors = 0;
   if (cbState !== CB_STATE.CLOSED) {
-    console.log('[CacheHandler] Circuit breaker → CLOSED (Valkey recovered)');
+    log.info('Circuit breaker → CLOSED (Valkey recovered)');
     cbState = CB_STATE.CLOSED;
   }
 }
@@ -190,13 +195,11 @@ function cbRecordFailure() {
   if (cbState === CB_STATE.CLOSED && cbErrors >= CB_THRESHOLD) {
     cbState = CB_STATE.OPEN;
     cbOpenedAt = Date.now();
-    console.warn(
-      `[CacheHandler] Circuit breaker → OPEN (${cbErrors} consecutive errors, fallback to in-memory)`
-    );
+    log.warn({ cbErrors }, 'Circuit breaker → OPEN, fallback to in-memory LRU');
   } else if (cbState === CB_STATE.HALF_OPEN) {
     cbState = CB_STATE.OPEN;
     cbOpenedAt = Date.now();
-    console.warn('[CacheHandler] Circuit breaker → OPEN (probe failed)');
+    log.warn('Circuit breaker → OPEN (probe failed)');
   }
 }
 
@@ -205,7 +208,7 @@ function cbShouldUseValkey() {
   if (cbState === CB_STATE.OPEN) {
     if (Date.now() - cbOpenedAt >= CB_PROBE_INTERVAL) {
       cbState = CB_STATE.HALF_OPEN;
-      console.log('[CacheHandler] Circuit breaker → HALF_OPEN (probing Valkey)');
+      log.info('Circuit breaker → HALF_OPEN (probing Valkey)');
       return true; // Allow one probe attempt
     }
     return false;
@@ -302,7 +305,7 @@ class CacheHandler {
       return result;
     } catch (err) {
       cbRecordFailure();
-      console.error('[CacheHandler] Valkey error, using in-memory fallback:', err.message);
+      log.error({ err: err.message }, 'Valkey error, using in-memory fallback');
       return fallbackFn();
     }
   }
@@ -319,22 +322,20 @@ class CacheHandler {
       async client => {
         const raw = await client.get(dataKey);
         if (!raw) {
-          if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] MISS ${key}`);
+          log.debug({ key }, 'MISS');
           return null;
         }
         try {
           const entry = deserialize(raw);
           if (!entry || entry.__v !== CACHE_FORMAT_VERSION) {
             // Stale or incompatible format — treat as miss so Next.js re-renders
-            if (process.env.CACHE_DEBUG === 'true')
-              console.log(`[CacheHandler] STALE (version mismatch) ${key}`);
+            log.debug({ key }, 'STALE (version mismatch)');
             return null;
           }
           if (BUILD_ID && entry.__buildId !== BUILD_ID) {
             // Entry was stored by a previous build — its JS/CSS chunk references are
             // stale. Treat as miss so the current build can re-render and re-cache.
-            if (process.env.CACHE_DEBUG === 'true')
-              console.log(`[CacheHandler] STALE (build mismatch) ${key}`);
+            log.debug({ key }, 'STALE (build mismatch)');
             return null;
           }
           // Defensive: ensure Buffer-typed fields are proper Node.js Buffers so that
@@ -352,24 +353,27 @@ class CacheHandler {
               }
             }
           }
-          if (process.env.CACHE_DEBUG === 'true') {
-            const segInfo =
-              v?.segmentData instanceof Map
-                ? `Map(${v.segmentData.size}) valTypes=[${Array.from(v.segmentData.values())
-                    .slice(0, 3)
-                    .map(x =>
-                      Buffer.isBuffer(x)
-                        ? 'Buffer'
-                        : x instanceof Uint8Array
-                          ? 'Uint8Array'
-                          : typeof x
-                    )
-                    .join(',')}]`
-                : String(v?.segmentData);
-            console.log(
-              `[CacheHandler] HIT  ${key} kind=${v?.kind} htmlType=${typeof v?.html} rscDataIsBuffer=${Buffer.isBuffer(v?.rscData)} rscDataCtor=${v?.rscData?.constructor?.name || typeof v?.rscData} segmentData=${segInfo} postponedType=${typeof v?.postponed} postponed=${String(v?.postponed).slice(0, 40)}`
-            );
-          }
+          const segInfo =
+            v?.segmentData instanceof Map
+              ? `Map(${v.segmentData.size}) valTypes=[${Array.from(v.segmentData.values())
+                  .slice(0, 3)
+                  .map(x =>
+                    Buffer.isBuffer(x) ? 'Buffer' : x instanceof Uint8Array ? 'Uint8Array' : typeof x
+                  )
+                  .join(',')}]`
+              : String(v?.segmentData);
+          log.debug(
+            {
+              key,
+              kind: v?.kind,
+              htmlType: typeof v?.html,
+              rscDataIsBuffer: Buffer.isBuffer(v?.rscData),
+              rscDataCtor: v?.rscData?.constructor?.name || typeof v?.rscData,
+              segmentData: segInfo,
+              postponedType: typeof v?.postponed,
+            },
+            'HIT'
+          );
           return entry;
         } catch {
           return null;
@@ -420,12 +424,11 @@ class CacheHandler {
         }
 
         await pipeline.exec();
-        if (process.env.CACHE_DEBUG === 'true')
-          console.log(`[CacheHandler] SET  ${key} ttl=${ttl ?? 'none'} tags=${tags.join(',')}`);
+        log.debug({ key, ttl: ttl ?? 'none', tags: tags.join(',') }, 'SET');
       },
       () => {
         memSet(dataKey, entry, ttl);
-        if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] SET(mem) ${key}`);
+        log.debug({ key }, 'SET(mem)');
       }
     );
   }
@@ -491,14 +494,10 @@ class CacheHandler {
           }
         }
 
-        console.log(
-          `[CacheHandler] initialize(): scanned ${scanned} entries, removed ${deleted} stale (build ${BUILD_ID})`
-        );
+        log.info({ scanned, deleted, buildId: BUILD_ID }, 'initialize(): stale entries cleaned up');
       },
       () => {
-        console.log(
-          '[CacheHandler] initialize(): Valkey unavailable, skipping stale entry cleanup'
-        );
+        log.info('initialize(): Valkey unavailable, skipping stale entry cleanup');
       }
     );
   }
@@ -521,12 +520,12 @@ class CacheHandler {
           pipeline.del(tagKey);
           pipeline.srem(this._tagsAllKey(), tag);
           await pipeline.exec();
-          console.log(`[CacheHandler] Revalidated tag "${tag}": removed ${keys.length} entries`);
+          log.info({ tag, removed: keys.length }, 'Revalidated tag');
         } else {
           // Tag set may still exist
           await client.del(tagKey);
           await client.srem(this._tagsAllKey(), tag);
-          console.log(`[CacheHandler] Revalidated tag "${tag}": no entries found`);
+          log.info({ tag }, 'Revalidated tag: no entries found');
         }
       },
       () => {
@@ -538,9 +537,7 @@ class CacheHandler {
             removed++;
           }
         }
-        console.log(
-          `[CacheHandler] In-memory revalidated tag "${tag}": removed ${removed} entries`
-        );
+        log.info({ tag, removed }, 'In-memory revalidated tag');
       }
     );
   }

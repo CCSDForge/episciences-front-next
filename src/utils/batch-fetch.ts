@@ -1,9 +1,6 @@
-/**
- * Batch Fetch Utilities
- *
- * Utilities for fetching multiple items in parallel with error handling.
- * Ensures partial failures don't block the entire operation.
- */
+import { serviceLogger } from '@/lib/logger';
+
+const log = serviceLogger.child({ service: 'batch-fetch' });
 
 /**
  * Fetch multiple items in parallel with automatic fallback handling
@@ -55,7 +52,7 @@ export async function batchFetchWithFallback<T, R>(
       if (result.status === 'fulfilled') {
         return result.value;
       } else {
-        console.warn(`[${context}] Item ${index} failed:`, result.reason?.message || result.reason);
+        log.warn({ context, index, reason: result.reason?.message || String(result.reason) }, 'Batch item failed');
         return fallback;
       }
     })
@@ -105,7 +102,7 @@ export async function batchFetchWithTracking<T, R>(
   let failureCount = 0;
 
   if (logProgress) {
-    console.log(`[${context}] Starting batch fetch of ${total} items`);
+    log.debug({ context, total }, 'Starting batch fetch');
   }
 
   const results = await Promise.allSettled(items.map(item => fetchFn(item)));
@@ -115,21 +112,19 @@ export async function batchFetchWithTracking<T, R>(
       if (result.status === 'fulfilled') {
         successCount++;
         if (logProgress && successCount % 10 === 0) {
-          console.log(`[${context}] Progress: ${successCount}/${total} items fetched`);
+          log.debug({ context, successCount, total }, 'Batch fetch progress');
         }
         return result.value;
       } else {
         failureCount++;
-        console.warn(`[${context}] Item ${index} failed:`, result.reason?.message || result.reason);
+        log.warn({ context, index, reason: result.reason?.message || String(result.reason) }, 'Batch item failed');
         return fallback;
       }
     })
     .filter((item): item is R => item !== null);
 
   if (logProgress) {
-    console.log(
-      `[${context}] Batch fetch complete: ${successCount} succeeded, ${failureCount} failed`
-    );
+    log.debug({ context, successCount, failureCount }, 'Batch fetch complete');
   }
 
   return {
@@ -182,7 +177,7 @@ export async function batchFetchWithRetry<T, R>(
 
   // Retry failed items
   if (failedIndices.length > 0) {
-    console.warn(`[${context}] Retrying ${failedIndices.length} failed items...`);
+    log.warn({ context, retryCount: failedIndices.length }, 'Retrying failed items');
 
     const retryResults = await Promise.allSettled(
       failedIndices.map(index => fetchFn(items[index]))
@@ -193,9 +188,9 @@ export async function batchFetchWithRetry<T, R>(
       if (result.status === 'fulfilled') {
         results[originalIndex] = result.value;
       } else {
-        console.error(
-          `[${context}] Item ${originalIndex} failed after retry:`,
-          result.reason?.message || result.reason
+        log.error(
+          { context, index: originalIndex, reason: result.reason?.message || String(result.reason) },
+          'Item failed after retry'
         );
       }
     });
