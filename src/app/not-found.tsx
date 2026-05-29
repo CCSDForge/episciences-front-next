@@ -1,12 +1,9 @@
-import { headers } from 'next/headers';
 import Link from 'next/link';
 import { getServerTranslations, t, defaultLanguage } from '@/utils/server-i18n';
 import '@/styles/pages/NotFound.scss';
 
 export default async function RootNotFound() {
-  const headersList = await headers();
-  const lang = headersList.get('x-detected-language') || defaultLanguage;
-  const translations = await getServerTranslations(lang);
+  const translations = await getServerTranslations(defaultLanguage);
 
   const title = t('pages.notFound.title', translations);
   const description = t('pages.notFound.description', translations);

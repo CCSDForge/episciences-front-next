@@ -31,6 +31,11 @@ const nextConfig = {
   // Creates a standalone build in .next/standalone with minimal dependencies
   output: 'standalone',
 
+  // fs.readFile paths are not traced statically — include locales explicitly
+  outputFileTracingIncludes: {
+    '/*': ['public/locales/**/*.json'],
+  },
+
   // Turbopack activé par défaut en Next.js 16
   // La config webpack ci-dessous (fs: false) est gérée automatiquement par Turbopack
   turbopack: {},

@@ -1,4 +1,4 @@
-.PHONY: build up down logs clean hosts rebuild help dev-nginx dev-nginx-down dev-nginx-logs dev-nginx-rebuild deploy-preprod deploy-production rollback-preprod rollback-production
+.PHONY: build up down logs clean hosts rebuild help dev-nginx dev-nginx-down dev-nginx-logs dev-nginx-rebuild deploy-preprod deploy-production deploy-commit-production rollback-preprod rollback-production
 
 # Default journals for testing
 JOURNALS ?= epijinfo,dmtcs
@@ -37,8 +37,9 @@ help:
 	@echo "  make quality          Run all quality checks (lint + format)"
 	@echo ""
 	@echo "--- Deployment (Ansistrano) ---"
-	@echo "  make deploy-preprod      Deploy to preprod (2 VMs)"
-	@echo "  make deploy-production   Deploy to production"
+	@echo "  make deploy-preprod                        Deploy to preprod (2 VMs)"
+	@echo "  make deploy-production                     Deploy to production"
+	@echo "  make deploy-commit-production COMMIT=<sha> Deploy a specific commit to production"
 	@echo "  make rollback-preprod    Rollback preprod to previous release"
 	@echo "  make rollback-production Rollback production to previous release"
 	@echo ""
@@ -146,6 +147,11 @@ deploy-preprod:
 deploy-production:
 	@echo "Deploying to production..."
 	cd $(ANSIBLE_DIR) && ansible-playbook deploy.yml -i inventory/production.ini
+
+deploy-commit-production:
+	@test -n "$(COMMIT)" || (echo "ERROR: COMMIT is required. Usage: make deploy-commit-production COMMIT=<sha>"; exit 1)
+	@echo "Deploying commit $(COMMIT) to production..."
+	cd $(ANSIBLE_DIR) && ansible-playbook deploy.yml -i inventory/production.ini -e "ansistrano_git_branch=$(COMMIT)"
 
 rollback-preprod:
 	@echo "Rolling back preprod..."
