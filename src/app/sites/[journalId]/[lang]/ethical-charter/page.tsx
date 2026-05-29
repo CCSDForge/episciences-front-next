@@ -5,13 +5,14 @@ import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
+import { generateSeoAlternates } from '@/utils/seo';
 
 const EthicalCharterClient = dynamic(() => import('./EthicalCharterClient'));
 
 // Stable editorial content - no ISR, fully static at build time
 export const revalidate = false;
 
-// Pre-generate ethical charter page for all journals at build time
+// Pre-generate ethical-charter page for all journals at build time
 export async function generateStaticParams() {
   const journals = getFilteredJournals();
   const params: { journalId: string; lang: string }[] = [];
@@ -25,34 +26,38 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Ethical Charter',
-  description: 'Journal ethical charter',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.ethicalCharter.title', translations),
+    description: t('pages.ethicalCharter.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/ethical-charter'),
+  };
+}
 
 export default async function EthicalCharterPage(props: {
   params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
-  let pageData = null;
   const { journalId, lang } = params;
 
-  const translationsPromise = getServerTranslations(lang);
+  let pageData = null;
+  let translations = {};
 
   try {
-    if (journalId) {
-      pageData = await fetchEthicalCharterPage(journalId);
-      if (!pageData) {
-        console.warn(
-          `[Build] Ethical Charter page content not found for journal "${journalId}" on API.`
-        );
-      }
-    }
+    // Fetch all pages and translations in parallel
+    [pageData, translations] = await Promise.all([
+      journalId ? fetchEthicalCharterPage(journalId) : null,
+      getServerTranslations(lang),
+    ]);
   } catch (error) {
-    console.warn(`[Build] Could not reach API for Ethical Charter page of journal "${journalId}".`);
+    console.warn('[EthicalCharterPage] Failed to fetch data:', error);
   }
 
-  const translations = await translationsPromise;
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/ethical-charter', translations),
     current: t('pages.ethicalCharter.title', translations),

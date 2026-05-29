@@ -7,6 +7,7 @@ import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { getPublicJournalConfig } from '@/utils/env-loader';
+import { generateSeoAlternates } from '@/utils/seo';
 
 const ForReviewersClient = dynamic(() => import('./ForReviewersClient'));
 
@@ -27,42 +28,44 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'For Reviewers',
-  description: 'Information for journal reviewers',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.forReviewers.title', translations),
+    description: t('pages.forReviewers.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/for-reviewers'),
+  };
+}
 
 export default async function ForReviewersPage(props: {
   params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
-  let pageData = null;
   const { journalId, lang } = params;
 
-  // Check if this page should be rendered for this journal
   const journalConfig = getPublicJournalConfig(journalId);
   if (journalConfig.NEXT_PUBLIC_JOURNAL_MENU_JOURNAL_FOR_REVIEWERS_RENDER === 'false') {
     notFound();
   }
 
-  const translationsPromise = getServerTranslations(lang);
+  let pageData = null;
+  let translations = {};
 
   try {
-    if (journalId) {
-      const rawData = await fetchForReviewersPage(journalId);
-      if (rawData?.['hydra:member']?.[0]) {
-        pageData = rawData['hydra:member'][0];
-      } else {
-        console.warn(
-          `[Build] For Reviewers page content not found for journal "${journalId}" on API.`
-        );
-      }
-    }
+    let rawData = null;
+    [rawData, translations] = await Promise.all([
+      fetchForReviewersPage(journalId),
+      getServerTranslations(lang),
+    ]);
+    pageData = rawData?.['hydra:member']?.[0] ?? null;
   } catch (error) {
-    console.warn(`[Build] Could not reach API for For Reviewers page of journal "${journalId}".`);
+    console.warn('[ForReviewersPage] Failed to fetch data:', error);
   }
 
-  const translations = await translationsPromise;
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/for-reviewers', translations),
     current: t('pages.forReviewers.title', translations),

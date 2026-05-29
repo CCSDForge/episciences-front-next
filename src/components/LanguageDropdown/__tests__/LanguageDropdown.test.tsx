@@ -41,7 +41,7 @@ vi.mock('@/hooks/store', () => ({
 
 // Mock icon components with proper ARIA
 vi.mock('@/components/icons', () => ({
-  CaretUpBlackIcon: ({
+  CaretUpIcon: ({
     size,
     ariaLabel,
     className,
@@ -51,14 +51,14 @@ vi.mock('@/components/icons', () => ({
     className?: string;
   }) => (
     <span
-      data-testid="caret-up-black"
+      data-testid="caret-up"
       data-size={size}
       role="img"
       aria-label={ariaLabel}
       className={className}
     />
   ),
-  CaretDownBlackIcon: ({
+  CaretDownIcon: ({
     size,
     ariaLabel,
     className,
@@ -68,41 +68,7 @@ vi.mock('@/components/icons', () => ({
     className?: string;
   }) => (
     <span
-      data-testid="caret-down-black"
-      data-size={size}
-      role="img"
-      aria-label={ariaLabel}
-      className={className}
-    />
-  ),
-  CaretUpWhiteIcon: ({
-    size,
-    ariaLabel,
-    className,
-  }: {
-    size: number;
-    ariaLabel?: string;
-    className?: string;
-  }) => (
-    <span
-      data-testid="caret-up-white"
-      data-size={size}
-      role="img"
-      aria-label={ariaLabel}
-      className={className}
-    />
-  ),
-  CaretDownWhiteIcon: ({
-    size,
-    ariaLabel,
-    className,
-  }: {
-    size: number;
-    ariaLabel?: string;
-    className?: string;
-  }) => (
-    <span
-      data-testid="caret-down-white"
+      data-testid="caret-down"
       data-size={size}
       role="img"
       aria-label={ariaLabel}
@@ -165,7 +131,7 @@ describe('LanguageDropdown', () => {
     it('renders caret down icon when closed', () => {
       render(<LanguageDropdown />);
 
-      expect(screen.getByTestId('caret-down-black')).toBeInTheDocument();
+      expect(screen.getByTestId('caret-down')).toBeInTheDocument();
     });
   });
 
@@ -429,7 +395,7 @@ describe('LanguageDropdown', () => {
     it('shows caret down when closed', () => {
       render(<LanguageDropdown />);
 
-      expect(screen.getByTestId('caret-down-black')).toBeInTheDocument();
+      expect(screen.getByTestId('caret-down')).toBeInTheDocument();
     });
 
     it('shows caret up when open', async () => {
@@ -438,13 +404,13 @@ describe('LanguageDropdown', () => {
 
       await user.click(screen.getByRole('button'));
 
-      expect(screen.getByTestId('caret-up-black')).toBeInTheDocument();
+      expect(screen.getByTestId('caret-up')).toBeInTheDocument();
     });
 
     it('caret down has descriptive aria-label', () => {
       render(<LanguageDropdown />);
 
-      const caret = screen.getByTestId('caret-down-black');
+      const caret = screen.getByTestId('caret-down');
       expect(caret).toHaveAttribute('aria-label', 'Expand language menu');
     });
 
@@ -454,25 +420,8 @@ describe('LanguageDropdown', () => {
 
       await user.click(screen.getByRole('button'));
 
-      const caret = screen.getByTestId('caret-up-black');
+      const caret = screen.getByTestId('caret-up');
       expect(caret).toHaveAttribute('aria-label', 'Collapse language menu');
-    });
-  });
-
-  describe('White caret variant', () => {
-    it('shows white caret when withWhiteCaret is true', () => {
-      render(<LanguageDropdown withWhiteCaret />);
-
-      expect(screen.getByTestId('caret-down-white')).toBeInTheDocument();
-    });
-
-    it('shows white caret up when open and withWhiteCaret is true', async () => {
-      const user = userEvent.setup();
-      render(<LanguageDropdown withWhiteCaret />);
-
-      await user.click(screen.getByRole('button'));
-
-      expect(screen.getByTestId('caret-up-white')).toBeInTheDocument();
     });
   });
 
@@ -560,11 +509,5 @@ describe('LanguageDropdown', () => {
       expect(results).toHaveNoViolations();
     });
 
-    it('should have no violations with white caret variant', async () => {
-      const { container } = render(<LanguageDropdown withWhiteCaret />);
-
-      const results = await checkA11y(container);
-      expect(results).toHaveNoViolations();
-    });
   });
 });

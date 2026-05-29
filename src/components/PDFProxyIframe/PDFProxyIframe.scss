@@ -27,7 +27,23 @@
 }
 
 .pdf-proxy-iframe-error {
+  flex-direction: column;
+  gap: 1rem;
   color: #d32f2f;
+}
+
+.pdf-proxy-iframe-retry {
+  padding: 0.4rem 1rem;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color: #d32f2f;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(211, 47, 47, 0.08);
+  }
 }
 
 // Responsive

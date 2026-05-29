@@ -1,6 +1,23 @@
-/**
- * PDF utility functions for proxy URL generation and validation
- */
+export const ALLOWED_PDF_DOMAINS = [
+  'zenodo.org',
+  'arxiv.org',
+  'hal.archives-ouvertes.fr',
+  'hal.science',
+  'archive.softwareheritage.org',
+];
+
+export function isAllowedPdfDomain(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    if (urlObj.protocol !== 'https:') return false;
+    const hostname = urlObj.hostname;
+    return ALLOWED_PDF_DOMAINS.some(
+      domain => hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+  } catch {
+    return false;
+  }
+}
 
 export function generateArticleFilename(
   journalCode: string,

@@ -14,7 +14,6 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
-import { generateArticleFilename } from '@/utils/pdf';
 import { useAppSelector } from '@/hooks/store';
 
 interface IVolumeArticleCardProps {
@@ -86,9 +85,8 @@ function VolumeArticleCard({ language, t, article }: IVolumeArticleCardProps): R
         <div className="volumeArticleCard-anchor-icons">
           {article.pdfLink && (
             <DownloadArticleButton
-              pdfLink={article.pdfLink}
               downloadHref={`/${language}/${PATHS.articles}/${article.id}/download`}
-              filename={generateArticleFilename(rvcode ?? '', article.id, article.title)}
+              ariaLabel={`${t('pages.articleDetails.download.openPDF')} - ${article.title}`}
             >
               <div className="volumeArticleCard-anchor-icons-download">
                 <DownloadBlackIcon

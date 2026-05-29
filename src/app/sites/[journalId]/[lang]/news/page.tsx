@@ -4,6 +4,7 @@ import { fetchNews } from '@/services/news';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
+import { generateSeoAlternates } from '@/utils/seo';
 import './News.scss';
 
 const NewsClient = dynamic(() => import('./NewsClient'));
@@ -25,10 +26,18 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Actualités',
-  description: 'Dernières actualités de la revue',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.news.title', translations),
+    description: t('pages.news.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/news'),
+  };
+}
 
 type Props = {
   params: Promise<{ journalId: string; lang: string }>;

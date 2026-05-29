@@ -81,6 +81,7 @@
     "contentNotInLanguage": "This content is not yet available in the requested language.",
     "publicationDetails": "Publication Details",
     "submittedOn": "Submitted on",
+    "importedOn": "Imported on",
     "lastModifiedOn": "Last modified on"
   },
   "components": {
@@ -214,7 +215,8 @@
           "subtitle": "Latest accepted articles",
           "see": "See all accepted articles"
         }
-      }
+      },
+      "description": "Academic journal hosted on Episciences"
     },
     "articles": {
       "title": "Articles",
@@ -228,7 +230,8 @@
         "preprint": "Preprint",
         "report": "Report",
         "software": "Software"
-      }
+      },
+      "description": "Browse all articles published in this journal"
     },
     "articleDetails": {
       "title": "Article",
@@ -252,6 +255,7 @@
       },
       "actions": {
         "download": "Download article",
+        "viewPDF": "View PDF",
         "openOn": "Open on",
         "cite": "Cite",
         "citationError": "Error generating citations",
@@ -383,20 +387,24 @@
         "openPDF": "Open PDF",
         "pdfDisplayTitle": "PDF Display",
         "pdfDisplayMessage": "The PDF cannot be displayed directly. Click the button below to open it in a new tab or download it."
-      }
+      },
+      "description": "Article details, abstract and full text"
     },
     "articlesAccepted": {
-      "title": "To be published"
+      "title": "To be published",
+      "description": "Articles accepted for publication and forthcoming issues"
     },
     "search": {
-      "title": "Search"
+      "title": "Search",
+      "description": "Search articles, authors and volumes"
     },
     "volumes": {
       "title": "Volumes",
       "types": {
         "specialIssues": "Special issues",
         "proceedings": "Proceedings"
-      }
+      },
+      "description": "Browse all volumes and special issues of this journal"
     },
     "volumeDetails": {
       "title": "Volume",
@@ -415,28 +423,34 @@
         "lookAtSelectedVolume": "Look at the selected volume",
         "lookAtSelectedIssue": "Look at the selected issue",
         "lookAtSelectedProceedings": "Look at the selected proceedings"
-      }
+      },
+      "description": "Volume details and articles"
     },
     "sections": {
       "title": "Sections",
       "totalArticles": "Total Articles",
       "articlesInSection": "Articles in this Section",
       "noArticlesTitle": "No Articles Found",
-      "noArticlesMessage": "This section currently has no articles."
+      "noArticlesMessage": "This section currently has no articles.",
+      "description": "Browse all sections of this journal"
     },
     "sectionDetails": {
-      "title": "Section"
+      "title": "Section",
+      "description": "Section details and related articles"
     },
     "authors": {
       "title": "Authors",
       "searchName": "search a name",
-      "others": "Others"
+      "others": "Others",
+      "description": "Browse all authors who have published in this journal"
     },
     "about": {
-      "title": "The journal"
+      "title": "The journal",
+      "description": "Discover the mission, history and editorial team of this journal"
     },
     "news": {
-      "title": "News"
+      "title": "News",
+      "description": "Latest news and announcements from this journal"
     },
     "statistics": {
       "title": "Statistics",
@@ -460,7 +474,8 @@
         "beingPublished": "Being published",
         "accepted": "Accepted articles",
         "other-status": "Other status"
-      }
+      },
+      "description": "Publication statistics and metrics"
     },
     "boards": {
       "title": "Boards",
@@ -484,38 +499,47 @@
         "advisoryBoard": "Advisory board member",
         "member": "Member",
         "formerMember": "Former member"
-      }
+      },
+      "description": "Editorial boards and committees"
     },
     "forAuthors": {
-      "title": "For authors"
+      "title": "For authors",
+      "description": "Guidelines and resources for authors submitting to this journal"
     },
     "acknowledgements": {
       "title": "Acknowledgements",
-      "noContent": "No acknowledgements available for this journal."
+      "noContent": "No acknowledgements available for this journal.",
+      "description": "Acknowledgements and thanks from this journal"
     },
     "indexing": {
       "title": "Indexing",
-      "noContent": "No indexing information available for this journal."
+      "noContent": "No indexing information available for this journal.",
+      "description": "Indexing and abstracting databases for this journal"
     },
     "ethicalCharter": {
       "title": "Ethical Charter",
-      "noContent": "No ethical charter available for this journal."
+      "noContent": "No ethical charter available for this journal.",
+      "description": "Ethical principles and publication standards"
     },
     "forReviewers": {
       "title": "For Reviewers",
-      "noContent": "No information for reviewers available for this journal."
+      "noContent": "No information for reviewers available for this journal.",
+      "description": "Information and resources for reviewers"
     },
     "forEditors": {
       "title": "For Editors",
-      "noContent": "No information for editors available for this journal."
+      "noContent": "No information for editors available for this journal.",
+      "description": "Information and resources for editors"
     },
     "forConferenceOrganisers": {
       "title": "For Conference Organisers",
-      "noContent": "No information for conference organisers available for this journal."
+      "noContent": "No information for conference organisers available for this journal.",
+      "description": "Information and resources for conference organisers"
     },
     "proposingSpecialIssues": {
       "title": "Proposing Special Issues",
-      "noContent": "No information about proposing special issues available for this journal."
+      "noContent": "No information about proposing special issues available for this journal.",
+      "description": "Guidelines for proposing special issues"
     },
     "accessibility": {
       "title": "Accessibility",
@@ -523,7 +547,8 @@
       "noContent": "Content not found."
     },
     "credits": {
-      "title": "Credits"
+      "title": "Credits",
+      "description": "Credits and legal notices"
     },
     "notFound": {
       "title": "Page not found",

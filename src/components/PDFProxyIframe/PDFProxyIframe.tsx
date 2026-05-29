@@ -1,68 +1,92 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getPdfProxyUrl } from '@/utils/pdf';
+import { useState, useEffect, useRef } from 'react';
 import './PDFProxyIframe.scss';
 
+// Slightly under the server timeout (30s) so the client shows a retry before
+// the server returns a 504 (which would land as a blank iframe via onLoad).
+const LOAD_TIMEOUT_MS = 25000;
+
 interface PDFProxyIframeProps {
-  pdfUrl: string;
+  src: string;
   title?: string;
   height?: string;
   className?: string;
 }
 
-/**
- * PDFProxyIframe - Simple iframe-based PDF viewer using Next.js proxy
- *
- * Uses browser's native PDF rendering for optimal performance (0KB bundle, LCP < 1s)
- * All PDFs are routed through /pdf-proxy to:
- * - Bypass CORS restrictions
- * - Force inline display (Content-Disposition: inline)
- * - Provide consistent rendering across all sources
- */
+type Status = 'loading' | 'loaded' | 'error';
+
 export function PDFProxyIframe({
-  pdfUrl,
+  src,
   title = 'PDF Preview',
   height = '600px',
   className = '',
 }: PDFProxyIframeProps) {
-  const [proxyUrl, setProxyUrl] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const [status, setStatus] = useState<Status>('loading');
+  const [retryKey, setRetryKey] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (pdfUrl) {
-      setProxyUrl(getPdfProxyUrl(pdfUrl, 'inline'));
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    setStatus('loading');
+    timerRef.current = setTimeout(() => setStatus('error'), LOAD_TIMEOUT_MS);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [src, retryKey, isMounted]);
+
+  const clearTimer = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
-  }, [pdfUrl]);
+  };
 
   const handleLoad = () => {
-    setIsLoading(false);
+    clearTimer();
+    setStatus('loaded');
   };
 
   const handleError = () => {
-    setIsLoading(false);
-    setHasError(true);
+    clearTimer();
+    console.error('[PDFProxyIframe] Failed to load:', src);
+    setStatus('error');
   };
 
-  if (!pdfUrl) {
+  if (!src) {
     return <div className="pdf-proxy-iframe-empty">No PDF URL provided</div>;
   }
 
   return (
     <div className={`pdf-proxy-iframe-container ${className}`} style={{ height }}>
-      {isLoading && <div className="pdf-proxy-iframe-loading">Loading PDF preview...</div>}
-      {hasError && (
-        <div className="pdf-proxy-iframe-error">Failed to load PDF. Please try again later.</div>
+      {status === 'loading' && (
+        <div className="pdf-proxy-iframe-loading">Loading PDF preview...</div>
       )}
-      {proxyUrl && (
+      {status === 'error' && (
+        <div className="pdf-proxy-iframe-error">
+          <span>Failed to load PDF preview.</span>
+          <button
+            type="button"
+            className="pdf-proxy-iframe-retry"
+            onClick={() => setRetryKey(k => k + 1)}
+          >
+            Retry
+          </button>
+        </div>
+      )}
+      {isMounted && status !== 'error' && (
         <iframe
-          src={proxyUrl}
+          key={`${src}-${retryKey}`}
+          src={src}
           title={title}
           className="pdf-proxy-iframe"
           onLoad={handleLoad}
           onError={handleError}
-          loading="lazy"
           allow="fullscreen"
         />
       )}

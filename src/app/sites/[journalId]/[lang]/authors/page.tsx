@@ -1,17 +1,24 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { generateSeoAlternates } from '@/utils/seo';
 import { connection } from 'next/server';
 import './Authors.scss';
 
-const AuthorsClient = dynamic(() => import('./AuthorsClient'), {
-  loading: () => <div className="loader">Chargement...</div>,
-});
+const AuthorsClient = dynamic(() => import('./AuthorsClient'));
 
-export const metadata: Metadata = {
-  title: 'Auteurs',
-  description: 'Liste des auteurs',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.authors.title', translations),
+    description: t('pages.authors.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/authors'),
+  };
+}
 
 interface AuthorsPageProps {
   params: Promise<{ lang: string; journalId: string }>;

@@ -57,7 +57,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
 
   // Créer un objet lastInformation valide pour PresentationSection
   const lastInformation = useMemo(() => {
-    const { key, render } = lastInformationBlockConfiguration();
+    const { key, render } = lastInformationBlockConfiguration(journalConfig);
     if (!render) return undefined;
 
     if (key === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_VOLUME && volumes?.data?.[0]) {
@@ -79,7 +79,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
       };
     }
     return undefined;
-  }, [news, volumes, issues]);
+  }, [news, volumes, issues, journalConfig]);
 
   // Préparer les données pour le rendu
   const {
@@ -96,7 +96,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
     shouldRenderAcceptedArticles,
   } = useMemo(() => {
     const getBlockRendering = (blockKey: HOMEPAGE_BLOCK) => {
-      const config = blocksConfiguration().find(c => c.key === blockKey);
+      const config = blocksConfiguration(journalConfig).find(c => c.key === blockKey);
 
       const BLOCK_ENV_KEYS: Partial<Record<HOMEPAGE_BLOCK, string>> = {
         [HOMEPAGE_BLOCK.MEMBERS_CAROUSEL]: 'NEXT_PUBLIC_JOURNAL_HOMEPAGE_MEMBERS_CAROUSEL_RENDER',

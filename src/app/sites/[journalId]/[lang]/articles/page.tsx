@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
-
 import { fetchArticles } from '@/services/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
-
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import Loader from '@/components/Loader/Loader';
+import { generateSeoAlternates } from '@/utils/seo';
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
 
@@ -28,10 +27,18 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'Articles',
-  description: 'Articles',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.articles.title', translations),
+    description: t('pages.articles.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/articles'),
+  };
+}
 
 interface ArticlesData {
   data: any[];
@@ -62,7 +69,6 @@ export default async function ArticlesPage(props: {
       throw new Error('Journal code not available');
     }
 
-    // Récupération dynamique des articles (en parallèle avec les traductions)
     const [translations, articles] = await Promise.all([
       translationsPromise,
       fetchArticles({
@@ -74,7 +80,6 @@ export default async function ArticlesPage(props: {
       }),
     ]);
 
-    // S'assurer que les données sont dans le bon format
     const formattedArticles: ArticlesData = {
       data: Array.isArray(articles.data) ? articles.data : [],
       totalItems: articles.totalItems || 0,

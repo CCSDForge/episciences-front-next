@@ -24,17 +24,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang={defaultLanguage}>
       <head>
         <base href="/" />
-        {/* Preload critical font to avoid FOIT/FOUT */}
-        <link
-          rel="preload"
-          href="/fonts/Noto-Sans/NotoSans-Regular.woff"
-          as="font"
-          type="font/woff"
-          crossOrigin="anonymous"
-        />
-        {/* Preconnect hints are added per-journal in JournalLayout */}
+        <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
       </head>
-      <body>
+      <body className="light-theme">
         {/* The JournalLayout at /sites/[journalId]/layout.tsx will provide ClientProviders */}
         {children}
       </body>

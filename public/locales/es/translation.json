@@ -81,6 +81,7 @@
     },
     "publicationDetails": "Detalles de publicación",
     "submittedOn": "Enviado el",
+    "importedOn": "Importado el",
     "lastModifiedOn": "Última modificación el"
   },
   "components": {
@@ -214,7 +215,8 @@
           "subtitle": "Últimos artículos aceptados",
           "see": "Ver todos los artículos aceptados"
         }
-      }
+      },
+      "description": "Revista académica alojada en Episciences"
     },
     "articles": {
       "title": "Artículos",
@@ -228,7 +230,8 @@
         "preprint": "Preimpresión",
         "report": "Informe",
         "software": "Software"
-      }
+      },
+      "description": "Explore todos los artículos publicados en esta revista"
     },
     "articleDetails": {
       "title": "Artículo",
@@ -252,6 +255,7 @@
       },
       "actions": {
         "download": "Descargar artículo",
+        "viewPDF": "Ver el PDF",
         "openOn": "Abrir en",
         "cite": "Citar",
         "citationError": "Error al generar las citas",
@@ -383,20 +387,24 @@
         "openPDF": "Abrir PDF",
         "pdfDisplayTitle": "Visualización del PDF",
         "pdfDisplayMessage": "El PDF no se puede mostrar directamente. Haga clic en el botón de abajo para abrirlo en una nueva pestaña o descargarlo."
-      }
+      },
+      "description": "Detalles del artículo, resumen y texto completo"
     },
     "articlesAccepted": {
-      "title": "Próximas publicaciones"
+      "title": "Próximas publicaciones",
+      "description": "Artículos aceptados para publicación y próximas publicaciones"
     },
     "search": {
-      "title": "Buscar"
+      "title": "Buscar",
+      "description": "Buscar artículos, autores y volúmenes"
     },
     "volumes": {
       "title": "Volúmenes",
       "types": {
         "specialIssues": "Números especiales",
         "proceedings": "Actas de congresos"
-      }
+      },
+      "description": "Explore todos los volúmenes y números especiales de esta revista"
     },
     "volumeDetails": {
       "title": "Volumen",
@@ -415,28 +423,34 @@
         "lookAtSelectedVolume": "Consultar el volumen seleccionado",
         "lookAtSelectedIssue": "Consultar el número seleccionado",
         "lookAtSelectedProceedings": "Consultar las actas seleccionadas"
-      }
+      },
+      "description": "Detalles del volumen y artículos"
     },
     "sections": {
       "title": "Secciones",
       "totalArticles": "Total de artículos",
       "articlesInSection": "Artículos en esta sección",
       "noArticlesTitle": "No se encontraron artículos",
-      "noArticlesMessage": "Esta sección no tiene artículos actualmente."
+      "noArticlesMessage": "Esta sección no tiene artículos actualmente.",
+      "description": "Explore todas las secciones de esta revista"
     },
     "sectionDetails": {
-      "title": "Sección"
+      "title": "Sección",
+      "description": "Detalles de la sección y artículos relacionados"
     },
     "authors": {
       "title": "Autores",
       "searchName": "buscar un nombre",
-      "others": "Otros"
+      "others": "Otros",
+      "description": "Explore todos los autores que han publicado en esta revista"
     },
     "about": {
-      "title": "La revista"
+      "title": "La revista",
+      "description": "Descubra la misión, historia y equipo editorial de esta revista"
     },
     "news": {
-      "title": "Noticias"
+      "title": "Noticias",
+      "description": "Últimas noticias y anuncios de esta revista"
     },
     "statistics": {
       "title": "Estadísticas",
@@ -460,7 +474,8 @@
         "beingPublished": "En curso de publicación",
         "accepted": "Artículos aceptados",
         "other-status": "Otro estado"
-      }
+      },
+      "description": "Estadísticas y métricas de publicación"
     },
     "boards": {
       "title": "Comités",
@@ -484,38 +499,47 @@
         "advisoryBoard": "Miembro del comité consultivo",
         "member": "Miembro",
         "formerMember": "Antiguo miembro"
-      }
+      },
+      "description": "Comités editoriales"
     },
     "forAuthors": {
-      "title": "Para autores"
+      "title": "Para autores",
+      "description": "Directrices y recursos para autores que envían a esta revista"
     },
     "acknowledgements": {
       "title": "Agradecimientos",
-      "noContent": "No hay agradecimientos disponibles para esta revista."
+      "noContent": "No hay agradecimientos disponibles para esta revista.",
+      "description": "Agradecimientos de esta revista"
     },
     "indexing": {
       "title": "Indexación",
-      "noContent": "No hay información de indexación disponible para esta revista."
+      "noContent": "No hay información de indexación disponible para esta revista.",
+      "description": "Bases de datos de indexación de esta revista"
     },
     "ethicalCharter": {
       "title": "Carta ética",
-      "noContent": "No hay carta ética disponible para esta revista."
+      "noContent": "No hay carta ética disponible para esta revista.",
+      "description": "Principios éticos y normas de publicación"
     },
     "forReviewers": {
       "title": "Para revisores",
-      "noContent": "No hay información para revisores disponible para esta revista."
+      "noContent": "No hay información para revisores disponible para esta revista.",
+      "description": "Información y recursos para revisores"
     },
     "forEditors": {
       "title": "Para editores",
-      "noContent": "No hay información para editores disponible para esta revista."
+      "noContent": "No hay información para editores disponible para esta revista.",
+      "description": "Información y recursos para editores"
     },
     "forConferenceOrganisers": {
       "title": "Para organizadores de congresos",
-      "noContent": "No hay información para organizadores de congresos disponible para esta revista."
+      "noContent": "No hay información para organizadores de congresos disponible para esta revista.",
+      "description": "Información y recursos para organizadores de congresos"
     },
     "proposingSpecialIssues": {
       "title": "Propuesta de monográficos",
-      "noContent": "No hay información sobre la propuesta de monográficos disponible para esta revista."
+      "noContent": "No hay información sobre la propuesta de monográficos disponible para esta revista.",
+      "description": "Directrices para proponer monográficos"
     },
     "accessibility": {
       "title": "Accesibilidad",
@@ -523,7 +547,8 @@
       "noContent": "Contenido no encontrado."
     },
     "credits": {
-      "title": "Créditos"
+      "title": "Créditos",
+      "description": "Créditos y avisos legales"
     },
     "common": {
       "noContent": "No hay contenido disponible para esta revista."

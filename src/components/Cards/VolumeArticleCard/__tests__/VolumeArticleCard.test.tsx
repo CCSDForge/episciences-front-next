@@ -53,8 +53,8 @@ vi.mock('@/hooks/store', () => ({
 }));
 
 vi.mock('@/components/DownloadArticleButton/DownloadArticleButton', () => ({
-  default: ({ children, downloadHref }: { children: React.ReactNode; downloadHref: string }) => (
-    <a href={downloadHref}>{children}</a>
+  default: ({ children, downloadHref, ariaLabel }: { children: React.ReactNode; downloadHref: string; ariaLabel: string }) => (
+    <a href={downloadHref} aria-label={ariaLabel}>{children}</a>
   ),
 }));
 

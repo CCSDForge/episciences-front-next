@@ -1,29 +1,21 @@
 'use client';
 
 import React from 'react';
-import { getPdfProxyUrl } from '@/utils/pdf';
 
 interface DownloadArticleButtonProps {
-  pdfLink: string;
   downloadHref: string;
-  filename?: string;
+  ariaLabel: string;
   children: React.ReactNode;
 }
 
-export default function DownloadArticleButton({
-  pdfLink,
-  downloadHref,
-  filename,
-  children,
-}: DownloadArticleButtonProps) {
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    void fetch(downloadHref, { redirect: 'manual' }).catch(() => {});
-    window.location.href = getPdfProxyUrl(pdfLink, 'attachment', filename);
-  };
-
+export default function DownloadArticleButton({ downloadHref, ariaLabel, children }: DownloadArticleButtonProps) {
   return (
-    <a href={downloadHref} onClick={handleClick}>
+    <a
+      href={downloadHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={ariaLabel}
+    >
       {children}
     </a>
   );

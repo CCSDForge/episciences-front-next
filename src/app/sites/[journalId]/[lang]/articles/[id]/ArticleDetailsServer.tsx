@@ -7,7 +7,6 @@ import { MAX_BREADCRUMB_TITLE } from '@/config/constants';
 import { truncate } from '@/utils/string';
 import { Translations, t } from '@/utils/server-i18n';
 import { AvailableLanguage, defaultLanguage } from '@/utils/i18n';
-import SignpostingLinks from '@/components/SignpostingLinks/SignpostingLinks';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import MathJax from '@/components/MathJax/MathJax';
 import ArticleDetailsSidebarServer from './components/ArticleDetailsSidebarServer';
@@ -20,6 +19,7 @@ import CitedBySection from './components/CitedBySection';
 import ReferencesSection from './components/ReferencesSection';
 import PreviewSection from './components/PreviewSection';
 import CollapsibleSectionWrapper from './components/CollapsibleSectionWrapper';
+import SignpostingLinks from '@/components/SignpostingLinks/SignpostingLinks';
 import './ArticleDetails.scss';
 
 interface ArticleDetailsServerProps {
@@ -57,7 +57,7 @@ export default function ArticleDetailsServer({
   metadataBibTeX,
   translations,
   language,
-}: ArticleDetailsServerProps): React.ReactNode {
+}: ArticleDetailsServerProps): React.JSX.Element {
   // Process authors and institutions
   const allAuthors: EnhancedArticleAuthor[] = [];
   const allInstitutionsMap = new Map<string, IInstitution>();
@@ -208,12 +208,11 @@ export default function ArticleDetailsServer({
   };
 
   const getPreviewSection = (): React.JSX.Element | null => {
-    // All PDFs now routed through proxy which forces inline display
-    if (!article?.pdfLink) {
+    if (!article?.pdfLink || !article?.id) {
       return null;
     }
 
-    return <PreviewSection pdfLink={article.pdfLink} />;
+    return <PreviewSection previewHref={`/${language || defaultLanguage}/articles/${article.id}/preview`} />;
   };
 
   // Helper to render sections with collapsible wrapper
@@ -237,17 +236,6 @@ export default function ArticleDetailsServer({
     <>
       <SignpostingLinks article={article} rvcode={rvcode} id={id} lang={language || defaultLanguage} />
       <main className="articleDetails">
-      {/* Tracking pixel for article views - appears in Apache logs as /articles/[id]/preview */}
-      {article?.id && (
-        <img
-          src={`/articles/${article.id}/preview`}
-          alt=""
-          width="1"
-          height="1"
-          style={{ position: 'absolute', visibility: 'hidden' }}
-          aria-hidden="true"
-        />
-      )}
       <Breadcrumb
         parents={[
           {

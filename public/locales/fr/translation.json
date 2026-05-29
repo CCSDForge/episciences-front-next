@@ -88,6 +88,7 @@
     "contentNotInLanguage": "Ce contenu n'est pas encore disponible dans la langue demandée.",
     "publicationDetails": "Détails de publication",
     "submittedOn": "Soumis le",
+    "importedOn": "Importé le",
     "lastModifiedOn": "Modifié le"
   },
   "components": {
@@ -221,7 +222,8 @@
           "subtitle": "Derniers articles acceptés",
           "see": "Voir tous les articles acceptés"
         }
-      }
+      },
+      "description": "Revue académique hébergée sur Episciences"
     },
     "articles": {
       "title": "Articles",
@@ -235,7 +237,8 @@
         "preprint": "Pré-publication",
         "report": "Rapport",
         "software": "Logiciel"
-      }
+      },
+      "description": "Parcourez tous les articles publiés dans cette revue"
     },
     "articleDetails": {
       "title": "Article",
@@ -259,6 +262,7 @@
       },
       "actions": {
         "download": "Télécharger l'article",
+        "viewPDF": "Voir le PDF",
         "openOn": "Ouvrir sur",
         "cite": "Citer",
         "citationError": "Erreur lors de la génération des citations",
@@ -390,20 +394,24 @@
         "openPDF": "Ouvrir le PDF",
         "pdfDisplayTitle": "Affichage du PDF",
         "pdfDisplayMessage": "Le PDF ne peut pas être affiché directement. Cliquez sur le bouton ci-dessous pour l'ouvrir dans un nouvel onglet ou le télécharger."
-      }
+      },
+      "description": "Détails de l'article, résumé et texte intégral"
     },
     "articlesAccepted": {
-      "title": "À paraître"
+      "title": "À paraître",
+      "description": "Articles acceptés pour publication et numéros à paraître"
     },
     "search": {
-      "title": "Rechercher"
+      "title": "Rechercher",
+      "description": "Rechercher des articles, auteurs et volumes"
     },
     "volumes": {
       "title": "Volumes",
       "types": {
         "specialIssues": "Volumes spéciaux",
         "proceedings": "Actes de conférences"
-      }
+      },
+      "description": "Parcourez tous les volumes et numéros spéciaux de cette revue"
     },
     "volumeDetails": {
       "title": "Volume",
@@ -422,28 +430,34 @@
         "lookAtSelectedVolume": "Consulter le volume sélectionné",
         "lookAtSelectedIssue": "Consulter le volume spécial sélectionné",
         "lookAtSelectedProceedings": "Consulter l'acte de conférence sélectionné"
-      }
+      },
+      "description": "Détails du volume et articles"
     },
     "sections": {
       "title": "Rubriques",
       "totalArticles": "Total des Articles",
       "articlesInSection": "Articles de cette Section",
       "noArticlesTitle": "Aucun Article Trouvé",
-      "noArticlesMessage": "Cette section n'a actuellement aucun article."
+      "noArticlesMessage": "Cette section n'a actuellement aucun article.",
+      "description": "Parcourez toutes les rubriques de cette revue"
     },
     "sectionDetails": {
-      "title": "Rubrique"
+      "title": "Rubrique",
+      "description": "Détails de la rubrique et articles associés"
     },
     "authors": {
       "title": "Auteurs/Autrices",
       "searchName": "rechercher un nom",
-      "others": "Autres"
+      "others": "Autres",
+      "description": "Parcourez tous les auteurs ayant publié dans cette revue"
     },
     "about": {
-      "title": "La revue"
+      "title": "La revue",
+      "description": "Découvrez la mission, l'histoire et l'équipe éditoriale de cette revue"
     },
     "news": {
-      "title": "Actualités"
+      "title": "Actualités",
+      "description": "Dernières actualités et annonces de cette revue"
     },
     "statistics": {
       "title": "Statistiques",
@@ -467,7 +481,8 @@
         "beingPublished": "En cours de publication",
         "accepted": "Articles acceptés",
         "other-status": "Autre statut"
-      }
+      },
+      "description": "Statistiques et métriques de publication"
     },
     "boards": {
       "title": "Comités",
@@ -491,38 +506,47 @@
         "advisoryBoard": "Membre du comité consultatif",
         "member": "Membre",
         "formerMember": "Ancien/Ancienne membre"
-      }
+      },
+      "description": "Comités éditoriaux"
     },
     "forAuthors": {
-      "title": "Pour les auteurs/autrices"
+      "title": "Pour les auteurs/autrices",
+      "description": "Directives et ressources pour les auteurs soumettant à cette revue"
     },
     "acknowledgements": {
       "title": "Remerciements",
-      "noContent": "Aucun remerciement disponible pour cette revue."
+      "noContent": "Aucun remerciement disponible pour cette revue.",
+      "description": "Remerciements de cette revue"
     },
     "indexing": {
       "title": "Indexation",
-      "noContent": "Aucune information de référencement disponible pour cette revue."
+      "noContent": "Aucune information de référencement disponible pour cette revue.",
+      "description": "Bases de données d'indexation de cette revue"
     },
     "ethicalCharter": {
       "title": "Charte éthique",
-      "noContent": "Aucune charte éthique disponible pour cette revue."
+      "noContent": "Aucune charte éthique disponible pour cette revue.",
+      "description": "Principes éthiques et normes de publication"
     },
     "forReviewers": {
       "title": "Pour les relecteurs",
-      "noContent": "Aucune information pour les relecteurs/relectrices disponible pour cette revue."
+      "noContent": "Aucune information pour les relecteurs/relectrices disponible pour cette revue.",
+      "description": "Informations et ressources pour les relecteurs"
     },
     "forEditors": {
       "title": "Pour les rédacteurs/rédactrices",
-      "noContent": "Aucune information pour les rédacteurs/rédactrices disponible pour cette revue."
+      "noContent": "Aucune information pour les rédacteurs/rédactrices disponible pour cette revue.",
+      "description": "Informations et ressources pour les rédacteurs"
     },
     "forConferenceOrganisers": {
       "title": "Pour les organisateurs de conférences",
-      "noContent": "Aucune information pour les organisateurs de conférences disponible pour cette revue."
+      "noContent": "Aucune information pour les organisateurs de conférences disponible pour cette revue.",
+      "description": "Informations et ressources pour les organisateurs de conférences"
     },
     "proposingSpecialIssues": {
       "title": "Proposer des numéros spéciaux",
-      "noContent": "Aucune information sur la proposition de numéros spéciaux disponible pour cette revue."
+      "noContent": "Aucune information sur la proposition de numéros spéciaux disponible pour cette revue.",
+      "description": "Guide pour proposer des numéros spéciaux"
     },
     "accessibility": {
       "title": "Accessibilité",
@@ -530,7 +554,8 @@
       "noContent": "Contenu non trouvé."
     },
     "credits": {
-      "title": "Crédits"
+      "title": "Crédits",
+      "description": "Crédits et mentions légales"
     },
     "notFound": {
       "title": "Page introuvable",

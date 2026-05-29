@@ -124,6 +124,10 @@ export type { FileIconProps } from './ui/FileIcon';
 export { default as UserIcon } from './ui/UserIcon';
 export type { UserIconProps } from './ui/UserIcon';
 
+// User Circle Icon
+export { default as UserCircleIcon } from './ui/UserCircleIcon';
+export type { UserCircleIconProps } from './ui/UserCircleIcon';
+
 // Translate Icon
 export { default as TranslateIcon } from './ui/TranslateIcon';
 export type { TranslateIconProps } from './ui/TranslateIcon';

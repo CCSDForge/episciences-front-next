@@ -40,7 +40,6 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { PATHS } from '@/config/paths';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
-import { generateArticleFilename } from '@/utils/pdf';
 
 import './ArticleDetailsSidebar.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
@@ -286,9 +285,8 @@ export default function ArticleDetailsSidebar({
         {article?.pdfLink && (
           <>
             <DownloadArticleButton
-              pdfLink={article.pdfLink!}
               downloadHref={`/${PATHS.articles}/${article.id}/download`}
-              filename={generateArticleFilename(rvcode ?? '', article.id, article.title)}
+              ariaLabel={`${t('pages.articleDetails.download.openPDF')} - ${article.title}`}
             >
               <div className="articleDetailsSidebar-links-link">
                 <DownloadBlackIcon
@@ -499,11 +497,13 @@ export default function ArticleDetailsSidebar({
         >
           {article?.submissionDate && (
             <div className="articleDetailsSidebar-publicationDetails-content-row">
-              <div>{t('common.submittedOn')}</div>
+              <div>
+                {article.isImported ? t('common.importedOn') : t('common.submittedOn')}
+              </div>
               <div>{formatDate(article.submissionDate, language)}</div>
             </div>
           )}
-          {article?.acceptanceDate && (
+          {article?.acceptanceDate && !article.isImported && (
             <div className="articleDetailsSidebar-publicationDetails-content-row">
               <div>{t('common.acceptedOn')}</div>
               <div>{formatDate(article.acceptanceDate, language)}</div>

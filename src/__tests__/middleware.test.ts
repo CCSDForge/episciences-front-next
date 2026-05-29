@@ -6,17 +6,45 @@ import { NextResponse } from 'next/server';
 // ---------------------------------------------------------------------------
 
 vi.mock('@/config/journals-generated', () => ({
-  journals: ['epijinfo', 'jtam', 'test-journal'],
+  journals: ['epijinfo', 'jtam', 'test-journal', 'pspa'],
 }));
+
 
 vi.mock('next/server', async () => {
   const actual = await vi.importActual<typeof import('next/server')>('next/server');
   return {
     ...actual,
     NextResponse: {
-      next: vi.fn(() => ({ headers: { set: vi.fn() } })),
-      rewrite: vi.fn(() => ({ headers: { set: vi.fn() } })),
-      redirect: vi.fn(() => ({ headers: { set: vi.fn() } })),
+      next: vi.fn(() => {
+        const headers = new Map();
+        return {
+          headers: {
+            set: vi.fn((k, v) => headers.set(k, v)),
+            append: vi.fn((k, v) => headers.set(k, v)),
+            get: (k: string) => headers.get(k),
+          },
+        };
+      }),
+      rewrite: vi.fn(() => {
+        const headers = new Map();
+        return {
+          headers: {
+            set: vi.fn((k, v) => headers.set(k, v)),
+            append: vi.fn((k, v) => headers.set(k, v)),
+            get: (k: string) => headers.get(k),
+          },
+        };
+      }),
+      redirect: vi.fn(() => {
+        const headers = new Map();
+        return {
+          headers: {
+            set: vi.fn((k, v) => headers.set(k, v)),
+            append: vi.fn((k, v) => headers.set(k, v)),
+            get: (k: string) => headers.get(k),
+          },
+        };
+      }),
     },
   };
 });
@@ -100,5 +128,103 @@ describe('middleware — hostname detection', () => {
     const { middleware } = await import('../middleware');
     await middleware(makeRequest('jtam.custom-domain.fr'));
     expect(lastRewritePath()).toContain('/sites/jtam/');
+  });
+
+  // -------------------------------------------------------------------------
+  // FAIRiCat & Signposting headers
+  // -------------------------------------------------------------------------
+
+  it('adds api-catalog discovery header on home page', async () => {
+    const { middleware } = await import('../middleware');
+    const response = await middleware(makeRequest('epijinfo.episciences.org', '/'));
+    expect(response.headers.append).toHaveBeenCalledWith(
+      'Link',
+      expect.stringContaining('rel="api-catalog"')
+    );
+    expect(response.headers.append).toHaveBeenCalledWith(
+      'Link',
+      expect.stringContaining('profile="https://signposting.org/FAIRiCat/"')
+    );
+  });
+
+  it('adds Signposting headers on article landing pages', async () => {
+    const { middleware } = await import('../middleware');
+    const response = await middleware(makeRequest('epijinfo.episciences.org', '/articles/1234'));
+    expect(response.headers.set).toHaveBeenCalledWith(
+      'Link',
+      expect.stringContaining('rel="linkset"')
+    );
+    expect(response.headers.append).toHaveBeenCalledWith(
+      'Link',
+      expect.stringContaining('rel="http://www.w3.org/ns/ldp#inbox"')
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Language rejection — non-accepted language prefix
+// ---------------------------------------------------------------------------
+
+describe('middleware — non-accepted language prefix redirect', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.resetModules();
+    delete process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES;
+    delete process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE;
+    delete process.env.NEXT_PUBLIC_EPISCIENCES_DOMAIN;
+    delete process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
+  });
+
+  afterEach(() => {
+    delete process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES;
+    delete process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE;
+  });
+
+  it('redirects /en/about to /fr/about when journal only accepts fr', async () => {
+    process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES = 'fr';
+    process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE = 'fr';
+
+    vi.doMock('@/utils/language-utils', () => ({
+      acceptedLanguages: ['fr'],
+      defaultLanguage: 'fr',
+      allSupportedLanguages: ['en', 'fr', 'es'],
+      getLanguageFromPathname: (p: string) => (p.startsWith('/en') ? 'en' : p.startsWith('/fr') ? 'fr' : 'fr'),
+      hasLanguagePrefix: (p: string) => /^\/(en|fr|es)(\/|$)/.test(p),
+      removeLanguagePrefix: (p: string) => p.replace(/^\/(en|fr|es)/, '') || '/',
+      isDefaultLanguage: (l: string) => l === 'fr',
+      validateLanguage: (l: string) => (['en', 'fr', 'es'].includes(l) ? l : 'fr'),
+      getLocalizedPath: (p: string, l: string) => `/${l}${p}`,
+    }));
+
+    const { middleware } = await import('../middleware');
+    await middleware(makeRequest('pspa.episciences.org', '/en/about'));
+
+    expect(NextResponse.redirect).toHaveBeenCalledWith(
+      expect.objectContaining({ pathname: '/fr/about' }),
+      expect.objectContaining({ status: 302 })
+    );
+  });
+
+  it('does not redirect /fr/about when journal accepts fr', async () => {
+    process.env.NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES = 'fr';
+    process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE = 'fr';
+
+    vi.doMock('@/utils/language-utils', () => ({
+      acceptedLanguages: ['fr'],
+      defaultLanguage: 'fr',
+      allSupportedLanguages: ['en', 'fr', 'es'],
+      getLanguageFromPathname: (p: string) => (p.startsWith('/fr') ? 'fr' : p.startsWith('/en') ? 'en' : 'fr'),
+      hasLanguagePrefix: (p: string) => /^\/(en|fr|es)(\/|$)/.test(p),
+      removeLanguagePrefix: (p: string) => p.replace(/^\/(en|fr|es)/, '') || '/',
+      isDefaultLanguage: (l: string) => l === 'fr',
+      validateLanguage: (l: string) => (['en', 'fr', 'es'].includes(l) ? l : 'fr'),
+      getLocalizedPath: (p: string, l: string) => `/${l}${p}`,
+    }));
+
+    const { middleware } = await import('../middleware');
+    await middleware(makeRequest('pspa.episciences.org', '/fr/about'));
+
+    expect(NextResponse.redirect).not.toHaveBeenCalled();
+    expect(NextResponse.rewrite).toHaveBeenCalled();
   });
 });

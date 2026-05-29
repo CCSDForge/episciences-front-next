@@ -4,6 +4,7 @@ import { fetchArticle } from '@/services/article';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { FetchedArticle } from '@/utils/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { generateSeoAlternates } from '@/utils/seo';
 import VolumeDetailsClient from './VolumeDetailsClient';
 
 // Volume details rarely change after publication - long revalidation time
@@ -14,9 +15,18 @@ export async function generateStaticParams() {
   return [];
 }
 
-export const metadata: Metadata = {
-  title: 'Volume Details',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ id: string; lang?: string; journalId: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { id, journalId } = params;
+  const language = getLanguageFromParams(params);
+
+  return {
+    title: 'Volume Details',
+    alternates: generateSeoAlternates(journalId, language, `/volumes/${id}`),
+  };
+}
 
 export default async function VolumeDetailsPage(props: {
   params: Promise<{ id: string; lang?: string; journalId: string }>;

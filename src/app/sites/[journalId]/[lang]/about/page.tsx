@@ -2,10 +2,10 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import './About.scss';
 import { fetchAboutPage } from '@/services/about';
-import { IPage } from '@/types/page';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
-import { acceptedLanguages, getLanguageFromParams } from '@/utils/language-utils';
+import { acceptedLanguages } from '@/utils/language-utils';
+import { generateSeoAlternates } from '@/utils/seo';
 
 const AboutClient = dynamic(() => import('./AboutClient'));
 
@@ -26,10 +26,18 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'À propos',
-  description: 'À propos de la revue',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.about.title', translations),
+    description: t('pages.about.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/about'),
+  };
+}
 
 export default async function AboutPage(props: {
   params: Promise<{ journalId: string; lang: string }>;

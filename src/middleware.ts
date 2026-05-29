@@ -10,6 +10,7 @@ import {
 import { isValidJournalId, sanitizeForLog } from '@/utils/validation';
 // import { journalExists } from '@/utils/static-paths'; // REMOVE: Uses fs, incompatible with Edge
 import { journals } from '@/config/journals-generated';
+import { journalLanguages } from '@/config/journals-languages-generated';
 
 function journalExists(journalId: string): boolean {
   return journals.includes(journalId);
@@ -90,7 +91,11 @@ export function middleware(request: NextRequest) {
     journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
   }
 
-  // 3. Language Management
+  // 3. Language Management — use per-journal config when available
+  const journalLangConfig = journalLanguages[journalId];
+  const effectiveDefault = journalLangConfig?.default ?? defaultLanguage;
+  const effectiveAccepted = journalLangConfig?.accepted ?? acceptedLanguages;
+
   const currentLang = getLanguageFromPathname(pathname);
   const hasPrefix = hasLanguagePrefix(pathname);
 
@@ -100,7 +105,18 @@ export function middleware(request: NextRequest) {
   // 4. Multi-tenant Internal Rewrite
   // Rewrite to /sites/[journalId]/[lang]/...
   const pathWithoutLang = removeLanguagePrefix(pathname);
-  const targetLang = hasPrefix ? currentLang : defaultLanguage;
+
+  // Reject a lang prefix not accepted by this journal — redirect to its default language.
+  if (hasPrefix && !effectiveAccepted.includes(currentLang)) {
+    const redirectUrl = new URL(
+      `/${effectiveDefault}${pathWithoutLang === '/' ? '' : pathWithoutLang}`,
+      request.url
+    );
+    redirectUrl.search = url.search;
+    return NextResponse.redirect(redirectUrl, { status: 302 });
+  }
+
+  const targetLang = hasPrefix ? currentLang : effectiveDefault;
 
   // Build internal path
   // NOTE: We use 'sites' not '_sites' because folders starting with _ are private in Next.js
@@ -111,12 +127,30 @@ export function middleware(request: NextRequest) {
   const rewriteUrl = new URL(internalPath, request.url);
   rewriteUrl.search = url.search;
 
-  // Forward language as a request header so Server Components (e.g. not-found.tsx) can read it
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-detected-language', targetLang);
-
-  const response = NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } });
+  const response = NextResponse.rewrite(rewriteUrl);
   response.headers.set('x-detected-language', targetLang);
+
+  const origin = `${url.protocol}//${hostHeader}`;
+
+  // FAIRiCat discovery: add api-catalog link header on home page
+  if (pathWithoutLang === '/' || pathWithoutLang === '') {
+    const catalogUrl = `${origin}/.well-known/api-catalog`;
+    response.headers.append(
+      'Link',
+      `<${catalogUrl}>; rel="api-catalog"; type="application/linkset+json"; profile="https://signposting.org/FAIRiCat/"`
+    );
+  }
+
+  // FAIR Signposting Level 1: add Link headers for article landing pages
+  const articleMatch = pathWithoutLang.match(/^\/articles\/(\d+)$/);
+  if (articleMatch) {
+    const articleId = articleMatch[1];
+    const linksetUrl = `${origin}/${targetLang}/articles/${articleId}/linkset`;
+    const inboxUrl =
+      process.env.NEXT_PUBLIC_COAR_NOTIFY_INBOX_URL || 'https://inbox.episciences.org/';
+    response.headers.set('Link', `<${linksetUrl}>; rel="linkset"; type="application/linkset+json"`);
+    response.headers.append('Link', `<${inboxUrl}>; rel="http://www.w3.org/ns/ldp#inbox"`);
+  }
 
   return response;
 }

@@ -7,6 +7,7 @@ import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { getPublicJournalConfig } from '@/utils/env-loader';
+import { generateSeoAlternates } from '@/utils/seo';
 
 const ForConferenceOrganisersClient = dynamic(() => import('./ForConferenceOrganisersClient'));
 
@@ -27,44 +28,44 @@ export async function generateStaticParams() {
   return params;
 }
 
-export const metadata: Metadata = {
-  title: 'For Conference Organisers',
-  description: 'Information for conference organisers',
-};
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
+  return {
+    title: t('pages.forConferenceOrganisers.title', translations),
+    description: t('pages.forConferenceOrganisers.description', translations),
+    alternates: generateSeoAlternates(journalId, lang, '/for-conference-organisers'),
+  };
+}
 
 export default async function ForConferenceOrganisersPage(props: {
   params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
-  let pageData = null;
   const { journalId, lang } = params;
 
-  // Check if this page should be rendered for this journal
   const journalConfig = getPublicJournalConfig(journalId);
   if (journalConfig.NEXT_PUBLIC_JOURNAL_MENU_JOURNAL_FOR_CONFERENCE_ORGANISERS_RENDER === 'false') {
     notFound();
   }
 
-  const translationsPromise = getServerTranslations(lang);
+  let pageData = null;
+  let translations = {};
 
   try {
-    if (journalId) {
-      const rawData = await fetchForConferenceOrganisersPage(journalId);
-      if (rawData?.['hydra:member']?.[0]) {
-        pageData = rawData['hydra:member'][0];
-      } else {
-        console.warn(
-          `[Build] For Conference Organisers page content not found for journal "${journalId}" on API.`
-        );
-      }
-    }
+    let rawData = null;
+    [rawData, translations] = await Promise.all([
+      fetchForConferenceOrganisersPage(journalId),
+      getServerTranslations(lang),
+    ]);
+    pageData = rawData?.['hydra:member']?.[0] ?? null;
   } catch (error) {
-    console.warn(
-      `[Build] Could not reach API for For Conference Organisers page of journal "${journalId}".`
-    );
+    console.warn('[ForConferenceOrganisersPage] Failed to fetch data:', error);
   }
 
-  const translations = await translationsPromise;
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/for-conference-organisers', translations),
     current: t('pages.forConferenceOrganisers.title', translations),
