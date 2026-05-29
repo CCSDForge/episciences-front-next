@@ -79,3 +79,4 @@ build.log
 /docs/
 !/docs/
 /.agents/
+/.playwright-mcp/
