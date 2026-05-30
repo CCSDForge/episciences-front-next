@@ -7,7 +7,6 @@ const nextConfig = {
   // pino uses worker_threads (pino-pretty) and native bindings — must not be bundled
   serverExternalPackages: ['pino', 'pino-pretty'],
 
-
   // Required when running behind a reverse proxy (HAProxy → Nginx → Node.js).
   //
   // trustHostHeader: true  → resolve-routes.js builds initUrl from the Host header
@@ -42,7 +41,14 @@ const nextConfig = {
 
   // Turbopack activé par défaut en Next.js 16
   // La config webpack ci-dessous (fs: false) est gérée automatiquement par Turbopack
-  turbopack: {},
+  turbopack: {
+    // Redirect @/lib/logger to a browser noop for client bundles (pino is Node.js-only)
+    resolveAlias: {
+      '@/lib/logger': {
+        browser: path.resolve(__dirname, 'src/lib/logger.browser.ts'),
+      },
+    },
+  },
 
   // Configuration SASS (supportée par Webpack et Turbopack)
   sassOptions: {
@@ -124,6 +130,11 @@ const nextConfig = {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
+      };
+      // Redirect @/lib/logger to a browser noop for client bundles (pino is Node.js-only)
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@/lib/logger': path.resolve(__dirname, 'src/lib/logger.browser.ts'),
       };
     }
     return config;

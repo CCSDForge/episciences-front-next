@@ -16,6 +16,14 @@ vi.mock('@/utils/env-loader', () => ({
   getJournalApiUrl: vi.fn((rvcode: string) => `https://api.${rvcode}.episciences.org`),
 }));
 
+const { mockJournalLog } = vi.hoisted(() => ({
+  mockJournalLog: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
+}));
+
+vi.mock('@/lib/logger', () => ({
+  serviceLogger: { child: vi.fn(() => mockJournalLog) },
+}));
+
 // Mock global fetch
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -93,13 +101,9 @@ describe('journal service', () => {
         status: 500,
       });
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
       const result = await fetchJournalWithoutCode();
 
       expect(result).toBeNull();
-
-      consoleSpy.mockRestore();
     });
 
     it('should return journal data on success', async () => {
@@ -188,6 +192,11 @@ describe('journal service', () => {
 
       await expect(fetchJournal('badjournal')).rejects.toThrow(
         'Failed to fetch journal with code badjournal'
+      );
+
+      expect(mockJournalLog.error).toHaveBeenCalledWith(
+        expect.objectContaining({ error: expect.any(Error) }),
+        expect.any(String)
       );
     });
 

@@ -53,14 +53,20 @@ export async function fetchData(id: string) {
 
 **Logging:**
 
-- Success: No log (or `console.debug()` if needed)
-- Warning: `console.warn()` with context
-- Error: `console.error()` with full error object
+Use the Pino structured logger — never `console.*` in server-side code. See `docs/LOGGING.md`.
 
-**Example:**
+- Success: no log
+- Warning: `log.warn({ context, err: err.message }, 'API unavailable, using fallback')`
+- Error: `log.error({ error }, 'descriptive message')`
+
+Import the appropriate child logger for the module:
 
 ```typescript
-console.warn(`[SafeFetch] ${context} failed, using fallback:`, error.message);
+import { serviceLogger } from '@/lib/logger';
+const log = serviceLogger.child({ service: 'my-service' });
+
+// In a catch block:
+log.warn({ context, err: err.message }, 'API unavailable, using fallback');
 ```
 
 ---
@@ -84,7 +90,7 @@ export default async function Page(props: { params: Promise<...> }) {
       getServerTranslations(params.lang)
     ]);
   } catch (error) {
-    console.warn('[Page] Data fetch failed:', error);
+    log.warn({ error }, 'Data fetch failed');
     // data remains null, client component must handle it
   }
 

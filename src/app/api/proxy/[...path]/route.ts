@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getJournalApiUrl } from '@/utils/env-loader';
-import { isValidJournalId, sanitizeIp } from '@/utils/validation';
+import { isValidJournalId, sanitizeIp, sanitizeForLog } from '@/utils/validation';
 import { apiLogger } from '@/lib/logger';
 
 const log = apiLogger.child({ route: 'api-proxy' });
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
       },
     });
   } catch (error) {
-    log.error({ targetUrl: String(targetUrl), error }, 'Error proxying GET request');
+    log.error({ targetUrl: sanitizeForLog(String(targetUrl)), error }, 'Error proxying GET request');
     return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }
 }
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
       },
     });
   } catch (error) {
-    log.error({ targetUrl: String(targetUrl), error }, 'Error proxying POST request');
+    log.error({ targetUrl: sanitizeForLog(String(targetUrl)), error }, 'Error proxying POST request');
     return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }
 }

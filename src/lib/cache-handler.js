@@ -353,27 +353,29 @@ class CacheHandler {
               }
             }
           }
-          const segInfo =
-            v?.segmentData instanceof Map
-              ? `Map(${v.segmentData.size}) valTypes=[${Array.from(v.segmentData.values())
-                  .slice(0, 3)
-                  .map(x =>
-                    Buffer.isBuffer(x) ? 'Buffer' : x instanceof Uint8Array ? 'Uint8Array' : typeof x
-                  )
-                  .join(',')}]`
-              : String(v?.segmentData);
-          log.debug(
-            {
-              key,
-              kind: v?.kind,
-              htmlType: typeof v?.html,
-              rscDataIsBuffer: Buffer.isBuffer(v?.rscData),
-              rscDataCtor: v?.rscData?.constructor?.name || typeof v?.rscData,
-              segmentData: segInfo,
-              postponedType: typeof v?.postponed,
-            },
-            'HIT'
-          );
+          if (log.isLevelEnabled('debug')) {
+            const segInfo =
+              v?.segmentData instanceof Map
+                ? `Map(${v.segmentData.size}) valTypes=[${Array.from(v.segmentData.values())
+                    .slice(0, 3)
+                    .map(x =>
+                      Buffer.isBuffer(x) ? 'Buffer' : x instanceof Uint8Array ? 'Uint8Array' : typeof x
+                    )
+                    .join(',')}]`
+                : String(v?.segmentData);
+            log.debug(
+              {
+                key,
+                kind: v?.kind,
+                htmlType: typeof v?.html,
+                rscDataIsBuffer: Buffer.isBuffer(v?.rscData),
+                rscDataCtor: v?.rscData?.constructor?.name || typeof v?.rscData,
+                segmentData: segInfo,
+                postponedType: typeof v?.postponed,
+              },
+              'HIT'
+            );
+          }
           return entry;
         } catch {
           return null;

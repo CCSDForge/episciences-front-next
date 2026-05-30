@@ -9,8 +9,8 @@ function getLogger() {
   if (_logger) return _logger;
   const pino = require('pino');
   _logger = pino({
-    level: isTest ? 'silent' : (process.env.LOG_LEVEL ?? (isDev ? 'debug' : 'info')),
-    base: isDev ? undefined : { env: process.env.NODE_ENV },
+    level: isTest ? 'silent' : (process.env.LOG_LEVEL || (isDev ? 'debug' : 'info')),
+    base: isDev ? undefined : { pid: process.pid, hostname: require('os').hostname(), env: process.env.NODE_ENV },
     transport: isDev
       ? {
           target: 'pino-pretty',

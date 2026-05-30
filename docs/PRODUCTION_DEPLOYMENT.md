@@ -96,6 +96,42 @@ Environment=HOSTNAME=127.0.0.1
 WantedBy=multi-user.target
 ```
 
+### Logging
+
+The application uses **Pino** for structured JSON logging. In production, all output goes to **stdout**, which systemd captures and routes to **journald**.
+
+**Read logs in real time:**
+
+```bash
+journalctl -u episciences-next -f
+```
+
+**Filter by level (requires `jq`):**
+
+```bash
+journalctl -u episciences-next -o cat | jq 'select(.level >= 40)'  # warn and above
+```
+
+**Search by journal:**
+
+```bash
+journalctl -u episciences-next -o cat | jq 'select(.service == "article")'
+```
+
+**Adjust log verbosity without redeploying:**
+
+Add or update `Environment=LOG_LEVEL=debug` in the systemd unit, then reload:
+
+```bash
+systemctl daemon-reload && systemctl restart episciences-next
+```
+
+Valid levels (least → most verbose): `fatal`, `error`, `warn`, `info` (default), `debug`, `trace`.
+
+See `docs/LOGGING.md` for the full logging architecture.
+
+---
+
 ### 3.1 Cluster Cache Synchronization
 
 In a cluster, each node has its own local cache. To ensure cache invalidation reaches all nodes,

@@ -5,10 +5,14 @@ import { createRequire } from 'module';
 // --- Mocks ---
 
 // pino fails to load in the @vitest-environment node context due to CJS bundling differences.
-// Mock the logger to prevent pino initialization; env-loader logging is not the subject of these tests.
+// A stable mockLog reference (via vi.hoisted) lets individual tests assert log calls.
+const { mockLog } = vi.hoisted(() => ({
+  mockLog: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
+}));
+
 vi.mock('@/lib/logger', () => ({
   serviceLogger: {
-    child: vi.fn(() => ({ warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() })),
+    child: vi.fn(() => mockLog),
   },
 }));
 
@@ -32,6 +36,7 @@ describe('env-loader', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    vi.clearAllMocks();
     delete process.env.NEXT_PUBLIC_API_URL_FORCE;
     delete process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT;
   });
@@ -57,6 +62,10 @@ describe('env-loader', () => {
       });
       const { getJournalsList } = await import('@/utils/env-loader');
       expect(getJournalsList()).toEqual([]);
+      expect(mockLog.warn).toHaveBeenCalledWith(
+        expect.objectContaining({ error: expect.any(Error) }),
+        expect.stringContaining('journals.txt')
+      );
     });
 
     it('caches the result — readFileSync is called only once', async () => {
@@ -152,6 +161,10 @@ describe('env-loader', () => {
       });
       const result = loadJournalConfig('journal-read-error');
       expect(result).toEqual({ code: 'journal-read-error', env: {} });
+      expect(mockLog.error).toHaveBeenCalledWith(
+        expect.objectContaining({ error: expect.any(Error), journalCode: 'journal-read-error' }),
+        expect.stringContaining('config')
+      );
     });
   });
 
