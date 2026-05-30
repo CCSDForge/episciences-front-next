@@ -25,14 +25,17 @@ make build && make up # Test with Nginx (production-like)
 
 ## Directory Structure
 
-| Path                                | Description                     |
-| ----------------------------------- | ------------------------------- |
-| `src/app/sites/[journalId]/[lang]/` | Multi-tenant page routes        |
-| `src/middleware.ts`                 | Hostname → journalId routing    |
-| `src/services/`                     | API fetching with `safeFetch()` |
-| `src/utils/`                        | Shared utility functions        |
-| `external-assets/`                  | Per-journal config and logos    |
-| `docs/`                             | Detailed documentation          |
+| Path                                | Description                                        |
+| ----------------------------------- | -------------------------------------------------- |
+| `src/app/sites/[journalId]/[lang]/` | Multi-tenant page routes                           |
+| `src/middleware.ts`                 | Hostname → journalId routing                       |
+| `src/services/`                     | API fetching with `safeFetch()`                    |
+| `src/utils/`                        | Shared utility functions                           |
+| `src/lib/`                          | Infrastructure: logger, Valkey client, cache handler |
+| `src/hooks/`                        | Custom React hooks                                 |
+| `src/components/`                   | Shared UI components                               |
+| `external-assets/`                  | Per-journal config and logos                       |
+| `docs/`                             | Detailed documentation                             |
 
 ## Critical Patterns
 
@@ -58,6 +61,18 @@ make build && make up # Test with Nginx (production-like)
 | Details (articles)      | `604800` (7d) | Yes       |
 
 Layouts MUST NOT define `revalidate`. See `docs/ISR_STRATEGY.md`.
+
+### Logging
+
+Use the centralized logger (`src/lib/logger.ts`) — never `console.*` directly:
+
+```ts
+const log = logger.child({ service: 'my-service' });
+log.info('message', { extraData });
+```
+
+- Dev: human-readable output; Prod: structured JSON for log aggregators
+- `LOG_LEVEL` env var overrides the default level
 
 ### Accessibility
 
@@ -91,6 +106,8 @@ Use semantic CSS variables for text colors (WCAG compliance):
 | Color Accessibility     | `docs/ACCESSIBLE_COLOR_SYSTEM.md` |
 | Code Standards          | `docs/CODING_STANDARDS.md`        |
 | Logging & Server Logs   | `docs/PRODUCTION_DEPLOYMENT.md`   |
+| Valkey Deployment       | `docs/DEPLOYMENT_VALKEY.md`       |
+| Valkey Cache Strategy   | `docs/VALKEY_CACHE_STRATEGY.md`   |
 
 ## Token Efficiency
 
