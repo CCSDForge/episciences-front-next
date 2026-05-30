@@ -12,6 +12,9 @@ import {
 } from '@/types/article';
 import { TFunction } from 'i18next';
 import { toastSuccess } from './toast';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'article-utils' });
 
 export interface ICitation {
   key: CITATION_TEMPLATE;
@@ -52,7 +55,7 @@ interface ExtendedRawArticle extends RawArticle {
 
 export function formatArticle(article: RawArticle): FetchedArticle {
   if (!article) {
-    console.error('formatArticle: article is undefined');
+    log.error('formatArticle: article is undefined');
     return undefined;
   }
 
@@ -176,7 +179,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
               }),
             };
           } catch (parseError) {
-            console.error('[formatArticle] Error parsing citedBy citation:', parseError);
+            log.error('[formatArticle] Error parsing citedBy citation:', parseError);
             // Return empty citations for this source if parsing fails
             return {
               source: cb.source_id_name,
@@ -515,7 +518,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       metrics,
     };
   } catch (error) {
-    console.error('Error formatting article:', error);
+    log.error('Error formatting article:', error);
     return undefined;
   }
 }
@@ -630,7 +633,7 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
     const Cite = citationModule.Cite || citationModule.default || citationModule;
 
     if (typeof Cite !== 'function') {
-      console.error('[getCitations] citation-js module loaded incorrectly:', citationModule);
+      log.error('[getCitations] citation-js module loaded incorrectly:', citationModule);
       throw new Error('Failed to load citation-js Cite constructor');
     }
 
@@ -669,7 +672,7 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
       { key: CITATION_TEMPLATE.VANCOUVER, citation: format('vancouver') },
     ];
   } catch (error) {
-    console.error('[getCitations] Error formatting citations:', error);
+    log.error('[getCitations] Error formatting citations:', error);
     return [];
   }
 };
@@ -881,7 +884,7 @@ export const truncatedArticleAuthorsName = (article: FetchedArticle): string => 
     const truncatedAuthors = authorNames.slice(0, MAX_AUTHORS);
     return `${truncatedAuthors.join(', ')} et al.`;
   } catch (error) {
-    console.error('Error formatting authors:', error);
+    log.error('Error formatting authors:', error);
     return '';
   }
 };

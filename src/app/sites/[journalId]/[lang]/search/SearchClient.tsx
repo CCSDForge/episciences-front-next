@@ -28,6 +28,7 @@ import Pagination from '@/components/Pagination/Pagination';
 import Tag from '@/components/Tag/Tag';
 import '../articles/Articles.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { logger } from '@/lib/logger';
 
 // Lazy load mobile modal
 const SearchResultsMobileModal = dynamic(
@@ -191,7 +192,7 @@ export default function SearchClient({
       });
       setSearchResults(results);
     } catch (error) {
-      console.error('Search failed:', error);
+      logger.error('Search failed:', error);
     } finally {
       setIsLoading(false);
     }

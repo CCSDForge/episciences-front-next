@@ -1,4 +1,7 @@
 import { API_URL, API_PATHS } from '@/config/api';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'article' });
 import { IArticle, RawArticle } from '@/types/article';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
@@ -80,7 +83,7 @@ export async function fetchArticles({
         : undefined,
     };
   } catch (error) {
-    console.error('Erreur lors de la récupération des articles:', error);
+    log.error('Erreur lors de la récupération des articles:', error);
     return {
       data: [],
       totalItems: 0,
@@ -171,7 +174,7 @@ export async function fetchArticle(
     const rawArticle: RawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
   } catch (error) {
-    console.error(`Erreur lors de la récupération de l'article ${paperid}:`, error);
+    log.error(`Erreur lors de la récupération de l'article ${paperid}:`, error);
     return null;
   }
 }
@@ -202,7 +205,7 @@ export async function fetchExportLink(
 
     return await response.text();
   } catch (error) {
-    console.error(`Error fetching export link for paper ${paperid}:`, error);
+    log.error(`Error fetching export link for paper ${paperid}:`, error);
     return null;
   }
 }
@@ -230,7 +233,7 @@ export function transformArticleForDisplay(rawArticle: any): FetchedArticle | un
         return createMinimalArticle(rawArticle);
       }
     } catch (error) {
-      console.error('Error formatting article:', error);
+      log.error('Error formatting article:', error);
 
       // Création d'un article minimal si le formatage échoue
       return createMinimalArticle(rawArticle);
@@ -279,7 +282,7 @@ export async function getArticleById(id: string | number): Promise<FetchedArticl
     const rawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
   } catch (error) {
-    console.error('Error fetching article:', error);
+    log.error('Error fetching article:', error);
     return undefined;
   }
 }
@@ -308,13 +311,13 @@ export async function fetchArticleMetadata({
       if (response.status === 404) {
         return null;
       }
-      console.warn(`Failed to fetch article metadata. Status: ${response.status}`);
+      log.warn(`Failed to fetch article metadata. Status: ${response.status}`);
       return null;
     }
 
     return await response.text();
   } catch (error) {
-    console.error('Error fetching article metadata:', error);
+    log.error('Error fetching article metadata:', error);
     return null;
   }
 }

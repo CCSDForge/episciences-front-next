@@ -27,7 +27,7 @@ const i18nConfig = {
   lng: getInitialLanguage(), // Start with detected language
   fallbackLng: defaultLanguage,
   supportedLngs: [...allSupportedLanguages],
-  debug: process.env.NODE_ENV === 'development',
+  debug: false,
   interpolation: {
     escapeValue: false,
   },

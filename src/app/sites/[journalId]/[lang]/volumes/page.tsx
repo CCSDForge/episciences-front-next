@@ -10,6 +10,7 @@ import { Suspense } from 'react';
 import Loader from '@/components/Loader/Loader';
 
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const VolumesClient = dynamic(() => import('./VolumesClient'));
 
@@ -74,7 +75,7 @@ export default async function VolumesPage(props: {
   const currentPage = typeof pageParam === 'string' ? parseInt(pageParam, 10) : 1;
   const validPage = isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
 
-  console.log(
+  logger.debug(
     'VolumesPage searchParams types:',
     types,
     'years:',
@@ -203,7 +204,7 @@ export default async function VolumesPage(props: {
       </Suspense>
     );
   } catch (error) {
-    console.error('Error fetching volumes:', error);
+    logger.error('Error fetching volumes:', error);
     return <div>Failed to load volumes</div>;
   }
 }

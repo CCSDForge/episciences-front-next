@@ -4,6 +4,9 @@
  * Provides utilities for safe API fetching with automatic fallback
  * and consistent error handling across the application.
  */
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'safe-fetch' });
 
 /**
  * Result of a safe fetch operation
@@ -57,7 +60,7 @@ export async function safeFetch<T>(
     const err = error instanceof Error ? error : new Error('Unknown error');
 
     // Log warning (not error) to indicate graceful degradation
-    console.warn(`[SafeFetch] ${context} failed, using fallback:`, err.message);
+    log.warn(`${context} failed, using fallback:`, err.message);
 
     return {
       data: fallback,

@@ -51,7 +51,7 @@ describe('env-loader', () => {
       const { getJournalsList } = await import('@/utils/env-loader');
       expect(getJournalsList()).toEqual([]);
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[env-loader]'),
+        expect.stringContaining('Could not read journals.txt'),
         expect.any(Error)
       );
     });
@@ -151,7 +151,7 @@ describe('env-loader', () => {
       const result = loadJournalConfig('journal-read-error');
       expect(result).toEqual({ code: 'journal-read-error', env: {} });
       expect(errorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[env-loader]'),
+        expect.stringContaining('Error loading config for journal-read-error'),
         expect.any(Error)
       );
     });

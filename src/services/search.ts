@@ -1,4 +1,7 @@
 import { API_PATHS, API_URL } from '@/config/api';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'search' });
 import { FetchedArticle, formatArticle } from '@/utils/article';
 import { PaginatedResponseWithRange, SearchRange } from '@/utils/pagination';
 import { formatSearchRange } from '@/utils/search';
@@ -120,14 +123,14 @@ export async function fetchSearchResults({
         });
 
         if (!response.ok) {
-          console.warn(`Failed to fetch article with ID ${articleId}: ${response.status}`);
+          log.warn(`Failed to fetch article with ID ${articleId}: ${response.status}`);
           return null;
         }
 
         const rawArticle = await response.json();
         return formatArticle(rawArticle);
       } catch (error) {
-        console.warn(`Error fetching article ${articleId}`, error);
+        log.warn(`Error fetching article ${articleId}`, error);
         return null;
       }
     });
@@ -141,7 +144,7 @@ export async function fetchSearchResults({
       range,
     };
   } catch (error) {
-    console.error('Error fetching search results:', error);
+    log.error('Error fetching search results:', error);
     throw error;
   }
 }

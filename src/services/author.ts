@@ -1,4 +1,7 @@
 import { apiCall, fetchPaginatedResults } from './api.helper';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'author' });
 import { getJournalApiUrl } from '@/utils/env-loader';
 
 export interface IFacetAuthor {
@@ -109,7 +112,7 @@ export async function fetchAuthors({
       journalName: undefined,
     };
   } catch (error) {
-    console.error('Error fetching authors:', error);
+    log.error('Error fetching authors:', error);
     return {
       data: [],
       totalItems: 0,
@@ -148,7 +151,7 @@ export async function fetchAuthorArticles({
       totalItems,
     };
   } catch (error) {
-    console.error('Error fetching author articles:', error);
+    log.error('Error fetching author articles:', error);
     return {
       data: [],
       totalItems: 0,

@@ -1,4 +1,7 @@
 import { AvailableLanguage } from './i18n';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'date' });
 
 // Helper: validates that a Date object is valid
 const createValidDate = (date: Date): Date | null => {
@@ -42,7 +45,7 @@ const parseDate = (dateString: string): Date | null => {
         return date;
       }
     } catch (e) {
-      console.error('Error parsing date:', e);
+      log.error('Error parsing date:', e);
       continue;
     }
   }
@@ -54,7 +57,7 @@ const parseDate = (dateString: string): Date | null => {
       return date;
     }
   } catch (e) {
-    console.error('Error parsing date with default constructor:', e);
+    log.error('Error parsing date with default constructor:', e);
   }
 
   return null;
@@ -87,7 +90,7 @@ export const formatDate = (
   try {
     const date = parseDate(dateString);
     if (!date) {
-      console.error('Could not parse date:', dateString);
+      log.error('Could not parse date:', dateString);
       return '';
     }
 
@@ -101,7 +104,7 @@ export const formatDate = (
 
     return new Intl.DateTimeFormat(language, options).format(date);
   } catch (error) {
-    console.error('Error formatting date:', error, 'dateString:', dateString);
+    log.error('Error formatting date:', error, 'dateString:', dateString);
     return '';
   }
 };

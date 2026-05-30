@@ -6,6 +6,7 @@ import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const CreditsClient = dynamic(() => import('./CreditsClient'));
 
@@ -55,7 +56,7 @@ export default async function CreditsPage(props: {
       getServerTranslations(lang),
     ]);
   } catch (error) {
-    console.warn('[CreditsPage] Failed to fetch data:', error);
+    logger.warn('[CreditsPage] Failed to fetch data:', error);
     // pageData and translations remain at fallback values
   }
 

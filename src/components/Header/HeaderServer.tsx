@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
 import SearchBar from './SearchBar';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'header' });
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
 import MobileBurgerMenu from './MobileBurgerMenu';
 import UserCircleIcon from '@/components/icons/ui/UserCircleIcon';
@@ -63,7 +66,7 @@ export default async function HeaderServer({
       }
     }
   } catch (error) {
-    console.error('Failed to fetch journal in HeaderServer:', error);
+    log.error('Failed to fetch journal in HeaderServer:', error);
   }
 
   // Construct the final logo URL
@@ -86,7 +89,7 @@ export default async function HeaderServer({
         logoSrc = `/logos/${journalLogoFilename}`;
       }
     } catch (e) {
-      console.warn('Error checking logo files:', e);
+      log.warn('Error checking logo files:', e);
       if (journalLogoFilename) {
         logoSrc = `/logos/${journalLogoFilename}`;
       }

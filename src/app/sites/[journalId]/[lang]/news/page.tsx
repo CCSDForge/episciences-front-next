@@ -6,6 +6,7 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import './News.scss';
+import { logger } from '@/lib/logger';
 
 const NewsClient = dynamic(() => import('./NewsClient'));
 
@@ -57,7 +58,7 @@ export default async function NewsPage(props: Props) {
       getServerTranslations(lang),
     ]);
   } catch (error) {
-    console.warn('[NewsPage] Failed to fetch data:', error);
+    logger.warn('[NewsPage] Failed to fetch data:', error);
     // Data remains at fallback values
   }
 

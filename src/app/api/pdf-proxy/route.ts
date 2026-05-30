@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sanitizeIp, sanitizeForLog } from '@/utils/validation';
 import { isAllowedPdfDomain } from '@/utils/pdf';
+import { logger } from '@/lib/logger';
 
 // Rate limiting: 30 requests per minute per IP
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
 
   // Check rate limit
   if (!checkRateLimit(ip)) {
-    console.warn(`[PDF Proxy] Rate limit exceeded for IP: ${ip}`);
+    logger.warn(`[PDF Proxy] Rate limit exceeded for IP: ${ip}`);
     return new NextResponse('Too many requests', { status: 429 });
   }
 
@@ -77,7 +78,7 @@ export async function GET(request: NextRequest) {
 
   // Validate domain
   if (!isAllowedPdfDomain(pdfUrl)) {
-    console.warn(`[PDF Proxy] Blocked non-whitelisted domain: ${sanitizeForLog(pdfUrl)}`); // lgtm[js/log-injection]
+    logger.warn(`[PDF Proxy] Blocked non-whitelisted domain: ${sanitizeForLog(pdfUrl)}`); // lgtm[js/log-injection]
     return new NextResponse('Domain not allowed', { status: 403 });
   }
 
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error(
+      logger.error(
         `[PDF Proxy] Failed to fetch PDF: ${sanitizeForLog(response.statusText)} (${sanitizeForLog(pdfUrl)})`
       ); // lgtm[js/log-injection]
       return new NextResponse(`Failed to fetch PDF: ${response.statusText}`, {
@@ -132,7 +133,7 @@ export async function GET(request: NextRequest) {
       headers.set('Content-Length', contentLength);
     }
 
-    console.log(`[PDF Proxy] Successfully proxied PDF from: ${new URL(pdfUrl).hostname}`);
+    logger.debug(`[PDF Proxy] Successfully proxied PDF from: ${new URL(pdfUrl).hostname}`);
 
     // Stream the PDF without buffering in memory
     return new NextResponse(response.body, {
@@ -141,11 +142,11 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      console.error(`[PDF Proxy] Request timeout for: ${sanitizeForLog(pdfUrl)}`); // lgtm[js/log-injection]
+      logger.error(`[PDF Proxy] Request timeout for: ${sanitizeForLog(pdfUrl)}`); // lgtm[js/log-injection]
       return new NextResponse('Request timeout', { status: 504 });
     }
 
-    console.error('[PDF Proxy] Error:', error);
+    logger.error('[PDF Proxy] Error:', error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }

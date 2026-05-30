@@ -11,6 +11,7 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
 
@@ -69,7 +70,7 @@ export default async function ForAuthorsPage(props: {
         getServerTranslations(lang),
       ]);
   } catch (error) {
-    console.warn('[ForAuthorsPage] Failed to fetch data:', error);
+    logger.warn('[ForAuthorsPage] Failed to fetch data:', error);
     // Data remains at fallback values (null/empty)
   }
 

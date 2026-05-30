@@ -1,6 +1,9 @@
 'use client';
 
 import { CaretRightGreyIcon } from '@/components/icons';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'presentation-section' });
 import { Link } from '@/components/Link/Link';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { TFunction } from 'i18next';
@@ -74,7 +77,7 @@ export default function PresentationSection({
         </div>
       );
     } catch (error) {
-      console.error('Error rendering news content:', error);
+      log.error('Error rendering news content:', error);
       return null;
     }
   };
@@ -123,7 +126,7 @@ export default function PresentationSection({
         </div>
       );
     } catch (error) {
-      console.error('Error rendering volume content:', error);
+      log.error('Error rendering volume content:', error);
       return null;
     }
   };

@@ -6,6 +6,7 @@ import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const EthicalCharterClient = dynamic(() => import('./EthicalCharterClient'));
 
@@ -55,7 +56,7 @@ export default async function EthicalCharterPage(props: {
       getServerTranslations(lang),
     ]);
   } catch (error) {
-    console.warn('[EthicalCharterPage] Failed to fetch data:', error);
+    logger.warn('[EthicalCharterPage] Failed to fetch data:', error);
   }
 
   const breadcrumbLabels = {

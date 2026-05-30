@@ -4,6 +4,9 @@
  * Provides a robust fetch utility that automatically retries failed requests
  * with exponential backoff and jitter to handle transient network errors.
  */
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'fetch-retry' });
 
 /**
  * Options for retry behavior
@@ -94,7 +97,7 @@ export async function fetchWithRetry(
 
       // Don't retry if network is completely down (fetch failed)
       if (lastError.message === 'fetch failed' || lastError.message === 'Failed to fetch') {
-        console.warn(`[FetchRetry] Network unavailable for ${url}, skipping retries`);
+        log.warn(`Network unavailable for ${url}, skipping retries`);
         throw lastError;
       }
 
@@ -109,8 +112,8 @@ export async function fetchWithRetry(
       const jitter = Math.random() * 1000;
       const delay = Math.min(exponentialDelay + jitter, maxDelay);
 
-      console.warn(
-        `[FetchRetry] Attempt ${attempt + 1}/${maxRetries + 1} failed for ${url}. ` +
+      log.warn(
+        `Attempt ${attempt + 1}/${maxRetries + 1} failed for ${url}. ` +
           `Retrying in ${Math.round(delay)}ms... Error: ${lastError.message}`
       );
 

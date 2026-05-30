@@ -6,6 +6,7 @@ import { generateSeoAlternates } from '@/utils/seo';
 
 import dynamic from 'next/dynamic';
 import { connection } from 'next/server';
+import { logger } from '@/lib/logger';
 
 const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'));
 
@@ -79,7 +80,7 @@ export default async function ArticlesAcceptedPage(props: {
       />
     );
   } catch (error) {
-    console.error('Error fetching articles accepted:', error);
+    logger.error('Error fetching articles accepted:', error);
     return (
       <ArticlesAcceptedClient
         initialArticles={{ data: [], totalItems: 0 }}

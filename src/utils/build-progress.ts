@@ -2,6 +2,9 @@
  * Build progress tracking utility
  * Used during static site generation to display progress messages
  */
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'build' });
 
 let totalArticles = 0;
 let initialized = false;
@@ -18,7 +21,7 @@ export function initBuildProgress(total: number): void {
   totalArticles = total;
   initialized = true;
 
-  console.log(`✓ Génération de ${total} articles (pages principales + téléchargement)`);
+  log.info(`✓ Génération de ${total} articles (pages principales + téléchargement)`);
 }
 
 // Track which articles have been logged to avoid duplicates
@@ -43,10 +46,10 @@ export function logArticleProgress(
 
   // Simple message: just show what's being generated
   if (pageType === 'download') {
-    console.log(`  └─ téléchargement → Article ${articleId}`);
+    log.info(`  └─ téléchargement → Article ${articleId}`);
   } else if (pageType === 'preview') {
-    console.log(`  └─ preview → Article ${articleId}`);
+    log.info(`  └─ preview → Article ${articleId}`);
   } else {
-    console.log(`  ✓ Article ${articleId} (${lang})`);
+    log.info(`  ✓ Article ${articleId} (${lang})`);
   }
 }

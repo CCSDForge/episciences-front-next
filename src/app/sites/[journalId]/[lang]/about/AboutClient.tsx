@@ -23,6 +23,7 @@ import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import '@/styles/transitions.scss';
+import { logger } from '@/lib/logger';
 
 // Interface personnalisée qui accepte n'importe quel format de page
 interface IPageData {
@@ -192,7 +193,7 @@ export default function AboutClient({
           setSidebarHeaders([]);
         }
       } catch (error) {
-        console.error('Erreur lors du traitement du contenu:', error);
+        logger.error('Erreur lors du traitement du contenu:', error);
       } finally {
         setIsLoading(false);
       }

@@ -6,6 +6,7 @@ import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const AboutClient = dynamic(() => import('./AboutClient'));
 
@@ -55,13 +56,13 @@ export default async function AboutPage(props: {
       if (rawData?.['hydra:member']?.[0]) {
         pageData = rawData['hydra:member'][0];
       } else {
-        console.warn(
+        logger.warn(
           `[Build] About page content not found for journal "${journalId}" on API. It will be empty.`
         );
       }
     }
   } catch (error) {
-    console.warn(`[Build] Could not reach API for About page of journal "${journalId}".`);
+    logger.warn(`[Build] Could not reach API for About page of journal "${journalId}".`);
   }
 
   const translations = await translationsPromise;

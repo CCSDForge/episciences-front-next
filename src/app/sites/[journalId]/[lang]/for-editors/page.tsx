@@ -8,6 +8,7 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { getPublicJournalConfig } from '@/utils/env-loader';
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const ForEditorsClient = dynamic(() => import('./ForEditorsClient'));
 
@@ -63,7 +64,7 @@ export default async function ForEditorsPage(props: {
     ]);
     pageData = rawData?.['hydra:member']?.[0] ?? null;
   } catch (error) {
-    console.warn('[ForEditorsPage] Failed to fetch data:', error);
+    logger.warn('[ForEditorsPage] Failed to fetch data:', error);
   }
 
   const breadcrumbLabels = {

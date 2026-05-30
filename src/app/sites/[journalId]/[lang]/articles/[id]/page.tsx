@@ -17,6 +17,7 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { loadJournalConfig } from '@/utils/env-loader';
 import { getJournalBaseUrl } from '@/utils/signposting';
 import { acceptedLanguages } from '@/utils/language-utils';
+import { logger } from '@/lib/logger';
 
 interface ArticleDetailsPageProps {
   params: Promise<{
@@ -53,7 +54,7 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
     const [article, currentJournal] = await Promise.all([
       getCachedArticle(id, journalId),
       getJournalByCode(journalId).catch((error: unknown) => {
-        console.error('Error fetching journal for metadata:', error);
+        logger.error('Error fetching journal for metadata:', error);
         return undefined;
       }),
     ]);
@@ -112,7 +113,7 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
       pdfDownloadUrl,
     });
   } catch (error) {
-    console.error(
+    logger.error(
       `Erreur lors de la récupération des métadonnées de l'article ${params.id}:`,
       error
     );
@@ -170,7 +171,7 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       try {
         relatedVolume = await getCachedVolume(journalId, Number(article.volumeId), language);
       } catch (error) {
-        console.error('Error fetching volume:', error);
+        logger.error('Error fetching volume:', error);
       }
     }
 
@@ -213,7 +214,7 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       />
     );
   } catch (error) {
-    console.error(`Erreur lors de la récupération de l'article ${params.id}:`, error);
+    logger.error(`Erreur lors de la récupération de l'article ${params.id}:`, error);
 
     return (
       <div className="error-message">

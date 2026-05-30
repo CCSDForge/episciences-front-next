@@ -26,6 +26,7 @@ import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import '@/styles/transitions.scss';
+import { logger } from '@/lib/logger';
 
 interface ICreditsSection {
   id: string;
@@ -169,7 +170,7 @@ export default function CreditsClient({
         setSidebarHeaders(parseSidebarHeaders(adjustedContent));
       }
     } catch (error) {
-      console.error('Erreur lors du traitement du contenu des crédits:', error);
+      logger.error('Erreur lors du traitement du contenu des crédits:', error);
     } finally {
       setIsLoading(false);
     }

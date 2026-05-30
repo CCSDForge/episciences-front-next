@@ -10,6 +10,7 @@ import { getJournalByCode } from '@/services/journal';
 import { getServerTranslations } from '@/utils/server-i18n';
 import { getJournalApiUrl, getPublicJournalConfig } from '@/utils/env-loader';
 import { getFilteredJournals } from '@/utils/journal-filter';
+import { logger } from '@/lib/logger';
 
 // NOTE: No global revalidate defined here
 // Each child page defines its own ISR strategy based on content update frequency
@@ -82,7 +83,7 @@ export default async function LanguageLayout(props: LanguageLayoutProps) {
       translations = translationsData;
     }
   } catch (error) {
-    console.error(`Error preloading data for journal ${journalId} in LanguageLayout:`, error);
+    logger.error(`Error preloading data for journal ${journalId} in LanguageLayout:`, error);
   }
 
   return (

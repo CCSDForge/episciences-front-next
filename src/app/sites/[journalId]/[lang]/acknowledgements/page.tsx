@@ -6,6 +6,7 @@ import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const AcknowledgementsClient = dynamic(() => import('./AcknowledgementsClient'));
 
@@ -54,13 +55,13 @@ export default async function AcknowledgementsPage(props: {
       if (rawData?.['hydra:member']?.[0]) {
         pageData = rawData['hydra:member'][0];
       } else {
-        console.warn(
+        logger.warn(
           `[Build] Acknowledgements page content not found for journal "${journalId}" on API. It will be empty.`
         );
       }
     }
   } catch (error) {
-    console.warn(
+    logger.warn(
       `[Build] Could not reach API for Acknowledgements page of journal "${journalId}".`
     );
   }

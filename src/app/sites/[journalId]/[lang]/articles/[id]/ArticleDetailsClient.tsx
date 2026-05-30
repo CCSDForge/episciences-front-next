@@ -47,6 +47,7 @@ const PreviewSection = dynamic(() => import('./components/PreviewSection'), {
 });
 import { fetchArticleMetadata } from '@/services/article';
 import './ArticleDetails.scss';
+import { logger } from '@/lib/logger';
 
 interface ArticleDetailsClientProps {
   article: IArticle | null;
@@ -171,7 +172,7 @@ export default function ArticleDetailsClient({
           setMetadataBibTeX(bibtexData);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        logger.error('Error fetching data:', error);
       } finally {
         setIsLoading(false);
       }

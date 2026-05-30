@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'pdf-proxy' });
 import './PDFProxyIframe.scss';
 
 // Slightly under the server timeout (30s) so the client shows a retry before
@@ -54,7 +57,7 @@ export function PDFProxyIframe({
 
   const handleError = () => {
     clearTimer();
-    console.error('[PDFProxyIframe] Failed to load:', src);
+    log.error('[PDFProxyIframe] Failed to load:', src);
     setStatus('error');
   };
 

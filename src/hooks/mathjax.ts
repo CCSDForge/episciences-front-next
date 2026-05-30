@@ -2,6 +2,9 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'mathjax' });
 
 const MAX_ATTEMPTS = 10;
 const ATTEMPTS_INTERVAL = 200;
@@ -17,7 +20,7 @@ function MathjaxRefresh(): null {
         // MathJax v3 API
         if (window?.MathJax?.typesetPromise) {
           window.MathJax.typesetPromise().catch((err: Error) => {
-            console.warn('[MathJax] Typeset error:', err.message);
+            log.warn('Typeset error:', err.message);
           });
           clearInterval(intervalId);
         } else if (window?.MathJax?.typeset) {
@@ -25,7 +28,7 @@ function MathjaxRefresh(): null {
           try {
             window.MathJax.typeset();
           } catch (err) {
-            console.warn('[MathJax] Typeset error:', err);
+            log.warn('Typeset error:', err);
           }
           clearInterval(intervalId);
         } else if (attempts >= MAX_ATTEMPTS) {

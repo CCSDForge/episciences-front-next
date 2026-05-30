@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { isValidJournalId, sanitizeIp } from '@/utils/validation';
+import { logger } from '@/lib/logger';
 
 /**
  * Dynamic API Proxy
@@ -103,7 +104,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
       },
     });
   } catch (error) {
-    console.error(`[API Proxy] Error proxying to ${targetUrl}:`, error);
+    logger.error(`[API Proxy] Error proxying to ${targetUrl}:`, error);
     return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }
 }
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
       },
     });
   } catch (error) {
-    console.error(`[API Proxy] Error proxying POST to ${targetUrl}:`, error);
+    logger.error(`[API Proxy] Error proxying POST to ${targetUrl}:`, error);
     return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }
 }

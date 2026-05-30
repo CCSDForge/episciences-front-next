@@ -8,6 +8,7 @@ import { SearchRange } from '@/utils/pagination';
 import { connection } from 'next/server';
 
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const SearchClient = dynamic(() => import('./SearchClient'), {
   loading: () => <div className="loader">Chargement...</div>,
@@ -61,7 +62,7 @@ export default async function SearchPage(props: SearchPageProps) {
           sections: [],
           authors: [],
         }).catch((error: unknown) => {
-          console.error('Initial search failed:', error);
+          logger.error('Initial search failed:', error);
           return emptyResults;
         })
       : Promise.resolve(emptyResults);

@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'client-fetch' });
 
 /**
  * Hook pour fetcher les données côté client avec transition smooth
@@ -81,10 +84,7 @@ export function useClientSideFetch<T>({
 
       setError(fetchError);
 
-      console.warn(
-        '[useClientSideFetch] Fetch failed, using static data as fallback:',
-        fetchError.message
-      );
+      log.warn(`Fetch failed, using static data as fallback: ${fetchError.message}`);
 
       if (onError) {
         onError(fetchError);

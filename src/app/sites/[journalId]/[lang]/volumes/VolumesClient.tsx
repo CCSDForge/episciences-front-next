@@ -33,6 +33,7 @@ import { IVolume } from '@/types/volume';
 // Import VolumesResponse mais pas le hook useFetchVolumesQuery
 import type { VolumesResponse } from '@/store/features/volume/volume.query';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { logger } from '@/lib/logger';
 
 // Lazy load mobile modal
 const VolumesMobileModal = dynamic(
@@ -203,7 +204,7 @@ export default function VolumesClient({
       const rangeTypes = Array.isArray(volumes.range?.types) ? volumes.range.types : [];
       const typesSource = rangeTypes.length > 0 ? rangeTypes : volumeTypes.map(vt => vt.value);
 
-      console.log('Initializing types from source:', typesSource, 'initialTypes:', initialTypes);
+      logger.debug('Initializing types from source:', typesSource, 'initialTypes:', initialTypes);
 
       const initTypes = typesSource
         .filter(t => volumeTypes.find(vt => vt.value === t))
@@ -244,7 +245,7 @@ export default function VolumesClient({
         // Sort descending
         yearsToUse.sort((a, b) => b - a);
 
-        console.log('Initializing years from:', yearsToUse);
+        logger.debug('Initializing years from:', yearsToUse);
         const initYears = yearsToUse.map(y => ({
           year: y,
           isSelected: initialYears.includes(y),

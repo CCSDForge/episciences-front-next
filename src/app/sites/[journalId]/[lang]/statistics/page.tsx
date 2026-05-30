@@ -7,6 +7,7 @@ import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import type { IStatResponse } from '@/types/stat';
 import './Statistics.scss';
+import { logger } from '@/lib/logger';
 
 const StatisticsClient = dynamic(() => import('./StatisticsClient'));
 
@@ -77,7 +78,7 @@ export default async function StatisticsPage(props: Props) {
       };
     }
   } catch (error) {
-    console.warn(`[Build] Could not reach API for Statistics of journal "${journalId}".`);
+    logger.warn(`[Build] Could not reach API for Statistics of journal "${journalId}".`);
   }
 
   const translations = await translationsPromise;

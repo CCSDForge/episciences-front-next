@@ -34,6 +34,7 @@ import {
 import { fetchArticleMetadata } from '@/services/article';
 import { toastSuccess, toastError } from '@/utils/toast';
 import { useAppSelector } from '@/hooks/store';
+import { logger } from '@/lib/logger';
 
 interface InteractiveDropdownProps {
   type: 'cite' | 'metadata' | 'share';
@@ -108,7 +109,7 @@ export default function InteractiveDropdown({
       setCitationsGenerated(true);
     } catch (error) {
       if (controller.signal.aborted) return;
-      console.error('[InteractiveDropdown] Error generating citations:', error);
+      logger.error('[InteractiveDropdown] Error generating citations:', error);
       toastError(t('pages.articleDetails.actions.citationError'));
     } finally {
       if (!controller.signal.aborted) {
@@ -197,7 +198,7 @@ export default function InteractiveDropdown({
         setShowDropdown(false);
       } catch (error) {
         if (controller.signal.aborted) return;
-        console.error('Error downloading metadata:', error);
+        logger.error('Error downloading metadata:', error);
         toastError(t('pages.articleDetails.metadata.downloadError'));
       } finally {
         if (!controller.signal.aborted) {

@@ -2,6 +2,9 @@
  * Helper pour standardiser les appels API et faciliter l'intégration
  * avec l'API réelle
  */
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'api' });
 
 // Types génériques pour les réponses API
 export interface ApiResponse<T> {
@@ -64,7 +67,7 @@ export async function apiCall<T>(endpoint: string, options: ApiOptions = {}): Pr
 
     return await response.json();
   } catch (error) {
-    console.error(`Error calling API endpoint ${endpoint}:`, error);
+    log.error(`Error calling API endpoint ${endpoint}:`, error);
     throw error;
   }
 }

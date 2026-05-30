@@ -4,6 +4,7 @@ import { sanitizeForLog } from '@/utils/validation';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { getJournalBaseUrl } from '@/utils/signposting';
 import { API_PATHS } from '@/config/api';
+import { logger } from '@/lib/logger';
 
 const VALID_FORMATS = new Set<string>(Object.values(METADATA_TYPE));
 
@@ -69,7 +70,7 @@ export async function GET(
     }
 
     if (!response.ok) {
-      console.warn(
+      logger.warn(
         `[metadata-export] Backend error ${response.status} for ${sanitizeForLog(apiUrl)}`
       );
       return new NextResponse('Backend error', { status: 502 });
@@ -95,7 +96,7 @@ export async function GET(
       return new NextResponse('Request timeout', { status: 504 });
     }
 
-    console.error('[metadata-export] Error:', error);
+    logger.error('[metadata-export] Error:', error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }

@@ -1,4 +1,7 @@
 import { ISection } from '@/types/section';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'section' });
 import { formatArticle } from '@/utils/article';
 import { API_URL, API_PATHS } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
@@ -91,7 +94,7 @@ export async function fetchSections({
       articlesCount,
     };
   } catch (error) {
-    console.error('Error fetching sections:', error);
+    log.error('Error fetching sections:', error);
     return { data: [], totalItems: 0, articlesCount: 0 };
   }
 }

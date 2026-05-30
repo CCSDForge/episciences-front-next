@@ -15,6 +15,9 @@
  */
 
 import { getJournalCode } from './static-build';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'fetch-interceptor' });
 
 // Save original fetch function before overriding
 const originalFetch = globalThis.fetch;
@@ -23,21 +26,6 @@ const originalFetch = globalThis.fetch;
 const API_CONFIG = {
   baseUrl: process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '',
   timeout: 15000, // Timeout in milliseconds
-};
-
-// Function to log requests (currently disabled)
-const logRequest = (method: string, url: string): void => {
-  // console.log(`🚀 Fetch: ${method} ${url}`);
-};
-
-// Function to log responses (currently disabled)
-const logResponse = (status: number, url: string): void => {
-  // console.log(`✅ Response: ${status} from ${url}`);
-};
-
-// Function to log errors (currently disabled)
-const logError = (error: Error, url: string): void => {
-  // console.error(`❌ Error: ${error.message} for ${url}`);
 };
 
 // Global fetch function replacement
@@ -61,12 +49,10 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
 
   // Handle redirection of requests to /default
   if (url.endsWith('/default') || url === 'default') {
-    // console.log(`🔀 Redirecting request from /default to /`);
     url = url.replace('/default', '/').replace('default', '/');
   }
 
-  // Log the request
-  logRequest(method, url);
+  log.debug(`${method} ${url}`);
 
   try {
     const response = (await Promise.race([
@@ -76,13 +62,11 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
       ),
     ])) as Response;
 
-    // Log the response
-    logResponse(response.status, url);
+    log.debug(`${response.status} ${url}`);
 
     return response;
   } catch (error) {
-    // Log the error
-    logError(error as Error, url);
+    log.error(`${(error as Error).message} for ${url}`);
     throw error;
   }
 };

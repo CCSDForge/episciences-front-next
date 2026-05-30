@@ -8,6 +8,9 @@ import {
   removeLanguagePrefix,
 } from '@/utils/language-utils';
 import { isValidJournalId, sanitizeForLog } from '@/utils/validation';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'middleware' });
 // import { journalExists } from '@/utils/static-paths'; // REMOVE: Uses fs, incompatible with Edge
 import { journals } from '@/config/journals-generated';
 import { journalLanguages } from '@/config/journals-languages-generated';
@@ -23,7 +26,7 @@ export function middleware(request: NextRequest) {
   const hostname = hostHeader.split(':')[0]; // Remove port if present
   const pathname = url.pathname;
 
-  console.log(
+  log.debug(
     `[Middleware] Incoming request: ${sanitizeForLog(pathname)} (Host: ${sanitizeForLog(hostname)})`
   ); // lgtm[js/log-injection]
 
@@ -63,7 +66,7 @@ export function middleware(request: NextRequest) {
     if (isValidJournalId(extractedId)) {
       journalId = extractedId;
     } else {
-      console.warn(`[Middleware] Invalid journalId format from hostname: ${extractedId}`);
+      log.warn(`[Middleware] Invalid journalId format from hostname: ${extractedId}`);
       journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
     }
   } else {
@@ -74,7 +77,7 @@ export function middleware(request: NextRequest) {
       if (isValidJournalId(subdomain)) {
         journalId = subdomain;
       } else {
-        console.warn(`[Middleware] Invalid journalId format from subdomain: ${subdomain}`);
+        log.warn(`[Middleware] Invalid journalId format from subdomain: ${subdomain}`);
         journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
       }
     } else {
@@ -82,11 +85,11 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  console.log(`[Middleware] Detected journalId: ${journalId}`);
+  log.debug(`[Middleware] Detected journalId: ${journalId}`);
 
   // 2. Validate journalId exists in registry
   if (!journalExists(journalId)) {
-    console.warn(`[Middleware] Unknown journalId: ${journalId}, redirecting to default`);
+    log.warn(`[Middleware] Unknown journalId: ${journalId}, redirecting to default`);
     // Redirect to default journal instead of showing error page
     journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
   }
@@ -122,7 +125,7 @@ export function middleware(request: NextRequest) {
   // NOTE: We use 'sites' not '_sites' because folders starting with _ are private in Next.js
   const internalPath = `/sites/${journalId}/${targetLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
 
-  console.log(`[Middleware] Rewriting to: ${sanitizeForLog(internalPath)}`); // lgtm[js/log-injection]
+  log.debug(`[Middleware] Rewriting to: ${sanitizeForLog(internalPath)}`); // lgtm[js/log-injection]
 
   const rewriteUrl = new URL(internalPath, request.url);
   rewriteUrl.search = url.search;

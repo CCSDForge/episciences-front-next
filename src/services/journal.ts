@@ -1,8 +1,12 @@
 import { API_URL } from '@/config/api';
+import { logger } from '@/lib/logger';
 import { IJournal } from '@/types/journal';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { getJournalCode } from '@/utils/static-build';
+
 export { getJournalCode };
+
+const log = logger.child({ service: 'journal' });
 
 interface Journal {
   code: string;
@@ -25,15 +29,13 @@ export const fetchJournalWithoutCode = async (): Promise<IJournal | null> => {
   try {
     return await getJournal();
   } catch (error) {
-    console.error('Error fetching journal:', error);
+    log.error('Error fetching journal:', error);
     return null;
   }
 };
 
 export async function getJournalByCode(rvcode: string): Promise<IJournal> {
-  // console.log('getJournalByCode', rvcode);
   const apiUrl = getJournalApiUrl(rvcode);
-  // console.log(`${apiUrl}/journals/${rvcode}`);
   const response = await fetch(`${apiUrl}/journals/${rvcode}`, {
     headers: {
       Accept: 'application/json',
@@ -71,7 +73,7 @@ export async function fetchJournal(rvcode: string): Promise<IJournal> {
       id: data.rvid,
     };
   } catch (error) {
-    console.error('Error fetching journal:', error);
+    log.error('Error fetching journal:', error);
     throw error;
   }
 }

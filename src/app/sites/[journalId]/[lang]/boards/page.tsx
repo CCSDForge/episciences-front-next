@@ -7,6 +7,7 @@ import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 
 import dynamic from 'next/dynamic';
+import { logger } from '@/lib/logger';
 
 const BoardsClient = dynamic(() => import('./BoardsClient'));
 
@@ -103,7 +104,7 @@ export default async function BoardsPage(props: {
       />
     );
   } catch (error) {
-    console.warn(
+    logger.warn(
       `[Build] Boards data could not be fully loaded for journal "${params.journalId}" (API mismatch or error).`
     );
     return <div>Content currently unavailable for this journal.</div>;

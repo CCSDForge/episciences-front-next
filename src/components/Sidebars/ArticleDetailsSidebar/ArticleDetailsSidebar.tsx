@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'article-sidebar' });
 import { Link } from '@/components/Link/Link';
 import { useRouter } from 'next/navigation';
 import { TFunction } from 'i18next';
@@ -272,7 +275,7 @@ export default function ArticleDetailsSidebar({
       toastSuccess(t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label }));
       setShowMetadatasDropdown(false);
     } catch (error) {
-      console.error('Error downloading metadata:', error);
+      log.error('Error downloading metadata:', error);
       toastError(t('pages.articleDetails.metadata.downloadError'));
     } finally {
       setIsDownloadingMetadata(false);

@@ -1,4 +1,7 @@
 import { API_URL } from '@/config/api';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'i18n' });
 
 export const defaultLanguage: string = process.env.NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE || 'en';
 
@@ -23,7 +26,7 @@ export const fetchTranslations = async (language: AvailableLanguage = defaultLan
   try {
     return await getTranslations(language);
   } catch (error) {
-    console.error('Error fetching translations:', error);
+    log.error('Error fetching translations:', error);
     return null;
   }
 };

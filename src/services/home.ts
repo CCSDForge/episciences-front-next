@@ -1,4 +1,7 @@
 import { API_PATHS } from '@/config/api';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'home' });
 import { IBoardMember } from '@/types/board';
 import { INews } from '@/types/news';
 import { IVolume } from '@/types/volume';
@@ -184,7 +187,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
           }).then((res: Response) => res.json());
           return formatArticle(rawArticle);
         } catch (error) {
-          console.error(
+          log.error(
             `Erreur lors de la récupération de l'article ${partialArticle.paperid}:`,
             error
           );
@@ -219,7 +222,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
           }).then((res: Response) => res.json());
           return formatArticle(rawArticle);
         } catch (error) {
-          console.error(
+          log.error(
             `Erreur lors de la récupération de l'article accepté ${partialArticle.paperid}:`,
             error
           );
@@ -284,7 +287,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
       },
     };
   } catch (error) {
-    console.error('Error fetching home data:', error);
+    log.error('Error fetching home data:', error);
     return {}; // Retourner un objet vide en cas d'erreur
   }
 }

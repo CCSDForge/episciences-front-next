@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import Loader from '@/components/Loader/Loader';
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
 
@@ -111,7 +112,7 @@ export default async function ArticlesPage(props: {
       </Suspense>
     );
   } catch (error) {
-    console.error('Error fetching articles:', error);
+    logger.error('Error fetching articles:', error);
     const translations = await translationsPromise;
     const emptyState: ArticlesData = {
       data: [],

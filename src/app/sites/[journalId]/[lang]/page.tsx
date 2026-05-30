@@ -6,6 +6,7 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import dynamicImport from 'next/dynamic';
 import { generateSeoAlternates } from '@/utils/seo';
 import '@/styles/pages/Home.scss';
+import { logger } from '@/lib/logger';
 
 const HomeClient = dynamicImport(() => import('@/components/HomeClient/HomeClient'));
 
@@ -55,7 +56,7 @@ export default async function HomePage(props: {
   try {
     homeData = await fetchHomeData(rvcode, language);
   } catch (error) {
-    console.error(`Error fetching home data for journal ${rvcode}:`, error);
+    logger.error(`Error fetching home data for journal ${rvcode}:`, error);
   }
 
   return <HomeClient homeData={homeData} language={language} journalId={rvcode} />;

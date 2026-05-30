@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'journal-initializer' });
 import { useFetchJournalQuery } from '@/store/features/journal/journal.query';
 import { setCurrentJournal } from '@/store/features/journal/journal.slice';
 import { useAppDispatch, useAppSelector } from '@/store';
@@ -48,10 +51,10 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
       const shouldUpdate = !currentJournal || currentJournal.code !== journal.code;
 
       if (shouldUpdate) {
-        console.log('[JournalInitializer] Updating journal in store:', journal.code);
+        log.debug('[JournalInitializer] Updating journal in store:', journal.code);
         dispatch(setCurrentJournal(journal));
       } else {
-        // console.log('[JournalInitializer] Journal already up to date:', journal.code);
+        // log.debug('[JournalInitializer] Journal already up to date:', journal.code);
       }
     }
   }, [journal, dispatch, isLoading, currentJournal]);

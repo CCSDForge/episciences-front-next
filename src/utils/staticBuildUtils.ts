@@ -181,7 +181,6 @@ export const fetchWithFallback = async (
 
     // Si l'API échoue et que nous avons des données de maquette, les utiliser
     if (mockData) {
-      //  console.log(`Utilisation de données statiques pour ${url}`);
       return new Response(JSON.stringify(mockData), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -193,7 +192,6 @@ export const fetchWithFallback = async (
   } catch (error) {
     // En cas d'erreur, utiliser les données de maquette si disponibles
     if (mockData) {
-      //  console.log(`Erreur lors de l'appel à ${url}, utilisation de données statiques`);
       return new Response(JSON.stringify(mockData), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },

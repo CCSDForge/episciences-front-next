@@ -5,6 +5,7 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import dynamic from 'next/dynamic';
+import { logger } from '@/lib/logger';
 
 const SectionsClient = dynamic(() => import('./SectionsClient'));
 
@@ -69,7 +70,7 @@ export default async function SectionsPage(props: {
       />
     );
   } catch (error) {
-    console.error('Error fetching sections:', error);
+    logger.error('Error fetching sections:', error);
     return <div>Failed to load sections</div>;
   }
 }

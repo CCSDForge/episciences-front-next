@@ -7,6 +7,7 @@ import { IArticle } from '@/types/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 // Section details change infrequently - long revalidation time
 // Use on-demand revalidation API for updates
@@ -46,7 +47,7 @@ export async function generateMetadata(props: {
       alternates: generateSeoAlternates(journalId, language, `/sections/${id}`),
     };
   } catch (error) {
-    console.error(`Error generating metadata for section ${id}:`, error);
+    logger.error(`Error generating metadata for section ${id}:`, error);
     return {
       title: 'Section Details',
       description: 'Section details page',
@@ -136,7 +137,7 @@ export default async function SectionDetailsPage(props: {
       />
     );
   } catch (error) {
-    console.error(`Error fetching section ${params.id}:`, error);
+    logger.error(`Error fetching section ${params.id}:`, error);
     return (
       <div className="error-message">
         <h1>Section not found</h1>

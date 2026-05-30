@@ -16,6 +16,7 @@ import Tag from '@/components/Tag/Tag';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import './Authors.scss';
+import { logger } from '@/lib/logger';
 
 type AuthorTypeFilter = 'search' | 'activeLetter';
 
@@ -88,7 +89,7 @@ export default function AuthorsClient({
       setIsLoading(true);
       try {
         if (!rvcode) {
-          console.error('Journal code not available');
+          logger.error('Journal code not available');
           return;
         }
 
@@ -103,7 +104,7 @@ export default function AuthorsClient({
         setAuthors(authorsData.data);
         setTotalAuthors(authorsData.totalItems);
       } catch (error) {
-        console.error('Error fetching authors:', error);
+        logger.error('Error fetching authors:', error);
       } finally {
         setIsLoading(false);
       }

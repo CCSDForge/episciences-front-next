@@ -1,5 +1,7 @@
-import { API_URL } from '@/config/api';
+import { logger } from '@/lib/logger';
 import { getJournalApiUrl } from '@/utils/env-loader';
+
+const log = logger.child({ service: 'for-authors' });
 
 interface ForAuthorsPage {
   title: Record<string, string>;
@@ -16,22 +18,19 @@ export const fetchEditorialWorkflowPage = async (
 ): Promise<ForAuthorsPage | null> => {
   const apiUrl = getJournalApiUrl(rvcode);
   const url = `${apiUrl}/pages?page_code=editorial-workflow&rvcode=${rvcode}`;
-  //console.log('Fetching editorial workflow page from:', url);
 
   try {
     const response = await fetch(url);
-    //  console.log('Editorial workflow response status:', response.status);
 
     if (!response.ok) {
-      console.error(`Failed to fetch editorial workflow page: ${response.statusText}`);
+      log.error(`Failed to fetch editorial workflow page: ${response.statusText}`);
       return null;
     }
 
     const data = await response.json();
-    //  console.log('Editorial workflow data:', data);
     return data['hydra:member']?.[0] || null;
   } catch (error) {
-    console.error('Error fetching editorial workflow page:', error);
+    log.error('Error fetching editorial workflow page:', error);
     return null;
   }
 };
@@ -44,22 +43,19 @@ export const fetchEditorialWorkflowPage = async (
 export const fetchEthicalCharterPage = async (rvcode: string): Promise<ForAuthorsPage | null> => {
   const apiUrl = getJournalApiUrl(rvcode);
   const url = `${apiUrl}/pages?page_code=ethical-charter&rvcode=${rvcode}`;
-  //  console.log('Fetching ethical charter page from:', url);
 
   try {
     const response = await fetch(url);
-    //  console.log('Ethical charter response status:', response.status);
 
     if (!response.ok) {
-      console.error(`Failed to fetch ethical charter page: ${response.statusText}`);
+      log.error(`Failed to fetch ethical charter page: ${response.statusText}`);
       return null;
     }
 
     const data = await response.json();
-    //  console.log('Ethical charter data:', data);
     return data['hydra:member']?.[0] || null;
   } catch (error) {
-    console.error('Error fetching ethical charter page:', error);
+    log.error('Error fetching ethical charter page:', error);
     return null;
   }
 };
@@ -74,22 +70,18 @@ export const fetchPrepareSubmissionPage = async (
 ): Promise<ForAuthorsPage | null> => {
   const apiUrl = getJournalApiUrl(rvcode);
   const url = `${apiUrl}/pages?page_code=prepare-submission&rvcode=${rvcode}`;
-  // console.log('Fetching prepare submission page from:', url);
 
   try {
     const response = await fetch(url);
-    // console.log('Prepare submission response status:', response.status);
 
     if (!response.ok) {
-      //  console.error(`Failed to fetch prepare submission page: ${response.statusText}`);
       return null;
     }
 
     const data = await response.json();
-    //  console.log('Prepare submission data:', data);
     return data['hydra:member']?.[0] || null;
   } catch (error) {
-    console.error('Error fetching prepare submission page:', error);
+    log.error('Error fetching prepare submission page:', error);
     return null;
   }
 };

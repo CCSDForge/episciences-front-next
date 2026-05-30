@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { MathJax as BetterMathJax } from 'better-react-mathjax';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'mathjax-component' });
 
 interface MathJaxProps {
   children: React.ReactNode;
@@ -39,7 +42,7 @@ const MathJax: React.FC<MathJaxProps> = ({
           window.MathJax.typesetPromise([containerRef.current!]).catch((err: Error) => {
             // Ignore "no elements to typeset" errors
             if (!err.message?.includes('no elements')) {
-              console.warn('[MathJax] Typeset error:', err.message);
+              log.warn('[MathJax] Typeset error:', err.message);
             }
           });
         }

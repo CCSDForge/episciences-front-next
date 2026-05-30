@@ -1,4 +1,7 @@
 import { API_URL } from '@/config/api';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'board' });
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { transformBoardMembers, RawBoardMember } from '@/utils/board-transforms';
@@ -157,7 +160,7 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
           boardTypes.indexOf(b.page_code as BOARD_TYPE)
       );
   } catch (error) {
-    console.error('Error fetching board pages:', error);
+    log.error('Error fetching board pages:', error);
     return [];
   }
 }
@@ -174,7 +177,7 @@ export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]>
     });
 
     if (!response.ok) {
-      console.warn(
+      log.warn(
         `[API] Board members not found or error ${response.status} for journal ${rvcode}`
       );
       return []; // Return empty instead of throwing to avoid breaking the build
@@ -182,12 +185,12 @@ export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]>
 
     const json = await response.json();
     const data: RawBoardMember[] = Array.isArray(json) ? json : json['hydra:member'] || [];
-    //  console.log(`Successfully fetched ${data.length} board members`);
+
 
     // Use centralized transformation utility
     return transformBoardMembers(data);
   } catch (error) {
-    console.error('Error fetching board members:', error);
+    log.error('Error fetching board members:', error);
     return [];
   }
 };

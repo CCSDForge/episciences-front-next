@@ -6,6 +6,7 @@ import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 const IndexingClient = dynamic(() => import('./IndexingClient'));
 
@@ -55,7 +56,7 @@ export default async function IndexingPage(props: {
       getServerTranslations(lang),
     ]);
   } catch (error) {
-    console.warn('[IndexingPage] Failed to fetch data:', error);
+    logger.warn('[IndexingPage] Failed to fetch data:', error);
   }
 
   const breadcrumbLabels = {

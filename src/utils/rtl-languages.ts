@@ -4,6 +4,12 @@
  * This module provides utilities for detecting and handling RTL languages.
  * RTL languages include Arabic, Hebrew, Persian, Urdu, and others that are written from right to left.
  */
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'rtl' });
+
+/**
+ */
 
 /**
  * List of ISO 639-1 language codes that use RTL (Right-to-Left) writing direction
@@ -79,7 +85,7 @@ export function getLanguageLabel(langCode: string, displayLang: string = 'en'): 
       return displayNames.of(langCode) || langCode.toUpperCase();
     }
   } catch (error) {
-    console.warn(`Failed to get display name for language ${langCode}:`, error);
+    log.warn(`Failed to get display name for language ${langCode}:`, error);
   }
 
   // Fallback to uppercase code

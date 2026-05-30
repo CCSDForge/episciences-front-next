@@ -7,6 +7,7 @@ import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/Markdo
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages, defaultLanguage } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
+import { logger } from '@/lib/logger';
 
 export const revalidate = false;
 
@@ -58,13 +59,13 @@ export default async function AccessibilityPage(props: {
       }
     }
     if (!content) {
-      console.warn(
+      logger.warn(
         `[Accessibility] No content file found for candidates: ${candidates.join(', ')}`
       );
       content = translate('pages.accessibility.noContent', translations);
     }
   } catch (err) {
-    console.error(`[Accessibility] Error reading content:`, err);
+    logger.error(`[Accessibility] Error reading content:`, err);
     content = 'Error loading content.';
   }
 

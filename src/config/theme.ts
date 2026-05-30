@@ -1,6 +1,9 @@
 'use client';
 
 import { generateAccessibleColorVariants, getContrastingTextColor } from '@/utils/colorContrast';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'theme' });
 
 /**
  * Applique les variables CSS pour le thème du journal avec génération automatique
@@ -58,24 +61,21 @@ const applyThemeVariables = (dynamicConfig?: Record<string, string>): void => {
     root.style.setProperty('--focus-color-on-primary', variants.focusOnPrimary);
     root.style.setProperty('--focus-color-on-dark', variants.focusOnDark);
 
-    // Log pour debug (seulement en dev)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Theme] Accessible colors generated:', {
-        original: primaryColor,
-        variants: {
-          text: variants.primaryTextOnWhite,
-          textAAA: variants.primaryTextOnWhiteAAA,
-          largeText: variants.primaryLargeTextOnWhite,
-          border: variants.primaryBorder,
-          onPrimaryBg: textOnPrimary,
-          focus: {
-            onWhite: variants.focusOnWhite,
-            onPrimary: variants.focusOnPrimary,
-            onDark: variants.focusOnDark,
-          },
+    log.debug('Accessible colors generated:', {
+      original: primaryColor,
+      variants: {
+        text: variants.primaryTextOnWhite,
+        textAAA: variants.primaryTextOnWhiteAAA,
+        largeText: variants.primaryLargeTextOnWhite,
+        border: variants.primaryBorder,
+        onPrimaryBg: textOnPrimary,
+        focus: {
+          onWhite: variants.focusOnWhite,
+          onPrimary: variants.focusOnPrimary,
+          onDark: variants.focusOnDark,
         },
-      });
-    }
+      },
+    });
   }
 };
 

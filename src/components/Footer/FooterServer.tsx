@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
 import { getServerTranslations, t } from '@/utils/server-i18n';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'footer' });
 import { getJournalByCode } from '@/services/journal';
 import { PATHS } from '@/config/paths';
 import { getJournalApiUrl } from '@/utils/env-loader';
@@ -30,7 +33,7 @@ export default async function FooterServer({
       journal = await getJournalByCode(rvcode);
     }
   } catch (error) {
-    console.error(`Failed to fetch journal data for footer (${rvcode}):`, error);
+    log.error(`Failed to fetch journal data for footer (${rvcode}):`, error);
   }
 
   // Extract journal-specific information
@@ -92,7 +95,7 @@ export default async function FooterServer({
         footerLogoSrc = `/logos/${journal.logo}`;
       }
     } catch (e) {
-      console.warn('Error checking footer logo file:', e);
+      log.warn('Error checking footer logo file:', e);
       if (journal?.logo) {
         footerLogoSrc = `/logos/${journal.logo}`;
       }

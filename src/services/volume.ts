@@ -8,6 +8,9 @@ import {
 import { AvailableLanguage } from '@/utils/i18n';
 import { PaginatedResponseWithCount, Range } from '@/utils/pagination';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ service: 'volume' });
 import { CACHE_TTL } from '@/utils/cache-ttl';
 
 export const formatVolume = (
@@ -148,7 +151,7 @@ export async function fetchVolumes({
       range: formattedRange,
     };
   } catch (error) {
-    console.error('Error fetching volumes:', error);
+    log.error('Error fetching volumes:', error);
     return {
       data: [],
       totalItems: 0,
@@ -210,7 +213,7 @@ export async function fetchVolume(
     const rawVolume = await response.json();
     return formatVolume(rvcode, language as AvailableLanguage, rawVolume);
   } catch (error) {
-    console.error('Error fetching volume:', error);
+    log.error('Error fetching volume:', error);
     return null;
   }
 }
