@@ -1,6 +1,7 @@
 'use strict';
 
-const isTest = process.env.NODE_ENV === 'test';
+// Also check VITEST — set automatically by vitest regardless of NODE_ENV in the shell.
+const isTest = process.env.NODE_ENV === 'test' || !!process.env.VITEST;
 const isDev = process.env.NODE_ENV === 'development';
 
 let _logger = null;

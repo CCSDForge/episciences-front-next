@@ -2,7 +2,8 @@ import os from 'os';
 import pino from 'pino';
 
 const isDev = process.env.NODE_ENV === 'development';
-const isTest = process.env.NODE_ENV === 'test';
+// Also check VITEST — set automatically by vitest regardless of NODE_ENV in the shell.
+const isTest = process.env.NODE_ENV === 'test' || !!process.env.VITEST;
 
 export const logger = pino({
   level: isTest ? 'silent' : (process.env.LOG_LEVEL || (isDev ? 'debug' : 'info')),

@@ -10,6 +10,12 @@ export default defineConfig({
     },
   },
   test: {
+    // Force NODE_ENV=test regardless of the shell environment.
+    // Without this, a developer running tests while NODE_ENV=development is set
+    // in their shell (e.g. after starting the dev server) would get pino loggers
+    // initialised at 'debug' level instead of 'silent', breaking logger tests.
+    env: { NODE_ENV: 'test' },
+
     // Use happy-dom environment for DOM testing
     environment: 'happy-dom',
 
