@@ -53,15 +53,20 @@ export async function fetchData(id: string) {
 
 **Logging:**
 
-- Success: No log (or `console.debug()` if needed)
-- Warning: `console.warn()` with context
-- Error: `console.error()` with full error object
-
-**Example:**
+Never use `console.*` directly. Import the centralized logger and create a child logger with a service name:
 
 ```typescript
-console.warn(`[SafeFetch] ${context} failed, using fallback:`, error.message);
+import { logger } from '@/lib/logger';
+const log = logger.child({ service: 'my-service' });
+
+// Success: no log
+// Warning: log.warn()
+// Error:   log.error()
+log.warn(`${context} failed, using fallback:`, error.message);
+log.error('Error fetching data:', error);
 ```
+
+The logger outputs a readable `[service] message` format in development and structured JSON in production (see `src/lib/logger.ts`).
 
 ---
 
@@ -84,7 +89,7 @@ export default async function Page(props: { params: Promise<...> }) {
       getServerTranslations(params.lang)
     ]);
   } catch (error) {
-    console.warn('[Page] Data fetch failed:', error);
+    log.warn('Data fetch failed:', error);
     // data remains null, client component must handle it
   }
 

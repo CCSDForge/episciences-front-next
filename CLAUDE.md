@@ -90,6 +90,7 @@ Use semantic CSS variables for text colors (WCAG compliance):
 | Nginx & Docker          | `docs/NGINX_INTEGRATION.md`       |
 | Color Accessibility     | `docs/ACCESSIBLE_COLOR_SYSTEM.md` |
 | Code Standards          | `docs/CODING_STANDARDS.md`        |
+| Logging & Server Logs   | `docs/PRODUCTION_DEPLOYMENT.md`   |
 
 ## Token Efficiency
 
