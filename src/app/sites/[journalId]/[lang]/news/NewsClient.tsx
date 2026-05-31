@@ -121,7 +121,7 @@ export default function NewsClient({
       const selectedYears = years.filter(y => y.isSelected).map(y => y.year);
       router.push(`/news?page=${selectedItem.selected + 1}${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`);
     },
-    [years]
+    [years, router]
   );
 
   const onSelectYear = (year: number): void => {
