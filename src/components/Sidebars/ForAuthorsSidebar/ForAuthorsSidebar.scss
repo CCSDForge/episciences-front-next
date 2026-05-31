@@ -1,4 +1,5 @@
 @use '@/styles/breakpoints.scss' as breakpoints;
+@use '@/styles/mixins';
 
 .forAuthorsSidebar {
   min-width: 265px;
@@ -9,7 +10,8 @@
   top: 120px; // Espace pour le header fixe
   align-self: flex-start; // Important pour sticky dans flexbox
   max-height: calc(100vh - 140px); // Laisser un peu d'espace en bas
-  overflow-y: auto; // Scroll interne si le menu est trop long
+  overflow-y: auto;
+  @include mixins.subtle-scrollbar;
 
   @media (max-width: breakpoints.$sm) {
     display: none;
