@@ -42,7 +42,7 @@ function AffiliationWithRor({
           onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
         >
           <RorIcon
-            size={14}
+            size={16}
             className="boardCard-affiliation-ror-icon"
             ariaLabel="ROR (Research Organization Registry)"
           />
