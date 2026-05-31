@@ -1,4 +1,5 @@
-import { Metadata, Suspense } from 'next';
+import { Metadata } from 'next';
+import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { generateSeoAlternates } from '@/utils/seo';

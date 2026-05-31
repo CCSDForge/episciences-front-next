@@ -1,4 +1,5 @@
-import { Metadata, Suspense } from 'next';
+import { Metadata } from 'next';
+import { Suspense } from 'react';
 import { fetchSections } from '@/services/section';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
