@@ -61,7 +61,7 @@ export default function PresentationSection({
           </div>
           {content && (
             <div className="presentationSection-new-description">
-              {truncate(content, MAX_NEWS_CONTENT_LENGTH)}
+              <MarkdownRenderer>{truncate(content, MAX_NEWS_CONTENT_LENGTH)}</MarkdownRenderer>
             </div>
           )}
           <Link href={PATHS.news} lang={language}>
@@ -103,7 +103,7 @@ export default function PresentationSection({
           </div>
           {description && (
             <div className="presentationSection-new-description">
-              {truncate(description, MAX_NEWS_CONTENT_LENGTH)}
+              <MarkdownRenderer>{truncate(description, MAX_NEWS_CONTENT_LENGTH)}</MarkdownRenderer>
             </div>
           )}
           <Link
