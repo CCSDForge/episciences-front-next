@@ -37,12 +37,14 @@ export default function MarkdownRenderer({
   urlTransform,
 }: MarkdownRendererProps): React.JSX.Element {
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm, ...remarkPlugins]}
-      components={{ ...DEFAULT_COMPONENTS, ...components }}
-      urlTransform={urlTransform}
-    >
-      {children}
-    </ReactMarkdown>
+    <div className="markdown-content">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, ...remarkPlugins]}
+        components={{ ...DEFAULT_COMPONENTS, ...components }}
+        urlTransform={urlTransform}
+      >
+        {children}
+      </ReactMarkdown>
+    </div>
   );
 }
