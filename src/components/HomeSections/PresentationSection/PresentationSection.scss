@@ -21,7 +21,20 @@
 
     &-content {
       font-size: 18px;
-      flex: 1;
+      position: relative;
+      overflow: hidden;
+      height: 8em;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2.5em;
+        background: linear-gradient(to bottom, transparent, var(--white));
+        pointer-events: none;
+      }
 
       p {
         margin: 16px 0px 16px 0px;
@@ -29,6 +42,7 @@
 
       @media (max-width: breakpoints.$xsm) {
         font-size: 14px;
+        height: 7em;
       }
     }
 
@@ -36,6 +50,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
+      margin-top: auto;
       gap: 8px;
       color: var(--grey);
       font-size: 16px;
