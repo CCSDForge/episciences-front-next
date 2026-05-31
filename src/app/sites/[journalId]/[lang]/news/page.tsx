@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { fetchNews } from '@/services/news';
 import { getServerTranslations, t } from '@/utils/server-i18n';
@@ -67,5 +68,9 @@ export default async function NewsPage(props: Props) {
     news: t('pages.news.title', translations),
   };
 
-  return <NewsClient initialNews={newsData} lang={lang} breadcrumbLabels={breadcrumbLabels} />;
+  return (
+    <Suspense>
+      <NewsClient initialNews={newsData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    </Suspense>
+  );
 }

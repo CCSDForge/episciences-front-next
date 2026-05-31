@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -13,7 +13,6 @@ import {
   TileGreyIcon,
 } from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
-import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { AvailableLanguage } from '@/utils/i18n';
 import { RENDERING_MODE } from '@/utils/card';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
@@ -45,6 +44,8 @@ interface NewsClientProps {
   };
 }
 
+const NEWS_PER_PAGE = 10;
+
 export default function NewsClient({
   initialNews,
   lang,
@@ -52,7 +53,6 @@ export default function NewsClient({
 }: NewsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
-  // Synchroniser la langue avec le paramètre de l'URL
   useEffect(() => {
     if (lang && i18n.language !== lang) {
       i18n.changeLanguage(lang);
@@ -60,86 +60,72 @@ export default function NewsClient({
   }, [lang, i18n]);
 
   const router = useRouter();
-  const NEWS_PER_PAGE = 10;
+  const searchParams = useSearchParams();
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
-  // Architecture hybride : fetch automatique des données fraîches
-  const { data: newsData, isUpdating } = useClientSideFetch({
-    fetchFn: async () => {
-      if (!rvcode) return initialNews;
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const selectedYearsFromUrl = useMemo(
+    () => searchParams.get('years')?.split(',').map(Number).filter(Boolean) ?? [],
+    [searchParams]
+  );
 
-      const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
-      const itemsPerPage = isStaticBuild ? 9999 : 10;
-
-      return await fetchNews({
-        rvcode,
-        page: 1,
-        itemsPerPage,
-      });
-    },
-    initialData: initialNews,
-    enabled: !!rvcode,
-  });
-
-  const [currentPage, setCurrentPage] = useState(1);
   const [mode, setMode] = useState(RENDERING_MODE.LIST);
-  const [years, setYears] = useState<INewsYearSelection[]>([]);
+  const [availableYears, setAvailableYears] = useState<number[]>(
+    initialNews?.range?.years ?? []
+  );
   const [fullNewsIndex, setFullNewsIndex] = useState(-1);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
-  const [news, setNews] = useState(newsData || initialNews);
+  const [news, setNews] = useState(initialNews);
   const [isLoading, setIsLoading] = useState(false);
 
-  const getSelectedYears = (): number[] => years.filter(y => y.isSelected).map(y => y.year);
+  const years: INewsYearSelection[] = availableYears.map(y => ({
+    year: y,
+    isSelected: selectedYearsFromUrl.includes(y),
+  }));
 
   useEffect(() => {
-    // Initialiser les années disponibles lorsque les données sont chargées
-    if (newsData?.range?.years && years.length === 0) {
-      const initYears = newsData.range.years.map(y => ({
-        year: y,
-        isSelected: false,
-      }));
+    if (!rvcode) return;
 
-      setYears(initYears);
-    }
-  }, [newsData, years.length]);
+    setIsLoading(true);
+    fetchNews({ rvcode, page: currentPage, itemsPerPage: NEWS_PER_PAGE, years: selectedYearsFromUrl })
+      .then(data => {
+        setNews(data);
+        if (data?.range?.years) {
+          setAvailableYears(prev => (prev.length === 0 ? data.range!.years! : prev));
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, [rvcode, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    // Mettre à jour l'état news lorsque les données changent
-    if (newsData) {
-      setNews(newsData);
-    }
-  }, [newsData]);
-
-  // Memoize handlePageClick to prevent Pagination re-renders
   const handlePageClick = useCallback(
     (selectedItem: { selected: number }): void => {
-      setCurrentPage(selectedItem.selected + 1);
-      const selectedYears = years.filter(y => y.isSelected).map(y => y.year);
-      router.push(`/news?page=${selectedItem.selected + 1}${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`);
+      const newPage = selectedItem.selected + 1;
+      router.push(
+        `/news?page=${newPage}${selectedYearsFromUrl.length > 0 ? `&years=${selectedYearsFromUrl.join(',')}` : ''}`
+      );
     },
-    [years, router]
+    [router, selectedYearsFromUrl]
   );
 
   const onSelectYear = (year: number): void => {
-    setCurrentPage(1);
-
-    const updatedYears = years.map(y => {
-      if (y.year === year) {
-        return { ...y, isSelected: !y.isSelected };
-      }
-
-      return { ...y };
-    });
-
-    setYears(updatedYears);
-
-    const selectedYears = updatedYears.filter(y => y.isSelected).map(y => y.year);
-    router.push(`/news?page=1${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`);
+    const newSelected = selectedYearsFromUrl.includes(year)
+      ? selectedYearsFromUrl.filter(y => y !== year)
+      : [...selectedYearsFromUrl, year];
+    router.push(`/news?page=1${newSelected.length > 0 ? `&years=${newSelected.join(',')}` : ''}`);
   };
+
+  const onApplyYearsFromModal = useCallback(
+    (updatedYears: INewsYearSelection[]): void => {
+      const selected = updatedYears.filter(y => y.isSelected).map(y => y.year);
+      router.push(`/news?page=1${selected.length > 0 ? `&years=${selected.join(',')}` : ''}`);
+    },
+    [router]
+  );
+
+  const getSelectedYears = (): number[] => years.filter(y => y.isSelected).map(y => y.year);
 
   const renderMobileSelectedYears = (): string => getSelectedYears().reverse().join(', ');
 
@@ -228,12 +214,12 @@ export default function NewsClient({
           <NewsMobileModal
             t={t}
             years={years}
-            onUpdateYearsCallback={setYears}
+            onUpdateYearsCallback={onApplyYearsFromModal}
             onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
           />
         )}
       </div>
-      <div className={`news-content content-transition ${isUpdating ? 'updating' : ''}`}>
+      <div className={`news-content content-transition ${isLoading ? 'updating' : ''}`}>
         <div className="news-content-results">
           <NewsSidebar t={t} years={years} onSelectYearCallback={onSelectYear} />
           {isLoading ? (
