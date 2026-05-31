@@ -219,7 +219,7 @@ describe('filterAndSortMembersForCarousel', () => {
     assignedSections: [],
   });
 
-  it('keeps only editorial-board and scientific-advisory-board members', () => {
+  it('keeps editorial-board, scientific-advisory-board and technical-board members, excludes others', () => {
     const members = [
       make(1, 'Alice', 'Smith', ['editorial-board', 'chief-editor']),
       make(2, 'Bob', 'Jones', ['technical-board']),
@@ -228,13 +228,13 @@ describe('filterAndSortMembersForCarousel', () => {
       make(5, 'Eve', 'Brown', ['former-members']),
     ];
     const result = filterAndSortMembersForCarousel(members);
-    expect(result.map(m => m.id)).toEqual([1, 3]);
+    expect(result.map(m => m.id)).toEqual([1, 3, 2]);
   });
 
   it('returns empty array when no eligible members', () => {
     const members = [
-      make(1, 'Alice', 'Smith', ['technical-board']),
-      make(2, 'Bob', 'Jones', ['reviewers-board']),
+      make(1, 'Alice', 'Smith', ['reviewers-board']),
+      make(2, 'Bob', 'Jones', ['former-members']),
     ];
     expect(filterAndSortMembersForCarousel(members)).toEqual([]);
   });
@@ -302,15 +302,27 @@ describe('filterAndSortMembersForCarousel', () => {
     expect(result[0].id).toBe(1);
   });
 
-  it('full ordering: chief-editor, editorial, scientific, alphabetical within tier', () => {
+  it('places scientific-advisory-board before technical-board (priority 3 vs 4)', () => {
+    const members = [
+      make(1, 'Zoe', 'Zhao', ['technical-board']),
+      make(2, 'Alice', 'Aaa', ['scientific-advisory-board']),
+    ];
+    const result = filterAndSortMembersForCarousel(members);
+    expect(result[0].id).toBe(2);
+    expect(result[1].id).toBe(1);
+  });
+
+  it('full ordering: chief-editor, editorial, scientific, technical, alphabetical within tier', () => {
     const members = [
       make(1, 'Zoe', 'Zhao', ['scientific-advisory-board']),
       make(2, 'Marc', 'Dupont', ['editorial-board']),
       make(3, 'Alice', 'Abert', ['editorial-board', 'chief-editor']),
       make(4, 'Anna', 'Adams', ['scientific-advisory-board']),
       make(5, 'Bob', 'Bertrand', ['editorial-board']),
+      make(6, 'Paul', 'Martin', ['technical-board']),
+      make(7, 'Jean', 'Blanc', ['technical-board']),
     ];
     const result = filterAndSortMembersForCarousel(members);
-    expect(result.map(m => m.id)).toEqual([3, 5, 2, 4, 1]);
+    expect(result.map(m => m.id)).toEqual([3, 5, 2, 4, 1, 7, 6]);
   });
 });

@@ -136,23 +136,26 @@ export function transformBoardMembers(rawMembers: RawBoardMember[]): IBoardMembe
  * 1 = editorial-board + chief-editor (highest)
  * 2 = editorial-board only
  * 3 = scientific-advisory-board only
- * 4 = fallback
+ * 4 = technical-board only
+ * 5 = fallback
  */
 function getCarouselMemberPriority(member: IBoardMember): number {
   const isEditorialBoard = member.roles.includes(BOARD_TYPE.EDITORIAL_BOARD);
   const isScientificAdvisoryBoard = member.roles.includes(BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD);
+  const isTechnicalBoard = member.roles.includes(BOARD_TYPE.TECHNICAL_BOARD);
   const isChiefEditor = member.roles.includes(BOARD_ROLE.CHIEF_EDITOR);
 
   if (isEditorialBoard && isChiefEditor) return 1;
   if (isEditorialBoard) return 2;
   if (isScientificAdvisoryBoard) return 3;
-  return 4;
+  if (isTechnicalBoard) return 4;
+  return 5;
 }
 
 /**
  * Filter and sort board members for the homepage carousel.
  *
- * Only editorial-board and scientific-advisory-board members are included.
+ * Includes editorial-board, scientific-advisory-board, and technical-board members.
  * Sort order:
  *   Tier 1 — board priority (chief-editor of editorial board first)
  *   Tier 2 — lastname then firstname (French locale, accent/case insensitive)
@@ -164,7 +167,8 @@ export function filterAndSortMembersForCarousel(members: IBoardMember[]): IBoard
     .filter(
       member =>
         member.roles.includes(BOARD_TYPE.EDITORIAL_BOARD) ||
-        member.roles.includes(BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD)
+        member.roles.includes(BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD) ||
+        member.roles.includes(BOARD_TYPE.TECHNICAL_BOARD)
     )
     .sort((a, b) => {
       const priorityDiff = getCarouselMemberPriority(a) - getCarouselMemberPriority(b);
