@@ -104,7 +104,7 @@ export const formatDate = (
 
     return new Intl.DateTimeFormat(language, options).format(date);
   } catch (error) {
-    log.error('Error formatting date:', error, 'dateString:', dateString);
+    log.error('Error formatting date', { error, dateString });
     return '';
   }
 };

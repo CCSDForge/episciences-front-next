@@ -204,7 +204,7 @@ export default function VolumesClient({
       const rangeTypes = Array.isArray(volumes.range?.types) ? volumes.range.types : [];
       const typesSource = rangeTypes.length > 0 ? rangeTypes : volumeTypes.map(vt => vt.value);
 
-      logger.debug('Initializing types from source:', typesSource, 'initialTypes:', initialTypes);
+      logger.debug('Initializing types from source', { typesSource, initialTypes });
 
       const initTypes = typesSource
         .filter(t => volumeTypes.find(vt => vt.value === t))

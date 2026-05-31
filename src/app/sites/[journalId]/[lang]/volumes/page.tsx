@@ -75,16 +75,7 @@ export default async function VolumesPage(props: {
   const currentPage = typeof pageParam === 'string' ? parseInt(pageParam, 10) : 1;
   const validPage = isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
 
-  logger.debug(
-    'VolumesPage searchParams types:',
-    types,
-    'years:',
-    years,
-    'page:',
-    validPage,
-    'journalId:',
-    journalId
-  );
+  logger.debug('VolumesPage searchParams', { types, years, page: validPage, journalId });
 
   try {
     if (!journalId) {
