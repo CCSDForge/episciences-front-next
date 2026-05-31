@@ -12,7 +12,6 @@ export default function Footer(): React.JSX.Element {
 
   const language = useAppSelector(state => state.i18nReducer.language);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
-  const apiEndpoint = useAppSelector(state => state.journalReducer.apiEndpoint);
   const enabled = useAppSelector(state => state.footerReducer.enabled);
 
   const getJournalNotice = (): string | undefined => {
@@ -33,17 +32,9 @@ export default function Footer(): React.JSX.Element {
     return currentJournal?.settings?.find((setting: any) => setting.setting === 'ISSN')?.value;
   };
 
-  const getRSS = (): string | undefined => {
-    const code = currentJournal?.code;
-    if (!code) return;
-    return `${apiEndpoint}/feed/rss/${code}`;
-  };
+  const getRSS = (): string => '/feed/rss';
 
-  const getATOM = (): string | undefined => {
-    const code = currentJournal?.code;
-    if (!code) return;
-    return `${apiEndpoint}/feed/atom/${code}`;
-  };
+  const getATOM = (): string => '/feed/atom';
 
   const getLogoOfJournal = (): string => {
     const code = currentJournal?.code;
@@ -119,19 +110,13 @@ export default function Footer(): React.JSX.Element {
           <div className="footer-journal-links-rss">
             {getISSN() && <div>{`eISSN ${getISSN()}`}</div>}
             {getISSN() && <div className="footer-journal-links-rss-divider">|</div>}
-            {getRSS() && (
-              <Link href={getRSS()!} prefetch={false} target="_blank" rel="noopener noreferrer">
-                {t('components.footer.links.rss')}
-              </Link>
-            )}
-            {getATOM() && (
-              <>
-                <div className="footer-journal-links-rss-divider">|</div>
-                <Link href={getATOM()!} prefetch={false} target="_blank" rel="noopener noreferrer">
-                  {t('components.footer.links.atom')}
-                </Link>
-              </>
-            )}
+            <Link href={getRSS()} prefetch={false} target="_blank" rel="noopener noreferrer">
+              {t('components.footer.links.rss')}
+            </Link>
+            <div className="footer-journal-links-rss-divider">|</div>
+            <Link href={getATOM()} prefetch={false} target="_blank" rel="noopener noreferrer">
+              {t('components.footer.links.atom')}
+            </Link>
           </div>
         </div>
       </div>

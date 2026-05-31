@@ -6,7 +6,6 @@ import { logger } from '@/lib/logger';
 const log = logger.child({ service: 'footer' });
 import { getJournalByCode } from '@/services/journal';
 import { PATHS } from '@/config/paths';
-import { getJournalApiUrl } from '@/utils/env-loader';
 import fs from 'fs';
 import path from 'path';
 import './Footer.scss';
@@ -42,9 +41,8 @@ export default async function FooterServer({
   )?.value;
   const issn = journal?.settings?.find((s: any) => s.setting === 'ISSN')?.value;
   const contactEmail = `mailto:${rvcode}@episciences.org`;
-  const journalApiEndpoint = getJournalApiUrl(rvcode);
-  const rssUrl = `${journalApiEndpoint}/feed/rss/${rvcode}`;
-  const atomUrl = `${journalApiEndpoint}/feed/atom/${rvcode}`;
+  const rssUrl = '/feed/rss';
+  const atomUrl = '/feed/atom';
 
   // Episciences links (language-aware)
   const docUrl =
