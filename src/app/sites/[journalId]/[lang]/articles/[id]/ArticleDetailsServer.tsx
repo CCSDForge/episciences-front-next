@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { IArticle, IArticleAuthor, IInstitution } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import { INTER_WORK_RELATIONSHIP, articleTypes } from '@/utils/article';
@@ -111,10 +112,14 @@ export default function ArticleDetailsServer({
         : null;
 
     return graphicalAbstractURL ? (
-      <img
+      <Image
         src={graphicalAbstractURL}
         className="articleDetails-content-article-section-content-graphicalAbstract"
         alt="Graphical Abstract"
+        width={0}
+        height={0}
+        sizes="100vw"
+        style={{ width: 'auto', height: 'auto' }}
       />
     ) : null;
   };

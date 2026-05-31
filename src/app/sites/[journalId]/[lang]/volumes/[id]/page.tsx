@@ -114,11 +114,6 @@ export default async function VolumeDetailsPage(props: {
     );
   } catch (error) {
     logger.error(`Erreur lors de la récupération du volume ${params.id}:`, error);
-    return (
-      <div className="error-message">
-        <h1>Erreur lors du chargement du volume</h1>
-        <p>Impossible de charger les données du volume.</p>
-      </div>
-    );
+    throw error;
   }
 }

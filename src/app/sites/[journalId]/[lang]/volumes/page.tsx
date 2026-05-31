@@ -205,6 +205,6 @@ export default async function VolumesPage(props: {
     );
   } catch (error) {
     logger.error('Error fetching volumes:', error);
-    return <div>Failed to load volumes</div>;
+    throw error;
   }
 }

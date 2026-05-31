@@ -191,6 +191,7 @@
   "pages": {
     "home": {
       "title": "Inicio",
+      "metaDescription": "Página de inicio de la revista",
       "blocks": {
         "articles": {
           "subtitle": "Últimos artículos",

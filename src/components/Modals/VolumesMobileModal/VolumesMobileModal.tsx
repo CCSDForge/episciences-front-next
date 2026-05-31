@@ -127,7 +127,9 @@ export default function VolumesMobileModal({
           <h2 id="volumes-modal-title" className="title-text">
             {t('common.filters.filter')}
           </h2>
-          <CloseBlackIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
+          <button type="button" className="titleClose" onClick={onClose} aria-label="Close">
+            <CloseBlackIcon size={24} />
+          </button>
         </div>
         {taggedFilters.length > 0 && (
           <div className="tags">
@@ -154,16 +156,13 @@ export default function VolumesMobileModal({
         <div className="filters">
           <div className="filtersTypes">
             <div className="filtersTypesTitle">
-              <div
-                role="button"
-                tabIndex={0}
+              <button
+                type="button"
+                aria-expanded={isOpenedSection(FILTERS_SECTION.TYPE)}
                 onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
-                onKeyDown={e =>
-                  handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.TYPE))
-                }
               >
                 {t('common.filters.documentTypes')}
-              </div>
+              </button>
               {isOpenedSection(FILTERS_SECTION.TYPE) ? (
                 <CaretUpGreyIcon
                   size={16}
@@ -207,16 +206,13 @@ export default function VolumesMobileModal({
           </div>
           <div className="filtersYears">
             <div className="filtersYearsTitle">
-              <div
-                role="button"
-                tabIndex={0}
+              <button
+                type="button"
+                aria-expanded={isOpenedSection(FILTERS_SECTION.YEAR)}
                 onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-                onKeyDown={e =>
-                  handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))
-                }
               >
                 {t('common.filters.years')}
-              </div>
+              </button>
               {isOpenedSection(FILTERS_SECTION.YEAR) ? (
                 <CaretUpGreyIcon
                   size={16}

@@ -230,7 +230,7 @@
 
     &-icon {
       display: none;
-      color: var(--primary);
+      color: var(--primary-border);
 
       @media (max-width: breakpoints.$xsm) {
         display: block;
@@ -685,7 +685,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--primary);
+      color: var(--primary-border);
 
       &:focus-visible {
         outline: 2px solid var(--focus-color);

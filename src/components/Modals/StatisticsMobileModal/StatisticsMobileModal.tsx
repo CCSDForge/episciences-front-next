@@ -66,22 +66,21 @@ export default function StatisticsMobileModal({
         aria-labelledby="modal-title"
       >
         <div className="title">
-          <div>{t('common.filters.filter')}</div>
-          <CloseBlackIcon size={24} className="titleClose" ariaLabel="Close" onClick={onClose} />
+          <h2 id="modal-title" className="title-text">{t('common.filters.filter')}</h2>
+          <button type="button" className="titleClose" onClick={onClose} aria-label="Close">
+            <CloseBlackIcon size={24} />
+          </button>
         </div>
         <div className="filters">
           <div className="filtersYears">
             <div className="filtersYearsTitle">
-              <div
-                role="button"
-                tabIndex={0}
+              <button
+                type="button"
+                aria-expanded={isOpenedSection(FILTERS_SECTION.YEAR)}
                 onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-                onKeyDown={e =>
-                  handleKeyboardClick(e, (): void => toggleSection(FILTERS_SECTION.YEAR))
-                }
               >
                 {t('common.filters.years')}
-              </div>
+              </button>
               {isOpenedSection(FILTERS_SECTION.YEAR) ? (
                 <CaretUpGreyIcon
                   size={16}

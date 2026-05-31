@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
-import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface CollapsibleSectionProps {
   title: string;
@@ -21,13 +20,11 @@ export default function CollapsibleSection({
 
   return (
     <div className="articleDetails-content-article-section">
-      <div
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         aria-expanded={isOpened}
         className={`articleDetails-content-article-section-title ${!isOpened && 'articleDetails-content-article-section-closed'}`}
         onClick={toggleSection}
-        onKeyDown={e => handleKeyboardClick(e, toggleSection)}
       >
         <div className="articleDetails-content-article-section-title-text">{title}</div>
         {isOpened ? (
@@ -43,7 +40,7 @@ export default function CollapsibleSection({
             ariaLabel="Expand section"
           />
         )}
-      </div>
+      </button>
       <div
         className={`articleDetails-content-article-section-content ${isOpened && 'articleDetails-content-article-section-content-opened'}`}
       >

@@ -191,6 +191,7 @@
   "pages": {
     "home": {
       "title": "Home",
+      "metaDescription": "Journal home page",
       "blocks": {
         "articles": {
           "subtitle": "Latest articles",

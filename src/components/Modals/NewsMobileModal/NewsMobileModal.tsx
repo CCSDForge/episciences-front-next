@@ -82,15 +82,14 @@ export default function NewsMobileModal({
         <div className="newsMobileModal-filters">
           <div className="newsMobileModal-filters-years">
             <div className="newsMobileModal-filters-years-title">
-              <div
+              <button
+                type="button"
                 className="newsMobileModal-filters-years-title-text"
-                role="button"
-                tabIndex={0}
+                aria-expanded={isOpenedSection(FILTERS_SECTION.YEAR)}
                 onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-                onKeyDown={e => handleKeyboardClick(e, () => toggleSection(FILTERS_SECTION.YEAR))}
               >
                 {t('common.filters.years')}
-              </div>
+              </button>
               {isOpenedSection(FILTERS_SECTION.YEAR) ? (
                 <CaretUpGreyIcon
                   size={16}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -58,6 +59,7 @@ export default function NewsClient({
     }
   }, [lang, i18n]);
 
+  const router = useRouter();
   const NEWS_PER_PAGE = 10;
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
@@ -116,10 +118,8 @@ export default function NewsClient({
   const handlePageClick = useCallback(
     (selectedItem: { selected: number }): void => {
       setCurrentPage(selectedItem.selected + 1);
-      // Pour un comportement Full Static, la navigation entre les pages
-      // serait gérée par le rechargement de la page avec des paramètres d'URL
       const selectedYears = years.filter(y => y.isSelected).map(y => y.year);
-      window.location.href = `/news?page=${selectedItem.selected + 1}${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`;
+      router.push(`/news?page=${selectedItem.selected + 1}${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`);
     },
     [years]
   );
@@ -137,10 +137,8 @@ export default function NewsClient({
 
     setYears(updatedYears);
 
-    // Pour un comportement Full Static, la sélection des années
-    // serait gérée par le rechargement de la page avec des paramètres d'URL
     const selectedYears = updatedYears.filter(y => y.isSelected).map(y => y.year);
-    window.location.href = `/news?page=1${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`;
+    router.push(`/news?page=1${selectedYears.length > 0 ? `&years=${selectedYears.join(',')}` : ''}`);
   };
 
   const renderMobileSelectedYears = (): string => getSelectedYears().reverse().join(', ');

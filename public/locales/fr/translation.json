@@ -198,6 +198,7 @@
   "pages": {
     "home": {
       "title": "Accueil",
+      "metaDescription": "Page d'accueil de la revue",
       "blocks": {
         "articles": {
           "subtitle": "Derniers articles",

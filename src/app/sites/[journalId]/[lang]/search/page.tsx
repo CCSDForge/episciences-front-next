@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata, Suspense } from 'next';
 import './Search.scss';
 import dynamic from 'next/dynamic';
 import { getServerTranslations, t } from '@/utils/server-i18n';
@@ -84,13 +84,15 @@ export default async function SearchPage(props: SearchPageProps) {
   };
 
   return (
-    <SearchClient
-      initialSearchResults={initialSearchResults}
-      initialSearch={search}
-      initialPage={page}
-      lang={lang}
-      breadcrumbLabels={breadcrumbLabels}
-      countLabels={countLabels}
-    />
+    <Suspense fallback={null}>
+      <SearchClient
+        initialSearchResults={initialSearchResults}
+        initialSearch={search}
+        initialPage={page}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+        countLabels={countLabels}
+      />
+    </Suspense>
   );
 }

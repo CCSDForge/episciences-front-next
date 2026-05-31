@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { fetchHomeData } from '@/services/home';
 import { getFormattedSiteTitle } from '@/utils/metadata';
+import { getServerTranslations, t } from '@/utils/server-i18n';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import dynamicImport from 'next/dynamic';
@@ -32,9 +33,10 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   const { journalId, lang } = params;
+  const translations = await getServerTranslations(lang);
   return {
-    title: getFormattedSiteTitle('Accueil'),
-    description: "Page d'accueil de la revue",
+    title: getFormattedSiteTitle(t('pages.home.title', translations)),
+    description: t('pages.home.metaDescription', translations),
     alternates: generateSeoAlternates(journalId, lang, '/'),
   };
 }

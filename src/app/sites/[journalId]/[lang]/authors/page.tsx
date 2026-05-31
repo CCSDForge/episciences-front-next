@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata, Suspense } from 'next';
 import dynamic from 'next/dynamic';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { generateSeoAlternates } from '@/utils/seo';
@@ -55,13 +55,15 @@ export default async function AuthorsPage(props: AuthorsPageProps) {
   };
 
   return (
-    <AuthorsClient
-      initialPage={page}
-      initialSearch={search}
-      initialLetter={letter}
-      lang={lang}
-      breadcrumbLabels={breadcrumbLabels}
-      countLabels={countLabels}
-    />
+    <Suspense fallback={null}>
+      <AuthorsClient
+        initialPage={page}
+        initialSearch={search}
+        initialLetter={letter}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+        countLabels={countLabels}
+      />
+    </Suspense>
   );
 }

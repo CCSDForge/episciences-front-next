@@ -1,6 +1,5 @@
 'use client';
 
-import { ComponentProps, forwardRef } from 'react';
 import NextLink from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { getLocalizedPath, defaultLanguage } from '@/utils/language-utils';
@@ -11,8 +10,9 @@ type LinkProps = {
   className?: string;
   target?: string;
   rel?: string;
+  ref?: React.Ref<HTMLAnchorElement>;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
-  lang?: string; // Optional lang prop to force a specific language
+  lang?: string;
   [key: string]: any;
 };
 
@@ -30,10 +30,7 @@ function normalizePath(path: string): string {
   return normalizedPath.replace(/\/+/g, '/');
 }
 
-export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
-  { href, children, lang, prefetch, scroll, replace, shallow, ...props },
-  ref
-) {
+export function Link({ href, children, lang, ref, prefetch, scroll, replace, shallow, ...props }: LinkProps) {
   const { i18n } = useTranslation();
   // Ensure we always have a language, falling back to defaultLanguage
   const currentLanguage = lang || i18n.language || defaultLanguage;
@@ -72,4 +69,4 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
       {children}
     </NextLink>
   );
-});
+}

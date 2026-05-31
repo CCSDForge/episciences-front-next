@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata, Suspense } from 'next';
 import { fetchSections } from '@/services/section';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
@@ -62,15 +62,17 @@ export default async function SectionsPage(props: {
     };
 
     return (
-      <SectionsClient
-        initialSections={sections}
-        initialPage={1}
-        lang={lang}
-        breadcrumbLabels={breadcrumbLabels}
-      />
+      <Suspense fallback={null}>
+        <SectionsClient
+          initialSections={sections}
+          initialPage={1}
+          lang={lang}
+          breadcrumbLabels={breadcrumbLabels}
+        />
+      </Suspense>
     );
   } catch (error) {
     logger.error('Error fetching sections:', error);
-    return <div>Failed to load sections</div>;
+    throw error;
   }
 }

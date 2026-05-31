@@ -123,6 +123,12 @@
         margin-bottom: 40px;
 
         &-title {
+          background: none;
+          border: none;
+          font: inherit;
+          color: inherit;
+          width: 100%;
+          text-align: left;
           display: flex;
           justify-content: space-between;
           align-items: center;
