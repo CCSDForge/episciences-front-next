@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getBoardsPerTitle } from '../board-transforms';
+import { getBoardsPerTitle, filterAndSortMembersForCarousel } from '../board-transforms';
 import { IBoardPage, IBoardMember } from '@/services/board';
 
 describe('getBoardsPerTitle', () => {
@@ -206,5 +206,111 @@ describe('getBoardsPerTitle', () => {
     expect(editorialBoard?.members).toContainEqual(
       expect.objectContaining({ firstname: 'George' })
     );
+  });
+});
+
+describe('filterAndSortMembersForCarousel', () => {
+  const make = (id: number, firstname: string, lastname: string, roles: string[]): IBoardMember => ({
+    id,
+    firstname,
+    lastname,
+    roles,
+    affiliations: [],
+    assignedSections: [],
+  });
+
+  it('keeps only editorial-board and scientific-advisory-board members', () => {
+    const members = [
+      make(1, 'Alice', 'Smith', ['editorial-board', 'chief-editor']),
+      make(2, 'Bob', 'Jones', ['technical-board']),
+      make(3, 'Carol', 'Lee', ['scientific-advisory-board']),
+      make(4, 'Dan', 'Wu', ['reviewers-board']),
+      make(5, 'Eve', 'Brown', ['former-members']),
+    ];
+    const result = filterAndSortMembersForCarousel(members);
+    expect(result.map(m => m.id)).toEqual([1, 3]);
+  });
+
+  it('returns empty array when no eligible members', () => {
+    const members = [
+      make(1, 'Alice', 'Smith', ['technical-board']),
+      make(2, 'Bob', 'Jones', ['reviewers-board']),
+    ];
+    expect(filterAndSortMembersForCarousel(members)).toEqual([]);
+  });
+
+  it('returns empty array for empty input', () => {
+    expect(filterAndSortMembersForCarousel([])).toEqual([]);
+  });
+
+  it('places editorial-board chief-editor first (priority 1)', () => {
+    const members = [
+      make(1, 'Zoe', 'Zhao', ['scientific-advisory-board']),
+      make(2, 'Alice', 'Aaa', ['editorial-board', 'chief-editor']),
+      make(3, 'Bob', 'Bbb', ['editorial-board']),
+    ];
+    const result = filterAndSortMembersForCarousel(members);
+    expect(result[0].id).toBe(2);
+  });
+
+  it('places plain editorial-board members before scientific-advisory-board (priority 2 vs 3)', () => {
+    const members = [
+      make(1, 'Zoe', 'Zhao', ['scientific-advisory-board']),
+      make(2, 'Alice', 'Aaa', ['editorial-board']),
+    ];
+    const result = filterAndSortMembersForCarousel(members);
+    expect(result[0].id).toBe(2);
+    expect(result[1].id).toBe(1);
+  });
+
+  it('sorts alphabetically by lastname (French locale) within same priority', () => {
+    const members = [
+      make(1, 'Zoe', 'Étienne', ['editorial-board']),
+      make(2, 'Alice', 'Abert', ['editorial-board']),
+      make(3, 'Bob', 'Dupont', ['editorial-board']),
+    ];
+    const result = filterAndSortMembersForCarousel(members);
+    expect(result.map(m => m.lastname)).toEqual(['Abert', 'Dupont', 'Étienne']);
+  });
+
+  it('sorts by firstname when lastnames are identical', () => {
+    const members = [
+      make(1, 'Zoe', 'Martin', ['editorial-board']),
+      make(2, 'Alice', 'Martin', ['editorial-board']),
+      make(3, 'Marc', 'Martin', ['editorial-board']),
+    ];
+    const result = filterAndSortMembersForCarousel(members);
+    expect(result.map(m => m.firstname)).toEqual(['Alice', 'Marc', 'Zoe']);
+  });
+
+  it('treats accent-insensitive sort correctly (French locale)', () => {
+    const members = [
+      make(1, 'Zoe', 'Éric', ['editorial-board']),
+      make(2, 'Alice', 'Eric', ['editorial-board']),
+    ];
+    const result = filterAndSortMembersForCarousel(members);
+    // Both "Éric" and "Eric" should sort together — order between them is stable
+    expect(result).toHaveLength(2);
+  });
+
+  it('member with both editorial-board and scientific-advisory-board is ranked as editorial-board (priority 2)', () => {
+    const members = [
+      make(1, 'Alice', 'Aaa', ['editorial-board', 'scientific-advisory-board']),
+      make(2, 'Bob', 'Bbb', ['scientific-advisory-board']),
+    ];
+    const result = filterAndSortMembersForCarousel(members);
+    expect(result[0].id).toBe(1);
+  });
+
+  it('full ordering: chief-editor, editorial, scientific, alphabetical within tier', () => {
+    const members = [
+      make(1, 'Zoe', 'Zhao', ['scientific-advisory-board']),
+      make(2, 'Marc', 'Dupont', ['editorial-board']),
+      make(3, 'Alice', 'Abert', ['editorial-board', 'chief-editor']),
+      make(4, 'Anna', 'Adams', ['scientific-advisory-board']),
+      make(5, 'Bob', 'Bertrand', ['editorial-board']),
+    ];
+    const result = filterAndSortMembersForCarousel(members);
+    expect(result.map(m => m.id)).toEqual([3, 5, 2, 4, 1]);
   });
 });

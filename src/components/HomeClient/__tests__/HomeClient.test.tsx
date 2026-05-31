@@ -81,7 +81,14 @@ const mockIssue = {
   articles: [],
   downloadLink: '',
 } as any;
-const mockMember = { uuid: 'u1', fullName: 'Alice Dupont', roles: [] } as any;
+const mockMember = {
+  id: 1,
+  firstname: 'Alice',
+  lastname: 'Dupont',
+  roles: ['editorial-board'],
+  affiliations: [],
+  assignedSections: [],
+} as any;
 const mockStat = { type: 'articles', value: 42 } as any;
 const mockContent = {
   id: 1,

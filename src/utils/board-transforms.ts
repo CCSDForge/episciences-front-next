@@ -13,6 +13,7 @@ import {
   getRolePriority,
   boardTypes,
   BOARD_TYPE,
+  BOARD_ROLE,
 } from '@/services/board';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
@@ -128,6 +129,52 @@ export function transformBoardMember(rawMember: RawBoardMember): IBoardMember {
  */
 export function transformBoardMembers(rawMembers: RawBoardMember[]): IBoardMember[] {
   return rawMembers.map(transformBoardMember);
+}
+
+/**
+ * Compute the carousel display priority for a board member.
+ * 1 = editorial-board + chief-editor (highest)
+ * 2 = editorial-board only
+ * 3 = scientific-advisory-board only
+ * 4 = fallback
+ */
+function getCarouselMemberPriority(member: IBoardMember): number {
+  const isEditorialBoard = member.roles.includes(BOARD_TYPE.EDITORIAL_BOARD);
+  const isScientificAdvisoryBoard = member.roles.includes(BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD);
+  const isChiefEditor = member.roles.includes(BOARD_ROLE.CHIEF_EDITOR);
+
+  if (isEditorialBoard && isChiefEditor) return 1;
+  if (isEditorialBoard) return 2;
+  if (isScientificAdvisoryBoard) return 3;
+  return 4;
+}
+
+/**
+ * Filter and sort board members for the homepage carousel.
+ *
+ * Only editorial-board and scientific-advisory-board members are included.
+ * Sort order:
+ *   Tier 1 — board priority (chief-editor of editorial board first)
+ *   Tier 2 — lastname then firstname (French locale, accent/case insensitive)
+ */
+export function filterAndSortMembersForCarousel(members: IBoardMember[]): IBoardMember[] {
+  const collator = new Intl.Collator('fr', { sensitivity: 'base' });
+
+  return members
+    .filter(
+      member =>
+        member.roles.includes(BOARD_TYPE.EDITORIAL_BOARD) ||
+        member.roles.includes(BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD)
+    )
+    .sort((a, b) => {
+      const priorityDiff = getCarouselMemberPriority(a) - getCarouselMemberPriority(b);
+      if (priorityDiff !== 0) return priorityDiff;
+
+      const lastNameCompare = collator.compare(a.lastname, b.lastname);
+      if (lastNameCompare !== 0) return lastNameCompare;
+
+      return collator.compare(a.firstname, b.firstname);
+    });
 }
 
 /**

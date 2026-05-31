@@ -14,6 +14,7 @@ import {
 } from '@/config/homepage';
 import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 import { PATHS } from '@/config/paths';
+import { filterAndSortMembersForCarousel } from '@/utils/board-transforms';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { IVolume } from '@/types/volume';
 import { INews } from '@/types/news';
@@ -88,6 +89,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
     validNews,
     shouldRenderArticles,
     shouldRenderNews,
+    carouselMembers,
     shouldRenderMembers,
     shouldRenderStats,
     shouldRenderIndexation,
@@ -141,8 +143,9 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
     const shouldRenderNews = newsConfig?.render && validNews.length > 0;
 
     const membersConfig = getBlockRendering(HOMEPAGE_BLOCK.MEMBERS_CAROUSEL);
-    const shouldRenderMembers =
-      membersConfig?.render && members && Array.isArray(members) && members.length > 0;
+    const carouselMembers =
+      members && Array.isArray(members) ? filterAndSortMembersForCarousel(members) : [];
+    const shouldRenderMembers = membersConfig?.render && carouselMembers.length > 0;
 
     const statsConfig = getBlockRendering(HOMEPAGE_BLOCK.STATS);
     const shouldRenderStats =
@@ -167,6 +170,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
       validNews,
       shouldRenderArticles,
       shouldRenderNews,
+      carouselMembers,
       shouldRenderMembers,
       shouldRenderStats,
       shouldRenderIndexation,
@@ -249,7 +253,7 @@ function HomeClientInner({ homeData, language, journalId }: HomeClientProps): Re
             t={t}
             slidesPerView={4}
             slidesPerGroup={3}
-            cards={members || []}
+            cards={carouselMembers}
           />
         </>
       )}
