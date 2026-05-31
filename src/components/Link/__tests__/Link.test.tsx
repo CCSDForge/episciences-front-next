@@ -132,6 +132,30 @@ describe('Link', () => {
 
       expect(getLocalizedPath).not.toHaveBeenCalled();
     });
+
+    it('renders regular anchor for PDF paths without localizing', () => {
+      render(<Link href="/epijinfo/resources/EGI_timetable_1.pdf">PDF</Link>);
+
+      const link = screen.getByRole('link');
+      expect(link).toHaveAttribute('href', '/epijinfo/resources/EGI_timetable_1.pdf');
+      expect(getLocalizedPath).not.toHaveBeenCalled();
+    });
+
+    it('renders regular anchor for image paths without localizing', () => {
+      render(<Link href="/epijinfo/resources/logo.png">Image</Link>);
+
+      const link = screen.getByRole('link');
+      expect(link).toHaveAttribute('href', '/epijinfo/resources/logo.png');
+      expect(getLocalizedPath).not.toHaveBeenCalled();
+    });
+
+    it('renders regular anchor for file paths with query string without localizing', () => {
+      render(<Link href="/resources/file.pdf?download=true">Download</Link>);
+
+      const link = screen.getByRole('link');
+      expect(link).toHaveAttribute('href', '/resources/file.pdf?download=true');
+      expect(getLocalizedPath).not.toHaveBeenCalled();
+    });
   });
 
   describe('Link attributes', () => {
