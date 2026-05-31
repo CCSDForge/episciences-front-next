@@ -86,13 +86,9 @@ export default function AuthorsClient({
   // Memoize fetch dependencies to avoid infinite loops
   useEffect(() => {
     const fetchData = async () => {
+      if (!rvcode) return;
       setIsLoading(true);
       try {
-        if (!rvcode) {
-          logger.error('Journal code not available');
-          return;
-        }
-
         const authorsData = await fetchAuthors({
           rvcode,
           page: currentPage,
