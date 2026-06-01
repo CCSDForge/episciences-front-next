@@ -34,26 +34,47 @@ const applyThemeVariables = (dynamicConfig?: Record<string, string>): void => {
       return dynamicConfig?.[key] || process.env[key] || fallback;
     };
 
-    // Récupérer la couleur primaire du journal
+    // Récupérer les couleurs du journal
     const primaryColor = getValue('NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR', '#000000');
+    const primaryTextColorOverride = getValue('NEXT_PUBLIC_JOURNAL_PRIMARY_TEXT_COLOR', '');
 
-    // Générer automatiquement les variantes accessibles
+    // Générer automatiquement les variantes accessibles depuis la couleur primaire
     const variants = generateAccessibleColorVariants(primaryColor);
     const textOnPrimary = getContrastingTextColor(primaryColor);
 
+    // Si une couleur de texte explicite est fournie, l'utiliser avec correction WCAG si besoin
+    const textAA = primaryTextColorOverride
+      ? ensureContrast(primaryTextColorOverride, '#ffffff', 4.5)
+      : variants.primaryTextOnWhite;
+    const textAAA = primaryTextColorOverride
+      ? ensureContrast(primaryTextColorOverride, '#ffffff', 7)
+      : variants.primaryTextOnWhiteAAA;
+    const textLarge = primaryTextColorOverride
+      ? ensureContrast(primaryTextColorOverride, '#ffffff', 3)
+      : variants.primaryLargeTextOnWhite;
+    const textOnGray = primaryTextColorOverride
+      ? ensureContrast(primaryTextColorOverride, '#f5f5f5', 4.5)
+      : variants.primaryTextOnLightGray;
+    const textOnDark = primaryTextColorOverride
+      ? ensureContrast(primaryTextColorOverride, '#333333', 4.5)
+      : variants.primaryTextOnDark;
+    const borderColor = primaryTextColorOverride
+      ? ensureContrast(primaryTextColorOverride, '#ffffff', 3)
+      : variants.primaryBorder;
+
     // Appliquer toutes les variables CSS
     root.style.setProperty('--primary', variants.primary);
-    root.style.setProperty('--primary-text', variants.primaryTextOnWhite);
-    root.style.setProperty('--primary-text-aaa', variants.primaryTextOnWhiteAAA);
-    root.style.setProperty('--primary-text-large', variants.primaryLargeTextOnWhite);
-    root.style.setProperty('--primary-text-on-gray', variants.primaryTextOnLightGray);
-    root.style.setProperty('--primary-text-on-dark', variants.primaryTextOnDark);
-    root.style.setProperty('--primary-border', variants.primaryBorder);
+    root.style.setProperty('--primary-text', textAA);
+    root.style.setProperty('--primary-text-aaa', textAAA);
+    root.style.setProperty('--primary-text-large', textLarge);
+    root.style.setProperty('--primary-text-on-gray', textOnGray);
+    root.style.setProperty('--primary-text-on-dark', textOnDark);
+    root.style.setProperty('--primary-border', borderColor);
 
     // Variantes sémantiques
-    root.style.setProperty('--link-color', variants.primaryTextOnWhite);
-    root.style.setProperty('--link-hover-color', variants.primaryTextOnWhiteAAA);
-    root.style.setProperty('--heading-color', variants.primaryTextOnWhite);
+    root.style.setProperty('--link-color', textAA);
+    root.style.setProperty('--link-hover-color', textAAA);
+    root.style.setProperty('--heading-color', textAA);
     root.style.setProperty('--button-text-on-primary-bg', textOnPrimary);
 
     // Focus indicators (WCAG AA 3:1 for UI components)
@@ -63,11 +84,12 @@ const applyThemeVariables = (dynamicConfig?: Record<string, string>): void => {
 
     log.debug('Accessible colors generated:', {
       original: primaryColor,
+      textOverride: primaryTextColorOverride || '(none)',
       variants: {
-        text: variants.primaryTextOnWhite,
-        textAAA: variants.primaryTextOnWhiteAAA,
-        largeText: variants.primaryLargeTextOnWhite,
-        border: variants.primaryBorder,
+        text: textAA,
+        textAAA: textAAA,
+        largeText: textLarge,
+        border: borderColor,
         onPrimaryBg: textOnPrimary,
         focus: {
           onWhite: variants.focusOnWhite,
