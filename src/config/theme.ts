@@ -40,7 +40,10 @@ const applyThemeVariables = (dynamicConfig?: Record<string, string>): void => {
 
     // Générer automatiquement les variantes accessibles depuis la couleur primaire
     const variants = generateAccessibleColorVariants(primaryColor);
-    const textOnPrimary = getContrastingTextColor(primaryColor);
+    // Texte sur fond primary : couleur override (corrigée WCAG) ou auto noir/blanc
+    const textOnPrimary = primaryTextColorOverride
+      ? ensureContrast(primaryTextColorOverride, primaryColor, 4.5)
+      : getContrastingTextColor(primaryColor);
 
     // Si une couleur de texte explicite est fournie, l'utiliser avec correction WCAG si besoin
     const textAA = primaryTextColorOverride
