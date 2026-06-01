@@ -92,6 +92,53 @@ describe('GET /api/pdf-proxy', () => {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Upstream Content-Type validation (arxiv rate-limit page scenario)
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('upstream content-type validation', () => {
+    it('returns 502 when upstream returns text/html (rate-limit or captcha page)', async () => {
+      global.fetch = vi.fn().mockResolvedValue(
+        new Response('<html>Too Many Requests</html>', {
+          status: 200,
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        })
+      );
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://arxiv.org/pdf/2301.00001.pdf'));
+      expect(res.status).toBe(502);
+    });
+
+    it('returns 200 when upstream returns application/octet-stream', async () => {
+      global.fetch = vi.fn().mockResolvedValue(
+        new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+          status: 200,
+          headers: { 'Content-Type': 'application/octet-stream' },
+        })
+      );
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(200);
+    });
+
+    it('returns 200 when upstream returns application/pdf', async () => {
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(200);
+    });
+
+    it('forces Content-Type: application/pdf in the response regardless of upstream value', async () => {
+      global.fetch = vi.fn().mockResolvedValue(
+        new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+          status: 200,
+          headers: { 'Content-Type': 'application/octet-stream' },
+        })
+      );
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.headers.get('Content-Type')).toBe('application/pdf');
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
   // CORS headers
   // ─────────────────────────────────────────────────────────────────────────
   describe('CORS headers', () => {

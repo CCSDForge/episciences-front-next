@@ -105,6 +105,17 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Validate Content-Type from upstream — arxiv/zenodo may return an HTML error page with HTTP 200
+    // (rate-limit, captcha, redirect). Streaming HTML with Content-Type: application/pdf causes
+    // Chrome to display "This content is blocked." in the iframe PDF viewer.
+    const upstreamContentType = response.headers.get('Content-Type') ?? '';
+    if (!upstreamContentType.includes('pdf') && !upstreamContentType.includes('octet-stream')) {
+      logger.warn(
+        `[PDF Proxy] Upstream returned unexpected Content-Type "${upstreamContentType}" for: ${sanitizeForLog(pdfUrl)}`
+      ); // lgtm[js/log-injection]
+      return new NextResponse('Upstream did not return a PDF', { status: 502 });
+    }
+
     // Build Content-Disposition header with optional filename
     let contentDisposition = disposition;
     if (disposition === 'attachment' && filename) {

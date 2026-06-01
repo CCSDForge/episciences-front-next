@@ -92,12 +92,20 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        // X-Frame-Options must NOT apply to API routes: the pdf-proxy serves PDFs inside iframes
+        // and Chrome's internal PDF renderer misinterprets SAMEORIGIN against its own internal
+        // origin (chrome-extension://...), causing "This content is blocked." intermittently.
+        source: '/((?!api/).*)',
         headers: [
           {
             key: 'X-Frame-Options',
             value: 'SAMEORIGIN',
           },
+        ],
+      },
+      {
+        source: '/:path*',
+        headers: [
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
