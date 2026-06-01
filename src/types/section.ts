@@ -6,6 +6,7 @@ export type PartialSectionArticle = ImportedPartialSectionArticle;
 
 export interface ISection {
   id: number;
+  rvid?: number;
   title?: Record<AvailableLanguage, string>;
   description?: Record<AvailableLanguage, string>;
   committee?: ISectionCommitteeMember[];

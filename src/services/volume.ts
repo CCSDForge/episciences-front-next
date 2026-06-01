@@ -207,7 +207,11 @@ export async function fetchVolume(
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch volume with id ${vid}`);
+      if (response.status === 404) {
+        log.debug(`Volume ${vid} not found (404)`);
+        return null;
+      }
+      throw new Error(`Failed to fetch volume with id ${vid}: HTTP ${response.status}`);
     }
 
     const rawVolume = await response.json();

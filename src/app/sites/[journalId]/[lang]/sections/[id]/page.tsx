@@ -1,5 +1,8 @@
+import { cache } from 'react';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { fetchSection, fetchSectionArticles } from '@/services/section';
+import { getJournalByCode } from '@/services/journal';
 import SectionDetailsClient from './SectionDetailsClient';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { ISection, PartialSectionArticle } from '@/types/section';
@@ -8,6 +11,10 @@ import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+
+const getCachedJournal = cache((journalId: string) =>
+  getJournalByCode(journalId).catch(() => null)
+);
 
 // Section details change infrequently - long revalidation time
 // Use on-demand revalidation API for updates
@@ -79,15 +86,32 @@ export default async function SectionDetailsPage(props: {
       throw new Error('journalId is not defined');
     }
 
-    // Fetch section details by ID (like volumes do)
-    const rawSection = await fetchSection({ sid: params.id, rvcode: journalId });
+    const [rawSection, activeJournal] = await Promise.all([
+      fetchSection({ sid: params.id, rvcode: journalId }),
+      getCachedJournal(journalId),
+    ]);
+
+    // Tier 1: null means the journal-scoped API returned no result
     if (!rawSection) {
-      throw new Error(`Section ${params.id} not found`);
+      notFound();
+    }
+
+    // Tier 2: if the API returned a section belonging to another journal, redirect
+    if (rawSection.rvid !== undefined && activeJournal && rawSection.rvid !== activeJournal.id) {
+      logger.warn('Cross-journal section access blocked', {
+        reason: 'section-wrong-journal',
+        resourceType: 'section',
+        resourceId: params.id,
+        sectionRvid: rawSection.rvid,
+        requestedJournalRvid: activeJournal.id,
+      });
+      notFound();
     }
 
     // Format section data (similar to fetchSections formatting)
     const section: ISection = {
       id: rawSection.id,
+      rvid: rawSection.rvid,
       title: rawSection.title,
       description: rawSection.description,
       committee: rawSection.committee,
@@ -137,12 +161,8 @@ export default async function SectionDetailsPage(props: {
       />
     );
   } catch (error) {
+    if (error instanceof Error && 'digest' in error) throw error;
     logger.error(`Error fetching section ${params.id}:`, error);
-    return (
-      <div className="error-message">
-        <h1>Section not found</h1>
-        <p>The section you&apos;re looking for could not be found.</p>
-      </div>
-    );
+    throw error;
   }
 }

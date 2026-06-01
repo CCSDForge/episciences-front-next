@@ -3,6 +3,7 @@ import { PartialVolumeArticle } from './article';
 
 export interface IVolume {
   id: number;
+  rvid?: number;
   num: string;
   title?: Record<AvailableLanguage, string>;
   description?: Record<AvailableLanguage, string>;

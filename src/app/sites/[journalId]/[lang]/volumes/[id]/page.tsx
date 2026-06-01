@@ -1,12 +1,19 @@
+import { cache } from 'react';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { fetchVolume, fetchVolumes } from '@/services/volume';
 import { fetchArticle } from '@/services/article';
+import { getJournalByCode } from '@/services/journal';
 import { getLanguageFromParams } from '@/utils/language-utils';
 import { FetchedArticle } from '@/utils/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { generateSeoAlternates } from '@/utils/seo';
 import VolumeDetailsClient from './VolumeDetailsClient';
 import { logger } from '@/lib/logger';
+
+const getCachedJournal = cache((journalId: string) =>
+  getJournalByCode(journalId).catch(() => null)
+);
 
 // Volume details rarely change after publication - long revalidation time
 // Use on-demand revalidation API for updates
@@ -51,10 +58,28 @@ export default async function VolumeDetailsPage(props: {
       throw new Error('journalId is not defined');
     }
 
-    const [volumeData, translations] = await Promise.all([
+    const [volumeData, translations, activeJournal] = await Promise.all([
       fetchVolume(journalId, parseInt(params.id, 10), language),
       getServerTranslations(language),
+      getCachedJournal(journalId),
     ]);
+
+    // Tier 1: null means the journal-scoped API returned no result
+    if (!volumeData) {
+      notFound();
+    }
+
+    // Tier 2: if the API returned a volume belonging to another journal, redirect
+    if (volumeData.rvid !== undefined && activeJournal && volumeData.rvid !== activeJournal.id) {
+      logger.warn('Cross-journal volume access blocked', {
+        reason: 'volume-wrong-journal',
+        resourceType: 'volume',
+        resourceId: params.id,
+        volumeRvid: volumeData.rvid,
+        requestedJournalRvid: activeJournal.id,
+      });
+      notFound();
+    }
 
     // Fetch all articles for the volume server-side
     let articles: FetchedArticle[] = [];
@@ -113,6 +138,7 @@ export default async function VolumeDetailsPage(props: {
       />
     );
   } catch (error) {
+    if (error instanceof Error && 'digest' in error) throw error;
     logger.error(`Erreur lors de la récupération du volume ${params.id}:`, error);
     throw error;
   }

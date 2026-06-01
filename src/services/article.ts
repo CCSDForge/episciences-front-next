@@ -174,7 +174,11 @@ export async function fetchArticle(
     const rawArticle: RawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
   } catch (error) {
-    log.error(`Erreur lors de la récupération de l'article ${paperid}:`, error);
+    if (error instanceof Error && error.message.includes('HTTP 404')) {
+      log.debug(`Article ${paperid} not found (404)`);
+    } else {
+      log.error(`Erreur lors de la récupération de l'article ${paperid}:`, error);
+    }
     return null;
   }
 }

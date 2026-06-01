@@ -491,6 +491,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
 
     return {
       id: Number(extendedArticle.paperid),
+      journalCode: extendedArticle.rvcode,
       title: articleContent.titles?.title,
       abstract,
       graphicalAbstract: articleDB?.current?.graphical_abstract_file,

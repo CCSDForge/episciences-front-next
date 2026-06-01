@@ -1,5 +1,6 @@
 import React, { cache } from 'react';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { fetchArticle, fetchArticles, fetchArticleMetadata } from '@/services/article';
 import { fetchVolume } from '@/services/volume';
 import { getJournalByCode } from '@/services/journal';
@@ -163,11 +164,28 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       ]),
     ]);
 
+    // Tier 1: null means the journal-scoped API returned no result
+    if (!article) {
+      notFound();
+    }
+
+    // Tier 2: if the API returned a resource belonging to another journal, redirect
+    if (article.journalCode && article.journalCode !== journalId) {
+      logger.warn('Cross-journal article access blocked', {
+        reason: 'article-wrong-journal',
+        resourceType: 'article',
+        resourceId: id,
+        articleJournalCode: article.journalCode,
+        requestedJournalCode: journalId,
+      });
+      notFound();
+    }
+
     // Fetch related volume if article has volumeId
 
     let relatedVolume: IVolume | null = null;
 
-    if (article?.volumeId) {
+    if (article.volumeId) {
       try {
         relatedVolume = await getCachedVolume(journalId, Number(article.volumeId), language);
       } catch (error) {
@@ -175,53 +193,21 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       }
     }
 
-    // Use server-side rendering for maximum pre-rendering
-
-    if (article) {
-      return (
-        <ArticleDetailsServer
-          article={article as IArticle}
-          id={id}
-          journalId={journalId}
-          relatedVolume={relatedVolume}
-          metadataCSL={metadataCSL}
-          metadataBibTeX={metadataBibTeX}
-          translations={translations}
-          language={language}
-        />
-      );
-    }
-
-    const breadcrumbLabels = {
-      home: t('pages.home.title', translations),
-
-      content: t('common.content', translations),
-
-      articles: t('pages.articles.title', translations),
-    };
-
-    // Fallback to client component if no article data
-
     return (
-      <ArticleDetailsClient
-        article={null}
+      <ArticleDetailsServer
+        article={article as IArticle}
         id={id}
-        initialRelatedVolume={relatedVolume}
-        initialMetadataCSL={metadataCSL}
-        initialMetadataBibTeX={metadataBibTeX}
-        lang={language}
-        breadcrumbLabels={breadcrumbLabels}
+        journalId={journalId}
+        relatedVolume={relatedVolume}
+        metadataCSL={metadataCSL}
+        metadataBibTeX={metadataBibTeX}
+        translations={translations}
+        language={language}
       />
     );
   } catch (error) {
+    if (error instanceof Error && 'digest' in error) throw error;
     logger.error(`Erreur lors de la récupération de l'article ${params.id}:`, error);
-
-    return (
-      <div className="error-message">
-        <h1>Erreur lors du chargement de l&apos;article</h1>
-
-        <p>Impossible de charger les données de l&apos;article.</p>
-      </div>
-    );
+    throw error;
   }
 }

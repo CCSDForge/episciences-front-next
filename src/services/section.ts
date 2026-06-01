@@ -21,9 +21,12 @@ interface FetchSectionsParams {
 
 export async function fetchSection({ sid, rvcode }: FetchSectionParams): Promise<ISection | null> {
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
+  const url = rvcode
+    ? `${apiRoot}${API_PATHS.sections}/${sid}?rvcode=${rvcode}`
+    : `${apiRoot}${API_PATHS.sections}/${sid}`;
   return safeFetchData(
     async () => {
-      const response = await fetch(`${apiRoot}${API_PATHS.sections}/${sid}`, {
+      const response = await fetch(url, {
         next: {
           revalidate: CACHE_TTL.sections,
           tags: [

@@ -11,6 +11,7 @@ export type PartialVolumeArticle = IPartialArticle;
 
 export interface IArticle {
   id: number;
+  journalCode?: string;
   title: string;
   abstract?: string | IArticleAbstracts;
   graphicalAbstract?: string;
@@ -109,6 +110,7 @@ export interface IClassificationItem {
 
 export type RawArticle = IPartialArticle &
   IArticle & {
+    rvcode?: string;
     document: {
       journal?: {
         journal_article: IRawArticleContent;
