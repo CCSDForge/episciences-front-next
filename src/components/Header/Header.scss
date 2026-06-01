@@ -92,7 +92,7 @@
       padding-right: 20px;
       background: var(--primary);
       color: var(--button-text-on-primary-bg);
-      border-bottom: 1px solid var(--primary-border);
+      border-bottom: 1px solid var(--primary);
 
       @media (max-width: breakpoints.$xsm) {
         min-width: unset;
