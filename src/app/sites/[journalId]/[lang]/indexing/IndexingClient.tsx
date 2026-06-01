@@ -67,7 +67,7 @@ export default function IndexingClient({
       lang={lang}
       noContentMessage={t('pages.indexing.noContent')}
       languageNotice={languageNotice}
-      className="markdown-page"
+      className="indexing-page"
     />
   );
 }

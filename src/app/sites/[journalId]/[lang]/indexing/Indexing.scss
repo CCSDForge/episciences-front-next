@@ -1,7 +1,7 @@
 @use '@/styles/breakpoints.scss' as breakpoints;
 
 // Specific styles for Indexing page - 3-column list layout
-.markdown-page {
+.indexing-page {
   &-content-body-section {
     ul {
       column-count: 3;
