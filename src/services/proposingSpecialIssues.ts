@@ -16,7 +16,8 @@ export async function fetchProposingSpecialIssuesPage(rvcode: string) {
         }
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
+      const data = await response.json();
+      return data?.['hydra:member']?.[0] || null;
     },
     null,
     `fetchProposingSpecialIssuesPage(${rvcode})`

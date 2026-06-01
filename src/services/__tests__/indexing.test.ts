@@ -29,15 +29,14 @@ describe('indexing service', () => {
   });
 
   describe('fetchIndexingPage', () => {
-    it('should return indexing page data on success', async () => {
-      const mockData = {
-        'hydra:member': [{ page_code: 'journal-indexing', content: { en: 'Indexing info' } }],
-      };
+    it('should return the first hydra:member on success', async () => {
+      const memberData = { page_code: 'journal-indexing', content: { en: 'Indexing info' } };
+      const mockData = { 'hydra:member': [memberData] };
       mockFetch.mockResolvedValue(createMockResponse(mockData));
 
       const result = await fetchIndexingPage('myjournal');
 
-      expect(result).toEqual(mockData);
+      expect(result).toEqual(memberData);
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining('page_code=journal-indexing'),
         expect.any(Object)
@@ -60,13 +59,13 @@ describe('indexing service', () => {
       expect(result).toBeNull();
     });
 
-    it('should return hydra response with empty member array', async () => {
+    it('should return null when hydra:member is empty', async () => {
       const mockData = { 'hydra:member': [] };
       mockFetch.mockResolvedValue(createMockResponse(mockData));
 
       const result = await fetchIndexingPage('myjournal');
 
-      expect(result).toEqual(mockData);
+      expect(result).toBeNull();
     });
   });
 });

@@ -33,8 +33,7 @@ export default function ProposingSpecialIssuesClient({
   const { data: pageData, isUpdating } = useClientSideFetch({
     fetchFn: async () => {
       if (!rvcode) return null;
-      const rawData = await fetchProposingSpecialIssuesPage(rvcode);
-      return rawData?.['hydra:member']?.[0] || null;
+      return await fetchProposingSpecialIssuesPage(rvcode);
     },
     initialData: initialPage,
     enabled: !!rvcode,

@@ -33,8 +33,7 @@ export default function IndexingClient({
   const { data: pageData, isUpdating } = useClientSideFetch({
     fetchFn: async () => {
       if (!rvcode) return null;
-      const rawData = await fetchIndexingPage(rvcode);
-      return rawData?.['hydra:member']?.[0] || null;
+      return await fetchIndexingPage(rvcode);
     },
     initialData: initialPage,
     enabled: !!rvcode,
