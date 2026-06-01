@@ -86,7 +86,7 @@ export const menuConfig: MenuStructure = {
     about: [
       {
         key: 'ABOUT',
-        label: 'components.header.links.about',
+        label: 'components.header.links.theJournal',
         path: '/about',
         alwaysVisible: true,
       },

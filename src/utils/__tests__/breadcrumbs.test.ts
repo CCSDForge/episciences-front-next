@@ -11,7 +11,7 @@ vi.mock('@/config/menu', () => ({
         { key: 'AUTHORS', label: 'components.header.links.authors', path: '/authors' },
       ],
       about: [
-        { key: 'ABOUT', label: 'components.header.links.about', path: '/about' },
+        { key: 'ABOUT', label: 'components.header.links.theJournal', path: '/about' },
         {
           key: 'ACKNOWLEDGEMENTS',
           label: 'components.header.links.acknowledgements',
