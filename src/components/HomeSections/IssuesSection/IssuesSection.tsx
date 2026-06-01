@@ -68,7 +68,9 @@ function IssuesSection({
             )}
             <div className="issuesSection-card-text">
               <Link href={`${PATHS.volumes}/${issue.id}`}>
-                <div className="issuesSection-card-text-volume">{`${t('common.volumeCard.specialIssue')} ${issue.num}`}</div>
+                <div className="issuesSection-card-text-volume">
+                  {issue.num ? `${t('common.volumeCard.specialIssue')} ${issue.num}` : t('common.volumeCard.specialIssue')}
+                </div>
               </Link>
               <div className="issuesSection-card-text-title">{issueTitle}</div>
               <div className="issuesSection-card-text-year">{issueYear}</div>
