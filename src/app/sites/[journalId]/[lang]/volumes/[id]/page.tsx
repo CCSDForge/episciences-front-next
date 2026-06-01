@@ -69,16 +69,19 @@ export default async function VolumeDetailsPage(props: {
       notFound();
     }
 
-    // Tier 2: if the API returned a volume belonging to another journal, redirect
-    if (volumeData.rvid !== undefined && activeJournal && volumeData.rvid !== activeJournal.id) {
-      logger.warn('Cross-journal volume access blocked', {
-        reason: 'volume-wrong-journal',
-        resourceType: 'volume',
-        resourceId: params.id,
-        volumeRvid: volumeData.rvid,
-        requestedJournalRvid: activeJournal.id,
-      });
-      notFound();
+    // Tier 2: if the API returned a volume belonging to another journal, redirect.
+    // Fail-closed: if rvid is present but the journal lookup failed, block rather than skip.
+    if (volumeData.rvid !== undefined) {
+      if (!activeJournal || volumeData.rvid !== activeJournal.id) {
+        logger.warn('Cross-journal volume access blocked', {
+          reason: 'volume-wrong-journal',
+          resourceType: 'volume',
+          resourceId: params.id,
+          volumeRvid: volumeData.rvid,
+          requestedJournalRvid: activeJournal?.id,
+        });
+        notFound();
+      }
     }
 
     // Fetch all articles for the volume server-side

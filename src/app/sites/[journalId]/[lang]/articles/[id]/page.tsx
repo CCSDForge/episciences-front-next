@@ -169,8 +169,10 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       notFound();
     }
 
-    // Tier 2: if the API returned a resource belonging to another journal, redirect
-    if (article.journalCode && article.journalCode !== journalId) {
+    // Tier 2: best-effort check — only triggers when the API returns `journalCode`.
+    // Primary protection is Tier 1: the request already used a journal-scoped API base URL,
+    // so a cross-journal article would have returned null (404) above.
+    if (article.journalCode !== undefined && article.journalCode !== journalId) {
       logger.warn('Cross-journal article access blocked', {
         reason: 'article-wrong-journal',
         resourceType: 'article',

@@ -86,6 +86,10 @@ export default async function SectionDetailsPage(props: {
       throw new Error('journalId is not defined');
     }
 
+    if (!/^\d+$/.test(params.id)) {
+      notFound();
+    }
+
     const [rawSection, activeJournal] = await Promise.all([
       fetchSection({ sid: params.id, rvcode: journalId }),
       getCachedJournal(journalId),
@@ -96,16 +100,19 @@ export default async function SectionDetailsPage(props: {
       notFound();
     }
 
-    // Tier 2: if the API returned a section belonging to another journal, redirect
-    if (rawSection.rvid !== undefined && activeJournal && rawSection.rvid !== activeJournal.id) {
-      logger.warn('Cross-journal section access blocked', {
-        reason: 'section-wrong-journal',
-        resourceType: 'section',
-        resourceId: params.id,
-        sectionRvid: rawSection.rvid,
-        requestedJournalRvid: activeJournal.id,
-      });
-      notFound();
+    // Tier 2: if the API returned a section belonging to another journal, redirect.
+    // Fail-closed: if rvid is present but the journal lookup failed, block rather than skip.
+    if (rawSection.rvid !== undefined) {
+      if (!activeJournal || rawSection.rvid !== activeJournal.id) {
+        logger.warn('Cross-journal section access blocked', {
+          reason: 'section-wrong-journal',
+          resourceType: 'section',
+          resourceId: params.id,
+          sectionRvid: rawSection.rvid,
+          requestedJournalRvid: activeJournal?.id,
+        });
+        notFound();
+      }
     }
 
     // Format section data (similar to fetchSections formatting)
