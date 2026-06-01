@@ -45,25 +45,12 @@ const applyThemeVariables = (dynamicConfig?: Record<string, string>): void => {
       ? ensureContrast(primaryTextColorOverride, primaryColor, 4.5)
       : getContrastingTextColor(primaryColor);
 
-    // Si une couleur de texte explicite est fournie, l'utiliser avec correction WCAG si besoin
-    const textAA = primaryTextColorOverride
-      ? ensureContrast(primaryTextColorOverride, '#ffffff', 4.5)
-      : variants.primaryTextOnWhite;
-    const textAAA = primaryTextColorOverride
-      ? ensureContrast(primaryTextColorOverride, '#ffffff', 7)
-      : variants.primaryTextOnWhiteAAA;
-    const textLarge = primaryTextColorOverride
-      ? ensureContrast(primaryTextColorOverride, '#ffffff', 3)
-      : variants.primaryLargeTextOnWhite;
-    const textOnGray = primaryTextColorOverride
-      ? ensureContrast(primaryTextColorOverride, '#f5f5f5', 4.5)
-      : variants.primaryTextOnLightGray;
-    const textOnDark = primaryTextColorOverride
-      ? ensureContrast(primaryTextColorOverride, '#333333', 4.5)
-      : variants.primaryTextOnDark;
-    const borderColor = primaryTextColorOverride
-      ? ensureContrast(primaryTextColorOverride, '#ffffff', 3)
-      : variants.primaryBorder;
+    const textAA = variants.primaryTextOnWhite;
+    const textAAA = variants.primaryTextOnWhiteAAA;
+    const textLarge = variants.primaryLargeTextOnWhite;
+    const textOnGray = variants.primaryTextOnLightGray;
+    const textOnDark = variants.primaryTextOnDark;
+    const borderColor = variants.primaryBorder;
 
     // Appliquer toutes les variables CSS
     root.style.setProperty('--primary', variants.primary);

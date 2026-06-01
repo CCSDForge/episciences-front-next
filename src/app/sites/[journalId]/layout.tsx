@@ -19,12 +19,12 @@ export default async function JournalLayout(props: JournalLayoutProps) {
 
   const variants = generateAccessibleColorVariants(primaryColor);
 
-  const textAA = primaryTextOverride ? ensureContrast(primaryTextOverride, '#ffffff', 4.5) : variants.primaryTextOnWhite;
-  const textAAA = primaryTextOverride ? ensureContrast(primaryTextOverride, '#ffffff', 7) : variants.primaryTextOnWhiteAAA;
-  const textLarge = primaryTextOverride ? ensureContrast(primaryTextOverride, '#ffffff', 3) : variants.primaryLargeTextOnWhite;
-  const textOnGray = primaryTextOverride ? ensureContrast(primaryTextOverride, '#f5f5f5', 4.5) : variants.primaryTextOnLightGray;
-  const textOnDark = primaryTextOverride ? ensureContrast(primaryTextOverride, '#333333', 4.5) : variants.primaryTextOnDark;
-  const borderColor = primaryTextOverride ? ensureContrast(primaryTextOverride, '#ffffff', 3) : variants.primaryBorder;
+  const textAA = variants.primaryTextOnWhite;
+  const textAAA = variants.primaryTextOnWhiteAAA;
+  const textLarge = variants.primaryLargeTextOnWhite;
+  const textOnGray = variants.primaryTextOnLightGray;
+  const textOnDark = variants.primaryTextOnDark;
+  const borderColor = variants.primaryBorder;
   const textOnPrimary = primaryTextOverride
     ? ensureContrast(primaryTextOverride, primaryColor, 4.5)
     : getContrastingTextColor(primaryColor);
