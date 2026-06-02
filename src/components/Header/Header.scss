@@ -79,7 +79,8 @@
       }
 
       @media (max-width: breakpoints.$xsm) {
-        display: none;
+        font-size: clamp(10px, 3vw, 14px);
+        padding-right: 15px;
       }
     }
 
