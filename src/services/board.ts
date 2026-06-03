@@ -168,7 +168,7 @@ export async function fetchBoardPages(rvcode: string): Promise<IBoardPage[]> {
 export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]> => {
   try {
     const apiUrl = getJournalApiUrl(rvcode);
-    const url = `${apiUrl}/journals/boards/${rvcode}`;
+    const url = `${apiUrl}/journals/boards/${rvcode}?pagination=0`;
     const response = await fetch(url, {
       next: {
         revalidate: CACHE_TTL.members,
