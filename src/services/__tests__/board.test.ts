@@ -79,7 +79,7 @@ describe('board service', () => {
     });
 
     it('should have former member as lowest priority', () => {
-      expect(ROLE_PRIORITIES[BOARD_ROLE.FORMER_MEMBER]).toBe(9);
+      expect(ROLE_PRIORITIES[BOARD_ROLE.FORMER_MEMBER]).toBe(10);
     });
   });
 
@@ -87,7 +87,7 @@ describe('board service', () => {
     it('should return correct priority for known roles', () => {
       expect(getRolePriority(BOARD_ROLE.CHIEF_EDITOR)).toBe(1);
       expect(getRolePriority(BOARD_ROLE.EDITOR)).toBe(3);
-      expect(getRolePriority(BOARD_ROLE.MEMBER)).toBe(8);
+      expect(getRolePriority(BOARD_ROLE.MEMBER)).toBe(9);
     });
 
     it('should return 999 for unknown roles', () => {
