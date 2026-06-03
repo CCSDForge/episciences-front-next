@@ -1,9 +1,11 @@
 @use '@/styles/breakpoints.scss';
 .volumeDetailsSidebar {
   min-width: 265px;
+  padding-right: 24px;
 
   @media (max-width: breakpoints.$sm) {
     min-width: 215px;
+    padding-right: 16px;
   }
 
   @media (max-width: breakpoints.$xsm) {
@@ -93,21 +95,13 @@
     &-action {
       display: flex;
       align-items: center;
-      padding: 3px 5px 3px 5px;
+      padding: 3px 5px;
       gap: 8px;
-      width: fit-content;
-      height: 34px;
+      min-height: 34px;
+      max-width: 200px;
       border: 1px solid var(--primary-border);
       border-bottom: 4px solid var(--primary-border);
       cursor: pointer;
-
-      @media (max-width: breakpoints.$sm) {
-        max-width: 180px;
-      }
-
-      @media (max-width: breakpoints.$xsm) {
-        width: auto;
-      }
 
       &-text {
         font-size: 14px;
