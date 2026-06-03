@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getBoardsPerTitle, filterAndSortMembersForCarousel } from '../board-transforms';
+import { getBoardsPerTitle, filterAndSortMembersForCarousel, transformBoardMember } from '../board-transforms';
 import { IBoardPage, IBoardMember } from '@/services/board';
 
 describe('getBoardsPerTitle', () => {
@@ -207,6 +207,27 @@ describe('getBoardsPerTitle', () => {
       expect.objectContaining({ firstname: 'George' })
     );
   });
+
+  it('should include former-member role in former-members board', () => {
+    const formerMembersPage: IBoardPage = {
+      id: 3,
+      page_code: 'former-members',
+      title: { en: 'Former Members', fr: 'Anciens membres' },
+      content: { en: '', fr: '' },
+      rvcode: 'test',
+    };
+    const formerMember: IBoardMember = {
+      id: 8,
+      firstname: 'Henry',
+      lastname: 'Ford',
+      roles: ['former-member'],
+      affiliations: [],
+      assignedSections: [],
+    };
+
+    const result = getBoardsPerTitle([formerMembersPage], [formerMember], 'en');
+    expect(result[0].members).toContainEqual(expect.objectContaining({ firstname: 'Henry' }));
+  });
 });
 
 describe('filterAndSortMembersForCarousel', () => {
@@ -324,5 +345,36 @@ describe('filterAndSortMembersForCarousel', () => {
     ];
     const result = filterAndSortMembersForCarousel(members);
     expect(result.map(m => m.id)).toEqual([3, 5, 2, 4, 1, 7, 6]);
+  });
+});
+
+describe('transformBoardMember', () => {
+  it('flattens roles split across multiple sub-arrays', () => {
+    const raw = {
+      uid: 1,
+      firstname: 'Alice',
+      lastname: 'Smith',
+      roles: [['chief_editor'], ['editorial_board']],
+    };
+    const result = transformBoardMember(raw);
+    expect(result.roles).toContain('chief-editor');
+    expect(result.roles).toContain('editorial-board');
+  });
+
+  it('handles all roles in a single sub-array', () => {
+    const raw = {
+      uid: 2,
+      firstname: 'Bob',
+      lastname: 'Jones',
+      roles: [['chief_editor', 'editorial_board']],
+    };
+    const result = transformBoardMember(raw);
+    expect(result.roles).toContain('chief-editor');
+    expect(result.roles).toContain('editorial-board');
+  });
+
+  it('returns empty roles for empty array', () => {
+    const raw = { uid: 3, firstname: 'Carol', lastname: 'Lee', roles: [] };
+    expect(transformBoardMember(raw).roles).toEqual([]);
   });
 });

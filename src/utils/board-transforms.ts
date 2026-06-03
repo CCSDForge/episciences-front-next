@@ -56,7 +56,7 @@ export function transformBoardMember(rawMember: RawBoardMember): IBoardMember {
   // Transform roles: flatten nested arrays and replace underscores with hyphens
   const roles =
     rawMember.roles && rawMember.roles.length > 0
-      ? rawMember.roles[0].map((role: string) => role.replace(/_/g, '-'))
+      ? rawMember.roles.flat().map((role: string) => role.replace(/_/g, '-'))
       : [];
 
   // Parse social media links
@@ -253,11 +253,18 @@ export function getBoardsPerTitle(
               (member.roles.includes('managing-editor') ||
                 member.roles.includes('handling-editor'));
 
+            // Special case: Former Members page_code is "former-members" (plural) but
+            // the role assigned to members is "former-member" (singular)
+            const isFormerMembersSpecial =
+              page.page_code === 'former-members' &&
+              member.roles.includes('former-member');
+
             return (
               hasDirectRole ||
               hasPluralRole ||
               isScientificAdvisorySpecial ||
-              isEditorialBoardSpecial
+              isEditorialBoardSpecial ||
+              isFormerMembersSpecial
             );
           });
 
