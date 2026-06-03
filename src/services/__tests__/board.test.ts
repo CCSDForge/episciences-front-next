@@ -68,8 +68,8 @@ describe('board service', () => {
     it('should contain all board types in correct order', () => {
       expect(boardTypes).toHaveLength(7);
       expect(boardTypes[0]).toBe(BOARD_TYPE.INTRODUCTION_BOARD);
-      expect(boardTypes[1]).toBe(BOARD_TYPE.EDITORIAL_BOARD);
-      expect(boardTypes[2]).toBe(BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD);
+      expect(boardTypes[1]).toBe(BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD);
+      expect(boardTypes[2]).toBe(BOARD_TYPE.EDITORIAL_BOARD);
     });
   });
 

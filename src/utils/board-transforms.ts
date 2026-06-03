@@ -213,8 +213,8 @@ export function getBoardsPerTitle(
 
   // Sort pages according to predefined boardTypes order to ensure consistency across journals:
   // 1. Introduction board
-  // 2. Editorial Board
-  // 3. Scientific Advisory Board
+  // 2. Scientific Advisory Board
+  // 3. Editorial Board
   // 4. Technical Board
   // 5. Reviewers Board
   // 6. Former members
