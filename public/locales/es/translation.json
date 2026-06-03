@@ -496,6 +496,7 @@
         "editor": "Editor",
         "handlingEditor": "Editor asociado",
         "guestEditor": "Editor invitado",
+        "copyeditor": "Corrector/Correctora de textos",
         "secretary": "Secretario",
         "advisoryBoard": "Miembro del comité consultivo",
         "member": "Miembro",

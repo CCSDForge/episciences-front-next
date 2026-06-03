@@ -68,6 +68,7 @@ export enum BOARD_ROLE {
   EDITOR = 'editor',
   HANDLING_EDITOR = 'handling-editor',
   GUEST_EDITOR = 'guest-editor',
+  COPYEDITOR = 'copyeditor',
   SECRETARY = 'secretary',
   ADVISORY_BOARD = 'advisory-board',
   MEMBER = 'member',
@@ -80,10 +81,11 @@ export const ROLE_PRIORITIES: Record<string, number> = {
   [BOARD_ROLE.EDITOR]: 3,
   [BOARD_ROLE.HANDLING_EDITOR]: 4,
   [BOARD_ROLE.GUEST_EDITOR]: 5,
-  [BOARD_ROLE.SECRETARY]: 6,
-  [BOARD_ROLE.ADVISORY_BOARD]: 7,
-  [BOARD_ROLE.MEMBER]: 8,
-  [BOARD_ROLE.FORMER_MEMBER]: 9,
+  [BOARD_ROLE.COPYEDITOR]: 6,
+  [BOARD_ROLE.SECRETARY]: 7,
+  [BOARD_ROLE.ADVISORY_BOARD]: 8,
+  [BOARD_ROLE.MEMBER]: 9,
+  [BOARD_ROLE.FORMER_MEMBER]: 10,
 };
 
 export const getRolePriority = (role: string): number => {
@@ -120,6 +122,7 @@ export const getBoardRoles = (t: (key: string) => string, roles: string[]): stri
     { key: BOARD_ROLE.EDITOR, label: t('pages.boards.roles.editor') },
     { key: BOARD_ROLE.HANDLING_EDITOR, label: t('pages.boards.roles.handlingEditor') },
     { key: BOARD_ROLE.GUEST_EDITOR, label: t('pages.boards.roles.guestEditor') },
+    { key: BOARD_ROLE.COPYEDITOR, label: t('pages.boards.roles.copyeditor') },
     { key: BOARD_ROLE.SECRETARY, label: t('pages.boards.roles.secretary') },
     { key: BOARD_ROLE.ADVISORY_BOARD, label: t('pages.boards.roles.advisoryBoard') },
     { key: BOARD_ROLE.MEMBER, label: t('pages.boards.roles.member') },

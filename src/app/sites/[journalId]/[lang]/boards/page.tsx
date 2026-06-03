@@ -84,6 +84,7 @@ export default async function BoardsPage(props: {
       editor: t('pages.boards.roles.editor', translations),
       'handling-editor': t('pages.boards.roles.handlingEditor', translations),
       'guest-editor': t('pages.boards.roles.guestEditor', translations),
+      copyeditor: t('pages.boards.roles.copyeditor', translations),
       secretary: t('pages.boards.roles.secretary', translations),
       'advisory-board': t('pages.boards.roles.advisoryBoard', translations),
       member: t('pages.boards.roles.member', translations),
