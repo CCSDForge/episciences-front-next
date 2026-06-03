@@ -1,8 +1,26 @@
 /** @type {import('next').NextConfig} */
 const path = require('path');
+const { execSync } = require('child_process');
+
+function getGitInfo() {
+  try {
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim();
+    const commit = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+    return { branch, commit };
+  } catch {
+    return { branch: 'unknown', commit: 'unknown' };
+  }
+}
+
+const { branch: GIT_BRANCH, commit: GIT_COMMIT } = getGitInfo();
 
 const nextConfig = {
   reactStrictMode: true,
+
+  env: {
+    NEXT_GIT_BRANCH: GIT_BRANCH,
+    NEXT_GIT_COMMIT: GIT_COMMIT,
+  },
 
   // Required when running behind a reverse proxy (HAProxy → Nginx → Node.js).
   //

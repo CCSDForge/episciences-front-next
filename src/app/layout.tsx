@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     default: 'Episciences',
   },
   description: 'Overlay Journal Platform',
+  generator: `Episciences v. ${process.env.NEXT_GIT_BRANCH} - ${process.env.NEXT_GIT_COMMIT}`,
   icons: {
     icon: '/favicon.ico',
   },
