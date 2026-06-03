@@ -87,14 +87,16 @@ function VolumeTileCard({
         >
           {formatVolumeNum()}
         </Link>
-        <Link
-          href={volumeDetailPath}
-          prefetch={false}
-          lang={language}
-          className="volumeCard-tile-text-title"
-        >
-          {volume.title ? volume.title[language] : ''}
-        </Link>
+        {volume.title?.[language] && volume.title[language] !== formatVolumeNum() && (
+          <Link
+            href={volumeDetailPath}
+            prefetch={false}
+            lang={language}
+            className="volumeCard-tile-text-title"
+          >
+            {volume.title[language]}
+          </Link>
+        )}
         <div className="volumeCard-tile-text-year">{volume.year}</div>
         <div className="volumeCard-tile-text-count">
           <FileGreyIcon

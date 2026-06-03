@@ -71,14 +71,16 @@ function VolumeListCard({ language, t, volume }: IVolumeListCardProps): React.JS
       </div>
       <div className="volumeCard-content">
         {renderVolumeListNum(false)}
-        <Link
-          href={volumeDetailPath}
-          prefetch={false}
-          lang={language}
-          className="volumeCard-content-title"
-        >
-          {volume.title ? volume.title[language] : ''}
-        </Link>
+        {volume.title?.[language] && volume.title[language] !== formatVolumeNum() && (
+          <Link
+            href={volumeDetailPath}
+            prefetch={false}
+            lang={language}
+            className="volumeCard-content-title"
+          >
+            {volume.title[language]}
+          </Link>
+        )}
         {volume.committee && volume.committee.length > 0 && (
           <div className="volumeCard-content-committee">
             {volume.committee.map(member => member.screenName).join(', ')}
