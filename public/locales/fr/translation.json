@@ -32,10 +32,10 @@
     "content": "Articles & volumes",
     "publishedOn": "Publié le",
     "acceptedOn": "Accepté le",
-    "abstract": "Abstract",
+    "abstract": "Résumé",
     "toggleAbstracts": {
-      "hideAll": "Cacher tous les abstracts",
-      "showAll": "Afficher tous les abstracts"
+      "hideAll": "Cacher tous les résumés",
+      "showAll": "Afficher tous les résumés"
     },
     "languages": {
       "en": "Anglais",
@@ -244,12 +244,12 @@
     "articleDetails": {
       "title": "Article",
       "sections": {
-        "graphicalAbstract": "Abstract graphique",
-        "abstract": "Abstract",
+        "graphicalAbstract": "Résumé graphique",
+        "abstract": "Résumé",
         "keywords": "Mots-clés",
         "mscClassifications": "Classification Mathematics Subject Classification 2020",
         "references": "Références",
-        "linkedPublications": "Publications liées -  jeux de données - logiciel",
+        "linkedPublications": "Publications liées -  jeux de données - logiciels",
         "citedBy": "Cité par",
         "preview": "Aperçu"
       },
@@ -404,7 +404,7 @@
     },
     "search": {
       "title": "Rechercher",
-      "description": "Rechercher des articles, auteurs et volumes"
+      "description": "Rechercher des articles, auteurs/autrices et volumes"
     },
     "volumes": {
       "title": "Volumes",
@@ -436,9 +436,9 @@
     },
     "sections": {
       "title": "Rubriques",
-      "totalArticles": "Total des Articles",
-      "articlesInSection": "Articles de cette Section",
-      "noArticlesTitle": "Aucun Article Trouvé",
+      "totalArticles": "Total des articles",
+      "articlesInSection": "Articles de cette section",
+      "noArticlesTitle": "Aucun article trouvé",
       "noArticlesMessage": "Cette section n'a actuellement aucun article.",
       "description": "Parcourez toutes les rubriques de cette revue"
     },
@@ -450,7 +450,7 @@
       "title": "Auteurs/Autrices",
       "searchName": "rechercher un nom",
       "others": "Autres",
-      "description": "Parcourez tous les auteurs ayant publié dans cette revue"
+      "description": "Parcourez tous/toutes les auteurs/autrices ayant publié dans cette revue"
     },
     "about": {
       "title": "La revue",
@@ -494,7 +494,7 @@
         "editorialBoard": "Comité éditorial",
         "scientificAdvisoryBoard": "Comité scientifique",
         "reviewersBoard": "Comité de relecture",
-        "formerMember": "Anciens membres",
+        "formerMember": "Anciens/anciennes membres",
         "operatingCharterBoard": "Charte de fonctionnement"
       },
       "roles": {
@@ -512,17 +512,17 @@
     },
     "forAuthors": {
       "title": "Pour les auteurs/autrices",
-      "description": "Directives et ressources pour les auteurs soumettant à cette revue"
+      "description": "Directives et ressources pour les auteurs/autrices soumettant à cette revue"
     },
     "acknowledgements": {
       "title": "Remerciements",
-      "noContent": "Aucun remerciement disponible pour cette revue.",
+      "noContent": "Aucune page remerciement disponible pour cette revue.",
       "description": "Remerciements de cette revue"
     },
     "indexing": {
-      "title": "Indexation",
+      "title": "Référencement",
       "noContent": "Aucune information de référencement disponible pour cette revue.",
-      "description": "Bases de données d'indexation de cette revue"
+      "description": "Bases de données de référencement de cette revue"
     },
     "ethicalCharter": {
       "title": "Charte éthique",
@@ -530,7 +530,7 @@
       "description": "Principes éthiques et normes de publication"
     },
     "forReviewers": {
-      "title": "Pour les relecteurs",
+      "title": "Pour les relecteurs/relectrices",
       "noContent": "Aucune information pour les relecteurs/relectrices disponible pour cette revue.",
       "description": "Informations et ressources pour les relecteurs"
     },
@@ -540,9 +540,9 @@
       "description": "Informations et ressources pour les rédacteurs"
     },
     "forConferenceOrganisers": {
-      "title": "Pour les organisateurs de conférences",
-      "noContent": "Aucune information pour les organisateurs de conférences disponible pour cette revue.",
-      "description": "Informations et ressources pour les organisateurs de conférences"
+      "title": "Pour les organisateurs/organisatrices de conférences",
+      "noContent": "Aucune information pour les organisateurs/organisatrices de conférences disponible pour cette revue.",
+      "description": "Informations et ressources pour les organisateurs/organisatrices de conférences"
     },
     "proposingSpecialIssues": {
       "title": "Proposer des numéros spéciaux",
