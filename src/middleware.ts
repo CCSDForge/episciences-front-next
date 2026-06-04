@@ -26,6 +26,10 @@ export function middleware(request: NextRequest) {
   const hostname = hostHeader.split(':')[0]; // Remove port if present
   const pathname = url.pathname;
 
+  if (pathname === '/robots.txt') {
+    return NextResponse.next();
+  }
+
   log.debug(
     `[Middleware] Incoming request: ${sanitizeForLog(pathname)} (Host: ${sanitizeForLog(hostname)})`
   ); // lgtm[js/log-injection]
@@ -166,11 +170,12 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - robots.txt (robots file)
      * - icons (icon files)
      * - logos (logo files)
      * - locales (translation files)
      * - fonts (font files)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|icons|logos|locales|fonts|sites).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|robots\\.txt|icons|logos|locales|fonts|sites).*)',
   ],
 };

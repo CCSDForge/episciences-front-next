@@ -9,7 +9,6 @@ vi.mock('@/config/journals-generated', () => ({
   journals: ['epijinfo', 'jtam', 'test-journal', 'pspa'],
 }));
 
-
 vi.mock('next/server', async () => {
   const actual = await vi.importActual<typeof import('next/server')>('next/server');
   return {
@@ -131,6 +130,17 @@ describe('middleware — hostname detection', () => {
   });
 
   // -------------------------------------------------------------------------
+  // robots.txt bypass
+  // -------------------------------------------------------------------------
+
+  it('bypasses rewrite for /robots.txt request', async () => {
+    const { middleware } = await import('../middleware');
+    await middleware(makeRequest('epijinfo.episciences.org', '/robots.txt'));
+    expect(NextResponse.next).toHaveBeenCalled();
+    expect(NextResponse.rewrite).not.toHaveBeenCalled();
+  });
+
+  // -------------------------------------------------------------------------
   // FAIRiCat & Signposting headers
   // -------------------------------------------------------------------------
 
@@ -188,7 +198,8 @@ describe('middleware — non-accepted language prefix redirect', () => {
       acceptedLanguages: ['fr'],
       defaultLanguage: 'fr',
       allSupportedLanguages: ['en', 'fr', 'es'],
-      getLanguageFromPathname: (p: string) => (p.startsWith('/en') ? 'en' : p.startsWith('/fr') ? 'fr' : 'fr'),
+      getLanguageFromPathname: (p: string) =>
+        p.startsWith('/en') ? 'en' : p.startsWith('/fr') ? 'fr' : 'fr',
       hasLanguagePrefix: (p: string) => /^\/(en|fr|es)(\/|$)/.test(p),
       removeLanguagePrefix: (p: string) => p.replace(/^\/(en|fr|es)/, '') || '/',
       isDefaultLanguage: (l: string) => l === 'fr',
@@ -213,7 +224,8 @@ describe('middleware — non-accepted language prefix redirect', () => {
       acceptedLanguages: ['fr'],
       defaultLanguage: 'fr',
       allSupportedLanguages: ['en', 'fr', 'es'],
-      getLanguageFromPathname: (p: string) => (p.startsWith('/fr') ? 'fr' : p.startsWith('/en') ? 'en' : 'fr'),
+      getLanguageFromPathname: (p: string) =>
+        p.startsWith('/fr') ? 'fr' : p.startsWith('/en') ? 'en' : 'fr',
       hasLanguagePrefix: (p: string) => /^\/(en|fr|es)(\/|$)/.test(p),
       removeLanguagePrefix: (p: string) => p.replace(/^\/(en|fr|es)/, '') || '/',
       isDefaultLanguage: (l: string) => l === 'fr',
