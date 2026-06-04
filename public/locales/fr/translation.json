@@ -400,7 +400,8 @@
     },
     "articlesAccepted": {
       "title": "À paraître",
-      "description": "Articles acceptés pour publication et numéros à paraître"
+      "description": "Articles acceptés pour publication et numéros à paraître",
+      "noResults": "Pour l'instant il n'y a pas d'articles acceptés"
     },
     "search": {
       "title": "Rechercher",

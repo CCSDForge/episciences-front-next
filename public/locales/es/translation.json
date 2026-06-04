@@ -393,7 +393,8 @@
     },
     "articlesAccepted": {
       "title": "Próximas publicaciones",
-      "description": "Artículos aceptados para publicación y próximas publicaciones"
+      "description": "Artículos aceptados para publicación y próximas publicaciones",
+      "noResults": "Por el momento no hay artículos aceptados"
     },
     "search": {
       "title": "Buscar",

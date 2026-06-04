@@ -66,6 +66,10 @@ export default function ArticlesAcceptedClient({
 }: ArticlesAcceptedClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
   // Synchroniser la langue avec le paramètre de l'URL
   useEffect(() => {
     if (lang && i18n.language !== lang) {
@@ -80,6 +84,7 @@ export default function ArticlesAcceptedClient({
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
+  const [isHydrated, setIsHydrated] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [enhancedArticlesAccepted, setEnhancedArticlesAccepted] = useState<
     EnhancedArticleAccepted[]
@@ -368,7 +373,7 @@ export default function ArticlesAcceptedClient({
       <div className="articlesAccepted-content">
         <div className="articlesAccepted-content-results">
           <ArticlesAcceptedSidebar t={t} types={types} onCheckTypeCallback={onCheckType} />
-          {isFetchingArticlesAccepted ? (
+          {isFetchingArticlesAccepted && isHydrated ? (
             <Loader />
           ) : (
             <div className="articlesAccepted-content-results-cards">

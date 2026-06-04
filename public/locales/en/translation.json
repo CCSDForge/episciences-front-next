@@ -393,7 +393,8 @@
     },
     "articlesAccepted": {
       "title": "To be published",
-      "description": "Articles accepted for publication and forthcoming issues"
+      "description": "Articles accepted for publication and forthcoming issues",
+      "noResults": "There are no accepted articles at this time"
     },
     "search": {
       "title": "Search",
