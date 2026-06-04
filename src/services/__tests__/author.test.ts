@@ -224,6 +224,39 @@ describe('author service', () => {
       );
     });
 
+    it('should deduplicate articles with the same paperid keeping the highest version', async () => {
+      const mockResponse = {
+        'hydra:member': [
+          {
+            paperid: 14774,
+            paper_title_t: ['Some Article'],
+            publication_date_tdate: '2024-01-15',
+            doi_s: '10.46298/transformations.14774',
+            version_td: 1,
+          },
+          {
+            paperid: 14774,
+            paper_title_t: ['Some Article'],
+            publication_date_tdate: '2024-01-15',
+            doi_s: '10.46298/transformations.14774',
+            version_td: 3,
+          },
+        ],
+        'hydra:totalItems': 2,
+      };
+
+      vi.mocked(apiCall).mockResolvedValueOnce(mockResponse);
+
+      const result = await fetchAuthorArticles({
+        rvcode: 'transformations',
+        fullname: 'Benardou, Agiatis',
+      });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id).toBe(14774);
+      expect(result.totalItems).toBe(1);
+    });
+
     it('should return empty data on error', async () => {
       vi.mocked(apiCall).mockRejectedValueOnce(new Error('Network error'));
 

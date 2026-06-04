@@ -27,6 +27,7 @@ export type RawAuthorArticle = {
   paper_title_t: string[];
   publication_date_tdate: string;
   doi_s?: string;
+  version_td?: number;
 };
 
 export interface PaginatedResponseWithAuthorsRange<T> {
@@ -142,13 +143,18 @@ export async function fetchAuthorArticles({
       },
     });
 
-    // Transformer les données
-    const data = response['hydra:member'].map(authorArticleTransformer);
-    const totalItems = response['hydra:totalItems'];
+    const byPaperId = new Map<number, RawAuthorArticle>();
+    for (const article of response['hydra:member']) {
+      const existing = byPaperId.get(article.paperid);
+      if (!existing || (article.version_td ?? 0) > (existing.version_td ?? 0)) {
+        byPaperId.set(article.paperid, article);
+      }
+    }
+    const data = Array.from(byPaperId.values()).map(authorArticleTransformer);
 
     return {
       data,
-      totalItems,
+      totalItems: data.length,
     };
   } catch (error) {
     log.error('Error fetching author articles:', error);

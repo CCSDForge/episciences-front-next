@@ -60,7 +60,14 @@ export const authorApi = createApi({
       },
       transformResponse(baseQueryReturnValue: PaginatedResponse<RawAuthorArticle>) {
         const totalItems = baseQueryReturnValue['hydra:totalItems'];
-        const formattedData = baseQueryReturnValue['hydra:member'].map(article => ({
+        const byPaperId = new Map<number, RawAuthorArticle>();
+        for (const article of baseQueryReturnValue['hydra:member']) {
+          const existing = byPaperId.get(article.paperid);
+          if (!existing || (article.version_td ?? 0) > (existing.version_td ?? 0)) {
+            byPaperId.set(article.paperid, article);
+          }
+        }
+        const formattedData = Array.from(byPaperId.values()).map(article => ({
           id: article.paperid,
           title: article.paper_title_t[0],
           publicationDate: article.publication_date_tdate,
@@ -69,7 +76,7 @@ export const authorApi = createApi({
 
         return {
           data: formattedData,
-          totalItems,
+          totalItems: formattedData.length,
         };
       },
     }),
