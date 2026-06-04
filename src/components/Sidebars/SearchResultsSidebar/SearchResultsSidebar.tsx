@@ -82,6 +82,7 @@ export default function SearchResultsSidebar({
                     <Checkbox
                       checked={type.isChecked}
                       onChangeCallback={(): void => onCheckTypeCallback(type.value)}
+                      ariaLabel={t(type.labelPath)}
                     />
                   </div>
                   <span
@@ -116,6 +117,7 @@ export default function SearchResultsSidebar({
                       <Checkbox
                         checked={y.isChecked}
                         onChangeCallback={(): void => onCheckYearCallback(y.year)}
+                        ariaLabel={String(y.year)}
                       />
                     </div>
                     <span
@@ -155,6 +157,7 @@ export default function SearchResultsSidebar({
                     <Checkbox
                       checked={v.isChecked}
                       onChangeCallback={(): void => onCheckVolumeCallback(v.id)}
+                      ariaLabel={v.label[language]}
                     />
                   </div>
                   <span
@@ -188,6 +191,7 @@ export default function SearchResultsSidebar({
                     <Checkbox
                       checked={s.isChecked}
                       onChangeCallback={(): void => onCheckSectionCallback(s.id)}
+                      ariaLabel={s.label[language]}
                     />
                   </div>
                   <span
@@ -224,6 +228,7 @@ export default function SearchResultsSidebar({
                       <Checkbox
                         checked={a.isChecked}
                         onChangeCallback={(): void => onCheckAuthorCallback(a.fullname)}
+                        ariaLabel={a.fullname}
                       />
                     </div>
                     <span
