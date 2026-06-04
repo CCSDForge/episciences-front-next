@@ -12,7 +12,6 @@ import {
   blocksConfiguration,
   lastInformationBlockConfiguration,
 } from '@/config/homepage';
-import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 import { PATHS } from '@/config/paths';
 import { filterAndSortMembersForCarousel } from '@/utils/board-transforms';
 import { VOLUME_TYPE } from '@/utils/volume';
@@ -31,14 +30,14 @@ interface HomeClientProps {
   homeData: HomeData;
   language: string;
   journalId?: string;
+  journalConfig?: Record<string, string>;
 }
 
 // Internal component that uses Redux
-function HomeClientInner({ homeData, language, journalId }: HomeClientProps): React.JSX.Element {
+function HomeClientInner({ homeData, language, journalId, journalConfig }: HomeClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code) || journalId;
-  const journalConfig = useAppSelector(selectJournalConfig);
 
   // Use initial data from Server Component (ISR handles freshness via Cache Components)
   const currentHomeData = homeData;

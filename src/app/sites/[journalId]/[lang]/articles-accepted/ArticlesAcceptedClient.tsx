@@ -149,22 +149,24 @@ export default function ArticlesAcceptedClient({
   }, [isStaticBuild, articlesAccepted?.data]);
 
   useEffect(() => {
-    if (articlesAccepted?.range && articlesAccepted.range.types && types.length === 0) {
-      const initTypes = articlesAccepted.range.types
-        .filter(t => articleTypes.find(at => at.value === t))
-        .map(t => {
-          const matchingType = articleTypes.find(at => at.value === t);
+    if (articlesAccepted?.range?.types) {
+      setTypes(prev => {
+        if (prev.length > 0) return prev;
 
-          return {
-            labelPath: matchingType!.labelPath,
-            value: matchingType!.value,
-            isChecked: false,
-          };
-        });
+        return articlesAccepted.range!.types!
+          .filter(t => articleTypes.find(at => at.value === t))
+          .map(t => {
+            const matchingType = articleTypes.find(at => at.value === t)!;
 
-      setTypes(initTypes);
+            return {
+              labelPath: matchingType.labelPath,
+              value: matchingType.value,
+              isChecked: false,
+            };
+          });
+      });
     }
-  }, [articlesAccepted?.range, articlesAccepted?.range?.types, types]);
+  }, [articlesAccepted?.range?.types, articleTypes]);
 
   // Memoize handlePageClick to prevent Pagination re-renders
   const handlePageClick = useCallback((selectedItem: { selected: number }): void => {

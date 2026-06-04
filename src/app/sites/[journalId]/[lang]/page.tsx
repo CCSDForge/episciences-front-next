@@ -6,6 +6,7 @@ import { acceptedLanguages } from '@/utils/language-utils';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import dynamicImport from 'next/dynamic';
 import { generateSeoAlternates } from '@/utils/seo';
+import { getPublicJournalConfig } from '@/utils/env-loader';
 import '@/styles/pages/Home.scss';
 import { logger } from '@/lib/logger';
 
@@ -61,5 +62,7 @@ export default async function HomePage(props: {
     logger.error(`Error fetching home data for journal ${rvcode}:`, error);
   }
 
-  return <HomeClient homeData={homeData} language={language} journalId={rvcode} />;
+  const journalConfig = getPublicJournalConfig(rvcode);
+
+  return <HomeClient homeData={homeData} language={language} journalId={rvcode} journalConfig={journalConfig} />;
 }
