@@ -248,10 +248,6 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
     const rawMembers: RawBoardMember[] = membersResponse?.['hydra:member'] || [];
     const transformedMembers = transformBoardMembers(rawMembers);
 
-    //  console.log('Home data fetched successfully. Articles count:', formattedArticles.length);
-    //  console.log('First 3 articles from API:', formattedArticles.slice(0, 3));
-    //  console.log('Board members count:', transformedMembers.length);
-
     const formattedVolumes = (volumesResponse?.['hydra:member'] || []).map((rawVolume: any) =>
       formatVolume(rvcode, language as AvailableLanguage, rawVolume)
     );
