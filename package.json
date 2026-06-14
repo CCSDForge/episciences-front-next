@@ -81,7 +81,7 @@
     "ioredis": "^5.10.1",
     "jsdom": "^29.1.1",
     "postcss-flexbugs-fixes": "^5.0.2",
-    "postcss-preset-env": "^10.1.5",
+    "postcss-preset-env": "^11.0.0",
     "prettier": "^3.8.3",
     "sass": "^1.99.0",
     "sass-loader": "^16.0.5",
