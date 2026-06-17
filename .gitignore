@@ -71,6 +71,7 @@ build.log
 /.gemini/
 /.agents/
 /.playwright-mcp/
+/.antigravitycli/
 
 # ==========================================
 # Journal-specific Assets & Generated Files
