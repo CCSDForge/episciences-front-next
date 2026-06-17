@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
 
   // Validate domain
   if (!isAllowedPdfDomain(pdfUrl)) {
-    logger.warn(`[PDF Proxy] Blocked non-whitelisted domain: ${sanitizeForLog(pdfUrl)}`); // lgtm[js/log-injection]
+    logger.warn(`[PDF Proxy] Blocked non-whitelisted domain: ${sanitizeForLog(pdfUrl)}`);
     return new NextResponse('Domain not allowed', { status: 403 });
   }
 
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     if (!response.ok) {
       logger.error(
         `[PDF Proxy] Failed to fetch PDF: ${sanitizeForLog(response.statusText)} (${sanitizeForLog(pdfUrl)})`
-      ); // lgtm[js/log-injection]
+      );
       return new NextResponse(`Failed to fetch PDF: ${response.statusText}`, {
         status: response.status,
       });
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
     if (!upstreamContentType.includes('pdf') && !upstreamContentType.includes('octet-stream')) {
       logger.warn(
         `[PDF Proxy] Upstream returned unexpected Content-Type "${upstreamContentType}" for: ${sanitizeForLog(pdfUrl)}`
-      ); // lgtm[js/log-injection]
+      );
       return new NextResponse('Upstream did not return a PDF', { status: 502 });
     }
 
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
       headers.set('Content-Length', contentLength);
     }
 
-    logger.debug(`[PDF Proxy] Successfully proxied PDF from: ${new URL(pdfUrl).hostname}`);
+    logger.debug(`[PDF Proxy] Successfully proxied PDF from: ${sanitizeForLog(new URL(pdfUrl).hostname)}`);
 
     // Stream the PDF without buffering in memory
     return new NextResponse(response.body, {
@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      logger.error(`[PDF Proxy] Request timeout for: ${sanitizeForLog(pdfUrl)}`); // lgtm[js/log-injection]
+      logger.error(`[PDF Proxy] Request timeout for: ${sanitizeForLog(pdfUrl)}`);
       return new NextResponse('Request timeout', { status: 504 });
     }
 
