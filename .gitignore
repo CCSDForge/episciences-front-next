@@ -1,12 +1,16 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Ansible deployment — sensitive files (inventories, secrets)
-/deployment/ansible/inventory/*.ini
-/deployment/ansible/group_vars/**/secrets.yml
-# Ansistrano installed roles
-/deployment/ansible/roles/
+# ==========================================
+# System & IDEs
+# ==========================================
+.DS_Store
+Thumbs.db
+/.idea/
+/.vscode/
 
-# dependencies
+# ==========================================
+# Dependencies
+# ==========================================
 /node_modules
 /.pnp
 .pnp.*
@@ -16,67 +20,63 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-.vitest/
-
-# next.js
+# ==========================================
+# Build & Compilation Outputs
+# ==========================================
 /.next/
 /out/
-
-# production
 /build
 /dist/
+*.tsbuildinfo
+next-env.d.ts
 
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
+# ==========================================
+# Environment & Secrets
+# ==========================================
 .env*
 !.env
 !.env.production.local.example
 !.env.preprod.local.example
+*.pem
 
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# ide
-/.idea/
-
-# external assets
-/external-assets/
-
-# logs
-/logs/
+# ==========================================
+# Logs, Debug & Temporary files
+# ==========================================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 build.log
-
-# temporary files
+/logs/
 /tmp/
 
-# journal-specific generated files
-/public/robots.txt
-/public/sitemap.xml
+# ==========================================
+# Testing & Coverage
+# ==========================================
+/coverage
+.vitest/
 
-# Journal logos (copied from external-assets during build/dev)
-# All logos are from external-assets repository (separate licenses)
-/public/logos/*.svg
-!/public/logos/logo-episciences.svg
+# ==========================================
+# Deployment
+# ==========================================
+.vercel
+/deployment/ansible/inventory/*.ini
+/deployment/ansible/group_vars/**/secrets.yml
+/deployment/ansible/roles/
 
+# ==========================================
+# Local AI & Dev Agent environments
+# ==========================================
 /.claude/
 /.gemini/
-/.idea/
-/docs/
-!/docs/
 /.agents/
 /.playwright-mcp/
+
+# ==========================================
+# Journal-specific Assets & Generated Files
+# ==========================================
+/external-assets/
+/public/robots.txt
+/public/sitemap.xml
+/public/logos/*.svg
+!/public/logos/logo-episciences.svg
