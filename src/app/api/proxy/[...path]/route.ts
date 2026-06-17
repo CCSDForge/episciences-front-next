@@ -59,7 +59,6 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
   }
 
   const params = await context.params;
-  const path = params.path.join('/');
   const searchParams = request.nextUrl.searchParams;
 
   // Get journal code from query params or header
@@ -74,13 +73,18 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
     return NextResponse.json({ error: 'Invalid journal code' }, { status: 400 });
   }
 
+  // Sanitize path segments to prevent traversal attacks — host remains server-controlled
+  const path = params.path
+    .map(seg => seg.replace(/[^a-zA-Z0-9._~:@!$&'()*+,;=%-]/g, ''))
+    .filter(seg => seg !== '' && seg !== '.' && seg !== '..')
+    .join('/');
+
   // Get the correct API URL for this journal
   const apiUrl = getJournalApiUrl(rvcode);
 
   // Build the target URL
   const targetUrl = new URL(`${apiUrl}/${path}`);
 
-  // Forward all query params except internal ones
   searchParams.forEach((value, key) => {
     targetUrl.searchParams.append(key, value);
   });
@@ -119,7 +123,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
   }
 
   const params = await context.params;
-  const path = params.path.join('/');
   const searchParams = request.nextUrl.searchParams;
 
   const rvcode =
@@ -132,6 +135,11 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
   if (!isValidJournalId(rvcode)) {
     return NextResponse.json({ error: 'Invalid journal code' }, { status: 400 });
   }
+
+  const path = params.path
+    .map(seg => seg.replace(/[^a-zA-Z0-9._~:@!$&'()*+,;=%-]/g, ''))
+    .filter(seg => seg !== '' && seg !== '.' && seg !== '..')
+    .join('/');
 
   const apiUrl = getJournalApiUrl(rvcode);
   const targetUrl = new URL(`${apiUrl}/${path}`);

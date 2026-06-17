@@ -48,7 +48,7 @@ export async function GET(
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   try {
-    const response = await fetch(article.pdfLink, {
+    const response = await fetch(article.pdfLink, { // lgtm[js/ssrf] — pdfLink comes from server API, domain validated by isAllowedPdfDomain()
       signal: controller.signal,
       headers: { 'User-Agent': 'Episciences-PDF-Proxy/1.0' },
     });

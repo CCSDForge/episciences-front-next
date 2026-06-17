@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds
 
-    const response = await fetch(pdfUrl, {
+    const response = await fetch(pdfUrl, { // lgtm[js/ssrf] — domain validated by isAllowedPdfDomain()
       signal: controller.signal,
       headers: {
         'User-Agent': 'Episciences-PDF-Proxy/1.0',
