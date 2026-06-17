@@ -141,7 +141,7 @@ export default function ForAuthorsClient({
             currentCardContent = '';
             currentSection.cards!.push({ id: h3Id, title: h3Title, content: '', index: h3Counter });
           } else if (currentSection.cards && currentSection.cards.length > 0) {
-            currentCardContent += serializeMarkdown(node);
+            currentCardContent += serializeMarkdown(node) + '\n';
           } else {
             currentSection.value += serializeMarkdown(node);
             currentSection.value += '\n';
@@ -326,21 +326,21 @@ export default function ForAuthorsClient({
                     uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
                   }
                   components={{
-                    a: ({ ...props }) => {
-                      const href = props.href!;
+                    a: ({ href, children }) => {
                       const isExternal =
-                        href.startsWith('http') ||
-                        href.startsWith('//') ||
-                        href.startsWith('mailto:');
+                        !!href &&
+                        (href.startsWith('http') ||
+                          href.startsWith('//') ||
+                          href.startsWith('mailto:'));
 
                       return (
                         <Link
-                          href={href}
+                          href={href || '#'}
                           target={isExternal ? '_blank' : undefined}
                           rel={isExternal ? 'noopener noreferrer' : undefined}
                           className="forAuthors-content-body-section-link"
                         >
-                          {props.children?.toString()}
+                          {children}
                         </Link>
                       );
                     },
