@@ -40,13 +40,13 @@ class Logger {
     } else {
       const prefix = this.ctx.service ? `[${String(this.ctx.service)}] ` : '';
       if (extra !== undefined) {
-        if (level === 'warn') console.warn(prefix + msg, extra);
-        else if (level === 'error') console.error(prefix + msg, extra);
-        else console.log(prefix + msg, extra);
+        if (level === 'warn') console.warn('%s', prefix + msg, extra);
+        else if (level === 'error') console.error('%s', prefix + msg, extra);
+        else console.log('%s', prefix + msg, extra);
       } else {
-        if (level === 'warn') console.warn(prefix + msg);
-        else if (level === 'error') console.error(prefix + msg);
-        else console.log(prefix + msg);
+        if (level === 'warn') console.warn('%s', prefix + msg);
+        else if (level === 'error') console.error('%s', prefix + msg);
+        else console.log('%s', prefix + msg);
       }
     }
   }
