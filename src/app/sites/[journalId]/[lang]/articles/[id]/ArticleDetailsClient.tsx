@@ -112,10 +112,10 @@ export default function ArticleDetailsClient({
     { key: ARTICLE_SECTION.ABSTRACT, isOpened: true },
     { key: ARTICLE_SECTION.KEYWORDS, isOpened: true },
     { key: ARTICLE_SECTION.MSC_CLASSIFICATIONS, isOpened: true },
-    { key: ARTICLE_SECTION.REFERENCES, isOpened: true },
     { key: ARTICLE_SECTION.LINKED_PUBLICATIONS, isOpened: true },
     { key: ARTICLE_SECTION.CITED_BY, isOpened: true },
     { key: ARTICLE_SECTION.PREVIEW, isOpened: true },
+    { key: ARTICLE_SECTION.REFERENCES, isOpened: true },
   ]);
   // Derive authors with institution keys from article data.
   // Using useMemo avoids an extra render cycle that useState+useEffect would cause.
@@ -488,14 +488,14 @@ export default function ArticleDetailsClient({
                 getCitedBySection()
               )}
               {renderSection(
-                ARTICLE_SECTION.REFERENCES,
-                t('pages.articleDetails.sections.references'),
-                getReferencesSection()
-              )}
-              {renderSection(
                 ARTICLE_SECTION.PREVIEW,
                 t('pages.articleDetails.sections.preview'),
                 getPreviewSection()
+              )}
+              {renderSection(
+                ARTICLE_SECTION.REFERENCES,
+                t('pages.articleDetails.sections.references'),
+                getReferencesSection()
               )}
               {isMounted && isMobileOnly && renderMetrics()}
             </div>
