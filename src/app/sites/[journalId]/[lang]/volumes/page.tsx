@@ -148,17 +148,20 @@ export default async function VolumesPage(props: {
 
     // FINAL FALLBACK: If articlesCount is still 0 but we have volumes,
     // it's likely the API didn't return the aggregate count.
-    // In that case, we can sum the papers in the volumes we have.
+    // Use a Set to deduplicate articles that belong to multiple volumes.
     if (articlesCount === 0 && displayData.length > 0) {
-      articlesCount = displayData.reduce((acc, vol) => acc + (vol.articles?.length || 0), 0);
+      const sourceData =
+        !isFiltering && fullRangeData?.data && fullRangeData.data.length > displayData.length
+          ? fullRangeData.data
+          : displayData;
 
-      // If we're not filtering and fullRangeData has more volumes, use that sum instead
-      if (!isFiltering && fullRangeData?.data && fullRangeData.data.length > displayData.length) {
-        articlesCount = fullRangeData.data.reduce(
-          (acc, vol) => acc + (vol.articles?.length || 0),
-          0
-        );
-      }
+      const uniqueArticleIds = new Set<number>();
+      sourceData.forEach(vol => {
+        vol.articles?.forEach(article => {
+          if (article.paperid) uniqueArticleIds.add(article.paperid);
+        });
+      });
+      articlesCount = uniqueArticleIds.size;
     }
 
     const finalVolumesData = {
