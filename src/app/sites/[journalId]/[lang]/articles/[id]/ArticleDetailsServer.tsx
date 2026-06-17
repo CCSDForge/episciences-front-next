@@ -310,14 +310,14 @@ export default function ArticleDetailsServer({
             getCitedBySection()
           )}
           {renderSection(
-            ARTICLE_SECTION.REFERENCES,
-            t('pages.articleDetails.sections.references', translations),
-            getReferencesSection()
-          )}
-          {renderSection(
             ARTICLE_SECTION.PREVIEW,
             t('pages.articleDetails.sections.preview', translations),
             getPreviewSection()
+          )}
+          {renderSection(
+            ARTICLE_SECTION.REFERENCES,
+            t('pages.articleDetails.sections.references', translations),
+            getReferencesSection()
           )}
         </div>
       </div>

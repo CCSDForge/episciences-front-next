@@ -46,6 +46,8 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Enhanced Citation Exports**: Added AMS, IEEE, and Vancouver formats to the article citation dropdown to accommodate different academic disciplines.
 - **Streamlined PDF Downloads**: Replaced proxy redirects with a direct streaming `/download` route that opens PDFs in a new tab, preventing blank page redirects and improving accessibility.
 - **Dynamic Homepage Layouts**: Updated configuration parser to allow journals to dynamically toggle homepage sections (news, volumes) based on their specific configuration without code changes.
+- **Article Section Ordering**: Inverted the display order of sections on the article page: the PDF preview block now appears before the bibliographic references section.
+
 
 ### Fixed
 
