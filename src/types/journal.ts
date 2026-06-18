@@ -14,6 +14,7 @@ export interface IJournalIndexation {
 export interface IJournal {
   id: number;
   name: string;
+  subtitle?: string;
   description?: Record<AvailableLanguage, string>;
   indexation?: IJournalIndexation[];
   title: Record<AvailableLanguage, string>;

@@ -86,6 +86,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   const search = useAppSelector(state => state.searchReducer.search);
   const language = useAppSelector(state => state.i18nReducer.language);
   const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
+  const journalSubtitle = useAppSelector(state => state.journalReducer.currentJournal?.subtitle);
   const lastVolume = useAppSelector(state => state.volumeReducer.lastVolume);
   const journalConfig = useAppSelector(selectJournalConfig);
 
@@ -505,7 +506,12 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           </Link>
         </div>
         <div className="header-journal-title">
-          {journalName || currentJournal?.name || defaultJournalTitle}
+          <span className="header-journal-title-main">
+            {journalName || currentJournal?.name || defaultJournalTitle}
+          </span>
+          {journalSubtitle && (
+            <span className="header-journal-subtitle">{journalSubtitle}</span>
+          )}
         </div>
       </div>
       <nav className="header-postheader" ref={mobileMenuDropdownRef} aria-label="Main navigation">

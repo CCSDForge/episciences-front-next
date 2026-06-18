@@ -35,6 +35,7 @@ export default async function HeaderServer({
 
   // Fetch journal info to get the name and logo
   let journalName = 'Journal';
+  let journalSubtitle: string | undefined = undefined;
   let journalLogoFilename: string | undefined = undefined; // To store the journal's logo filename
   let lastVolumeId = '';
   const code = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
@@ -59,6 +60,7 @@ export default async function HeaderServer({
 
       journalName =
         journal?.name || journal?.title?.[lang as keyof typeof journal.title] || 'Journal';
+      journalSubtitle = journal?.subtitle;
       journalLogoFilename = journal?.logo; // Get the logo filename if available
 
       if (volumesData?.data?.[0]?.id) {
@@ -201,7 +203,12 @@ export default async function HeaderServer({
             />
           </Link>
         </div>
-        <div className="header-journal-title">{journalName}</div>
+        <div className="header-journal-title">
+          <span className="header-journal-title-main">{journalName}</span>
+          {journalSubtitle && (
+            <span className="header-journal-subtitle">{journalSubtitle}</span>
+          )}
+        </div>
       </div>
 
       {/* Reduced journal header - visible only when reduced */}
