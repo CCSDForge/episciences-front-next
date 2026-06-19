@@ -7,6 +7,8 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const AboutClient = dynamic(() => import('./AboutClient'));
 
@@ -71,5 +73,13 @@ export default async function AboutPage(props: {
     about: t('pages.about.title', translations),
   };
 
-  return <AboutClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />;
+  return (
+    <>
+      <JsonLd data={generateWebPageJsonLd('AboutPage', journalId, lang, '/about', {
+        name: t('pages.about.title', translations),
+        lastReviewed: pageData?.date_updated,
+      })} />
+      <AboutClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    </>
+  );
 }

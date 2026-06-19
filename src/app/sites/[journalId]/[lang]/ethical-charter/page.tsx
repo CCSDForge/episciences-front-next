@@ -7,6 +7,8 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const EthicalCharterClient = dynamic(() => import('./EthicalCharterClient'));
 
@@ -65,6 +67,11 @@ export default async function EthicalCharterPage(props: {
   };
 
   return (
-    <EthicalCharterClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    <>
+      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/ethical-charter', {
+        name: t('pages.ethicalCharter.title', translations),
+      })} />
+      <EthicalCharterClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    </>
   );
 }

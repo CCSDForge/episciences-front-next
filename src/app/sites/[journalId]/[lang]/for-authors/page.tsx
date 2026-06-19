@@ -8,6 +8,8 @@ import { acceptedLanguages } from '@/utils/language-utils';
 
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const ForAuthorsClient = dynamic(() => import('./ForAuthorsClient'));
 
@@ -73,11 +75,16 @@ export default async function ForAuthorsPage(props: {
   };
 
   return (
-    <ForAuthorsClient
-      editorialWorkflowPage={editorialWorkflowPage}
-      prepareSubmissionPage={prepareSubmissionPage}
-      lang={lang}
-      breadcrumbLabels={breadcrumbLabels}
-    />
+    <>
+      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/for-authors', {
+        name: t('pages.forAuthors.title', translations),
+      })} />
+      <ForAuthorsClient
+        editorialWorkflowPage={editorialWorkflowPage}
+        prepareSubmissionPage={prepareSubmissionPage}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+      />
+    </>
   );
 }

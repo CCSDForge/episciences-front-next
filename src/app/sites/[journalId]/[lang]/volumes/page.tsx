@@ -11,6 +11,8 @@ import Loader from '@/components/Loader/Loader';
 
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateCollectionPageJsonLd } from '@/utils/schema';
 
 const VolumesClient = dynamic(() => import('./VolumesClient'));
 
@@ -185,17 +187,23 @@ export default async function VolumesPage(props: {
     };
 
     return (
-      <Suspense fallback={<Loader />}>
-        <VolumesClient
-          initialVolumes={finalVolumesData}
-          initialPage={validPage}
-          initialTypes={types}
-          initialYears={years}
-          lang={lang}
-          journalId={journalId}
-          breadcrumbLabels={breadcrumbLabels}
-        />
-      </Suspense>
+      <>
+        <JsonLd data={generateCollectionPageJsonLd(journalId, lang, '/volumes', {
+          name: t('pages.volumes.title', translations),
+          numberOfItems: finalVolumesData.totalItems,
+        })} />
+        <Suspense fallback={<Loader />}>
+          <VolumesClient
+            initialVolumes={finalVolumesData}
+            initialPage={validPage}
+            initialTypes={types}
+            initialYears={years}
+            lang={lang}
+            journalId={journalId}
+            breadcrumbLabels={breadcrumbLabels}
+          />
+        </Suspense>
+      </>
     );
   } catch (error) {
     logger.error('Error fetching volumes:', error);

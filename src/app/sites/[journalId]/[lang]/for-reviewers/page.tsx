@@ -9,6 +9,8 @@ import { acceptedLanguages } from '@/utils/language-utils';
 import { getPublicJournalConfig } from '@/utils/env-loader';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const ForReviewersClient = dynamic(() => import('./ForReviewersClient'));
 
@@ -73,6 +75,11 @@ export default async function ForReviewersPage(props: {
   };
 
   return (
-    <ForReviewersClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    <>
+      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/for-reviewers', {
+        name: t('pages.forReviewers.title', translations),
+      })} />
+      <ForReviewersClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    </>
   );
 }
