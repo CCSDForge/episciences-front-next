@@ -1,10 +1,6 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
-import {
-  fetchEditorialWorkflowPage,
-  fetchEthicalCharterPage,
-  fetchPrepareSubmissionPage,
-} from '@/services/forAuthors';
+import { fetchEditorialWorkflowPage, fetchPrepareSubmissionPage } from '@/services/forAuthors';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import { getFilteredJournals } from '@/utils/journal-filter';
@@ -56,19 +52,16 @@ export default async function ForAuthorsPage(props: {
   }
 
   let editorialWorkflowPage = null;
-  let ethicalCharterPage = null;
   let prepareSubmissionPage = null;
   let translations = {};
 
   try {
     // Fetch all pages and translations in parallel
-    [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage, translations] =
-      await Promise.all([
-        fetchEditorialWorkflowPage(journalId),
-        fetchEthicalCharterPage(journalId),
-        fetchPrepareSubmissionPage(journalId),
-        getServerTranslations(lang),
-      ]);
+    [editorialWorkflowPage, prepareSubmissionPage, translations] = await Promise.all([
+      fetchEditorialWorkflowPage(journalId),
+      fetchPrepareSubmissionPage(journalId),
+      getServerTranslations(lang),
+    ]);
   } catch (error) {
     logger.warn('[ForAuthorsPage] Failed to fetch data:', error);
     // Data remains at fallback values (null/empty)
@@ -82,7 +75,6 @@ export default async function ForAuthorsPage(props: {
   return (
     <ForAuthorsClient
       editorialWorkflowPage={editorialWorkflowPage}
-      ethicalCharterPage={ethicalCharterPage}
       prepareSubmissionPage={prepareSubmissionPage}
       lang={lang}
       breadcrumbLabels={breadcrumbLabels}
