@@ -1,3 +1,4 @@
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Components } from 'react-markdown';
@@ -11,12 +12,24 @@ export interface MarkdownRendererProps {
   urlTransform?: (url: string) => string;
 }
 
+function isEmptyNode(node: React.ReactNode): boolean {
+  if (typeof node === 'string') return node.trim() === '' || node.trim() === '-';
+  if (!React.isValidElement(node)) return true;
+  return React.Children.toArray((node.props as { children?: React.ReactNode }).children).every(isEmptyNode);
+}
+
 const DEFAULT_COMPONENTS: Components = {
   table: ({ children }) => (
     <div className="markdown-table-wrapper" tabIndex={0}>
       <table className="markdown-table">{children}</table>
     </div>
   ),
+  // Hide thead when all header cells are empty or contain only "-" (headerless table pattern)
+  thead: ({ children }) => {
+    const allEmpty = React.Children.toArray(children).every(isEmptyNode);
+    if (allEmpty) return null;
+    return <thead>{children}</thead>;
+  },
   th: ({ children, style }) => (
     <th scope="col" style={style}>
       {children}

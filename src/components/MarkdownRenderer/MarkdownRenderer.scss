@@ -43,11 +43,12 @@ strong {
     text-align: left;
     border: 1px solid var(--primary-border);
     vertical-align: top;
+    min-width: 100px;
+    overflow-wrap: break-word;
   }
 
   th {
     font-weight: 600;
-    white-space: nowrap;
   }
 
   tbody {
