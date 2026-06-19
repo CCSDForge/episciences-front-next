@@ -1,10 +1,11 @@
+import type { JSX } from 'react';
 import type { SchemaOrgThing } from '@/utils/schema';
 
 interface JsonLdProps {
   data: SchemaOrgThing;
 }
 
-export default function JsonLd({ data }: JsonLdProps): React.JSX.Element {
+export default function JsonLd({ data }: JsonLdProps): JSX.Element {
   const serialized = JSON.stringify(data)
     .replace(/</g, '\\u003c')
     .replace(/>/g, '\\u003e')
