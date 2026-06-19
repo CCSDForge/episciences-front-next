@@ -67,6 +67,7 @@ export default function ForConferenceOrganisersClient({
       lang={lang}
       noContentMessage={t('pages.forConferenceOrganisers.noContent')}
       languageNotice={languageNotice}
+      lastUpdated={pageData?.date_updated}
       className="markdown-page"
     />
   );

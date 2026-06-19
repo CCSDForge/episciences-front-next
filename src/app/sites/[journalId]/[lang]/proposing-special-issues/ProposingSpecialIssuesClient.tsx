@@ -67,6 +67,7 @@ export default function ProposingSpecialIssuesClient({
       lang={lang}
       noContentMessage={t('pages.proposingSpecialIssues.noContent')}
       languageNotice={languageNotice}
+      lastUpdated={pageData?.date_updated}
       className="markdown-page"
     />
   );

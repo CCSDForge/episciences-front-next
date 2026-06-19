@@ -39,7 +39,20 @@ interface MarkdownPageWithSidebarProps {
   lang?: string;
   noContentMessage?: string;
   languageNotice?: string;
+  lastUpdated?: string | null;
   className?: string;
+}
+
+function formatLocalizedDate(dateString: string, locale: string): string {
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(new Date(dateString));
+  } catch {
+    return dateString;
+  }
 }
 
 /**
@@ -56,6 +69,7 @@ export default function MarkdownPageWithSidebar({
   lang,
   noContentMessage,
   languageNotice,
+  lastUpdated,
   className = 'markdown-page',
 }: MarkdownPageWithSidebarProps): React.JSX.Element {
   const { t } = useTranslation();
@@ -334,6 +348,11 @@ export default function MarkdownPageWithSidebar({
               ))
             ) : (
               <p>{noContentMessage || t('pages.common.noContent')}</p>
+            )}
+            {lastUpdated && !isLoading && (
+              <p className={`${className}-last-updated`}>
+                {t('common.lastUpdated')} {formatLocalizedDate(lastUpdated, lang || 'en')}
+              </p>
             )}
           </div>
         )}

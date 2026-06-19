@@ -89,7 +89,8 @@
     "publicationDetails": "Détails de publication",
     "submittedOn": "Soumis le",
     "importedOn": "Importé le",
-    "lastModifiedOn": "Modifié le"
+    "lastModifiedOn": "Modifié le",
+    "lastUpdated": "Dernière mise à jour :"
   },
   "components": {
     "header": {
