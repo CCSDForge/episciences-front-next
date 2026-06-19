@@ -21,6 +21,8 @@ import ReferencesSection from './components/ReferencesSection';
 import PreviewSection from './components/PreviewSection';
 import CollapsibleSectionWrapper from './components/CollapsibleSectionWrapper';
 import SignpostingLinks from '@/components/SignpostingLinks/SignpostingLinks';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateScholarlyArticleJsonLd } from '@/utils/schema';
 import './ArticleDetails.scss';
 
 interface ArticleDetailsServerProps {
@@ -237,8 +239,11 @@ export default function ArticleDetailsServer({
     );
   };
 
+  const articleJsonLd = generateScholarlyArticleJsonLd(article, rvcode, language || defaultLanguage, relatedVolume);
+
   return (
     <>
+      <JsonLd data={articleJsonLd} />
       <SignpostingLinks article={article} rvcode={rvcode} id={id} lang={language || defaultLanguage} />
       <main className="articleDetails">
       <Breadcrumb
