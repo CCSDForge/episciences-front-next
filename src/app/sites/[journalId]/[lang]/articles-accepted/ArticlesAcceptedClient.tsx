@@ -154,11 +154,12 @@ export default function ArticlesAcceptedClient({
   }, [isStaticBuild, articlesAccepted?.data]);
 
   useEffect(() => {
-    if (articlesAccepted?.range?.types) {
+    const rangeTypes = articlesAccepted?.range?.types;
+    if (rangeTypes) {
       setTypes(prev => {
         if (prev.length > 0) return prev;
 
-        return articlesAccepted.range!.types!
+        return rangeTypes
           .filter(t => articleTypes.find(at => at.value === t))
           .map(t => {
             const matchingType = articleTypes.find(at => at.value === t)!;
@@ -171,7 +172,7 @@ export default function ArticlesAcceptedClient({
           });
       });
     }
-  }, [articlesAccepted?.range?.types, articleTypes]);
+  }, [articlesAccepted?.range?.types]);
 
   // Memoize handlePageClick to prevent Pagination re-renders
   const handlePageClick = useCallback((selectedItem: { selected: number }): void => {

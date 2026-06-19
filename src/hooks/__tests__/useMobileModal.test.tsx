@@ -13,11 +13,12 @@ const createStore = (footerEnabled = false) =>
     preloadedState: { footerReducer: { enabled: footerEnabled } },
   });
 
-const wrapper =
-  (store: ReturnType<typeof createStore>) =>
-  ({ children }: { children: React.ReactNode }) => (
-    <Provider store={store}>{children}</Provider>
-  );
+const wrapper = (store: ReturnType<typeof createStore>) => {
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return <Provider store={store}>{children}</Provider>;
+  }
+  return Wrapper;
+};
 
 // --- Tests ---
 
