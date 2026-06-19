@@ -152,4 +152,12 @@
       }
     }
   }
+
+  &-last-updated {
+    text-align: end;
+    margin-top: 2rem;
+    font-size: 0.8125rem;
+    color: var(--grey-dark);
+    font-style: italic;
+  }
 }

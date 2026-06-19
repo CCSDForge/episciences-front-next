@@ -17,6 +17,8 @@ import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/A
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
+import { AvailableLanguage } from '@/utils/i18n';
+import { formatDate } from '@/utils/date';
 import '@/styles/transitions.scss';
 import './MarkdownPageWithSidebar.scss';
 
@@ -41,18 +43,6 @@ interface MarkdownPageWithSidebarProps {
   languageNotice?: string;
   lastUpdated?: string | null;
   className?: string;
-}
-
-function formatLocalizedDate(dateString: string, locale: string): string {
-  try {
-    return new Intl.DateTimeFormat(locale, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(new Date(dateString));
-  } catch {
-    return dateString;
-  }
 }
 
 /**
@@ -351,7 +341,7 @@ export default function MarkdownPageWithSidebar({
             )}
             {lastUpdated && !isLoading && (
               <p className={`${className}-last-updated`}>
-                {t('common.lastUpdated')} {formatLocalizedDate(lastUpdated, lang || 'en')}
+                {t('common.lastUpdated')} {formatDate(lastUpdated, (lang as AvailableLanguage) || 'en')}
               </p>
             )}
           </div>
