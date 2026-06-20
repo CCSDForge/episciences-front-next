@@ -59,19 +59,10 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-/**
- * Validate revalidation path to prevent path traversal attacks
- *
- * @param path - Path to validate
- * @param journalId - Optional journal ID to verify path matches
- * @returns true if path is valid, false otherwise
- */
 function isValidRevalidatePath(path: string, journalId?: string): boolean {
-  // Validate format /sites/[journalId]/[lang]/...
   const pattern = /^\/sites\/[a-z0-9-]+\/[a-z]{2}(\/.*)?$/;
   if (!pattern.test(path)) return false;
 
-  // If journalId provided, verify it matches
   if (journalId) {
     const pathJournalId = path.split('/')[2];
     if (pathJournalId !== journalId) return false;
@@ -80,9 +71,48 @@ function isValidRevalidatePath(path: string, journalId?: string): boolean {
   return true;
 }
 
+function verifyToken(token: string, secret: string): boolean {
+  const a = Buffer.from(token);
+  const b = Buffer.from(secret);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+function resolveAuthorization(headerToken: string, journalId?: string): boolean {
+  if (journalId) {
+    const journalToken =
+      process.env[`REVALIDATION_TOKEN_${journalId.toUpperCase().replace(/-/g, '_')}`];
+    if (journalToken && verifyToken(headerToken, journalToken)) {
+      return true;
+    }
+  }
+  const globalSecret = process.env.REVALIDATION_SECRET;
+  return !!globalSecret && verifyToken(headerToken, globalSecret);
+}
+
+function performRevalidation(
+  tag?: string,
+  path?: string,
+  journalId?: string
+): NextResponse | null {
+  if (tag) {
+    log.info(`[Revalidate API] Revalidating tag: ${sanitizeForLog(tag)}`);
+    revalidateTag(tag, { expire: 0 });
+    return null;
+  }
+  if (path) {
+    if (!isValidRevalidatePath(path, journalId)) {
+      log.warn(`[Revalidate API] Invalid path format: ${sanitizeForLog(path)}`);
+      return NextResponse.json({ message: 'Invalid path format' }, { status: 400 });
+    }
+    log.info(`[Revalidate API] Revalidating path: ${sanitizeForLog(path)}`);
+    revalidatePath(path);
+    return null;
+  }
+  return NextResponse.json({ message: 'Missing tag or path' }, { status: 400 });
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // 1. IP Whitelist Check
     const allowedIps = process.env.ALLOWED_IPS
       ? process.env.ALLOWED_IPS.split(',').map(ip => ip.trim())
       : [];
@@ -95,13 +125,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    // 2. Rate Limiting Check
     if (!checkRateLimit(clientIp)) {
       log.warn(`[Revalidate API] Rate limit exceeded for IP: ${clientIp}`);
       return NextResponse.json({ message: 'Too many requests' }, { status: 429 });
     }
 
-    // 3. Extract Authentication and Parameters
     const body = await request.json();
     const { tag, path, journalId } = body;
     const headerToken = request.headers.get('x-episciences-token');
@@ -110,57 +138,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Missing authentication token' }, { status: 401 });
     }
 
-    // 4. Token Verification (Journal-specific or Global)
-    let isAuthorized = false;
-
-    if (journalId) {
-      // Check for journal-specific token: REVALIDATION_TOKEN_EPIJINFO
-      const journalToken =
-        process.env[`REVALIDATION_TOKEN_${journalId.toUpperCase().replace(/-/g, '_')}`];
-      if (journalToken) {
-        const a = Buffer.from(headerToken);
-        const b = Buffer.from(journalToken);
-        if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
-          isAuthorized = true;
-        }
-      }
-    }
-
-    // Fallback to global secret if journal secret not found or not provided
-    if (!isAuthorized) {
-      const globalSecret = process.env.REVALIDATION_SECRET;
-      if (globalSecret) {
-        const a = Buffer.from(headerToken);
-        const b = Buffer.from(globalSecret);
-        if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
-          isAuthorized = true;
-        }
-      }
-    }
-
-    if (!isAuthorized) {
+    if (!resolveAuthorization(headerToken, journalId)) {
       log.warn(
         `[Revalidate API] Invalid token provided for journal: ${sanitizeForLog(journalId) || 'global'}`
       );
       return NextResponse.json({ message: 'Invalid secret' }, { status: 401 });
     }
 
-    // 5. Execution
-    if (tag) {
-      log.info(`[Revalidate API] Revalidating tag: ${sanitizeForLog(tag)}`);
-      revalidateTag(tag, { expire: 0 });
-    } else if (path) {
-      // Validate path format to prevent path traversal attacks
-      if (!isValidRevalidatePath(path, journalId)) {
-        log.warn(`[Revalidate API] Invalid path format: ${sanitizeForLog(path)}`);
-        return NextResponse.json({ message: 'Invalid path format' }, { status: 400 });
-      }
-
-      log.info(`[Revalidate API] Revalidating path: ${sanitizeForLog(path)}`);
-      revalidatePath(path);
-    } else {
-      return NextResponse.json({ message: 'Missing tag or path' }, { status: 400 });
-    }
+    const errorResponse = performRevalidation(tag, path, journalId);
+    if (errorResponse) return errorResponse;
 
     return NextResponse.json({
       revalidated: true,
