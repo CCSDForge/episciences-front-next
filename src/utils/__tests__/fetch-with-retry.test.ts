@@ -131,8 +131,7 @@ describe('fetchWithRetry', () => {
   it('retries when a non-Error value is thrown by fetch', async () => {
     const successResponse = new Response('{}', { status: 200 });
     vi.mocked(global.fetch)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .mockRejectedValueOnce('raw string error' as any)
+      .mockRejectedValueOnce('raw string error')
       .mockResolvedValueOnce(successResponse);
 
     const result = await fetchWithRetry(
