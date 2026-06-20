@@ -22,6 +22,38 @@ const logoEpisciences = '/icons/logo-text.svg';
 const logoBig = '/logos/logo-big.svg';
 const logoSmall = '/logos/logo-small.svg';
 
+type MenuItemLike = { key: string; label: string; path: string };
+
+function resolveLogoSrc(code: string | undefined, journalLogoFilename: string | undefined): string {
+  if (!code) return logoEpisciences;
+  try {
+    const logoName = `logo-${code}.svg`;
+    const logoPath = path.join(process.cwd(), 'public/logos', logoName);
+    if (fs.existsSync(logoPath)) return `/logos/${logoName}`;
+    if (journalLogoFilename) return `/logos/${journalLogoFilename}`;
+  } catch (e) {
+    log.warn('Error checking logo files:', e);
+    if (journalLogoFilename) return `/logos/${journalLogoFilename}`;
+  }
+  return logoEpisciences;
+}
+
+function buildMobileSection(
+  title: string | undefined,
+  items: MenuItemLike[],
+  translations: Parameters<typeof t>[1]
+): { title?: string; items: MenuItemLike[] } | null {
+  if (!items.length) return null;
+  return {
+    ...(title !== undefined ? { title } : {}),
+    items: items.map(item => ({
+      key: item.key,
+      label: t(item.label, translations),
+      path: item.path,
+    })),
+  };
+}
+
 interface HeaderServerProps {
   lang?: string;
   journalId?: string;
@@ -71,32 +103,7 @@ export default async function HeaderServer({
     log.error('Failed to fetch journal in HeaderServer:', error);
   }
 
-  // Construct the final logo URL
-  // Strategy:
-  // 1. Check for logo-{code}.svg in public/logos
-  // 2. If not found, use journal.logo from API
-  // 3. Fallback to default episciences logo
-
-  let logoSrc = logoEpisciences;
-
-  if (code) {
-    try {
-      const publicLogosDir = path.join(process.cwd(), 'public/logos');
-      const logoName = `logo-${code}.svg`;
-      const logoPath = path.join(publicLogosDir, logoName);
-
-      if (fs.existsSync(logoPath)) {
-        logoSrc = `/logos/${logoName}`;
-      } else if (journalLogoFilename) {
-        logoSrc = `/logos/${journalLogoFilename}`;
-      }
-    } catch (e) {
-      log.warn('Error checking logo files:', e);
-      if (journalLogoFilename) {
-        logoSrc = `/logos/${journalLogoFilename}`;
-      }
-    }
-  }
+  const logoSrc = resolveLogoSrc(code, journalLogoFilename);
 
   // Compute sign-in link URL (same as Submit button)
   const signInUrl =
@@ -266,54 +273,11 @@ export default async function HeaderServer({
         <MobileBurgerMenu
           lang={lang}
           sections={[
-            ...(visibleContentItems.length > 0
-              ? [
-                  {
-                    title: t('components.header.content', translations),
-                    items: visibleContentItems.map(item => ({
-                      key: item.key,
-                      label: t(item.label, translations),
-                      path: item.path,
-                    })),
-                  },
-                ]
-              : []),
-            ...(visibleAboutItems.length > 0
-              ? [
-                  {
-                    title: t('components.header.about', translations),
-                    items: visibleAboutItems.map(item => ({
-                      key: item.key,
-                      label: t(item.label, translations),
-                      path: item.path,
-                    })),
-                  },
-                ]
-              : []),
-            ...(visibleStandaloneItems.length > 0
-              ? [
-                  {
-                    items: visibleStandaloneItems.map(item => ({
-                      key: item.key,
-                      label: t(item.label, translations),
-                      path: item.path,
-                    })),
-                  },
-                ]
-              : []),
-            ...(visiblePublishItems.length > 0
-              ? [
-                  {
-                    title: t('components.header.publish', translations),
-                    items: visiblePublishItems.map(item => ({
-                      key: item.key,
-                      label: t(item.label, translations),
-                      path: item.path,
-                    })),
-                  },
-                ]
-              : []),
-          ]}
+            buildMobileSection(t('components.header.content', translations), visibleContentItems, translations),
+            buildMobileSection(t('components.header.about', translations), visibleAboutItems, translations),
+            buildMobileSection(undefined, visibleStandaloneItems, translations),
+            buildMobileSection(t('components.header.publish', translations), visiblePublishItems, translations),
+          ].filter((s): s is NonNullable<typeof s> => s !== null)}
         />
         <div className="header-postheader-links">
           {/* CONTENT Dropdown */}
