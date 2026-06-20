@@ -31,6 +31,13 @@ function NewsListCard({ language, t, news }: INewsListCardProps): React.JSX.Elem
     setShowFullContent(prev => !prev);
   };
 
+  const handleToggleKeyDown = (e: React.KeyboardEvent): void => {
+    handleKeyboardClick(e, (evt): void => {
+      evt.stopPropagation();
+      setShowFullContent(prev => !prev);
+    });
+  };
+
   const renderContent = (): React.JSX.Element | null => {
     const { value: content, isAvailable } = getLocalizedContent(news.content, language);
 
@@ -53,12 +60,7 @@ function NewsListCard({ language, t, news }: INewsListCardProps): React.JSX.Elem
         {isTruncated && (
           <div
             onClick={(e): void => toggleFullContent(e)}
-            onKeyDown={e =>
-              handleKeyboardClick(e, (evt): void => {
-                evt.stopPropagation();
-                setShowFullContent(prev => !prev);
-              })
-            }
+            onKeyDown={handleToggleKeyDown}
             role="button"
             tabIndex={0}
             aria-expanded={showFullContent}
