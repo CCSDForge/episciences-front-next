@@ -8,6 +8,8 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages, defaultLanguage } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 export const revalidate = false;
 
@@ -43,7 +45,7 @@ export default async function AccessibilityPage(props: {
   params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
-  const { lang } = params;
+  const { journalId, lang } = params;
   const translations = await getServerTranslations(lang);
 
   const contentDir = path.join(process.cwd(), 'src/content/accessibility');
@@ -75,13 +77,18 @@ export default async function AccessibilityPage(props: {
   };
 
   return (
-    <MarkdownPageWithSidebar
-      content={content}
-      title={translate('pages.accessibility.title', translations)}
-      isLoading={false}
-      breadcrumbLabels={breadcrumbLabels}
-      lang={lang}
-      className="markdown-page"
-    />
+    <>
+      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/accessibility', {
+        name: translate('pages.accessibility.title', translations),
+      })} />
+      <MarkdownPageWithSidebar
+        content={content}
+        title={translate('pages.accessibility.title', translations)}
+        isLoading={false}
+        breadcrumbLabels={breadcrumbLabels}
+        lang={lang}
+        className="markdown-page"
+      />
+    </>
   );
 }

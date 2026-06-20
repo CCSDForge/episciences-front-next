@@ -261,4 +261,29 @@ describe('JSON-LD structured data', () => {
     const lastItem = items[items.length - 1];
     expect(lastItem.item).toBeUndefined();
   });
+
+  it('sets @id on the BreadcrumbList from pathname', () => {
+    const parents = [{ path: '/', label: 'Home >' }];
+    const { container } = render(<Breadcrumb parents={parents} crumbLabel="Volumes" />);
+    const jsonLd = getJsonLd(container);
+    expect(jsonLd['@id']).toBe('https://test-journal.episciences.org/en/volumes#breadcrumb');
+  });
+
+  it('omits @id when pathname is null', () => {
+    vi.mocked(usePathname).mockReturnValue(null);
+    const parents = [{ path: '/', label: 'Home >' }];
+    const { container } = render(<Breadcrumb parents={parents} crumbLabel="Volumes" />);
+    const jsonLd = getJsonLd(container);
+    expect(jsonLd['@id']).toBeUndefined();
+  });
+
+  it('escapes < in the raw script content to prevent </script> injection', () => {
+    const parents = [{ path: '/', label: 'Home >' }];
+    const { container } = render(
+      <Breadcrumb parents={parents} crumbLabel="</script><script>alert(1)</script>" />
+    );
+    const script = container.querySelector('script[type="application/ld+json"]');
+    expect(script?.innerHTML).not.toContain('</script>');
+    expect(script?.innerHTML).toContain('\\u003c');
+  });
 });

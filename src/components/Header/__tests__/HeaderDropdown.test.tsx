@@ -210,7 +210,7 @@ describe('HeaderDropdown', () => {
       const lastItem = menuItems[items.length - 1];
 
       fireEvent.keyDown(lastItem, { key: 'ArrowDown' });
-      // No error thrown — cyclic navigation works
+      expect(document.activeElement).toBe(menuItems[0]);
     });
 
     it('ArrowUp on first item wraps to last', () => {
@@ -219,7 +219,7 @@ describe('HeaderDropdown', () => {
       const firstItem = menuItems[0];
 
       fireEvent.keyDown(firstItem, { key: 'ArrowUp' });
-      // No error thrown — cyclic navigation works
+      expect(document.activeElement).toBe(menuItems[items.length - 1]);
     });
 
     it('Escape on menu item closes the dropdown', () => {
