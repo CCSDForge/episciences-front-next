@@ -80,39 +80,63 @@ interface FetchVolumesParams {
   types?: VOLUME_TYPE[] | string[];
 }
 
-export async function fetchVolumes({
-  rvcode,
-  language,
-  page,
-  itemsPerPage,
-  years,
-  types,
-}: FetchVolumesParams): Promise<{
+export interface FetchVolumesResult {
   data: IVolume[];
   totalItems: number;
   articlesCount?: number;
   range?: Range;
-}> {
+}
+
+/** First array found among the candidates, or an empty array. */
+function firstArray<T>(...candidates: unknown[]): T[] {
+  return (candidates.find(Array.isArray) as T[] | undefined) ?? [];
+}
+
+/**
+ * Normalize the `hydra:range` payload into a `Range`, tolerating both the
+ * `types`/`type` and `years`/`year` key spellings returned by the API.
+ */
+export function parseVolumesRange(rawRange: unknown): Range {
+  const range = rawRange as { types?: unknown; type?: unknown; years?: unknown; year?: unknown };
+  if (!range) return { types: [], years: [] };
+  return {
+    types: firstArray<string>(range.types, range.type),
+    years: firstArray<number>(range.years, range.year),
+  };
+}
+
+/** Build the query string for the volumes endpoint (pagination + optional filters). */
+export function buildVolumesSearchParams({
+  page,
+  itemsPerPage,
+  language,
+  types,
+  years,
+}: Pick<
+  FetchVolumesParams,
+  'page' | 'itemsPerPage' | 'language' | 'types' | 'years'
+>): URLSearchParams {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    itemsPerPage: itemsPerPage.toString(),
+  });
+  if (language) params.append('language', language);
+  types?.forEach(type => params.append('type[]', type));
+  years?.forEach(year => params.append('year[]', year.toString()));
+  return params;
+}
+
+/** Fallback result used when the volumes request fails. */
+function emptyVolumesResult(): FetchVolumesResult {
+  return { data: [], totalItems: 0, articlesCount: 0, range: { types: [], years: [] } };
+}
+
+export async function fetchVolumes(params: FetchVolumesParams): Promise<FetchVolumesResult> {
+  const { rvcode, language, page, itemsPerPage, years, types } = params;
   try {
-    const params = new URLSearchParams({
-      page: page.toString(),
-      itemsPerPage: itemsPerPage.toString(),
-    });
-
-    if (language) {
-      params.append('language', language);
-    }
-
-    if (types && types.length > 0) {
-      types.forEach(type => params.append('type[]', type));
-    }
-
-    if (years && years.length > 0) {
-      years.forEach(year => params.append('year[]', year.toString()));
-    }
-
+    const searchParams = buildVolumesSearchParams({ page, itemsPerPage, language, types, years });
     const apiUrl = getJournalApiUrl(rvcode);
-    const response = await fetch(`${apiUrl}/volumes?${params.toString()}&rvcode=${rvcode}`, {
+    const response = await fetch(`${apiUrl}/volumes?${searchParams.toString()}&rvcode=${rvcode}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -127,40 +151,15 @@ export async function fetchVolumes({
     const data = await response.json();
     const members = Array.isArray(data) ? data : data['hydra:member'] || [];
 
-    const rawRange = data['hydra:range'];
-
-    const formattedRange = rawRange
-      ? {
-          types: Array.isArray(rawRange.types)
-            ? rawRange.types
-            : Array.isArray(rawRange.type)
-              ? rawRange.type
-              : [],
-          years: Array.isArray(rawRange.years)
-            ? rawRange.years
-            : Array.isArray(rawRange.year)
-              ? rawRange.year
-              : [],
-        }
-      : { types: [], years: [] };
-
     return {
       data: members.map((volume: RawVolume) => formatVolume(rvcode, language || 'fr', volume)),
       totalItems: data['hydra:totalItems'] || members.length,
       articlesCount: data['hydra:totalPublishedArticles'] || 0,
-      range: formattedRange,
+      range: parseVolumesRange(data['hydra:range']),
     };
   } catch (error) {
     log.error('Error fetching volumes:', error);
-    return {
-      data: [],
-      totalItems: 0,
-      articlesCount: 0,
-      range: {
-        types: [],
-        years: [],
-      },
-    };
+    return emptyVolumesResult();
   }
 }
 

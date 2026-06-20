@@ -4,6 +4,8 @@ import {
   fetchVolume,
   formatVolume,
   formatVolumeMetadata,
+  buildVolumesSearchParams,
+  parseVolumesRange,
   VOLUME_TYPE,
   volumeTypes,
 } from '../volume';
@@ -177,6 +179,70 @@ describe('volume service', () => {
       const result = formatVolume('testjournal', 'fr', rawVolume as unknown as RawVolume);
 
       expect(result.settingsProceeding).toEqual(settingsProceeding);
+    });
+  });
+
+  describe('buildVolumesSearchParams', () => {
+    it('includes only pagination params by default', () => {
+      const params = buildVolumesSearchParams({ page: 2, itemsPerPage: 25 });
+      expect(params.get('page')).toBe('2');
+      expect(params.get('itemsPerPage')).toBe('25');
+      expect(params.has('language')).toBe(false);
+      expect(params.has('type[]')).toBe(false);
+      expect(params.has('year[]')).toBe(false);
+    });
+
+    it('appends language when provided', () => {
+      const params = buildVolumesSearchParams({ page: 1, itemsPerPage: 10, language: 'en' });
+      expect(params.get('language')).toBe('en');
+    });
+
+    it('appends each type and year as repeated keys', () => {
+      const params = buildVolumesSearchParams({
+        page: 1,
+        itemsPerPage: 10,
+        types: [VOLUME_TYPE.SPECIAL_ISSUE, VOLUME_TYPE.PROCEEDINGS],
+        years: [2024, 2023],
+      });
+      expect(params.getAll('type[]')).toEqual(['special_issue', 'proceedings']);
+      expect(params.getAll('year[]')).toEqual(['2024', '2023']);
+    });
+
+    it('ignores empty type/year arrays', () => {
+      const params = buildVolumesSearchParams({ page: 1, itemsPerPage: 10, types: [], years: [] });
+      expect(params.has('type[]')).toBe(false);
+      expect(params.has('year[]')).toBe(false);
+    });
+  });
+
+  describe('parseVolumesRange', () => {
+    it('returns empty arrays for nullish range', () => {
+      expect(parseVolumesRange(undefined)).toEqual({ types: [], years: [] });
+      expect(parseVolumesRange(null)).toEqual({ types: [], years: [] });
+    });
+
+    it('reads the canonical types/years keys', () => {
+      expect(parseVolumesRange({ types: ['special_issue'], years: [2024] })).toEqual({
+        types: ['special_issue'],
+        years: [2024],
+      });
+    });
+
+    it('falls back to the alternative type/year keys', () => {
+      expect(parseVolumesRange({ type: ['proceedings'], year: [2022] })).toEqual({
+        types: ['proceedings'],
+        years: [2022],
+      });
+    });
+
+    it('prefers canonical keys over alternatives when both exist', () => {
+      expect(
+        parseVolumesRange({ types: ['a'], type: ['b'], years: [1], year: [2] })
+      ).toEqual({ types: ['a'], years: [1] });
+    });
+
+    it('returns empty arrays when keys are present but not arrays', () => {
+      expect(parseVolumesRange({ types: 'nope', years: 5 })).toEqual({ types: [], years: [] });
     });
   });
 
