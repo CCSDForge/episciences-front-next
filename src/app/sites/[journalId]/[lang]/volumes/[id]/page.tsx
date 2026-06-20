@@ -59,7 +59,7 @@ export default async function VolumeDetailsPage(props: {
     }
 
     const [volumeData, translations, activeJournal] = await Promise.all([
-      fetchVolume(journalId, parseInt(params.id, 10), language),
+      fetchVolume(journalId, Number.parseInt(params.id, 10), language),
       getServerTranslations(language),
       getCachedJournal(journalId),
     ]);

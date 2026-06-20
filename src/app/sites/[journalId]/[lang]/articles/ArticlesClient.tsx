@@ -93,7 +93,7 @@ export default function ArticlesClient({
 
   // Initialiser la page depuis les query params ou 1 par défaut
   const pageFromUrl = searchParams?.get('page');
-  const initialPage = pageFromUrl ? Math.max(1, parseInt(pageFromUrl, 10)) : 1;
+  const initialPage = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : 1;
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [enhancedArticles, setEnhancedArticles] = useState<EnhancedArticle[]>(() => {
     if (initialArticles?.data) {
@@ -149,7 +149,7 @@ export default function ArticlesClient({
   // Synchroniser currentPage avec les query params
   useEffect(() => {
     const pageParam = searchParams?.get('page');
-    const pageNumber = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
+    const pageNumber = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
     if (!isNaN(pageNumber) && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
     }

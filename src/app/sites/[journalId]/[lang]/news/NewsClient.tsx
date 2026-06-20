@@ -66,16 +66,14 @@ export default function NewsClient({
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const currentPage = Number.parseInt(searchParams.get('page') || '1', 10);
   const selectedYearsFromUrl = useMemo(
     () => searchParams.get('years')?.split(',').map(Number).filter(Boolean) ?? [],
     [searchParams]
   );
 
   const [mode, setMode] = useState(RENDERING_MODE.LIST);
-  const [availableYears, setAvailableYears] = useState<number[]>(
-    initialNews?.range?.years ?? []
-  );
+  const [availableYears, setAvailableYears] = useState<number[]>(initialNews?.range?.years ?? []);
   const [fullNewsIndex, setFullNewsIndex] = useState(-1);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
   const [news, setNews] = useState(initialNews);
@@ -90,7 +88,12 @@ export default function NewsClient({
     if (!rvcode) return;
 
     setIsLoading(true);
-    fetchNews({ rvcode, page: currentPage, itemsPerPage: NEWS_PER_PAGE, years: selectedYearsFromUrl })
+    fetchNews({
+      rvcode,
+      page: currentPage,
+      itemsPerPage: NEWS_PER_PAGE,
+      years: selectedYearsFromUrl,
+    })
       .then(data => {
         setNews(data);
         if (data?.range?.years) {

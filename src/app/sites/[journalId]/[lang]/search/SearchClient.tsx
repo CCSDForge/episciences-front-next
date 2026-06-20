@@ -85,12 +85,12 @@ function buildInitVolumes(
 ): ISearchResultVolumeSelection[] {
   return (
     rangeVolumes[language]?.map(v => {
-      const id = parseInt(Object.keys(v)[0]);
+      const id = Number.parseInt(Object.keys(v)[0]);
       return {
         id,
         label: {
-          en: rangeVolumes.en?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] ?? '',
-          fr: rangeVolumes.fr?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] ?? '',
+          en: rangeVolumes.en?.find(vol => Number.parseInt(Object.keys(vol)[0]) === id)?.[id] ?? '',
+          fr: rangeVolumes.fr?.find(vol => Number.parseInt(Object.keys(vol)[0]) === id)?.[id] ?? '',
         },
         isChecked: prevVolumes.find(volume => volume.id === id)?.isChecked ?? false,
       };
@@ -105,12 +105,14 @@ function buildInitSections(
 ): ISearchResultSectionSelection[] {
   return (
     rangeSections[language]?.map(s => {
-      const id = parseInt(Object.keys(s)[0]);
+      const id = Number.parseInt(Object.keys(s)[0]);
       return {
         id,
         label: {
-          en: rangeSections.en?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] ?? '',
-          fr: rangeSections.fr?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] ?? '',
+          en:
+            rangeSections.en?.find(sec => Number.parseInt(Object.keys(sec)[0]) === id)?.[id] ?? '',
+          fr:
+            rangeSections.fr?.find(sec => Number.parseInt(Object.keys(sec)[0]) === id)?.[id] ?? '',
         },
         isChecked: prevSections.find(section => section.id === id)?.isChecked ?? false,
       };
@@ -334,7 +336,13 @@ export default function SearchClient({
   // Filtrer les résultats de recherche
   useEffect(() => {
     if (searchResults?.range) {
-      const { types: rangeTypes, years: rangeYears, volumes: rangeVolumes, sections: rangeSections, authors: rangeAuthors } = searchResults.range;
+      const {
+        types: rangeTypes,
+        years: rangeYears,
+        volumes: rangeVolumes,
+        sections: rangeSections,
+        authors: rangeAuthors,
+      } = searchResults.range;
 
       if (rangeTypes) {
         setTypes(prevTypes => buildInitTypes(rangeTypes, prevTypes));

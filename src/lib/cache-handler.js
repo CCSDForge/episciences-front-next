@@ -167,9 +167,9 @@ async function preprocessValue(val) {
 // Circuit Breaker
 // ---------------------------------------------------------------------------
 
-const CB_THRESHOLD = parseInt(process.env.VALKEY_CIRCUIT_BREAKER_THRESHOLD || '5', 10);
+const CB_THRESHOLD = Number.parseInt(process.env.VALKEY_CIRCUIT_BREAKER_THRESHOLD || '5', 10);
 const CB_PROBE_INTERVAL =
-  parseInt(process.env.VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL || '30', 10) * 1000;
+  Number.parseInt(process.env.VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL || '30', 10) * 1000;
 
 const CB_STATE = { CLOSED: 'CLOSED', OPEN: 'OPEN', HALF_OPEN: 'HALF_OPEN' };
 
