@@ -11,7 +11,6 @@ type LinkProps = {
   target?: string;
   rel?: string;
   ref?: React.Ref<HTMLAnchorElement>;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   lang?: string;
   [key: string]: any;
 };
