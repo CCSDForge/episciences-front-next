@@ -176,6 +176,37 @@ export default function CreditsClient({
     }
   }, [pageData, language]);
 
+  const renderH2 = ({ ...props }: { children?: React.ReactNode }) => {
+    const id = generateIdFromText(props.children?.toString()!);
+    const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
+    const toggle = () => toggleSectionHeader(id);
+    return (
+      <div
+        className="credits-content-body-section-subtitle"
+        role="button"
+        tabIndex={0}
+        aria-expanded={isOpened}
+        onClick={toggle}
+        onKeyDown={e => handleKeyboardClick(e, toggle)}
+      >
+        <h2 id={id} className="credits-content-body-section-subtitle-text" {...props} />
+        {isOpened ? (
+          <CaretUpBlackIcon
+            size={16}
+            className="credits-content-body-section-subtitle-caret"
+            ariaLabel="Collapse section"
+          />
+        ) : (
+          <CaretDownBlackIcon
+            size={16}
+            className="credits-content-body-section-subtitle-caret"
+            ariaLabel="Expand section"
+          />
+        )}
+      </div>
+    );
+  };
+
   const breadcrumbItems = [
     {
       path: '/',
@@ -218,41 +249,7 @@ export default function CreditsClient({
                         {props.children?.toString()}
                       </Link>
                     ),
-                    h2: ({ ...props }) => {
-                      const id = generateIdFromText(props.children?.toString()!);
-
-                      return (
-                        <div
-                          className="credits-content-body-section-subtitle"
-                          role="button"
-                          tabIndex={0}
-                          aria-expanded={
-                            pageSections.find(pageSection => pageSection.id === id)?.opened
-                          }
-                          onClick={(): void => toggleSectionHeader(id!)}
-                          onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id!))}
-                        >
-                          <h2
-                            id={id}
-                            className="credits-content-body-section-subtitle-text"
-                            {...props}
-                          />
-                          {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
-                            <CaretUpBlackIcon
-                              size={16}
-                              className="credits-content-body-section-subtitle-caret"
-                              ariaLabel="Collapse section"
-                            />
-                          ) : (
-                            <CaretDownBlackIcon
-                              size={16}
-                              className="credits-content-body-section-subtitle-caret"
-                              ariaLabel="Expand section"
-                            />
-                          )}
-                        </div>
-                      );
-                    },
+                    h2: renderH2,
                     h3: ({ ...props }) => (
                       <h3 id={generateIdFromText(props.children?.toString()!)} {...props} />
                     ),
