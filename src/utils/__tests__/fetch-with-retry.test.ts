@@ -117,4 +117,65 @@ describe('fetchWithRetry', () => {
       })
     );
   });
+
+  it('does not retry on browser-style network failure (Failed to fetch)', async () => {
+    vi.mocked(global.fetch).mockRejectedValueOnce(new Error('Failed to fetch'));
+
+    await expect(
+      fetchWithRetry('https://example.com/api', {}, { maxRetries: 3, baseDelay: 0, maxDelay: 0 })
+    ).rejects.toThrow('Failed to fetch');
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries when a non-Error value is thrown by fetch', async () => {
+    const successResponse = new Response('{}', { status: 200 });
+    vi.mocked(global.fetch)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockRejectedValueOnce('raw string error' as any)
+      .mockResolvedValueOnce(successResponse);
+
+    const result = await fetchWithRetry(
+      'https://example.com/api',
+      {},
+      { maxRetries: 2, baseDelay: 0, maxDelay: 0 }
+    );
+
+    expect(result).toBe(successResponse);
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('respects maxDelay cap when exponential backoff would exceed it', async () => {
+    vi.useFakeTimers();
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce(new Response('Err', { status: 500, statusText: 'Error' }))
+      .mockResolvedValueOnce(new Response('{}', { status: 200 }));
+
+    const promise = fetchWithRetry('https://example.com/api', {}, {
+      maxRetries: 1,
+      baseDelay: 100000, // would be 100s without cap
+      maxDelay: 100,     // capped at 100ms
+      timeout: 9999999,
+    });
+
+    // Advance all timers (abort controller + capped backoff delay)
+    await vi.runAllTimersAsync();
+    const result = await promise;
+    expect(result).toBeDefined();
+    vi.useRealTimers();
+  });
+
+  it('logs a warning when network is unavailable', async () => {
+    vi.mocked(global.fetch).mockRejectedValueOnce(new Error('fetch failed'));
+
+    await expect(
+      fetchWithRetry('https://example.com/api', {}, { maxRetries: 0 })
+    ).rejects.toThrow();
+
+    // Logger calls console.warn('%s', message) — check the message argument
+    expect(console.warn).toHaveBeenCalledWith(
+      '%s',
+      expect.stringContaining('Network unavailable')
+    );
+  });
 });
