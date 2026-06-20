@@ -60,6 +60,10 @@ function isNonRetryable(error: Error): boolean {
   return error.message.startsWith('HTTP 4') || isNetworkUnavailable(error);
 }
 
+function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error('Unknown error');
+}
+
 function calculateBackoffDelay(attempt: number, baseDelay: number, maxDelay: number): number {
   const exponentialDelay = baseDelay * Math.pow(2, attempt);
   const jitter = Math.random() * 1000;
@@ -88,7 +92,7 @@ export async function fetchWithRetry(
 
       return response;
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error('Unknown error');
+      lastError = toError(error);
 
       if (isNetworkUnavailable(lastError))
         log.warn(`Network unavailable for ${url}, skipping retries`);
