@@ -60,7 +60,8 @@ describe('MarkdownRenderer', () => {
 
     it('passes a11y checks for table', async () => {
       const { container } = render(<MarkdownRenderer>{TABLE_MARKDOWN}</MarkdownRenderer>);
-      await checkA11y(container);
+      const results = await checkA11y(container);
+      expect(results.violations).toHaveLength(0);
     });
   });
 
