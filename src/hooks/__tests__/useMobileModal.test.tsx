@@ -80,7 +80,7 @@ describe('useMobileModal', () => {
           typeof call[0] === 'object' &&
           call[0] !== null &&
           'payload' in call[0] &&
-          (call[0] as { payload: boolean }).payload === true
+          (call[0] as unknown as { payload: boolean }).payload === true
       );
       expect(setTrueCalls.length).toBeGreaterThanOrEqual(1);
     });
