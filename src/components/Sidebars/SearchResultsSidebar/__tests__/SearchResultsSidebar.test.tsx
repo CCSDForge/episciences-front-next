@@ -154,9 +154,7 @@ describe('SearchResultsSidebar', () => {
         sections: [],
         authors: [],
       });
-      expect(
-        container.querySelector('.searchResultsSidebar')!.children
-      ).toHaveLength(0);
+      expect(container.querySelector('.searchResultsSidebar')!.children).toHaveLength(0);
     });
   });
 

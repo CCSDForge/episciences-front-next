@@ -180,15 +180,12 @@ export const fetchBoardMembers = async (rvcode: string): Promise<IBoardMember[]>
     });
 
     if (!response.ok) {
-      log.warn(
-        `[API] Board members not found or error ${response.status} for journal ${rvcode}`
-      );
+      log.warn(`[API] Board members not found or error ${response.status} for journal ${rvcode}`);
       return []; // Return empty instead of throwing to avoid breaking the build
     }
 
     const json = await response.json();
     const data: RawBoardMember[] = Array.isArray(json) ? json : json['hydra:member'] || [];
-
 
     // Use centralized transformation utility
     return transformBoardMembers(data);

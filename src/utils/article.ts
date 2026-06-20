@@ -173,7 +173,10 @@ function extractCitedBy(articleDB: RawArticleDatabase | undefined): IArticleCite
     .map(cb => {
       try {
         const parsed = JSON.parse(cb.citation as unknown as string);
-        return { source: cb.source_id_name, citations: Object.values(parsed).map(parseCitedByCitation) };
+        return {
+          source: cb.source_id_name,
+          citations: Object.values(parsed).map(parseCitedByCitation),
+        };
       } catch (parseError) {
         log.error('[formatArticle] Error parsing citedBy citation:', parseError);
         return { source: cb.source_id_name, citations: [] };
@@ -329,7 +332,8 @@ function extractKeywords(
   const rawKeywords = findRawKeywords(extendedArticle, articleContent);
   if (!rawKeywords) return undefined;
   if (Array.isArray(rawKeywords)) return rawKeywords;
-  if (typeof rawKeywords === 'object') return structureKeywordObject(rawKeywords as Record<string, unknown>);
+  if (typeof rawKeywords === 'object')
+    return structureKeywordObject(rawKeywords as Record<string, unknown>);
   return undefined;
 }
 

@@ -6,7 +6,9 @@ interface PreviewSectionProps {
   previewHref: string;
 }
 
-export default function PreviewSection({ previewHref }: PreviewSectionProps): React.JSX.Element | null {
+export default function PreviewSection({
+  previewHref,
+}: PreviewSectionProps): React.JSX.Element | null {
   if (!previewHref) return null;
 
   return (

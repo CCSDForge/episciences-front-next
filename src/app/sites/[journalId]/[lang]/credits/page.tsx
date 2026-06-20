@@ -69,9 +69,11 @@ export default async function CreditsPage(props: {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/credits', {
-        name: t('pages.credits.title', translations),
-      })} />
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/credits', {
+          name: t('pages.credits.title', translations),
+        })}
+      />
       <CreditsClient creditsPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
     </>
   );

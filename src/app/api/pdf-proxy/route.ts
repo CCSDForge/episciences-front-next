@@ -41,7 +41,6 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-
 /**
  * GET /api/pdf-proxy - Proxy PDF requests to bypass CORS and control Content-Disposition
  * Query params:
@@ -87,7 +86,8 @@ export async function GET(request: NextRequest) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds
 
-    const response = await fetch(pdfUrl, { // lgtm[js/ssrf] — domain validated by isAllowedPdfDomain()
+    const response = await fetch(pdfUrl, {
+      // lgtm[js/ssrf] — domain validated by isAllowedPdfDomain()
       signal: controller.signal,
       headers: {
         'User-Agent': 'Episciences-PDF-Proxy/1.0',
@@ -144,7 +144,9 @@ export async function GET(request: NextRequest) {
       headers.set('Content-Length', contentLength);
     }
 
-    logger.debug(`[PDF Proxy] Successfully proxied PDF from: ${sanitizeForLog(new URL(pdfUrl).hostname)}`);
+    logger.debug(
+      `[PDF Proxy] Successfully proxied PDF from: ${sanitizeForLog(new URL(pdfUrl).hostname)}`
+    );
 
     // Stream the PDF without buffering in memory
     return new NextResponse(response.body, {

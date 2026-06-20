@@ -236,9 +236,10 @@ describe('volume service', () => {
     });
 
     it('prefers canonical keys over alternatives when both exist', () => {
-      expect(
-        parseVolumesRange({ types: ['a'], type: ['b'], years: [1], year: [2] })
-      ).toEqual({ types: ['a'], years: [1] });
+      expect(parseVolumesRange({ types: ['a'], type: ['b'], years: [1], year: [2] })).toEqual({
+        types: ['a'],
+        years: [1],
+      });
     });
 
     it('returns empty arrays when keys are present but not arrays', () => {

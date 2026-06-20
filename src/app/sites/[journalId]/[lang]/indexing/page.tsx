@@ -68,9 +68,11 @@ export default async function IndexingPage(props: {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/indexing', {
-        name: t('pages.indexing.title', translations),
-      })} />
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/indexing', {
+          name: t('pages.indexing.title', translations),
+        })}
+      />
       <IndexingClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
     </>
   );

@@ -172,9 +172,7 @@ describe('SwiperBoardCard', () => {
     });
 
     it('does not render affiliations section when empty', () => {
-      const { container } = render(
-        <SwiperBoardCard language="en" t={mockT} member={baseMember} />
-      );
+      const { container } = render(<SwiperBoardCard language="en" t={mockT} member={baseMember} />);
       expect(container.querySelector('.swiperBoardCard-affiliations')).not.toBeInTheDocument();
     });
   });
@@ -186,9 +184,7 @@ describe('SwiperBoardCard', () => {
     it('renders assigned section titles for current language', () => {
       const member: IBoardMember = {
         ...baseMember,
-        assignedSections: [
-          { sid: 1, titles: { en: 'Mathematics', fr: 'Mathématiques' } },
-        ],
+        assignedSections: [{ sid: 1, titles: { en: 'Mathematics', fr: 'Mathématiques' } }],
       };
       render(<SwiperBoardCard language="en" t={mockT} member={member} />);
       expect(screen.getByText('Mathematics')).toBeInTheDocument();
@@ -208,12 +204,8 @@ describe('SwiperBoardCard', () => {
     });
 
     it('does not render sections block when assignedSections is empty', () => {
-      const { container } = render(
-        <SwiperBoardCard language="en" t={mockT} member={baseMember} />
-      );
-      expect(
-        container.querySelector('.swiperBoardCard-assignedSections')
-      ).not.toBeInTheDocument();
+      const { container } = render(<SwiperBoardCard language="en" t={mockT} member={baseMember} />);
+      expect(container.querySelector('.swiperBoardCard-assignedSections')).not.toBeInTheDocument();
     });
   });
 
@@ -222,9 +214,7 @@ describe('SwiperBoardCard', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('accessibility', () => {
     it('has no axe violations (minimal member)', async () => {
-      const { container } = render(
-        <SwiperBoardCard language="en" t={mockT} member={baseMember} />
-      );
+      const { container } = render(<SwiperBoardCard language="en" t={mockT} member={baseMember} />);
       const results = await checkA11y(container);
       expect(results.violations).toHaveLength(0);
     });
@@ -237,9 +227,7 @@ describe('SwiperBoardCard', () => {
         affiliations: [{ label: 'MIT', rorId: 'https://ror.org/042nb2s44' }],
         assignedSections: [{ sid: 1, titles: { en: 'Mathematics', fr: 'Math' } }],
       };
-      const { container } = render(
-        <SwiperBoardCard language="en" t={mockT} member={member} />
-      );
+      const { container } = render(<SwiperBoardCard language="en" t={mockT} member={member} />);
       const results = await checkA11y(container);
       expect(results.violations).toHaveLength(0);
     });

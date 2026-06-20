@@ -212,9 +212,7 @@ export default async function HeaderServer({
         </div>
         <div className="header-journal-title">
           <span className="header-journal-title-main">{journalName}</span>
-          {journalSubtitle && (
-            <span className="header-journal-subtitle">{journalSubtitle}</span>
-          )}
+          {journalSubtitle && <span className="header-journal-subtitle">{journalSubtitle}</span>}
         </div>
       </div>
 
@@ -255,11 +253,11 @@ export default async function HeaderServer({
                 <span className="header-signin-text">
                   {t('components.header.signIn', translations)}
                 </span>
-                  <UserCircleIcon
-                    className="header-signin-icon"
-                    ariaLabel={t('components.header.signIn', translations)}
-                    size={28}
-                  />
+                <UserCircleIcon
+                  className="header-signin-icon"
+                  ariaLabel={t('components.header.signIn', translations)}
+                  size={28}
+                />
                 <span className="sr-only">{t('components.header.newWindow', translations)}</span>
               </Link>
             </>
@@ -273,10 +271,22 @@ export default async function HeaderServer({
         <MobileBurgerMenu
           lang={lang}
           sections={[
-            buildMobileSection(t('components.header.content', translations), visibleContentItems, translations),
-            buildMobileSection(t('components.header.about', translations), visibleAboutItems, translations),
+            buildMobileSection(
+              t('components.header.content', translations),
+              visibleContentItems,
+              translations
+            ),
+            buildMobileSection(
+              t('components.header.about', translations),
+              visibleAboutItems,
+              translations
+            ),
             buildMobileSection(undefined, visibleStandaloneItems, translations),
-            buildMobileSection(t('components.header.publish', translations), visiblePublishItems, translations),
+            buildMobileSection(
+              t('components.header.publish', translations),
+              visiblePublishItems,
+              translations
+            ),
           ].filter((s): s is NonNullable<typeof s> => s !== null)}
         />
         <div className="header-postheader-links">

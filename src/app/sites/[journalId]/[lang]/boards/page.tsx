@@ -97,9 +97,11 @@ export default async function BoardsPage(props: {
 
     return (
       <>
-        <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/boards', {
-          name: t('pages.boards.title', translations),
-        })} />
+        <JsonLd
+          data={generateWebPageJsonLd('WebPage', journalId, lang, '/boards', {
+            name: t('pages.boards.title', translations),
+          })}
+        />
         <BoardsClient
           initialPages={pages}
           initialMembers={members}

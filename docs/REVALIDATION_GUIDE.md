@@ -256,29 +256,29 @@ Use with caution in a multi-tenant setup.
 
 ## 4. Complete Tag-by-Tag Summary
 
-| Tag                                  | Service file                          | Also tagged with                                      |
-| ------------------------------------ | ------------------------------------- | ----------------------------------------------------- |
-| `about-{rvcode}`                     | `about.ts`, `home.ts`                 | `about`, `pages`, `page-about-{rvcode}`               |
-| `acknowledgements-{rvcode}`          | `acknowledgements.ts`                 | `acknowledgements`                                    |
-| `article-{id}`                       | `article.ts`, `home.ts`, `search.ts`  | `articles`, `articles-{rvcode}`                       |
-| `articles-{rvcode}`                  | `article.ts`, `home.ts`               | `articles`                                            |
-| `articles-accepted-{rvcode}`         | `article.ts`                          | `articles-accepted`                                   |
-| `boards-{rvcode}`                    | `board.ts`, `home.ts`                 | `boards`, `members`, `members-{rvcode}`               |
-| `credits-{rvcode}`                   | `credits.ts`                          | `credits`                                             |
-| `for-conference-organisers-{rvcode}` | `forConferenceOrganisers.ts`          | `for-conference-organisers`                           |
-| `for-reviewers-{rvcode}`             | `forReviewers.ts`                     | `for-reviewers`                                       |
-| `indexation-{rvcode}`                | `indexation.ts`                       | `indexation`                                          |
-| `indexing-{rvcode}`                  | `indexing.ts`, `home.ts`              | `indexing`, `pages`, `page-journal-indexing-{rvcode}` |
-| `members-{rvcode}`                   | `board.ts`, `home.ts`                 | `members`, `boards`, `boards-{rvcode}`                |
-| `news-{rvcode}`                      | `news.ts`, `home.ts`                  | `news`                                                |
-| `proposing-special-issues-{rvcode}`  | `proposingSpecialIssues.ts`           | `proposing-special-issues`                            |
-| `section-{id}-{rvcode}`              | `section.ts`                          | `sections`, `sections-{rvcode}`, `section-{id}`       |
-| `section-articles-{id}-{rvcode}`     | `section.ts` (fetchSectionArticles)   | `articles`, `articles-{rvcode}`, `article-{id}`       |
-| `sections-{rvcode}`                  | `section.ts`                          | `sections`                                            |
-| `stats-{rvcode}`                     | `stat.ts`, `home.ts`                  | `stats`                                               |
-| `statistics-{rvcode}`                | `statistics.ts`                       | `statistics`                                          |
-| `volume-{id}`                        | `volume.ts`                           | `volumes`, `volumes-{rvcode}`                         |
-| `volumes-{rvcode}`                   | `volume.ts`, `home.ts`                | `volumes`                                             |
+| Tag                                  | Service file                         | Also tagged with                                      |
+| ------------------------------------ | ------------------------------------ | ----------------------------------------------------- |
+| `about-{rvcode}`                     | `about.ts`, `home.ts`                | `about`, `pages`, `page-about-{rvcode}`               |
+| `acknowledgements-{rvcode}`          | `acknowledgements.ts`                | `acknowledgements`                                    |
+| `article-{id}`                       | `article.ts`, `home.ts`, `search.ts` | `articles`, `articles-{rvcode}`                       |
+| `articles-{rvcode}`                  | `article.ts`, `home.ts`              | `articles`                                            |
+| `articles-accepted-{rvcode}`         | `article.ts`                         | `articles-accepted`                                   |
+| `boards-{rvcode}`                    | `board.ts`, `home.ts`                | `boards`, `members`, `members-{rvcode}`               |
+| `credits-{rvcode}`                   | `credits.ts`                         | `credits`                                             |
+| `for-conference-organisers-{rvcode}` | `forConferenceOrganisers.ts`         | `for-conference-organisers`                           |
+| `for-reviewers-{rvcode}`             | `forReviewers.ts`                    | `for-reviewers`                                       |
+| `indexation-{rvcode}`                | `indexation.ts`                      | `indexation`                                          |
+| `indexing-{rvcode}`                  | `indexing.ts`, `home.ts`             | `indexing`, `pages`, `page-journal-indexing-{rvcode}` |
+| `members-{rvcode}`                   | `board.ts`, `home.ts`                | `members`, `boards`, `boards-{rvcode}`                |
+| `news-{rvcode}`                      | `news.ts`, `home.ts`                 | `news`                                                |
+| `proposing-special-issues-{rvcode}`  | `proposingSpecialIssues.ts`          | `proposing-special-issues`                            |
+| `section-{id}-{rvcode}`              | `section.ts`                         | `sections`, `sections-{rvcode}`, `section-{id}`       |
+| `section-articles-{id}-{rvcode}`     | `section.ts` (fetchSectionArticles)  | `articles`, `articles-{rvcode}`, `article-{id}`       |
+| `sections-{rvcode}`                  | `section.ts`                         | `sections`                                            |
+| `stats-{rvcode}`                     | `stat.ts`, `home.ts`                 | `stats`                                               |
+| `statistics-{rvcode}`                | `statistics.ts`                      | `statistics`                                          |
+| `volume-{id}`                        | `volume.ts`                          | `volumes`, `volumes-{rvcode}`                         |
+| `volumes-{rvcode}`                   | `volume.ts`, `home.ts`               | `volumes`                                             |
 
 ---
 

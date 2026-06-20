@@ -7,8 +7,11 @@ Instructions for AI assistants working with this repository.
 Next.js 16 (React 19) multi-tenant application for Episciences academic journals (45+ journals).
 
 <!-- BEGIN:nextjs-agent-rules -->
+
 # Next.js: ALWAYS read docs before coding
+
 Before any Next.js work, find and read the relevant doc in `node_modules/next/dist/docs/`. Your training data is outdated — the docs are the source of truth.
+
 <!-- END:nextjs-agent-rules -->
 
 - **Architecture**: Node.js server with ISR (Incremental Static Regeneration)
@@ -31,17 +34,17 @@ make build && make up # Test with Nginx (production-like)
 
 ## Directory Structure
 
-| Path                                | Description                                        |
-| ----------------------------------- | -------------------------------------------------- |
-| `src/app/sites/[journalId]/[lang]/` | Multi-tenant page routes                           |
-| `src/middleware.ts`                 | Hostname → journalId routing                       |
-| `src/services/`                     | API fetching with `safeFetch()`                    |
-| `src/utils/`                        | Shared utility functions                           |
+| Path                                | Description                                          |
+| ----------------------------------- | ---------------------------------------------------- |
+| `src/app/sites/[journalId]/[lang]/` | Multi-tenant page routes                             |
+| `src/middleware.ts`                 | Hostname → journalId routing                         |
+| `src/services/`                     | API fetching with `safeFetch()`                      |
+| `src/utils/`                        | Shared utility functions                             |
 | `src/lib/`                          | Infrastructure: logger, Valkey client, cache handler |
-| `src/hooks/`                        | Custom React hooks                                 |
-| `src/components/`                   | Shared UI components                               |
-| `external-assets/`                  | Per-journal config and logos                       |
-| `docs/`                             | Detailed documentation                             |
+| `src/hooks/`                        | Custom React hooks                                   |
+| `src/components/`                   | Shared UI components                                 |
+| `external-assets/`                  | Per-journal config and logos                         |
+| `docs/`                             | Detailed documentation                               |
 
 ## Critical Patterns
 
@@ -102,20 +105,20 @@ Use semantic CSS variables for text colors (WCAG compliance):
 
 ## Documentation Index
 
-| Topic                   | File                              |
-| ----------------------- | --------------------------------- |
-| ISR & Caching           | `docs/ISR_STRATEGY.md`            |
-| Webhooks & Revalidation | `docs/REVALIDATION_GUIDE.md`      |
+| Topic                        | File                                               |
+| ---------------------------- | -------------------------------------------------- |
+| ISR & Caching                | `docs/ISR_STRATEGY.md`                             |
+| Webhooks & Revalidation      | `docs/REVALIDATION_GUIDE.md`                       |
 | Revalidation Specs (Symfony) | `docs/REVALIDATION_IMPLEMENTATION_SPEC_SYMFONY.md` |
-| Revalidation Specs (ZF1) | `docs/REVALIDATION_IMPLEMENTATION_SPEC_ZF1.md` |
-| Runtime Configuration   | `docs/CONFIGURATION_GUIDE.md`     |
-| Local Testing           | `docs/LOCAL_TESTING_GUIDE.md`     |
-| Nginx & Docker          | `docs/NGINX_INTEGRATION.md`       |
-| Color Accessibility     | `docs/ACCESSIBLE_COLOR_SYSTEM.md` |
-| Code Standards          | `docs/CODING_STANDARDS.md`        |
-| Logging & Server Logs   | `docs/PRODUCTION_DEPLOYMENT.md`   |
-| Valkey Deployment       | `docs/DEPLOYMENT_VALKEY.md`       |
-| Valkey Cache Strategy   | `docs/VALKEY_CACHE_STRATEGY.md`   |
+| Revalidation Specs (ZF1)     | `docs/REVALIDATION_IMPLEMENTATION_SPEC_ZF1.md`     |
+| Runtime Configuration        | `docs/CONFIGURATION_GUIDE.md`                      |
+| Local Testing                | `docs/LOCAL_TESTING_GUIDE.md`                      |
+| Nginx & Docker               | `docs/NGINX_INTEGRATION.md`                        |
+| Color Accessibility          | `docs/ACCESSIBLE_COLOR_SYSTEM.md`                  |
+| Code Standards               | `docs/CODING_STANDARDS.md`                         |
+| Logging & Server Logs        | `docs/PRODUCTION_DEPLOYMENT.md`                    |
+| Valkey Deployment            | `docs/DEPLOYMENT_VALKEY.md`                        |
+| Valkey Cache Strategy        | `docs/VALKEY_CACHE_STRATEGY.md`                    |
 
 ## Token Efficiency
 

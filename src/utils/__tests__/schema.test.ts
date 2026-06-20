@@ -20,11 +20,11 @@ const generateCollectionPageJsonLd = (...args: Parameters<typeof _generateCollec
   _generateCollectionPageJsonLd(...args) as any;
 const generateHomepageJsonLd = (...args: Parameters<typeof _generateHomepageJsonLd>) =>
   _generateHomepageJsonLd(...args) as any;
-const generateScholarlyArticleJsonLd = (...args: Parameters<typeof _generateScholarlyArticleJsonLd>) =>
-  _generateScholarlyArticleJsonLd(...args) as any;
+const generateScholarlyArticleJsonLd = (
+  ...args: Parameters<typeof _generateScholarlyArticleJsonLd>
+) => _generateScholarlyArticleJsonLd(...args) as any;
 const generateWebPageJsonLd = (...args: Parameters<typeof _generateWebPageJsonLd>) =>
   _generateWebPageJsonLd(...args) as any;
-
 
 vi.mock('@/utils/signposting', () => ({
   getJournalBaseUrl: (id: string) => `https://${id}.episciences.org`,
@@ -80,14 +80,14 @@ describe('generateHomepageJsonLd', () => {
   });
 
   it('includes Periodical with language-agnostic @id', () => {
-    const [,, periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'en'));
+    const [, , periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'en'));
     expect(periodical['@type']).toBe('Periodical');
     expect(periodical['@id']).toBe(`${BASE}/#periodical`);
     expect(periodical['name']).toBe('Test Journal');
   });
 
   it('includes issn from journal.issn field', () => {
-    const [,, periodical] = graph(
+    const [, , periodical] = graph(
       generateHomepageJsonLd(makeJournal({ issn: '1234-5678' }), 'test-journal', 'en')
     );
     expect(periodical['issn']).toBe('1234-5678');
@@ -97,44 +97,44 @@ describe('generateHomepageJsonLd', () => {
     const journal = makeJournal({
       settings: [{ setting: 'ISSN', value: '9876-5432' }],
     });
-    const [,, periodical] = graph(generateHomepageJsonLd(journal, 'test-journal', 'en'));
+    const [, , periodical] = graph(generateHomepageJsonLd(journal, 'test-journal', 'en'));
     expect(periodical['issn']).toBe('9876-5432');
   });
 
   it('returns issn as array when both issn and eissn are present', () => {
     const journal = makeJournal({ issn: '1234-5678', eissn: '8765-4321' });
-    const [,, periodical] = graph(generateHomepageJsonLd(journal, 'test-journal', 'en'));
+    const [, , periodical] = graph(generateHomepageJsonLd(journal, 'test-journal', 'en'));
     expect(Array.isArray(periodical['issn'])).toBe(true);
     expect(periodical['issn']).toContain('1234-5678');
     expect(periodical['issn']).toContain('8765-4321');
   });
 
   it('omits issn field when neither issn nor eissn are present', () => {
-    const [,, periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'en'));
+    const [, , periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'en'));
     expect(periodical['issn']).toBeUndefined();
   });
 
   it('includes alternateName from subtitle when present', () => {
-    const [,, periodical] = graph(
+    const [, , periodical] = graph(
       generateHomepageJsonLd(makeJournal({ subtitle: 'A Subtitle' }), 'test-journal', 'en')
     );
     expect(periodical['alternateName']).toBe('A Subtitle');
   });
 
   it('omits alternateName when subtitle is absent', () => {
-    const [,, periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'en'));
+    const [, , periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'en'));
     expect(periodical['alternateName']).toBeUndefined();
   });
 
   it('includes lang-aware publishingPrinciples', () => {
-    const [,, periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'fr'));
+    const [, , periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'fr'));
     const principles = periodical['publishingPrinciples'] as string[];
     expect(principles).toContain(`${BASE}/fr/ethical-charter`);
     expect(principles).toContain(`${BASE}/fr/for-authors`);
   });
 
   it('Periodical references publisher by @id only', () => {
-    const [,, periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'en'));
+    const [, , periodical] = graph(generateHomepageJsonLd(makeJournal(), 'test-journal', 'en'));
     expect((periodical['publisher'] as any)['@id']).toBe('https://www.episciences.org/#publisher');
     expect((periodical['publisher'] as any)['name']).toBeUndefined();
   });
@@ -180,13 +180,25 @@ describe('generateBreadcrumbJsonLd', () => {
   const parents = [{ path: '/', label: 'Home >' }];
 
   it('sets @context and @type correctly', () => {
-    const result = generateBreadcrumbJsonLd(parents, 'Volumes', 'en', 'test-journal', '/en/volumes');
+    const result = generateBreadcrumbJsonLd(
+      parents,
+      'Volumes',
+      'en',
+      'test-journal',
+      '/en/volumes'
+    );
     expect(result['@context']).toBe('https://schema.org');
     expect(result['@type']).toBe('BreadcrumbList');
   });
 
   it('sets @id from pathname', () => {
-    const result = generateBreadcrumbJsonLd(parents, 'Volumes', 'en', 'test-journal', '/en/volumes');
+    const result = generateBreadcrumbJsonLd(
+      parents,
+      'Volumes',
+      'en',
+      'test-journal',
+      '/en/volumes'
+    );
     expect(result['@id']).toBe(`${BASE}/en/volumes#breadcrumb`);
   });
 
@@ -200,7 +212,13 @@ describe('generateBreadcrumbJsonLd', () => {
       { path: '/', label: 'Home >' },
       { path: '/volumes', label: 'Volumes >' },
     ];
-    const result = generateBreadcrumbJsonLd(multiParents, 'Vol. 1', 'en', 'test-journal', '/en/volumes/1');
+    const result = generateBreadcrumbJsonLd(
+      multiParents,
+      'Vol. 1',
+      'en',
+      'test-journal',
+      '/en/volumes/1'
+    );
     const items = result['itemListElement'] as Array<{ position: number }>;
     expect(items[0].position).toBe(1);
     expect(items[1].position).toBe(2);
@@ -212,7 +230,13 @@ describe('generateBreadcrumbJsonLd', () => {
       { path: '/', label: 'Home >' },
       { path: '#', label: 'Publish >' },
     ];
-    const result = generateBreadcrumbJsonLd(withHash, 'For Authors', 'en', 'test-journal', '/en/for-authors');
+    const result = generateBreadcrumbJsonLd(
+      withHash,
+      'For Authors',
+      'en',
+      'test-journal',
+      '/en/for-authors'
+    );
     const items = result['itemListElement'] as Array<{ position: number; name: string }>;
     expect(items).toHaveLength(2);
     expect(items[0].position).toBe(1);
@@ -224,7 +248,13 @@ describe('generateBreadcrumbJsonLd', () => {
       { path: '/', label: 'Home >' },
       { path: '#', label: 'Publish >' },
     ];
-    const result = generateBreadcrumbJsonLd(withHash, 'For Authors', 'en', 'test-journal', '/en/for-authors');
+    const result = generateBreadcrumbJsonLd(
+      withHash,
+      'For Authors',
+      'en',
+      'test-journal',
+      '/en/for-authors'
+    );
     const items = result['itemListElement'] as Array<{ name: string }>;
     const names = items.map(i => i.name);
     expect(names).not.toContain('Publish >');
@@ -232,19 +262,37 @@ describe('generateBreadcrumbJsonLd', () => {
   });
 
   it('strips trailing " >" from parent labels', () => {
-    const result = generateBreadcrumbJsonLd(parents, 'Volumes', 'en', 'test-journal', '/en/volumes');
+    const result = generateBreadcrumbJsonLd(
+      parents,
+      'Volumes',
+      'en',
+      'test-journal',
+      '/en/volumes'
+    );
     const items = result['itemListElement'] as Array<{ name: string }>;
     expect(items[0].name).toBe('Home');
   });
 
   it('preserves crumbLabel as-is for the last item', () => {
-    const result = generateBreadcrumbJsonLd(parents, 'Volumes', 'en', 'test-journal', '/en/volumes');
+    const result = generateBreadcrumbJsonLd(
+      parents,
+      'Volumes',
+      'en',
+      'test-journal',
+      '/en/volumes'
+    );
     const items = result['itemListElement'] as Array<{ name: string }>;
     expect(items[items.length - 1].name).toBe('Volumes');
   });
 
   it('builds the last item URL from pathname', () => {
-    const result = generateBreadcrumbJsonLd(parents, 'Volumes', 'en', 'test-journal', '/en/volumes');
+    const result = generateBreadcrumbJsonLd(
+      parents,
+      'Volumes',
+      'en',
+      'test-journal',
+      '/en/volumes'
+    );
     const items = result['itemListElement'] as Array<{ item?: string }>;
     expect(items[items.length - 1].item).toBe(`${BASE}/en/volumes`);
   });
@@ -256,14 +304,26 @@ describe('generateBreadcrumbJsonLd', () => {
   });
 
   it('builds parent item URL using getLocalizedPath for relative paths', () => {
-    const result = generateBreadcrumbJsonLd(parents, 'Volumes', 'en', 'test-journal', '/en/volumes');
+    const result = generateBreadcrumbJsonLd(
+      parents,
+      'Volumes',
+      'en',
+      'test-journal',
+      '/en/volumes'
+    );
     const items = result['itemListElement'] as Array<{ item?: string }>;
     expect(items[0].item).toBe(`${BASE}/en/`);
   });
 
   it('keeps absolute URLs as-is for parent items', () => {
     const absoluteParents = [{ path: 'https://external.org/home', label: 'External >' }];
-    const result = generateBreadcrumbJsonLd(absoluteParents, 'Page', 'en', 'test-journal', '/en/page');
+    const result = generateBreadcrumbJsonLd(
+      absoluteParents,
+      'Page',
+      'en',
+      'test-journal',
+      '/en/page'
+    );
     const items = result['itemListElement'] as Array<{ item?: string }>;
     expect(items[0].item).toBe('https://external.org/home');
   });
@@ -338,7 +398,11 @@ describe('generateScholarlyArticleJsonLd', () => {
   });
 
   it('omits description when abstract is absent', () => {
-    const result = generateScholarlyArticleJsonLd(makeArticle({ abstract: undefined }), 'test-journal', 'en');
+    const result = generateScholarlyArticleJsonLd(
+      makeArticle({ abstract: undefined }),
+      'test-journal',
+      'en'
+    );
     expect(result['description']).toBeUndefined();
   });
 
@@ -357,7 +421,11 @@ describe('generateScholarlyArticleJsonLd', () => {
   });
 
   it('omits dateModified when absent', () => {
-    const result = generateScholarlyArticleJsonLd(makeArticle({ modificationDate: undefined }), 'test-journal', 'en');
+    const result = generateScholarlyArticleJsonLd(
+      makeArticle({ modificationDate: undefined }),
+      'test-journal',
+      'en'
+    );
     expect(result['dateModified']).toBeUndefined();
   });
 
@@ -420,10 +488,12 @@ describe('generateScholarlyArticleJsonLd', () => {
   it('uses array affiliation when author has multiple institutions', () => {
     const result = generateScholarlyArticleJsonLd(
       makeArticle({
-        authors: [{
-          fullname: 'C',
-          institutions: [{ name: 'MIT' }, { name: 'Harvard' }],
-        }],
+        authors: [
+          {
+            fullname: 'C',
+            institutions: [{ name: 'MIT' }, { name: 'Harvard' }],
+          },
+        ],
       }),
       'test-journal',
       'en'
@@ -481,7 +551,12 @@ describe('generateScholarlyArticleJsonLd', () => {
   });
 
   it('wraps isPartOf in PublicationVolume when volume is provided', () => {
-    const result = generateScholarlyArticleJsonLd(makeArticle(), 'test-journal', 'en', makeVolume());
+    const result = generateScholarlyArticleJsonLd(
+      makeArticle(),
+      'test-journal',
+      'en',
+      makeVolume()
+    );
     const isPartOf = result['isPartOf'] as any;
     expect(isPartOf['@type']).toBe('PublicationVolume');
     expect(isPartOf['volumeNumber']).toBe('3');
@@ -501,7 +576,11 @@ describe('generateScholarlyArticleJsonLd', () => {
   });
 
   it('omits funder when fundings is absent', () => {
-    const result = generateScholarlyArticleJsonLd(makeArticle({ fundings: undefined }), 'test-journal', 'en');
+    const result = generateScholarlyArticleJsonLd(
+      makeArticle({ fundings: undefined }),
+      'test-journal',
+      'en'
+    );
     expect(result['funder']).toBeUndefined();
   });
 
@@ -514,7 +593,11 @@ describe('generateScholarlyArticleJsonLd', () => {
   });
 
   it('handles article with no authors', () => {
-    const result = generateScholarlyArticleJsonLd(makeArticle({ authors: [] }), 'test-journal', 'en');
+    const result = generateScholarlyArticleJsonLd(
+      makeArticle({ authors: [] }),
+      'test-journal',
+      'en'
+    );
     expect(result['author']).toEqual([]);
   });
 });

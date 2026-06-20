@@ -70,7 +70,9 @@ export function middleware(request: NextRequest) {
     if (isValidJournalId(extractedId)) {
       journalId = extractedId;
     } else {
-      log.warn(`[Middleware] Invalid journalId format from hostname: ${sanitizeForLog(extractedId)}`);
+      log.warn(
+        `[Middleware] Invalid journalId format from hostname: ${sanitizeForLog(extractedId)}`
+      );
       journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
     }
   } else {
@@ -81,7 +83,9 @@ export function middleware(request: NextRequest) {
       if (isValidJournalId(subdomain)) {
         journalId = subdomain;
       } else {
-        log.warn(`[Middleware] Invalid journalId format from subdomain: ${sanitizeForLog(subdomain)}`);
+        log.warn(
+          `[Middleware] Invalid journalId format from subdomain: ${sanitizeForLog(subdomain)}`
+        );
         journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
       }
     } else {
@@ -93,7 +97,9 @@ export function middleware(request: NextRequest) {
 
   // 2. Validate journalId exists in registry
   if (!journalExists(journalId)) {
-    log.warn(`[Middleware] Unknown journalId: ${sanitizeForLog(journalId)}, redirecting to default`);
+    log.warn(
+      `[Middleware] Unknown journalId: ${sanitizeForLog(journalId)}, redirecting to default`
+    );
     // Redirect to default journal instead of showing error page
     journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
   }

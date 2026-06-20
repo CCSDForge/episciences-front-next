@@ -213,40 +213,51 @@ Next.js handles many concurrent requests and files. Ensure the service can open 
 The app uses a structured JSON logger in production. Each line is a JSON object:
 
 ```json
-{"level":"error","msg":"Error fetching article:","service":"article","time":"2025-01-15T10:23:45.123Z","data":"..."}
+{
+  "level": "error",
+  "msg": "Error fetching article:",
+  "service": "article",
+  "time": "2025-01-15T10:23:45.123Z",
+  "data": "..."
+}
 ```
 
 **Stream all logs:**
+
 ```bash
 journalctl -u episciences-next -f
 ```
 
 **Errors and warnings only (ignore info/debug):**
+
 ```bash
 journalctl -u episciences-next -f | grep -E '"level":"(error|warn)"'
 ```
 
 **Filter by service** (e.g. only API calls):
+
 ```bash
 journalctl -u episciences-next -f | grep '"service":"article"'
 ```
 
 **Pretty-print JSON with `jq`:**
+
 ```bash
 journalctl -u episciences-next -f -o cat | jq 'select(.level == "error") | {time, service, msg, data}'
 ```
 
 **Control log verbosity** via `LOG_LEVEL` in the environment:
 
-| Value    | Output                          |
-|----------|---------------------------------|
-| `debug`  | Everything (very verbose)       |
+| Value    | Output                               |
+| -------- | ------------------------------------ |
+| `debug`  | Everything (very verbose)            |
 | `info`   | Info + warn + error (default in dev) |
-| `warn`   | Warnings and errors only        |
-| `error`  | Errors only                     |
-| `silent` | Nothing                         |
+| `warn`   | Warnings and errors only             |
+| `error`  | Errors only                          |
+| `silent` | Nothing                              |
 
 Set it in the systemd unit or `.env.local`:
+
 ```bash
 LOG_LEVEL=warn
 ```

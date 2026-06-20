@@ -76,9 +76,11 @@ export default async function ForConferenceOrganisersPage(props: {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/for-conference-organisers', {
-        name: t('pages.forConferenceOrganisers.title', translations),
-      })} />
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/for-conference-organisers', {
+          name: t('pages.forConferenceOrganisers.title', translations),
+        })}
+      />
       <ForConferenceOrganisersClient
         initialPage={pageData}
         lang={lang}

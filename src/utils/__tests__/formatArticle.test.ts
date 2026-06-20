@@ -81,7 +81,10 @@ describe('formatArticle', () => {
         '@id': '/articles/1',
         '@type': 'Article',
         paperid: 5,
-        document: { journal: { journal_article: { titles: { title: 'X' } } }, database: { current: {} } },
+        document: {
+          journal: { journal_article: { titles: { title: 'X' } } },
+          database: { current: {} },
+        },
       } as unknown as RawArticle;
       // wipe the content after the title check passes
       (raw.document as { journal?: unknown }).journal = undefined;
@@ -191,7 +194,10 @@ describe('formatArticle', () => {
         { '@xml:lang': 'en', value: 'English' },
         { '@language': 'fr', value: 'Français' },
       ];
-      expect(formatArticle(withAbstract(value))?.abstract).toEqual({ en: 'English', fr: 'Français' });
+      expect(formatArticle(withAbstract(value))?.abstract).toEqual({
+        en: 'English',
+        fr: 'Français',
+      });
     });
 
     it('returns a plain string for a single-language array', () => {
@@ -221,7 +227,12 @@ describe('formatArticle', () => {
     });
 
     it('handles a single (non-array) author', () => {
-      const person_name = { surname: 'Solo', given_name: 'Jane', '@sequence': 'first', ORCID: '0000' };
+      const person_name = {
+        surname: 'Solo',
+        given_name: 'Jane',
+        '@sequence': 'first',
+        ORCID: '0000',
+      };
       const result = formatArticle(makeRaw({ content: { contributors: { person_name } } }));
       expect(result?.authors).toEqual([{ fullname: 'Jane Solo', orcid: '0000', institutions: [] }]);
     });
@@ -281,11 +292,23 @@ describe('formatArticle', () => {
     };
 
     it('extracts from an array program with an array of related_item', () => {
-      const program = [{ related_item: [{ inter_work_relation: inter }, { intra_work_relation: intra }] }];
+      const program = [
+        { related_item: [{ inter_work_relation: inter }, { intra_work_relation: intra }] },
+      ];
       const result = formatArticle(makeRaw({ content: { program } }));
       expect(result?.relatedItems).toEqual([
-        { value: '10.inter', identifierType: 'doi', relationshipType: 'isSameAs', citation: 'inter cite' },
-        { value: '10.intra', identifierType: 'arxiv', relationshipType: 'hasPreprint', citation: undefined },
+        {
+          value: '10.inter',
+          identifierType: 'doi',
+          relationshipType: 'isSameAs',
+          citation: 'inter cite',
+        },
+        {
+          value: '10.intra',
+          identifierType: 'arxiv',
+          relationshipType: 'hasPreprint',
+          citation: undefined,
+        },
       ]);
     });
 
@@ -293,7 +316,12 @@ describe('formatArticle', () => {
       const program = { related_item: { inter_work_relation: inter } };
       const result = formatArticle(makeRaw({ content: { program } }));
       expect(result?.relatedItems).toEqual([
-        { value: '10.inter', identifierType: 'doi', relationshipType: 'isSameAs', citation: 'inter cite' },
+        {
+          value: '10.inter',
+          identifierType: 'doi',
+          relationshipType: 'isSameAs',
+          citation: 'inter cite',
+        },
       ]);
     });
 
@@ -312,9 +340,15 @@ describe('formatArticle', () => {
   describe('fundings', () => {
     it('extracts an assertion array from a fundref program (array form)', () => {
       const program = [
-        { '@name': 'fundref', assertion: { assertion: [{ value: 'Grant A' }, { value: 'Grant B' }] } },
+        {
+          '@name': 'fundref',
+          assertion: { assertion: [{ value: 'Grant A' }, { value: 'Grant B' }] },
+        },
       ];
-      expect(formatArticle(makeRaw({ content: { program } }))?.fundings).toEqual(['Grant A', 'Grant B']);
+      expect(formatArticle(makeRaw({ content: { program } }))?.fundings).toEqual([
+        'Grant A',
+        'Grant B',
+      ]);
     });
 
     it('extracts a single assertion from a fundref program (object form)', () => {

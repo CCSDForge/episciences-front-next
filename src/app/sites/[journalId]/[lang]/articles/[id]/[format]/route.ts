@@ -50,10 +50,9 @@ export async function GET(
   }
 
   if (!VALID_FORMATS.has(format)) {
-    return new NextResponse(
-      `Invalid format. Allowed: ${[...VALID_FORMATS].join(', ')}`,
-      { status: 400 }
-    );
+    return new NextResponse(`Invalid format. Allowed: ${[...VALID_FORMATS].join(', ')}`, {
+      status: 400,
+    });
   }
 
   const controller = new AbortController();

@@ -76,9 +76,11 @@ export default async function ForReviewersPage(props: {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/for-reviewers', {
-        name: t('pages.forReviewers.title', translations),
-      })} />
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/for-reviewers', {
+          name: t('pages.forReviewers.title', translations),
+        })}
+      />
       <ForReviewersClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
     </>
   );

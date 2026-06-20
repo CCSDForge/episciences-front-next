@@ -15,7 +15,9 @@ export interface MarkdownRendererProps {
 function isEmptyNode(node: React.ReactNode): boolean {
   if (typeof node === 'string') return node.trim() === '' || node.trim() === '-';
   if (!React.isValidElement(node)) return true;
-  return React.Children.toArray((node.props as { children?: React.ReactNode }).children).every(isEmptyNode);
+  return React.Children.toArray((node.props as { children?: React.ReactNode }).children).every(
+    isEmptyNode
+  );
 }
 
 const DEFAULT_COMPONENTS: Components = {

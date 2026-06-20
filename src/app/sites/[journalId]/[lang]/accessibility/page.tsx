@@ -61,9 +61,7 @@ export default async function AccessibilityPage(props: {
       }
     }
     if (!content) {
-      logger.warn(
-        `[Accessibility] No content file found for candidates: ${candidates.join(', ')}`
-      );
+      logger.warn(`[Accessibility] No content file found for candidates: ${candidates.join(', ')}`);
       content = translate('pages.accessibility.noContent', translations);
     }
   } catch (err) {
@@ -78,9 +76,11 @@ export default async function AccessibilityPage(props: {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/accessibility', {
-        name: translate('pages.accessibility.title', translations),
-      })} />
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/accessibility', {
+          name: translate('pages.accessibility.title', translations),
+        })}
+      />
       <MarkdownPageWithSidebar
         content={content}
         title={translate('pages.accessibility.title', translations)}

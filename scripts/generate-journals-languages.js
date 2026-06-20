@@ -33,7 +33,10 @@ try {
 
     const defaultLang = env['NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE'] || DEFAULT_LANGUAGE;
     const accepted = env['NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES']
-      ? env['NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES'].split(',').map(l => l.trim()).filter(Boolean)
+      ? env['NEXT_PUBLIC_JOURNAL_ACCEPTED_LANGUAGES']
+          .split(',')
+          .map(l => l.trim())
+          .filter(Boolean)
       : DEFAULT_ACCEPTED;
 
     result[journalCode] = { default: defaultLang, accepted };

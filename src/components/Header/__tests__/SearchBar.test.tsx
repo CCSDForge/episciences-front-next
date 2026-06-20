@@ -187,9 +187,7 @@ describe('SearchBar', () => {
       await user.type(screen.getByRole('textbox'), 'quantum computing');
       await user.click(screen.getByRole('button', { name: /^Search$/i }));
 
-      expect(mockPush).toHaveBeenCalledWith(
-        '/search?terms=quantum%20computing'
-      );
+      expect(mockPush).toHaveBeenCalledWith('/search?terms=quantum%20computing');
     });
 
     it('does not navigate when search value is empty', async () => {

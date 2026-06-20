@@ -90,7 +90,8 @@ export async function fetchWithRetry(
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Unknown error');
 
-      if (isNetworkUnavailable(lastError)) log.warn(`Network unavailable for ${url}, skipping retries`);
+      if (isNetworkUnavailable(lastError))
+        log.warn(`Network unavailable for ${url}, skipping retries`);
       if (isNonRetryable(lastError)) throw lastError;
       if (attempt >= maxRetries) break;
 

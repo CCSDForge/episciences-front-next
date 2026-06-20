@@ -219,7 +219,11 @@ export default function ArticleDetailsServer({
       return null;
     }
 
-    return <PreviewSection previewHref={`/${language || defaultLanguage}/articles/${article.id}/preview`} />;
+    return (
+      <PreviewSection
+        previewHref={`/${language || defaultLanguage}/articles/${article.id}/preview`}
+      />
+    );
   };
 
   // Helper to render sections with collapsible wrapper
@@ -239,94 +243,104 @@ export default function ArticleDetailsServer({
     );
   };
 
-  const articleJsonLd = generateScholarlyArticleJsonLd(article, rvcode, language || defaultLanguage, relatedVolume);
+  const articleJsonLd = generateScholarlyArticleJsonLd(
+    article,
+    rvcode,
+    language || defaultLanguage,
+    relatedVolume
+  );
 
   return (
     <>
       <JsonLd data={articleJsonLd} />
-      <SignpostingLinks article={article} rvcode={rvcode} id={id} lang={language || defaultLanguage} />
-      <main className="articleDetails">
-      <Breadcrumb
-        parents={[
-          {
-            path: BREADCRUMB_PATHS.home,
-            label: `${t('pages.home.title', translations)} > ${t('common.content', translations)} >`,
-          },
-          {
-            path: BREADCRUMB_PATHS.articles,
-            label: `${t('pages.articles.title', translations)} >`,
-          },
-        ]}
-        crumbLabel={truncate(article?.title, MAX_BREADCRUMB_TITLE, ' ...')}
-        lang={language}
+      <SignpostingLinks
+        article={article}
+        rvcode={rvcode}
+        id={id}
+        lang={language || defaultLanguage}
       />
-
-      {article?.tag && (
-        <span className="articleDetails-tag">
-          {t(
-            articleTypes.find(type => type.value === article.tag)?.labelPath ||
-              `pages.articles.types.${article.tag}`,
-            translations
-          )}
-        </span>
-      )}
-
-      <div className="articleDetails-content">
-        {renderArticleTitleAndAuthors(true)}
-        <ArticleDetailsSidebarServer
-          article={article}
-          relatedVolume={relatedVolume}
-          metadataCSL={metadataCSL}
-          metadataBibTeX={metadataBibTeX}
-          translations={translations}
-          language={language}
-          rvcode={rvcode}
+      <main className="articleDetails">
+        <Breadcrumb
+          parents={[
+            {
+              path: BREADCRUMB_PATHS.home,
+              label: `${t('pages.home.title', translations)} > ${t('common.content', translations)} >`,
+            },
+            {
+              path: BREADCRUMB_PATHS.articles,
+              label: `${t('pages.articles.title', translations)} >`,
+            },
+          ]}
+          crumbLabel={truncate(article?.title, MAX_BREADCRUMB_TITLE, ' ...')}
+          lang={language}
         />
-        <div className="articleDetails-content-article">
-          {renderArticleTitleAndAuthors(false)}
-          {renderSection(
-            ARTICLE_SECTION.GRAPHICAL_ABSTRACT,
-            t('pages.articleDetails.sections.graphicalAbstract', translations),
-            getGraphicalAbstractSection()
-          )}
-          {renderSection(
-            ARTICLE_SECTION.ABSTRACT,
-            t('pages.articleDetails.sections.abstract', translations),
-            getAbstractSection()
-          )}
-          {renderSection(
-            ARTICLE_SECTION.KEYWORDS,
-            t('pages.articleDetails.sections.keywords', translations),
-            getKeywordsSection()
-          )}
-          {renderSection(
-            ARTICLE_SECTION.MSC_CLASSIFICATIONS,
-            t('pages.articleDetails.sections.mscClassifications', translations),
-            getClassificationsSection()
-          )}
-          {renderSection(
-            ARTICLE_SECTION.LINKED_PUBLICATIONS,
-            t('pages.articleDetails.sections.linkedPublications', translations),
-            getLinkedPublicationsSection()
-          )}
-          {renderSection(
-            ARTICLE_SECTION.CITED_BY,
-            t('pages.articleDetails.sections.citedBy', translations),
-            getCitedBySection()
-          )}
-          {renderSection(
-            ARTICLE_SECTION.PREVIEW,
-            t('pages.articleDetails.sections.preview', translations),
-            getPreviewSection()
-          )}
-          {renderSection(
-            ARTICLE_SECTION.REFERENCES,
-            t('pages.articleDetails.sections.references', translations),
-            getReferencesSection()
-          )}
+
+        {article?.tag && (
+          <span className="articleDetails-tag">
+            {t(
+              articleTypes.find(type => type.value === article.tag)?.labelPath ||
+                `pages.articles.types.${article.tag}`,
+              translations
+            )}
+          </span>
+        )}
+
+        <div className="articleDetails-content">
+          {renderArticleTitleAndAuthors(true)}
+          <ArticleDetailsSidebarServer
+            article={article}
+            relatedVolume={relatedVolume}
+            metadataCSL={metadataCSL}
+            metadataBibTeX={metadataBibTeX}
+            translations={translations}
+            language={language}
+            rvcode={rvcode}
+          />
+          <div className="articleDetails-content-article">
+            {renderArticleTitleAndAuthors(false)}
+            {renderSection(
+              ARTICLE_SECTION.GRAPHICAL_ABSTRACT,
+              t('pages.articleDetails.sections.graphicalAbstract', translations),
+              getGraphicalAbstractSection()
+            )}
+            {renderSection(
+              ARTICLE_SECTION.ABSTRACT,
+              t('pages.articleDetails.sections.abstract', translations),
+              getAbstractSection()
+            )}
+            {renderSection(
+              ARTICLE_SECTION.KEYWORDS,
+              t('pages.articleDetails.sections.keywords', translations),
+              getKeywordsSection()
+            )}
+            {renderSection(
+              ARTICLE_SECTION.MSC_CLASSIFICATIONS,
+              t('pages.articleDetails.sections.mscClassifications', translations),
+              getClassificationsSection()
+            )}
+            {renderSection(
+              ARTICLE_SECTION.LINKED_PUBLICATIONS,
+              t('pages.articleDetails.sections.linkedPublications', translations),
+              getLinkedPublicationsSection()
+            )}
+            {renderSection(
+              ARTICLE_SECTION.CITED_BY,
+              t('pages.articleDetails.sections.citedBy', translations),
+              getCitedBySection()
+            )}
+            {renderSection(
+              ARTICLE_SECTION.PREVIEW,
+              t('pages.articleDetails.sections.preview', translations),
+              getPreviewSection()
+            )}
+            {renderSection(
+              ARTICLE_SECTION.REFERENCES,
+              t('pages.articleDetails.sections.references', translations),
+              getReferencesSection()
+            )}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
     </>
   );
 }

@@ -63,9 +63,7 @@ export default async function AcknowledgementsPage(props: {
       }
     }
   } catch (error) {
-    logger.warn(
-      `[Build] Could not reach API for Acknowledgements page of journal "${journalId}".`
-    );
+    logger.warn(`[Build] Could not reach API for Acknowledgements page of journal "${journalId}".`);
   }
 
   const translations = await translationsPromise;
@@ -76,9 +74,11 @@ export default async function AcknowledgementsPage(props: {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/acknowledgements', {
-        name: t('pages.acknowledgements.title', translations),
-      })} />
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/acknowledgements', {
+          name: t('pages.acknowledgements.title', translations),
+        })}
+      />
       <AcknowledgementsClient
         initialPage={pageData}
         lang={lang}

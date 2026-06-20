@@ -108,9 +108,7 @@ describe('SwiperArticleAcceptedCard', () => {
 
     it('does not render tag when article has no tag', () => {
       const articleWithoutTag = { ...mockArticle, tag: undefined };
-      render(
-        <SwiperArticleAcceptedCard language="en" t={mockT} article={articleWithoutTag} />
-      );
+      render(<SwiperArticleAcceptedCard language="en" t={mockT} article={articleWithoutTag} />);
       expect(document.querySelector('.swiperArticleAcceptedCard-tag')).not.toBeInTheDocument();
     });
   });

@@ -109,10 +109,9 @@ describe('useMobileModal', () => {
       const onBeforeClose = vi.fn(() => callOrder.push('before'));
       const onCloseCallback = vi.fn(() => callOrder.push('close'));
 
-      const { result } = renderHook(
-        () => useMobileModal(onCloseCallback, { onBeforeClose }),
-        { wrapper: wrapper(store) }
-      );
+      const { result } = renderHook(() => useMobileModal(onCloseCallback, { onBeforeClose }), {
+        wrapper: wrapper(store),
+      });
 
       act(() => {
         result.current.onClose();
@@ -125,10 +124,9 @@ describe('useMobileModal', () => {
       const store = createStore();
       const onBeforeClose = vi.fn();
 
-      const { result } = renderHook(
-        () => useMobileModal(mockOnClose, { onBeforeClose }),
-        { wrapper: wrapper(store) }
-      );
+      const { result } = renderHook(() => useMobileModal(mockOnClose, { onBeforeClose }), {
+        wrapper: wrapper(store),
+      });
 
       act(() => {
         result.current.closeModal();
@@ -276,10 +274,9 @@ describe('useMobileModal', () => {
 
     it('restores overflow on unmount when lockBodyScroll=true', () => {
       const store = createStore();
-      const { unmount } = renderHook(
-        () => useMobileModal(mockOnClose, { lockBodyScroll: true }),
-        { wrapper: wrapper(store) }
-      );
+      const { unmount } = renderHook(() => useMobileModal(mockOnClose, { lockBodyScroll: true }), {
+        wrapper: wrapper(store),
+      });
 
       unmount();
 

@@ -256,8 +256,7 @@ export function getBoardsPerTitle(
             // Special case: Former Members page_code is "former-members" (plural) but
             // the role assigned to members is "former-member" (singular)
             const isFormerMembersSpecial =
-              page.page_code === 'former-members' &&
-              member.roles.includes('former-member');
+              page.page_code === 'former-members' && member.roles.includes('former-member');
 
             return (
               hasDirectRole ||

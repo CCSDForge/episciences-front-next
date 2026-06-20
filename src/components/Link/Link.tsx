@@ -29,7 +29,17 @@ function normalizePath(path: string): string {
   return normalizedPath.replace(/\/+/g, '/');
 }
 
-export function Link({ href, children, lang, ref, prefetch, scroll, replace, shallow, ...props }: LinkProps) {
+export function Link({
+  href,
+  children,
+  lang,
+  ref,
+  prefetch,
+  scroll,
+  replace,
+  shallow,
+  ...props
+}: LinkProps) {
   const { i18n } = useTranslation();
   // Ensure we always have a language, falling back to defaultLanguage
   const currentLanguage = lang || i18n.language || defaultLanguage;
