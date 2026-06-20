@@ -50,6 +50,85 @@ type EnhancedSearchResult = FetchedArticle & {
   openedAbstract: boolean;
 };
 
+function buildInitTypes(
+  rangeTypes: NonNullable<SearchRange['types']>,
+  prevTypes: ISearchResultTypeSelection[]
+): ISearchResultTypeSelection[] {
+  return rangeTypes
+    .filter(t => articleTypes.some(at => at.value === t.value))
+    .map(t => {
+      const matchingType = articleTypes.find(at => at.value === t.value)!;
+      return {
+        labelPath: matchingType.labelPath,
+        value: matchingType.value,
+        count: t.count,
+        isChecked: prevTypes.find(type => type.value === matchingType.value)?.isChecked ?? false,
+      };
+    });
+}
+
+function buildInitYears(
+  rangeYears: NonNullable<SearchRange['years']>,
+  prevYears: ISearchResultYearSelection[]
+): ISearchResultYearSelection[] {
+  return rangeYears.map(y => ({
+    year: y.value,
+    count: y.count,
+    isChecked: prevYears.find(year => year.year === y.value)?.isChecked ?? false,
+  }));
+}
+
+function buildInitVolumes(
+  rangeVolumes: NonNullable<SearchRange['volumes']>,
+  language: AvailableLanguage,
+  prevVolumes: ISearchResultVolumeSelection[]
+): ISearchResultVolumeSelection[] {
+  return (
+    rangeVolumes[language]?.map(v => {
+      const id = parseInt(Object.keys(v)[0]);
+      return {
+        id,
+        label: {
+          en: rangeVolumes.en?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] ?? '',
+          fr: rangeVolumes.fr?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] ?? '',
+        },
+        isChecked: prevVolumes.find(volume => volume.id === id)?.isChecked ?? false,
+      };
+    }) ?? []
+  );
+}
+
+function buildInitSections(
+  rangeSections: NonNullable<SearchRange['sections']>,
+  language: AvailableLanguage,
+  prevSections: ISearchResultSectionSelection[]
+): ISearchResultSectionSelection[] {
+  return (
+    rangeSections[language]?.map(s => {
+      const id = parseInt(Object.keys(s)[0]);
+      return {
+        id,
+        label: {
+          en: rangeSections.en?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] ?? '',
+          fr: rangeSections.fr?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] ?? '',
+        },
+        isChecked: prevSections.find(section => section.id === id)?.isChecked ?? false,
+      };
+    }) ?? []
+  );
+}
+
+function buildInitAuthors(
+  rangeAuthors: NonNullable<SearchRange['authors']>,
+  prevAuthors: ISearchResultAuthorSelection[]
+): ISearchResultAuthorSelection[] {
+  return rangeAuthors.map(a => ({
+    fullname: a.value,
+    count: a.count,
+    isChecked: prevAuthors.find(author => author.fullname === a.value)?.isChecked ?? false,
+  }));
+}
+
 interface SearchClientProps {
   initialSearchResults: {
     data: FetchedArticle[];
@@ -119,7 +198,7 @@ export default function SearchClient({
       types
         .filter(t => t.isChecked)
         .map(t => t.value)
-        .sort(),
+        .sort((a, b) => a.localeCompare(b)),
     [types]
   );
   const selectedYearValues = useMemo(
@@ -127,7 +206,7 @@ export default function SearchClient({
       years
         .filter(y => y.isChecked)
         .map(y => y.year)
-        .sort(),
+        .sort((a, b) => a - b),
     [years]
   );
   const selectedVolumeValues = useMemo(
@@ -135,7 +214,7 @@ export default function SearchClient({
       volumes
         .filter(v => v.isChecked)
         .map(v => v.id)
-        .sort(),
+        .sort((a, b) => a - b),
     [volumes]
   );
   const selectedSectionValues = useMemo(
@@ -143,7 +222,7 @@ export default function SearchClient({
       sections
         .filter(s => s.isChecked)
         .map(s => s.id)
-        .sort(),
+        .sort((a, b) => a - b),
     [sections]
   );
   const selectedAuthorValues = useMemo(
@@ -151,7 +230,7 @@ export default function SearchClient({
       authors
         .filter(a => a.isChecked)
         .map(a => a.fullname)
-        .sort(),
+        .sort((a, b) => a.localeCompare(b)),
     [authors]
   );
 
@@ -255,82 +334,26 @@ export default function SearchClient({
   // Filtrer les résultats de recherche
   useEffect(() => {
     if (searchResults?.range) {
-      const { types, years, volumes, sections, authors } = searchResults.range;
+      const { types: rangeTypes, years: rangeYears, volumes: rangeVolumes, sections: rangeSections, authors: rangeAuthors } = searchResults.range;
 
-      if (types) {
-        setTypes(prevTypes => {
-          const initTypes = types
-            .filter(t => articleTypes.find(at => at.value === t.value))
-            .map(t => {
-              const matchingType = articleTypes.find(at => at.value === t.value);
-              return {
-                labelPath: matchingType!.labelPath,
-                value: matchingType!.value,
-                count: t.count,
-                isChecked:
-                  prevTypes.find(type => type.value === matchingType!.value)?.isChecked || false,
-              };
-            });
-          return initTypes;
-        });
+      if (rangeTypes) {
+        setTypes(prevTypes => buildInitTypes(rangeTypes, prevTypes));
       }
 
-      if (years) {
-        setYears(prevYears => {
-          const initYears = years.map(y => ({
-            year: y.value,
-            count: y.count,
-            isChecked: prevYears.find(year => year.year === y.value)?.isChecked || false,
-          }));
-          return initYears;
-        });
+      if (rangeYears) {
+        setYears(prevYears => buildInitYears(rangeYears, prevYears));
       }
 
-      if (volumes) {
-        setVolumes(prevVolumes => {
-          const initVolumes =
-            volumes[language]?.map(v => {
-              const id = parseInt(Object.keys(v)[0]);
-              return {
-                id,
-                label: {
-                  en: volumes?.en?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] || '',
-                  fr: volumes?.fr?.find(vol => parseInt(Object.keys(vol)[0]) === id)?.[id] || '',
-                },
-                isChecked: prevVolumes.find(volume => volume.id === id)?.isChecked || false,
-              };
-            }) ?? [];
-          return initVolumes;
-        });
+      if (rangeVolumes) {
+        setVolumes(prevVolumes => buildInitVolumes(rangeVolumes, language, prevVolumes));
       }
 
-      if (sections) {
-        setSections(prevSections => {
-          const initSections =
-            sections[language]?.map(s => {
-              const id = parseInt(Object.keys(s)[0]);
-              return {
-                id,
-                label: {
-                  en: sections?.en?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] || '',
-                  fr: sections?.fr?.find(sec => parseInt(Object.keys(sec)[0]) === id)?.[id] || '',
-                },
-                isChecked: prevSections.find(section => section.id === id)?.isChecked || false,
-              };
-            }) ?? [];
-          return initSections;
-        });
+      if (rangeSections) {
+        setSections(prevSections => buildInitSections(rangeSections, language, prevSections));
       }
 
-      if (authors) {
-        setAuthors(prevAuthors => {
-          const initAuthors = authors.map(a => ({
-            fullname: a.value,
-            count: a.count,
-            isChecked: prevAuthors.find(author => author.fullname === a.value)?.isChecked || false,
-          }));
-          return initAuthors;
-        });
+      if (rangeAuthors) {
+        setAuthors(prevAuthors => buildInitAuthors(rangeAuthors, prevAuthors));
       }
     }
   }, [searchResults, language]);
