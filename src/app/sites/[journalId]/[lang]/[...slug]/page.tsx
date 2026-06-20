@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
-
-export default function CatchAllPage() {
+export default async function CatchAllPage() {
+  await connection();
   notFound();
 }

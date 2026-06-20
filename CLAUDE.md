@@ -6,6 +6,11 @@ Instructions for AI assistants working with this repository.
 
 Next.js 16 (React 19) multi-tenant application for Episciences academic journals (45+ journals).
 
+<!-- BEGIN:nextjs-agent-rules -->
+# Next.js: ALWAYS read docs before coding
+Before any Next.js work, find and read the relevant doc in `node_modules/next/dist/docs/`. Your training data is outdated — the docs are the source of truth.
+<!-- END:nextjs-agent-rules -->
+
 - **Architecture**: Node.js server with ISR (Incremental Static Regeneration)
 - **Routing**: Middleware maps hostnames to journal codes → `/sites/[journalId]/[lang]/...`
 - **Rendering**: Server Components for data/SEO, Client Components for interactivity
@@ -20,6 +25,7 @@ npm run test         # Run tests (Vitest)
 npm run test:coverage # Run tests with coverage
 npm run lint         # Linter (ESLint)
 npm run format       # Format code (Prettier)
+npm run validate:pages # Validate ISR page configurations
 make build && make up # Test with Nginx (production-like)
 ```
 
@@ -100,6 +106,8 @@ Use semantic CSS variables for text colors (WCAG compliance):
 | ----------------------- | --------------------------------- |
 | ISR & Caching           | `docs/ISR_STRATEGY.md`            |
 | Webhooks & Revalidation | `docs/REVALIDATION_GUIDE.md`      |
+| Revalidation Specs (Symfony) | `docs/REVALIDATION_IMPLEMENTATION_SPEC_SYMFONY.md` |
+| Revalidation Specs (ZF1) | `docs/REVALIDATION_IMPLEMENTATION_SPEC_ZF1.md` |
 | Runtime Configuration   | `docs/CONFIGURATION_GUIDE.md`     |
 | Local Testing           | `docs/LOCAL_TESTING_GUIDE.md`     |
 | Nginx & Docker          | `docs/NGINX_INTEGRATION.md`       |
