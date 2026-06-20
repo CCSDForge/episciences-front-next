@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import {
-  generateBreadcrumbJsonLd,
-  generateCollectionPageJsonLd,
-  generateHomepageJsonLd,
-  generateScholarlyArticleJsonLd,
-  generateWebPageJsonLd,
+  generateBreadcrumbJsonLd as _generateBreadcrumbJsonLd,
+  generateCollectionPageJsonLd as _generateCollectionPageJsonLd,
+  generateHomepageJsonLd as _generateHomepageJsonLd,
+  generateScholarlyArticleJsonLd as _generateScholarlyArticleJsonLd,
+  generateWebPageJsonLd as _generateWebPageJsonLd,
   getWebSiteId,
   getPeriodicalId,
   getWebPageId,
@@ -13,6 +13,18 @@ import {
 import type { IArticle } from '@/types/article';
 import type { IJournal } from '@/types/journal';
 import type { IVolume } from '@/types/volume';
+
+const generateBreadcrumbJsonLd = (...args: Parameters<typeof _generateBreadcrumbJsonLd>) =>
+  _generateBreadcrumbJsonLd(...args) as any;
+const generateCollectionPageJsonLd = (...args: Parameters<typeof _generateCollectionPageJsonLd>) =>
+  _generateCollectionPageJsonLd(...args) as any;
+const generateHomepageJsonLd = (...args: Parameters<typeof _generateHomepageJsonLd>) =>
+  _generateHomepageJsonLd(...args) as any;
+const generateScholarlyArticleJsonLd = (...args: Parameters<typeof _generateScholarlyArticleJsonLd>) =>
+  _generateScholarlyArticleJsonLd(...args) as any;
+const generateWebPageJsonLd = (...args: Parameters<typeof _generateWebPageJsonLd>) =>
+  _generateWebPageJsonLd(...args) as any;
+
 
 vi.mock('@/utils/signposting', () => ({
   getJournalBaseUrl: (id: string) => `https://${id}.episciences.org`,

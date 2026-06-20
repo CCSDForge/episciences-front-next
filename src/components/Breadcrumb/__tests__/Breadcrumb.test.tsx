@@ -254,7 +254,7 @@ describe('JSON-LD structured data', () => {
   });
 
   it('sets last item item to undefined when pathname is null', () => {
-    vi.mocked(usePathname).mockReturnValue(null);
+    vi.mocked(usePathname).mockReturnValue(null as any);
     const parents = [{ path: '/', label: 'Home >' }];
     const { container } = render(<Breadcrumb parents={parents} crumbLabel="Volumes" />);
     const items = getJsonLd(container).itemListElement;
@@ -270,7 +270,7 @@ describe('JSON-LD structured data', () => {
   });
 
   it('omits @id when pathname is null', () => {
-    vi.mocked(usePathname).mockReturnValue(null);
+    vi.mocked(usePathname).mockReturnValue(null as any);
     const parents = [{ path: '/', label: 'Home >' }];
     const { container } = render(<Breadcrumb parents={parents} crumbLabel="Volumes" />);
     const jsonLd = getJsonLd(container);

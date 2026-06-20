@@ -9,7 +9,7 @@ import { CACHE_TTL } from '@/utils/cache-ttl';
 
 export interface IBoardMemberAffiliation {
   label: string;
-  rorId: string;
+  rorId?: string;
 }
 
 export interface IBoardMemberAssignedSection {
