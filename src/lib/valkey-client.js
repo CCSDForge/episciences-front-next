@@ -41,7 +41,7 @@ function parseSentinels(hostsStr) {
         return { host: entry, port: 26379 };
       }
       const host = entry.slice(0, lastColon);
-      const port = parseInt(entry.slice(lastColon + 1), 10) || 26379;
+      const port = Number.parseInt(entry.slice(lastColon + 1), 10) || 26379;
       return { host, port };
     });
 }

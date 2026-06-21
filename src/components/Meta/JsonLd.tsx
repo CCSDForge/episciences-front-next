@@ -11,10 +11,5 @@ export default function JsonLd({ data }: JsonLdProps): JSX.Element {
     .replace(/>/g, '\\u003e')
     .replace(/&/g, '\\u0026');
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: serialized }}
-    />
-  );
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serialized }} />;
 }

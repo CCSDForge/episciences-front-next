@@ -11,7 +11,7 @@ export type SchemaOrgEntity = {
 };
 
 export type SchemaOrgThing =
-  | ({ '@context': 'https://schema.org'; '@graph': SchemaOrgEntity[] })
+  | { '@context': 'https://schema.org'; '@graph': SchemaOrgEntity[] }
   | ({ '@context': 'https://schema.org' } & SchemaOrgEntity);
 
 // --- Stable @id helpers (language-agnostic for journal-level entities) ---
@@ -44,10 +44,8 @@ const EPISCIENCES_PUBLISHER: SchemaOrgEntity = {
 };
 
 function getIssnList(journal: IJournal): string[] {
-  const issn =
-    journal.issn || journal.settings?.find(s => s.setting === 'ISSN')?.value;
-  const eissn =
-    journal.eissn || journal.settings?.find(s => s.setting === 'EISSN')?.value;
+  const issn = journal.issn || journal.settings?.find(s => s.setting === 'ISSN')?.value;
+  const eissn = journal.eissn || journal.settings?.find(s => s.setting === 'EISSN')?.value;
   return [issn, eissn].filter((v): v is string => Boolean(v));
 }
 
@@ -70,10 +68,7 @@ export function generateHomepageJsonLd(
     ...(issnList.length === 1 && { issn: issnList[0] }),
     ...(issnList.length > 1 && { issn: issnList }),
     publisher: publisherRef,
-    publishingPrinciples: [
-      `${baseUrl}/${lang}/ethical-charter`,
-      `${baseUrl}/${lang}/for-authors`,
-    ],
+    publishingPrinciples: [`${baseUrl}/${lang}/ethical-charter`, `${baseUrl}/${lang}/for-authors`],
   };
 
   return {

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { getBoardsPerTitle, filterAndSortMembersForCarousel, transformBoardMember } from '../board-transforms';
+import {
+  getBoardsPerTitle,
+  filterAndSortMembersForCarousel,
+  transformBoardMember,
+} from '../board-transforms';
 import { IBoardPage, IBoardMember } from '@/services/board';
 
 describe('getBoardsPerTitle', () => {
@@ -231,7 +235,12 @@ describe('getBoardsPerTitle', () => {
 });
 
 describe('filterAndSortMembersForCarousel', () => {
-  const make = (id: number, firstname: string, lastname: string, roles: string[]): IBoardMember => ({
+  const make = (
+    id: number,
+    firstname: string,
+    lastname: string,
+    roles: string[]
+  ): IBoardMember => ({
     id,
     firstname,
     lastname,

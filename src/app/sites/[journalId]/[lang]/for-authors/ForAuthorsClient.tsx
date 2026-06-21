@@ -78,10 +78,9 @@ export default function ForAuthorsClient({
   );
 
   const lastUpdated = useMemo(() => {
-    const dates = [
-      editorialWorkflowPage?.date_updated,
-      prepareSubmissionPage?.date_updated,
-    ].filter((d): d is string => !!d);
+    const dates = [editorialWorkflowPage?.date_updated, prepareSubmissionPage?.date_updated].filter(
+      (d): d is string => !!d
+    );
     return dates.length > 0 ? dates.reduce((a, b) => (a > b ? a : b)) : null;
   }, [editorialWorkflowPage, prepareSubmissionPage]);
 

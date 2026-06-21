@@ -115,6 +115,21 @@ function deserialize(raw) {
   });
 }
 
+async function readStreamToBuffer(stream) {
+  const reader = stream.getReader();
+  const chunks = [];
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) chunks.push(Buffer.isBuffer(value) ? value : Buffer.from(value));
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return Buffer.concat(chunks);
+}
+
 /**
  * Recursively consume ReadableStream instances before JSON serialization.
  * JSON.stringify cannot handle ReadableStream — it silently becomes {}.
@@ -124,18 +139,7 @@ function deserialize(raw) {
 async function preprocessValue(val) {
   if (val === null || val === undefined || typeof val !== 'object') return val;
   if (typeof ReadableStream !== 'undefined' && val instanceof ReadableStream) {
-    const reader = val.getReader();
-    const chunks = [];
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) chunks.push(Buffer.isBuffer(value) ? value : Buffer.from(value));
-      }
-    } finally {
-      reader.releaseLock();
-    }
-    const buf = Buffer.concat(chunks);
+    const buf = await readStreamToBuffer(val);
     return { __t: 'ReadableStream', v: buf.toString('base64') };
   }
   // Buffer and Uint8Array: pass through as-is; serialize() handles them.
@@ -167,9 +171,9 @@ async function preprocessValue(val) {
 // Circuit Breaker
 // ---------------------------------------------------------------------------
 
-const CB_THRESHOLD = parseInt(process.env.VALKEY_CIRCUIT_BREAKER_THRESHOLD || '5', 10);
+const CB_THRESHOLD = Number.parseInt(process.env.VALKEY_CIRCUIT_BREAKER_THRESHOLD || '5', 10);
 const CB_PROBE_INTERVAL =
-  parseInt(process.env.VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL || '30', 10) * 1000;
+  Number.parseInt(process.env.VALKEY_CIRCUIT_BREAKER_PROBE_INTERVAL || '30', 10) * 1000;
 
 const CB_STATE = { CLOSED: 'CLOSED', OPEN: 'OPEN', HALF_OPEN: 'HALF_OPEN' };
 
@@ -307,6 +311,63 @@ class CacheHandler {
     }
   }
 
+  // Defensive: ensure Buffer-typed fields are proper Node.js Buffers so that
+  // Buffer.isBuffer() returns true in the render-result.js readable getter.
+  // A Uint8Array or { type:'Buffer', data:[] } would cause the fallthrough
+  // path in RenderResult.readable, returning the raw value which lacks .pipeTo().
+  _normalizeEntryBuffers(v) {
+    if (!v || typeof v !== 'object') return;
+    if (v.rscData !== undefined && v.rscData !== null) {
+      v.rscData = ensureBuffer(v.rscData);
+    }
+    if (v.segmentData instanceof Map) {
+      for (const [k, seg] of v.segmentData) {
+        v.segmentData.set(k, ensureBuffer(seg));
+      }
+    }
+  }
+
+  _logCacheHit(key, v) {
+    if (process.env.CACHE_DEBUG !== 'true') return;
+    let segInfo;
+    if (v?.segmentData instanceof Map) {
+      const types = Array.from(v.segmentData.values())
+        .slice(0, 3)
+        .map(x => {
+          if (Buffer.isBuffer(x)) return 'Buffer';
+          if (x instanceof Uint8Array) return 'Uint8Array';
+          return typeof x;
+        });
+      segInfo = `Map(${v.segmentData.size}) valTypes=[${types.join(',')}]`;
+    } else {
+      segInfo = String(v?.segmentData);
+    }
+    console.log(
+      `[CacheHandler] HIT  ${key} kind=${v?.kind} htmlType=${typeof v?.html} rscDataIsBuffer=${Buffer.isBuffer(v?.rscData)} rscDataCtor=${v?.rscData?.constructor?.name || typeof v?.rscData} segmentData=${segInfo} postponedType=${typeof v?.postponed} postponed=${String(v?.postponed).slice(0, 40)}`
+    );
+  }
+
+  _parseEntry(key, raw) {
+    try {
+      const entry = deserialize(raw);
+      if (!entry || entry.__v !== CACHE_FORMAT_VERSION) {
+        if (process.env.CACHE_DEBUG === 'true')
+          console.log(`[CacheHandler] STALE (version mismatch) ${key}`);
+        return null;
+      }
+      if (BUILD_ID && entry.__buildId !== BUILD_ID) {
+        if (process.env.CACHE_DEBUG === 'true')
+          console.log(`[CacheHandler] STALE (build mismatch) ${key}`);
+        return null;
+      }
+      this._normalizeEntryBuffers(entry.value);
+      this._logCacheHit(key, entry.value);
+      return entry;
+    } catch {
+      return null;
+    }
+  }
+
   /**
    * Get a cache entry by key.
    * @param {string} key
@@ -322,58 +383,7 @@ class CacheHandler {
           if (process.env.CACHE_DEBUG === 'true') console.log(`[CacheHandler] MISS ${key}`);
           return null;
         }
-        try {
-          const entry = deserialize(raw);
-          if (!entry || entry.__v !== CACHE_FORMAT_VERSION) {
-            // Stale or incompatible format — treat as miss so Next.js re-renders
-            if (process.env.CACHE_DEBUG === 'true')
-              console.log(`[CacheHandler] STALE (version mismatch) ${key}`);
-            return null;
-          }
-          if (BUILD_ID && entry.__buildId !== BUILD_ID) {
-            // Entry was stored by a previous build — its JS/CSS chunk references are
-            // stale. Treat as miss so the current build can re-render and re-cache.
-            if (process.env.CACHE_DEBUG === 'true')
-              console.log(`[CacheHandler] STALE (build mismatch) ${key}`);
-            return null;
-          }
-          // Defensive: ensure Buffer-typed fields are proper Node.js Buffers so that
-          // Buffer.isBuffer() returns true in the render-result.js readable getter.
-          // A Uint8Array or { type:'Buffer', data:[] } would cause the fallthrough
-          // path in RenderResult.readable, returning the raw value which lacks .pipeTo().
-          const v = entry.value;
-          if (v && typeof v === 'object') {
-            if (v.rscData !== undefined && v.rscData !== null) {
-              v.rscData = ensureBuffer(v.rscData);
-            }
-            if (v.segmentData instanceof Map) {
-              for (const [k, seg] of v.segmentData) {
-                v.segmentData.set(k, ensureBuffer(seg));
-              }
-            }
-          }
-          if (process.env.CACHE_DEBUG === 'true') {
-            const segInfo =
-              v?.segmentData instanceof Map
-                ? `Map(${v.segmentData.size}) valTypes=[${Array.from(v.segmentData.values())
-                    .slice(0, 3)
-                    .map(x =>
-                      Buffer.isBuffer(x)
-                        ? 'Buffer'
-                        : x instanceof Uint8Array
-                          ? 'Uint8Array'
-                          : typeof x
-                    )
-                    .join(',')}]`
-                : String(v?.segmentData);
-            console.log(
-              `[CacheHandler] HIT  ${key} kind=${v?.kind} htmlType=${typeof v?.html} rscDataIsBuffer=${Buffer.isBuffer(v?.rscData)} rscDataCtor=${v?.rscData?.constructor?.name || typeof v?.rscData} segmentData=${segInfo} postponedType=${typeof v?.postponed} postponed=${String(v?.postponed).slice(0, 40)}`
-            );
-          }
-          return entry;
-        } catch {
-          return null;
-        }
+        return this._parseEntry(key, raw);
       },
       () => memGet(dataKey)
     );
@@ -430,6 +440,39 @@ class CacheHandler {
     );
   }
 
+  _findStaleKeys(ioKeys, results) {
+    const staleKeys = [];
+    for (let i = 0; i < ioKeys.length; i++) {
+      const [err, raw] = results[i];
+      if (err || !raw) continue;
+      try {
+        const entry = JSON.parse(raw);
+        if (entry && entry.__buildId !== BUILD_ID) staleKeys.push(ioKeys[i]);
+      } catch {
+        // Malformed entry — leave it; get() will treat it as a miss.
+      }
+    }
+    return staleKeys;
+  }
+
+  // Strip keyPrefix so ioredis re-adds it correctly, then batch-GET all entries,
+  // collect stale ones (wrong buildId), delete them, and return the count deleted.
+  async _processScanPage(client, rawKeys, prefix) {
+    const ioKeys = rawKeys.map(k => (k.startsWith(prefix) ? k.slice(prefix.length) : k));
+
+    const getPipeline = client.pipeline();
+    for (const ioKey of ioKeys) getPipeline.get(ioKey);
+    const results = await getPipeline.exec();
+
+    const staleKeys = this._findStaleKeys(ioKeys, results);
+    if (!staleKeys.length) return 0;
+
+    const delPipeline = client.pipeline();
+    for (const ioKey of staleKeys) delPipeline.del(ioKey);
+    await delPipeline.exec();
+    return staleKeys.length;
+  }
+
   /**
    * Called once by Next.js at server startup.
    * Scans Valkey for data entries from previous builds and deletes them so that
@@ -459,36 +502,7 @@ class CacheHandler {
         for await (const rawKeys of stream) {
           if (!rawKeys.length) continue;
           scanned += rawKeys.length;
-
-          // Strip keyPrefix so ioredis re-adds it correctly in pipeline calls.
-          const ioKeys = rawKeys.map(k => (k.startsWith(prefix) ? k.slice(prefix.length) : k));
-
-          // Batch-GET all entries in this scan page via pipeline.
-          const getPipeline = client.pipeline();
-          for (const ioKey of ioKeys) {
-            getPipeline.get(ioKey);
-          }
-          const results = await getPipeline.exec();
-
-          // Collect entries whose buildId does not match the current build.
-          const staleKeys = [];
-          for (let i = 0; i < ioKeys.length; i++) {
-            const [err, raw] = results[i];
-            if (err || !raw) continue;
-            try {
-              const entry = JSON.parse(raw);
-              if (entry && entry.__buildId !== BUILD_ID) staleKeys.push(ioKeys[i]);
-            } catch {
-              // Malformed entry — leave it; get() will treat it as a miss.
-            }
-          }
-
-          if (staleKeys.length > 0) {
-            const delPipeline = client.pipeline();
-            for (const ioKey of staleKeys) delPipeline.del(ioKey);
-            await delPipeline.exec();
-            deleted += staleKeys.length;
-          }
+          deleted += await this._processScanPage(client, rawKeys, prefix);
         }
 
         console.log(

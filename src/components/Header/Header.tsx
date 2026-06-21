@@ -53,11 +53,7 @@ function HeaderSignIn({
         rel="noopener noreferrer"
       >
         <span className="header-signin-text">{signInText}</span>
-        <UserCircleIcon
-          className="header-signin-icon"
-          ariaLabel={signInText}
-          size={28}
-        />
+        <UserCircleIcon className="header-signin-icon" ariaLabel={signInText} size={28} />
         <span className="sr-only">{newWindowText}</span>
       </Link>
     </>
@@ -423,9 +419,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           </div>
           <div className="header-reduced-journal-blank"></div>
           <div className="header-reduced-journal-dropdown">
-            {availableLanguages.length > 1 && (
-              <LanguageDropdown />
-            )}
+            {availableLanguages.length > 1 && <LanguageDropdown />}
             {submitManagerLink && (
               <HeaderSignIn
                 submitManagerLink={submitManagerLink}
@@ -509,9 +503,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           <span className="header-journal-title-main">
             {journalName || currentJournal?.name || defaultJournalTitle}
           </span>
-          {journalSubtitle && (
-            <span className="header-journal-subtitle">{journalSubtitle}</span>
-          )}
+          {journalSubtitle && <span className="header-journal-subtitle">{journalSubtitle}</span>}
         </div>
       </div>
       <nav className="header-postheader" ref={mobileMenuDropdownRef} aria-label="Main navigation">

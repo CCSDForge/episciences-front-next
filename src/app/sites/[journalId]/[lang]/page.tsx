@@ -68,7 +68,12 @@ export default async function HomePage(props: {
   return (
     <>
       {journal && <JsonLd data={generateHomepageJsonLd(journal, rvcode, language)} />}
-      <HomeClient homeData={homeData} language={language} journalId={rvcode} journalConfig={journalConfig} />
+      <HomeClient
+        homeData={homeData}
+        language={language}
+        journalId={rvcode}
+        journalConfig={journalConfig}
+      />
     </>
   );
 }

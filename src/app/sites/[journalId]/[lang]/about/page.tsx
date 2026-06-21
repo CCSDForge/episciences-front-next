@@ -75,10 +75,12 @@ export default async function AboutPage(props: {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('AboutPage', journalId, lang, '/about', {
-        name: t('pages.about.title', translations),
-        lastReviewed: pageData?.date_updated,
-      })} />
+      <JsonLd
+        data={generateWebPageJsonLd('AboutPage', journalId, lang, '/about', {
+          name: t('pages.about.title', translations),
+          lastReviewed: pageData?.date_updated,
+        })}
+      />
       <AboutClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
     </>
   );

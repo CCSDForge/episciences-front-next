@@ -5,7 +5,7 @@ export type BoardPage = IPage;
 
 export interface IBoardMemberAffiliation {
   label: string;
-  rorId: string;
+  rorId?: string;
 }
 
 export interface IBoardMemberAssignedSection {

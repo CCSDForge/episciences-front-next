@@ -15,8 +15,58 @@ const log = logger.child({ service: 'middleware' });
 import { journals } from '@/config/journals-generated';
 import { journalLanguages } from '@/config/journals-languages-generated';
 
+const DEFAULT_JOURNAL = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
+
+const STATIC_EXTENSIONS = [
+  '.js',
+  '.css',
+  '.woff',
+  '.woff2',
+  '.ttf',
+  '.otf',
+  '.eot',
+  '.svg',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.ico',
+  '.webp',
+];
+
 function journalExists(journalId: string): boolean {
   return journals.includes(journalId);
+}
+
+function detectJournalId(hostname: string): string {
+  const productionDomain = process.env.NEXT_PUBLIC_EPISCIENCES_DOMAIN || 'episciences.org';
+  const isProductionHost =
+    hostname === productionDomain || hostname.endsWith(`.${productionDomain}`);
+
+  if (isProductionHost) {
+    const extractedId = hostname.split('.')[0];
+    if (isValidJournalId(extractedId)) {
+      return extractedId;
+    }
+    log.warn(
+      `[Middleware] Invalid journalId format from hostname: ${sanitizeForLog(extractedId)}`
+    );
+    return DEFAULT_JOURNAL;
+  }
+
+  // localhost or dev environment
+  const subdomain = hostname.split('.')[0];
+  if (subdomain !== 'localhost' && !Number.isInteger(Number(subdomain))) {
+    if (isValidJournalId(subdomain)) {
+      return subdomain;
+    }
+    log.warn(
+      `[Middleware] Invalid journalId format from subdomain: ${sanitizeForLog(subdomain)}`
+    );
+    return DEFAULT_JOURNAL;
+  }
+
+  return DEFAULT_JOURNAL;
 }
 
 export function middleware(request: NextRequest) {
@@ -35,67 +85,22 @@ export function middleware(request: NextRequest) {
   );
 
   // Ignore static files with extensions
-  const staticExtensions = [
-    '.js',
-    '.css',
-    '.woff',
-    '.woff2',
-    '.ttf',
-    '.otf',
-    '.eot',
-    '.svg',
-    '.png',
-    '.jpg',
-    '.jpeg',
-    '.gif',
-    '.ico',
-    '.webp',
-  ];
-  if (staticExtensions.some(ext => pathname.endsWith(ext))) {
+  if (STATIC_EXTENSIONS.some(ext => pathname.endsWith(ext))) {
     return NextResponse.next();
   }
 
   // 1. Journal Detection (Multi-tenancy)
-  let journalId: string;
-
-  const productionDomain = process.env.NEXT_PUBLIC_EPISCIENCES_DOMAIN || 'episciences.org';
-  const isProductionHost =
-    hostname === productionDomain || hostname.endsWith(`.${productionDomain}`);
-
-  if (isProductionHost) {
-    // production: epijinfo.episciences.org -> epijinfo
-    const extractedId = hostname.split('.')[0];
-
-    // Validate format before usage to prevent injection attacks
-    if (isValidJournalId(extractedId)) {
-      journalId = extractedId;
-    } else {
-      log.warn(`[Middleware] Invalid journalId format from hostname: ${sanitizeForLog(extractedId)}`);
-      journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
-    }
-  } else {
-    // localhost or dev environment
-    const subdomain = hostname.split('.')[0];
-    if (subdomain !== 'localhost' && !Number.isInteger(Number(subdomain))) {
-      // Validate format before usage
-      if (isValidJournalId(subdomain)) {
-        journalId = subdomain;
-      } else {
-        log.warn(`[Middleware] Invalid journalId format from subdomain: ${sanitizeForLog(subdomain)}`);
-        journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
-      }
-    } else {
-      journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
-    }
-  }
+  let journalId = detectJournalId(hostname);
 
   log.debug(`[Middleware] Detected journalId: ${sanitizeForLog(journalId)}`);
 
   // 2. Validate journalId exists in registry
   if (!journalExists(journalId)) {
-    log.warn(`[Middleware] Unknown journalId: ${sanitizeForLog(journalId)}, redirecting to default`);
+    log.warn(
+      `[Middleware] Unknown journalId: ${sanitizeForLog(journalId)}, redirecting to default`
+    );
     // Redirect to default journal instead of showing error page
-    journalId = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo';
+    journalId = DEFAULT_JOURNAL;
   }
 
   // 3. Language Management — use per-journal config when available

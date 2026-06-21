@@ -68,10 +68,16 @@ export default async function EthicalCharterPage(props: {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/ethical-charter', {
-        name: t('pages.ethicalCharter.title', translations),
-      })} />
-      <EthicalCharterClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/ethical-charter', {
+          name: t('pages.ethicalCharter.title', translations),
+        })}
+      />
+      <EthicalCharterClient
+        initialPage={pageData}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+      />
     </>
   );
 }

@@ -341,7 +341,8 @@ export default function MarkdownPageWithSidebar({
             )}
             {lastUpdated && !isLoading && (
               <p className={`${className}-last-updated`}>
-                {t('common.lastUpdated')} {formatDate(lastUpdated, (lang as AvailableLanguage) || 'en')}
+                {t('common.lastUpdated')}{' '}
+                {formatDate(lastUpdated, (lang as AvailableLanguage) || 'en')}
               </p>
             )}
           </div>

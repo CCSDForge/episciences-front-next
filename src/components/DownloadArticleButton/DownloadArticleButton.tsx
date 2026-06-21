@@ -8,14 +8,13 @@ interface DownloadArticleButtonProps {
   children: React.ReactNode;
 }
 
-export default function DownloadArticleButton({ downloadHref, ariaLabel, children }: DownloadArticleButtonProps) {
+export default function DownloadArticleButton({
+  downloadHref,
+  ariaLabel,
+  children,
+}: DownloadArticleButtonProps) {
   return (
-    <a
-      href={downloadHref}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={ariaLabel}
-    >
+    <a href={downloadHref} target="_blank" rel="noopener noreferrer" aria-label={ariaLabel}>
       {children}
     </a>
   );

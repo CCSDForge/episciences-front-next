@@ -221,11 +221,21 @@ describe('VolumeListCard', () => {
   });
 
   it('does not render title link when title equals formatted volume number', () => {
-    const duplicateVolume: IVolume = { ...baseVolume, num: '7', title: { en: 'Volume 7', fr: 'Volume 7' } };
+    const duplicateVolume: IVolume = {
+      ...baseVolume,
+      num: '7',
+      title: { en: 'Volume 7', fr: 'Volume 7' },
+    };
     render(<VolumeListCard language="en" t={mockT as any} volume={duplicateVolume} />);
     const links = screen.getAllByRole('link', { name: /Volume 7/ });
     // Only the num links should appear (desktop + mobile), not an extra title link
-    expect(links.every(l => l.classList.contains('volumeCard-content-num') || l.classList.contains('volumeCard-content-num-mobile'))).toBe(true);
+    expect(
+      links.every(
+        l =>
+          l.classList.contains('volumeCard-content-num') ||
+          l.classList.contains('volumeCard-content-num-mobile')
+      )
+    ).toBe(true);
   });
 
   it('renders title link when title differs from formatted volume number', () => {
@@ -276,7 +286,11 @@ describe('VolumeTileCard', () => {
   });
 
   it('does not render title link when title equals formatted volume number', () => {
-    const duplicateVolume: IVolume = { ...baseVolume, num: '7', title: { en: 'Volume 7', fr: 'Volume 7' } };
+    const duplicateVolume: IVolume = {
+      ...baseVolume,
+      num: '7',
+      title: { en: 'Volume 7', fr: 'Volume 7' },
+    };
     render(<VolumeTileCard language="en" t={mockT as any} volume={duplicateVolume} />);
     const titleLinks = document.querySelectorAll('.volumeCard-tile-text-title');
     expect(titleLinks).toHaveLength(0);

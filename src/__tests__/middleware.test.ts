@@ -141,6 +141,33 @@ describe('middleware — hostname detection', () => {
   });
 
   // -------------------------------------------------------------------------
+  // detectJournalId — fallback cases
+  // -------------------------------------------------------------------------
+
+  it('falls back to DEFAULT_JOURNAL for plain localhost hostname', async () => {
+    process.env.NEXT_PUBLIC_JOURNAL_RVCODE = 'epijinfo';
+    const { middleware } = await import('../middleware');
+    await middleware(makeRequest('localhost'));
+    expect(lastRewritePath()).toContain('/sites/epijinfo/');
+  });
+
+  it('falls back to DEFAULT_JOURNAL when production hostname has invalid journalId format', async () => {
+    process.env.NEXT_PUBLIC_JOURNAL_RVCODE = 'epijinfo';
+    const { middleware } = await import('../middleware');
+    // underscore is not allowed in journalId pattern [a-z0-9-]
+    await middleware(makeRequest('invalid_code.episciences.org'));
+    expect(lastRewritePath()).toContain('/sites/epijinfo/');
+  });
+
+  it('falls back to DEFAULT_JOURNAL when dev subdomain has invalid journalId format', async () => {
+    process.env.NEXT_PUBLIC_JOURNAL_RVCODE = 'epijinfo';
+    const { middleware } = await import('../middleware');
+    // underscore is not allowed in journalId pattern [a-z0-9-]
+    await middleware(makeRequest('bad_name.localhost'));
+    expect(lastRewritePath()).toContain('/sites/epijinfo/');
+  });
+
+  // -------------------------------------------------------------------------
   // FAIRiCat & Signposting headers
   // -------------------------------------------------------------------------
 

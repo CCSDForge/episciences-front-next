@@ -68,13 +68,13 @@ export default async function VolumesPage(props: {
   const yearsParam = searchParams.years;
   let years: number[] = [];
   if (typeof yearsParam === 'string') {
-    years = [parseInt(yearsParam, 10)].filter(y => !isNaN(y));
+    years = [Number.parseInt(yearsParam, 10)].filter(y => !isNaN(y));
   } else if (Array.isArray(yearsParam)) {
-    years = yearsParam.map(y => parseInt(y, 10)).filter(y => !isNaN(y));
+    years = yearsParam.map(y => Number.parseInt(y, 10)).filter(y => !isNaN(y));
   }
 
   const pageParam = searchParams.page;
-  const currentPage = typeof pageParam === 'string' ? parseInt(pageParam, 10) : 1;
+  const currentPage = typeof pageParam === 'string' ? Number.parseInt(pageParam, 10) : 1;
   const validPage = isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
 
   logger.debug('VolumesPage searchParams', { types, years, page: validPage, journalId });
@@ -188,10 +188,12 @@ export default async function VolumesPage(props: {
 
     return (
       <>
-        <JsonLd data={generateCollectionPageJsonLd(journalId, lang, '/volumes', {
-          name: t('pages.volumes.title', translations),
-          numberOfItems: finalVolumesData.totalItems,
-        })} />
+        <JsonLd
+          data={generateCollectionPageJsonLd(journalId, lang, '/volumes', {
+            name: t('pages.volumes.title', translations),
+            numberOfItems: finalVolumesData.totalItems,
+          })}
+        />
         <Suspense fallback={<Loader />}>
           <VolumesClient
             initialVolumes={finalVolumesData}

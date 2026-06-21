@@ -500,9 +500,7 @@ export default function ArticleDetailsSidebar({
         >
           {article?.submissionDate && (
             <div className="articleDetailsSidebar-publicationDetails-content-row">
-              <div>
-                {article.isImported ? t('common.importedOn') : t('common.submittedOn')}
-              </div>
+              <div>{article.isImported ? t('common.importedOn') : t('common.submittedOn')}</div>
               <div>{formatDate(article.submissionDate, language)}</div>
             </div>
           )}

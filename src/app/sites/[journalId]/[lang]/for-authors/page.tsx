@@ -76,9 +76,11 @@ export default async function ForAuthorsPage(props: {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/for-authors', {
-        name: t('pages.forAuthors.title', translations),
-      })} />
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/for-authors', {
+          name: t('pages.forAuthors.title', translations),
+        })}
+      />
       <ForAuthorsClient
         editorialWorkflowPage={editorialWorkflowPage}
         prepareSubmissionPage={prepareSubmissionPage}

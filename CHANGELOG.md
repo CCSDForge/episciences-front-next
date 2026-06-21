@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Types of changes
+
 - **Added** for new features.
 - **Changed** for changes in existing functionality.
 - **Deprecated** for soon-to-be removed features.
@@ -13,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 - **Security** for vulnerabilities.
 
 Usually the right type is clear. Three of them cause the most questions:
+
 - **Fixed**: the behavior was wrong, and is now correct.
 - **Changed**: the behavior worked as intended, and now works differently.
 - **Security**: the change addresses a vulnerability. It could fit under Fixed or Changed, but its urgency and audience are different.
@@ -47,7 +49,6 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Streamlined PDF Downloads**: Replaced proxy redirects with a direct streaming `/download` route that opens PDFs in a new tab, preventing blank page redirects and improving accessibility.
 - **Dynamic Homepage Layouts**: Updated configuration parser to allow journals to dynamically toggle homepage sections (news, volumes) based on their specific configuration without code changes.
 - **Article Section Ordering**: Inverted the display order of sections on the article page: the PDF preview block now appears before the bibliographic references section.
-
 
 ### Fixed
 

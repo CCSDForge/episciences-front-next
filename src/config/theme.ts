@@ -1,6 +1,10 @@
 'use client';
 
-import { ensureContrast, generateAccessibleColorVariants, getContrastingTextColor } from '@/utils/colorContrast';
+import {
+  ensureContrast,
+  generateAccessibleColorVariants,
+  getContrastingTextColor,
+} from '@/utils/colorContrast';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'theme' });

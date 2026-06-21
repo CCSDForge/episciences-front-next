@@ -1,5 +1,9 @@
 import { loadJournalConfig } from '@/utils/env-loader';
-import { ensureContrast, generateAccessibleColorVariants, getContrastingTextColor } from '@/utils/colorContrast';
+import {
+  ensureContrast,
+  generateAccessibleColorVariants,
+  getContrastingTextColor,
+} from '@/utils/colorContrast';
 
 interface JournalLayoutProps {
   children: React.ReactNode;

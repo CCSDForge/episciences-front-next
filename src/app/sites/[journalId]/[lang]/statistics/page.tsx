@@ -91,10 +91,16 @@ export default async function StatisticsPage(props: Props) {
 
   return (
     <>
-      <JsonLd data={generateWebPageJsonLd('WebPage', journalId, lang, '/statistics', {
-        name: t('pages.statistics.title', translations),
-      })} />
-      <StatisticsClient initialStats={initialStats} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/statistics', {
+          name: t('pages.statistics.title', translations),
+        })}
+      />
+      <StatisticsClient
+        initialStats={initialStats}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+      />
     </>
   );
 }

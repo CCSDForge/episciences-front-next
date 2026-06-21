@@ -10,14 +10,9 @@ vi.mock('@/components/MathJax/MathJax', () => ({
 }));
 
 vi.mock('@/components/Link/Link', () => ({
-  Link: ({
-    href,
-    children,
-  }: {
-    href: string;
-    children: React.ReactNode;
-    lang?: string;
-  }) => <a href={href}>{children}</a>,
+  Link: ({ href, children }: { href: string; children: React.ReactNode; lang?: string }) => (
+    <a href={href}>{children}</a>
+  ),
 }));
 
 // --- Fixtures ---
