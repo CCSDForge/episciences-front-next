@@ -44,4 +44,33 @@ describe('Robots.txt Generator', () => {
 
     expect(result.sitemap).toBe('http://epijinfo.episciences.org/sitemap.xml');
   });
+
+  describe('when NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING=false', () => {
+    it('should disallow all robots with disallow /', async () => {
+      vi.stubEnv('NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING', 'false');
+
+      const result = await robots();
+
+      expect((result.rules as any).disallow).toBe('/');
+    });
+
+    it('should still advertise the sitemap', async () => {
+      vi.stubEnv('NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING', 'false');
+      vi.stubEnv('NODE_ENV', 'production');
+
+      const result = await robots();
+
+      expect(result.sitemap).toBe('https://epijinfo.episciences.org/sitemap.xml');
+    });
+  });
+
+  describe('when NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING=true', () => {
+    it('should use the standard disallow list', async () => {
+      vi.stubEnv('NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING', 'true');
+
+      const result = await robots();
+
+      expect((result.rules as any).disallow).toEqual(ROBOTS_DISALLOW);
+    });
+  });
 });

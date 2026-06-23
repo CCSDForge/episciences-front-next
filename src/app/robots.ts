@@ -13,6 +13,17 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   }
 
   const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+  const allowIndexing = process.env.NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING !== 'false';
+
+  if (!allowIndexing) {
+    return {
+      rules: {
+        userAgent: '*',
+        disallow: '/',
+      },
+      sitemap: `${protocol}://${host}/sitemap.xml`,
+    };
+  }
 
   return {
     rules: {
