@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { ReactNode } from 'react';
 import { getLanguageFromParams, acceptedLanguages } from '@/utils/language-utils';
 import HeaderServer from '@/components/Header/HeaderServer';
@@ -10,11 +11,27 @@ import { getJournalByCode } from '@/services/journal';
 import { getServerTranslations } from '@/utils/server-i18n';
 import { getJournalApiUrl, getPublicJournalConfig } from '@/utils/env-loader';
 import { getFilteredJournals } from '@/utils/journal-filter';
+import { AvailableLanguage } from '@/utils/i18n';
 import { logger } from '@/lib/logger';
 
 // NOTE: No global revalidate defined here
 // Each child page defines its own ISR strategy based on content update frequency
 // See docs/ISR_STRATEGY.md for details
+
+export async function generateMetadata(props: {
+  params: Promise<{ journalId: string; lang: string }>;
+}): Promise<Metadata> {
+  const { journalId, lang } = await props.params;
+  const journal = await getJournalByCode(journalId).catch(() => null);
+  const journalTitle =
+    journal?.title?.[lang as AvailableLanguage] ?? journal?.name ?? 'Episciences';
+  return {
+    title: {
+      template: `%s | ${journalTitle}`,
+      default: journalTitle,
+    },
+  };
+}
 
 export async function generateStaticParams() {
   const journals = getFilteredJournals();

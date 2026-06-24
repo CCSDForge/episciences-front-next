@@ -1,8 +1,7 @@
 import { Metadata } from 'next';
 import { fetchHomeData } from '@/services/home';
 import { getJournalByCode } from '@/services/journal';
-import { getFormattedSiteTitle } from '@/utils/metadata';
-import { getServerTranslations, t } from '@/utils/server-i18n';
+import { getServerTranslations, t, AvailableLanguage } from '@/utils/server-i18n';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import dynamicImport from 'next/dynamic';
@@ -37,9 +36,14 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   const { journalId, lang } = params;
-  const translations = await getServerTranslations(lang);
+  const [translations, journal] = await Promise.all([
+    getServerTranslations(lang),
+    getJournalByCode(journalId).catch(() => null),
+  ]);
+  const journalTitle =
+    journal?.title?.[lang as AvailableLanguage] ?? journal?.name ?? 'Episciences';
   return {
-    title: getFormattedSiteTitle(t('pages.home.title', translations)),
+    title: `${t('pages.home.title', translations)} | ${journalTitle}`,
     description: t('pages.home.metaDescription', translations),
     alternates: generateSeoAlternates(journalId, lang, '/'),
   };
