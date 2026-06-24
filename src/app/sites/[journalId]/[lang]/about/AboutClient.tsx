@@ -22,6 +22,7 @@ import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/A
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { formatDate } from '@/utils/date';
 import '@/styles/transitions.scss';
 import { logger } from '@/lib/logger';
 
@@ -331,6 +332,11 @@ export default function AboutClient({
             ) : (
               <p className="about-content-body-empty">
                 Aucun contenu disponible pour la page &ldquo;À propos&rdquo;.
+              </p>
+            )}
+            {pageData?.date_updated && (
+              <p className="about-last-updated">
+                {t('common.lastUpdated')} {formatDate(pageData.date_updated, language)}
               </p>
             )}
           </div>

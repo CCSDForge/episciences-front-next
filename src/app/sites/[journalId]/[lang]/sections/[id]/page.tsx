@@ -50,7 +50,8 @@ export async function generateMetadata(props: {
 
     return {
       title: `${sectionTitle} | Episciences`,
-      description: section.description?.en || section.description?.fr || `Articles in ${sectionTitle}`,
+      description:
+        section.description?.en || section.description?.fr || `Articles in ${sectionTitle}`,
       alternates: generateSeoAlternates(journalId, language, `/sections/${id}`),
     };
   } catch (error) {

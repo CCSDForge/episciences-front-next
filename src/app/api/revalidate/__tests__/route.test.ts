@@ -83,6 +83,23 @@ describe('POST /api/revalidate', () => {
       expect(res.status).toBe(200);
       delete process.env['REVALIDATION_TOKEN_MYJRNL'];
     });
+
+    it('falls back to global secret when journal-specific token exists but does not match', async () => {
+      process.env['REVALIDATION_TOKEN_MYJRNL'] = 'journal-specific-secret';
+      const { POST } = await import('../route');
+      // Using global secret, not the journal-specific one — should still be authorized
+      const res = await POST(makeRequest({ tag: 'pages', journalId: 'myjrnl' }, SECRET));
+      expect(res.status).toBe(200);
+      delete process.env['REVALIDATION_TOKEN_MYJRNL'];
+    });
+
+    it('converts hyphenated journalId to underscore env var key', async () => {
+      process.env['REVALIDATION_TOKEN_MY_JOURNAL'] = 'hyphen-token';
+      const { POST } = await import('../route');
+      const res = await POST(makeRequest({ tag: 'pages', journalId: 'my-journal' }, 'hyphen-token'));
+      expect(res.status).toBe(200);
+      delete process.env['REVALIDATION_TOKEN_MY_JOURNAL'];
+    });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -106,6 +123,14 @@ describe('POST /api/revalidate', () => {
       const res = await POST(makeRequest({ path: '/sites/epijinfo/en/home' }, SECRET));
       expect(res.status).toBe(200);
     });
+
+    it('returns 400 when path journalId does not match body journalId', async () => {
+      const { POST } = await import('../route');
+      const res = await POST(
+        makeRequest({ path: '/sites/epijinfo/en/home', journalId: 'other-journal' }, SECRET)
+      );
+      expect(res.status).toBe(400);
+    });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -124,6 +149,36 @@ describe('POST /api/revalidate', () => {
       const { POST } = await import('../route');
       const res = await POST(makeRequest({ tag: 'pages' }, SECRET, '127.0.0.1'));
       expect(res.status).toBe(200);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Rate limiting
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('rate limiting', () => {
+    it('returns 429 when the same IP exceeds the rate limit', async () => {
+      process.env.REVALIDATE_RATE_LIMIT = '2';
+      const { POST } = await import('../route');
+      const ip = '10.0.0.99';
+
+      await POST(makeRequest({ tag: 'pages' }, SECRET, ip));
+      await POST(makeRequest({ tag: 'pages' }, SECRET, ip));
+      const res = await POST(makeRequest({ tag: 'pages' }, SECRET, ip));
+
+      expect(res.status).toBe(429);
+      delete process.env.REVALIDATE_RATE_LIMIT;
+    });
+
+    it('does not rate-limit requests from different IPs', async () => {
+      process.env.REVALIDATE_RATE_LIMIT = '1';
+      const { POST } = await import('../route');
+
+      const res1 = await POST(makeRequest({ tag: 'pages' }, SECRET, '10.0.0.1'));
+      const res2 = await POST(makeRequest({ tag: 'pages' }, SECRET, '10.0.0.2'));
+
+      expect(res1.status).toBe(200);
+      expect(res2.status).toBe(200);
+      delete process.env.REVALIDATE_RATE_LIMIT;
     });
   });
 

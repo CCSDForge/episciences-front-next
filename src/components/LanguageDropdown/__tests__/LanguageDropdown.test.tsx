@@ -508,6 +508,5 @@ describe('LanguageDropdown', () => {
       const results = await checkA11y(container);
       expect(results).toHaveNoViolations();
     });
-
   });
 });

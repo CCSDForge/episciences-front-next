@@ -22,10 +22,11 @@ import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { formatDate } from '@/utils/date';
 import '@/styles/transitions.scss';
 import './ForAuthors.scss';
 
-type ForAuthorsSectionType = 'editorialWorkflow' | 'ethicalCharter' | 'prepareSubmission';
+type ForAuthorsSectionType = 'editorialWorkflow' | 'prepareSubmission';
 
 interface IForAuthorsSection {
   id: string;
@@ -41,13 +42,11 @@ interface ForAuthorsPage {
 
 interface ForAuthorsData {
   editorialWorkflowPage: ForAuthorsPage | null;
-  ethicalCharterPage: ForAuthorsPage | null;
   prepareSubmissionPage: ForAuthorsPage | null;
 }
 
 interface ForAuthorsClientProps {
   editorialWorkflowPage: any;
-  ethicalCharterPage: any;
   prepareSubmissionPage: any;
   lang?: string;
   breadcrumbLabels?: {
@@ -58,7 +57,6 @@ interface ForAuthorsClientProps {
 
 export default function ForAuthorsClient({
   editorialWorkflowPage,
-  ethicalCharterPage,
   prepareSubmissionPage,
   lang,
   breadcrumbLabels,
@@ -74,11 +72,17 @@ export default function ForAuthorsClient({
   const forAuthorsData: ForAuthorsData = useMemo(
     () => ({
       editorialWorkflowPage,
-      ethicalCharterPage,
       prepareSubmissionPage,
     }),
-    [editorialWorkflowPage, ethicalCharterPage, prepareSubmissionPage]
+    [editorialWorkflowPage, prepareSubmissionPage]
   );
+
+  const lastUpdated = useMemo(() => {
+    const dates = [editorialWorkflowPage?.date_updated, prepareSubmissionPage?.date_updated].filter(
+      (d): d is string => !!d
+    );
+    return dates.length > 0 ? dates.reduce((a, b) => (a > b ? a : b)) : null;
+  }, [editorialWorkflowPage, prepareSubmissionPage]);
 
   const [pageSections, setPageSections] = useState<IForAuthorsSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IForAuthorsHeader[]>([]);
@@ -252,15 +256,13 @@ export default function ForAuthorsClient({
         forAuthorsData.editorialWorkflowPage?.content,
         language
       );
-      const ecTitle = getLocalizedContent(forAuthorsData.ethicalCharterPage?.title, language);
-      const ecContent = getLocalizedContent(forAuthorsData.ethicalCharterPage?.content, language);
       const psTitle = getLocalizedContent(forAuthorsData.prepareSubmissionPage?.title, language);
       const psContent = getLocalizedContent(
         forAuthorsData.prepareSubmissionPage?.content,
         language
       );
 
-      const hasFallback = [ewTitle, ewContent, ecTitle, ecContent, psTitle, psContent].some(
+      const hasFallback = [ewTitle, ewContent, psTitle, psContent].some(
         r => r.isAvailable && !r.isOriginalLanguage
       );
       setLanguageNotice(hasFallback ? t('common.contentNotInLanguage') : undefined);
@@ -272,10 +274,6 @@ export default function ForAuthorsClient({
         editorialWorkflow: {
           title: ewTitle.value || '',
           content: ewContent.value || '',
-        },
-        ethicalCharter: {
-          title: ecTitle.value || '',
-          content: ecContent.value || '',
         },
         prepareSubmission: {
           title: psTitle.value || '',
@@ -409,6 +407,11 @@ export default function ForAuthorsClient({
                 </div>
               </div>
             ))}
+            {lastUpdated && (
+              <p className="forAuthors-last-updated">
+                {t('common.lastUpdated')} {formatDate(lastUpdated, language)}
+              </p>
+            )}
           </div>
         </div>
       )}

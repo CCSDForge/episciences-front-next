@@ -7,6 +7,8 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const IndexingClient = dynamic(() => import('./IndexingClient'));
 
@@ -65,6 +67,13 @@ export default async function IndexingPage(props: {
   };
 
   return (
-    <IndexingClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    <>
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/indexing', {
+          name: t('pages.indexing.title', translations),
+        })}
+      />
+      <IndexingClient initialPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    </>
   );
 }

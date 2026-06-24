@@ -66,7 +66,9 @@ export default function StatisticsMobileModal({
         aria-labelledby="modal-title"
       >
         <div className="title">
-          <h2 id="modal-title" className="title-text">{t('common.filters.filter')}</h2>
+          <h2 id="modal-title" className="title-text">
+            {t('common.filters.filter')}
+          </h2>
           <button type="button" className="titleClose" onClick={onClose} aria-label="Close">
             <CloseBlackIcon size={24} />
           </button>

@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { fetchHomeData } from '@/services/home';
+import { getJournalByCode } from '@/services/journal';
 import { getFormattedSiteTitle } from '@/utils/metadata';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { acceptedLanguages } from '@/utils/language-utils';
@@ -7,6 +8,8 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import dynamicImport from 'next/dynamic';
 import { generateSeoAlternates } from '@/utils/seo';
 import { getPublicJournalConfig } from '@/utils/env-loader';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateHomepageJsonLd } from '@/utils/schema';
 import '@/styles/pages/Home.scss';
 import { logger } from '@/lib/logger';
 
@@ -42,11 +45,6 @@ export async function generateMetadata(props: {
   };
 }
 
-// Fonction pour obtenir la langue par défaut
-function getDefaultLanguage(): string {
-  return process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE || 'fr';
-}
-
 export default async function HomePage(props: {
   params: Promise<{ journalId: string; lang: string }>;
 }) {
@@ -54,15 +52,28 @@ export default async function HomePage(props: {
   const language = params.lang || 'fr';
   const rvcode = params.journalId;
 
-  let homeData = {};
-
-  try {
-    homeData = await fetchHomeData(rvcode, language);
-  } catch (error) {
-    logger.error(`Error fetching home data for journal ${rvcode}:`, error);
-  }
+  const [homeData, journal] = await Promise.all([
+    fetchHomeData(rvcode, language).catch((error: unknown) => {
+      logger.error(`Error fetching home data for journal ${rvcode}:`, error);
+      return {};
+    }),
+    getJournalByCode(rvcode).catch((error: unknown) => {
+      logger.error(`Error fetching journal for JSON-LD on homepage ${rvcode}:`, error);
+      return null;
+    }),
+  ]);
 
   const journalConfig = getPublicJournalConfig(rvcode);
 
-  return <HomeClient homeData={homeData} language={language} journalId={rvcode} journalConfig={journalConfig} />;
+  return (
+    <>
+      {journal && <JsonLd data={generateHomepageJsonLd(journal, rvcode, language)} />}
+      <HomeClient
+        homeData={homeData}
+        language={language}
+        journalId={rvcode}
+        journalConfig={journalConfig}
+      />
+    </>
+  );
 }

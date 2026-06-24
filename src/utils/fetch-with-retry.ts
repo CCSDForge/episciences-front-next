@@ -52,6 +52,24 @@ export interface RetryOptions {
  * }
  * ```
  */
+function isNetworkUnavailable(error: Error): boolean {
+  return error.message === 'fetch failed' || error.message === 'Failed to fetch';
+}
+
+function isNonRetryable(error: Error): boolean {
+  return error.message.startsWith('HTTP 4') || isNetworkUnavailable(error);
+}
+
+function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error('Unknown error');
+}
+
+function calculateBackoffDelay(attempt: number, baseDelay: number, maxDelay: number): number {
+  const exponentialDelay = baseDelay * Math.pow(2, attempt);
+  const jitter = Math.random() * 1000;
+  return Math.min(exponentialDelay + jitter, maxDelay);
+}
+
 export async function fetchWithRetry(
   url: string,
   options: RequestInit = {},
@@ -63,61 +81,29 @@ export async function fetchWithRetry(
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      // Create abort controller for timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
-      });
-
+      const response = await fetch(url, { ...options, signal: controller.signal });
       clearTimeout(timeoutId);
 
-      // Check if response is successful
       if (!response.ok) {
-        // Don't retry 4xx errors (client errors) - they won't change
-        // Only retry 5xx errors (server errors) and network issues
-        if (response.status >= 400 && response.status < 500) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        // 5xx errors - will be retried
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      // Success! Return response
       return response;
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error('Unknown error');
+      lastError = toError(error);
 
-      // Don't retry 4xx errors (client errors) - they won't change
-      if (lastError.message.startsWith('HTTP 4')) {
-        throw lastError;
-      }
-
-      // Don't retry if network is completely down (fetch failed)
-      if (lastError.message === 'fetch failed' || lastError.message === 'Failed to fetch') {
+      if (isNetworkUnavailable(lastError))
         log.warn(`Network unavailable for ${url}, skipping retries`);
-        throw lastError;
-      }
+      if (isNonRetryable(lastError)) throw lastError;
+      if (attempt >= maxRetries) break;
 
-      // If this was the last attempt, throw the error
-      if (attempt >= maxRetries) {
-        break;
-      }
-
-      // Calculate delay with exponential backoff and jitter
-      // Formula: baseDelay * (2 ^ attempt) + random(0, 1000)
-      const exponentialDelay = baseDelay * Math.pow(2, attempt);
-      const jitter = Math.random() * 1000;
-      const delay = Math.min(exponentialDelay + jitter, maxDelay);
-
+      const delay = calculateBackoffDelay(attempt, baseDelay, maxDelay);
       log.warn(
         `Attempt ${attempt + 1}/${maxRetries + 1} failed for ${url}. ` +
           `Retrying in ${Math.round(delay)}ms... Error: ${lastError.message}`
       );
-
-      // Wait before retrying
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }

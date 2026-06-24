@@ -7,6 +7,8 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const CreditsClient = dynamic(() => import('./CreditsClient'));
 
@@ -65,5 +67,14 @@ export default async function CreditsPage(props: {
     credits: t('pages.credits.title', translations),
   };
 
-  return <CreditsClient creditsPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />;
+  return (
+    <>
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/credits', {
+          name: t('pages.credits.title', translations),
+        })}
+      />
+      <CreditsClient creditsPage={pageData} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    </>
+  );
 }

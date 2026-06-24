@@ -13,6 +13,19 @@ import './Footer.scss';
 const logoEpisciences = '/logos/logo-episciences.svg';
 const logoSmall = '/logos/logo-small.svg';
 
+function resolveFooterLogoSrc(rvcode: string, journalLogo: string | undefined): string {
+  try {
+    const logoName = `logo-${rvcode}.svg`;
+    const logoPath = path.join(process.cwd(), 'public/logos', logoName);
+    if (fs.existsSync(logoPath)) return `/logos/${logoName}`;
+    if (journalLogo) return `/logos/${journalLogo}`;
+  } catch (e) {
+    log.warn('Error checking footer logo file:', e);
+    if (journalLogo) return `/logos/${journalLogo}`;
+  }
+  return logoSmall;
+}
+
 interface FooterServerProps {
   lang?: string;
   journalId?: string;
@@ -77,28 +90,7 @@ export default async function FooterServer({
   // Load translations for the current language
   const translations = await getServerTranslations(lang);
 
-  // Construct the final logo URL
-  // Use logo-{rvcode}.svg if it exists, otherwise use journal.logo from API, fallback to default logoSmall
-  let footerLogoSrc = logoSmall;
-
-  if (rvcode) {
-    try {
-      const publicLogosDir = path.join(process.cwd(), 'public/logos');
-      const logoName = `logo-${rvcode}.svg`;
-      const logoPath = path.join(publicLogosDir, logoName);
-
-      if (fs.existsSync(logoPath)) {
-        footerLogoSrc = `/logos/${logoName}`;
-      } else if (journal?.logo) {
-        footerLogoSrc = `/logos/${journal.logo}`;
-      }
-    } catch (e) {
-      log.warn('Error checking footer logo file:', e);
-      if (journal?.logo) {
-        footerLogoSrc = `/logos/${journal.logo}`;
-      }
-    }
-  }
+  const footerLogoSrc = resolveFooterLogoSrc(rvcode, journal?.logo);
 
   return (
     <footer className="footer">

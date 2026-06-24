@@ -34,7 +34,9 @@ export default async function AuthorsPage(props: AuthorsPageProps) {
   const { lang } = params;
 
   // Extract initial params
-  const page = searchParams?.page ? Math.max(1, parseInt(searchParams.page as string, 10)) : 1;
+  const page = searchParams?.page
+    ? Math.max(1, Number.parseInt(searchParams.page as string, 10))
+    : 1;
   const search = (searchParams?.search as string) || '';
   const letter = (searchParams?.letter as string) || '';
 

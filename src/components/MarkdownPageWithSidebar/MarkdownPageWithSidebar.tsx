@@ -17,6 +17,8 @@ import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/A
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
+import { AvailableLanguage } from '@/utils/i18n';
+import { formatDate } from '@/utils/date';
 import '@/styles/transitions.scss';
 import './MarkdownPageWithSidebar.scss';
 
@@ -39,6 +41,7 @@ interface MarkdownPageWithSidebarProps {
   lang?: string;
   noContentMessage?: string;
   languageNotice?: string;
+  lastUpdated?: string | null;
   className?: string;
 }
 
@@ -56,6 +59,7 @@ export default function MarkdownPageWithSidebar({
   lang,
   noContentMessage,
   languageNotice,
+  lastUpdated,
   className = 'markdown-page',
 }: MarkdownPageWithSidebarProps): React.JSX.Element {
   const { t } = useTranslation();
@@ -334,6 +338,12 @@ export default function MarkdownPageWithSidebar({
               ))
             ) : (
               <p>{noContentMessage || t('pages.common.noContent')}</p>
+            )}
+            {lastUpdated && !isLoading && (
+              <p className={`${className}-last-updated`}>
+                {t('common.lastUpdated')}{' '}
+                {formatDate(lastUpdated, (lang as AvailableLanguage) || 'en')}
+              </p>
             )}
           </div>
         )}

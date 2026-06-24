@@ -67,6 +67,7 @@ export default function AcknowledgementsClient({
       lang={lang}
       noContentMessage={t('pages.acknowledgements.noContent')}
       languageNotice={languageNotice}
+      lastUpdated={pageData?.date_updated}
       className="markdown-page"
     />
   );

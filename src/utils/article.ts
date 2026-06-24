@@ -3,6 +3,7 @@ import {
   IArticleAbstracts,
   IArticleAuthor,
   IArticleCitedBy,
+  IArticleCitedByCitation,
   IArticleKeywords,
   IArticleReference,
   IArticleRelatedItem,
@@ -53,6 +54,323 @@ interface ExtendedRawArticle extends RawArticle {
   docid?: number;
 }
 
+/**
+ * Content of a paper, regardless of whether it comes from a journal article
+ * or a conference paper. Both share the same `IRawArticleContent` shape.
+ */
+type RawArticleContent = NonNullable<RawArticle['document']['journal']>['journal_article'];
+/** `document.database` node holding the runtime/derived metadata (`current`). */
+type RawArticleDatabase = RawArticle['document']['database'];
+/** A single CrossRef-style work relation (inter or intra). */
+type WorkRelation = {
+  '@identifier-type': string;
+  '@relationship-type': string;
+  value: string;
+  unstructured_citation?: string;
+};
+/** A license reference entry as found in `program.license_ref`. */
+type LicenseRefEntry = { value: string; '@applies_to'?: string };
+
+/** Normalize a value that the API returns either as a single object or an array. */
+function toArray<T>(value: T | T[] | undefined | null): T[] {
+  if (Array.isArray(value)) return value;
+  return value ? [value] : [];
+}
+
+/**
+ * Minimal article returned when the source payload is missing a usable id/title,
+ * so callers always receive a renderable object instead of throwing.
+ */
+function buildMinimalArticle(extendedArticle: ExtendedRawArticle, title: string): IArticle {
+  return {
+    id: Number(extendedArticle.paperid),
+    title: title || 'Article sans titre',
+    authors: [],
+    publicationDate: '',
+    tag: '',
+    repositoryName: '',
+    repositoryIdentifier: '',
+    doi: extendedArticle.doi || '',
+    abstract: '',
+    pdfLink: '',
+    metrics: { views: 0, downloads: 0 },
+  };
+}
+
+type AbstractValue = NonNullable<RawArticleContent['abstract']>['value'];
+type AbstractArray = Extract<AbstractValue, unknown[]>;
+
+/** Build an abstract from a multilingual/plain array of abstract entries. */
+function extractAbstractFromArray(values: AbstractArray): string | IArticleAbstracts {
+  const join = (): string =>
+    values.map(item => (typeof item === 'string' ? item : item.value)).join(' ');
+
+  const hasLanguageAttribute = values.some(
+    item =>
+      typeof item === 'object' && item !== null && ('@xml:lang' in item || '@language' in item)
+  );
+  if (!hasLanguageAttribute) return join();
+
+  const abstractsObj: Record<string, string> = {};
+  values.forEach(item => {
+    if (typeof item === 'object' && item !== null && 'value' in item) {
+      // Support both @xml:lang (Zenodo) and @language attributes
+      const lang = item['@xml:lang'] || item['@language'];
+      if (lang && item.value) abstractsObj[lang] = item.value;
+    }
+  });
+
+  const languages = Object.keys(abstractsObj);
+  if (languages.length > 1) return abstractsObj as IArticleAbstracts;
+  if (languages.length === 1) return abstractsObj[languages[0]];
+  return join();
+}
+
+/** Extract the abstract as a plain string or a multilingual object. */
+function extractAbstract(articleContent: RawArticleContent): string | IArticleAbstracts {
+  const value = articleContent.abstract?.value;
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return extractAbstractFromArray(value);
+  if (typeof (value as { value?: unknown })?.value === 'string') {
+    return (value as { value: string }).value;
+  }
+  return '';
+}
+
+/** Extract the bibliographic references list. */
+function extractReferences(articleContent: RawArticleContent): IArticleReference[] {
+  const citations = articleContent.citation_list?.citation;
+  if (!citations) return [];
+  return citations.map(c => ({ doi: c.doi, citation: c.unstructured_citation }));
+}
+
+/** Parse a single "cited by" citation record into our domain shape. */
+function parseCitedByCitation(raw: unknown): IArticleCitedByCitation {
+  const citation = raw as Record<string, string>;
+  const authors = citation.author?.split(';') || [];
+  return {
+    title: citation.title || '',
+    sourceTitle: citation.source_title || '',
+    authors: authors.map(author => ({
+      fullname: author.split(',')[0]?.trim() || '',
+      orcid: author.split(',')[1]?.trim() || undefined,
+    })),
+    reference: {
+      volume: citation.volume || '',
+      year: citation.year || '',
+      page: citation.page || '',
+    },
+    doi: citation.doi || '',
+  };
+}
+
+/** Extract "cited by" sources, dropping any source whose citations failed to parse. */
+function extractCitedBy(articleDB: RawArticleDatabase | undefined): IArticleCitedBy[] {
+  const citedBy = articleDB?.current?.cited_by;
+  if (!citedBy) return [];
+
+  return Object.values(citedBy)
+    .map(cb => {
+      try {
+        const parsed = JSON.parse(cb.citation as unknown as string);
+        return {
+          source: cb.source_id_name,
+          citations: Object.values(parsed).map(parseCitedByCitation),
+        };
+      } catch (parseError) {
+        log.error('[formatArticle] Error parsing citedBy citation:', parseError);
+        return { source: cb.source_id_name, citations: [] };
+      }
+    })
+    .filter(cb => cb.citations.length > 0);
+}
+
+/** Format the acceptance date as `YYYY-MM-DD`, or undefined when absent. */
+function extractAcceptanceDate(articleContent: RawArticleContent): string | undefined {
+  const date = articleContent.acceptance_date;
+  if (!date) return undefined;
+  return `${date.year}-${date.month}-${date.day}`;
+}
+
+type PersonName = Extract<RawArticleContent['contributors']['person_name'], unknown[]>[number];
+type Affiliations = PersonName['affiliations'];
+
+/** Map an author's affiliations into the domain institution list. */
+function extractInstitutions(affiliations: Affiliations): IInstitution[] {
+  const institution = affiliations?.institution;
+  if (!institution) return [];
+
+  const toInstitution = (inst: NonNullable<Affiliations>['institution']) => {
+    const single = inst as Exclude<typeof inst, unknown[]>;
+    return {
+      name: single!.institution_name,
+      rorId: single!.institution_id?.['@type'] === 'ror' ? single!.institution_id.value : undefined,
+    };
+  };
+
+  if (Array.isArray(institution)) return institution.map(toInstitution);
+  // Single institution: preserve original behavior of requiring a name.
+  return institution.institution_name ? [toInstitution(institution)] : [];
+}
+
+/** Map a single contributor record into the domain author shape. */
+function mapPersonToAuthor(person: PersonName): IArticleAuthor {
+  const fullname = person.given_name
+    ? `${person.given_name} ${person.surname}`.trim()
+    : person.surname.trim();
+  return { fullname, orcid: person.ORCID, institutions: extractInstitutions(person.affiliations) };
+}
+
+/** Extract authors, sorted so "first" contributors precede "additional" ones. */
+function extractAuthors(articleContent: RawArticleContent): IArticleAuthor[] {
+  const personName = articleContent.contributors?.person_name;
+  if (Array.isArray(personName)) {
+    const order: Record<string, number> = { first: 1, additional: 2 };
+    return [...personName]
+      .sort((a, b) => (order[a['@sequence']] ?? 999) - (order[b['@sequence']] ?? 999))
+      .map(mapPersonToAuthor);
+  }
+  return personName ? [mapPersonToAuthor(personName)] : [];
+}
+
+/** Push a related item built from a work relation, if the relation exists. */
+function addRelation(items: IArticleRelatedItem[], relation: WorkRelation | undefined): void {
+  if (!relation) return;
+  items.push({
+    value: relation.value,
+    identifierType: relation['@identifier-type'],
+    relationshipType: relation['@relationship-type'],
+    citation: relation.unstructured_citation,
+  });
+}
+
+/** Extract related items across all program/related_item shapes (object or array). */
+function extractRelatedItems(articleContent: RawArticleContent): IArticleRelatedItem[] {
+  const items: IArticleRelatedItem[] = [];
+  toArray(articleContent.program).forEach(prog => {
+    toArray(prog?.related_item).forEach(item => {
+      addRelation(items, item?.inter_work_relation);
+      addRelation(items, item?.intra_work_relation);
+    });
+  });
+  return items;
+}
+
+/** Extract funding statements from the `fundref` program block. */
+function extractFundings(articleContent: RawArticleContent): string[] {
+  const program = articleContent.program;
+  const fundref = Array.isArray(program)
+    ? program.find(p => p['@name'] === 'fundref')
+    : program?.['@name'] === 'fundref'
+      ? program
+      : undefined;
+
+  const assertion = fundref?.assertion?.assertion;
+  if (Array.isArray(assertion)) return assertion.map(a => a.value);
+  return assertion?.value ? [assertion.value] : [];
+}
+
+/** Pick the license URL from a license_ref, preferring the "vor" (version of record) entry. */
+function extractLicenseValue(
+  licenseRef: LicenseRefEntry | LicenseRefEntry[] | undefined
+): string | undefined {
+  if (!licenseRef) return undefined;
+  if (Array.isArray(licenseRef)) {
+    const vor = licenseRef.find(l => l['@applies_to'] === 'vor');
+    return (vor || licenseRef[0])?.value;
+  }
+  return licenseRef.value;
+}
+
+/** Extract the article license URL from the program block. */
+function extractLicense(articleContent: RawArticleContent): string | undefined {
+  const program = articleContent.program;
+  if (Array.isArray(program)) {
+    return extractLicenseValue(program.find(p => p.license_ref)?.license_ref);
+  }
+  return extractLicenseValue(program?.license_ref);
+}
+
+/** Find a program entry that carries keywords (handles object/array program). */
+function findKeywordProgram(
+  program: RawArticleContent['program']
+): { keywords?: unknown; '@language'?: string } | undefined {
+  if (Array.isArray(program)) {
+    return program.find(
+      p => p && typeof p === 'object' && 'keywords' in p && !!(p as { keywords?: unknown }).keywords
+    ) as { keywords?: unknown } | undefined;
+  }
+  const single = program as { keywords?: unknown } | undefined;
+  return single?.keywords ? single : undefined;
+}
+
+/** Locate raw keywords from the various places the API may expose them. */
+function findRawKeywords(
+  extendedArticle: ExtendedRawArticle,
+  articleContent: RawArticleContent
+): unknown {
+  if (extendedArticle.keywords) return extendedArticle.keywords;
+  if (articleContent.keywords) return articleContent.keywords;
+  return findKeywordProgram(articleContent.program)?.keywords;
+}
+
+/** Normalize a keyword object: keep it language-keyed when multilingual, else flatten. */
+function structureKeywordObject(obj: Record<string, unknown>): string[] | IArticleKeywords {
+  const keys = Object.keys(obj);
+  // 2-char keys (e.g. "en", "fr") indicate a language-keyed object.
+  const isMultilingual = keys.length > 1 || (keys.length === 1 && keys.some(k => k.length === 2));
+  if (isMultilingual) return obj as IArticleKeywords;
+  if (keys.length === 1 && Array.isArray(obj[keys[0]])) return obj[keys[0]] as string[];
+  return obj as IArticleKeywords;
+}
+
+/** Extract keywords as a flat array or a language-keyed object. */
+function extractKeywords(
+  extendedArticle: ExtendedRawArticle,
+  articleContent: RawArticleContent
+): string[] | IArticleKeywords | undefined {
+  const rawKeywords = findRawKeywords(extendedArticle, articleContent);
+  if (!rawKeywords) return undefined;
+  if (Array.isArray(rawKeywords)) return rawKeywords;
+  if (typeof rawKeywords === 'object')
+    return structureKeywordObject(rawKeywords as Record<string, unknown>);
+  return undefined;
+}
+
+/** Extract MSC 2020 classifications. */
+function extractClassifications(
+  articleDB: RawArticleDatabase | undefined
+): IClassificationItem[] | undefined {
+  const msc2020 = articleDB?.current?.classifications?.msc2020;
+  if (!msc2020) return undefined;
+  const items = Object.values(msc2020);
+  if (items.length === 0) return undefined;
+  return items.map(item => ({
+    code: item.code,
+    label: item.label,
+    description: item.description,
+    sourceName: item.source_name,
+    classificationName: item.classification_name,
+  }));
+}
+
+/** Extract view/download metrics, defaulting to zero. */
+function extractMetrics(articleDB: RawArticleDatabase | undefined): {
+  views: number;
+  downloads: number;
+} {
+  const metrics = articleDB?.current?.metrics;
+  if (!metrics) return { views: 0, downloads: 0 };
+  return { views: metrics.page_count, downloads: metrics.file_count };
+}
+
+/** Extract the journal section (id + localized titles). */
+function extractSection(articleDB: RawArticleDatabase | undefined) {
+  const section = articleDB?.current?.section;
+  if (!section) return undefined;
+  return { id: section.id, title: section.titles };
+}
+
 export function formatArticle(article: RawArticle): FetchedArticle {
   if (!article) {
     log.error('formatArticle: article is undefined');
@@ -62,461 +380,48 @@ export function formatArticle(article: RawArticle): FetchedArticle {
   const extendedArticle = article as ExtendedRawArticle;
 
   try {
-    // Récupération des métadonnées de base
     const id = Number(extendedArticle.paperid);
     const title =
       extendedArticle.document?.journal?.journal_article?.titles?.title || 'Titre non disponible';
 
-    // Création d'un article minimal pour éviter les erreurs
-    if (!title || !id) {
-      return {
-        id: Number(extendedArticle.paperid),
-        title: title || 'Article sans titre',
-        authors: [],
-        publicationDate: '',
-        tag: '',
-        repositoryName: '',
-        repositoryIdentifier: '',
-        doi: extendedArticle.doi || '',
-        abstract: '',
-        pdfLink: '',
-        metrics: { views: 0, downloads: 0 },
-      };
-    }
+    // Guard against payloads missing a usable id/title: return a minimal article.
+    if (!title || !id) return buildMinimalArticle(extendedArticle, title);
 
-    const articleJournal = extendedArticle.document?.journal;
     const articleDB = extendedArticle.document?.database;
-    const articleConference = extendedArticle.document?.conference;
-
-    const articleContent = articleJournal?.journal_article ?? articleConference?.conference_paper;
+    const articleContent =
+      extendedArticle.document?.journal?.journal_article ??
+      extendedArticle.document?.conference?.conference_paper;
 
     if (!articleContent) return undefined;
 
-    let abstract: string | IArticleAbstracts = '';
-
-    if (typeof articleContent.abstract?.value === 'string') {
-      // Simple string abstract
-      abstract = articleContent.abstract.value;
-    } else if (Array.isArray(articleContent.abstract?.value)) {
-      // Check if it's a multilingual array with @xml:lang or @language attributes
-      const hasLanguageAttribute = articleContent.abstract.value.some(
-        item =>
-          typeof item === 'object' && item !== null && ('@xml:lang' in item || '@language' in item)
-      );
-
-      if (hasLanguageAttribute) {
-        // Build multilingual abstracts object
-        const abstractsObj: any = {};
-        articleContent.abstract.value.forEach(item => {
-          if (typeof item === 'object' && item !== null && 'value' in item) {
-            // Support both @xml:lang (Zenodo) and @language attributes
-            const lang = item['@xml:lang'] || item['@language'];
-            const content = item.value;
-            if (lang && content) {
-              abstractsObj[lang] = content;
-            }
-          }
-        });
-
-        // Only use structured format if we have multiple languages
-        if (Object.keys(abstractsObj).length > 1) {
-          abstract = abstractsObj as IArticleAbstracts;
-        } else if (Object.keys(abstractsObj).length === 1) {
-          // Single language, use simple string
-          abstract = Object.values(abstractsObj)[0] as string;
-        } else {
-          // Fallback to join if no valid language data
-          abstract = articleContent.abstract.value
-            .map(item => (typeof item === 'string' ? item : item.value))
-            .join(' ');
-        }
-      } else {
-        // Plain array without language codes - join them
-        abstract = articleContent.abstract.value
-          .map(item => (typeof item === 'string' ? item : item.value))
-          .join(' ');
-      }
-    } else if (typeof articleContent.abstract?.value?.value === 'string') {
-      abstract = articleContent.abstract.value.value;
-    }
-
-    /** Format references */
-    let references: IArticleReference[] = [];
-    if (articleContent.citation_list?.citation) {
-      references = articleContent.citation_list.citation.map(c => ({
-        doi: c.doi,
-        citation: c.unstructured_citation,
-      }));
-    }
-
-    /** Format citedBy */
-    let citedBy: IArticleCitedBy[] = [];
-    if (articleDB?.current?.cited_by) {
-      citedBy = Object.values(articleDB.current.cited_by)
-        .map(cb => {
-          try {
-            const parsedCitations = JSON.parse(cb.citation as unknown as string);
-            return {
-              source: cb.source_id_name,
-              citations: Object.values(parsedCitations).map(c => {
-                const citation = c as Record<string, string>;
-                const authors: string[] = citation.author?.split(';') || [];
-
-                return {
-                  title: citation.title || '',
-                  sourceTitle: citation.source_title || '',
-                  authors: authors.map(author => ({
-                    fullname: author.split(',')[0]?.trim() || '',
-                    orcid: author.split(',')[1]?.trim() || undefined,
-                  })),
-                  reference: {
-                    volume: citation.volume || '',
-                    year: citation.year || '',
-                    page: citation.page || '',
-                  },
-                  doi: citation.doi || '',
-                };
-              }),
-            };
-          } catch (parseError) {
-            log.error('[formatArticle] Error parsing citedBy citation:', parseError);
-            // Return empty citations for this source if parsing fails
-            return {
-              source: cb.source_id_name,
-              citations: [],
-            };
-          }
-        })
-        .filter(cb => cb.citations.length > 0); // Remove sources with no valid citations
-    }
-
-    /** Format acceptance date */
-    let acceptanceDate = undefined;
-    if (articleContent?.acceptance_date) {
-      acceptanceDate = `${articleContent?.acceptance_date.year}-${articleContent?.acceptance_date.month}-${articleContent?.acceptance_date.day}`;
-    }
-
-    let isImported = false;
-    if (articleDB?.current?.flag && articleDB?.current?.flag === 'imported') {
-      isImported = true;
-    }
-
-    /** Format authors */
-    let authors: IArticleAuthor[] = [];
-    if (Array.isArray(articleContent.contributors?.person_name)) {
-      const authorOrder: Record<string, number> = { first: 1, additional: 2 };
-      const sortedAuthors = articleContent.contributors.person_name.sort((a, b) => {
-        const orderA = authorOrder[a['@sequence']] ?? 999;
-        const orderB = authorOrder[b['@sequence']] ?? 999;
-        return orderA - orderB;
-      });
-      authors = sortedAuthors.map(author => {
-        const fullname = author.given_name
-          ? `${author.given_name} ${author.surname}`.trim()
-          : author.surname.trim();
-        const orcid = author.ORCID;
-        let institutions: IInstitution[] = [];
-        if (Array.isArray(author.affiliations?.institution)) {
-          institutions = author.affiliations?.institution.map(i => ({
-            name: i.institution_name,
-            rorId: i.institution_id?.['@type'] === 'ror' ? i.institution_id.value : undefined,
-          }));
-        } else {
-          if (author.affiliations?.institution?.institution_name) {
-            const inst = author.affiliations?.institution;
-            institutions = [
-              {
-                name: inst.institution_name,
-                rorId:
-                  inst.institution_id?.['@type'] === 'ror' ? inst.institution_id.value : undefined,
-              },
-            ];
-          }
-        }
-
-        return {
-          fullname,
-          orcid,
-          institutions,
-        };
-      });
-    } else if (articleContent.contributors?.person_name) {
-      const authorFullname = articleContent.contributors.person_name.given_name
-        ? `${articleContent.contributors.person_name.given_name} ${articleContent.contributors.person_name.surname}`.trim()
-        : articleContent.contributors.person_name.surname.trim();
-      const authorOrcid = articleContent.contributors.person_name.ORCID;
-      let authorInstitutions: IInstitution[] = [];
-      if (Array.isArray(articleContent.contributors.person_name.affiliations?.institution)) {
-        authorInstitutions = articleContent.contributors.person_name.affiliations?.institution.map(
-          i => ({
-            name: i.institution_name,
-            rorId: i.institution_id?.['@type'] === 'ror' ? i.institution_id.value : undefined,
-          })
-        );
-      } else {
-        if (articleContent.contributors.person_name.affiliations?.institution?.institution_name) {
-          const inst = articleContent.contributors.person_name.affiliations?.institution;
-          authorInstitutions = [
-            {
-              name: inst.institution_name,
-              rorId:
-                inst.institution_id?.['@type'] === 'ror' ? inst.institution_id.value : undefined,
-            },
-          ];
-        }
-      }
-
-      authors = [
-        { fullname: authorFullname, orcid: authorOrcid, institutions: authorInstitutions },
-      ];
-    }
-
-    /** Format relatedItems */
-    const relatedItems: IArticleRelatedItem[] = [];
-    if (Array.isArray(articleContent.program)) {
-      articleContent.program.forEach(prog => {
-        if (Array.isArray(prog?.related_item)) {
-          prog.related_item.forEach(item => {
-            if (item.inter_work_relation) {
-              relatedItems.push({
-                value: item.inter_work_relation?.value,
-                identifierType: item.inter_work_relation['@identifier-type'],
-                relationshipType: item.inter_work_relation['@relationship-type'],
-                citation: item.inter_work_relation.unstructured_citation,
-              });
-            }
-            if (item.intra_work_relation) {
-              relatedItems.push({
-                value: item.intra_work_relation?.value,
-                identifierType: item.intra_work_relation['@identifier-type'],
-                relationshipType: item.intra_work_relation['@relationship-type'],
-                citation: item.intra_work_relation.unstructured_citation,
-              });
-            }
-          });
-        } else if (prog?.related_item?.inter_work_relation) {
-          relatedItems.push({
-            value: prog.related_item.inter_work_relation?.value,
-            identifierType: prog.related_item.inter_work_relation['@identifier-type'],
-            relationshipType: prog.related_item.inter_work_relation['@relationship-type'],
-            citation: prog.related_item.inter_work_relation.unstructured_citation,
-          });
-        } else if (prog?.related_item?.intra_work_relation) {
-          relatedItems.push({
-            value: prog.related_item.intra_work_relation?.value,
-            identifierType: prog.related_item.intra_work_relation['@identifier-type'],
-            relationshipType: prog.related_item.intra_work_relation['@relationship-type'],
-            citation: prog.related_item.intra_work_relation.unstructured_citation,
-          });
-        }
-      });
-    } else {
-      if (Array.isArray(articleContent.program?.related_item)) {
-        articleContent.program.related_item.forEach(item => {
-          if (item.inter_work_relation) {
-            relatedItems.push({
-              value: item.inter_work_relation?.value,
-              identifierType: item.inter_work_relation['@identifier-type'],
-              relationshipType: item.inter_work_relation['@relationship-type'],
-              citation: item.inter_work_relation.unstructured_citation,
-            });
-          }
-          if (item.intra_work_relation) {
-            relatedItems.push({
-              value: item.intra_work_relation?.value,
-              identifierType: item.intra_work_relation['@identifier-type'],
-              relationshipType: item.intra_work_relation['@relationship-type'],
-              citation: item.intra_work_relation.unstructured_citation,
-            });
-          }
-        });
-      } else if (articleContent.program?.related_item?.inter_work_relation) {
-        relatedItems.push({
-          value: articleContent.program.related_item.inter_work_relation?.value,
-          identifierType:
-            articleContent.program.related_item.inter_work_relation['@identifier-type'],
-          relationshipType:
-            articleContent.program.related_item.inter_work_relation['@relationship-type'],
-          citation: articleContent.program.related_item.inter_work_relation.unstructured_citation,
-        });
-      } else if (articleContent.program?.related_item?.intra_work_relation) {
-        relatedItems.push({
-          value: articleContent.program.related_item.intra_work_relation?.value,
-          identifierType:
-            articleContent.program.related_item.intra_work_relation['@identifier-type'],
-          relationshipType:
-            articleContent.program.related_item.intra_work_relation['@relationship-type'],
-          citation: articleContent.program.related_item.intra_work_relation.unstructured_citation,
-        });
-      }
-    }
-
-    /** Format fundings */
-    const fundings: string[] = [];
-    if (Array.isArray(articleContent.program)) {
-      const fundref = articleContent.program.find(p => p['@name'] && p['@name'] === 'fundref');
-      if (fundref) {
-        if (Array.isArray(fundref.assertion?.assertion)) {
-          fundref.assertion?.assertion?.forEach(as => fundings.push(as.value));
-        } else if (fundref.assertion?.assertion?.value) {
-          fundings.push(fundref.assertion?.assertion?.value);
-        }
-      }
-    } else {
-      if (articleContent.program && articleContent.program['@name'] === 'fundref') {
-        if (Array.isArray(articleContent.program.assertion?.assertion)) {
-          articleContent.program.assertion?.assertion?.forEach(as => fundings.push(as.value));
-        } else if (articleContent.program.assertion?.assertion?.value) {
-          fundings.push(articleContent.program.assertion?.assertion?.value);
-        }
-      }
-    }
-
-    /** Format license - extract from license_ref (object or array, prefer "vor" entry) */
-    let license = undefined;
-    const extractLicense = (licenseRef: any): string | undefined => {
-      if (!licenseRef) return undefined;
-      if (Array.isArray(licenseRef)) {
-        const vor = licenseRef.find((l: any) => l['@applies_to'] === 'vor');
-        return (vor || licenseRef[0])?.value;
-      }
-      return licenseRef.value;
-    };
-    if (Array.isArray(articleContent.program)) {
-      const prog = articleContent.program.find((p: any) => p.license_ref);
-      license = extractLicense(prog?.license_ref);
-    } else {
-      license = extractLicense(articleContent.program?.license_ref);
-    }
-
-    /** Format keywords */
-    let keywords: string[] | IArticleKeywords | undefined = undefined;
-
-    // Check for keywords in various possible locations
-    let rawKeywords: any = undefined;
-    let keywordsLanguage: string | undefined = undefined;
-
-    if (extendedArticle.keywords) {
-      rawKeywords = extendedArticle.keywords;
-    } else if (articleContent.keywords) {
-      rawKeywords = articleContent.keywords;
-      // Check if there's a @language attribute at the article content level
-      keywordsLanguage = articleContent['@language'];
-    } else if (articleContent.program) {
-      // Check for keywords in program data
-      const keywordProgram = Array.isArray(articleContent.program)
-        ? articleContent.program.find(
-            (p): p is typeof p & { keywords: unknown } =>
-              p && typeof p === 'object' && 'keywords' in p && !!p.keywords
-          )
-        : (articleContent.program as { keywords?: unknown })?.keywords
-          ? articleContent.program
-          : null;
-
-      if (keywordProgram) {
-        // TypeScript doesn't narrow the type properly, so we use type assertion
-        const programWithKeywords = keywordProgram as { keywords?: unknown; '@language'?: string };
-        if (programWithKeywords.keywords) {
-          rawKeywords = programWithKeywords.keywords;
-          keywordsLanguage = programWithKeywords['@language'];
-        }
-      }
-    }
-
-    // Process keywords - check if they're already structured by language
-    if (rawKeywords) {
-      if (Array.isArray(rawKeywords)) {
-        // Simple array - check if we have a language indicator
-        if (keywordsLanguage && rawKeywords.length > 0) {
-          // If there's a language attribute, structure it by language
-          const keywordsObj: any = {};
-          keywordsObj[keywordsLanguage] = rawKeywords;
-          // For now, keep as simple array since it's single language
-          // The KeywordsSection component will handle single-language display
-          keywords = rawKeywords;
-        } else {
-          keywords = rawKeywords;
-        }
-      } else if (typeof rawKeywords === 'object') {
-        // Object - check if it's a language-keyed object
-        const keys = Object.keys(rawKeywords);
-        const isMultilingual =
-          keys.length > 1 || (keys.length === 1 && keys.some(k => k.length === 2)); // 2-char language codes
-
-        if (isMultilingual) {
-          keywords = rawKeywords as IArticleKeywords;
-        } else if (keys.length === 1 && Array.isArray(rawKeywords[keys[0]])) {
-          // Single language with array - extract the array
-          keywords = rawKeywords[keys[0]];
-        } else {
-          keywords = rawKeywords;
-        }
-      }
-    }
-
-    /** Format classifications (MSC 2020) */
-    let classifications: IClassificationItem[] | undefined = undefined;
-    const msc2020 = articleDB?.current?.classifications?.msc2020;
-    if (msc2020) {
-      const items = Object.values(msc2020);
-      if (items.length > 0) {
-        classifications = items.map(item => ({
-          code: item.code,
-          label: item.label,
-          description: item.description,
-          sourceName: item.source_name,
-          classificationName: item.classification_name,
-        }));
-      }
-    }
-
-    /** Format metrics */
-    const metrics: { views: number; downloads: number } = { views: 0, downloads: 0 };
-    if (articleDB?.current?.metrics) {
-      metrics.downloads = articleDB.current.metrics.file_count;
-      metrics.views = articleDB.current.metrics.page_count;
-    }
-
-    /** Format section */
-    let section = undefined;
-    if (articleDB?.current?.section) {
-      section = {
-        id: articleDB.current.section.id,
-        title: articleDB.current.section.titles,
-      };
-    }
-
-    /** Format DOI - try multiple sources */
-    const doi = extendedArticle.doi || articleContent.doi_data?.doi || '';
-
     return {
-      id: Number(extendedArticle.paperid),
+      id,
       journalCode: extendedArticle.rvcode,
       title: articleContent.titles?.title,
-      abstract,
+      abstract: extractAbstract(articleContent),
       graphicalAbstract: articleDB?.current?.graphical_abstract_file,
-      authors,
+      authors: extractAuthors(articleContent),
       publicationDate: articleDB?.current?.dates?.publication_date,
-      acceptanceDate,
+      acceptanceDate: extractAcceptanceDate(articleContent),
       submissionDate: articleDB?.current?.dates?.first_submission_date,
       modificationDate: articleDB?.current?.dates?.modification_date,
-      isImported,
+      isImported: articleDB?.current?.flag === 'imported',
       tag: articleDB?.current?.type?.title?.toLowerCase(),
       repositoryName: articleDB?.current?.repository?.name,
       repositoryIdentifier: articleDB?.current?.identifiers?.repository_identifier,
       pdfLink: articleDB?.current?.mainPdfUrl?.length ? articleDB?.current?.mainPdfUrl : undefined,
       docLink: articleDB?.current?.repository?.doc_url,
-      keywords,
-      classifications,
-      doi,
+      keywords: extractKeywords(extendedArticle, articleContent),
+      classifications: extractClassifications(articleDB),
+      doi: extendedArticle.doi || articleContent.doi_data?.doi || '',
       volumeId: articleDB?.current?.volume?.id,
-      section,
-      references,
-      citedBy,
-      relatedItems,
-      fundings,
-      license,
-      metrics,
+      section: extractSection(articleDB),
+      references: extractReferences(articleContent),
+      citedBy: extractCitedBy(articleDB),
+      relatedItems: extractRelatedItems(articleContent),
+      fundings: extractFundings(articleContent),
+      license: extractLicense(articleContent),
+      metrics: extractMetrics(articleDB),
     };
   } catch (error) {
     log.error('Error formatting article:', error);

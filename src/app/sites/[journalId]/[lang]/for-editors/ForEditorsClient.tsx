@@ -68,6 +68,7 @@ export default function ForEditorsClient({
       lang={lang}
       noContentMessage={t('pages.forEditors.noContent')}
       languageNotice={languageNotice}
+      lastUpdated={pageData?.date_updated}
       className="markdown-page"
     />
   );

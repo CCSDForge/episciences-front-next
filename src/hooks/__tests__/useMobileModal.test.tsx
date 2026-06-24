@@ -13,11 +13,12 @@ const createStore = (footerEnabled = false) =>
     preloadedState: { footerReducer: { enabled: footerEnabled } },
   });
 
-const wrapper =
-  (store: ReturnType<typeof createStore>) =>
-  ({ children }: { children: React.ReactNode }) => (
-    <Provider store={store}>{children}</Provider>
-  );
+const wrapper = (store: ReturnType<typeof createStore>) => {
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return <Provider store={store}>{children}</Provider>;
+  }
+  return Wrapper;
+};
 
 // --- Tests ---
 
@@ -79,7 +80,7 @@ describe('useMobileModal', () => {
           typeof call[0] === 'object' &&
           call[0] !== null &&
           'payload' in call[0] &&
-          (call[0] as { payload: boolean }).payload === true
+          (call[0] as unknown as { payload: boolean }).payload === true
       );
       expect(setTrueCalls.length).toBeGreaterThanOrEqual(1);
     });
@@ -108,10 +109,9 @@ describe('useMobileModal', () => {
       const onBeforeClose = vi.fn(() => callOrder.push('before'));
       const onCloseCallback = vi.fn(() => callOrder.push('close'));
 
-      const { result } = renderHook(
-        () => useMobileModal(onCloseCallback, { onBeforeClose }),
-        { wrapper: wrapper(store) }
-      );
+      const { result } = renderHook(() => useMobileModal(onCloseCallback, { onBeforeClose }), {
+        wrapper: wrapper(store),
+      });
 
       act(() => {
         result.current.onClose();
@@ -124,10 +124,9 @@ describe('useMobileModal', () => {
       const store = createStore();
       const onBeforeClose = vi.fn();
 
-      const { result } = renderHook(
-        () => useMobileModal(mockOnClose, { onBeforeClose }),
-        { wrapper: wrapper(store) }
-      );
+      const { result } = renderHook(() => useMobileModal(mockOnClose, { onBeforeClose }), {
+        wrapper: wrapper(store),
+      });
 
       act(() => {
         result.current.closeModal();
@@ -275,10 +274,9 @@ describe('useMobileModal', () => {
 
     it('restores overflow on unmount when lockBodyScroll=true', () => {
       const store = createStore();
-      const { unmount } = renderHook(
-        () => useMobileModal(mockOnClose, { lockBodyScroll: true }),
-        { wrapper: wrapper(store) }
-      );
+      const { unmount } = renderHook(() => useMobileModal(mockOnClose, { lockBodyScroll: true }), {
+        wrapper: wrapper(store),
+      });
 
       unmount();
 

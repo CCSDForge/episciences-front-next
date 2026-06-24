@@ -17,7 +17,7 @@ const parseDateParts = (
 ): Date | null => {
   if (parts.length !== 3) return null;
 
-  const parsed = parts.map(p => parseInt(p, 10));
+  const parsed = parts.map(p => Number.parseInt(p, 10));
   if (parsed.some(isNaN)) return null;
 
   const year = parsed[yearIndex];

@@ -117,6 +117,20 @@ describe('CacheHandler', () => {
       expect(result).toBeNull();
     });
 
+    it('returns null when entry has an incompatible cache format version', async () => {
+      const entry = {
+        __v: 99, // incompatible version — current is CACHE_FORMAT_VERSION (3)
+        __buildId: _internals.BUILD_ID,
+        value: { html: '<p>Old format</p>' },
+        lastModified: 1000,
+        tags: [],
+      };
+      mockClient.get.mockResolvedValue(JSON.stringify(entry));
+      const handler = makeHandler();
+      const result = await handler.get('old-format-key');
+      expect(result).toBeNull();
+    });
+
     it('returns null when entry has a different build ID (stale after deploy)', async () => {
       const entry = {
         __v: _internals.CACHE_FORMAT_VERSION,
@@ -258,6 +272,44 @@ describe('CacheHandler', () => {
       const result = await handler.get('mem-key');
 
       expect(result).toEqual(entry);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // ReadableStream serialization (preprocessValue / readStreamToBuffer)
+  // -------------------------------------------------------------------------
+
+  describe('ReadableStream serialization', () => {
+    it('round-trips a ReadableStream value through set() and get()', async () => {
+      if (typeof ReadableStream === 'undefined') return;
+
+      const content = 'streaming body content';
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode(content));
+          controller.close();
+        },
+      });
+
+      // Capture what gets stored via the pipeline
+      let stored: string | undefined;
+      mockClient._pipeline.set.mockImplementation((_key: string, val: string) => {
+        stored = val;
+        return mockClient._pipeline;
+      });
+
+      const handler = makeHandler();
+      await handler.set('stream-key', { body: stream }, { revalidate: false, tags: [] });
+
+      expect(stored).toBeDefined();
+      const parsed = JSON.parse(stored!);
+      // The ReadableStream should be serialized as a base64-encoded token
+      expect(parsed.value.body.__t).toBe('ReadableStream');
+      expect(typeof parsed.value.body.v).toBe('string');
+      // Verify content is preserved
+      const decoded = Buffer.from(parsed.value.body.v, 'base64').toString('utf-8');
+      expect(decoded).toBe(content);
     });
   });
 

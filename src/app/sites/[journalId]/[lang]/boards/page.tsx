@@ -8,6 +8,8 @@ import { generateSeoAlternates } from '@/utils/seo';
 
 import dynamic from 'next/dynamic';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const BoardsClient = dynamic(() => import('./BoardsClient'));
 
@@ -94,15 +96,22 @@ export default async function BoardsPage(props: {
     const tableOfContentsLabel = t('pages.boards.tableOfContents', translations);
 
     return (
-      <BoardsClient
-        initialPages={pages}
-        initialMembers={members}
-        lang={lang}
-        breadcrumbLabels={breadcrumbLabels}
-        membersCountLabels={membersCountLabels}
-        rolesLabels={rolesLabels}
-        tableOfContentsLabel={tableOfContentsLabel}
-      />
+      <>
+        <JsonLd
+          data={generateWebPageJsonLd('WebPage', journalId, lang, '/boards', {
+            name: t('pages.boards.title', translations),
+          })}
+        />
+        <BoardsClient
+          initialPages={pages}
+          initialMembers={members}
+          lang={lang}
+          breadcrumbLabels={breadcrumbLabels}
+          membersCountLabels={membersCountLabels}
+          rolesLabels={rolesLabels}
+          tableOfContentsLabel={tableOfContentsLabel}
+        />
+      </>
     );
   } catch (error) {
     logger.warn(

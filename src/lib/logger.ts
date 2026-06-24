@@ -8,6 +8,15 @@ const LEVELS: Record<Level, number> = {
   silent: 4,
 };
 
+type ConsoleFn = (...args: unknown[]) => void;
+
+const CONSOLE_FN: Record<Exclude<Level, 'silent'>, ConsoleFn> = {
+  debug: (...args) => console.log(...args),
+  info: (...args) => console.log(...args),
+  warn: (...args) => console.warn(...args),
+  error: (...args) => console.error(...args),
+};
+
 function getLevel(): Level {
   const configured = (process.env.LOG_LEVEL ?? '').toLowerCase() as Level;
   if (configured in LEVELS) return configured;
@@ -24,6 +33,7 @@ class Logger {
 
   private emit(level: Exclude<Level, 'silent'>, msg: string, extra?: unknown): void {
     if (LEVELS[level] < LEVELS[getLevel()]) return;
+    const fn = CONSOLE_FN[level];
 
     if (process.env.NODE_ENV === 'production') {
       const entry: Record<string, unknown> = {
@@ -33,21 +43,11 @@ class Logger {
         ...this.ctx,
       };
       if (extra !== undefined) entry.data = extra;
-      const line = JSON.stringify(entry);
-      if (level === 'warn') console.warn(line);
-      else if (level === 'error') console.error(line);
-      else console.log(line);
+      fn(JSON.stringify(entry));
     } else {
       const prefix = this.ctx.service ? `[${String(this.ctx.service)}] ` : '';
-      if (extra !== undefined) {
-        if (level === 'warn') console.warn('%s', prefix + msg, extra);
-        else if (level === 'error') console.error('%s', prefix + msg, extra);
-        else console.log('%s', prefix + msg, extra);
-      } else {
-        if (level === 'warn') console.warn('%s', prefix + msg);
-        else if (level === 'error') console.error('%s', prefix + msg);
-        else console.log('%s', prefix + msg);
-      }
+      if (extra !== undefined) fn('%s', prefix + msg, extra);
+      else fn('%s', prefix + msg);
     }
   }
 

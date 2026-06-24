@@ -67,6 +67,7 @@ export default function EthicalCharterClient({
       lang={lang}
       noContentMessage={t('pages.ethicalCharter.noContent')}
       languageNotice={languageNotice}
+      lastUpdated={pageData?.date_updated}
       className="markdown-page"
     />
   );

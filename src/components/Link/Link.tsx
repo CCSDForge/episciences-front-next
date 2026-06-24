@@ -11,7 +11,6 @@ type LinkProps = {
   target?: string;
   rel?: string;
   ref?: React.Ref<HTMLAnchorElement>;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   lang?: string;
   [key: string]: any;
 };
@@ -30,7 +29,17 @@ function normalizePath(path: string): string {
   return normalizedPath.replace(/\/+/g, '/');
 }
 
-export function Link({ href, children, lang, ref, prefetch, scroll, replace, shallow, ...props }: LinkProps) {
+export function Link({
+  href,
+  children,
+  lang,
+  ref,
+  prefetch,
+  scroll,
+  replace,
+  shallow,
+  ...props
+}: LinkProps) {
   const { i18n } = useTranslation();
   // Ensure we always have a language, falling back to defaultLanguage
   const currentLanguage = lang || i18n.language || defaultLanguage;

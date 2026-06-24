@@ -68,6 +68,7 @@ export default function ForReviewersClient({
       lang={lang}
       noContentMessage={t('pages.forReviewers.noContent')}
       languageNotice={languageNotice}
+      lastUpdated={pageData?.date_updated}
       className="markdown-page"
     />
   );

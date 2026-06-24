@@ -41,6 +41,19 @@ type EnhancedArticleAccepted = FetchedArticle & {
   openedAbstract: boolean;
 };
 
+function buildTypeSelections(rangeTypes: string[]): IArticleTypeSelection[] {
+  return rangeTypes
+    .filter(t => articleTypes.some(at => at.value === t))
+    .map(t => {
+      const matchingType = articleTypes.find(at => at.value === t)!;
+      return {
+        labelPath: matchingType.labelPath,
+        value: matchingType.value,
+        isChecked: false,
+      };
+    });
+}
+
 interface ArticlesAcceptedClientProps {
   initialArticles: {
     data: any[];
@@ -127,17 +140,7 @@ export default function ArticlesAcceptedClient({
   useEffect(() => {
     if (initialRange?.types && types.length === 0) {
       const typesArray = Array.isArray(initialRange.types) ? initialRange.types : [];
-      const initTypes = typesArray
-        .filter((t: string) => articleTypes.find(at => at.value === t))
-        .map((t: string) => {
-          const matchingType = articleTypes.find(at => at.value === t);
-          return {
-            labelPath: matchingType!.labelPath,
-            value: matchingType!.value,
-            isChecked: false,
-          };
-        });
-      setTypes(initTypes);
+      setTypes(buildTypeSelections(typesArray));
     }
   }, [initialRange, types.length]);
 
@@ -154,24 +157,11 @@ export default function ArticlesAcceptedClient({
   }, [isStaticBuild, articlesAccepted?.data]);
 
   useEffect(() => {
-    if (articlesAccepted?.range?.types) {
-      setTypes(prev => {
-        if (prev.length > 0) return prev;
-
-        return articlesAccepted.range!.types!
-          .filter(t => articleTypes.find(at => at.value === t))
-          .map(t => {
-            const matchingType = articleTypes.find(at => at.value === t)!;
-
-            return {
-              labelPath: matchingType.labelPath,
-              value: matchingType.value,
-              isChecked: false,
-            };
-          });
-      });
+    const rangeTypes = articlesAccepted?.range?.types;
+    if (rangeTypes) {
+      setTypes(prev => (prev.length > 0 ? prev : buildTypeSelections(rangeTypes)));
     }
-  }, [articlesAccepted?.range?.types, articleTypes]);
+  }, [articlesAccepted?.range?.types]);
 
   // Memoize handlePageClick to prevent Pagination re-renders
   const handlePageClick = useCallback((selectedItem: { selected: number }): void => {

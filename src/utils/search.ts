@@ -21,7 +21,7 @@ export const formatSearchRange = (
   let years: { value: number; count: number }[] = [];
   if (searchRange.year) {
     years = Object.entries(searchRange.year).map(y => ({
-      value: parseInt(y[0]),
+      value: Number.parseInt(y[0]),
       count: y[1],
     }));
   }
@@ -84,6 +84,6 @@ const formatVolumeOrSection = (
 ): Record<number, string>[] => {
   return Object.entries(data).map(([id, titleObj]) => {
     const title = Object.keys(titleObj)[0];
-    return { [parseInt(id)]: title };
+    return { [Number.parseInt(id)]: title };
   });
 };

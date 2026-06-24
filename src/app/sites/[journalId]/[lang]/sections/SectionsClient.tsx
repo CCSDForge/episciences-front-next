@@ -62,7 +62,7 @@ export default function SectionsClient({
 
   // Initialiser la page depuis les query params ou initialPage
   const pageFromUrl = searchParams?.get('page');
-  const pageNumber = pageFromUrl ? Math.max(1, parseInt(pageFromUrl, 10)) : initialPage;
+  const pageNumber = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : initialPage;
 
   const [currentPage, setCurrentPage] = useState(pageNumber);
   const [sections, setSections] = useState(initialSections);
@@ -72,7 +72,7 @@ export default function SectionsClient({
   // Synchroniser currentPage avec les query params
   useEffect(() => {
     const pageParam = searchParams?.get('page');
-    const pageNum = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
+    const pageNum = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
     if (!isNaN(pageNum) && pageNum !== currentPage) {
       setCurrentPage(pageNum);
     }

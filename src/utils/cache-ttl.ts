@@ -12,7 +12,7 @@ const DEFAULT_TTL = 3600;
 function parseTTL(value: string | undefined): number | false {
   if (!value) return DEFAULT_TTL;
   if (value === 'false') return false;
-  const n = parseInt(value, 10);
+  const n = Number.parseInt(value, 10);
   return Number.isFinite(n) && n >= 0 ? n : DEFAULT_TTL;
 }
 

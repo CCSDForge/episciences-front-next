@@ -9,6 +9,8 @@ import { acceptedLanguages } from '@/utils/language-utils';
 import { getPublicJournalConfig } from '@/utils/env-loader';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const ForConferenceOrganisersClient = dynamic(() => import('./ForConferenceOrganisersClient'));
 
@@ -73,10 +75,17 @@ export default async function ForConferenceOrganisersPage(props: {
   };
 
   return (
-    <ForConferenceOrganisersClient
-      initialPage={pageData}
-      lang={lang}
-      breadcrumbLabels={breadcrumbLabels}
-    />
+    <>
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/for-conference-organisers', {
+          name: t('pages.forConferenceOrganisers.title', translations),
+        })}
+      />
+      <ForConferenceOrganisersClient
+        initialPage={pageData}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+      />
+    </>
   );
 }

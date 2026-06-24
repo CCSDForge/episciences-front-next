@@ -8,6 +8,8 @@ import { generateSeoAlternates } from '@/utils/seo';
 import type { IStatResponse } from '@/types/stat';
 import './Statistics.scss';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const StatisticsClient = dynamic(() => import('./StatisticsClient'));
 
@@ -88,6 +90,17 @@ export default async function StatisticsPage(props: Props) {
   };
 
   return (
-    <StatisticsClient initialStats={initialStats} lang={lang} breadcrumbLabels={breadcrumbLabels} />
+    <>
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/statistics', {
+          name: t('pages.statistics.title', translations),
+        })}
+      />
+      <StatisticsClient
+        initialStats={initialStats}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+      />
+    </>
   );
 }

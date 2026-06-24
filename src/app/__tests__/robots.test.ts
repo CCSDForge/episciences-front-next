@@ -8,9 +8,20 @@ vi.mock('next/headers', () => ({
   }),
 }));
 
+vi.mock('@/utils/env-loader', () => ({
+  loadJournalConfig: vi.fn().mockReturnValue({ code: 'epijinfo', env: {} }),
+}));
+
+vi.mock('@/utils/validation', () => ({
+  isValidJournalId: vi.fn().mockReturnValue(true),
+}));
+
+import { loadJournalConfig } from '@/utils/env-loader';
+
 describe('Robots.txt Generator', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
+    vi.mocked(loadJournalConfig).mockReturnValue({ code: 'epijinfo', env: {} });
   });
 
   it('should disallow search, feed paths and /api/', async () => {
@@ -43,5 +54,43 @@ describe('Robots.txt Generator', () => {
     const result = await robots();
 
     expect(result.sitemap).toBe('http://epijinfo.episciences.org/sitemap.xml');
+  });
+
+  describe('when NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING=false in journal config', () => {
+    it('should disallow all robots with disallow /', async () => {
+      vi.mocked(loadJournalConfig).mockReturnValue({
+        code: 'epijinfo',
+        env: { NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING: 'false' },
+      });
+
+      const result = await robots();
+
+      expect((result.rules as any).disallow).toBe('/');
+    });
+
+    it('should still advertise the sitemap', async () => {
+      vi.mocked(loadJournalConfig).mockReturnValue({
+        code: 'epijinfo',
+        env: { NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING: 'false' },
+      });
+      vi.stubEnv('NODE_ENV', 'production');
+
+      const result = await robots();
+
+      expect(result.sitemap).toBe('https://epijinfo.episciences.org/sitemap.xml');
+    });
+  });
+
+  describe('when NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING=true in journal config', () => {
+    it('should use the standard disallow list', async () => {
+      vi.mocked(loadJournalConfig).mockReturnValue({
+        code: 'epijinfo',
+        env: { NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING: 'true' },
+      });
+
+      const result = await robots();
+
+      expect((result.rules as any).disallow).toEqual(ROBOTS_DISALLOW);
+    });
   });
 });

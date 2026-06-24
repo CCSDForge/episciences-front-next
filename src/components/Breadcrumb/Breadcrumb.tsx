@@ -1,9 +1,9 @@
 'use client';
 
 import { Link } from '@/components/Link/Link';
+import JsonLd from '@/components/Meta/JsonLd';
 import MathJax from '@/components/MathJax/MathJax';
-import { getLocalizedPath } from '@/utils/language-utils';
-import { getJournalBaseUrl } from '@/utils/signposting';
+import { generateBreadcrumbJsonLd } from '@/utils/schema';
 import { useParams, usePathname } from 'next/navigation';
 import './Breadcrumb.scss';
 
@@ -24,60 +24,15 @@ export default function Breadcrumb({
   const params = useParams();
   const journalId = (params?.journalId as string) || '';
   const pathname = usePathname();
+  const currentLang = lang || 'en';
 
-  // JSON-LD Structured Data
-  const generateJsonLd = () => {
-    if (!journalId) return null;
-
-    const baseUrl = getJournalBaseUrl(journalId);
-    const currentLang = lang || 'en';
-
-    const items = [
-      ...parents.map((parent, index) => {
-        const cleanLabel = parent.label.replace(/\s*>\s*$/, '').trim();
-        let itemUrl = '';
-
-        if (parent.path === '#') {
-          // If no path, we don't include it in JSON-LD or we use the current page (less ideal)
-          return null;
-        } else if (parent.path.startsWith('http')) {
-          itemUrl = parent.path;
-        } else {
-          itemUrl = `${baseUrl}${getLocalizedPath(parent.path, currentLang)}`;
-        }
-
-        return {
-          '@type': 'ListItem',
-          position: index + 1,
-          name: cleanLabel,
-          item: itemUrl,
-        };
-      }),
-      {
-        '@type': 'ListItem',
-        position: parents.length + 1,
-        name: crumbLabel,
-        item: pathname ? `${baseUrl}${pathname}` : undefined,
-      },
-    ].filter(Boolean);
-
-    const jsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: items,
-    };
-
-    return (
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-    );
-  };
+  const jsonLd = journalId
+    ? generateBreadcrumbJsonLd(parents, crumbLabel, currentLang, journalId, pathname)
+    : null;
 
   return (
     <>
-      {generateJsonLd()}
+      {jsonLd && <JsonLd data={jsonLd} />}
       <nav className="breadcrumb" aria-label="Breadcrumb">
         <ol>
           {parents.map((parent, index) => (

@@ -8,7 +8,7 @@
     "volumes": "volumes",
     "section": "rubrique",
     "sections": "rubriques",
-    "author": "auteur/autrice",
+    "author": "auteur/autrices",
     "authorFor": "auteur/autrice pour",
     "authors": "auteurs/autrices",
     "authorsFor": "auteurs/autrices pour",
@@ -89,7 +89,8 @@
     "publicationDetails": "Détails de publication",
     "submittedOn": "Soumis le",
     "importedOn": "Importé le",
-    "lastModifiedOn": "Modifié le"
+    "lastModifiedOn": "Modifié le",
+    "lastUpdated": "Dernière mise à jour :"
   },
   "components": {
     "header": {

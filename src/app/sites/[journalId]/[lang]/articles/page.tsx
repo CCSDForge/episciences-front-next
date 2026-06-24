@@ -8,6 +8,8 @@ import { Suspense } from 'react';
 import Loader from '@/components/Loader/Loader';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateCollectionPageJsonLd } from '@/utils/schema';
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
 
@@ -59,7 +61,9 @@ export default async function ArticlesPage(props: {
   const { journalId } = params;
 
   // Extract page number from searchParams
-  const page = searchParams?.page ? Math.max(1, parseInt(searchParams.page as string, 10)) : 1;
+  const page = searchParams?.page
+    ? Math.max(1, Number.parseInt(searchParams.page as string, 10))
+    : 1;
 
   const translationsPromise = getServerTranslations(lang);
 
@@ -102,14 +106,22 @@ export default async function ArticlesPage(props: {
     };
 
     return (
-      <Suspense fallback={<Loader />}>
-        <ArticlesClient
-          initialArticles={formattedArticles}
-          lang={lang}
-          breadcrumbLabels={breadcrumbLabels}
-          countLabels={countLabels}
+      <>
+        <JsonLd
+          data={generateCollectionPageJsonLd(journalId, lang, '/articles', {
+            name: t('pages.articles.title', translations),
+            numberOfItems: formattedArticles.totalItems,
+          })}
         />
-      </Suspense>
+        <Suspense fallback={<Loader />}>
+          <ArticlesClient
+            initialArticles={formattedArticles}
+            lang={lang}
+            breadcrumbLabels={breadcrumbLabels}
+            countLabels={countLabels}
+          />
+        </Suspense>
+      </>
     );
   } catch (error) {
     logger.error('Error fetching articles:', error);

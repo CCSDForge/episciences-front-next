@@ -18,7 +18,9 @@ export async function GET(
 ) {
   const { journalId, id } = await params;
 
-  logger.debug(`[preview] 📥 GET request received for article PDF preview: ID ${id} (journal: ${journalId})`);
+  logger.debug(
+    `[preview] 📥 GET request received for article PDF preview: ID ${id} (journal: ${journalId})`
+  );
 
   if (!isValidJournalId(journalId)) {
     logger.warn(`[preview] ❌ Invalid journal ID format: ${journalId}`);
@@ -48,7 +50,8 @@ export async function GET(
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   try {
-    const response = await fetch(article.pdfLink, { // lgtm[js/ssrf] — pdfLink comes from server API, domain validated by isAllowedPdfDomain()
+    const response = await fetch(article.pdfLink, {
+      // lgtm[js/ssrf] — pdfLink comes from server API, domain validated by isAllowedPdfDomain()
       signal: controller.signal,
       headers: { 'User-Agent': 'Episciences-PDF-Proxy/1.0' },
     });
@@ -56,8 +59,13 @@ export async function GET(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      logger.error(`[preview] ❌ Upstream returned ${response.status} for article ${id}: ${article.pdfLink}`);
-      return new NextResponse('Failed to fetch PDF', { status: response.status, headers: errorHeaders });
+      logger.error(
+        `[preview] ❌ Upstream returned ${response.status} for article ${id}: ${article.pdfLink}`
+      );
+      return new NextResponse('Failed to fetch PDF', {
+        status: response.status,
+        headers: errorHeaders,
+      });
     }
 
     const headers = new Headers({
@@ -70,7 +78,9 @@ export async function GET(
     const contentLength = response.headers.get('Content-Length');
     if (contentLength) headers.set('Content-Length', contentLength);
 
-    logger.debug(`[preview] ✅ Successfully proxied PDF for article ${id} (${contentLength || 'unknown size'} bytes)`);
+    logger.debug(
+      `[preview] ✅ Successfully proxied PDF for article ${id} (${contentLength || 'unknown size'} bytes)`
+    );
     return new NextResponse(response.body, { status: 200, headers });
   } catch (error) {
     clearTimeout(timeoutId);
@@ -82,4 +92,3 @@ export async function GET(
     return new NextResponse('Internal server error', { status: 500, headers: errorHeaders });
   }
 }
-

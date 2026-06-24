@@ -27,7 +27,7 @@ export const statisticsBlocksConfiguration = (
     key: STATISTIC_BLOCK.ACCEPTANCE_RATE,
     render:
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_ACCEPTANCE_RATE_RENDER', journalConfig) !== 'false',
-    order: parseInt(
+    order: Number.parseInt(
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_ACCEPTANCE_RATE_ORDER', journalConfig) ?? '0'
     ),
     title: 'Acceptance Rate',
@@ -36,7 +36,7 @@ export const statisticsBlocksConfiguration = (
     key: STATISTIC_BLOCK.NB_SUBMISSIONS,
     render:
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_RENDER', journalConfig) !== 'false',
-    order: parseInt(
+    order: Number.parseInt(
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_ORDER', journalConfig) || '2',
       10
     ),
@@ -47,7 +47,7 @@ export const statisticsBlocksConfiguration = (
     render:
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_DETAILS_RENDER', journalConfig) !==
       'false',
-    order: parseInt(
+    order: Number.parseInt(
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_DETAILS_ORDER', journalConfig) || '3',
       10
     ),
@@ -57,7 +57,7 @@ export const statisticsBlocksConfiguration = (
     key: STATISTIC_BLOCK.REVIEWS_REQUESTED,
     render:
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_REQUESTED_RENDER', journalConfig) !== 'false',
-    order: parseInt(
+    order: Number.parseInt(
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_REQUESTED_ORDER', journalConfig) || '1',
       10
     ),
@@ -67,7 +67,7 @@ export const statisticsBlocksConfiguration = (
     key: STATISTIC_BLOCK.REVIEWS_RECEIVED,
     render:
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_RECEIVED_RENDER', journalConfig) !== 'false',
-    order: parseInt(
+    order: Number.parseInt(
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_REVIEWS_RECEIVED_ORDER', journalConfig) || '2',
       10
     ),
@@ -80,7 +80,7 @@ export const statisticsBlocksConfiguration = (
         'NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_SUBMISSION_PUBLICATION_RENDER',
         journalConfig
       ) !== 'false',
-    order: parseInt(
+    order: Number.parseInt(
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_SUBMISSION_PUBLICATION_ORDER', journalConfig) ||
         '3',
       10
@@ -92,7 +92,7 @@ export const statisticsBlocksConfiguration = (
     render:
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_REVIEWS_NUMBER_RENDER', journalConfig) !==
       'false',
-    order: parseInt(
+    order: Number.parseInt(
       getEnv('NEXT_PUBLIC_JOURNAL_STATISTICS_MEDIAN_REVIEWS_NUMBER_ORDER', journalConfig) || '4',
       10
     ),

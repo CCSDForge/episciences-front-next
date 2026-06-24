@@ -47,6 +47,7 @@ describe('safeFetch', () => {
     await safeFetch(fetchFn, null, 'fetchArticles(epijinfo)');
 
     expect(consoleSpy).toHaveBeenCalledWith(
+      '%s',
       expect.stringContaining('fetchArticles(epijinfo)'),
       expect.anything()
     );

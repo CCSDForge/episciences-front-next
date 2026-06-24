@@ -9,6 +9,7 @@ export interface IPage {
   content: Record<AvailableLanguage, string>;
   rvcode: string;
   page_code: string;
+  date_updated?: string;
 }
 
 export async function fetchPage(pageCode: string, rvcode: string): Promise<IPage | undefined> {

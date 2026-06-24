@@ -67,6 +67,7 @@ export default function IndexingClient({
       lang={lang}
       noContentMessage={t('pages.indexing.noContent')}
       languageNotice={languageNotice}
+      lastUpdated={pageData?.date_updated}
       className="indexing-page"
     />
   );

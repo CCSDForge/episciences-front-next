@@ -7,6 +7,8 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import JsonLd from '@/components/Meta/JsonLd';
+import { generateWebPageJsonLd } from '@/utils/schema';
 
 const AcknowledgementsClient = dynamic(() => import('./AcknowledgementsClient'));
 
@@ -61,9 +63,7 @@ export default async function AcknowledgementsPage(props: {
       }
     }
   } catch (error) {
-    logger.warn(
-      `[Build] Could not reach API for Acknowledgements page of journal "${journalId}".`
-    );
+    logger.warn(`[Build] Could not reach API for Acknowledgements page of journal "${journalId}".`);
   }
 
   const translations = await translationsPromise;
@@ -73,10 +73,17 @@ export default async function AcknowledgementsPage(props: {
   };
 
   return (
-    <AcknowledgementsClient
-      initialPage={pageData}
-      lang={lang}
-      breadcrumbLabels={breadcrumbLabels}
-    />
+    <>
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/acknowledgements', {
+          name: t('pages.acknowledgements.title', translations),
+        })}
+      />
+      <AcknowledgementsClient
+        initialPage={pageData}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+      />
+    </>
   );
 }
