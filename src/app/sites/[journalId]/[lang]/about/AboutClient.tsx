@@ -17,6 +17,7 @@ import {
   serializeMarkdown,
   getMarkdownImageURL,
   adjustNestedListsInMarkdownContent,
+  getNodeText,
 } from '@/utils/markdown';
 import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
@@ -89,10 +90,7 @@ export default function AboutClient({
         if (currentSection) {
           sections.push(currentSection);
         }
-        const titleText = node.children
-          .filter(child => child.type === 'text')
-          .map(textNode => (textNode as { value: string }).value)
-          .join('');
+        const titleText = getNodeText(node);
         currentSection = {
           id: generateIdFromText(titleText),
           value: serializeMarkdown(node),
@@ -127,12 +125,12 @@ export default function AboutClient({
 
     tree.children.forEach(node => {
       if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
-        const textNode = node.children.find(child => child.type === 'text') as { value: string };
+        const titleText = getNodeText(node);
 
-        if (textNode) {
+        if (titleText) {
           const header: IAboutHeader = {
-            id: generateIdFromText(textNode.value),
-            value: textNode.value,
+            id: generateIdFromText(titleText),
+            value: titleText,
             opened: true,
             children: [],
           };

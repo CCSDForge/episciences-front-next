@@ -4,6 +4,7 @@ import {
   decodeText,
   adjustNestedListsInMarkdownContent,
   getMarkdownImageURL,
+  getNodeText,
 } from '../markdown';
 
 describe('markdown utilities', () => {
@@ -207,6 +208,29 @@ describe('markdown utilities', () => {
     it('should preserve query parameters', () => {
       const result = getMarkdownImageURL('/image.png?size=large', 'journal');
       expect(result).toBe('https://journal.episciences.org/image.png?size=large');
+    });
+  });
+
+  describe('getNodeText', () => {
+    it('should return text from text node', () => {
+      const node = { type: 'text', value: 'Hello' };
+      expect(getNodeText(node as any)).toBe('Hello');
+    });
+
+    it('should return text from nested formatting nodes', () => {
+      const node = {
+        type: 'strong',
+        children: [
+          { type: 'text', value: 'Bold ' },
+          { type: 'emphasis', children: [{ type: 'text', value: 'Italic' }] },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('Bold Italic');
+    });
+
+    it('should return empty string if no text', () => {
+      const node = { type: 'image', url: 'test.png' };
+      expect(getNodeText(node as any)).toBe('');
     });
   });
 });

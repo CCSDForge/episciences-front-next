@@ -14,6 +14,7 @@ import {
   serializeMarkdown,
   getMarkdownImageURL,
   adjustNestedListsInMarkdownContent,
+  getNodeText,
 } from '@/utils/markdown';
 import ForAuthorsSidebar, {
   IForAuthorsHeader,
@@ -121,10 +122,7 @@ export default function ForAuthorsClient({
               : { id: '', value: '', opened: true };
           }
 
-          const titleText = node.children
-            .filter(child => child.type === 'text')
-            .map(textNode => (textNode as { value: string }).value)
-            .join('');
+          const titleText = getNodeText(node);
 
           currentSection.id = generateIdFromText(titleText);
           currentSection.value += serializeMarkdown(node);
@@ -132,10 +130,8 @@ export default function ForAuthorsClient({
           if (node.type === 'heading' && node.depth === 3) {
             h3Counter += 1;
 
-            const h3Id = generateIdFromText(
-              node.children.map(child => (child as { value: string }).value).join('')
-            );
-            const h3Title = node.children.map(child => (child as { value: string }).value).join('');
+            const h3Title = getNodeText(node);
+            const h3Id = generateIdFromText(h3Title);
 
             if (currentCardContent) {
               const lastCard = currentSection.cards![currentSection.cards!.length - 1];
@@ -191,11 +187,11 @@ export default function ForAuthorsClient({
 
       for (const node of tree.children) {
         if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
-          const textNode = node.children.find(child => child.type === 'text') as { value: string };
+          const titleText = getNodeText(node);
 
-          if (textNode) {
-            const id = generateIdFromText(textNode.value);
-            let value = textNode.value;
+          if (titleText) {
+            const id = generateIdFromText(titleText);
+            let value = titleText;
 
             if (withNumerotation && node.depth === 3) {
               h3Counter += 1;

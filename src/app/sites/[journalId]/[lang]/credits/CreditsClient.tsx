@@ -18,6 +18,7 @@ import {
   serializeMarkdown,
   getMarkdownImageURL,
   adjustNestedListsInMarkdownContent,
+  getNodeText,
 } from '@/utils/markdown';
 import CreditsSidebar, {
   ICreditsHeader,
@@ -79,10 +80,7 @@ export default function CreditsClient({
         if (currentSection) {
           sections.push(currentSection);
         }
-        const titleText = node.children
-          .filter(child => child.type === 'text')
-          .map(textNode => (textNode as { value: string }).value)
-          .join('');
+        const titleText = getNodeText(node);
         currentSection = {
           id: generateIdFromText(titleText),
           value: serializeMarkdown(node),
@@ -114,12 +112,12 @@ export default function CreditsClient({
 
     for (const node of tree.children) {
       if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
-        const textNode = node.children.find(child => child.type === 'text') as { value: string };
+        const titleText = getNodeText(node);
 
-        if (textNode) {
+        if (titleText) {
           const header: ICreditsHeader = {
-            id: generateIdFromText(textNode.value),
-            value: textNode.value,
+            id: generateIdFromText(titleText),
+            value: titleText,
             opened: true,
             children: [],
           };

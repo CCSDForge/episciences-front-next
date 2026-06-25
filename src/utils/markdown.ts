@@ -4,6 +4,17 @@ import remarkStringify from 'remark-stringify';
 import { Node, Root } from 'mdast';
 import he from 'he';
 
+export const getNodeText = (node: Node): string => {
+  const anyNode = node as any;
+  if ('value' in anyNode && typeof anyNode.value === 'string') {
+    return anyNode.value;
+  }
+  if ('children' in anyNode && Array.isArray(anyNode.children)) {
+    return anyNode.children.map(getNodeText).join('');
+  }
+  return '';
+};
+
 export const generateIdFromText = (text: string): string => {
   if (!text) {
     return '';
