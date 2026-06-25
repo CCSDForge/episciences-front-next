@@ -4,7 +4,7 @@ import remarkStringify from 'remark-stringify';
 import { Node, Root } from 'mdast';
 import he from 'he';
 
-interface AstNode {
+export interface AstNode {
   type: string;
   value?: unknown;
   children?: AstNode[];

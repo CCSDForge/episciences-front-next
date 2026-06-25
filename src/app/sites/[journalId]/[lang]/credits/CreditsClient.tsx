@@ -19,6 +19,7 @@ import {
   getMarkdownImageURL,
   adjustNestedListsInMarkdownContent,
   getNodeText,
+  AstNode,
 } from '@/utils/markdown';
 import CreditsSidebar, {
   ICreditsHeader,
@@ -178,9 +179,8 @@ export default function CreditsClient({
   const renderH2 = ({
     node,
     children,
-    ...props
   }: {
-    node?: any;
+    node?: AstNode;
     children?: React.ReactNode;
   }) => {
     const id = generateIdFromText(node ? getNodeText(node) : '');
@@ -195,7 +195,7 @@ export default function CreditsClient({
         onClick={toggle}
         onKeyDown={e => handleKeyboardClick(e, toggle)}
       >
-        <h2 id={id} className="credits-content-body-section-subtitle-text" {...props}>
+        <h2 id={id} className="credits-content-body-section-subtitle-text">
           {children}
         </h2>
         {isOpened ? (
