@@ -4,16 +4,20 @@ import remarkStringify from 'remark-stringify';
 import { Node, Root } from 'mdast';
 import he from 'he';
 
-export const getNodeText = (node: Node): string => {
-  const anyNode = node as any;
-  if (
-    (anyNode.type === 'text' || anyNode.type === 'inlineCode') &&
-    typeof anyNode.value === 'string'
-  ) {
-    return anyNode.value;
+interface AstNode {
+  type: string;
+  value?: unknown;
+  children?: AstNode[];
+}
+
+// Works for both mdast (parse phase) and hast Element (react-markdown render phase).
+// mdast inlineCode has `value` but no children; hast code is an element with a text child.
+export const getNodeText = (node: AstNode): string => {
+  if ((node.type === 'text' || node.type === 'inlineCode') && typeof node.value === 'string') {
+    return node.value;
   }
-  if ('children' in anyNode && Array.isArray(anyNode.children)) {
-    return anyNode.children.map(getNodeText).join('');
+  if (Array.isArray(node.children)) {
+    return node.children.map(getNodeText).join('');
   }
   return '';
 };

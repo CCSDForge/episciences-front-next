@@ -277,5 +277,56 @@ describe('markdown utilities', () => {
       };
       expect(getNodeText(node as any)).toBe('Bold Title');
     });
+
+    it('should extract text from hast element node', () => {
+      const node = {
+        type: 'element',
+        tagName: 'strong',
+        children: [{ type: 'text', value: 'Bold' }],
+      };
+      expect(getNodeText(node as any)).toBe('Bold');
+    });
+
+    it('should extract text from hast inline code element', () => {
+      const node = {
+        type: 'element',
+        tagName: 'code',
+        children: [{ type: 'text', value: 'npm install' }],
+      };
+      expect(getNodeText(node as any)).toBe('npm install');
+    });
+
+    it('should extract text from hast heading with mixed text and code', () => {
+      const node = {
+        type: 'element',
+        tagName: 'h2',
+        children: [
+          { type: 'text', value: 'See ' },
+          {
+            type: 'element',
+            tagName: 'code',
+            children: [{ type: 'text', value: 'npm install' }],
+          },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('See npm install');
+    });
+
+    it('should extract text from hast heading with nested emphasis and code', () => {
+      const node = {
+        type: 'element',
+        tagName: 'h3',
+        children: [
+          { type: 'element', tagName: 'em', children: [{ type: 'text', value: 'Run ' }] },
+          {
+            type: 'element',
+            tagName: 'code',
+            children: [{ type: 'text', value: 'make build' }],
+          },
+          { type: 'text', value: ' first' },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('Run make build first');
+    });
   });
 });
