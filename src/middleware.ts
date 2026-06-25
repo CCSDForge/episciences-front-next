@@ -48,9 +48,7 @@ function detectJournalId(hostname: string): string {
     if (isValidJournalId(extractedId)) {
       return extractedId;
     }
-    log.warn(
-      `[Middleware] Invalid journalId format from hostname: ${sanitizeForLog(extractedId)}`
-    );
+    log.warn(`[Middleware] Invalid journalId format from hostname: ${sanitizeForLog(extractedId)}`);
     return DEFAULT_JOURNAL;
   }
 
@@ -60,9 +58,7 @@ function detectJournalId(hostname: string): string {
     if (isValidJournalId(subdomain)) {
       return subdomain;
     }
-    log.warn(
-      `[Middleware] Invalid journalId format from subdomain: ${sanitizeForLog(subdomain)}`
-    );
+    log.warn(`[Middleware] Invalid journalId format from subdomain: ${sanitizeForLog(subdomain)}`);
     return DEFAULT_JOURNAL;
   }
 

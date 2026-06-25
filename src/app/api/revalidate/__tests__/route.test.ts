@@ -96,7 +96,9 @@ describe('POST /api/revalidate', () => {
     it('converts hyphenated journalId to underscore env var key', async () => {
       process.env['REVALIDATION_TOKEN_MY_JOURNAL'] = 'hyphen-token';
       const { POST } = await import('../route');
-      const res = await POST(makeRequest({ tag: 'pages', journalId: 'my-journal' }, 'hyphen-token'));
+      const res = await POST(
+        makeRequest({ tag: 'pages', journalId: 'my-journal' }, 'hyphen-token')
+      );
       expect(res.status).toBe(200);
       delete process.env['REVALIDATION_TOKEN_MY_JOURNAL'];
     });
