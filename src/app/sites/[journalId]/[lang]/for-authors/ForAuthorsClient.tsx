@@ -67,7 +67,6 @@ export default function ForAuthorsClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Use initial data from Server Component - memoized to prevent infinite loop
   const forAuthorsData: ForAuthorsData = useMemo(
@@ -173,7 +172,7 @@ export default function ForAuthorsClient({
   ): IForAuthorsHeader[] => {
     const headings: IForAuthorsHeader[] = [];
 
-    Object.entries(toBeParsed).map(toBeParsedEntry => {
+    Object.entries(toBeParsed).forEach(toBeParsedEntry => {
       const withNumerotation = toBeParsedEntry[0] === 'prepareSubmission';
       const title = toBeParsedEntry[1].title ?? '';
       const content = toBeParsedEntry[1].content ?? '';
@@ -338,28 +337,28 @@ export default function ForAuthorsClient({
                         </Link>
                       );
                     },
-                    h2: ({ node, children, ...props }) => {
+                    h2: ({ node, children }) => {
                       const id = generateIdFromText(node ? getNodeText(node) : '');
+                      const isOpened = pageSections.find(
+                        pageSection => pageSection.id === id
+                      )?.opened;
 
                       return (
                         <div
                           className="forAuthors-content-body-section-subtitle"
                           role="button"
                           tabIndex={0}
-                          aria-expanded={
-                            pageSections.find(pageSection => pageSection.id === id)?.opened
-                          }
+                          aria-expanded={isOpened}
                           onClick={(): void => toggleSectionHeader(id)}
                           onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id))}
                         >
                           <h2
                             id={id}
                             className="forAuthors-content-body-section-subtitle-text"
-                            {...props}
                           >
                             {children}
                           </h2>
-                          {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
+                          {isOpened ? (
                             <CaretUpBlackIcon
                               size={16}
                               className="forAuthors-content-body-section-subtitle-caret"
@@ -375,8 +374,8 @@ export default function ForAuthorsClient({
                         </div>
                       );
                     },
-                    h3: ({ node, children, ...props }) => (
-                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')} {...props}>
+                    h3: ({ node, children }) => (
+                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>
                         {children}
                       </h3>
                     ),

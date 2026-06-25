@@ -54,7 +54,6 @@ export default function CreditsClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Architecture hybride : fetch automatique des données fraîches
   const { data: pageData, isUpdating } = useClientSideFetch({
@@ -71,6 +70,7 @@ export default function CreditsClient({
   const [isLoading, setIsLoading] = useState(true);
 
   const parseContentSections = (toBeParsed: string | undefined): ICreditsSection[] => {
+    if (!toBeParsed) return [];
     const tree = unifiedProcessor.parse(toBeParsed);
     const sections: ICreditsSection[] = [];
     let currentSection: ICreditsSection | null = null;
@@ -106,6 +106,7 @@ export default function CreditsClient({
   };
 
   const parseSidebarHeaders = (toBeParsed: string | undefined): ICreditsHeader[] => {
+    if (!toBeParsed) return [];
     const tree = unifiedProcessor.parse(toBeParsed);
     const headings = [];
     let lastH2 = null;
@@ -257,8 +258,8 @@ export default function CreditsClient({
                       </Link>
                     ),
                     h2: renderH2,
-                    h3: ({ node, children, ...props }) => (
-                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')} {...props}>
+                    h3: ({ node, children }) => (
+                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>
                         {children}
                       </h3>
                     ),
