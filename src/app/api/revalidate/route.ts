@@ -89,11 +89,7 @@ function resolveAuthorization(headerToken: string, journalId?: string): boolean 
   return !!globalSecret && verifyToken(headerToken, globalSecret);
 }
 
-function performRevalidation(
-  tag?: string,
-  path?: string,
-  journalId?: string
-): NextResponse | null {
+function performRevalidation(tag?: string, path?: string, journalId?: string): NextResponse | null {
   if (tag) {
     log.info(`[Revalidate API] Revalidating tag: ${sanitizeForLog(tag)}`);
     revalidateTag(tag, { expire: 0 });

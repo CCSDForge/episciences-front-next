@@ -14,6 +14,7 @@ import {
   serializeMarkdown,
   getMarkdownImageURL,
   adjustNestedListsInMarkdownContent,
+  getNodeText,
 } from '@/utils/markdown';
 import ForAuthorsSidebar, {
   IForAuthorsHeader,
@@ -66,7 +67,6 @@ export default function ForAuthorsClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Use initial data from Server Component - memoized to prevent infinite loop
   const forAuthorsData: ForAuthorsData = useMemo(
@@ -121,10 +121,7 @@ export default function ForAuthorsClient({
               : { id: '', value: '', opened: true };
           }
 
-          const titleText = node.children
-            .filter(child => child.type === 'text')
-            .map(textNode => (textNode as { value: string }).value)
-            .join('');
+          const titleText = getNodeText(node);
 
           currentSection.id = generateIdFromText(titleText);
           currentSection.value += serializeMarkdown(node);
@@ -132,10 +129,8 @@ export default function ForAuthorsClient({
           if (node.type === 'heading' && node.depth === 3) {
             h3Counter += 1;
 
-            const h3Id = generateIdFromText(
-              node.children.map(child => (child as { value: string }).value).join('')
-            );
-            const h3Title = node.children.map(child => (child as { value: string }).value).join('');
+            const h3Title = getNodeText(node);
+            const h3Id = generateIdFromText(h3Title);
 
             if (currentCardContent) {
               const lastCard = currentSection.cards![currentSection.cards!.length - 1];
@@ -177,7 +172,7 @@ export default function ForAuthorsClient({
   ): IForAuthorsHeader[] => {
     const headings: IForAuthorsHeader[] = [];
 
-    Object.entries(toBeParsed).map(toBeParsedEntry => {
+    Object.entries(toBeParsed).forEach(toBeParsedEntry => {
       const withNumerotation = toBeParsedEntry[0] === 'prepareSubmission';
       const title = toBeParsedEntry[1].title ?? '';
       const content = toBeParsedEntry[1].content ?? '';
@@ -191,11 +186,11 @@ export default function ForAuthorsClient({
 
       for (const node of tree.children) {
         if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
-          const textNode = node.children.find(child => child.type === 'text') as { value: string };
+          const titleText = getNodeText(node);
 
-          if (textNode) {
-            const id = generateIdFromText(textNode.value);
-            let value = textNode.value;
+          if (titleText) {
+            const id = generateIdFromText(titleText);
+            let value = titleText;
 
             if (withNumerotation && node.depth === 3) {
               h3Counter += 1;
@@ -342,26 +337,28 @@ export default function ForAuthorsClient({
                         </Link>
                       );
                     },
-                    h2: ({ ...props }) => {
-                      const id = generateIdFromText(props.children?.toString()!);
+                    h2: ({ node, children }) => {
+                      const id = generateIdFromText(node ? getNodeText(node) : '');
+                      const isOpened = pageSections.find(
+                        pageSection => pageSection.id === id
+                      )?.opened;
 
                       return (
                         <div
                           className="forAuthors-content-body-section-subtitle"
                           role="button"
                           tabIndex={0}
-                          aria-expanded={
-                            pageSections.find(pageSection => pageSection.id === id)?.opened
-                          }
-                          onClick={(): void => toggleSectionHeader(id!)}
-                          onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id!))}
+                          aria-expanded={isOpened}
+                          onClick={(): void => toggleSectionHeader(id)}
+                          onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id))}
                         >
                           <h2
                             id={id}
                             className="forAuthors-content-body-section-subtitle-text"
-                            {...props}
-                          />
-                          {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
+                          >
+                            {children}
+                          </h2>
+                          {isOpened ? (
                             <CaretUpBlackIcon
                               size={16}
                               className="forAuthors-content-body-section-subtitle-caret"
@@ -377,8 +374,10 @@ export default function ForAuthorsClient({
                         </div>
                       );
                     },
-                    h3: ({ ...props }) => (
-                      <h3 id={generateIdFromText(props.children?.toString()!)} {...props} />
+                    h3: ({ node, children }) => (
+                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>
+                        {children}
+                      </h3>
                     ),
                   }}
                 >

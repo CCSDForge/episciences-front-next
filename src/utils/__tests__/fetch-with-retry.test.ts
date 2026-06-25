@@ -150,12 +150,16 @@ describe('fetchWithRetry', () => {
       .mockResolvedValueOnce(new Response('Err', { status: 500, statusText: 'Error' }))
       .mockResolvedValueOnce(new Response('{}', { status: 200 }));
 
-    const promise = fetchWithRetry('https://example.com/api', {}, {
-      maxRetries: 1,
-      baseDelay: 100000, // would be 100s without cap
-      maxDelay: 100,     // capped at 100ms
-      timeout: 9999999,
-    });
+    const promise = fetchWithRetry(
+      'https://example.com/api',
+      {},
+      {
+        maxRetries: 1,
+        baseDelay: 100000, // would be 100s without cap
+        maxDelay: 100, // capped at 100ms
+        timeout: 9999999,
+      }
+    );
 
     // Advance all timers (abort controller + capped backoff delay)
     await vi.runAllTimersAsync();
@@ -172,9 +176,6 @@ describe('fetchWithRetry', () => {
     ).rejects.toThrow();
 
     // Logger calls console.warn('%s', message) — check the message argument
-    expect(console.warn).toHaveBeenCalledWith(
-      '%s',
-      expect.stringContaining('Network unavailable')
-    );
+    expect(console.warn).toHaveBeenCalledWith('%s', expect.stringContaining('Network unavailable'));
   });
 });

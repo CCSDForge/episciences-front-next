@@ -18,6 +18,8 @@ import {
   serializeMarkdown,
   getMarkdownImageURL,
   adjustNestedListsInMarkdownContent,
+  getNodeText,
+  AstNode,
 } from '@/utils/markdown';
 import CreditsSidebar, {
   ICreditsHeader,
@@ -53,7 +55,6 @@ export default function CreditsClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Architecture hybride : fetch automatique des données fraîches
   const { data: pageData, isUpdating } = useClientSideFetch({
@@ -70,6 +71,7 @@ export default function CreditsClient({
   const [isLoading, setIsLoading] = useState(true);
 
   const parseContentSections = (toBeParsed: string | undefined): ICreditsSection[] => {
+    if (!toBeParsed) return [];
     const tree = unifiedProcessor.parse(toBeParsed);
     const sections: ICreditsSection[] = [];
     let currentSection: ICreditsSection | null = null;
@@ -79,10 +81,7 @@ export default function CreditsClient({
         if (currentSection) {
           sections.push(currentSection);
         }
-        const titleText = node.children
-          .filter(child => child.type === 'text')
-          .map(textNode => (textNode as { value: string }).value)
-          .join('');
+        const titleText = getNodeText(node);
         currentSection = {
           id: generateIdFromText(titleText),
           value: serializeMarkdown(node),
@@ -108,18 +107,19 @@ export default function CreditsClient({
   };
 
   const parseSidebarHeaders = (toBeParsed: string | undefined): ICreditsHeader[] => {
+    if (!toBeParsed) return [];
     const tree = unifiedProcessor.parse(toBeParsed);
     const headings = [];
     let lastH2 = null;
 
     for (const node of tree.children) {
       if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
-        const textNode = node.children.find(child => child.type === 'text') as { value: string };
+        const titleText = getNodeText(node);
 
-        if (textNode) {
+        if (titleText) {
           const header: ICreditsHeader = {
-            id: generateIdFromText(textNode.value),
-            value: textNode.value,
+            id: generateIdFromText(titleText),
+            value: titleText,
             opened: true,
             children: [],
           };
@@ -176,8 +176,14 @@ export default function CreditsClient({
     }
   }, [pageData, language]);
 
-  const renderH2 = ({ ...props }: { children?: React.ReactNode }) => {
-    const id = generateIdFromText(props.children?.toString()!);
+  const renderH2 = ({
+    node,
+    children,
+  }: {
+    node?: AstNode;
+    children?: React.ReactNode;
+  }) => {
+    const id = generateIdFromText(node ? getNodeText(node) : '');
     const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
     const toggle = () => toggleSectionHeader(id);
     return (
@@ -189,7 +195,9 @@ export default function CreditsClient({
         onClick={toggle}
         onKeyDown={e => handleKeyboardClick(e, toggle)}
       >
-        <h2 id={id} className="credits-content-body-section-subtitle-text" {...props} />
+        <h2 id={id} className="credits-content-body-section-subtitle-text">
+          {children}
+        </h2>
         {isOpened ? (
           <CaretUpBlackIcon
             size={16}
@@ -240,18 +248,20 @@ export default function CreditsClient({
                     uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
                   }
                   components={{
-                    a: ({ ...props }) => (
+                    a: ({ href, children }) => (
                       <Link
-                        href={props.href!}
+                        href={href!}
                         target="_blank"
                         className="credits-content-body-section-link"
                       >
-                        {props.children?.toString()}
+                        {children}
                       </Link>
                     ),
                     h2: renderH2,
-                    h3: ({ ...props }) => (
-                      <h3 id={generateIdFromText(props.children?.toString()!)} {...props} />
+                    h3: ({ node, children }) => (
+                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>
+                        {children}
+                      </h3>
                     ),
                   }}
                 >

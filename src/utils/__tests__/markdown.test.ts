@@ -4,6 +4,7 @@ import {
   decodeText,
   adjustNestedListsInMarkdownContent,
   getMarkdownImageURL,
+  getNodeText,
 } from '../markdown';
 
 describe('markdown utilities', () => {
@@ -207,6 +208,125 @@ describe('markdown utilities', () => {
     it('should preserve query parameters', () => {
       const result = getMarkdownImageURL('/image.png?size=large', 'journal');
       expect(result).toBe('https://journal.episciences.org/image.png?size=large');
+    });
+  });
+
+  describe('getNodeText', () => {
+    it('should return text from text node', () => {
+      const node = { type: 'text', value: 'Hello' };
+      expect(getNodeText(node as any)).toBe('Hello');
+    });
+
+    it('should return text from nested formatting nodes', () => {
+      const node = {
+        type: 'strong',
+        children: [
+          { type: 'text', value: 'Bold ' },
+          { type: 'emphasis', children: [{ type: 'text', value: 'Italic' }] },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('Bold Italic');
+    });
+
+    it('should return empty string if no text', () => {
+      const node = { type: 'image', url: 'test.png' };
+      expect(getNodeText(node as any)).toBe('');
+    });
+
+    it('should return inlineCode value', () => {
+      const node = { type: 'inlineCode', value: 'npm install' };
+      expect(getNodeText(node as any)).toBe('npm install');
+    });
+
+    it('should skip html nodes and return empty string', () => {
+      const node = { type: 'html', value: '<span lang="fr">et al.</span>' };
+      expect(getNodeText(node as any)).toBe('');
+    });
+
+    it('should extract text from heading with mixed text and inlineCode', () => {
+      const node = {
+        type: 'heading',
+        depth: 2,
+        children: [
+          { type: 'text', value: 'See ' },
+          { type: 'inlineCode', value: 'npm install' },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('See npm install');
+    });
+
+    it('should strip inline html and return only text content', () => {
+      const node = {
+        type: 'heading',
+        depth: 2,
+        children: [
+          { type: 'text', value: 'Authors ' },
+          { type: 'html', value: '<span lang="fr">' },
+          { type: 'text', value: 'et al.' },
+          { type: 'html', value: '</span>' },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('Authors et al.');
+    });
+
+    it('should extract text from heading with bold content', () => {
+      const node = {
+        type: 'heading',
+        depth: 2,
+        children: [{ type: 'strong', children: [{ type: 'text', value: 'Bold Title' }] }],
+      };
+      expect(getNodeText(node as any)).toBe('Bold Title');
+    });
+
+    it('should extract text from hast element node', () => {
+      const node = {
+        type: 'element',
+        tagName: 'strong',
+        children: [{ type: 'text', value: 'Bold' }],
+      };
+      expect(getNodeText(node as any)).toBe('Bold');
+    });
+
+    it('should extract text from hast inline code element', () => {
+      const node = {
+        type: 'element',
+        tagName: 'code',
+        children: [{ type: 'text', value: 'npm install' }],
+      };
+      expect(getNodeText(node as any)).toBe('npm install');
+    });
+
+    it('should extract text from hast heading with mixed text and code', () => {
+      const node = {
+        type: 'element',
+        tagName: 'h2',
+        children: [
+          { type: 'text', value: 'See ' },
+          {
+            type: 'element',
+            tagName: 'code',
+            children: [{ type: 'text', value: 'npm install' }],
+          },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('See npm install');
+    });
+
+    it('should extract text from hast heading with nested emphasis and code', () => {
+      const node = {
+        type: 'element',
+        tagName: 'h3',
+        children: [
+          { type: 'element', tagName: 'em', children: [{ type: 'text', value: 'Run ' }] },
+          {
+            type: 'element',
+            tagName: 'code',
+            children: [{ type: 'text', value: 'make build' }],
+          },
+          { type: 'text', value: ' first' },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('Run make build first');
     });
   });
 });
