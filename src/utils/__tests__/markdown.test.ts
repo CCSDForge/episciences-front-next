@@ -232,5 +232,50 @@ describe('markdown utilities', () => {
       const node = { type: 'image', url: 'test.png' };
       expect(getNodeText(node as any)).toBe('');
     });
+
+    it('should return inlineCode value', () => {
+      const node = { type: 'inlineCode', value: 'npm install' };
+      expect(getNodeText(node as any)).toBe('npm install');
+    });
+
+    it('should skip html nodes and return empty string', () => {
+      const node = { type: 'html', value: '<span lang="fr">et al.</span>' };
+      expect(getNodeText(node as any)).toBe('');
+    });
+
+    it('should extract text from heading with mixed text and inlineCode', () => {
+      const node = {
+        type: 'heading',
+        depth: 2,
+        children: [
+          { type: 'text', value: 'See ' },
+          { type: 'inlineCode', value: 'npm install' },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('See npm install');
+    });
+
+    it('should strip inline html and return only text content', () => {
+      const node = {
+        type: 'heading',
+        depth: 2,
+        children: [
+          { type: 'text', value: 'Authors ' },
+          { type: 'html', value: '<span lang="fr">' },
+          { type: 'text', value: 'et al.' },
+          { type: 'html', value: '</span>' },
+        ],
+      };
+      expect(getNodeText(node as any)).toBe('Authors et al.');
+    });
+
+    it('should extract text from heading with bold content', () => {
+      const node = {
+        type: 'heading',
+        depth: 2,
+        children: [{ type: 'strong', children: [{ type: 'text', value: 'Bold Title' }] }],
+      };
+      expect(getNodeText(node as any)).toBe('Bold Title');
+    });
   });
 });

@@ -338,8 +338,8 @@ export default function ForAuthorsClient({
                         </Link>
                       );
                     },
-                    h2: ({ ...props }) => {
-                      const id = generateIdFromText(props.children?.toString()!);
+                    h2: ({ node, children, ...props }) => {
+                      const id = generateIdFromText(node ? getNodeText(node) : '');
 
                       return (
                         <div
@@ -349,14 +349,16 @@ export default function ForAuthorsClient({
                           aria-expanded={
                             pageSections.find(pageSection => pageSection.id === id)?.opened
                           }
-                          onClick={(): void => toggleSectionHeader(id!)}
-                          onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id!))}
+                          onClick={(): void => toggleSectionHeader(id)}
+                          onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id))}
                         >
                           <h2
                             id={id}
                             className="forAuthors-content-body-section-subtitle-text"
                             {...props}
-                          />
+                          >
+                            {children}
+                          </h2>
                           {pageSections.find(pageSection => pageSection.id === id)?.opened ? (
                             <CaretUpBlackIcon
                               size={16}
@@ -373,8 +375,10 @@ export default function ForAuthorsClient({
                         </div>
                       );
                     },
-                    h3: ({ ...props }) => (
-                      <h3 id={generateIdFromText(props.children?.toString()!)} {...props} />
+                    h3: ({ node, children, ...props }) => (
+                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')} {...props}>
+                        {children}
+                      </h3>
                     ),
                   }}
                 >

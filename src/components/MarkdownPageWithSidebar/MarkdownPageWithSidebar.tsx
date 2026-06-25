@@ -12,6 +12,7 @@ import {
   serializeMarkdown,
   getMarkdownImageURL,
   adjustNestedListsInMarkdownContent,
+  getNodeText,
 } from '@/utils/markdown';
 import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
@@ -68,17 +69,6 @@ export default function MarkdownPageWithSidebar({
   const [pageSections, setPageSections] = useState<IPageSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IAboutHeader[]>([]);
 
-  // Recursive function to extract all text from a node, regardless of structure
-  const extractTextFromNode = useCallback((node: any): string => {
-    if (node.type === 'text') {
-      return node.value || '';
-    }
-    if (node.children && Array.isArray(node.children)) {
-      return node.children.map((child: any) => extractTextFromNode(child)).join('');
-    }
-    return '';
-  }, []);
-
   const parseContentSections = useCallback(
     (toBeParsed: string | undefined): IPageSection[] => {
       if (!toBeParsed) return [];
@@ -93,7 +83,7 @@ export default function MarkdownPageWithSidebar({
           if (currentSection) {
             sections.push(currentSection);
           }
-          const titleText = extractTextFromNode(node).trim();
+          const titleText = getNodeText(node).trim();
           currentSection = {
             id: generateIdFromText(titleText),
             value: serializeMarkdown(node),
@@ -128,7 +118,7 @@ export default function MarkdownPageWithSidebar({
         return contentWithoutHeading.length > 0;
       });
     },
-    [extractTextFromNode]
+    []
   );
 
   const parseSidebarHeaders = useCallback(
@@ -142,7 +132,7 @@ export default function MarkdownPageWithSidebar({
       tree.children.forEach(node => {
         if (node.type === 'heading') {
           // Use recursive extraction to get ALL text from the heading
-          const titleText = extractTextFromNode(node).trim();
+          const titleText = getNodeText(node).trim();
 
           // Skip empty titles
           if (!titleText) return;
@@ -181,7 +171,7 @@ export default function MarkdownPageWithSidebar({
 
       return headers;
     },
-    [extractTextFromNode]
+    []
   );
 
   const toggleSectionHeader = (id: string): void => {
@@ -325,7 +315,7 @@ export default function MarkdownPageWithSidebar({
                         h1: () => <></>,
                         h2: () => <></>,
                         h3: ({ node, children }) => {
-                          const text = node ? extractTextFromNode(node) : '';
+                          const text = node ? getNodeText(node) : '';
                           const id = generateIdFromText(text);
                           return <h3 id={id}>{children}</h3>;
                         },

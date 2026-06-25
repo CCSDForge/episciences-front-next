@@ -6,7 +6,10 @@ import he from 'he';
 
 export const getNodeText = (node: Node): string => {
   const anyNode = node as any;
-  if ('value' in anyNode && typeof anyNode.value === 'string') {
+  if (
+    (anyNode.type === 'text' || anyNode.type === 'inlineCode') &&
+    typeof anyNode.value === 'string'
+  ) {
     return anyNode.value;
   }
   if ('children' in anyNode && Array.isArray(anyNode.children)) {

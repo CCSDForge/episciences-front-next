@@ -174,8 +174,15 @@ export default function CreditsClient({
     }
   }, [pageData, language]);
 
-  const renderH2 = ({ ...props }: { children?: React.ReactNode }) => {
-    const id = generateIdFromText(props.children?.toString()!);
+  const renderH2 = ({
+    node,
+    children,
+    ...props
+  }: {
+    node?: any;
+    children?: React.ReactNode;
+  }) => {
+    const id = generateIdFromText(node ? getNodeText(node) : '');
     const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
     const toggle = () => toggleSectionHeader(id);
     return (
@@ -187,7 +194,9 @@ export default function CreditsClient({
         onClick={toggle}
         onKeyDown={e => handleKeyboardClick(e, toggle)}
       >
-        <h2 id={id} className="credits-content-body-section-subtitle-text" {...props} />
+        <h2 id={id} className="credits-content-body-section-subtitle-text" {...props}>
+          {children}
+        </h2>
         {isOpened ? (
           <CaretUpBlackIcon
             size={16}
@@ -238,18 +247,20 @@ export default function CreditsClient({
                     uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
                   }
                   components={{
-                    a: ({ ...props }) => (
+                    a: ({ href, children }) => (
                       <Link
-                        href={props.href!}
+                        href={href!}
                         target="_blank"
                         className="credits-content-body-section-link"
                       >
-                        {props.children?.toString()}
+                        {children}
                       </Link>
                     ),
                     h2: renderH2,
-                    h3: ({ ...props }) => (
-                      <h3 id={generateIdFromText(props.children?.toString()!)} {...props} />
+                    h3: ({ node, children, ...props }) => (
+                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')} {...props}>
+                        {children}
+                      </h3>
                     ),
                   }}
                 >
