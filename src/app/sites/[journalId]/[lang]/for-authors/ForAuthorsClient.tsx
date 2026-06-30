@@ -115,6 +115,12 @@ export default function ForAuthorsClient({
       tree.children.forEach(node => {
         if (node.type === 'heading' && node.depth === 2) {
           if (currentSection.id) {
+            if (currentCardContent && currentSection.cards && currentSection.cards.length > 0) {
+              const lastCard = currentSection.cards[currentSection.cards.length - 1];
+              lastCard.content = currentCardContent.trim();
+            }
+            currentCardContent = '';
+
             sections.push(currentSection);
             currentSection = withNumerotation
               ? { id: '', value: '', opened: true, cards: [] }
@@ -132,8 +138,8 @@ export default function ForAuthorsClient({
             const h3Title = getNodeText(node);
             const h3Id = generateIdFromText(h3Title);
 
-            if (currentCardContent) {
-              const lastCard = currentSection.cards![currentSection.cards!.length - 1];
+            if (currentCardContent && currentSection.cards && currentSection.cards.length > 0) {
+              const lastCard = currentSection.cards[currentSection.cards.length - 1];
               lastCard.content = currentCardContent.trim();
             }
 
