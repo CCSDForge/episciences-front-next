@@ -3,9 +3,10 @@ import { getJournalApiUrl } from '@/utils/env-loader';
 
 const log = logger.child({ service: 'for-authors' });
 
-interface ForAuthorsPage {
+export interface ForAuthorsPage {
   title: Record<string, string>;
   content: Record<string, string>;
+  date_updated?: string;
 }
 
 /**

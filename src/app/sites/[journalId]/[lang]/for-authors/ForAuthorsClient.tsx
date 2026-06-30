@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState, useEffect, useMemo } from 'react';
+import { Fragment, useState, useMemo, useCallback } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { Link } from '@/components/Link/Link';
@@ -20,14 +20,25 @@ import ForAuthorsSidebar, {
   IForAuthorsHeader,
 } from '@/components/Sidebars/ForAuthorsSidebar/ForAuthorsSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
-import Loader from '@/components/Loader/Loader';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import { formatDate } from '@/utils/date';
+import { ForAuthorsPage } from '@/services/forAuthors';
+import type { Components } from 'react-markdown';
 import '@/styles/transitions.scss';
 import './ForAuthors.scss';
 
 type ForAuthorsSectionType = 'editorialWorkflow' | 'prepareSubmission';
+
+const toggleClosedId = (set: Set<string>, id: string): Set<string> => {
+  const next = new Set(set);
+  if (next.has(id)) {
+    next.delete(id);
+  } else {
+    next.add(id);
+  }
+  return next;
+};
 
 // Only prefix the page title as a synthetic H2 when the content doesn't already
 // open with its own H2 - otherwise the title would become its own empty collapsible section.
@@ -57,19 +68,9 @@ interface IForAuthorsSection {
   pageTitle?: string;
 }
 
-interface ForAuthorsPage {
-  title: Record<string, string>;
-  content: Record<string, string>;
-}
-
-interface ForAuthorsData {
+interface ForAuthorsClientProps {
   editorialWorkflowPage: ForAuthorsPage | null;
   prepareSubmissionPage: ForAuthorsPage | null;
-}
-
-interface ForAuthorsClientProps {
-  editorialWorkflowPage: any;
-  prepareSubmissionPage: any;
   lang?: string;
   breadcrumbLabels?: {
     parents: BreadcrumbItem[];
@@ -89,15 +90,6 @@ export default function ForAuthorsClient({
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
-  // Use initial data from Server Component - memoized to prevent infinite loop
-  const forAuthorsData: ForAuthorsData = useMemo(
-    () => ({
-      editorialWorkflowPage,
-      prepareSubmissionPage,
-    }),
-    [editorialWorkflowPage, prepareSubmissionPage]
-  );
-
   const lastUpdated = useMemo(() => {
     const dates = [editorialWorkflowPage?.date_updated, prepareSubmissionPage?.date_updated].filter(
       (d): d is string => !!d
@@ -105,10 +97,8 @@ export default function ForAuthorsClient({
     return dates.length > 0 ? dates.reduce((a, b) => (a > b ? a : b)) : null;
   }, [editorialWorkflowPage, prepareSubmissionPage]);
 
-  const [pageSections, setPageSections] = useState<IForAuthorsSection[]>([]);
-  const [sidebarHeaders, setSidebarHeaders] = useState<IForAuthorsHeader[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [languageNotice, setLanguageNotice] = useState<string | undefined>();
+  const [closedSectionIds, setClosedSectionIds] = useState<Set<string>>(new Set());
+  const [collapsedHeaderIds, setCollapsedHeaderIds] = useState<Set<string>>(new Set());
 
   const parseContentSections = (
     toBeParsed: Record<
@@ -245,53 +235,31 @@ export default function ForAuthorsClient({
     return headings;
   };
 
-  const toggleSectionHeader = (id: string): void => {
-    const newSections = pageSections.map(section => {
-      if (section.id === id) {
-        return { ...section, opened: !section.opened };
-      }
-      return section;
-    });
+  // Stable identities (empty deps - both only use the functional setState form) so the
+  // memoized MarkdownRenderer `components` map below doesn't get a new reference - and
+  // doesn't force React to remount the whole rendered subtree - on every render.
+  const toggleSectionHeader = useCallback((id: string): void => {
+    setClosedSectionIds(prev => toggleClosedId(prev, id));
+  }, []);
 
-    setPageSections(newSections);
-  };
+  const toggleSidebarHeader = useCallback((id: string): void => {
+    setCollapsedHeaderIds(prev => toggleClosedId(prev, id));
+  }, []);
 
-  const toggleSidebarHeader = (id: string): void => {
-    const newHeaders = sidebarHeaders.map(header => {
-      if (header.id === id) {
-        return { ...header, opened: !header.opened };
-      }
-      return header;
-    });
+  // Data is already resolved server-side and passed as props, so it can be
+  // derived synchronously during render instead of via an effect + loading state.
+  const { content, languageNotice } = useMemo(() => {
+    const ewTitle = getLocalizedContent(editorialWorkflowPage?.title, language);
+    const ewContent = getLocalizedContent(editorialWorkflowPage?.content, language);
+    const psTitle = getLocalizedContent(prepareSubmissionPage?.title, language);
+    const psContent = getLocalizedContent(prepareSubmissionPage?.content, language);
 
-    setSidebarHeaders(newHeaders);
-  };
+    const hasFallback = [ewTitle, ewContent, psTitle, psContent].some(
+      r => r.isAvailable && !r.isOriginalLanguage
+    );
 
-  useEffect(() => {
-    // Si nous avons les données (statiques ou fraîches)
-    if (forAuthorsData) {
-      setIsLoading(false);
-
-      const ewTitle = getLocalizedContent(forAuthorsData.editorialWorkflowPage?.title, language);
-      const ewContent = getLocalizedContent(
-        forAuthorsData.editorialWorkflowPage?.content,
-        language
-      );
-      const psTitle = getLocalizedContent(forAuthorsData.prepareSubmissionPage?.title, language);
-      const psContent = getLocalizedContent(
-        forAuthorsData.prepareSubmissionPage?.content,
-        language
-      );
-
-      const hasFallback = [ewTitle, ewContent, psTitle, psContent].some(
-        r => r.isAvailable && !r.isOriginalLanguage
-      );
-      setLanguageNotice(hasFallback ? t('common.contentNotInLanguage') : undefined);
-
-      const content: Record<
-        ForAuthorsSectionType,
-        { title: string | undefined; content: string | undefined }
-      > = {
+    return {
+      content: {
         editorialWorkflow: {
           title: ewTitle.value || '',
           content: ewContent.value || '',
@@ -300,17 +268,92 @@ export default function ForAuthorsClient({
           title: psTitle.value || '',
           content: psContent.value || '',
         },
-      };
+      } satisfies Record<
+        ForAuthorsSectionType,
+        { title: string | undefined; content: string | undefined }
+      >,
+      languageNotice: hasFallback ? t('common.contentNotInLanguage') : undefined,
+    };
+  }, [editorialWorkflowPage, prepareSubmissionPage, language, t]);
 
-      const sections = parseContentSections(content);
-      setPageSections(sections);
+  const pageSections = useMemo(
+    () =>
+      parseContentSections(content).map(section => ({
+        ...section,
+        opened: !closedSectionIds.has(section.id),
+      })),
+    [content, closedSectionIds]
+  );
 
-      const headers = parseSidebarHeaders(content);
-      setSidebarHeaders(headers);
-    }
-  }, [forAuthorsData, language, t]);
+  const sidebarHeaders = useMemo(
+    () =>
+      parseSidebarHeaders(content).map(header => ({
+        ...header,
+        opened: !collapsedHeaderIds.has(header.id),
+      })),
+    [content, collapsedHeaderIds]
+  );
 
-  // console.log('Render state:', { isLoading, pageSections, sidebarHeaders });
+  // Memoized so MarkdownRenderer's `components` map keeps a stable identity across
+  // unrelated re-renders - react-markdown remounts the rendered subtree whenever a
+  // custom component's function identity changes, which would otherwise happen on
+  // every render since these were previously defined inline.
+  const markdownComponents = useMemo<Components>(
+    () => ({
+      a: ({ href, children }) => {
+        const isExternal =
+          !!href &&
+          (href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:'));
+
+        return (
+          <Link
+            href={href || '#'}
+            target={isExternal ? '_blank' : undefined}
+            rel={isExternal ? 'noopener noreferrer' : undefined}
+            className="forAuthors-content-body-section-link"
+          >
+            {children}
+          </Link>
+        );
+      },
+      h2: ({ node, children }) => {
+        const id = generateIdFromText(node ? getNodeText(node) : '');
+        const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
+
+        return (
+          <div
+            className="forAuthors-content-body-section-subtitle"
+            role="button"
+            tabIndex={0}
+            aria-expanded={isOpened}
+            onClick={(): void => toggleSectionHeader(id)}
+            onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id))}
+          >
+            <h2 id={id} className="forAuthors-content-body-section-subtitle-text">
+              {children}
+            </h2>
+            {isOpened ? (
+              <CaretUpBlackIcon
+                size={16}
+                className="forAuthors-content-body-section-subtitle-caret"
+                ariaLabel="Collapse section"
+              />
+            ) : (
+              <CaretDownBlackIcon
+                size={16}
+                className="forAuthors-content-body-section-subtitle-caret"
+                ariaLabel="Expand section"
+              />
+            )}
+          </div>
+        );
+      },
+      h3: ({ node, children }) => (
+        <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>{children}</h3>
+      ),
+    }),
+    [pageSections, toggleSectionHeader]
+  );
 
   return (
     <main className="forAuthors">
@@ -327,9 +370,7 @@ export default function ForAuthorsClient({
           {languageNotice}
         </p>
       )}
-      {isLoading ? (
-        <Loader />
-      ) : pageSections.length === 0 ? (
+      {pageSections.length === 0 ? (
         <div>No content available</div>
       ) : (
         <div className="forAuthors-content">
@@ -347,63 +388,7 @@ export default function ForAuthorsClient({
                     urlTransform={uri =>
                       uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
                     }
-                    components={{
-                      a: ({ href, children }) => {
-                        const isExternal =
-                          !!href &&
-                          (href.startsWith('http') ||
-                            href.startsWith('//') ||
-                            href.startsWith('mailto:'));
-
-                        return (
-                          <Link
-                            href={href || '#'}
-                            target={isExternal ? '_blank' : undefined}
-                            rel={isExternal ? 'noopener noreferrer' : undefined}
-                            className="forAuthors-content-body-section-link"
-                          >
-                            {children}
-                          </Link>
-                        );
-                      },
-                      h2: ({ node, children }) => {
-                        const id = generateIdFromText(node ? getNodeText(node) : '');
-                        const isOpened = pageSections.find(
-                          pageSection => pageSection.id === id
-                        )?.opened;
-
-                        return (
-                          <div
-                            className="forAuthors-content-body-section-subtitle"
-                            role="button"
-                            tabIndex={0}
-                            aria-expanded={isOpened}
-                            onClick={(): void => toggleSectionHeader(id)}
-                            onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id))}
-                          >
-                            <h2 id={id} className="forAuthors-content-body-section-subtitle-text">
-                              {children}
-                            </h2>
-                            {isOpened ? (
-                              <CaretUpBlackIcon
-                                size={16}
-                                className="forAuthors-content-body-section-subtitle-caret"
-                                ariaLabel="Collapse section"
-                              />
-                            ) : (
-                              <CaretDownBlackIcon
-                                size={16}
-                                className="forAuthors-content-body-section-subtitle-caret"
-                                ariaLabel="Expand section"
-                              />
-                            )}
-                          </div>
-                        );
-                      },
-                      h3: ({ node, children }) => (
-                        <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>{children}</h3>
-                      ),
-                    }}
+                    components={markdownComponents}
                   >
                     {section.value}
                   </MarkdownRenderer>
