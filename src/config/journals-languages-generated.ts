@@ -54,6 +54,8 @@ export const journalLanguages: Record<string, { default: string; accepted: strin
   'pspa': { default: 'fr', accepted: ["fr"] },
   'pspa-preprod': { default: 'fr', accepted: ["fr"] },
   'rdm-preprod': { default: 'fr', accepted: ["fr","en","es"] },
+  'resciencec-preprod': { default: 'en', accepted: ["en"] },
+  'resciencex-preprod': { default: 'en', accepted: ["en"] },
   'slovo': { default: 'fr', accepted: ["fr"] },
   'slovo-preprod': { default: 'fr', accepted: ["fr"] },
   'societes-plurielles': { default: 'fr', accepted: ["fr","en"] },
