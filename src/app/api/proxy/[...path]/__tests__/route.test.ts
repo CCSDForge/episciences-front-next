@@ -106,6 +106,30 @@ describe('GET /api/proxy/[...path]', () => {
         expect.any(Object)
       );
     });
+
+    it('percent-encodes spaces and commas instead of stripping them (author names)', async () => {
+      const { GET } = await import('../route');
+      const context = {
+        params: Promise.resolve({ path: ['browse', 'authors-search', 'Morgan, Grant B.'] }),
+      };
+      await GET(makeGetRequest('placeholder', '?rvcode=transformations'), context);
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'api.transformations.test/browse/authors-search/Morgan%2C%20Grant%20B.'
+        ),
+        expect.any(Object)
+      );
+    });
+
+    it('drops "." and ".." traversal segments', async () => {
+      const { GET } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers', '..', '42'] }) };
+      await GET(makeGetRequest('placeholder', '?rvcode=transformations'), context);
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('api.transformations.test/papers/42'),
+        expect.any(Object)
+      );
+    });
   });
 });
 

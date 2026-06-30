@@ -73,10 +73,12 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
     return NextResponse.json({ error: 'Invalid journal code' }, { status: 400 });
   }
 
-  // Sanitize path segments to prevent traversal attacks — host remains server-controlled
+  // Percent-encode each segment to prevent traversal/host-injection attacks while preserving
+  // legitimate characters (spaces, accents, etc.) — e.g. author names in authors-search paths.
+  // Host remains server-controlled via getJournalApiUrl().
   const path = params.path
-    .map(seg => seg.replace(/[^a-zA-Z0-9._~:@!$&'()*+,;=%-]/g, ''))
     .filter(seg => seg !== '' && seg !== '.' && seg !== '..')
+    .map(seg => encodeURIComponent(seg))
     .join('/');
 
   // Get the correct API URL for this journal
@@ -137,8 +139,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
   }
 
   const path = params.path
-    .map(seg => seg.replace(/[^a-zA-Z0-9._~:@!$&'()*+,;=%-]/g, ''))
     .filter(seg => seg !== '' && seg !== '.' && seg !== '..')
+    .map(seg => encodeURIComponent(seg))
     .join('/');
 
   const apiUrl = getJournalApiUrl(rvcode);
