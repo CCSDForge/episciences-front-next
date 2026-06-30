@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { Fragment, useState, useEffect, useMemo } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { Link } from '@/components/Link/Link';
@@ -29,11 +29,32 @@ import './ForAuthors.scss';
 
 type ForAuthorsSectionType = 'editorialWorkflow' | 'prepareSubmission';
 
+// Only prefix the page title as a synthetic H2 when the content doesn't already
+// open with its own H2 - otherwise the title would become its own empty collapsible section.
+// `titleInjected` tells the caller whether the title is already shown as that first H2,
+// or still needs to be displayed separately (as a static heading above the sections).
+const buildSectionTree = (title: string, content: string) => {
+  const adjustedContent = adjustNestedListsInMarkdownContent(content);
+  const contentTree = unifiedProcessor.parse(adjustedContent);
+  const firstNode = contentTree.children[0];
+  const startsWithH2 = firstNode?.type === 'heading' && firstNode.depth === 2;
+
+  if (title && !startsWithH2) {
+    return {
+      tree: unifiedProcessor.parse(`## ${title} \n\n\n ${adjustedContent}`),
+      titleInjected: true,
+    };
+  }
+
+  return { tree: contentTree, titleInjected: false };
+};
+
 interface IForAuthorsSection {
   id: string;
   value: string;
   opened: boolean;
   cards?: { id: string; title: string; content: string; index: number }[];
+  pageTitle?: string;
 }
 
 interface ForAuthorsPage {
@@ -101,10 +122,8 @@ export default function ForAuthorsClient({
       const withNumerotation = toBeParsedEntry[0] === 'prepareSubmission';
       const title = toBeParsedEntry[1].title ?? '';
       const content = toBeParsedEntry[1].content ?? '';
-      const adjustedContent = adjustNestedListsInMarkdownContent(content);
-
-      const parsedContent = `## ${title} \n\n\n ${adjustedContent}`;
-      const tree = unifiedProcessor.parse(parsedContent);
+      const { tree, titleInjected } = buildSectionTree(title, content);
+      const entryStartIndex = sections.length;
 
       let currentSection: IForAuthorsSection = withNumerotation
         ? { id: '', value: '', opened: true, cards: [] }
@@ -165,6 +184,10 @@ export default function ForAuthorsClient({
       if (currentSection.id) {
         sections.push(currentSection);
       }
+
+      if (title && !titleInjected && sections.length > entryStartIndex) {
+        sections[entryStartIndex].pageTitle = title;
+      }
     });
 
     return sections;
@@ -182,10 +205,7 @@ export default function ForAuthorsClient({
       const withNumerotation = toBeParsedEntry[0] === 'prepareSubmission';
       const title = toBeParsedEntry[1].title ?? '';
       const content = toBeParsedEntry[1].content ?? '';
-      const adjustedContent = adjustNestedListsInMarkdownContent(content);
-
-      const parsedContent = `## ${title} \n\n\n ${adjustedContent}`;
-      const tree = unifiedProcessor.parse(parsedContent);
+      const { tree } = buildSectionTree(title, content);
 
       let lastH2 = null;
       let h3Counter = 0;
@@ -316,101 +336,100 @@ export default function ForAuthorsClient({
           <ForAuthorsSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
           <div className="forAuthors-content-body">
             {pageSections.map(section => (
-              <div
-                key={section.id}
-                className={`forAuthors-content-body-section ${!section.opened && 'forAuthors-content-body-section-hidden'}`}
-              >
-                <MarkdownRenderer
-                  urlTransform={uri =>
-                    uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
-                  }
-                  components={{
-                    a: ({ href, children }) => {
-                      const isExternal =
-                        !!href &&
-                        (href.startsWith('http') ||
-                          href.startsWith('//') ||
-                          href.startsWith('mailto:'));
+              <Fragment key={section.id}>
+                {section.pageTitle && (
+                  <h2 className="forAuthors-content-body-pageTitle">{section.pageTitle}</h2>
+                )}
+                <div
+                  className={`forAuthors-content-body-section ${!section.opened && 'forAuthors-content-body-section-hidden'}`}
+                >
+                  <MarkdownRenderer
+                    urlTransform={uri =>
+                      uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
+                    }
+                    components={{
+                      a: ({ href, children }) => {
+                        const isExternal =
+                          !!href &&
+                          (href.startsWith('http') ||
+                            href.startsWith('//') ||
+                            href.startsWith('mailto:'));
 
-                      return (
-                        <Link
-                          href={href || '#'}
-                          target={isExternal ? '_blank' : undefined}
-                          rel={isExternal ? 'noopener noreferrer' : undefined}
-                          className="forAuthors-content-body-section-link"
-                        >
-                          {children}
-                        </Link>
-                      );
-                    },
-                    h2: ({ node, children }) => {
-                      const id = generateIdFromText(node ? getNodeText(node) : '');
-                      const isOpened = pageSections.find(
-                        pageSection => pageSection.id === id
-                      )?.opened;
-
-                      return (
-                        <div
-                          className="forAuthors-content-body-section-subtitle"
-                          role="button"
-                          tabIndex={0}
-                          aria-expanded={isOpened}
-                          onClick={(): void => toggleSectionHeader(id)}
-                          onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id))}
-                        >
-                          <h2
-                            id={id}
-                            className="forAuthors-content-body-section-subtitle-text"
+                        return (
+                          <Link
+                            href={href || '#'}
+                            target={isExternal ? '_blank' : undefined}
+                            rel={isExternal ? 'noopener noreferrer' : undefined}
+                            className="forAuthors-content-body-section-link"
                           >
                             {children}
-                          </h2>
-                          {isOpened ? (
-                            <CaretUpBlackIcon
-                              size={16}
-                              className="forAuthors-content-body-section-subtitle-caret"
-                              ariaLabel="Collapse section"
-                            />
-                          ) : (
-                            <CaretDownBlackIcon
-                              size={16}
-                              className="forAuthors-content-body-section-subtitle-caret"
-                              ariaLabel="Expand section"
-                            />
-                          )}
+                          </Link>
+                        );
+                      },
+                      h2: ({ node, children }) => {
+                        const id = generateIdFromText(node ? getNodeText(node) : '');
+                        const isOpened = pageSections.find(
+                          pageSection => pageSection.id === id
+                        )?.opened;
+
+                        return (
+                          <div
+                            className="forAuthors-content-body-section-subtitle"
+                            role="button"
+                            tabIndex={0}
+                            aria-expanded={isOpened}
+                            onClick={(): void => toggleSectionHeader(id)}
+                            onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id))}
+                          >
+                            <h2 id={id} className="forAuthors-content-body-section-subtitle-text">
+                              {children}
+                            </h2>
+                            {isOpened ? (
+                              <CaretUpBlackIcon
+                                size={16}
+                                className="forAuthors-content-body-section-subtitle-caret"
+                                ariaLabel="Collapse section"
+                              />
+                            ) : (
+                              <CaretDownBlackIcon
+                                size={16}
+                                className="forAuthors-content-body-section-subtitle-caret"
+                                ariaLabel="Expand section"
+                              />
+                            )}
+                          </div>
+                        );
+                      },
+                      h3: ({ node, children }) => (
+                        <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>{children}</h3>
+                      ),
+                    }}
+                  >
+                    {section.value}
+                  </MarkdownRenderer>
+                  <div className="forAuthors-content-body-section-cards">
+                    {section.cards?.map((card, index) => (
+                      <div
+                        key={index}
+                        className={`forAuthors-content-body-section-cards-card ${!section.opened && 'forAuthors-content-body-section-cards-card-hidden'}`}
+                      >
+                        <div className="forAuthors-content-body-section-cards-card-index">
+                          {card.index}
                         </div>
-                      );
-                    },
-                    h3: ({ node, children }) => (
-                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>
-                        {children}
-                      </h3>
-                    ),
-                  }}
-                >
-                  {section.value}
-                </MarkdownRenderer>
-                <div className="forAuthors-content-body-section-cards">
-                  {section.cards?.map((card, index) => (
-                    <div
-                      key={index}
-                      className={`forAuthors-content-body-section-cards-card ${!section.opened && 'forAuthors-content-body-section-cards-card-hidden'}`}
-                    >
-                      <div className="forAuthors-content-body-section-cards-card-index">
-                        {card.index}
+                        <div className="forAuthors-content-body-section-cards-card-content">
+                          <h3
+                            id={card.id}
+                            className="forAuthors-content-body-section-cards-card-content-title"
+                          >
+                            {card.title}
+                          </h3>
+                          <MarkdownRenderer>{card.content}</MarkdownRenderer>
+                        </div>
                       </div>
-                      <div className="forAuthors-content-body-section-cards-card-content">
-                        <h3
-                          id={card.id}
-                          className="forAuthors-content-body-section-cards-card-content-title"
-                        >
-                          {card.title}
-                        </h3>
-                        <MarkdownRenderer>{card.content}</MarkdownRenderer>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </Fragment>
             ))}
             {lastUpdated && (
               <p className="forAuthors-last-updated">
