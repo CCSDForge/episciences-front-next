@@ -1,7 +1,12 @@
-@use '@/styles/breakpoints.scss' as breakpoints;
+@use '@/components/MarkdownPageWithSidebar/markdown-page-mixin' as shared;
 
-// Specific styles for Indexing page - 3-column list layout
+// Indexing uses its own className prefix (instead of the default "markdown-page")
+// so the 3-column list layout below doesn't leak into the other pages that share
+// MarkdownPageWithSidebar - it must still pull in the same base styles (title,
+// last-updated date, section/subtitle, etc.) so the page isn't left unstyled.
 .indexing-page {
+  @include shared.markdown-page-styles('indexing-page');
+
   &-content-body-section {
     ul {
       column-count: 3;
