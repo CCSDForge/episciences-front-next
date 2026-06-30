@@ -32,9 +32,6 @@
       }
 
       &-pageTitle {
-        color: var(--primary-text);
-        font-size: 22px;
-        font-weight: bold;
         margin: 30px 0px 10px 0px;
 
         &:first-child {
@@ -46,7 +43,8 @@
         display: block;
 
         &-hidden {
-          > :not(.forAuthors-content-body-section-subtitle) {
+          > .markdown-content > :not(.forAuthors-content-body-section-subtitle),
+          > .forAuthors-content-body-section-cards {
             display: none;
           }
         }
