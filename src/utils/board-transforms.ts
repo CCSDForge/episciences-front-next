@@ -192,12 +192,44 @@ export interface IBoardPerTitle {
 }
 
 /**
+ * Determine whether a member belongs to a given board type, applying the
+ * same special-case rules used across the board pages (plural role match,
+ * advisory-board, managing/handling editor, singular "former-member" role).
+ */
+function memberMatchesBoardType(member: IBoardMember, pageCode: string): boolean {
+  const hasDirectRole = member.roles.includes(pageCode);
+  const hasPluralRole = member.roles.includes(`${pageCode}s`);
+
+  const isScientificAdvisorySpecial =
+    pageCode === BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD && member.roles.includes('advisory-board');
+
+  const isEditorialBoardSpecial =
+    pageCode === BOARD_TYPE.EDITORIAL_BOARD &&
+    (member.roles.includes('managing-editor') || member.roles.includes('handling-editor'));
+
+  const isFormerMembersSpecial =
+    pageCode === BOARD_TYPE.FORMER_MEMBERS && member.roles.includes('former-member');
+
+  return (
+    hasDirectRole ||
+    hasPluralRole ||
+    isScientificAdvisorySpecial ||
+    isEditorialBoardSpecial ||
+    isFormerMembersSpecial
+  );
+}
+
+/**
  * Group board members by board page according to spec rules:
  * - Direct role match: member has role matching page_code or page_code + "s"
  * - Scientific Advisory Board: also includes members with role "advisory-board"
  * - Editorial Board: also includes members with roles "managing-editor" or "handling-editor"
  *
  * Members are sorted by role priority within each board.
+ *
+ * Board types that have no dedicated CMS page (e.g. the page was never created
+ * for a journal) still get a group — without title/description — as long as at
+ * least one member matches that board type, so members are never silently hidden.
  *
  * @param pages - Board pages fetched from API
  * @param members - Board members fetched from API
@@ -209,9 +241,28 @@ export function getBoardsPerTitle(
   members: IBoardMember[],
   lang: AvailableLanguage
 ): IBoardPerTitle[] {
-  if (!pages || pages.length === 0) return [];
+  if ((!pages || pages.length === 0) && (!members || members.length === 0)) return [];
 
-  // Sort pages according to predefined boardTypes order to ensure consistency across journals:
+  // Determine which known board types have at least one matching member but no
+  // dedicated CMS page, so members are never silently hidden for lack of a page.
+  const realPageCodes = new Set((pages || []).map(page => page.page_code));
+  const typesWithMembers = new Set<BOARD_TYPE>();
+  (members || []).forEach(member => {
+    boardTypes.forEach(type => {
+      if (memberMatchesBoardType(member, type)) typesWithMembers.add(type);
+    });
+  });
+  const syntheticCodes = boardTypes.filter(
+    type => !realPageCodes.has(type) && typesWithMembers.has(type)
+  );
+
+  // Combine real pages with synthetic (page-less) entries for those board types.
+  const sources: Array<{ page_code: string; page?: IBoardPage }> = [
+    ...(pages || []).map(page => ({ page_code: page.page_code, page })),
+    ...syntheticCodes.map(page_code => ({ page_code })),
+  ];
+
+  // Sort according to predefined boardTypes order to ensure consistency across journals:
   // 1. Introduction board
   // 2. Scientific Advisory Board
   // 3. Editorial Board
@@ -219,7 +270,7 @@ export function getBoardsPerTitle(
   // 5. Reviewers Board
   // 6. Former members
   // 7. Operating charter
-  const sortedPages = [...pages].sort((a, b) => {
+  const sortedSources = [...sources].sort((a, b) => {
     const aIndex = boardTypes.indexOf(a.page_code as BOARD_TYPE);
     const bIndex = boardTypes.indexOf(b.page_code as BOARD_TYPE);
     // If a type is not found in boardTypes, put it at the end
@@ -228,44 +279,16 @@ export function getBoardsPerTitle(
     return finalAIndex - finalBIndex;
   });
 
-  return sortedPages.map(page => {
-    // Extract localized title and description
-    const title = getLocalizedContent(page.title, lang).value;
-    const description = getLocalizedContent(page.content, lang).value;
+  return sortedSources.map(({ page_code, page }) => {
+    // Extract localized title and description (empty when no CMS page exists for this type)
+    const title = page ? getLocalizedContent(page.title, lang).value : '';
+    const description = page ? getLocalizedContent(page.content, lang).value : '';
 
     // Filter members for this board page (handle empty members array)
     const pageMembers =
       !members || members.length === 0
         ? []
-        : members.filter(member => {
-            // Basic role matching: direct match or pluralized match
-            const hasDirectRole = member.roles.includes(page.page_code);
-            const hasPluralRole = member.roles.includes(`${page.page_code}s`);
-
-            // Special case: Scientific Advisory Board also includes "advisory-board" role
-            const isScientificAdvisorySpecial =
-              page.page_code === 'scientific-advisory-board' &&
-              member.roles.includes('advisory-board');
-
-            // Special case: Editorial Board also includes "managing-editor" and "handling-editor"
-            const isEditorialBoardSpecial =
-              page.page_code === 'editorial-board' &&
-              (member.roles.includes('managing-editor') ||
-                member.roles.includes('handling-editor'));
-
-            // Special case: Former Members page_code is "former-members" (plural) but
-            // the role assigned to members is "former-member" (singular)
-            const isFormerMembersSpecial =
-              page.page_code === 'former-members' && member.roles.includes('former-member');
-
-            return (
-              hasDirectRole ||
-              hasPluralRole ||
-              isScientificAdvisorySpecial ||
-              isEditorialBoardSpecial ||
-              isFormerMembersSpecial
-            );
-          });
+        : members.filter(member => memberMatchesBoardType(member, page_code));
 
     // Sort members by role priority (chief-editor first, then managing-editor, etc.)
     const sortedMembers = [...pageMembers].sort((a, b) => {
@@ -283,7 +306,7 @@ export function getBoardsPerTitle(
     });
 
     return {
-      page_code: page.page_code,
+      page_code,
       title,
       description,
       members: sortedMembers,

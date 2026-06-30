@@ -127,8 +127,22 @@ describe('getBoardsPerTitle', () => {
     );
   });
 
-  it('should return empty array when no pages provided', () => {
+  it('should return synthetic boards (no title/description) when pages are missing but members match a board type', () => {
     const result = getBoardsPerTitle([], mockMembers, 'en');
+
+    const editorialBoard = result.find(b => b.page_code === 'editorial-board');
+    expect(editorialBoard).toBeDefined();
+    expect(editorialBoard?.title).toBe('');
+    expect(editorialBoard?.description).toBe('');
+    expect(editorialBoard?.members).toHaveLength(4);
+
+    const scientificBoard = result.find(b => b.page_code === 'scientific-advisory-board');
+    expect(scientificBoard).toBeDefined();
+    expect(scientificBoard?.members).toContainEqual(expect.objectContaining({ firstname: 'Diana' }));
+  });
+
+  it('should return empty array when neither pages nor members are provided', () => {
+    const result = getBoardsPerTitle([], [], 'en');
     expect(result).toEqual([]);
   });
 

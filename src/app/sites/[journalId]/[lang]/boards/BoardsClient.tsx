@@ -68,7 +68,10 @@ export default function BoardsClient({
   );
 
   const [openGroups, setOpenGroups] = useState<Set<number>>(new Set([0]));
-  const [fullMemberIndex, setFullMemberIndex] = useState(-1);
+  // Identifies the currently expanded member card as "<groupIndex>-<memberIndex>".
+  // Using a composite key (rather than a bare member index) prevents the card at
+  // the same position in a different group from also appearing expanded/blurred.
+  const [expandedMemberKey, setExpandedMemberKey] = useState<string | null>(null);
 
   const getPagesLabels = (): string[] => {
     if (!boardsPerTitle.length) return [];
@@ -77,10 +80,9 @@ export default function BoardsClient({
   };
 
   const boardsPerTitle = useMemo(() => {
-    if (!boardsData?.pages || !boardsData.pages.length) return [];
     if (!boardsData?.members || !boardsData.members.length) return [];
 
-    return getBoardsPerTitle(boardsData.pages, boardsData.members, currentLang);
+    return getBoardsPerTitle(boardsData.pages || [], boardsData.members, currentLang);
   }, [boardsData.pages, boardsData.members, currentLang]);
 
   const handleGroupToggle = (index: number): void => {
@@ -136,18 +138,18 @@ export default function BoardsClient({
           tableOfContentsLabel={tableOfContentsLabel}
         />
         <div className="boards-content-groups">
-          {boardsPerTitle.map((boardPerTitle, index) => (
-            <div key={index} className="boards-content-groups-group">
+          {boardsPerTitle.map((boardPerTitle, groupIndex) => (
+            <div key={boardPerTitle.page_code} className="boards-content-groups-group">
               <div
                 className="boards-content-groups-group-title"
                 role="button"
                 tabIndex={0}
-                aria-expanded={openGroups.has(index)}
-                onClick={(): void => handleGroupToggle(index)}
-                onKeyDown={e => handleKeyboardClick(e, () => handleGroupToggle(index))}
+                aria-expanded={openGroups.has(groupIndex)}
+                onClick={(): void => handleGroupToggle(groupIndex)}
+                onKeyDown={e => handleKeyboardClick(e, () => handleGroupToggle(groupIndex))}
               >
                 <h2>{rolesLabels?.[boardPerTitle.page_code] || boardPerTitle.title}</h2>
-                {openGroups.has(index) ? (
+                {openGroups.has(groupIndex) ? (
                   <CaretUpBlackIcon
                     size={16}
                     className="boards-content-groups-group-caret"
@@ -162,33 +164,34 @@ export default function BoardsClient({
                 )}
               </div>
               <div
-                className={`boards-content-groups-group-content ${openGroups.has(index) && 'boards-content-groups-group-content-active'}`}
+                className={`boards-content-groups-group-content ${openGroups.has(groupIndex) && 'boards-content-groups-group-content-active'}`}
               >
                 <div className="boards-content-groups-group-content-description">
                   <MarkdownRenderer>{boardPerTitle.description}</MarkdownRenderer>
                 </div>
                 <div className="boards-content-groups-group-content-grid">
-                  {boardPerTitle.members.map((member, index) => (
-                    <BoardCard
-                      key={index}
-                      language={currentLang}
-                      t={t}
-                      member={member}
-                      state={
-                        fullMemberIndex === index
-                          ? 'expanded'
-                          : fullMemberIndex !== -1
-                            ? 'blurred'
-                            : 'default'
-                      }
-                      onToggle={(): void =>
-                        fullMemberIndex !== index
-                          ? setFullMemberIndex(index)
-                          : setFullMemberIndex(-1)
-                      }
-                      rolesLabels={rolesLabels}
-                    />
-                  ))}
+                  {boardPerTitle.members.map((member, memberIndex) => {
+                    const memberKey = `${groupIndex}-${memberIndex}`;
+                    return (
+                      <BoardCard
+                        key={member.id || memberKey}
+                        language={currentLang}
+                        t={t}
+                        member={member}
+                        state={
+                          expandedMemberKey === memberKey
+                            ? 'expanded'
+                            : expandedMemberKey !== null
+                              ? 'blurred'
+                              : 'default'
+                        }
+                        onToggle={(): void =>
+                          setExpandedMemberKey(prev => (prev === memberKey ? null : memberKey))
+                        }
+                        rolesLabels={rolesLabels}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>
