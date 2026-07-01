@@ -194,6 +194,13 @@
       "download": "Télécharger",
       "loading": "Chargement du PDF...",
       "error": "Erreur de chargement du PDF"
+    },
+    "pagination": {
+      "previous": "Page précédente",
+      "previousDisabled": "Page précédente (désactivé)",
+      "next": "Page suivante",
+      "nextDisabled": "Page suivante (désactivé)",
+      "page": "Page {{number}}"
     }
   },
   "pages": {

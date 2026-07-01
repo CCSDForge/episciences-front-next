@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react';
 import ReactPaginate from 'react-paginate';
+import { useTranslation } from 'react-i18next';
 import {
   CaretLeftBlackIcon,
   CaretLeftGreyLightIcon,
@@ -27,13 +28,10 @@ const Pagination = memo(function Pagination({
   totalItems,
   onPageChange,
 }: IPaginationProps): React.JSX.Element {
+  const { t } = useTranslation();
   const perPage = itemsPerPage ?? DEFAULT_ITEMS_PER_PAGE;
 
   const pageCount = totalItems ? Math.ceil(totalItems / perPage) : 0;
-
-  // Debug loop
-
-  // console.log(`[Pagination] Render: curr=${currentPage}, total=${totalItems}, count=${pageCount}`);
 
   // Ne pas afficher la pagination s'il n'y a pas de pages ou une seule page
 
@@ -45,6 +43,8 @@ const Pagination = memo(function Pagination({
 
   const forcePage = Math.max(0, Math.min(currentPage - 1, pageCount - 1));
 
+  // Note: ReactPaginate already renders <ul role="navigation" aria-label="Pagination">,
+  // so no extra <nav> wrapper is needed (it would create a duplicate landmark).
   return (
     <ReactPaginate
       pageCount={pageCount}
@@ -53,21 +53,28 @@ const Pagination = memo(function Pagination({
       className="pagination"
       pageClassName="pagination-page"
       previousClassName="pagination-previous"
+      previousAriaLabel={
+        currentPage === 1
+          ? t('components.pagination.previousDisabled')
+          : t('components.pagination.previous')
+      }
       previousLabel={
-        currentPage === 1 ? (
-          <CaretLeftGreyLightIcon size={16} ariaLabel="Previous page (disabled)" />
-        ) : (
-          <CaretLeftBlackIcon size={16} ariaLabel="Previous page" />
-        )
+        currentPage === 1 ? <CaretLeftGreyLightIcon size={16} /> : <CaretLeftBlackIcon size={16} />
       }
       nextClassName="pagination-next"
+      nextAriaLabel={
+        currentPage === pageCount
+          ? t('components.pagination.nextDisabled')
+          : t('components.pagination.next')
+      }
       nextLabel={
         currentPage === pageCount ? (
-          <CaretRightGreyLightIcon size={16} ariaLabel="Next page (disabled)" />
+          <CaretRightGreyLightIcon size={16} />
         ) : (
-          <CaretRightBlackIcon size={16} ariaLabel="Next page" />
+          <CaretRightBlackIcon size={16} />
         )
       }
+      ariaLabelBuilder={pageNumber => t('components.pagination.page', { number: pageNumber })}
       activeClassName="pagination-page-active"
       pageRangeDisplayed={3}
       marginPagesDisplayed={2}
