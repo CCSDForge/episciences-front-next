@@ -30,8 +30,10 @@ const API_CONFIG = {
 
 // Global fetch function replacement
 globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-  let url = input.toString();
-  const method = init?.method || 'GET';
+  const isRequest = input instanceof Request;
+  const originalUrl = isRequest ? input.url : input.toString();
+  let url = originalUrl;
+  const method = init?.method || (isRequest ? input.method : 'GET');
 
   let journalCode = '';
   try {
@@ -47,20 +49,36 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
     }
   }
 
-  // Handle redirection of requests to /default
-  if (url.endsWith('/default') || url === 'default') {
-    url = url.replace('/default', '/').replace('default', '/');
+  // Handle redirection of requests to /default — only strip the trailing segment,
+  // never other occurrences of "default" earlier in the URL
+  if (url.endsWith('/default')) {
+    url = url.slice(0, -'default'.length);
+  } else if (url === 'default') {
+    url = '/';
   }
 
   log.debug(`${method} ${url}`);
 
+  // Timeout via AbortController so the underlying request is actually cancelled
+  // (a Promise.race would leave the socket open after rejecting)
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(
+    () => timeoutController.abort(new Error('Request timeout')),
+    API_CONFIG.timeout
+  );
+  const callerSignal = init?.signal ?? (isRequest ? input.signal : null);
+  const signal = callerSignal
+    ? AbortSignal.any([callerSignal, timeoutController.signal])
+    : timeoutController.signal;
+
   try {
-    const response = (await Promise.race([
-      originalFetch(url, init),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout')), API_CONFIG.timeout)
-      ),
-    ])) as Response;
+    // Preserve Request objects (method, body, headers) — only rebuild when the URL was rewritten
+    const target: RequestInfo = isRequest
+      ? url === originalUrl
+        ? input
+        : new Request(url, input)
+      : url;
+    const response = await originalFetch(target, { ...init, signal });
 
     log.debug(`${response.status} ${url}`);
 
@@ -68,6 +86,8 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
   } catch (error) {
     log.error(`${(error as Error).message} for ${url}`);
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
 };
 
