@@ -48,6 +48,21 @@ export function sanitizeIp(raw: string | null): string {
 }
 
 /**
+ * Resolve the client IP from request headers for rate limiting and IP allowlisting.
+ *
+ * Prefers x-real-ip (set by the trusted reverse proxy from the socket address) over
+ * x-forwarded-for: nginx APPENDS the real IP to any client-supplied x-forwarded-for,
+ * so its first entry is attacker-controlled — trusting it would allow spoofing an
+ * allowlisted IP or rotating fake IPs to bypass rate limits.
+ *
+ * @param headers - Request headers (any object exposing .get(name))
+ * @returns A structurally valid IP string or 'unknown'
+ */
+export function getClientIp(headers: { get(name: string): string | null }): string {
+  return sanitizeIp(headers.get('x-real-ip') ?? headers.get('x-forwarded-for'));
+}
+
+/**
  * Sanitize a value for safe logging (prevents log injection via newlines/control chars)
  *
  * @param value - Raw user-controlled value to sanitize

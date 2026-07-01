@@ -1,7 +1,7 @@
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { sanitizeIp, sanitizeForLog } from '@/utils/validation';
+import { getClientIp, sanitizeForLog } from '@/utils/validation';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'revalidate-api' });
@@ -112,9 +112,7 @@ export async function POST(request: NextRequest) {
     const allowedIps = process.env.ALLOWED_IPS
       ? process.env.ALLOWED_IPS.split(',').map(ip => ip.trim())
       : [];
-    const clientIp = sanitizeIp(
-      request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip')
-    );
+    const clientIp = getClientIp(request.headers);
 
     if (allowedIps.length > 0 && !allowedIps.includes(clientIp)) {
       log.warn(`[Revalidate API] Blocked unauthorized IP: ${clientIp}`);

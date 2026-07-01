@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sanitizeIp, sanitizeForLog } from '@/utils/validation';
+import { getClientIp, sanitizeForLog } from '@/utils/validation';
 import { isAllowedPdfDomain } from '@/utils/pdf';
 import { logger } from '@/lib/logger';
 
@@ -50,7 +50,7 @@ function checkRateLimit(ip: string): boolean {
  */
 export async function GET(request: NextRequest) {
   // Get client IP
-  const ip = sanitizeIp(request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip'));
+  const ip = getClientIp(request.headers);
 
   // Check rate limit
   if (!checkRateLimit(ip)) {
