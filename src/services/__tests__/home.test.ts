@@ -33,14 +33,18 @@ vi.mock('@/utils/article', () => ({
   })),
 }));
 
-vi.mock('@/utils/volume', () => ({
-  formatVolume: vi.fn((rvcode, lang, raw) => ({
-    id: raw.vid,
-    num: raw.vol_num,
-    title: raw.titles,
-    year: raw.vol_year,
-  })),
-}));
+vi.mock('@/utils/volume', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/utils/volume')>();
+  return {
+    ...actual,
+    formatVolume: vi.fn((rvcode, lang, raw) => ({
+      id: raw.vid,
+      num: raw.vol_num,
+      title: raw.titles,
+      year: raw.vol_year,
+    })),
+  };
+});
 
 vi.mock('@/utils/board-transforms', () => ({
   transformBoardMembers: vi.fn(members =>

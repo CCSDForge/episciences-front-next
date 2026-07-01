@@ -8,7 +8,7 @@ import { IVolume } from '@/types/volume';
 import { IStat } from '@/types/stat';
 import { FetchedArticle, formatArticle } from '@/utils/article';
 import { transformArticleForDisplay } from './article';
-import { formatVolume } from '@/utils/volume';
+import { formatVolume, VOLUME_TYPE } from '@/utils/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { fetchWithRetry } from '@/utils/fetch-with-retry';
@@ -138,7 +138,7 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
     ).then(res => (res.ok ? res.json() : { 'hydra:member': [], 'hydra:totalItems': 0 }));
 
     const issuesPromise = fetch(
-      `${apiBaseUrl}${API_PATHS.volumes}?page=1&itemsPerPage=2&rvcode=${rvcode}&language=${language}&types[]=special_issue`,
+      `${apiBaseUrl}${API_PATHS.volumes}?page=1&itemsPerPage=2&rvcode=${rvcode}&language=${language}&type[]=${VOLUME_TYPE.SPECIAL_ISSUE}`,
       { next: { revalidate: CACHE_TTL.volumes, tags: ['volumes', `volumes-${rvcode}`] } }
     ).then(res => (res.ok ? res.json() : { 'hydra:member': [], 'hydra:totalItems': 0 }));
 
