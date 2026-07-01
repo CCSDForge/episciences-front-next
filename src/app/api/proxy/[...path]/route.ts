@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getJournalApiUrl } from '@/utils/env-loader';
-import { isValidJournalId, sanitizeIp } from '@/utils/validation';
+import { isValidJournalId, getClientIp } from '@/utils/validation';
 import { logger } from '@/lib/logger';
 
 /**
@@ -18,6 +18,7 @@ import { logger } from '@/lib/logger';
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 60;
 const RATE_WINDOW = 60000; // 1 minute
+const UPSTREAM_TIMEOUT = 15000; // 15 seconds — a slow backend must not pin connections open
 
 // Cleanup expired entries every 5 minutes to prevent memory leak
 setInterval(
@@ -50,9 +51,7 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export async function GET(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
-  const clientIp = sanitizeIp(
-    request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip')
-  );
+  const clientIp = getClientIp(request.headers);
 
   if (!checkRateLimit(clientIp)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
@@ -98,6 +97,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
         Accept: request.headers.get('Accept') || 'application/ld+json',
         'Content-Type': 'application/json',
       },
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT),
     });
 
     const data = await response.text();
@@ -110,15 +110,16 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
       },
     });
   } catch (error) {
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      return NextResponse.json({ error: 'Upstream timeout' }, { status: 504 });
+    }
     logger.error(`[API Proxy] Error proxying to ${targetUrl}:`, error);
     return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }
 }
 
 export async function POST(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
-  const clientIp = sanitizeIp(
-    request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip')
-  );
+  const clientIp = getClientIp(request.headers);
 
   if (!checkRateLimit(clientIp)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
@@ -160,6 +161,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
         'Content-Type': request.headers.get('Content-Type') || 'application/json',
       },
       body,
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT),
     });
 
     const data = await response.text();
@@ -171,6 +173,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
       },
     });
   } catch (error) {
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      return NextResponse.json({ error: 'Upstream timeout' }, { status: 504 });
+    }
     logger.error(`[API Proxy] Error proxying POST to ${targetUrl}:`, error);
     return NextResponse.json({ error: 'Failed to proxy request' }, { status: 502 });
   }

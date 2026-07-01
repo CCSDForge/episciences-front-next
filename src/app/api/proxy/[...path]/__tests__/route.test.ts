@@ -11,6 +11,11 @@ vi.mock('@/utils/validation', () => ({
     const first = raw?.split(',')[0]?.trim() ?? '';
     return /^[\d.:a-fA-F]+$/.test(first) ? first : 'unknown';
   }),
+  getClientIp: vi.fn((headers: Headers) => {
+    const raw = headers.get('x-real-ip') ?? headers.get('x-forwarded-for');
+    const first = raw?.split(',')[0]?.trim() ?? '';
+    return /^[\d.:a-fA-F]+$/.test(first) ? first : 'unknown';
+  }),
 }));
 
 function makeGetRequest(path: string, searchParams = ''): NextRequest {
@@ -129,6 +134,26 @@ describe('GET /api/proxy/[...path]', () => {
         expect.stringContaining('api.transformations.test/papers/42'),
         expect.any(Object)
       );
+    });
+
+    it('passes an abort signal to the upstream fetch (timeout protection)', async () => {
+      const { GET } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers', '42'] }) };
+      await GET(makeGetRequest('papers/42', '?rvcode=transformations'), context);
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      );
+    });
+
+    it('returns 504 when the upstream request times out', async () => {
+      global.fetch = vi
+        .fn()
+        .mockRejectedValue(new DOMException('The operation timed out', 'TimeoutError'));
+      const { GET } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers', '42'] }) };
+      const res = await GET(makeGetRequest('papers/42', '?rvcode=transformations'), context);
+      expect(res.status).toBe(504);
     });
   });
 });
