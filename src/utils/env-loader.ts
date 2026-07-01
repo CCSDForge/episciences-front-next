@@ -1,5 +1,5 @@
 import path from 'path';
-import { isValidJournalId } from './validation';
+import { isValidJournalId, sanitizeForLog } from './validation';
 import { API_ROOT_ENDPOINT } from '@/config/api';
 import { logger } from '@/lib/logger';
 
@@ -68,12 +68,12 @@ export function loadJournalConfig(journalCode: string): JournalConfig {
     return { code: journalCode, env: {} };
   }
 
-  // Validate journal code format to prevent path traversal attacks
+  // Validate journal code format to prevent path traversal attacks.
+  // Do NOT cache invalid codes: they are attacker-controlled arbitrary strings
+  // and caching them would let the map grow without bound.
   if (!isValidJournalId(journalCode)) {
-    log.warn(`Invalid journal code format: ${journalCode}`);
-    const emptyConfig = { code: journalCode, env: {} };
-    configCache.set(journalCode, emptyConfig);
-    return emptyConfig;
+    log.warn(`Invalid journal code format: ${sanitizeForLog(journalCode)}`);
+    return { code: journalCode, env: {} };
   }
 
   // Return cached config if available
