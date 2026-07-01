@@ -16,7 +16,6 @@ import {
   unifiedProcessor,
   serializeMarkdown,
   getMarkdownImageURL,
-  adjustNestedListsInMarkdownContent,
   getNodeText,
 } from '@/utils/markdown';
 import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';
@@ -183,9 +182,8 @@ export default function AboutClient({
         );
 
         if (content) {
-          const adjustedContent = adjustNestedListsInMarkdownContent(content);
-          setPageSections(parseContentSections(adjustedContent));
-          setSidebarHeaders(parseSidebarHeaders(adjustedContent));
+          setPageSections(parseContentSections(content));
+          setSidebarHeaders(parseSidebarHeaders(content));
         } else {
           // Si pas de contenu, initialiser avec des sections vides
           setPageSections([]);

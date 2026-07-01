@@ -11,7 +11,6 @@ import {
   unifiedProcessor,
   serializeMarkdown,
   getMarkdownImageURL,
-  adjustNestedListsInMarkdownContent,
   getNodeText,
 } from '@/utils/markdown';
 import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';
@@ -194,9 +193,8 @@ export default function MarkdownPageWithSidebar({
 
   useEffect(() => {
     if (content) {
-      const adjustedContent = adjustNestedListsInMarkdownContent(content);
-      const sections = parseContentSections(adjustedContent);
-      const headers = parseSidebarHeaders(adjustedContent);
+      const sections = parseContentSections(content);
+      const headers = parseSidebarHeaders(content);
 
       setPageSections(sections);
       setSidebarHeaders(headers);

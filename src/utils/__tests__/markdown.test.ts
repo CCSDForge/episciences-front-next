@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  generateIdFromText,
-  decodeText,
-  adjustNestedListsInMarkdownContent,
-  getMarkdownImageURL,
-  getNodeText,
-} from '../markdown';
+import { generateIdFromText, decodeText, getMarkdownImageURL, getNodeText } from '../markdown';
 
 describe('markdown utilities', () => {
   describe('generateIdFromText', () => {
@@ -130,51 +124,6 @@ describe('markdown utilities', () => {
     it('should handle complex HTML entities and escapes', () => {
       const result = decodeText('&lt;div&gt;test\\_value&lt;/div&gt;');
       expect(result).toBe('<div>test_value</div>');
-    });
-  });
-
-  describe('adjustNestedListsInMarkdownContent', () => {
-    it('should indent nested list items', () => {
-      const input = '- Parent:\n- Child 1\n- Child 2\n';
-      const result = adjustNestedListsInMarkdownContent(input);
-      expect(result).toBe('- Parent:\n  - Child 1\n  - Child 2\n');
-    });
-
-    it('should handle undefined input', () => {
-      const result = adjustNestedListsInMarkdownContent(undefined);
-      expect(result).toBeUndefined();
-    });
-
-    it('should handle empty string', () => {
-      const result = adjustNestedListsInMarkdownContent('');
-      expect(result).toBe('');
-    });
-
-    it('should not modify non-nested lists', () => {
-      const input = '- Item 1\n- Item 2\n- Item 3\n';
-      const result = adjustNestedListsInMarkdownContent(input);
-      expect(result).toBe(input);
-    });
-
-    it('should handle multiple nested list groups', () => {
-      const input = '- First:\n- Child A\n- Second:\n- Child B\n';
-      const result = adjustNestedListsInMarkdownContent(input);
-      // The regex matches parent + all following children until the next parent or end
-      // So "- First:\n- Child A\n" matches, then "- Second:\n- Child B\n" matches
-      // The second match includes the newline from the first group
-      expect(result).toBe('- First:\n  - Child A\n  - Second:\n  - Child B\n');
-    });
-
-    it('should handle parent items with text after colon', () => {
-      const input = '- Parent with text:\n- Child item\n';
-      const result = adjustNestedListsInMarkdownContent(input);
-      expect(result).toBe('- Parent with text:\n  - Child item\n');
-    });
-
-    it('should handle multiple children under one parent', () => {
-      const input = '- Features:\n- Feature 1\n- Feature 2\n- Feature 3\n';
-      const result = adjustNestedListsInMarkdownContent(input);
-      expect(result).toBe('- Features:\n  - Feature 1\n  - Feature 2\n  - Feature 3\n');
     });
   });
 

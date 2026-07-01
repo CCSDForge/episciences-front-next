@@ -17,7 +17,6 @@ import {
   unifiedProcessor,
   serializeMarkdown,
   getMarkdownImageURL,
-  adjustNestedListsInMarkdownContent,
   getNodeText,
   AstNode,
 } from '@/utils/markdown';
@@ -164,10 +163,9 @@ export default function CreditsClient({
     try {
       if (pageData?.content && language) {
         const contentResult = getLocalizedContent(pageData.content, language);
-        const adjustedContent = adjustNestedListsInMarkdownContent(contentResult.value);
 
-        setPageSections(parseContentSections(adjustedContent));
-        setSidebarHeaders(parseSidebarHeaders(adjustedContent));
+        setPageSections(parseContentSections(contentResult.value));
+        setSidebarHeaders(parseSidebarHeaders(contentResult.value));
       }
     } catch (error) {
       logger.error('Erreur lors du traitement du contenu des crédits:', error);

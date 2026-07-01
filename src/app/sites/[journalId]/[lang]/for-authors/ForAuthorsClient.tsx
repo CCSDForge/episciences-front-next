@@ -13,7 +13,6 @@ import {
   unifiedProcessor,
   serializeMarkdown,
   getMarkdownImageURL,
-  adjustNestedListsInMarkdownContent,
   getNodeText,
 } from '@/utils/markdown';
 import ForAuthorsSidebar, {
@@ -45,14 +44,13 @@ const toggleClosedId = (set: Set<string>, id: string): Set<string> => {
 // `titleInjected` tells the caller whether the title is already shown as that first H2,
 // or still needs to be displayed separately (as a static heading above the sections).
 const buildSectionTree = (title: string, content: string) => {
-  const adjustedContent = adjustNestedListsInMarkdownContent(content);
-  const contentTree = unifiedProcessor.parse(adjustedContent);
+  const contentTree = unifiedProcessor.parse(content);
   const firstNode = contentTree.children[0];
   const startsWithH2 = firstNode?.type === 'heading' && firstNode.depth === 2;
 
   if (title && !startsWithH2) {
     return {
-      tree: unifiedProcessor.parse(`## ${title} \n\n\n ${adjustedContent}`),
+      tree: unifiedProcessor.parse(`## ${title} \n\n\n ${content}`),
       titleInjected: true,
     };
   }
