@@ -519,6 +519,13 @@
         padding: 0 10px;
         min-width: 200px;
 
+        // Focus indicator on the container: the inner input has outline removed,
+        // so keyboard users need a visible ring here (WCAG 2.4.7)
+        &:focus-within {
+          outline: 2px solid var(--focus-color, #0078d4);
+          outline-offset: -2px;
+        }
+
         @media (max-width: breakpoints.$sm) {
           min-width: 150px;
         }
@@ -616,7 +623,13 @@
             color: var(--button-text-on-primary-bg);
           }
 
-          &:focus {
+          &:focus-visible {
+            outline: 2px solid var(--focus-color-on-primary, var(--focus-color));
+            outline-offset: -2px;
+          }
+
+          // Remove focus outline when not using keyboard
+          &:focus:not(:focus-visible) {
             outline: none;
           }
         }
