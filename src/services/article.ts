@@ -149,7 +149,9 @@ export async function fetchAcceptedArticles(
  */
 async function fetchRawArticle(paperid: string | number, rvcode: string = ''): Promise<RawArticle> {
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
-  const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, {
+  // paperid may originate from an upstream API response: encode it so it cannot inject path
+  // segments or query strings into the upstream API URL (consistent with fetchArticle/getArticleById)
+  const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${encodeURIComponent(paperid)}`, {
     next: {
       revalidate: CACHE_TTL.articles,
       tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''],
