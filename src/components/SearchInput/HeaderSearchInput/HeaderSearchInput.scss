@@ -4,6 +4,14 @@
   gap: 20px;
   align-items: center;
 
+  // Focus indicator on the container: the input itself has outline removed,
+  // so keyboard users need a visible ring here (WCAG 2.4.7)
+  &:focus-within {
+    outline: 2px solid var(--focus-color, #0078d4);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
   &-input {
     color: var(--black);
     font-size: 17px;

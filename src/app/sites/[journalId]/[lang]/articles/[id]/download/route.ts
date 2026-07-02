@@ -14,6 +14,10 @@ export async function GET(
     return new NextResponse('Invalid journal', { status: 400 });
   }
 
+  if (!/^\d+$/.test(id)) {
+    return new NextResponse('Invalid article id', { status: 400 });
+  }
+
   const article = await fetchArticle(id, journalId);
 
   if (!article?.pdfLink) {

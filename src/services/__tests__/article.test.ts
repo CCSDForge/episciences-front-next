@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { transformArticleForDisplay } from '../article';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { transformArticleForDisplay, fetchArticle } from '../article';
 
 // Mock utils/article
 vi.mock('@/utils/article', () => ({
@@ -7,6 +7,15 @@ vi.mock('@/utils/article', () => ({
     if (raw.forceError) throw new Error('Format failed');
     return { ...raw, formatted: true };
   }),
+}));
+
+vi.mock('@/utils/env-loader', () => ({
+  getJournalApiUrl: vi.fn((code: string) => `https://api.${code}.test`),
+}));
+
+const mockFetchWithRetry = vi.fn();
+vi.mock('@/utils/fetch-with-retry', () => ({
+  fetchWithRetry: (...args: unknown[]) => mockFetchWithRetry(...args),
 }));
 
 describe('article service', () => {
@@ -79,6 +88,45 @@ describe('article service', () => {
     it('should handle null input', () => {
       const result = transformArticleForDisplay(null);
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe('fetchArticle', () => {
+    beforeEach(() => {
+      mockFetchWithRetry.mockReset();
+      mockFetchWithRetry.mockResolvedValue({
+        json: async () => ({ paperid: 42, title: 'Test' }),
+      });
+    });
+
+    it('percent-encodes the paper id so it cannot inject path segments', async () => {
+      await fetchArticle('../secret', 'epijinfo');
+
+      const [url] = mockFetchWithRetry.mock.calls[0];
+      expect(url).toContain(encodeURIComponent('../secret'));
+      expect(url).not.toContain('/../');
+    });
+
+    it('percent-encodes a query-string injection attempt', async () => {
+      await fetchArticle('42?admin=true', 'epijinfo');
+
+      const [url] = mockFetchWithRetry.mock.calls[0];
+      expect(url).not.toContain('?admin=true');
+      expect(url).toContain('42%3Fadmin%3Dtrue');
+    });
+
+    it('builds clean cache tags without empty entries when rvcode is absent', async () => {
+      await fetchArticle('42');
+
+      const [, options] = mockFetchWithRetry.mock.calls[0];
+      expect(options.next.tags).toEqual(['articles', 'article-42']);
+    });
+
+    it('includes the journal tag when rvcode is provided', async () => {
+      await fetchArticle('42', 'epijinfo');
+
+      const [, options] = mockFetchWithRetry.mock.calls[0];
+      expect(options.next.tags).toEqual(['articles', 'article-42', 'articles-epijinfo']);
     });
   });
 });

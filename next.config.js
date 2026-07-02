@@ -17,6 +17,9 @@ const { branch: GIT_BRANCH, commit: GIT_COMMIT } = getGitInfo();
 const nextConfig = {
   reactStrictMode: true,
 
+  // Do not advertise the framework in response headers
+  poweredByHeader: false,
+
   env: {
     NEXT_GIT_BRANCH: GIT_BRANCH,
     NEXT_GIT_COMMIT: GIT_COMMIT,
@@ -91,17 +94,17 @@ const nextConfig = {
   },
 
   async rewrites() {
-    // Default to preprod if API_PROXY_TARGET or NEXT_PUBLIC_API_ROOT_ENDPOINT is not set in .env
-    const apiTarget =
-      process.env.API_PROXY_TARGET ||
-      process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT ||
-      'https://api-preprod.episciences.org/api';
-    console.log(`[Next.js] Proxying /api-proxy to: ${apiTarget}`);
-
+    // Local-dev CORS escape hatch only (see docs/LOCAL_TESTING_GUIDE.md).
+    // Opt-in via API_PROXY_TARGET: never enabled by default, as this is an
+    // unauthenticated, un-rate-limited pass-through to the target API.
+    if (!process.env.API_PROXY_TARGET) {
+      return [];
+    }
+    console.log(`[Next.js] Proxying /api-proxy to: ${process.env.API_PROXY_TARGET}`);
     return [
       {
         source: '/api-proxy/:path*',
-        destination: `${apiTarget}/:path*`,
+        destination: `${process.env.API_PROXY_TARGET}/:path*`,
       },
     ];
   },

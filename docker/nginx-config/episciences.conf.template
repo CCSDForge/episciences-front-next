@@ -78,6 +78,13 @@ server {
         log_not_found off;
     }
 
+    # Block direct access to internal multi-tenant paths: /sites/<journal>/<lang>/...
+    # is an internal rewrite target of the Next.js middleware. Reaching it directly
+    # would bypass journal detection/validation and expose cross-tenant content.
+    location ^~ /sites/ {
+        return 404;
+    }
+
     # ==============================================================================
     # PROXY TO NEXT.JS
     # ==============================================================================

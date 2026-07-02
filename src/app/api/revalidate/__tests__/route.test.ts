@@ -13,6 +13,11 @@ vi.mock('@/utils/validation', () => ({
     const first = raw?.split(',')[0]?.trim() ?? '';
     return /^[\d.:a-fA-F]+$/.test(first) ? first : 'unknown';
   }),
+  getClientIp: vi.fn((headers: Headers) => {
+    const raw = headers.get('x-real-ip') ?? headers.get('x-forwarded-for');
+    const first = raw?.split(',')[0]?.trim() ?? '';
+    return /^[\d.:a-fA-F]+$/.test(first) ? first : 'unknown';
+  }),
   sanitizeForLog: vi.fn((value: string | null | undefined) => String(value ?? '').slice(0, 200)),
 }));
 
@@ -151,6 +156,25 @@ describe('POST /api/revalidate', () => {
       const { POST } = await import('../route');
       const res = await POST(makeRequest({ tag: 'pages' }, SECRET, '127.0.0.1'));
       expect(res.status).toBe(200);
+    });
+
+    it('returns 403 when x-forwarded-for spoofs an allowed IP but x-real-ip differs', async () => {
+      process.env.ALLOWED_IPS = '10.0.0.1';
+      const { POST } = await import('../route');
+      const req = new NextRequest('http://localhost/api/revalidate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-episciences-token': SECRET,
+          // Attacker-supplied value: nginx would append the real IP after it
+          'x-forwarded-for': '10.0.0.1, 192.168.1.99',
+          // Trusted value set by nginx from the socket address
+          'x-real-ip': '192.168.1.99',
+        },
+        body: JSON.stringify({ tag: 'pages' }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(403);
     });
   });
 

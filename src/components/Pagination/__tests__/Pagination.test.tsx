@@ -4,6 +4,22 @@ import { describe, it, expect, vi } from 'vitest';
 import { checkA11y } from '@/test-utils/axe-helper';
 import Pagination from '../Pagination';
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: { number?: number }) => {
+      const translations: Record<string, string> = {
+        'components.pagination.label': 'Pagination',
+        'components.pagination.previous': 'Previous page',
+        'components.pagination.previousDisabled': 'Previous page (disabled)',
+        'components.pagination.next': 'Next page',
+        'components.pagination.nextDisabled': 'Next page (disabled)',
+        'components.pagination.page': `Page ${options?.number ?? ''}`,
+      };
+      return translations[key] ?? key;
+    },
+  }),
+}));
+
 // Mock the icon components
 vi.mock('@/components/icons', () => ({
   CaretLeftBlackIcon: ({ size, ariaLabel }: { size: number; ariaLabel?: string }) => (
@@ -110,33 +126,41 @@ describe('Pagination', () => {
     });
   });
 
-  describe('Accessibility - aria-labels on navigation', () => {
-    it('previous icon has aria-label', () => {
+  describe('Accessibility - navigation landmark and aria-labels', () => {
+    it('wraps the pagination in a nav landmark with a localized label', () => {
+      render(<Pagination {...defaultProps} />);
+
+      expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeInTheDocument();
+    });
+
+    it('previous control has a localized aria-label', () => {
       render(<Pagination {...defaultProps} currentPage={2} />);
 
-      const prevIcon = screen.getByTestId('caret-left-black');
-      expect(prevIcon).toHaveAttribute('aria-label', 'Previous page');
+      expect(screen.getByLabelText('Previous page')).toBeInTheDocument();
     });
 
-    it('disabled previous icon has descriptive aria-label', () => {
+    it('disabled previous control has a descriptive aria-label', () => {
       render(<Pagination {...defaultProps} currentPage={1} />);
 
-      const prevIcon = screen.getByTestId('caret-left-grey');
-      expect(prevIcon).toHaveAttribute('aria-label', 'Previous page (disabled)');
+      expect(screen.getByLabelText('Previous page (disabled)')).toBeInTheDocument();
     });
 
-    it('next icon has aria-label', () => {
+    it('next control has a localized aria-label', () => {
       render(<Pagination {...defaultProps} currentPage={1} />);
 
-      const nextIcon = screen.getByTestId('caret-right-black');
-      expect(nextIcon).toHaveAttribute('aria-label', 'Next page');
+      expect(screen.getByLabelText('Next page')).toBeInTheDocument();
     });
 
-    it('disabled next icon has descriptive aria-label', () => {
+    it('disabled next control has a descriptive aria-label', () => {
       render(<Pagination {...defaultProps} currentPage={10} />);
 
-      const nextIcon = screen.getByTestId('caret-right-grey');
-      expect(nextIcon).toHaveAttribute('aria-label', 'Next page (disabled)');
+      expect(screen.getByLabelText('Next page (disabled)')).toBeInTheDocument();
+    });
+
+    it('page links have localized aria-labels', () => {
+      render(<Pagination {...defaultProps} currentPage={2} />);
+
+      expect(screen.getByLabelText('Page 3')).toBeInTheDocument();
     });
   });
 

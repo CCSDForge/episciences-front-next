@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchArticle } from '@/services/article';
 import { isAllowedPdfDomain } from '@/utils/pdf';
-import { isValidJournalId } from '@/utils/validation';
+import { isValidJournalId, sanitizeForLog } from '@/utils/validation';
 import { AvailableLanguage } from '@/utils/i18n';
 import { logger } from '@/lib/logger';
 
@@ -25,6 +25,11 @@ export async function GET(
   if (!isValidJournalId(journalId)) {
     logger.warn(`[preview] ❌ Invalid journal ID format: ${journalId}`);
     return new NextResponse('Invalid journal', { status: 400, headers: errorHeaders });
+  }
+
+  if (!/^\d+$/.test(id)) {
+    logger.warn(`[preview] ❌ Invalid article id format: ${sanitizeForLog(id)}`);
+    return new NextResponse('Invalid article id', { status: 400, headers: errorHeaders });
   }
 
   const article = await fetchArticle(id, journalId);

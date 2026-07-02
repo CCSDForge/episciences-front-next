@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isValidJournalId, sanitizeIp } from '../validation';
+import { isValidJournalId, sanitizeIp, getClientIp } from '../validation';
 
 describe('isValidJournalId', () => {
   describe('valid journal IDs', () => {
@@ -166,5 +166,40 @@ describe('sanitizeIp', () => {
     it('returns "unknown" for an IPv4 with too many octets (1.2.3.4.5)', () => {
       expect(sanitizeIp('1.2.3.4.5')).toBe('unknown');
     });
+  });
+});
+
+describe('getClientIp', () => {
+  const headersOf = (entries: Record<string, string>) => new Headers(entries);
+
+  it('prefers x-real-ip over x-forwarded-for (spoofing protection)', () => {
+    const headers = headersOf({
+      // Attacker-supplied first entry, nginx-appended real IP last
+      'x-forwarded-for': '10.0.0.1, 203.0.113.7',
+      'x-real-ip': '203.0.113.7',
+    });
+    expect(getClientIp(headers)).toBe('203.0.113.7');
+  });
+
+  it('ignores a spoofed allowlisted IP in x-forwarded-for when x-real-ip is present', () => {
+    const headers = headersOf({
+      'x-forwarded-for': '192.168.1.100',
+      'x-real-ip': '198.51.100.9',
+    });
+    expect(getClientIp(headers)).toBe('198.51.100.9');
+  });
+
+  it('falls back to x-forwarded-for when x-real-ip is absent', () => {
+    const headers = headersOf({ 'x-forwarded-for': '203.0.113.7, 10.0.0.1' });
+    expect(getClientIp(headers)).toBe('203.0.113.7');
+  });
+
+  it('returns "unknown" when neither header is present', () => {
+    expect(getClientIp(headersOf({}))).toBe('unknown');
+  });
+
+  it('returns "unknown" for an invalid x-real-ip value', () => {
+    const headers = headersOf({ 'x-real-ip': 'not-an-ip' });
+    expect(getClientIp(headers)).toBe('unknown');
   });
 });

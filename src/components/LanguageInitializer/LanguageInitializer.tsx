@@ -49,6 +49,12 @@ function LanguageInitializerClient({ initialLanguage }: LanguageInitializerProps
     if (i18next.language !== lang) {
       i18next.changeLanguage(lang);
     }
+
+    // Keep <html lang> in sync (WCAG 3.1.1) — the root layout renders a static
+    // default because headers() would force dynamic rendering of ISR pages.
+    if (document.documentElement.lang !== lang) {
+      document.documentElement.lang = lang;
+    }
   }, [pathname, initialLanguage, dispatch]);
 
   return null;

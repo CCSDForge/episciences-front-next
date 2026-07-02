@@ -149,7 +149,9 @@ export async function fetchAcceptedArticles(
  */
 async function fetchRawArticle(paperid: string | number, rvcode: string = ''): Promise<RawArticle> {
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
-  const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, {
+  // paperid may originate from an upstream API response: encode it so it cannot inject path
+  // segments or query strings into the upstream API URL (consistent with fetchArticle/getArticleById)
+  const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${encodeURIComponent(paperid)}`, {
     next: {
       revalidate: CACHE_TTL.articles,
       tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''],
@@ -167,9 +169,15 @@ export async function fetchArticle(
 ): Promise<FetchedArticle | null> {
   try {
     const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
-    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${paperid}`, {
+    // paperid comes from a route param: encode it so it cannot inject path
+    // segments or query strings into the upstream API URL
+    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${encodeURIComponent(paperid)}`, {
       cache: 'force-cache',
-      next: { tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''] },
+      next: {
+        tags: ['articles', `article-${paperid}`, rvcode && `articles-${rvcode}`].filter(
+          Boolean
+        ) as string[],
+      },
     });
     const rawArticle: RawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
@@ -277,7 +285,7 @@ function createMinimalArticle(rawArticle: any): FetchedArticle | undefined {
 export async function getArticleById(id: string | number): Promise<FetchedArticle | undefined> {
   try {
     const apiRoot = process.env.NEXT_PUBLIC_API_ROOT_ENDPOINT || '';
-    const response = await fetch(`${apiRoot}${API_PATHS.papers}${id}`);
+    const response = await fetch(`${apiRoot}${API_PATHS.papers}${encodeURIComponent(id)}`);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch article. Status: ${response.status}`);

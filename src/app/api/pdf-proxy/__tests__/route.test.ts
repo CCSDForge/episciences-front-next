@@ -6,6 +6,11 @@ vi.mock('@/utils/validation', () => ({
     const first = raw?.split(',')[0]?.trim() ?? '';
     return /^[\d.:a-fA-F]+$/.test(first) ? first : 'unknown';
   }),
+  getClientIp: vi.fn((headers: Headers) => {
+    const raw = headers.get('x-real-ip') ?? headers.get('x-forwarded-for');
+    const first = raw?.split(',')[0]?.trim() ?? '';
+    return /^[\d.:a-fA-F]+$/.test(first) ? first : 'unknown';
+  }),
   sanitizeForLog: vi.fn((value: string | null | undefined) => String(value ?? '').slice(0, 200)),
 }));
 

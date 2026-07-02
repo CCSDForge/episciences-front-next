@@ -187,6 +187,13 @@
       "download": "Download",
       "loading": "Loading PDF...",
       "error": "Failed to load PDF"
+    },
+    "pagination": {
+      "previous": "Previous page",
+      "previousDisabled": "Previous page (disabled)",
+      "next": "Next page",
+      "nextDisabled": "Next page (disabled)",
+      "page": "Page {{number}}"
     }
   },
   "pages": {

@@ -69,7 +69,7 @@ export default async function LanguageLayout(props: LanguageLayoutProps) {
   let translations = {};
 
   // Server uses direct API URL, client uses proxy to avoid CORS
-  // Note: We don't pass apiEndpoint to client - it will use /api-proxy by default
+  // Note: We don't pass apiEndpoint to client - it will use /api/proxy by default
   const _serverApiEndpoint = getJournalApiUrl(journalId); // Used only for server-side fetches
   // Charger la configuration dynamique (couleurs, flags) spécifique au journal
   const journalConfig = getPublicJournalConfig(journalId);
