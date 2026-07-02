@@ -17,13 +17,24 @@ export type RawNews = {
   title: Record<AvailableLanguage, string>;
   content?: Record<AvailableLanguage, string>;
   date_creation: string;
-  creator: {
+  creator?: {
     screenName: string;
   };
   link?: {
     und: string;
   };
 };
+
+export function transformRawNews(news: RawNews): INews {
+  return {
+    id: news.id,
+    title: news.title,
+    content: news.content,
+    publicationDate: news.date_creation,
+    author: news.creator?.screenName ?? '',
+    link: news.link ? news.link.und : undefined,
+  };
+}
 
 export interface Range {
   years?: number[];
@@ -72,14 +83,7 @@ export async function fetchNews({
       const range = data['hydra:range'];
       const totalItems = data['hydra:totalItems'];
 
-      const formattedData = data['hydra:member'].map(news => ({
-        id: news.id,
-        title: news.title,
-        content: news.content,
-        publicationDate: news.date_creation,
-        author: news.creator.screenName,
-        link: news.link ? news.link.und : undefined,
-      }));
+      const formattedData = data['hydra:member'].map(transformRawNews);
 
       return {
         data: formattedData,

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fetchNews } from '../news';
+import { fetchNews, transformRawNews } from '../news';
 
 vi.mock('@/utils/env-loader', () => ({
   getJournalApiUrl: vi.fn((rvcode: string) => `https://api.${rvcode}.test`),
@@ -166,6 +166,40 @@ describe('news service', () => {
 
       expect(result.data).toEqual([]);
       expect(result.totalItems).toBe(0);
+    });
+  });
+
+  describe('transformRawNews', () => {
+    it('should map date_creation to publicationDate and creator.screenName to author', () => {
+      const result = transformRawNews(createMockRawNews(1));
+
+      expect(result).toEqual({
+        id: 1,
+        title: { en: 'News 1', fr: 'Actualité 1' },
+        content: { en: 'Content 1', fr: 'Contenu 1' },
+        publicationDate: '2024-01-01T10:00:00Z',
+        author: 'Author 1',
+        link: undefined,
+      });
+    });
+
+    it('should unwrap link.und when link is present', () => {
+      const result = transformRawNews({
+        ...createMockRawNews(1),
+        link: { und: 'https://example.com/news/1' },
+      });
+
+      expect(result.link).toBe('https://example.com/news/1');
+    });
+
+    it('should default author to an empty string when creator is missing', () => {
+      const result = transformRawNews({
+        id: 1,
+        title: { en: 'News 1', fr: 'Actualité 1' },
+        date_creation: '2024-01-01T10:00:00Z',
+      } as never);
+
+      expect(result.author).toBe('');
     });
   });
 });

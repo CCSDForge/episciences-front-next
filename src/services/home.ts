@@ -4,6 +4,7 @@ import { logger } from '@/lib/logger';
 const log = logger.child({ service: 'home' });
 import { IBoardMember } from '@/types/board';
 import { INews } from '@/types/news';
+import { RawNews, transformRawNews } from '@/services/news';
 import { IVolume } from '@/types/volume';
 import { IStat } from '@/types/stat';
 import { FetchedArticle, formatArticle } from '@/utils/article';
@@ -263,7 +264,9 @@ export async function fetchHomeData(rvcode: string, language: string): Promise<H
         totalItems: articlesResponse?.['hydra:totalItems'] || 0,
       },
       news: {
-        data: newsResponse?.['hydra:member'] || [],
+        data: (newsResponse?.['hydra:member'] || []).map((rawNews: RawNews) =>
+          transformRawNews(rawNews)
+        ),
         totalItems: newsResponse?.['hydra:totalItems'] || 0,
       },
       members: transformedMembers,
