@@ -29,12 +29,12 @@ import HeaderDropdown from './HeaderDropdown';
 
 /** Sign-in link shown in both reduced and full header variants */
 function HeaderSignIn({
-  submitManagerLink,
+  signInLink,
   showSeparator,
   signInText,
   newWindowText,
 }: {
-  submitManagerLink: string;
+  signInLink: string;
   showSeparator: boolean;
   signInText: string;
   newWindowText: string;
@@ -47,7 +47,7 @@ function HeaderSignIn({
         </span>
       )}
       <Link
-        href={submitManagerLink}
+        href={signInLink}
         className="header-signin"
         target="_blank"
         rel="noopener noreferrer"
@@ -196,6 +196,7 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
   };
 
   const submitManagerLink = getSubmitManagerLink();
+  const signInLink = submitManagerLink ? `${submitManagerLink}/user/login` : null;
 
   const postHeaderLinks = useMemo((): React.JSX.Element => {
     // Prepare visible menu items with dynamic path replacements
@@ -420,9 +421,9 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           <div className="header-reduced-journal-blank"></div>
           <div className="header-reduced-journal-dropdown">
             {availableLanguages.length > 1 && <LanguageDropdown />}
-            {submitManagerLink && (
+            {signInLink && (
               <HeaderSignIn
-                submitManagerLink={submitManagerLink}
+                signInLink={signInLink}
                 showSeparator={availableLanguages.length > 1}
                 signInText={t('components.header.signIn')}
                 newWindowText={t('components.header.newWindow')}
@@ -475,9 +476,9 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           </Link>
           <div className="header-preheader-links-right">
             {availableLanguages.length > 1 && <LanguageDropdown />}
-            {submitManagerLink && (
+            {signInLink && (
               <HeaderSignIn
-                submitManagerLink={submitManagerLink}
+                signInLink={signInLink}
                 showSeparator={availableLanguages.length > 1}
                 signInText={t('components.header.signIn')}
                 newWindowText={t('components.header.newWindow')}

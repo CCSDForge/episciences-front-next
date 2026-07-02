@@ -105,11 +105,12 @@ export default async function HeaderServer({
 
   const logoSrc = resolveLogoSrc(code, journalLogoFilename);
 
-  // Compute sign-in link URL (same as Submit button)
-  const signInUrl =
+  // Compute sign-in link URL (same base as Submit button, plus the login path)
+  const submitManagerLink =
     episciencesManagerUrl && code
       ? `${episciencesManagerUrl}/${code}`
       : episciencesManagerUrl || null;
+  const signInUrl = submitManagerLink ? `${submitManagerLink}/user/login` : null;
 
   // Determine if multiple languages are available (for separator rendering)
   const acceptedLanguagesStr =
