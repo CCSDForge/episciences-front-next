@@ -95,9 +95,7 @@ export default function SectionDetailsClient({
 
       <div className="sectionDetails-section">
         <div className="sectionDetails-id">
-          <h1 className="sectionDetails-id-text">
-            {t('pages.sectionDetails.title')} {sectionId}
-          </h1>
+          <h1 className="sectionDetails-id-text">{sectionTitle}</h1>
         </div>
         <div className="sectionDetails-content">
           <div className="sectionDetails-content-results">
@@ -110,8 +108,6 @@ export default function SectionDetailsClient({
               sectionId={sectionId}
             />
             <div className="sectionDetails-content-results-content">
-              <div className="sectionDetails-content-results-content-title">{sectionTitle}</div>
-
               {sectionDescription && (
                 <div className="sectionDetails-content-results-content-description">
                   <p>{sectionDescription}</p>
