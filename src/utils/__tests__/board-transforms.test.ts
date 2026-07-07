@@ -138,7 +138,9 @@ describe('getBoardsPerTitle', () => {
 
     const scientificBoard = result.find(b => b.page_code === 'scientific-advisory-board');
     expect(scientificBoard).toBeDefined();
-    expect(scientificBoard?.members).toContainEqual(expect.objectContaining({ firstname: 'Diana' }));
+    expect(scientificBoard?.members).toContainEqual(
+      expect.objectContaining({ firstname: 'Diana' })
+    );
   });
 
   it('should return empty array when neither pages nor members are provided', () => {

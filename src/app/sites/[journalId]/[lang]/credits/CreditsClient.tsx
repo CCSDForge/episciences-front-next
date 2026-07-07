@@ -174,13 +174,7 @@ export default function CreditsClient({
     }
   }, [pageData, language]);
 
-  const renderH2 = ({
-    node,
-    children,
-  }: {
-    node?: AstNode;
-    children?: React.ReactNode;
-  }) => {
+  const renderH2 = ({ node, children }: { node?: AstNode; children?: React.ReactNode }) => {
     const id = generateIdFromText(node ? getNodeText(node) : '');
     const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
     const toggle = () => toggleSectionHeader(id);
@@ -257,9 +251,7 @@ export default function CreditsClient({
                     ),
                     h2: renderH2,
                     h3: ({ node, children }) => (
-                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>
-                        {children}
-                      </h3>
+                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>{children}</h3>
                     ),
                   }}
                 >

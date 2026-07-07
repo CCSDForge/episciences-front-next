@@ -54,4 +54,3 @@ export const decodeText = (text: string): string => {
     .replace(/\\\\/g, '\\')
     .trim();
 };
-

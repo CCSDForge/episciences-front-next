@@ -110,7 +110,12 @@ describe('BoardsClient', () => {
       // role but the journal has no "editorial-board" CMS page configured.
       const members = [
         makeMember({ id: 1, firstname: 'Etienne', lastname: 'Roesch', roles: ['editorial-board'] }),
-        makeMember({ id: 2, firstname: 'Nicolas', lastname: 'Rougier', roles: ['editorial-board'] }),
+        makeMember({
+          id: 2,
+          firstname: 'Nicolas',
+          lastname: 'Rougier',
+          roles: ['editorial-board'],
+        }),
       ];
 
       const { container } = render(
@@ -175,8 +180,18 @@ describe('BoardsClient', () => {
         makeMember({ id: 3, firstname: 'Carol', lastname: 'Aaron', roles: ['advisory-board'] }),
         makeMember({ id: 4, firstname: 'Dan', lastname: 'Zorro', roles: ['advisory-board'] }),
         // editorial-board (rendered second)
-        makeMember({ id: 1, firstname: 'Alice', lastname: 'Anderson', roles: ['editor', 'editorial-board'] }),
-        makeMember({ id: 2, firstname: 'Bob', lastname: 'Brown', roles: ['secretary', 'editorial-board'] }),
+        makeMember({
+          id: 1,
+          firstname: 'Alice',
+          lastname: 'Anderson',
+          roles: ['editor', 'editorial-board'],
+        }),
+        makeMember({
+          id: 2,
+          firstname: 'Bob',
+          lastname: 'Brown',
+          roles: ['secretary', 'editorial-board'],
+        }),
       ];
 
       render(

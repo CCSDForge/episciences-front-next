@@ -151,12 +151,15 @@ async function fetchRawArticle(paperid: string | number, rvcode: string = ''): P
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
   // paperid may originate from an upstream API response: encode it so it cannot inject path
   // segments or query strings into the upstream API URL (consistent with fetchArticle/getArticleById)
-  const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${encodeURIComponent(paperid)}`, {
-    next: {
-      revalidate: CACHE_TTL.articles,
-      tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''],
-    },
-  });
+  const response = await fetchWithRetry(
+    `${apiRoot}${API_PATHS.papers}${encodeURIComponent(paperid)}`,
+    {
+      next: {
+        revalidate: CACHE_TTL.articles,
+        tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''],
+      },
+    }
+  );
   return response.json();
 }
 
@@ -171,14 +174,17 @@ export async function fetchArticle(
     const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
     // paperid comes from a route param: encode it so it cannot inject path
     // segments or query strings into the upstream API URL
-    const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}${encodeURIComponent(paperid)}`, {
-      cache: 'force-cache',
-      next: {
-        tags: ['articles', `article-${paperid}`, rvcode && `articles-${rvcode}`].filter(
-          Boolean
-        ) as string[],
-      },
-    });
+    const response = await fetchWithRetry(
+      `${apiRoot}${API_PATHS.papers}${encodeURIComponent(paperid)}`,
+      {
+        cache: 'force-cache',
+        next: {
+          tags: ['articles', `article-${paperid}`, rvcode && `articles-${rvcode}`].filter(
+            Boolean
+          ) as string[],
+        },
+      }
+    );
     const rawArticle: RawArticle = await response.json();
     return transformArticleForDisplay(rawArticle);
   } catch (error) {

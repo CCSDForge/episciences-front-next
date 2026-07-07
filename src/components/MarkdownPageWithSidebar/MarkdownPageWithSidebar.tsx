@@ -68,110 +68,104 @@ export default function MarkdownPageWithSidebar({
   const [pageSections, setPageSections] = useState<IPageSection[]>([]);
   const [sidebarHeaders, setSidebarHeaders] = useState<IAboutHeader[]>([]);
 
-  const parseContentSections = useCallback(
-    (toBeParsed: string | undefined): IPageSection[] => {
-      if (!toBeParsed) return [];
+  const parseContentSections = useCallback((toBeParsed: string | undefined): IPageSection[] => {
+    if (!toBeParsed) return [];
 
-      const tree = unifiedProcessor.parse(toBeParsed);
-      const sections: IPageSection[] = [];
-      let currentSection: IPageSection | null = null;
+    const tree = unifiedProcessor.parse(toBeParsed);
+    const sections: IPageSection[] = [];
+    let currentSection: IPageSection | null = null;
 
-      tree.children.forEach(node => {
-        // Accept both H1 and H2 as section headers
-        if (node.type === 'heading' && (node.depth === 1 || node.depth === 2)) {
-          if (currentSection) {
-            sections.push(currentSection);
-          }
-          const titleText = getNodeText(node).trim();
+    tree.children.forEach(node => {
+      // Accept both H1 and H2 as section headers
+      if (node.type === 'heading' && (node.depth === 1 || node.depth === 2)) {
+        if (currentSection) {
+          sections.push(currentSection);
+        }
+        const titleText = getNodeText(node).trim();
+        currentSection = {
+          id: generateIdFromText(titleText),
+          value: serializeMarkdown(node),
+          title: titleText, // Store plain text title separately
+          opened: true,
+        };
+      } else {
+        if (!currentSection) {
           currentSection = {
-            id: generateIdFromText(titleText),
-            value: serializeMarkdown(node),
-            title: titleText, // Store plain text title separately
+            id: 'intro',
+            value: '',
+            title: '', // Empty title for intro section
             opened: true,
           };
-        } else {
-          if (!currentSection) {
-            currentSection = {
-              id: 'intro',
-              value: '',
-              title: '', // Empty title for intro section
-              opened: true,
-            };
-          }
-          currentSection.value += serializeMarkdown(node) + '\n';
         }
-      });
-
-      if (currentSection) {
-        sections.push(currentSection);
+        currentSection.value += serializeMarkdown(node) + '\n';
       }
+    });
 
-      // Filter out empty sections (sections with only whitespace or just the heading)
-      return sections.filter(section => {
-        // Remove the heading line and check if there's actual content
-        const contentWithoutHeading = section.value.replace(/^#{1,3}\s*.*$/m, '').trim();
-        // Also filter out sections that are just the title (empty title sections)
-        if (section.title === '' && contentWithoutHeading.length === 0) {
-          return false;
-        }
-        return contentWithoutHeading.length > 0;
-      });
-    },
-    []
-  );
+    if (currentSection) {
+      sections.push(currentSection);
+    }
 
-  const parseSidebarHeaders = useCallback(
-    (toBeParsed: string | undefined): IAboutHeader[] => {
-      if (!toBeParsed) return [];
+    // Filter out empty sections (sections with only whitespace or just the heading)
+    return sections.filter(section => {
+      // Remove the heading line and check if there's actual content
+      const contentWithoutHeading = section.value.replace(/^#{1,3}\s*.*$/m, '').trim();
+      // Also filter out sections that are just the title (empty title sections)
+      if (section.title === '' && contentWithoutHeading.length === 0) {
+        return false;
+      }
+      return contentWithoutHeading.length > 0;
+    });
+  }, []);
 
-      const tree = unifiedProcessor.parse(toBeParsed);
-      const headers: IAboutHeader[] = [];
-      let lastMainHeader: IAboutHeader | null = null;
+  const parseSidebarHeaders = useCallback((toBeParsed: string | undefined): IAboutHeader[] => {
+    if (!toBeParsed) return [];
 
-      tree.children.forEach(node => {
-        if (node.type === 'heading') {
-          // Use recursive extraction to get ALL text from the heading
-          const titleText = getNodeText(node).trim();
+    const tree = unifiedProcessor.parse(toBeParsed);
+    const headers: IAboutHeader[] = [];
+    let lastMainHeader: IAboutHeader | null = null;
 
-          // Skip empty titles
-          if (!titleText) return;
+    tree.children.forEach(node => {
+      if (node.type === 'heading') {
+        // Use recursive extraction to get ALL text from the heading
+        const titleText = getNodeText(node).trim();
 
-          // H1 or H2 as main headers
-          if (node.depth === 1 || node.depth === 2) {
-            lastMainHeader = {
+        // Skip empty titles
+        if (!titleText) return;
+
+        // H1 or H2 as main headers
+        if (node.depth === 1 || node.depth === 2) {
+          lastMainHeader = {
+            id: generateIdFromText(titleText),
+            value: titleText,
+            opened: true,
+            children: [],
+          };
+          headers.push(lastMainHeader);
+        } else if (node.depth === 3) {
+          // H3 as subheaders if there's a parent, otherwise as main headers
+          if (lastMainHeader) {
+            lastMainHeader.children.push({
+              id: generateIdFromText(titleText),
+              value: titleText,
+              opened: false,
+              children: [],
+            });
+          } else {
+            // No parent H1/H2 found yet, treat H3 as main header
+            const header = {
               id: generateIdFromText(titleText),
               value: titleText,
               opened: true,
               children: [],
             };
-            headers.push(lastMainHeader);
-          } else if (node.depth === 3) {
-            // H3 as subheaders if there's a parent, otherwise as main headers
-            if (lastMainHeader) {
-              lastMainHeader.children.push({
-                id: generateIdFromText(titleText),
-                value: titleText,
-                opened: false,
-                children: [],
-              });
-            } else {
-              // No parent H1/H2 found yet, treat H3 as main header
-              const header = {
-                id: generateIdFromText(titleText),
-                value: titleText,
-                opened: true,
-                children: [],
-              };
-              headers.push(header);
-            }
+            headers.push(header);
           }
         }
-      });
+      }
+    });
 
-      return headers;
-    },
-    []
-  );
+    return headers;
+  }, []);
 
   const toggleSectionHeader = (id: string): void => {
     setPageSections(prevSections =>

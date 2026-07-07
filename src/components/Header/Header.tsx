@@ -46,12 +46,7 @@ function HeaderSignIn({
           |
         </span>
       )}
-      <Link
-        href={signInLink}
-        className="header-signin"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <Link href={signInLink} className="header-signin" target="_blank" rel="noopener noreferrer">
         <span className="header-signin-text">{signInText}</span>
         <UserCircleIcon className="header-signin-icon" ariaLabel={signInText} size={28} />
         <span className="sr-only">{newWindowText}</span>
