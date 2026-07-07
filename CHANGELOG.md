@@ -57,6 +57,15 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Middleware Redirection Loop**: Resolved an infinite rewrite loop in the multi-tenant routing middleware that caused HTTP 431 errors on certain hostname configurations.
 - **PDF Preview Hydration Race Condition**: Fixed a race condition in `PDFProxyIframe` that prevented article PDFs from displaying in the preview frame on slow connections.
 - **Editorial Board Photos Distortion**: Applied `object-fit: cover` to board member images to prevent photo distortion when aspect ratios differ.
+- **Homepage News Date**: Restored the publication date in the news block on the homepage.
+- **Sign-in Redirection**: Appended `/user/login` to the base manager URL for the header sign-in link.
+- **Localized Pagination**: Localized pagination control `aria-labels` and moved them from SVG icons to the link elements themselves to improve accessibility (WCAG).
+- **Search Inputs Focus**: Restored visible keyboard focus outlines on search inputs in the header and authors pages to comply with WCAG 2.4.7.
+- **Document Language Sync**: Updated `html` tag `lang` attribute dynamically to sync with the active language on page mount and navigation, preventing incorrect screen reader announcements (WCAG 3.1.1).
+- **Markdown List Rendering**: Removed automatic Markdown list-nesting heuristic that broke flat definition lists (such as the "Editorial definition" section on the About page).
+- **Special Issue Filter**: Fixed the `special_issue` filter parameter in the homepage volumes fetch.
+- **Request Cancellation**: Properly aborted timed-out upstream HTTP requests in the global fetch interceptor via `AbortController` (combining signals with `AbortSignal.any`) and fixed request recreation bugs.
+- **API Proxy Timeout**: Implemented a 15-second upstream timeout on the dynamic API proxy route to prevent hung connections.
 
 ### Security
 
@@ -65,6 +74,11 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Path Containment Enforcement**: Added strict path resolution checks when loading journal configs to prevent directory traversal and local file read vulnerabilities.
 - **SSRF Mitigation**: Implemented strict domain validation on the PDF preview proxy to prevent Server-Side Request Forgery (SSRF).
 - **CodeQL Remediation**: Resolved 30 security alerts flagged by CodeQL (including log injection protection and timing attacks) to harden the application against standard exploits.
+- **Article ID Validation**: Enforced strict validation (`/^\d+$/`) on article IDs and added percent-encoding on paper IDs in all upstream API fetching, downloading, and previewing routes to prevent path and query injection.
+- **Client IP Resolution**: Switched client IP resolution to prefer `X-Real-IP` set by the trusted reverse proxy over the spoofable `X-Forwarded-For` header.
+- **Config Hardening**: Hardened Next.js configuration by making the `/api-proxy/:path*` rewrite opt-in (disabled by default unless `API_PROXY_TARGET` is set) and disabling the `x-powered-by` header.
+- **Path Isolation**: Blocked direct access to internal `/sites/` paths in Nginx templates to prevent bypassing hostname-based journal validation.
+- **Memory Optimization**: Prevented potential unbound cache growth by no longer caching invalid journal codes when loading configurations.
 
 ### Removed
 
