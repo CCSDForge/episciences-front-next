@@ -31,6 +31,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="light-theme">
         {/* The JournalLayout at /sites/[journalId]/layout.tsx will provide ClientProviders */}
         {children}
+        <div
+          style={{ display: 'none' }}
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html:
+              '<!-- CLOCKSS system has permission to ingest, preserve, and serve this open access Archival Unit -->',
+          }}
+        />
       </body>
     </html>
   );
