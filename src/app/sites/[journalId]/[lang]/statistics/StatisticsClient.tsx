@@ -3,6 +3,7 @@
 import { CaretUpBlackIcon, CaretDownBlackIcon, FilterIcon } from '@/components/icons';
 import { useState, useEffect, Fragment, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -38,6 +39,93 @@ const StatisticsMobileModal = dynamic(
   () => import('@/components/Modals/StatisticsMobileModal/StatisticsMobileModal'),
   { ssr: false, loading: () => null }
 );
+
+const getStatDividerClassName = (isEvaluation: boolean, index: number): string => {
+  const isSecond = index % 2 === 1;
+
+  return isEvaluation
+    ? `statistics-content-results-cards-row-stats-divider statistics-content-results-cards-row-stats-divider-evaluation ${isSecond && 'statistics-content-results-cards-row-stats-divider-evaluation-second'}`
+    : `statistics-content-results-cards-row-stats-divider statistics-content-results-cards-row-stats-divider-glance ${isSecond && 'statistics-content-results-cards-row-stats-divider-glance-second'}`;
+};
+
+const getStatUnitClassName = (isEvaluation: boolean): string =>
+  `${isEvaluation && 'statistics-content-results-cards-row-stats-row-stat-unit statistics-content-results-cards-row-stats-row-stat-unit-evaluation'}`;
+
+interface StatisticUnitProps {
+  value: number | undefined;
+  unit: string;
+  isEvaluation: boolean;
+  t: TFunction<'translation', undefined>;
+  i18nExists: (key: string) => boolean;
+}
+
+const StatisticUnit = ({
+  value,
+  unit,
+  isEvaluation,
+  t,
+  i18nExists,
+}: StatisticUnitProps): React.JSX.Element => {
+  if (!i18nExists(`common.${unit}`)) {
+    return (
+      <span className="statistics-content-results-cards-row-stats-row-stat-unit">{unit}</span>
+    );
+  }
+
+  return (
+    <span className={getStatUnitClassName(isEvaluation)}>
+      {value && value > 1 ? t(`common.${unit}s`) : t(`common.${unit}`)}
+    </span>
+  );
+};
+
+interface StatisticValueDisplayProps {
+  statistic: IStat;
+  isEvaluation: boolean;
+  t: TFunction<'translation', undefined>;
+  i18nExists: (key: string) => boolean;
+  statisticTitle: string | undefined;
+}
+
+const StatisticValueDisplay = ({
+  statistic,
+  isEvaluation,
+  t,
+  i18nExists,
+  statisticTitle,
+}: StatisticValueDisplayProps): React.JSX.Element => {
+  if (statistic.value && isIStatValueDetails(statistic.value)) {
+    return <PieChart t={t} data={getFormattedStatsAsPieChart(statistic.value)} />;
+  }
+
+  const value = statistic.value;
+  const statClassName = isEvaluation
+    ? 'statistics-content-results-cards-row-stats-row-stat statistics-content-results-cards-row-stats-row-stat-evaluation'
+    : 'statistics-content-results-cards-row-stats-row-stat';
+  const titleClassName = isEvaluation
+    ? 'statistics-content-results-cards-row-stats-row-title statistics-content-results-cards-row-stats-row-title-evaluation'
+    : 'statistics-content-results-cards-row-stats-row-title';
+
+  return (
+    <>
+      {statistic.unit ? (
+        <div className={statClassName}>
+          {value}
+          <StatisticUnit
+            value={value}
+            unit={statistic.unit}
+            isEvaluation={isEvaluation}
+            t={t}
+            i18nExists={i18nExists}
+          />
+        </div>
+      ) : (
+        <div className={statClassName}>{value}</div>
+      )}
+      <div className={titleClassName}>{statisticTitle}</div>
+    </>
+  );
+};
 
 interface StatisticsClientProps {
   initialStats?: IStatResponse;
@@ -332,61 +420,31 @@ export default function StatisticsClient({
                     <div
                       className={`statistics-content-results-cards-row-stats ${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION && 'statistics-content-results-cards-row-stats-evaluation'} ${statisticPerLabel.isOpened && 'statistics-content-results-cards-row-stats-active'}`}
                     >
-                      {filteredStatistics.map((statistic, index) => (
-                        <Fragment key={index}>
-                          <div className="statistics-content-results-cards-row-stats-row">
-                            {statistic.value && isIStatValueDetails(statistic.value) ? (
-                              <PieChart t={t} data={getFormattedStatsAsPieChart(statistic.value)} />
-                            ) : (
-                              <>
-                                {statistic.unit ? (
-                                  <div
-                                    className={`${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION ? 'statistics-content-results-cards-row-stats-row-stat statistics-content-results-cards-row-stats-row-stat-evaluation' : 'statistics-content-results-cards-row-stats-row-stat'}`}
-                                  >
-                                    {statistic.value}
-                                    {i18n.exists(`common.${statistic.unit}`) ? (
-                                      <span
-                                        className={`${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION && 'statistics-content-results-cards-row-stats-row-stat-unit statistics-content-results-cards-row-stats-row-stat-unit-evaluation'}`}
-                                      >
-                                        {statistic.value && statistic.value > 1
-                                          ? t(`common.${statistic.unit}s`)
-                                          : t(`common.${statistic.unit}`)}
-                                      </span>
-                                    ) : (
-                                      <span className="statistics-content-results-cards-row-stats-row-stat-unit">
-                                        {statistic.unit}
-                                      </span>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div
-                                    className={`${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION ? 'statistics-content-results-cards-row-stats-row-stat statistics-content-results-cards-row-stats-row-stat-evaluation' : 'statistics-content-results-cards-row-stats-row-stat'}`}
-                                  >
-                                    {statistic.value}
-                                  </div>
-                                )}
-                                <div
-                                  className={`${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION ? 'statistics-content-results-cards-row-stats-row-title statistics-content-results-cards-row-stats-row-title-evaluation' : 'statistics-content-results-cards-row-stats-row-title'}`}
-                                >
-                                  {getStatisticTitle(statistic)}
-                                </div>
-                              </>
+                      {filteredStatistics.map((statistic, index) => {
+                        const isEvaluation =
+                          statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION;
+                        const isLast = index === filteredStatistics.length - 1;
+
+                        return (
+                          <Fragment key={index}>
+                            <div className="statistics-content-results-cards-row-stats-row">
+                              <StatisticValueDisplay
+                                statistic={statistic}
+                                isEvaluation={isEvaluation}
+                                t={t}
+                                i18nExists={key => i18n.exists(key)}
+                                statisticTitle={getStatisticTitle(statistic)}
+                              />
+                            </div>
+                            {!isLast && (
+                              <div className={getStatDividerClassName(isEvaluation, index)}></div>
                             )}
-                          </div>
-                          {index !== filteredStatistics.length - 1 && (
-                            <div
-                              className={`${
-                                statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION
-                                  ? `statistics-content-results-cards-row-stats-divider statistics-content-results-cards-row-stats-divider-evaluation ${index % 2 === 1 && 'statistics-content-results-cards-row-stats-divider-evaluation-second'}`
-                                  : `statistics-content-results-cards-row-stats-divider statistics-content-results-cards-row-stats-divider-glance ${index % 2 === 1 && 'statistics-content-results-cards-row-stats-divider-glance-second'}`
-                              }`}
-                            ></div>
-                          )}
-                          {index !== filteredStatistics.length - 1 && index % 2 === 1 && (
-                            <div className="statistics-content-results-cards-row-stats-mobileLine"></div>
-                          )}
-                        </Fragment>
-                      ))}
+                            {!isLast && index % 2 === 1 && (
+                              <div className="statistics-content-results-cards-row-stats-mobileLine"></div>
+                            )}
+                          </Fragment>
+                        );
+                      })}
                     </div>
                   </div>
                 );

@@ -1,6 +1,7 @@
 'use client';
 
 import { Fragment, useState, useMemo, useCallback } from 'react';
+import type { RootContent } from 'mdast';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { Link } from '@/components/Link/Link';
@@ -66,6 +67,172 @@ interface IForAuthorsSection {
   pageTitle?: string;
 }
 
+type ForAuthorsContentMap = Record<
+  ForAuthorsSectionType,
+  { title: string | undefined; content: string | undefined }
+>;
+
+interface SectionBuilderState {
+  currentSection: IForAuthorsSection;
+  h3Counter: number;
+  currentCardContent: string;
+}
+
+const createEmptySection = (withNumerotation: boolean): IForAuthorsSection =>
+  withNumerotation ? { id: '', value: '', opened: true, cards: [] } : { id: '', value: '', opened: true };
+
+const flushCardContent = (section: IForAuthorsSection, cardContent: string): void => {
+  if (cardContent && section.cards && section.cards.length > 0) {
+    section.cards[section.cards.length - 1].content = cardContent.trim();
+  }
+};
+
+const startNewH2Section = (
+  node: RootContent,
+  sections: IForAuthorsSection[],
+  state: SectionBuilderState,
+  withNumerotation: boolean
+): void => {
+  if (state.currentSection.id) {
+    flushCardContent(state.currentSection, state.currentCardContent);
+    state.currentCardContent = '';
+    sections.push(state.currentSection);
+    state.currentSection = createEmptySection(withNumerotation);
+  }
+
+  const titleText = getNodeText(node);
+  state.currentSection.id = generateIdFromText(titleText);
+  state.currentSection.value += serializeMarkdown(node);
+};
+
+const startNewCard = (node: RootContent, state: SectionBuilderState): void => {
+  state.h3Counter += 1;
+  const h3Title = getNodeText(node);
+  const h3Id = generateIdFromText(h3Title);
+
+  flushCardContent(state.currentSection, state.currentCardContent);
+  state.currentCardContent = '';
+  state.currentSection.cards!.push({ id: h3Id, title: h3Title, content: '', index: state.h3Counter });
+};
+
+const appendNumberedNode = (node: RootContent, state: SectionBuilderState): void => {
+  if (state.currentSection.cards && state.currentSection.cards.length > 0) {
+    state.currentCardContent += serializeMarkdown(node) + '\n';
+  } else {
+    state.currentSection.value += serializeMarkdown(node);
+    state.currentSection.value += '\n';
+  }
+};
+
+const appendSectionNode = (node: RootContent, state: SectionBuilderState): void => {
+  state.currentSection.value += serializeMarkdown(node);
+  state.currentSection.value += '\n';
+};
+
+const processSectionNode = (
+  node: RootContent,
+  sections: IForAuthorsSection[],
+  state: SectionBuilderState,
+  withNumerotation: boolean
+): void => {
+  if (node.type === 'heading' && node.depth === 2) {
+    startNewH2Section(node, sections, state, withNumerotation);
+  } else if (!withNumerotation) {
+    appendSectionNode(node, state);
+  } else if (node.type === 'heading' && node.depth === 3) {
+    startNewCard(node, state);
+  } else {
+    appendNumberedNode(node, state);
+  }
+};
+
+const parseContentSections = (toBeParsed: ForAuthorsContentMap): IForAuthorsSection[] => {
+  const sections: IForAuthorsSection[] = [];
+
+  Object.entries(toBeParsed).forEach(([key, entry]) => {
+    const withNumerotation = key === 'prepareSubmission';
+    const title = entry.title ?? '';
+    const content = entry.content ?? '';
+    const { tree, titleInjected } = buildSectionTree(title, content);
+    const entryStartIndex = sections.length;
+
+    const state: SectionBuilderState = {
+      currentSection: createEmptySection(withNumerotation),
+      h3Counter: 0,
+      currentCardContent: '',
+    };
+
+    tree.children.forEach(node => processSectionNode(node, sections, state, withNumerotation));
+
+    flushCardContent(state.currentSection, state.currentCardContent);
+
+    if (state.currentSection.id) {
+      sections.push(state.currentSection);
+    }
+
+    if (title && !titleInjected && sections.length > entryStartIndex) {
+      sections[entryStartIndex].pageTitle = title;
+    }
+  });
+
+  return sections;
+};
+
+interface SidebarBuilderState {
+  lastH2: IForAuthorsHeader | null;
+  h3Counter: number;
+}
+
+const processSidebarNode = (
+  node: RootContent,
+  headings: IForAuthorsHeader[],
+  withNumerotation: boolean,
+  state: SidebarBuilderState
+): void => {
+  if (node.type !== 'heading' || (node.depth !== 2 && node.depth !== 3)) {
+    return;
+  }
+
+  const titleText = getNodeText(node);
+  if (!titleText) {
+    return;
+  }
+
+  const id = generateIdFromText(titleText);
+  let value = titleText;
+
+  if (withNumerotation && node.depth === 3) {
+    state.h3Counter += 1;
+    value = `${state.h3Counter}. ${value}`;
+  }
+
+  const header: IForAuthorsHeader = { id, value, opened: true, children: [] };
+
+  if (node.depth === 2) {
+    state.lastH2 = header;
+    headings.push(header);
+    state.h3Counter = 0;
+  } else if (node.depth === 3 && state.lastH2) {
+    state.lastH2.children.push(header);
+  }
+};
+
+const parseSidebarHeaders = (toBeParsed: ForAuthorsContentMap): IForAuthorsHeader[] => {
+  const headings: IForAuthorsHeader[] = [];
+
+  Object.entries(toBeParsed).forEach(([key, entry]) => {
+    const withNumerotation = key === 'prepareSubmission';
+    const title = entry.title ?? '';
+    const content = entry.content ?? '';
+    const { tree } = buildSectionTree(title, content);
+    const state: SidebarBuilderState = { lastH2: null, h3Counter: 0 };
+
+    tree.children.forEach(node => processSidebarNode(node, headings, withNumerotation, state));
+  });
+
+  return headings;
+};
+
 interface ForAuthorsClientProps {
   editorialWorkflowPage: ForAuthorsPage | null;
   prepareSubmissionPage: ForAuthorsPage | null;
@@ -97,141 +264,6 @@ export default function ForAuthorsClient({
 
   const [closedSectionIds, setClosedSectionIds] = useState<Set<string>>(new Set());
   const [collapsedHeaderIds, setCollapsedHeaderIds] = useState<Set<string>>(new Set());
-
-  const parseContentSections = (
-    toBeParsed: Record<
-      ForAuthorsSectionType,
-      { title: string | undefined; content: string | undefined }
-    >
-  ): IForAuthorsSection[] => {
-    const sections: IForAuthorsSection[] = [];
-
-    Object.entries(toBeParsed).forEach(toBeParsedEntry => {
-      const withNumerotation = toBeParsedEntry[0] === 'prepareSubmission';
-      const title = toBeParsedEntry[1].title ?? '';
-      const content = toBeParsedEntry[1].content ?? '';
-      const { tree, titleInjected } = buildSectionTree(title, content);
-      const entryStartIndex = sections.length;
-
-      let currentSection: IForAuthorsSection = withNumerotation
-        ? { id: '', value: '', opened: true, cards: [] }
-        : { id: '', value: '', opened: true };
-      let h3Counter = 0;
-      let currentCardContent = '';
-
-      tree.children.forEach(node => {
-        if (node.type === 'heading' && node.depth === 2) {
-          if (currentSection.id) {
-            if (currentCardContent && currentSection.cards && currentSection.cards.length > 0) {
-              const lastCard = currentSection.cards[currentSection.cards.length - 1];
-              lastCard.content = currentCardContent.trim();
-            }
-            currentCardContent = '';
-
-            sections.push(currentSection);
-            currentSection = withNumerotation
-              ? { id: '', value: '', opened: true, cards: [] }
-              : { id: '', value: '', opened: true };
-          }
-
-          const titleText = getNodeText(node);
-
-          currentSection.id = generateIdFromText(titleText);
-          currentSection.value += serializeMarkdown(node);
-        } else if (withNumerotation) {
-          if (node.type === 'heading' && node.depth === 3) {
-            h3Counter += 1;
-
-            const h3Title = getNodeText(node);
-            const h3Id = generateIdFromText(h3Title);
-
-            if (currentCardContent && currentSection.cards && currentSection.cards.length > 0) {
-              const lastCard = currentSection.cards[currentSection.cards.length - 1];
-              lastCard.content = currentCardContent.trim();
-            }
-
-            currentCardContent = '';
-            currentSection.cards!.push({ id: h3Id, title: h3Title, content: '', index: h3Counter });
-          } else if (currentSection.cards && currentSection.cards.length > 0) {
-            currentCardContent += serializeMarkdown(node) + '\n';
-          } else {
-            currentSection.value += serializeMarkdown(node);
-            currentSection.value += '\n';
-          }
-        } else {
-          currentSection.value += serializeMarkdown(node);
-          currentSection.value += '\n';
-        }
-      });
-
-      if (currentCardContent && currentSection.cards && currentSection.cards.length > 0) {
-        const lastCard = currentSection.cards[currentSection.cards.length - 1];
-        lastCard.content = currentCardContent.trim();
-      }
-
-      if (currentSection.id) {
-        sections.push(currentSection);
-      }
-
-      if (title && !titleInjected && sections.length > entryStartIndex) {
-        sections[entryStartIndex].pageTitle = title;
-      }
-    });
-
-    return sections;
-  };
-
-  const parseSidebarHeaders = (
-    toBeParsed: Record<
-      ForAuthorsSectionType,
-      { title: string | undefined; content: string | undefined }
-    >
-  ): IForAuthorsHeader[] => {
-    const headings: IForAuthorsHeader[] = [];
-
-    Object.entries(toBeParsed).forEach(toBeParsedEntry => {
-      const withNumerotation = toBeParsedEntry[0] === 'prepareSubmission';
-      const title = toBeParsedEntry[1].title ?? '';
-      const content = toBeParsedEntry[1].content ?? '';
-      const { tree } = buildSectionTree(title, content);
-
-      let lastH2 = null;
-      let h3Counter = 0;
-
-      for (const node of tree.children) {
-        if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
-          const titleText = getNodeText(node);
-
-          if (titleText) {
-            const id = generateIdFromText(titleText);
-            let value = titleText;
-
-            if (withNumerotation && node.depth === 3) {
-              h3Counter += 1;
-              value = `${h3Counter}. ${value}`;
-            }
-
-            const header: IForAuthorsHeader = {
-              id,
-              value,
-              opened: true,
-              children: [],
-            };
-
-            if (node.depth === 2) {
-              lastH2 = header;
-              headings.push(header);
-              h3Counter = 0;
-            } else if (node.depth === 3 && lastH2) {
-              lastH2.children.push(header);
-            }
-          }
-        }
-      }
-    });
-
-    return headings;
-  };
 
   // Stable identities (empty deps - both only use the functional setState form) so the
   // memoized MarkdownRenderer `components` map below doesn't get a new reference - and
@@ -266,10 +298,7 @@ export default function ForAuthorsClient({
           title: psTitle.value || '',
           content: psContent.value || '',
         },
-      } satisfies Record<
-        ForAuthorsSectionType,
-        { title: string | undefined; content: string | undefined }
-      >,
+      } satisfies ForAuthorsContentMap,
       languageNotice: hasFallback ? t('common.contentNotInLanguage') : undefined,
     };
   }, [editorialWorkflowPage, prepareSubmissionPage, language, t]);
@@ -317,6 +346,7 @@ export default function ForAuthorsClient({
       h2: ({ node, children }) => {
         const id = generateIdFromText(node ? getNodeText(node) : '');
         const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
+        const handleToggle = (): void => toggleSectionHeader(id);
 
         return (
           <div
@@ -324,8 +354,8 @@ export default function ForAuthorsClient({
             role="button"
             tabIndex={0}
             aria-expanded={isOpened}
-            onClick={(): void => toggleSectionHeader(id)}
-            onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(id))}
+            onClick={handleToggle}
+            onKeyDown={e => handleKeyboardClick(e, handleToggle)}
           >
             <h2 id={id} className="forAuthors-content-body-section-subtitle-text">
               {children}

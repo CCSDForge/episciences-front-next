@@ -97,6 +97,10 @@ export default function BoardsClient({
     });
   };
 
+  const handleMemberToggle = (memberKey: string): void => {
+    setExpandedMemberKey(prev => (prev === memberKey ? null : memberKey));
+  };
+
   const breadcrumbItems = [
     {
       path: '/',
@@ -185,9 +189,7 @@ export default function BoardsClient({
                               ? 'blurred'
                               : 'default'
                         }
-                        onToggle={(): void =>
-                          setExpandedMemberKey(prev => (prev === memberKey ? null : memberKey))
-                        }
+                        onToggle={(): void => handleMemberToggle(memberKey)}
                         rolesLabels={rolesLabels}
                       />
                     );
