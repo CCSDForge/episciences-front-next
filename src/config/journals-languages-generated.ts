@@ -38,6 +38,7 @@ export const journalLanguages: Record<string, { default: string; accepted: strin
   'jnsao-preprod': { default: 'en', accepted: ["en"] },
   'jonas': { default: 'en', accepted: ["en"] },
   'jonas-preprod': { default: 'en', accepted: ["en"] },
+  'jsat': { default: 'en', accepted: ["en"] },
   'jsat-preprod': { default: 'en', accepted: ["en"] },
   'jsedi': { default: 'en', accepted: ["en"] },
   'jsedi-preprod': { default: 'en', accepted: ["en"] },

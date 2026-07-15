@@ -38,6 +38,7 @@ export const journals: string[] = [
   "jnsao-preprod",
   "jonas",
   "jonas-preprod",
+  "jsat",
   "jsat-preprod",
   "jsedi",
   "jsedi-preprod",
