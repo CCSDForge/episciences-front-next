@@ -17,6 +17,10 @@ export async function GET(
     return new NextResponse('Not found', { status: 404 });
   }
 
+  if (article.journalCode !== undefined && article.journalCode !== journalId) {
+    return new NextResponse('Not found', { status: 404 });
+  }
+
   const baseUrl = getJournalBaseUrl(journalId);
   const articleUrl = `${baseUrl}/${lang}/articles/${id}`;
 

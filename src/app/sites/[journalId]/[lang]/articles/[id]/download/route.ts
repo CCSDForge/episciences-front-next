@@ -24,6 +24,10 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   }
 
+  if (article.journalCode !== undefined && article.journalCode !== journalId) {
+    return new NextResponse(null, { status: 404 });
+  }
+
   if (!isAllowedPdfDomain(article.pdfLink)) {
     return new NextResponse('Invalid PDF source', { status: 403 });
   }

@@ -18,7 +18,6 @@ function makeRaw(overrides: {
   database?: Record<string, unknown>;
   paperid?: number;
   doi?: string;
-  rvcode?: string;
   keywords?: unknown;
 }): RawArticle {
   const content = {
@@ -33,7 +32,6 @@ function makeRaw(overrides: {
     '@type': 'Article',
     paperid: overrides.paperid ?? 42,
     doi: overrides.doi,
-    rvcode: overrides.rvcode,
     keywords: overrides.keywords,
     document: {
       journal: { journal_article: content },
@@ -96,7 +94,6 @@ describe('formatArticle', () => {
     it('maps core metadata from the database node', () => {
       const raw = makeRaw({
         paperid: 99,
-        rvcode: 'epijournal',
         database: {
           flag: 'imported',
           type: { title: 'Article' },
@@ -110,6 +107,7 @@ describe('formatArticle', () => {
           mainPdfUrl: 'https://hal/pdf',
           volume: { id: 12 },
           graphical_abstract_file: 'ga.png',
+          journal: { id: 1, url: 'https://epijournal.episciences.org', code: 'epijournal', name: 'Epijournal' },
         },
       });
       const result = formatArticle(raw);

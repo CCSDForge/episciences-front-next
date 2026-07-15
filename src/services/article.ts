@@ -270,6 +270,7 @@ function createMinimalArticle(rawArticle: any): FetchedArticle | undefined {
 
   return {
     id: Number(rawArticle.paperid) || rawArticle.docid,
+    journalCode: rawArticle.document?.database?.current?.journal?.code,
     title:
       rawArticle.document?.journal?.journal_article?.titles?.title ||
       `Article ${rawArticle.paperid || rawArticle.docid}`,

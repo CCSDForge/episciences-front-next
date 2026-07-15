@@ -166,6 +166,12 @@ export type RawArticle = IPartialArticle &
             id: number;
             titles: Record<AvailableLanguage, string>;
           };
+          journal?: {
+            id: number;
+            url: string;
+            code: string;
+            name: string;
+          };
           classifications?: {
             msc2020?: {
               [code: string]: {

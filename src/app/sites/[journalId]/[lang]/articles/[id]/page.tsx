@@ -169,9 +169,10 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       notFound();
     }
 
-    // Tier 2: best-effort check — only triggers when the API returns `journalCode`.
-    // Primary protection is Tier 1: the request already used a journal-scoped API base URL,
-    // so a cross-journal article would have returned null (404) above.
+    // Cross-journal access guard: the upstream papers API is global (not journal-scoped),
+    // so a paper ID always resolves regardless of which journal's base URL was used.
+    // The journal that actually owns the article is reported in the payload itself
+    // (document.database.current.journal.code), so we must check it explicitly.
     if (article.journalCode !== undefined && article.journalCode !== journalId) {
       logger.warn('Cross-journal article access blocked', {
         reason: 'article-wrong-journal',

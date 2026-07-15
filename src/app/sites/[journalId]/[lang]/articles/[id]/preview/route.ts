@@ -39,6 +39,13 @@ export async function GET(
     return new NextResponse('Article not found', { status: 404, headers: errorHeaders });
   }
 
+  if (article.journalCode !== undefined && article.journalCode !== journalId) {
+    logger.warn(
+      `[preview] ❌ Cross-journal article access blocked: article ${id} belongs to ${article.journalCode}, requested via ${journalId}`
+    );
+    return new NextResponse('Article not found', { status: 404, headers: errorHeaders });
+  }
+
   if (!article.pdfLink) {
     logger.warn(`[preview] ⚠️ Article ${id} (${journalId}) has no PDF link`);
     return new NextResponse('No PDF link available', { status: 404, headers: errorHeaders });
