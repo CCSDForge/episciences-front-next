@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
 import { IBoardMember } from '@/types/board';
 import { IBoardPage } from '@/services/board';
 import { getBoardsPerTitle, IBoardPerTitle } from '@/utils/board-transforms';
-import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
 import BoardsSidebar from '@/components/Sidebars/BoardsSidebar/BoardsSidebar';
 import PageTitle from '@/components/PageTitle/PageTitle';
-import { handleKeyboardClick } from '@/utils/keyboard';
 import '@/styles/transitions.scss';
 import './Boards.scss';
 
@@ -144,29 +143,15 @@ export default function BoardsClient({
         <div className="boards-content-groups">
           {boardsPerTitle.map((boardPerTitle, groupIndex) => (
             <div key={boardPerTitle.page_code} className="boards-content-groups-group">
-              <div
-                className="boards-content-groups-group-title"
-                role="button"
-                tabIndex={0}
-                aria-expanded={openGroups.has(groupIndex)}
-                onClick={(): void => handleGroupToggle(groupIndex)}
-                onKeyDown={e => handleKeyboardClick(e, () => handleGroupToggle(groupIndex))}
-              >
-                <h2>{rolesLabels?.[boardPerTitle.page_code] || boardPerTitle.title}</h2>
-                {openGroups.has(groupIndex) ? (
-                  <CaretUpBlackIcon
-                    size={16}
-                    className="boards-content-groups-group-caret"
-                    ariaLabel="Collapse group"
-                  />
-                ) : (
-                  <CaretDownBlackIcon
-                    size={16}
-                    className="boards-content-groups-group-caret"
-                    ariaLabel="Expand group"
-                  />
-                )}
-              </div>
+              <CollapsibleSectionHeader
+                triggerClassName="boards-content-groups-group-title"
+                caretClassName="boards-content-groups-group-caret"
+                title={rolesLabels?.[boardPerTitle.page_code] || boardPerTitle.title}
+                isOpen={openGroups.has(groupIndex)}
+                onToggle={(): void => handleGroupToggle(groupIndex)}
+                collapseLabel="Collapse group"
+                expandLabel="Expand group"
+              />
               <div
                 className={`boards-content-groups-group-content ${openGroups.has(groupIndex) && 'boards-content-groups-group-content-active'}`}
               >

@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect, useCallback } from 'react';
+import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
@@ -239,40 +239,16 @@ export default function MarkdownPageWithSidebar({
                   className={`${className}-content-body-section ${!section.opened ? `${className}-content-body-section-hidden` : ''}`}
                 >
                   {section.title && (
-                    <div
-                      className={`${className}-content-body-section-subtitle`}
-                      role="button"
-                      tabIndex={0}
-                      aria-expanded={section.opened}
-                      aria-controls={`section-content-${section.id}`}
-                      onClick={(): void => toggleSectionHeader(section.id)}
-                      onKeyDown={(e): void => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          toggleSectionHeader(section.id);
-                        }
-                      }}
-                    >
-                      <h2
-                        id={section.id}
-                        className={`${className}-content-body-section-subtitle-text`}
-                      >
-                        {section.title}
-                      </h2>
-                      {section.opened ? (
-                        <CaretUpBlackIcon
-                          size={16}
-                          className={`${className}-content-body-section-subtitle-caret`}
-                          ariaLabel="Collapse section"
-                        />
-                      ) : (
-                        <CaretDownBlackIcon
-                          size={16}
-                          className={`${className}-content-body-section-subtitle-caret`}
-                          ariaLabel="Expand section"
-                        />
-                      )}
-                    </div>
+                    <CollapsibleSectionHeader
+                      triggerClassName={`${className}-content-body-section-subtitle`}
+                      headingClassName={`${className}-content-body-section-subtitle-text`}
+                      caretClassName={`${className}-content-body-section-subtitle-caret`}
+                      headingId={section.id}
+                      controlsId={`section-content-${section.id}`}
+                      title={section.title}
+                      isOpen={section.opened}
+                      onToggle={(): void => toggleSectionHeader(section.id)}
+                    />
                   )}
                   <div
                     id={`section-content-${section.id}`}

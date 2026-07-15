@@ -5,9 +5,9 @@ import type { RootContent } from 'mdast';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { Link } from '@/components/Link/Link';
+import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
-import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useAppSelector } from '@/hooks/store';
 import {
   generateIdFromText,
@@ -21,7 +21,6 @@ import ForAuthorsSidebar, {
 } from '@/components/Sidebars/ForAuthorsSidebar/ForAuthorsSidebar';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
-import { handleKeyboardClick } from '@/utils/keyboard';
 import { formatDate } from '@/utils/date';
 import { ForAuthorsPage } from '@/services/forAuthors';
 import type { Components } from 'react-markdown';
@@ -346,34 +345,17 @@ export default function ForAuthorsClient({
       h2: ({ node, children }) => {
         const id = generateIdFromText(node ? getNodeText(node) : '');
         const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
-        const handleToggle = (): void => toggleSectionHeader(id);
 
         return (
-          <div
-            className="forAuthors-content-body-section-subtitle"
-            role="button"
-            tabIndex={0}
-            aria-expanded={isOpened}
-            onClick={handleToggle}
-            onKeyDown={e => handleKeyboardClick(e, handleToggle)}
-          >
-            <h2 id={id} className="forAuthors-content-body-section-subtitle-text">
-              {children}
-            </h2>
-            {isOpened ? (
-              <CaretUpBlackIcon
-                size={16}
-                className="forAuthors-content-body-section-subtitle-caret"
-                ariaLabel="Collapse section"
-              />
-            ) : (
-              <CaretDownBlackIcon
-                size={16}
-                className="forAuthors-content-body-section-subtitle-caret"
-                ariaLabel="Expand section"
-              />
-            )}
-          </div>
+          <CollapsibleSectionHeader
+            triggerClassName="forAuthors-content-body-section-subtitle"
+            headingClassName="forAuthors-content-body-section-subtitle-text"
+            caretClassName="forAuthors-content-body-section-subtitle-caret"
+            headingId={id}
+            title={children}
+            isOpen={!!isOpened}
+            onToggle={(): void => toggleSectionHeader(id)}
+          />
         );
       },
       h3: ({ node, children }) => (

@@ -1,11 +1,12 @@
 'use client';
 
-import { CaretUpBlackIcon, CaretDownBlackIcon, FilterIcon } from '@/components/icons';
+import { FilterIcon } from '@/components/icons';
 import { useState, useEffect, Fragment, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
+import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchStatistics } from '@/services/statistics';
@@ -28,7 +29,6 @@ import {
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import PieChart from '@/components/Charts/PieChart/PieChart';
-import { handleKeyboardClick } from '@/utils/keyboard';
 import StatisticsSidebar, {
   IStatisticsYearSelection,
 } from '@/components/Sidebars/StatisticsSidebar/StatisticsSidebar';
@@ -388,35 +388,15 @@ export default function StatisticsClient({
 
                 return (
                   <div key={index} className="statistics-content-results-cards-row">
-                    <div
-                      className="statistics-content-results-cards-row-title"
-                      role="button"
-                      tabIndex={0}
-                      aria-expanded={statisticPerLabel.isOpened}
-                      onClick={(): void => toggleStatisticsSection(statisticPerLabel.labelKey)}
-                      onKeyDown={e =>
-                        handleKeyboardClick(e, () =>
-                          toggleStatisticsSection(statisticPerLabel.labelKey)
-                        )
-                      }
-                    >
-                      <div className="statistics-content-results-cards-row-title-text">
-                        {t(statisticPerLabel.labelPath)}
-                      </div>
-                      {statisticPerLabel.isOpened ? (
-                        <CaretUpBlackIcon
-                          size={16}
-                          className="statistics-content-results-cards-row-title-caret"
-                          ariaLabel="Collapse section"
-                        />
-                      ) : (
-                        <CaretDownBlackIcon
-                          size={16}
-                          className="statistics-content-results-cards-row-title-caret"
-                          ariaLabel="Expand section"
-                        />
-                      )}
-                    </div>
+                    <CollapsibleSectionHeader
+                      as="div"
+                      triggerClassName="statistics-content-results-cards-row-title"
+                      headingClassName="statistics-content-results-cards-row-title-text"
+                      caretClassName="statistics-content-results-cards-row-title-caret"
+                      title={t(statisticPerLabel.labelPath)}
+                      isOpen={statisticPerLabel.isOpened}
+                      onToggle={(): void => toggleStatisticsSection(statisticPerLabel.labelKey)}
+                    />
                     <div
                       className={`statistics-content-results-cards-row-stats ${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION && 'statistics-content-results-cards-row-stats-evaluation'} ${statisticPerLabel.isOpened && 'statistics-content-results-cards-row-stats-active'}`}
                     >
