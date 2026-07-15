@@ -6,7 +6,7 @@ import { fetchVolume } from '@/services/volume';
 import { getJournalByCode } from '@/services/journal';
 import ArticleDetailsClient from './ArticleDetailsClient';
 import ArticleDetailsServer from './ArticleDetailsServer';
-import { FetchedArticle, METADATA_TYPE } from '@/utils/article';
+import { FetchedArticle, isCrossJournalAccess, METADATA_TYPE } from '@/utils/article';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import { getServerTranslations, t, defaultLanguage, availableLanguages } from '@/utils/server-i18n';
@@ -169,17 +169,8 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       notFound();
     }
 
-    // Tier 2: best-effort check — only triggers when the API returns `journalCode`.
-    // Primary protection is Tier 1: the request already used a journal-scoped API base URL,
-    // so a cross-journal article would have returned null (404) above.
-    if (article.journalCode !== undefined && article.journalCode !== journalId) {
-      logger.warn('Cross-journal article access blocked', {
-        reason: 'article-wrong-journal',
-        resourceType: 'article',
-        resourceId: id,
-        articleJournalCode: article.journalCode,
-        requestedJournalCode: journalId,
-      });
+    // Cross-journal access guard: see isCrossJournalAccess() for rationale.
+    if (isCrossJournalAccess(article, journalId, { route: 'details', resourceId: id })) {
       notFound();
     }
 

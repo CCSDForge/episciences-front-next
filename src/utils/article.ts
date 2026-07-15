@@ -48,6 +48,40 @@ export enum METADATA_TYPE {
 
 export type FetchedArticle = IArticle | undefined;
 
+/**
+ * Guards against the upstream papers API being global (not journal-scoped): a paper ID
+ * resolves regardless of which journal's base URL built the request, so ownership must be
+ * checked against the journal code reported in the payload itself. Logs a warning both when
+ * access is blocked and when `journalCode` is missing (guard inactive), so a silent bypass
+ * stays observable instead of failing open unnoticed.
+ */
+export function isCrossJournalAccess(
+  article: Pick<IArticle, 'journalCode'>,
+  journalId: string,
+  context: { route: string; resourceId: string }
+): boolean {
+  if (article.journalCode === undefined) {
+    log.warn('Article journalCode missing from API payload — cross-journal guard inactive', {
+      route: context.route,
+      resourceId: context.resourceId,
+      requestedJournalCode: journalId,
+    });
+    return false;
+  }
+
+  if (article.journalCode !== journalId) {
+    log.warn('Cross-journal article access blocked', {
+      route: context.route,
+      resourceId: context.resourceId,
+      articleJournalCode: article.journalCode,
+      requestedJournalCode: journalId,
+    });
+    return true;
+  }
+
+  return false;
+}
+
 // Type étendu pour ajouter le champ docid qui existe dans les réponses de l'API
 // mais qui n'est pas officiellement dans le type RawArticle
 interface ExtendedRawArticle extends RawArticle {
@@ -396,7 +430,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
 
     return {
       id,
-      journalCode: extendedArticle.rvcode,
+      journalCode: articleDB?.current?.journal?.code,
       title: articleContent.titles?.title,
       abstract: extractAbstract(articleContent),
       graphicalAbstract: articleDB?.current?.graphical_abstract_file,

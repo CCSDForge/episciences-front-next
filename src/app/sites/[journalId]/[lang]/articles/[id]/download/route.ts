@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchArticle } from '@/services/article';
+import { isCrossJournalAccess } from '@/utils/article';
 import { generateArticleFilename, isAllowedPdfDomain } from '@/utils/pdf';
 import { isValidJournalId } from '@/utils/validation';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -21,6 +22,10 @@ export async function GET(
   const article = await fetchArticle(id, journalId);
 
   if (!article?.pdfLink) {
+    return new NextResponse(null, { status: 404 });
+  }
+
+  if (isCrossJournalAccess(article, journalId, { route: 'download', resourceId: id })) {
     return new NextResponse(null, { status: 404 });
   }
 
