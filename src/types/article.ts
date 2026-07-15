@@ -110,7 +110,6 @@ export interface IClassificationItem {
 
 export type RawArticle = IPartialArticle &
   IArticle & {
-    rvcode?: string;
     document: {
       journal?: {
         journal_article: IRawArticleContent;

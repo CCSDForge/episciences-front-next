@@ -6,7 +6,7 @@ import { fetchVolume } from '@/services/volume';
 import { getJournalByCode } from '@/services/journal';
 import ArticleDetailsClient from './ArticleDetailsClient';
 import ArticleDetailsServer from './ArticleDetailsServer';
-import { FetchedArticle, METADATA_TYPE } from '@/utils/article';
+import { FetchedArticle, isCrossJournalAccess, METADATA_TYPE } from '@/utils/article';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import { getServerTranslations, t, defaultLanguage, availableLanguages } from '@/utils/server-i18n';
@@ -169,18 +169,8 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       notFound();
     }
 
-    // Cross-journal access guard: the upstream papers API is global (not journal-scoped),
-    // so a paper ID always resolves regardless of which journal's base URL was used.
-    // The journal that actually owns the article is reported in the payload itself
-    // (document.database.current.journal.code), so we must check it explicitly.
-    if (article.journalCode !== undefined && article.journalCode !== journalId) {
-      logger.warn('Cross-journal article access blocked', {
-        reason: 'article-wrong-journal',
-        resourceType: 'article',
-        resourceId: id,
-        articleJournalCode: article.journalCode,
-        requestedJournalCode: journalId,
-      });
+    // Cross-journal access guard: see isCrossJournalAccess() for rationale.
+    if (isCrossJournalAccess(article, journalId, { route: 'details', resourceId: id })) {
       notFound();
     }
 

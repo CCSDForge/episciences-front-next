@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchArticle } from '@/services/article';
+import { isCrossJournalAccess } from '@/utils/article';
 import { isAllowedPdfDomain } from '@/utils/pdf';
 import { isValidJournalId, sanitizeForLog } from '@/utils/validation';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -39,10 +40,7 @@ export async function GET(
     return new NextResponse('Article not found', { status: 404, headers: errorHeaders });
   }
 
-  if (article.journalCode !== undefined && article.journalCode !== journalId) {
-    logger.warn(
-      `[preview] ❌ Cross-journal article access blocked: article ${id} belongs to ${article.journalCode}, requested via ${journalId}`
-    );
+  if (isCrossJournalAccess(article, journalId, { route: 'preview', resourceId: id })) {
     return new NextResponse('Article not found', { status: 404, headers: errorHeaders });
   }
 

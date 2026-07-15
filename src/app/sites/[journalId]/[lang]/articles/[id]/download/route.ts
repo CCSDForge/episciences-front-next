@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchArticle } from '@/services/article';
+import { isCrossJournalAccess } from '@/utils/article';
 import { generateArticleFilename, isAllowedPdfDomain } from '@/utils/pdf';
 import { isValidJournalId } from '@/utils/validation';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -24,7 +25,7 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   }
 
-  if (article.journalCode !== undefined && article.journalCode !== journalId) {
+  if (isCrossJournalAccess(article, journalId, { route: 'download', resourceId: id })) {
     return new NextResponse(null, { status: 404 });
   }
 
