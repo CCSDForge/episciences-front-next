@@ -281,19 +281,24 @@ export default function MarkdownPageWithSidebar({
                   >
                     <MarkdownRenderer
                       components={{
-                        img: ({ src, alt }) => (
-                          <Image
-                            src={getMarkdownImageURL(
-                              typeof src === 'string' ? src : '',
-                              rvcode || ''
-                            )}
-                            alt={alt || ''}
-                            width={0}
-                            height={0}
-                            sizes="100vw"
-                            style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
-                          />
-                        ),
+                        img: ({ src, alt }) => {
+                          const rawSrc = typeof src === 'string' ? src : '';
+                          // Only rewrite journal-relative paths - an already-absolute URL
+                          // (e.g. an external logo) must not be prefixed with the journal host.
+                          const resolvedSrc = rawSrc.includes('/public/')
+                            ? getMarkdownImageURL(rawSrc, rvcode || '')
+                            : rawSrc;
+                          return (
+                            <Image
+                              src={resolvedSrc}
+                              alt={alt || ''}
+                              width={0}
+                              height={0}
+                              sizes="100vw"
+                              style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
+                            />
+                          );
+                        },
                         a: ({ href, children }) => (
                           <a
                             href={href}

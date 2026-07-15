@@ -2,9 +2,16 @@ import { getJournalApiUrl } from '@/utils/env-loader';
 import { safeFetchData } from '@/utils/api-error-handler';
 import { CACHE_TTL } from '@/utils/cache-ttl';
 
-export async function fetchAboutPage(rvcode: string) {
+export interface AboutPage {
+  content: Record<string, string>;
+  date_updated?: string;
+}
+
+export async function fetchAboutPage(
+  rvcode: string
+): Promise<{ 'hydra:member': AboutPage[] } | null> {
   const apiUrl = getJournalApiUrl(rvcode);
-  return safeFetchData(
+  return safeFetchData<{ 'hydra:member': AboutPage[] } | null>(
     async () => {
       const response = await fetch(`${apiUrl}/pages?page_code=about&rvcode=${rvcode}`, {
         next: {

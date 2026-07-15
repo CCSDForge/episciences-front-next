@@ -463,6 +463,7 @@
     },
     "about": {
       "title": "La revue",
+      "noContent": "Aucune information disponible sur cette revue.",
       "description": "Découvrez la mission, l'histoire et l'équipe éditoriale de cette revue"
     },
     "news": {
@@ -566,6 +567,7 @@
     },
     "credits": {
       "title": "Crédits",
+      "noContent": "Aucun crédit disponible pour cette revue.",
       "description": "Crédits et mentions légales"
     },
     "notFound": {

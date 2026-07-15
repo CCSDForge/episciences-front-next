@@ -1,42 +1,17 @@
 'use client';
 
-import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
-import { Link } from '@/components/Link/Link';
-import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
-import PageTitle from '@/components/PageTitle/PageTitle';
 
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
+import { fetchCreditsPage, CreditsPage } from '@/services/credits';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
-import { fetchCreditsPage } from '@/services/credits';
-import {
-  generateIdFromText,
-  unifiedProcessor,
-  serializeMarkdown,
-  getMarkdownImageURL,
-  getNodeText,
-  AstNode,
-} from '@/utils/markdown';
-import CreditsSidebar, {
-  ICreditsHeader,
-} from '@/components/Sidebars/CreditsSidebar/CreditsSidebar';
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
-import Loader from '@/components/Loader/Loader';
-import { handleKeyboardClick } from '@/utils/keyboard';
-import '@/styles/transitions.scss';
-import { logger } from '@/lib/logger';
-
-interface ICreditsSection {
-  id: string;
-  value: string;
-  opened: boolean;
-}
+import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
 
 interface CreditsClientProps {
-  creditsPage: any;
+  creditsPage: CreditsPage | null;
   lang?: string;
   breadcrumbLabels?: {
     home: string;
@@ -55,7 +30,7 @@ export default function CreditsClient({
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
-  // Architecture hybride : fetch automatique des données fraîches
+  // Architecture hybride : creditsPage = HTML statique (SEO), pageData = données à jour depuis l'API
   const { data: pageData, isUpdating } = useClientSideFetch({
     fetchFn: async () => {
       if (!rvcode) return null;
@@ -65,203 +40,39 @@ export default function CreditsClient({
     enabled: !!rvcode,
   });
 
-  const [pageSections, setPageSections] = useState<ICreditsSection[]>([]);
-  const [sidebarHeaders, setSidebarHeaders] = useState<ICreditsHeader[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const parseContentSections = (toBeParsed: string | undefined): ICreditsSection[] => {
-    if (!toBeParsed) return [];
-    const tree = unifiedProcessor.parse(toBeParsed);
-    const sections: ICreditsSection[] = [];
-    let currentSection: ICreditsSection | null = null;
-
-    tree.children.forEach(node => {
-      if (node.type === 'heading' && node.depth === 2) {
-        if (currentSection) {
-          sections.push(currentSection);
-        }
-        const titleText = getNodeText(node);
-        currentSection = {
-          id: generateIdFromText(titleText),
-          value: serializeMarkdown(node),
-          opened: true,
-        };
-      } else {
-        if (!currentSection) {
-          currentSection = {
-            id: 'intro',
-            value: '',
-            opened: true,
-          };
-        }
-        currentSection.value += serializeMarkdown(node) + '\n';
-      }
-    });
-
-    if (currentSection) {
-      sections.push(currentSection);
-    }
-
-    return sections;
-  };
-
-  const parseSidebarHeaders = (toBeParsed: string | undefined): ICreditsHeader[] => {
-    if (!toBeParsed) return [];
-    const tree = unifiedProcessor.parse(toBeParsed);
-    const headings = [];
-    let lastH2 = null;
-
-    for (const node of tree.children) {
-      if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
-        const titleText = getNodeText(node);
-
-        if (titleText) {
-          const header: ICreditsHeader = {
-            id: generateIdFromText(titleText),
-            value: titleText,
-            opened: true,
-            children: [],
-          };
-
-          if (node.depth === 2) {
-            lastH2 = header;
-            headings.push(header);
-          } else if (node.depth === 3 && lastH2) {
-            lastH2.children.push(header);
-          }
-        }
-      }
-    }
-
-    return headings;
-  };
-
-  const toggleSectionHeader = (id: string): void => {
-    const newSections = pageSections.map(section => {
-      if (section.id === id) {
-        return { ...section, opened: !section.opened };
-      }
-      return section;
-    });
-
-    setPageSections(newSections);
-  };
-
-  const toggleSidebarHeader = (id: string): void => {
-    const newHeaders = sidebarHeaders.map(header => {
-      if (header.id === id) {
-        return { ...header, opened: !header.opened };
-      }
-      return header;
-    });
-
-    setSidebarHeaders(newHeaders);
-  };
-
   useEffect(() => {
-    setIsLoading(true);
-    try {
-      if (pageData?.content && language) {
-        const contentResult = getLocalizedContent(pageData.content, language);
+    setIsLoading(false);
+  }, [pageData]);
 
-        setPageSections(parseContentSections(contentResult.value));
-        setSidebarHeaders(parseSidebarHeaders(contentResult.value));
-      }
-    } catch (error) {
-      logger.error('Erreur lors du traitement du contenu des crédits:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [pageData, language]);
+  const contentResult = getLocalizedContent(pageData?.content, language);
+  const languageNotice =
+    contentResult.isAvailable && !contentResult.isOriginalLanguage
+      ? t('common.contentNotInLanguage')
+      : undefined;
 
-  const renderH2 = ({ node, children }: { node?: AstNode; children?: React.ReactNode }) => {
-    const id = generateIdFromText(node ? getNodeText(node) : '');
-    const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
-    const toggle = () => toggleSectionHeader(id);
-    return (
-      <div
-        className="credits-content-body-section-subtitle"
-        role="button"
-        tabIndex={0}
-        aria-expanded={isOpened}
-        onClick={toggle}
-        onKeyDown={e => handleKeyboardClick(e, toggle)}
-      >
-        <h2 id={id} className="credits-content-body-section-subtitle-text">
-          {children}
-        </h2>
-        {isOpened ? (
-          <CaretUpBlackIcon
-            size={16}
-            className="credits-content-body-section-subtitle-caret"
-            ariaLabel="Collapse section"
-          />
-        ) : (
-          <CaretDownBlackIcon
-            size={16}
-            className="credits-content-body-section-subtitle-caret"
-            ariaLabel="Expand section"
-          />
-        )}
-      </div>
-    );
-  };
-
-  const breadcrumbItems = [
-    {
-      path: '/',
-      label: breadcrumbLabels ? `${breadcrumbLabels.home} >` : `${t('pages.home.title')} >`,
-    },
-  ];
+  const title = breadcrumbLabels?.credits || t('pages.credits.title');
 
   return (
-    <main className="credits">
-      <PageTitle title={t('pages.credits.title')} />
-
-      <Breadcrumb
-        parents={breadcrumbItems}
-        crumbLabel={breadcrumbLabels?.credits || t('pages.credits.title')}
-        lang={lang}
-      />
-      <h1 className="credits-title">{breadcrumbLabels?.credits || t('pages.credits.title')}</h1>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div className={`credits-content content-transition ${isUpdating ? 'updating' : ''}`}>
-          <CreditsSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
-          <div className="credits-content-body">
-            {pageSections.map(section => (
-              <div
-                key={section.id}
-                className={`credits-content-body-section ${!section.opened && 'credits-content-body-section-hidden'}`}
-              >
-                <MarkdownRenderer
-                  urlTransform={uri =>
-                    uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
-                  }
-                  components={{
-                    a: ({ href, children }) => (
-                      <Link
-                        href={href!}
-                        target="_blank"
-                        className="credits-content-body-section-link"
-                      >
-                        {children}
-                      </Link>
-                    ),
-                    h2: renderH2,
-                    h3: ({ node, children }) => (
-                      <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>{children}</h3>
-                    ),
-                  }}
-                >
-                  {section.value}
-                </MarkdownRenderer>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </main>
+    <MarkdownPageWithSidebar
+      content={contentResult.value}
+      title={title}
+      isLoading={isLoading}
+      isUpdating={isUpdating}
+      breadcrumbLabels={{
+        parents: [
+          {
+            path: '/',
+            label: breadcrumbLabels ? `${breadcrumbLabels.home} >` : `${t('pages.home.title')} >`,
+          },
+        ],
+        current: title,
+      }}
+      lang={lang}
+      noContentMessage={t('pages.credits.noContent')}
+      languageNotice={languageNotice}
+      lastUpdated={pageData?.date_updated}
+      className="credits"
+    />
   );
 }

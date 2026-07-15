@@ -1,46 +1,17 @@
 'use client';
 
-import Image from 'next/image';
-import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect } from 'react';
-import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
 
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
-import { fetchAboutPage } from '@/services/about';
+import { fetchAboutPage, AboutPage } from '@/services/about';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
-import {
-  generateIdFromText,
-  unifiedProcessor,
-  serializeMarkdown,
-  getMarkdownImageURL,
-  getNodeText,
-} from '@/utils/markdown';
-import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
-import Loader from '@/components/Loader/Loader';
-import { handleKeyboardClick } from '@/utils/keyboard';
-import { formatDate } from '@/utils/date';
-import '@/styles/transitions.scss';
-import { logger } from '@/lib/logger';
-
-// Interface personnalisée qui accepte n'importe quel format de page
-interface IPageData {
-  content?: Record<string, string>;
-  [key: string]: any;
-}
-
-interface IAboutSection {
-  id: string;
-  value: string;
-  opened: boolean;
-  isIntro?: boolean;
-}
+import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
 
 interface AboutClientProps {
-  initialPage: IPageData | null;
+  initialPage: AboutPage | null;
   lang?: string;
   breadcrumbLabels?: {
     home: string;
@@ -58,10 +29,8 @@ export default function AboutClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
-  // Architecture hybride : fetch automatique des données fraîches
-  // initialPage = HTML statique (SEO), data = données à jour depuis l'API
+  // Architecture hybride : initialPage = HTML statique (SEO), pageData = données à jour depuis l'API
   const { data: pageData, isUpdating } = useClientSideFetch({
     fetchFn: async () => {
       if (!rvcode) return null;
@@ -72,272 +41,39 @@ export default function AboutClient({
     enabled: !!rvcode,
   });
 
-  const [pageSections, setPageSections] = useState<IAboutSection[]>([]);
-  const [sidebarHeaders, setSidebarHeaders] = useState<IAboutHeader[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [languageNotice, setLanguageNotice] = useState<string | undefined>();
-
-  const parseContentSections = (toBeParsed: string | undefined): IAboutSection[] => {
-    if (!toBeParsed) return [];
-
-    const tree = unifiedProcessor.parse(toBeParsed);
-    const sections: IAboutSection[] = [];
-    let currentSection: IAboutSection | null = null;
-
-    tree.children.forEach(node => {
-      if (node.type === 'heading' && node.depth === 2) {
-        if (currentSection) {
-          sections.push(currentSection);
-        }
-        const titleText = getNodeText(node);
-        currentSection = {
-          id: generateIdFromText(titleText),
-          value: serializeMarkdown(node),
-          opened: true,
-        };
-      } else {
-        if (!currentSection) {
-          currentSection = {
-            id: 'intro',
-            value: '',
-            opened: true,
-            isIntro: true,
-          };
-        }
-        currentSection.value += serializeMarkdown(node) + '\n';
-      }
-    });
-
-    if (currentSection) {
-      sections.push(currentSection);
-    }
-
-    return sections;
-  };
-
-  const parseSidebarHeaders = (toBeParsed: string | undefined): IAboutHeader[] => {
-    if (!toBeParsed) return [];
-
-    const tree = unifiedProcessor.parse(toBeParsed);
-    const headers: IAboutHeader[] = [];
-    let lastH2: IAboutHeader | null = null;
-
-    tree.children.forEach(node => {
-      if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
-        const titleText = getNodeText(node);
-
-        if (titleText) {
-          const header: IAboutHeader = {
-            id: generateIdFromText(titleText),
-            value: titleText,
-            opened: true,
-            children: [],
-          };
-
-          if (node.depth === 2) {
-            lastH2 = header;
-            headers.push(header);
-          } else if (node.depth === 3 && lastH2) {
-            lastH2.children.push(header);
-          }
-        }
-      }
-    });
-
-    return headers;
-  };
-
-  const toggleSectionHeader = (id: string): void => {
-    const updatedSections = pageSections.map(section => {
-      if (section.id === id) {
-        return { ...section, opened: !section.opened };
-      }
-      return section;
-    });
-
-    setPageSections(updatedSections);
-  };
-
-  const toggleSidebarHeader = (id: string): void => {
-    const updatedHeaders = sidebarHeaders.map(header => {
-      if (header.id === id) {
-        return { ...header, opened: !header.opened };
-      }
-      return header;
-    });
-
-    setSidebarHeaders(updatedHeaders);
-  };
-
-  // Effet pour traiter le contenu de la page (données statiques ou fraîches)
   useEffect(() => {
-    if (pageData) {
-      try {
-        const contentResult = getLocalizedContent(pageData.content, language);
-        const content = contentResult.value;
-        setLanguageNotice(
-          contentResult.isAvailable && !contentResult.isOriginalLanguage
-            ? t('common.contentNotInLanguage')
-            : undefined
-        );
+    setIsLoading(false);
+  }, [pageData]);
 
-        if (content) {
-          setPageSections(parseContentSections(content));
-          setSidebarHeaders(parseSidebarHeaders(content));
-        } else {
-          // Si pas de contenu, initialiser avec des sections vides
-          setPageSections([]);
-          setSidebarHeaders([]);
-        }
-      } catch (error) {
-        logger.error('Erreur lors du traitement du contenu:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      setIsLoading(false);
-    }
-  }, [pageData, language, t]);
+  const contentResult = getLocalizedContent(pageData?.content, language);
+  const languageNotice =
+    contentResult.isAvailable && !contentResult.isOriginalLanguage
+      ? t('common.contentNotInLanguage')
+      : undefined;
 
-  const breadcrumbItems = [
-    {
-      path: '/',
-      label: breadcrumbLabels ? `${breadcrumbLabels.home} >` : `${t('pages.home.title')} >`,
-    },
-  ];
+  const title = breadcrumbLabels?.about || t('pages.about.title');
 
   return (
-    <main className="about">
-      <Breadcrumb
-        parents={breadcrumbItems}
-        crumbLabel={breadcrumbLabels?.about || t('pages.about.title')}
-        lang={lang}
-      />
-      <h1 className="about-title">{breadcrumbLabels?.about || t('pages.about.title')}</h1>
-      {languageNotice && (
-        <p className="about-language-notice" role="status">
-          {languageNotice}
-        </p>
-      )}
-      <div className={`about-content content-transition ${isUpdating ? 'updating' : ''}`}>
-        <AboutSidebar headers={sidebarHeaders} toggleHeaderCallback={toggleSidebarHeader} />
-        {isLoading ? (
-          <Loader />
-        ) : (
-          <div className="about-content-body">
-            {pageSections.length > 0 ? (
-              pageSections.map(section => (
-                <div
-                  key={section.id}
-                  className={`about-content-body-section ${!section.opened && 'about-content-body-section-hidden'}`}
-                >
-                  {!section.isIntro && (
-                    <div
-                      className="about-content-body-section-subtitle"
-                      role="button"
-                      tabIndex={0}
-                      aria-expanded={section.opened}
-                      onClick={(): void => toggleSectionHeader(section.id)}
-                      onKeyDown={e => handleKeyboardClick(e, () => toggleSectionHeader(section.id))}
-                    >
-                      <h2 id={section.id} className="about-content-body-section-subtitle-text">
-                        <MarkdownRenderer
-                          components={{
-                            img: ({ src, alt }) => (
-                              <Image
-                                src={getMarkdownImageURL(
-                                  typeof src === 'string' ? src : '',
-                                  rvcode || ''
-                                )}
-                                alt={alt || ''}
-                                width={0}
-                                height={0}
-                                sizes="100vw"
-                                style={{ width: 'auto', height: 'auto' }}
-                              />
-                            ),
-                            a: ({ href, children }) => (
-                              <a
-                                href={href}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="about-content-body-section-link"
-                              >
-                                {children}
-                              </a>
-                            ),
-                            h1: ({ children }) => <>{children}</>,
-                            h2: ({ children }) => <>{children}</>,
-                            h3: ({ children }) => <>{children}</>,
-                            h4: ({ children }) => <>{children}</>,
-                            h5: ({ children }) => <>{children}</>,
-                            h6: ({ children }) => <>{children}</>,
-                          }}
-                        >
-                          {section.value.split('\n')[0]}
-                        </MarkdownRenderer>
-                      </h2>
-                      {section.opened ? (
-                        <CaretUpBlackIcon
-                          size={16}
-                          className="about-content-body-section-subtitle-caret"
-                          ariaLabel="Collapse section"
-                        />
-                      ) : (
-                        <CaretDownBlackIcon
-                          size={16}
-                          className="about-content-body-section-subtitle-caret"
-                          ariaLabel="Expand section"
-                        />
-                      )}
-                    </div>
-                  )}
-                  <MarkdownRenderer
-                    components={{
-                      img: ({ src, alt }) => (
-                        <Image
-                          src={getMarkdownImageURL(
-                            typeof src === 'string' ? src : '',
-                            rvcode || ''
-                          )}
-                          alt={alt || ''}
-                          width={0}
-                          height={0}
-                          sizes="100vw"
-                          style={{ width: 'auto', height: 'auto' }}
-                        />
-                      ),
-                      a: ({ href, children }) => (
-                        <a
-                          href={href}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="about-content-body-section-link"
-                        >
-                          {children}
-                        </a>
-                      ),
-                    }}
-                  >
-                    {section.isIntro
-                      ? section.value
-                      : section.value.split('\n').slice(1).join('\n')}
-                  </MarkdownRenderer>
-                </div>
-              ))
-            ) : (
-              <p className="about-content-body-empty">
-                Aucun contenu disponible pour la page &ldquo;À propos&rdquo;.
-              </p>
-            )}
-            {pageData?.date_updated && (
-              <p className="about-last-updated">
-                {t('common.lastUpdated')} {formatDate(pageData.date_updated, language)}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-    </main>
+    <MarkdownPageWithSidebar
+      content={contentResult.value}
+      title={title}
+      isLoading={isLoading}
+      isUpdating={isUpdating}
+      breadcrumbLabels={{
+        parents: [
+          {
+            path: '/',
+            label: breadcrumbLabels ? `${breadcrumbLabels.home} >` : `${t('pages.home.title')} >`,
+          },
+        ],
+        current: title,
+      }}
+      lang={lang}
+      noContentMessage={t('pages.about.noContent')}
+      languageNotice={languageNotice}
+      lastUpdated={pageData?.date_updated}
+      className="about"
+    />
   );
 }
