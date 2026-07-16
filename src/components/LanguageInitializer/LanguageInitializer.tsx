@@ -19,7 +19,7 @@ interface LanguageInitializerProps {
  *
  * Only runs on client-side after mount to avoid SSR issues with Redux store.
  */
-export function LanguageInitializer({ initialLanguage }: LanguageInitializerProps) {
+export function LanguageInitializer({ initialLanguage }: Readonly<LanguageInitializerProps>) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export function LanguageInitializer({ initialLanguage }: LanguageInitializerProp
   return <LanguageInitializerClient initialLanguage={initialLanguage} />;
 }
 
-function LanguageInitializerClient({ initialLanguage }: LanguageInitializerProps) {
+function LanguageInitializerClient({ initialLanguage }: Readonly<LanguageInitializerProps>) {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
 

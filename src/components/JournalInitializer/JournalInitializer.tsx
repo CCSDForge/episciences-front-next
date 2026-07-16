@@ -48,7 +48,7 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
     if (journal && !isLoading) {
       // Eviter les mises à jour infinies si l'objet journal n'est pas stable référentiellement
       // On compare l'ID ou le code pour savoir si c'est vraiment un changement
-      const shouldUpdate = !currentJournal || currentJournal.code !== journal.code;
+      const shouldUpdate = currentJournal?.code !== journal.code;
 
       if (shouldUpdate) {
         log.debug('[JournalInitializer] Updating journal in store:', journal.code);

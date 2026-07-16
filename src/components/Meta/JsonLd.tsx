@@ -5,11 +5,11 @@ interface JsonLdProps {
   data: SchemaOrgThing;
 }
 
-export default function JsonLd({ data }: JsonLdProps): JSX.Element {
+export default function JsonLd({ data }: Readonly<JsonLdProps>): JSX.Element {
   const serialized = JSON.stringify(data)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026');
+    .replaceAll('<', String.raw`\u003c`)
+    .replaceAll('>', String.raw`\u003e`)
+    .replaceAll('&', String.raw`\u0026`);
 
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serialized }} />;
 }

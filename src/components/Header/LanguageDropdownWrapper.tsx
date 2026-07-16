@@ -10,7 +10,7 @@ interface LanguageDropdownWrapperProps {
 export default function LanguageDropdownWrapper({
   lang,
   acceptedLanguages,
-}: LanguageDropdownWrapperProps): React.JSX.Element {
+}: Readonly<LanguageDropdownWrapperProps>): React.JSX.Element {
   // Toujours rendre le dropdown pour éviter les erreurs d'hydratation
   // Le dropdown lui-même gérera la synchronisation avec Redux
   return <LanguageDropdown initialLanguage={lang} acceptedLanguages={acceptedLanguages} />;

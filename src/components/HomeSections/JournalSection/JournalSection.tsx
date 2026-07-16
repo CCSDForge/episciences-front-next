@@ -11,22 +11,24 @@ interface IJournalSectionProps {
   content?: Record<AvailableLanguage, string>;
 }
 
+function JournalSectionLink({ ...props }: React.ComponentProps<'a'>): React.JSX.Element {
+  return (
+    <Link href={props.href!} target="_blank" rel="noopener noreferrer">
+      {props.children}
+    </Link>
+  );
+}
+
+const journalSectionMarkdownComponents = { a: JournalSectionLink };
+
 export default function JournalSection({
   content,
   language,
-}: IJournalSectionProps): React.JSX.Element {
+}: Readonly<IJournalSectionProps>): React.JSX.Element {
   return (
     <div className="journalSection">
       {content && (
-        <MarkdownRenderer
-          components={{
-            a: ({ ...props }) => (
-              <Link href={props.href!} target="_blank" rel="noopener noreferrer">
-                {props.children}
-              </Link>
-            ),
-          }}
-        >
+        <MarkdownRenderer components={journalSectionMarkdownComponents}>
           {content[language]}
         </MarkdownRenderer>
       )}
