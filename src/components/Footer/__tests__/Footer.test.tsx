@@ -145,40 +145,17 @@ describe('Footer', () => {
   });
 
   describe('Links accessibility', () => {
-    it('renders contact link', () => {
+    it.each([
+      ['Contact'],
+      ['Credits'],
+      ['Accessibility'],
+      ['Legal Mentions'],
+      ['Privacy Statement'],
+      ['Terms of Use'],
+    ])('renders %s link', (label: string) => {
       render(<Footer />);
 
-      expect(screen.getByText('Contact')).toBeInTheDocument();
-    });
-
-    it('renders credits link', () => {
-      render(<Footer />);
-
-      expect(screen.getByText('Credits')).toBeInTheDocument();
-    });
-
-    it('renders accessibility link', () => {
-      render(<Footer />);
-
-      expect(screen.getByText('Accessibility')).toBeInTheDocument();
-    });
-
-    it('renders legal mentions link', () => {
-      render(<Footer />);
-
-      expect(screen.getByText('Legal Mentions')).toBeInTheDocument();
-    });
-
-    it('renders privacy statement link', () => {
-      render(<Footer />);
-
-      expect(screen.getByText('Privacy Statement')).toBeInTheDocument();
-    });
-
-    it('renders terms of use link', () => {
-      render(<Footer />);
-
-      expect(screen.getByText('Terms of Use')).toBeInTheDocument();
+      expect(screen.getByText(label)).toBeInTheDocument();
     });
   });
 
@@ -263,23 +240,14 @@ describe('Footer', () => {
   });
 
   describe('Documentation links', () => {
-    it('renders documentation link', () => {
-      render(<Footer />);
+    it.each([['Documentation'], ['Acknowledgements'], ['Publishing Policy']])(
+      'renders %s link',
+      (label: string) => {
+        render(<Footer />);
 
-      expect(screen.getByText('Documentation')).toBeInTheDocument();
-    });
-
-    it('renders acknowledgements link', () => {
-      render(<Footer />);
-
-      expect(screen.getByText('Acknowledgements')).toBeInTheDocument();
-    });
-
-    it('renders publishing policy link', () => {
-      render(<Footer />);
-
-      expect(screen.getByText('Publishing Policy')).toBeInTheDocument();
-    });
+        expect(screen.getByText(label)).toBeInTheDocument();
+      }
+    );
   });
 
   describe('Accessibility - axe-core validation', () => {

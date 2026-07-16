@@ -1,8 +1,6 @@
 'use client';
 
-import { Link } from '@/components/Link/Link';
 import { usePathname } from 'next/navigation';
-import Image from 'next/image';
 import { CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import './ForAuthorsSidebar.scss';
 
@@ -21,7 +19,7 @@ interface IForAuthorsSidebarProps {
 export default function ForAuthorsSidebar({
   headers,
   toggleHeaderCallback,
-}: IForAuthorsSidebarProps): React.JSX.Element {
+}: Readonly<IForAuthorsSidebarProps>): React.JSX.Element {
   const pathname = usePathname();
 
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, anchorId: string) => {
@@ -39,8 +37,8 @@ export default function ForAuthorsSidebar({
 
   return (
     <div className="forAuthorsSidebar">
-      {headers.map((header, index) => (
-        <div key={index} className="forAuthorsSidebar-header">
+      {headers.map(header => (
+        <div key={header.id} className="forAuthorsSidebar-header">
           <div className="forAuthorsSidebar-header-title">
             <a
               href={`${pathname}#${header.id}`}
@@ -68,9 +66,9 @@ export default function ForAuthorsSidebar({
           </div>
           {header.opened && (
             <div className="forAuthorsSidebar-header-subheaders">
-              {header.children.map((subheader, index) => (
+              {header.children.map(subheader => (
                 <a
-                  key={index}
+                  key={subheader.id}
                   href={`${pathname}#${subheader.id}`}
                   onClick={e => handleAnchorClick(e, subheader.id)}
                   className="forAuthorsSidebar-header-subheaders-subheader-link"

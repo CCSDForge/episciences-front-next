@@ -360,23 +360,14 @@ describe('Header', () => {
   });
 
   describe('CSS classes for layout', () => {
-    it('applies header class', () => {
-      const { container } = render(<Header {...defaultProps} />);
+    it.each([['.header'], ['.header-preheader'], ['.header-postheader']])(
+      'applies %s class',
+      (selector: string) => {
+        const { container } = render(<Header {...defaultProps} />);
 
-      expect(container.querySelector('.header')).toBeInTheDocument();
-    });
-
-    it('applies preheader class', () => {
-      const { container } = render(<Header {...defaultProps} />);
-
-      expect(container.querySelector('.header-preheader')).toBeInTheDocument();
-    });
-
-    it('applies postheader class', () => {
-      const { container } = render(<Header {...defaultProps} />);
-
-      expect(container.querySelector('.header-postheader')).toBeInTheDocument();
-    });
+        expect(container.querySelector(selector)).toBeInTheDocument();
+      }
+    );
   });
 
   describe('Accessibility - axe-core validation', () => {
