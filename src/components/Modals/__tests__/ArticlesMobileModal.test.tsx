@@ -65,7 +65,7 @@ vi.mock('@/components/LiveRegion/LiveRegion', () => ({
 
 // Mock FocusTrap
 vi.mock('focus-trap-react', () => ({
-  default: ({ children }: { children: React.ReactNode }) => (
+  FocusTrap: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="focus-trap">{children}</div>
   ),
 }));
