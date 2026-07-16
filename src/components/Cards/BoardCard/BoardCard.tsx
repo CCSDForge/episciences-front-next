@@ -95,7 +95,7 @@ function BoardCardPerson({
           <div className={`${base}-title-name-text`}>
             {member.firstname} {member.lastname}
           </div>
-          {member.orcid && member.orcid.length > 0 && (
+          {(member.orcid?.length ?? 0) > 0 && (
             <Link
               href={`${ORCID_URL}/${member.orcid}`}
               title={member.orcid}
@@ -135,13 +135,6 @@ export default function BoardCard({
   onToggle,
   rolesLabels,
 }: IBoardCardProps): React.JSX.Element {
-  const getRoleLabel = (role: string) => {
-    if (rolesLabels && rolesLabels[role]) return rolesLabels[role];
-    // Fallback to t if rolesLabels is missing (or try to map if keys differ)
-    // Actually getBoardRoles handles a list.
-    return null;
-  };
-
   const displayRoles = (roles: string[]) => {
     if (rolesLabels) {
       return roles
@@ -172,16 +165,19 @@ export default function BoardCard({
               defaultRoleLabel={defaultRoleLabel}
             />
           </div>
-          {member.affiliations && member.affiliations.length > 0 && (
+          {(member.affiliations?.length ?? 0) > 0 && (
             <div className="boardCard-full-initial-affiliations">
-              {member.affiliations.map((affiliation, idx) => (
-                <div key={idx} className="boardCard-affiliation-item">
+              {member.affiliations.map(affiliation => (
+                <div
+                  key={affiliation.rorId || affiliation.label}
+                  className="boardCard-affiliation-item"
+                >
                   <AffiliationWithRor affiliation={affiliation} />
                 </div>
               ))}
             </div>
           )}
-          {member.assignedSections && member.assignedSections.length > 0 && (
+          {(member.assignedSections?.length ?? 0) > 0 && (
             <div className="boardCard-full-initial-assignedSections">
               {member.assignedSections
                 .map(assignedSection => assignedSection.titles[language])
@@ -277,7 +273,7 @@ export default function BoardCard({
           defaultRoleLabel={defaultRoleLabel}
         />
       </div>
-      {member.affiliations && member.affiliations.length > 0 && (
+      {(member.affiliations?.length ?? 0) > 0 && (
         <div className="boardCard-affiliations">
           {member.affiliations.map((affiliation, idx) => (
             <div key={idx} className="boardCard-affiliation-item">
@@ -286,7 +282,7 @@ export default function BoardCard({
           ))}
         </div>
       )}
-      {member.assignedSections && member.assignedSections.length > 0 && (
+      {(member.assignedSections?.length ?? 0) > 0 && (
         <div className="boardCard-assignedSections">
           {member.assignedSections
             .map(assignedSection => {
