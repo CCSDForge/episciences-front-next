@@ -52,7 +52,7 @@ export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element
     colors: string[]
   ): React.JSX.Element => {
     return (
-      <div key={index} className="pieChart-legend-rows-row">
+      <div key={singleData.status} className="pieChart-legend-rows-row">
         <div
           className="pieChart-legend-rows-row-square"
           style={{ backgroundColor: colors[index % colors.length] }}
@@ -67,8 +67,8 @@ export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element
       <ResponsiveContainer>
         <RechartsPieChart>
           <Pie dataKey="count" data={data}>
-            {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+            {data.map((entry, index) => (
+              <Cell key={entry.status} fill={CHART_COLORS[index % CHART_COLORS.length]} />
             ))}
           </Pie>
         </RechartsPieChart>

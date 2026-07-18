@@ -116,8 +116,8 @@ export default function Swiper({
             },
           }}
         >
-          {renderedCards.map((content: SwiperCardContent, key: number) => (
-            <SwiperSlide key={key}>
+          {renderedCards.map((content: SwiperCardContent) => (
+            <SwiperSlide key={content?.id}>
               <Card language={language} t={t} type={type} content={content} />
             </SwiperSlide>
           ))}

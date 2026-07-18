@@ -67,7 +67,7 @@ export default function MobileBurgerMenu({ sections, lang }: MobileBurgerMenuPro
           <div className="header-postheader-burger-content-links">
             {sections.map((section, i) => (
               <div
-                key={i}
+                key={section.title ?? section.items[0]?.key}
                 className={`header-postheader-burger-content-links-section${i < sections.length - 1 ? ' header-postheader-burger-content-links-section-bordered' : ''}`}
               >
                 <div className="header-postheader-burger-content-links-section-links">

@@ -217,8 +217,10 @@ export default function LinkedPublicationsSection({
 
   return (
     <ul>
-      {filteredItems.map((relatedItem, index) => (
-        <li key={index}>{getLinkedPublicationRow(relatedItem)}</li>
+      {filteredItems.map(relatedItem => (
+        <li key={`${relatedItem.identifierType}-${relatedItem.value}`}>
+          {getLinkedPublicationRow(relatedItem)}
+        </li>
       ))}
     </ul>
   );

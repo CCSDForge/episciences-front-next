@@ -134,9 +134,9 @@ export default function VolumesMobileModal({
         {taggedFilters.length > 0 && (
           <div className="tags">
             <div className="tagsRow">
-              {taggedFilters.map((filter, index) => (
+              {taggedFilters.map(filter => (
                 <Tag
-                  key={index}
+                  key={`${filter.type}-${filter.value}`}
                   text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                   onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
                 />
@@ -182,8 +182,8 @@ export default function VolumesMobileModal({
             <div
               className={`filtersTypesList ${isOpenedSection(FILTERS_SECTION.TYPE) ? 'filtersTypesListOpened' : ''}`}
             >
-              {types.map((type, index) => (
-                <div key={index} className="filtersTypesListChoice">
+              {types.map(type => (
+                <div key={type.value} className="filtersTypesListChoice">
                   <div>
                     <Checkbox
                       checked={type.isChecked}
@@ -232,8 +232,8 @@ export default function VolumesMobileModal({
             <div
               className={`filtersYearsList ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'filtersYearsListOpened' : ''}`}
             >
-              {years.map((y, index) => (
-                <div key={index} className="filtersYearsListChoice">
+              {years.map(y => (
+                <div key={y.year} className="filtersYearsListChoice">
                   <div>
                     <Checkbox
                       checked={y.isSelected}

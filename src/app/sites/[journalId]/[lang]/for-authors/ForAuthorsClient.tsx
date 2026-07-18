@@ -403,9 +403,9 @@ export default function ForAuthorsClient({
                     {section.value}
                   </MarkdownRenderer>
                   <div className="forAuthors-content-body-section-cards">
-                    {section.cards?.map((card, index) => (
+                    {section.cards?.map(card => (
                       <div
-                        key={index}
+                        key={card.id}
                         className={`forAuthors-content-body-section-cards-card ${!section.opened && 'forAuthors-content-body-section-cards-card-hidden'}`}
                       >
                         <div className="forAuthors-content-body-section-cards-card-index">

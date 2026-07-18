@@ -24,8 +24,11 @@ export default function KeywordsSection({
 
     return (
       <ul className="keywords-list">
-        {keywordsData.map((keyword: string, index: number) => (
-          <li className="articleDetails-content-article-section-content-keywords-tag" key={index}>
+        {keywordsData.map((keyword: string) => (
+          <li
+            className="articleDetails-content-article-section-content-keywords-tag"
+            key={keyword}
+          >
             {keyword}
           </li>
         ))}
@@ -89,8 +92,11 @@ export default function KeywordsSection({
 
     return (
       <ul className="keywords-list" dir={direction}>
-        {keywords.map((keyword: string, index: number) => (
-          <li className="articleDetails-content-article-section-content-keywords-tag" key={index}>
+        {keywords.map((keyword: string) => (
+          <li
+            className="articleDetails-content-article-section-content-keywords-tag"
+            key={keyword}
+          >
             {keyword}
           </li>
         ))}
@@ -106,13 +112,13 @@ export default function KeywordsSection({
         const languageLabel = getLanguageLabel(lang, currentLanguage);
 
         return (
-          <div key={`${lang}-${groupIndex}`} className="language-group" dir={direction}>
+          <div key={lang} className="language-group" dir={direction}>
             <div className="language-badge">{languageLabel}</div>
             <ul className="keywords-list">
-              {keywords.map((keyword: string, index: number) => (
+              {keywords.map((keyword: string) => (
                 <li
                   className="articleDetails-content-article-section-content-keywords-tag"
-                  key={index}
+                  key={keyword}
                 >
                   {keyword}
                 </li>

@@ -65,8 +65,8 @@ export default function VolumesModal({
             {t('common.filters.volumeTypes')}
           </h2>
           <div className="volumesModal-typesSection-types">
-            {types.map((type, index) => (
-              <div key={index} className="volumesModal-typesSection-types-choice">
+            {types.map(type => (
+              <div key={type.value} className="volumesModal-typesSection-types-choice">
                 <div>
                   <Checkbox
                     checked={type.isChecked}

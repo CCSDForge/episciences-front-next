@@ -107,8 +107,11 @@ function SwiperBoardCard({ language, t, member }: ISwiperBoardCardProps): React.
       </div>
       {member.affiliations && member.affiliations.length > 0 && (
         <div className="swiperBoardCard-affiliations">
-          {member.affiliations.map((affiliation, idx) => (
-            <div key={idx} className="swiperBoardCard-affiliation-item">
+          {member.affiliations.map(affiliation => (
+            <div
+              key={`${affiliation.label}-${affiliation.rorId ?? ''}`}
+              className="swiperBoardCard-affiliation-item"
+            >
               <AffiliationWithRor affiliation={affiliation} />
             </div>
           ))}

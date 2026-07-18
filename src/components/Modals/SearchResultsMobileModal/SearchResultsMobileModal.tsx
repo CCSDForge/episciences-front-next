@@ -276,9 +276,9 @@ export default function SearchResultsMobileModal({
         {taggedFilters.length > 0 && (
           <div className="searchResultsMobileModal-tags">
             <div className="searchResultsMobileModal-tags-row">
-              {taggedFilters.map((filter, index) => (
+              {taggedFilters.map(filter => (
                 <Tag
-                  key={index}
+                  key={`${filter.type}-${filter.value}`}
                   text={
                     filter.labelPath
                       ? t(filter.labelPath)
@@ -307,8 +307,8 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.TYPE)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.TYPE)}
           >
-            {types.map((type, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-types-list-choice">
+            {types.map(type => (
+              <div key={type.value} className="searchResultsMobileModal-filters-types-list-choice">
                 <div className="searchResultsMobileModal-filters-types-list-choice-row">
                   <div className="searchResultsMobileModal-filters-types-list-choice-row-checkbox">
                     <Checkbox
@@ -340,8 +340,8 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.YEAR)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.YEAR)}
           >
-            {years.map((y, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-years-list-choice">
+            {years.map(y => (
+              <div key={y.year} className="searchResultsMobileModal-filters-years-list-choice">
                 <div className="searchResultsMobileModal-filters-years-list-choice-row">
                   <div className="searchResultsMobileModal-filters-years-list-choice-row-checkbox">
                     <Checkbox
@@ -373,8 +373,8 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.VOLUME)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.VOLUME)}
           >
-            {volumes.map((volume, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-volumes-list-choice">
+            {volumes.map(volume => (
+              <div key={volume.id} className="searchResultsMobileModal-filters-volumes-list-choice">
                 <div className="searchResultsMobileModal-filters-volumes-list-choice-row">
                   <div className="searchResultsMobileModal-filters-volumes-list-choice-row-checkbox">
                     <Checkbox
@@ -403,8 +403,11 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.SECTION)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.SECTION)}
           >
-            {sections.map((section, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-sections-list-choice">
+            {sections.map(section => (
+              <div
+                key={section.id}
+                className="searchResultsMobileModal-filters-sections-list-choice"
+              >
                 <div className="searchResultsMobileModal-filters-sections-list-choice-row">
                   <div className="searchResultsMobileModal-filters-sections-list-choice-row-checkbox">
                     <Checkbox
@@ -433,8 +436,11 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.AUTHOR)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.AUTHOR)}
           >
-            {authors.map((author, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-authors-list-choice">
+            {authors.map(author => (
+              <div
+                key={author.fullname}
+                className="searchResultsMobileModal-filters-authors-list-choice"
+              >
                 <div className="searchResultsMobileModal-filters-authors-list-choice-row">
                   <div className="searchResultsMobileModal-filters-authors-list-choice-row-checkbox">
                     <Checkbox

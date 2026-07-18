@@ -182,8 +182,8 @@ export default function SectionsClient({
             <Loader />
           ) : (
             <div className="sections-content-results-cards">
-              {sectionsData?.data.map((section, index) => (
-                <SectionCard key={index} language={language} t={t} section={section} />
+              {sectionsData?.data.map(section => (
+                <SectionCard key={section.id} language={language} t={t} section={section} />
               ))}
             </div>
           )}

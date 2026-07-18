@@ -26,8 +26,8 @@ export default function StatisticsSidebar({
       <div className="statisticsSidebar-title">{t('common.filters.years')}</div>
       <div className="statisticsSidebar-years">
         <div className="statisticsSidebar-years-list">
-          {years.map((y, index) => (
-            <div key={index} className="statisticsSidebar-years-list-choice">
+          {years.map(y => (
+            <div key={y.year} className="statisticsSidebar-years-list-choice">
               <div className="statisticsSidebar-years-list-choice-checkbox">
                 <Checkbox
                   checked={y.isChecked}

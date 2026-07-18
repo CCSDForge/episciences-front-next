@@ -529,9 +529,9 @@ export default function VolumeDetailsClient({
                 <div className="volumeDetails-content-results-content-cards">
                   {articles
                     ?.filter(article => article)
-                    .map((article, index) => (
+                    .map(article => (
                       <VolumeArticleCard
-                        key={index}
+                        key={(article as IArticle).id}
                         language={language}
                         t={t}
                         article={article as IArticle}

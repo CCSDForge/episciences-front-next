@@ -109,8 +109,8 @@ export default function NewsMobileModal({
             <div
               className={`newsMobileModal-filters-years-list ${isOpenedSection(FILTERS_SECTION.YEAR) && 'newsMobileModal-filters-years-list-opened'}`}
             >
-              {filtersYears.map((y, index) => (
-                <div key={index} className="newsMobileModal-filters-years-list-choice">
+              {filtersYears.map(y => (
+                <div key={y.year} className="newsMobileModal-filters-years-list-choice">
                   <div className="newsMobileModal-filters-years-list-choice-checkbox">
                     <Checkbox
                       checked={y.isSelected}

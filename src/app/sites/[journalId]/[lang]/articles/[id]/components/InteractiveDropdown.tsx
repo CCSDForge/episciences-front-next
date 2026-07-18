@@ -232,9 +232,9 @@ export default function InteractiveDropdown({
         role="menu"
         onKeyDown={handleMenuKeyDown}
       >
-        {citations.map((citation, index) => (
+        {citations.map(citation => (
           <button
-            key={index}
+            key={citation.key}
             type="button"
             role="menuitem"
             className="articleDetailsSidebar-links-link-modal-content-links-link"
@@ -255,9 +255,9 @@ export default function InteractiveDropdown({
       role="menu"
       onKeyDown={handleMenuKeyDown}
     >
-      {metadataTypes.map((metadata, index) => (
+      {metadataTypes.map(metadata => (
         <button
-          key={index}
+          key={metadata.type}
           type="button"
           role="menuitem"
           className="articleDetailsSidebar-links-link-modal-content-links-link"

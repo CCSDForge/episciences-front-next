@@ -71,8 +71,8 @@ export default function AuthorsSidebar({
         />
       </div>
       <div className="authorsSidebar-letters">
-        {alphabet.map((letter, index) => (
-          <Fragment key={index}>{renderLetter(letter, letter)}</Fragment>
+        {alphabet.map(letter => (
+          <Fragment key={letter}>{renderLetter(letter, letter)}</Fragment>
         ))}
         {renderLetter('others', t('pages.authors.others'), 'authorsSidebar-letters-letter-others')}
       </div>

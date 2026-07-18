@@ -30,8 +30,8 @@ export default function ArticlesAcceptedSidebar({
           {t('common.filters.documentTypes')}
         </div>
         <div className="articlesAcceptedSidebar-typesSection-types">
-          {types.map((type, index) => (
-            <div key={index} className="articlesAcceptedSidebar-typesSection-types-choice">
+          {types.map(type => (
+            <div key={type.value} className="articlesAcceptedSidebar-typesSection-types-choice">
               <div className="articlesAcceptedSidebar-typesSection-types-choice-checkbox">
                 <Checkbox
                   checked={type.isChecked}

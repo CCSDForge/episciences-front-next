@@ -234,7 +234,7 @@ export default function NewsClient({
               {news?.data?.map((singleNews, index) =>
                 mode === RENDERING_MODE.TILE ? (
                   <NewsTileCard
-                    key={index}
+                    key={singleNews.id}
                     language={language}
                     t={t}
                     news={singleNews}
@@ -250,7 +250,7 @@ export default function NewsClient({
                     }
                   />
                 ) : (
-                  <NewsListCard key={index} language={language} t={t} news={singleNews} />
+                  <NewsListCard key={singleNews.id} language={language} t={t} news={singleNews} />
                 )
               )}
             </div>

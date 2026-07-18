@@ -502,9 +502,9 @@ export default function VolumesClient({
       {mode === RENDERING_MODE.LIST ? (
         <div className="volumes-filters">
           <div className="volumes-filters-tags">
-            {taggedFilters.map((filter, index) => (
+            {taggedFilters.map(filter => (
               <Tag
-                key={index}
+                key={`${filter.type}-${filter.value}`}
                 text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
@@ -545,9 +545,9 @@ export default function VolumesClient({
                   : `${t('common.filters.filter')}`}
               </div>
             </div>
-            {taggedFilters.map((filter, index) => (
+            {taggedFilters.map(filter => (
               <Tag
-                key={index}
+                key={`${filter.type}-${filter.value}`}
                 text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
@@ -602,9 +602,9 @@ export default function VolumesClient({
         )}
       </div>
       <div className="volumes-filtersMobile-tags">
-        {taggedFilters.map((filter, index) => (
+        {taggedFilters.map(filter => (
           <Tag
-            key={index}
+            key={`${filter.type}-${filter.value}`}
             text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
             onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
           />
@@ -627,10 +627,10 @@ export default function VolumesClient({
             <div
               className={`volumes-content-results-cards ${mode === RENDERING_MODE.TILE && 'volumes-content-results-cards-tiles'}`}
             >
-              {volumesData?.data.map((volume: IVolume, index: number) =>
+              {volumesData?.data.map((volume: IVolume) =>
                 mode === RENDERING_MODE.TILE ? (
                   <VolumeTileCard
-                    key={index}
+                    key={volume.id}
                     language={language}
                     t={t}
                     volume={volume}
@@ -638,7 +638,7 @@ export default function VolumesClient({
                     journalCode={journalId}
                   />
                 ) : (
-                  <VolumeListCard key={index} language={language} t={t} volume={volume} />
+                  <VolumeListCard key={volume.id} language={language} t={t} volume={volume} />
                 )
               )}
             </div>

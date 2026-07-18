@@ -102,8 +102,8 @@ export default function StatisticsMobileModal({
             <div
               className={`filtersYearsList ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'filtersYearsListOpened' : ''}`}
             >
-              {filtersYears.map((y, index) => (
-                <div key={index} className="filtersYearsListChoice">
+              {filtersYears.map(y => (
+                <div key={y.year} className="filtersYearsListChoice">
                   <div>
                     <Checkbox
                       checked={y.isChecked}

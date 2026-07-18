@@ -90,9 +90,9 @@ export default function VolumeDetailsMobileModal({
           </button>
         </div>
         <div className="volumeDetailsMobileModal-relatedVolumes">
-          {relatedVolumes.map((relatedVolume, index) => (
+          {relatedVolumes.map(relatedVolume => (
             <div
-              key={index}
+              key={relatedVolume.id}
               className={`volumeDetailsMobileModal-relatedVolumes-volume ${relatedVolume.id === chosenVolume?.id ? 'volumeDetailsMobileModal-relatedVolumes-volume-current' : ''}`}
               role="button"
               tabIndex={0}

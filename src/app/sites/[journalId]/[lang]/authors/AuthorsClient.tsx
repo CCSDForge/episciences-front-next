@@ -312,9 +312,9 @@ export default function AuthorsClient({
       {getAuthorsCount()}
       <div className="authors-filters">
         <div className="authors-filters-tags">
-          {taggedFilters.map((filter, index) => (
+          {taggedFilters.map(filter => (
             <Tag
-              key={index}
+              key={filter.type}
               text={
                 filter.value === 'others'
                   ? countLabels?.others || t('pages.authors.others')
@@ -363,7 +363,7 @@ export default function AuthorsClient({
             <div className="authors-content-results-cards">
               {authors?.map((author, index) => (
                 <AuthorCard
-                  key={index}
+                  key={author.name}
                   t={t}
                   author={author}
                   expandedCard={expandedAuthorIndex === index}

@@ -160,9 +160,9 @@ export default function VolumeDetailsSidebar({
             </span>
           </Link>
         )}
-        {renderMetadatas().map((metadata, index) => (
+        {renderMetadatas().map(metadata => (
           <Link
-            key={index}
+            key={metadata.file}
             className="volumeDetailsSidebar-actions-action"
             href={`https://${journalId || currentJournal?.code}.episciences.org/public/volumes/${volume?.id}/${metadata.file}`}
             target="_blank"
@@ -186,9 +186,9 @@ export default function VolumeDetailsSidebar({
           </div>
           <div className="volumeDetailsSidebar-relatedVolumes-volumes">
             <div className="volumeDetailsSidebar-relatedVolumes-volumes-list">
-              {relatedVolumes.map((relatedVolume, index) => (
+              {relatedVolumes.map(relatedVolume => (
                 <Link
-                  key={index}
+                  key={relatedVolume.id}
                   href={`${PATHS.volumes}/${relatedVolume.id}`}
                   lang={language}
                   className={`volumeDetailsSidebar-relatedVolumes-volumes-list-volume ${relatedVolume.id === volume?.id && 'volumeDetailsSidebar-relatedVolumes-volumes-list-volume-current'}`}

@@ -28,7 +28,7 @@ export default function BoardsSidebar({
       <div className="boardsSidebar-links">
         {groups.map((group, index) => (
           <div
-            key={index}
+            key={group}
             className={`boardsSidebar-links-row ${openGroups.has(index) && 'boardsSidebar-links-row-active'}`}
             role="button"
             tabIndex={0}

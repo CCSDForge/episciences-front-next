@@ -36,8 +36,8 @@ export default function VolumesSidebar({
       <div className="volumesSidebar-typesSection">
         <div className="volumesSidebar-typesSection-title">{t('common.filters.volumeTypes')}</div>
         <div className="volumesSidebar-typesSection-types">
-          {types.map((type, index) => (
-            <div key={index} className="volumesSidebar-typesSection-types-choice">
+          {types.map(type => (
+            <div key={type.value} className="volumesSidebar-typesSection-types-choice">
               <div className="volumesSidebar-typesSection-types-choice-checkbox">
                 <Checkbox
                   checked={type.isChecked}

@@ -375,7 +375,7 @@ export default function StatisticsClient({
             <Loader />
           ) : (
             <div className="statistics-content-results-cards">
-              {statisticsPerLabel.map((statisticPerLabel, index) => {
+              {statisticsPerLabel.map(statisticPerLabel => {
                 let filteredStatistics = statisticPerLabel.statistics
                   .filter(statistic => statistic.value !== null)
                   .filter(statistic => getBlockRendering(statistic.name)?.render);
@@ -387,7 +387,7 @@ export default function StatisticsClient({
                 });
 
                 return (
-                  <div key={index} className="statistics-content-results-cards-row">
+                  <div key={statisticPerLabel.labelKey} className="statistics-content-results-cards-row">
                     <CollapsibleSectionHeader
                       as="div"
                       triggerClassName="statistics-content-results-cards-row-title"
@@ -406,7 +406,7 @@ export default function StatisticsClient({
                         const isLast = index === filteredStatistics.length - 1;
 
                         return (
-                          <Fragment key={index}>
+                          <Fragment key={statistic.name}>
                             <div className="statistics-content-results-cards-row-stats-row">
                               <StatisticValueDisplay
                                 statistic={statistic}

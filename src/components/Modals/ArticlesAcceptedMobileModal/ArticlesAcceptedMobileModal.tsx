@@ -105,9 +105,9 @@ export default function ArticlesAcceptedMobileModal({
         {taggedFilters.length > 0 && (
           <div className="articlesAcceptedMobileModal-tags">
             <div className="articlesAcceptedMobileModal-tags-row">
-              {taggedFilters.map((filter, index) => (
+              {taggedFilters.map(filter => (
                 <Tag
-                  key={index}
+                  key={filter.value}
                   text={t(filter.labelPath)}
                   onCloseCallback={(): void => onCloseTaggedFilter(filter.value)}
                 />
@@ -155,8 +155,11 @@ export default function ArticlesAcceptedMobileModal({
             <div
               className={`articlesAcceptedMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesAcceptedMobileModal-filters-types-list-opened'}`}
             >
-              {types.map((type, index) => (
-                <div key={index} className="articlesAcceptedMobileModal-filters-types-list-choice">
+              {types.map(type => (
+                <div
+                  key={type.value}
+                  className="articlesAcceptedMobileModal-filters-types-list-choice"
+                >
                   <div className="articlesAcceptedMobileModal-filters-types-list-choice-checkbox">
                     <Checkbox
                       checked={type.isChecked}

@@ -747,9 +747,9 @@ export default function SearchClient({
       <div className="articles-filters">
         {taggedFilters.length > 0 && (
           <div className="articles-filters-tags">
-            {taggedFilters.map((filter, index) => (
+            {taggedFilters.map(filter => (
               <Tag
-                key={index}
+                key={`${filter.type}-${filter.value}`}
                 text={
                   filter.labelPath
                     ? t(filter.labelPath)
@@ -810,9 +810,9 @@ export default function SearchClient({
             <Loader />
           ) : (
             <div className="articles-content-results-cards">
-              {enhancedSearchResults.map((searchResult, index) => (
+              {enhancedSearchResults.map(searchResult => (
                 <ArticleCard
-                  key={index}
+                  key={searchResult.id}
                   language={language}
                   rvcode={rvcode}
                   t={t}

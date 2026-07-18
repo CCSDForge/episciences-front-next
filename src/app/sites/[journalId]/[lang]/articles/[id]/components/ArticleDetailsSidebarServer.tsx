@@ -207,8 +207,11 @@ export default function ArticleDetailsSidebarServer({
         initialOpen={true}
         className="articleDetailsSidebar-funding"
       >
-        {article.fundings.map((fund: any, index: number) => (
-          <div key={index} className="articleDetailsSidebar-funding-content-row">
+        {article.fundings.map((fund: any) => (
+          <div
+            key={typeof fund === 'string' ? fund : `${fund.funder ?? ''}-${fund.award ?? ''}`}
+            className="articleDetailsSidebar-funding-content-row"
+          >
             <div>{fund.funder || fund}</div>
             {fund.award && <div>#{fund.award}</div>}
           </div>

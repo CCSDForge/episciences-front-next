@@ -107,9 +107,9 @@ export function VolumeDetailsMobile({
         />
       </div>
       <div className="volumeDetailsMobile-relatedVolumes">
-        {relatedVolumes.map((relatedVolume, index) => (
+        {relatedVolumes.map(relatedVolume => (
           <div
-            key={index}
+            key={relatedVolume.id}
             className={`volumeDetailsMobile-relatedVolumes-volume ${relatedVolume.id === chosenVolume?.id && 'volumeDetailsMobile-relatedVolumes-volume-current'}`}
             role="button"
             tabIndex={0}

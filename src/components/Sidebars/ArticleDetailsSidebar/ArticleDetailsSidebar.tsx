@@ -346,9 +346,9 @@ export default function ArticleDetailsSidebar({
               className={`articleDetailsSidebar-links-link-modal-content ${showCitationsDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}
             >
               <div className="articleDetailsSidebar-links-link-modal-content-links">
-                {citations.map((citation, index) => (
+                {citations.map(citation => (
                   <div
-                    key={index}
+                    key={citation.key}
                     className="articleDetailsSidebar-links-link-modal-content-links-link"
                     role="button"
                     tabIndex={0}
@@ -388,9 +388,9 @@ export default function ArticleDetailsSidebar({
               className={`articleDetailsSidebar-links-link-modal-content ${showMetadatasDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}
             >
               <div className="articleDetailsSidebar-links-link-modal-content-links">
-                {metadataTypes.map((metadata, index) => (
+                {metadataTypes.map(metadata => (
                   <div
-                    key={index}
+                    key={metadata.type}
                     className="articleDetailsSidebar-links-link-modal-content-links-link"
                     role="button"
                     tabIndex={0}
@@ -577,8 +577,11 @@ export default function ArticleDetailsSidebar({
           <div
             className={`articleDetailsSidebar-funding-content ${openedFunding && 'articleDetailsSidebar-funding-content-opened'}`}
           >
-            {article.fundings.map((fund: any, index: number) => (
-              <div key={index} className="articleDetailsSidebar-funding-content-row">
+            {article.fundings.map((fund: any) => (
+              <div
+                key={typeof fund === 'string' ? fund : `${fund.funder ?? ''}-${fund.award ?? ''}`}
+                className="articleDetailsSidebar-funding-content-row"
+              >
                 <div>{fund.funder || fund}</div>
                 {fund.award && <div>#{fund.award}</div>}
               </div>

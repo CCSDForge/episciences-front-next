@@ -39,8 +39,8 @@ export default function ArticlesSidebar({
           {t('common.filters.documentTypes')}
         </div>
         <div className="articlesSidebar-typesSection-types">
-          {types.map((type, index) => (
-            <div key={index} className="articlesSidebar-typesSection-types-choice">
+          {types.map(type => (
+            <div key={type.value} className="articlesSidebar-typesSection-types-choice">
               <div className="articlesSidebar-typesSection-types-choice-checkbox">
                 <Checkbox
                   checked={type.isChecked}
@@ -64,8 +64,8 @@ export default function ArticlesSidebar({
         <div className="articlesSidebar-yearsSection-title">{t('common.filters.years')}</div>
         <div className="articlesSidebar-yearsSection-years">
           <div className="articlesSidebar-yearsSection-years-list">
-            {years.map((y, index) => (
-              <div key={index} className="articlesSidebar-yearsSection-years-list-choice">
+            {years.map(y => (
+              <div key={y.year} className="articlesSidebar-yearsSection-years-list-choice">
                 <div className="articlesSidebar-yearsSection-years-list-choice-checkbox">
                   <Checkbox
                     checked={y.isChecked}

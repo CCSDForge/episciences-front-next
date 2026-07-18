@@ -75,8 +75,8 @@ export default function SearchResultsSidebar({
             {t('common.filters.documentTypes')}
           </div>
           <div className="searchResultsSidebar-typesSection-types">
-            {types.map((type, index) => (
-              <div key={index} className="searchResultsSidebar-typesSection-types-choice">
+            {types.map(type => (
+              <div key={type.value} className="searchResultsSidebar-typesSection-types-choice">
                 <div className="searchResultsSidebar-typesSection-types-choice-row">
                   <div className="searchResultsSidebar-typesSection-types-choice-row-checkbox">
                     <Checkbox
@@ -110,8 +110,8 @@ export default function SearchResultsSidebar({
           <div className="searchResultsSidebar-yearsSection-title">{t('common.filters.years')}</div>
           <div className="searchResultsSidebar-yearsSection-years">
             <div className="searchResultsSidebar-yearsSection-years-list">
-              {years.map((y, index) => (
-                <div key={index} className="searchResultsSidebar-yearsSection-years-list-choice">
+              {years.map(y => (
+                <div key={y.year} className="searchResultsSidebar-yearsSection-years-list-choice">
                   <div className="searchResultsSidebar-yearsSection-years-list-choice-row">
                     <div className="searchResultsSidebar-yearsSection-years-list-choice-row-checkbox">
                       <Checkbox
@@ -148,9 +148,9 @@ export default function SearchResultsSidebar({
           </div>
           <div className="searchResultsSidebar-volumesSection-volumes">
             <div className="searchResultsSidebar-volumesSection-volumes-list">
-              {volumes.map((v, index) => (
+              {volumes.map(v => (
                 <div
-                  key={index}
+                  key={v.id}
                   className="searchResultsSidebar-volumesSection-volumes-list-choice"
                 >
                   <div className="searchResultsSidebar-volumesSection-volumes-list-choice-checkbox">
@@ -182,9 +182,9 @@ export default function SearchResultsSidebar({
           </div>
           <div className="searchResultsSidebar-sectionsSection-sections">
             <div className="searchResultsSidebar-sectionsSection-sections-list">
-              {sections.map((s, index) => (
+              {sections.map(s => (
                 <div
-                  key={index}
+                  key={s.id}
                   className="searchResultsSidebar-sectionsSection-sections-list-choice"
                 >
                   <div className="searchResultsSidebar-sectionsSection-sections-list-choice-checkbox">
@@ -218,9 +218,9 @@ export default function SearchResultsSidebar({
           </div>
           <div className="searchResultsSidebar-authorsSection-authors">
             <div className="searchResultsSidebar-authorsSection-authors-list">
-              {authors.map((a, index) => (
+              {authors.map(a => (
                 <div
-                  key={index}
+                  key={a.fullname}
                   className="searchResultsSidebar-authorsSection-authors-list-choice"
                 >
                   <div className="searchResultsSidebar-authorsSection-authors-list-choice-row">

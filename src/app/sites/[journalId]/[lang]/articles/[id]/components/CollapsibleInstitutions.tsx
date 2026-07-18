@@ -26,6 +26,7 @@ export default function CollapsibleInstitutions({
 
   const renderAuthors = () => {
     return authors.map((author, index) => {
+      const authorKey = `${author.fullname}-${author.institutionsKeys.join(',')}`;
       const authorName = (
         <>
           {author.fullname}
@@ -47,15 +48,15 @@ export default function CollapsibleInstitutions({
         </>
       );
 
-      const authorInstitutions = author.institutionsKeys.map((key, i) => (
-        <sup key={i} className="articleDetails-content-article-authors-institution-key">
+      const authorInstitutions = author.institutionsKeys.map(key => (
+        <sup key={key} className="articleDetails-content-article-authors-institution-key">
           {' '}
           ({key + 1})
         </sup>
       ));
 
       return (
-        <span key={index} className="articleDetails-content-article-authors-author">
+        <span key={authorKey} className="articleDetails-content-article-authors-author">
           {authorName}
           {authorInstitutions}
           {index < authors.length - 1 && ', '}
@@ -71,7 +72,7 @@ export default function CollapsibleInstitutions({
     return (
       <>
         {institutions.map((institution, index) => (
-          <div key={index}>
+          <div key={institution.rorId || institution.name}>
             ({index + 1}) {institution.name}
             {institution.rorId && (
               <Link
