@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
+import type { ExtraProps } from 'react-markdown';
+import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
 import {
@@ -167,6 +169,53 @@ export default function MarkdownPageWithSidebar({
     return headers;
   }, []);
 
+  const renderMarkdownImage = useCallback(
+    ({ src, alt }: ComponentProps<'img'> & ExtraProps) => {
+      const rawSrc = typeof src === 'string' ? src : '';
+      // Only rewrite journal-relative paths - an already-absolute URL
+      // (e.g. an external logo) must not be prefixed with the journal host.
+      const resolvedSrc = rawSrc.includes('/public/')
+        ? getMarkdownImageURL(rawSrc, rvcode || '')
+        : rawSrc;
+      return (
+        <Image
+          src={resolvedSrc}
+          alt={alt || ''}
+          width={0}
+          height={0}
+          sizes="100vw"
+          style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
+        />
+      );
+    },
+    [rvcode]
+  );
+
+  const renderMarkdownLink = useCallback(
+    ({ href, children }: ComponentProps<'a'> & ExtraProps) => (
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className={`${className}-content-body-section-link`}
+      >
+        {children}
+      </a>
+    ),
+    [className]
+  );
+
+  const renderEmptyHeading = useCallback(() => <></>, []);
+
+  const renderMarkdownH3 = useCallback(
+    ({ node, children }: ComponentProps<'h3'> & ExtraProps) => {
+      const text = node ? getNodeText(node) : '';
+      const id = generateIdFromText(text);
+      return <h3 id={id}>{children}</h3>;
+    },
+    []
+  );
+
   const toggleSectionHeader = (id: string): void => {
     setPageSections(prevSections =>
       prevSections.map(section => ({
@@ -257,41 +306,11 @@ export default function MarkdownPageWithSidebar({
                   >
                     <MarkdownRenderer
                       components={{
-                        img: ({ src, alt }) => {
-                          const rawSrc = typeof src === 'string' ? src : '';
-                          // Only rewrite journal-relative paths - an already-absolute URL
-                          // (e.g. an external logo) must not be prefixed with the journal host.
-                          const resolvedSrc = rawSrc.includes('/public/')
-                            ? getMarkdownImageURL(rawSrc, rvcode || '')
-                            : rawSrc;
-                          return (
-                            <Image
-                              src={resolvedSrc}
-                              alt={alt || ''}
-                              width={0}
-                              height={0}
-                              sizes="100vw"
-                              style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
-                            />
-                          );
-                        },
-                        a: ({ href, children }) => (
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={`${className}-content-body-section-link`}
-                          >
-                            {children}
-                          </a>
-                        ),
-                        h1: () => <></>,
-                        h2: () => <></>,
-                        h3: ({ node, children }) => {
-                          const text = node ? getNodeText(node) : '';
-                          const id = generateIdFromText(text);
-                          return <h3 id={id}>{children}</h3>;
-                        },
+                        img: renderMarkdownImage,
+                        a: renderMarkdownLink,
+                        h1: renderEmptyHeading,
+                        h2: renderEmptyHeading,
+                        h3: renderMarkdownH3,
                       }}
                     >
                       {section.value}

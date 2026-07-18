@@ -23,7 +23,8 @@ import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
 import { formatDate } from '@/utils/date';
 import { ForAuthorsPage } from '@/services/forAuthors';
-import type { Components } from 'react-markdown';
+import type { Components, ExtraProps } from 'react-markdown';
+import type { ComponentProps } from 'react';
 import '@/styles/transitions.scss';
 import './ForAuthors.scss';
 
@@ -320,50 +321,56 @@ export default function ForAuthorsClient({
     [content, collapsedHeaderIds]
   );
 
-  // Memoized so MarkdownRenderer's `components` map keeps a stable identity across
-  // unrelated re-renders - react-markdown remounts the rendered subtree whenever a
-  // custom component's function identity changes, which would otherwise happen on
-  // every render since these were previously defined inline.
-  const markdownComponents = useMemo<Components>(
-    () => ({
-      a: ({ href, children }) => {
-        const isExternal =
-          !!href &&
-          (href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:'));
+  const renderMarkdownLink = useCallback(({ href, children }: ComponentProps<'a'> & ExtraProps) => {
+    const isExternal =
+      !!href && (href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:'));
 
-        return (
-          <Link
-            href={href || '#'}
-            target={isExternal ? '_blank' : undefined}
-            rel={isExternal ? 'noopener noreferrer' : undefined}
-            className="forAuthors-content-body-section-link"
-          >
-            {children}
-          </Link>
-        );
-      },
-      h2: ({ node, children }) => {
-        const id = generateIdFromText(node ? getNodeText(node) : '');
-        const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
+    return (
+      <Link
+        href={href || '#'}
+        target={isExternal ? '_blank' : undefined}
+        rel={isExternal ? 'noopener noreferrer' : undefined}
+        className="forAuthors-content-body-section-link"
+      >
+        {children}
+      </Link>
+    );
+  }, []);
 
-        return (
-          <CollapsibleSectionHeader
-            triggerClassName="forAuthors-content-body-section-subtitle"
-            headingClassName="forAuthors-content-body-section-subtitle-text"
-            caretClassName="forAuthors-content-body-section-subtitle-caret"
-            headingId={id}
-            title={children}
-            isOpen={!!isOpened}
-            onToggle={(): void => toggleSectionHeader(id)}
-          />
-        );
-      },
-      h3: ({ node, children }) => (
-        <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>{children}</h3>
-      ),
-    }),
+  const renderMarkdownH2 = useCallback(
+    ({ node, children }: ComponentProps<'h2'> & ExtraProps) => {
+      const id = generateIdFromText(node ? getNodeText(node) : '');
+      const isOpened = pageSections.find(pageSection => pageSection.id === id)?.opened;
+
+      return (
+        <CollapsibleSectionHeader
+          triggerClassName="forAuthors-content-body-section-subtitle"
+          headingClassName="forAuthors-content-body-section-subtitle-text"
+          caretClassName="forAuthors-content-body-section-subtitle-caret"
+          headingId={id}
+          title={children}
+          isOpen={!!isOpened}
+          onToggle={(): void => toggleSectionHeader(id)}
+        />
+      );
+    },
     [pageSections, toggleSectionHeader]
   );
+
+  const renderMarkdownH3 = useCallback(
+    ({ node, children }: ComponentProps<'h3'> & ExtraProps) => (
+      <h3 id={generateIdFromText(node ? getNodeText(node) : '')}>{children}</h3>
+    ),
+    []
+  );
+
+  // Plain object (not memoized) - only the individual render function identities above
+  // need to stay stable across renders; the containing map is inexpensive to recreate.
+  const markdownComponents: Components = {
+    a: renderMarkdownLink,
+    h2: renderMarkdownH2,
+    h3: renderMarkdownH3,
+  };
 
   return (
     <main className="forAuthors">

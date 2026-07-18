@@ -11,10 +11,30 @@ import {
 } from '@/utils/article';
 import { decodeText } from '@/utils/markdown';
 import { DOI_URL, ARXIV_URL, HAL_URL, SOFTWARE_HERITAGE_URL } from '@/config/external-urls';
+import type { Components, ExtraProps } from 'react-markdown';
+import type { ComponentProps } from 'react';
 
 interface LinkedPublicationsSectionProps {
   relatedItems: IArticleRelatedItem[];
 }
+
+function renderCitationMarkdownLink({
+  href,
+  children,
+}: ComponentProps<'a'> & ExtraProps): React.JSX.Element {
+  return (
+    <Link
+      href={href!}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="articleDetails-content-article-section-content-linkedPublications-publication-markdown-link"
+    >
+      {children?.toString()}
+    </Link>
+  );
+}
+
+const citationMarkdownComponents: Components = { a: renderCitationMarkdownLink };
 
 export default function LinkedPublicationsSection({
   relatedItems,
@@ -46,20 +66,7 @@ export default function LinkedPublicationsSection({
               {t(relationship)}
             </div>
           )}
-          <MarkdownRenderer
-            components={{
-              a: ({ ...props }) => (
-                <Link
-                  href={props.href!}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="articleDetails-content-article-section-content-linkedPublications-publication-markdown-link"
-                >
-                  {props.children?.toString()}
-                </Link>
-              ),
-            }}
-          >
+          <MarkdownRenderer components={citationMarkdownComponents}>
             {decodeText(relatedItem.citation)}
           </MarkdownRenderer>
         </div>
