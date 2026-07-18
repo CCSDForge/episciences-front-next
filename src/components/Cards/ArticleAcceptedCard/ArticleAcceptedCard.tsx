@@ -42,9 +42,7 @@ function ArticleAcceptedCard({
         </Link>
       )}
       <div className="articleAcceptedCard-authors">
-        {article && article.authors
-          ? article.authors.map(author => author.fullname).join(', ')
-          : ''}
+        {article?.authors ? article.authors.map(author => author.fullname).join(', ') : ''}
       </div>
       {article.abstract && (
         <div className="articleAcceptedCard-abstract">

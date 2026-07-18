@@ -104,7 +104,7 @@ export default async function SectionDetailsPage(props: {
     // Tier 2: if the API returned a section belonging to another journal, redirect.
     // Fail-closed: if rvid is present but the journal lookup failed, block rather than skip.
     if (rawSection.rvid !== undefined) {
-      if (!activeJournal || rawSection.rvid !== activeJournal.id) {
+      if (rawSection.rvid !== activeJournal?.id) {
         logger.warn('Cross-journal section access blocked', {
           reason: 'section-wrong-journal',
           resourceType: 'section',

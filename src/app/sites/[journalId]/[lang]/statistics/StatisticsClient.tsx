@@ -221,7 +221,7 @@ export default function StatisticsClient({
   }, [stats?.range?.years, years.length]);
 
   useEffect(() => {
-    if (stats && stats.data) {
+    if (stats?.data) {
       const glanceStatTypes = [
         STAT_TYPE.ACCEPTANCE_RATE,
         STAT_TYPE.NB_SUBMISSIONS,

@@ -62,7 +62,7 @@ export function VolumeDetailsMobile({
   }, [onClose]);
 
   const getTitle = (): string => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.proceedings');
       }
@@ -76,7 +76,7 @@ export function VolumeDetailsMobile({
   };
 
   const getSubmitText = (): string => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.lookAtSelectedProceedings');
       }

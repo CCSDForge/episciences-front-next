@@ -66,7 +66,7 @@ export default function CollapsibleInstitutions({
   };
 
   const renderInstitutions = () => {
-    if (!institutions || !institutions.length) return null;
+    if (!institutions?.length) return null;
     if (!openedInstitutions) return null;
 
     return (

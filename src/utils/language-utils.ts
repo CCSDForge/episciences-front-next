@@ -24,7 +24,7 @@ export type AvailableLanguage = (typeof acceptedLanguages)[number];
  * @returns The language code or default language if not found
  */
 export function getLanguageFromParams(params: { lang?: string | string[] } | undefined): string {
-  if (!params || !params.lang) {
+  if (!params?.lang) {
     return defaultLanguage;
   }
 

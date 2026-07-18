@@ -15,13 +15,11 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
   const language = useAppSelector(state => state.i18nReducer.language);
 
   const getEdito = (): IVolumeMetadata | null => {
-    if (!volume?.metadatas || !volume.metadatas.length) return null;
+    if (!volume?.metadatas?.length) return null;
 
     const edito = volume.metadatas.find(
       metadata =>
-        metadata.title &&
-        metadata.title[language] &&
-        metadata.title[language].replace(/[\u0300-\u036f]/g, '').toLowerCase() === 'edito'
+        metadata.title?.[language]?.replace(/[\u0300-\u036f]/g, '').toLowerCase() === 'edito'
     );
 
     return edito || null;
@@ -106,7 +104,7 @@ export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): Re
       {renderTitle()}
       {renderCommittee()}
 
-      {volume?.description && volume.description[language] && (
+      {volume?.description?.[language] && (
         <div className="volumeDetailsDesktop-description">
           <MarkdownRenderer>{volume.description[language]}</MarkdownRenderer>
         </div>

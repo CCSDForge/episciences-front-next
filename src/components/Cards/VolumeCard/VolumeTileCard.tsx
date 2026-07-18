@@ -34,7 +34,7 @@ function VolumeTileCard({
 
   const formatVolumeNum = (): string => {
     const num = volume.num != null ? ` ${volume.num}` : '';
-    if (volume.types && volume.types.length) {
+    if (volume.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return `${t('common.volumeCard.proceeding')}${num}`;
       }

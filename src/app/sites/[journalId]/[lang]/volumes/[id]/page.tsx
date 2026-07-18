@@ -72,7 +72,7 @@ export default async function VolumeDetailsPage(props: {
     // Tier 2: if the API returned a volume belonging to another journal, redirect.
     // Fail-closed: if rvid is present but the journal lookup failed, block rather than skip.
     if (volumeData.rvid !== undefined) {
-      if (!activeJournal || volumeData.rvid !== activeJournal.id) {
+      if (volumeData.rvid !== activeJournal?.id) {
         logger.warn('Cross-journal volume access blocked', {
           reason: 'volume-wrong-journal',
           resourceType: 'volume',
@@ -86,7 +86,7 @@ export default async function VolumeDetailsPage(props: {
 
     // Fetch all articles for the volume server-side
     let articles: FetchedArticle[] = [];
-    if (volumeData && volumeData.articles && volumeData.articles.length > 0) {
+    if (volumeData && volumeData.articles?.length) {
       logger.debug(
         `[Volume ${params.id}] Found ${volumeData.articles.length} articles in volume data`
       );

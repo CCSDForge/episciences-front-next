@@ -127,7 +127,7 @@ export default function SectionsClient({
   };
 
   const getArticlesCount = (): React.JSX.Element | null => {
-    if (sections && sections.articlesCount) {
+    if (sections?.articlesCount) {
       if (sections.articlesCount > 1) {
         return (
           <div className="sections-title-count-text sections-title-count-text-articles">

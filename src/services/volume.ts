@@ -21,12 +21,12 @@ export const formatVolume = (
   let metadatas: IVolumeMetadata[] = [];
   let tileImageURL = undefined;
 
-  if (volume.metadata && volume.metadata.length) {
+  if (volume.metadata?.length) {
     metadatas = volume.metadata.map(meta => formatVolumeMetadata(meta));
 
     if (metadatas.length > 0) {
       const tileFile = metadatas.find(
-        metadata => metadata.file && metadata.title && metadata.title[language] === 'tile'
+        metadata => metadata.file && metadata.title?.[language] === 'tile'
       )?.file;
       if (tileFile) {
         tileImageURL = `https://${rvcode}.episciences.org/public/volumes/${volume.vid}/${tileFile}`;
@@ -35,7 +35,7 @@ export const formatVolume = (
   }
 
   let settingsProceeding: IVolumeSettingsProceeding[] = [];
-  if (volume.settings_proceeding && volume.settings_proceeding.length) {
+  if (volume.settings_proceeding?.length) {
     settingsProceeding = volume.settings_proceeding;
   }
 

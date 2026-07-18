@@ -145,7 +145,7 @@ export default function PresentationSection({
 
   const aboutText = getAboutContent();
   const hasValidAboutContent = !!aboutText;
-  const hasRightBlock = !!(lastInformation && lastInformation.information);
+  const hasRightBlock = !!lastInformation?.information;
 
   return (
     <div className="presentationSection">
@@ -173,7 +173,7 @@ export default function PresentationSection({
           </Link>
         </div>
       )}
-      {lastInformation && lastInformation.information && (
+      {lastInformation?.information && (
         <>
           {lastInformation.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS &&
             renderNewsContent(lastInformation.information as INews)}

@@ -160,7 +160,7 @@ function HomeClientInner({
 
     const issuesConfig = getBlockRendering(HOMEPAGE_BLOCK.SPECIAL_ISSUES);
     const shouldRenderIssues =
-      issuesConfig?.render && issues && issues.data && issues.data.length > 0;
+      issuesConfig?.render && issues?.data && issues.data.length > 0;
 
     const acceptedArticlesConfig = getBlockRendering(
       HOMEPAGE_BLOCK.LATEST_ACCEPTED_ARTICLES_CAROUSEL

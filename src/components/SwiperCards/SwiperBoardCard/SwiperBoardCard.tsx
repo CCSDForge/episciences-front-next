@@ -117,7 +117,7 @@ function SwiperBoardCard({ language, t, member }: ISwiperBoardCardProps): React.
           ))}
         </div>
       )}
-      {member.assignedSections && member.assignedSections.length > 0 && (
+      {member.assignedSections?.length > 0 && (
         <div className="swiperBoardCard-assignedSections">
           {member.assignedSections
             .filter(assignedSection => assignedSection.titles && assignedSection.titles[language])

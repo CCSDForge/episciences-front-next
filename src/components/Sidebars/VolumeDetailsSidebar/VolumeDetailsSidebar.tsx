@@ -42,13 +42,12 @@ export default function VolumeDetailsSidebar({
   const volumeArticles = articles.length > 0 ? articles : volume?.articles || [];
 
   const renderMetadatas = (): IVolumeMetadata[] => {
-    if (!volume?.metadatas || !volume.metadatas.length) return [];
+    if (!volume?.metadatas?.length) return [];
 
     return volume.metadatas.filter(
       metadata =>
         metadata.file &&
-        metadata.title &&
-        metadata.title[language] &&
+        metadata.title?.[language] &&
         !NOT_RENDERED_SIDEBAR_METADATAS.includes(
           metadata.title[language].replace(/[\u0300-\u036f]/g, '').toLowerCase()
         )
@@ -56,7 +55,7 @@ export default function VolumeDetailsSidebar({
   };
 
   const renderVolumeTemplateSpecial = (): React.JSX.Element => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return (
           <div className="volumeDetailsSidebar-template-volume">
@@ -79,10 +78,8 @@ export default function VolumeDetailsSidebar({
 
   const renderVolumeTemplateNumber = (): React.JSX.Element => {
     if (
-      volume?.types &&
-      volume?.types.includes(VOLUME_TYPE.PROCEEDINGS) &&
-      volume.settingsProceeding &&
-      volume.settingsProceeding.length
+      volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) &&
+      volume.settingsProceeding?.length
     ) {
       const conferenceAcronym = volume!.settingsProceeding!.find(
         setting => setting.setting === 'conference_acronym'
@@ -91,12 +88,7 @@ export default function VolumeDetailsSidebar({
         setting => setting.setting === 'conference_number'
       );
 
-      if (
-        conferenceAcronym &&
-        conferenceAcronym.value &&
-        conferenceNumber &&
-        conferenceNumber.value
-      ) {
+      if (conferenceAcronym?.value && conferenceNumber?.value) {
         return (
           <div className="volumeDetailsSidebar-template-number volumeDetailsSidebar-template-number-conference">{`${conferenceAcronym.value} ${conferenceNumber.value}`}</div>
         );
@@ -107,7 +99,7 @@ export default function VolumeDetailsSidebar({
   };
 
   const renderRelatedVolumesTitle = (): string => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.proceedings');
       }
@@ -174,7 +166,7 @@ export default function VolumeDetailsSidebar({
               ariaLabel={`Download ${metadata.title?.[language] || 'file'}`}
             />
             <span className="volumeDetailsSidebar-actions-action-text">
-              {metadata.title && metadata.title[language]}
+              {metadata.title?.[language]}
             </span>
           </Link>
         ))}

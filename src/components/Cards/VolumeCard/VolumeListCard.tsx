@@ -33,7 +33,7 @@ function VolumeListCard({ language, t, volume }: IVolumeListCardProps): React.JS
 
   const formatVolumeNum = (): string => {
     const num = volume.num != null ? ` ${volume.num}` : '';
-    if (volume.types && volume.types.length) {
+    if (volume.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return `${t('common.volumeCard.proceeding')}${num}`;
       }
@@ -86,7 +86,7 @@ function VolumeListCard({ language, t, volume }: IVolumeListCardProps): React.JS
             {volume.committee.map(member => member.screenName).join(', ')}
           </div>
         )}
-        {volume.description && volume.description[language] && (
+        {volume.description?.[language] && (
           <div className="volumeCard-content-description">
             <div
               className={`volumeCard-content-description-title ${!openedDescription && 'volumeCard-content-description-title-closed'}`}

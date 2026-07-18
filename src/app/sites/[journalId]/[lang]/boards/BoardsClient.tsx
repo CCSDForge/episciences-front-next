@@ -79,7 +79,7 @@ export default function BoardsClient({
   };
 
   const boardsPerTitle = useMemo(() => {
-    if (!boardsData?.members || !boardsData.members.length) return [];
+    if (!boardsData?.members?.length) return [];
 
     return getBoardsPerTitle(boardsData.pages || [], boardsData.members, currentLang);
   }, [boardsData.pages, boardsData.members, currentLang]);
