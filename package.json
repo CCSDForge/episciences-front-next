@@ -21,7 +21,8 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "validate:pages": "tsx scripts/validate-pages.ts"
+    "validate:pages": "tsx scripts/validate-pages.ts",
+    "sonar": "npx @sonar/scan"
   },
   "dependencies": {
     "@citation-js/core": "^0.7.14",

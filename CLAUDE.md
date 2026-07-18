@@ -29,6 +29,8 @@ npm run test:coverage # Run tests with coverage
 npm run lint         # Linter (ESLint)
 npm run format       # Format code (Prettier)
 npm run validate:pages # Validate ISR page configurations
+npm run sonar        # Run SonarQube analysis
+make sonar           # Run tests with coverage and SonarQube scan
 make build && make up # Test with Nginx (production-like)
 ```
 
