@@ -5,7 +5,6 @@ import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'article-sidebar' });
 import { Link } from '@/components/Link/Link';
-import { useRouter } from 'next/navigation';
 import { TFunction } from 'i18next';
 import {
   EmailShareButton,
@@ -64,7 +63,6 @@ export default function ArticleDetailsSidebar({
   citations,
   metrics,
 }: IArticleDetailsSidebarProps): React.JSX.Element {
-  const router = useRouter();
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const [openedPublicationDetails, setOpenedPublicationDetails] = useState(true);

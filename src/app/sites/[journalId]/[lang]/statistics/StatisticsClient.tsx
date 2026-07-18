@@ -151,7 +151,6 @@ export default function StatisticsClient({
   }, [lang, i18n]);
   const router = useRouter();
 
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
   const journalCode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const [statisticsPerLabel, setStatisticsPerLabel] = useState<IStatisticsPerLabel[]>([
@@ -169,7 +168,6 @@ export default function StatisticsClient({
     },
   ]);
   const [years, setYears] = useState<IStatisticsYearSelection[]>([]);
-  const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
 
   const {
     data: stats,
@@ -343,8 +341,6 @@ export default function StatisticsClient({
 
     setStatisticsPerLabel(updatedStatistics);
   };
-
-  const renderSelectedYears = (): string => getSelectedYears().reverse().join(', ');
 
   const getBlockRendering = (statName: string) =>
     statisticsBlocksConfiguration().find(config => config.key === statName);

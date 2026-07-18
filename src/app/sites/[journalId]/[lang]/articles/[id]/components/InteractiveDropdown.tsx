@@ -12,7 +12,6 @@ import {
 } from '@/components/icons';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import {
   BlueskyShareButton,
@@ -52,7 +51,6 @@ export default function InteractiveDropdown({
   label,
 }: InteractiveDropdownProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const [showDropdown, setShowDropdown] = useState(false);

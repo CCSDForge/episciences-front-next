@@ -73,7 +73,7 @@ export default function VolumeDetailsClient({
 
   const rvcode = reduxRvcode || journalId;
 
-  const [volume, setVolume] = useState(initialVolume);
+  const [volume] = useState(initialVolume);
   const [isFetchingArticles, setIsFetchingArticles] = useState(false);
   const [articles, setArticles] = useState<FetchedArticle[]>(initialArticles);
   const [showFullMobileDescription, setShowFullMobileDescription] = useState(false);

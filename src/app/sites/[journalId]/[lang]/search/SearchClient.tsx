@@ -175,7 +175,6 @@ export default function SearchClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Use rvcode from Redux or fallback to environment variable
   const rvcode = reduxRvcode || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;

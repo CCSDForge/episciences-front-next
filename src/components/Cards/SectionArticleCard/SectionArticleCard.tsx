@@ -14,7 +14,6 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
-import { useAppSelector } from '@/hooks/store';
 
 interface ISectionArticleCardProps {
   language: AvailableLanguage;
@@ -28,7 +27,6 @@ export default function SectionArticleCard({
   article,
 }: ISectionArticleCardProps): React.JSX.Element {
   const [openedAbstract, setOpenedAbstract] = useState(false);
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const toggleAbstract = (): void => setOpenedAbstract(prev => !prev);
 

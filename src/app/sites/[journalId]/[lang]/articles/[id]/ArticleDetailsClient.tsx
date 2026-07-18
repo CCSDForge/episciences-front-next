@@ -5,7 +5,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
 import MathJax from '@/components/MathJax/MathJax';
-import { useRouter } from 'next/navigation';
 import { isMobileOnly } from 'react-device-detect';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
@@ -88,13 +87,11 @@ export default function ArticleDetailsClient({
   breadcrumbLabels,
 }: ArticleDetailsClientProps): React.JSX.Element {
   const { t } = useTranslation();
-  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
 
   const [relatedVolume, setRelatedVolume] = useState<IVolume | undefined>(
     initialRelatedVolume || undefined

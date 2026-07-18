@@ -14,7 +14,6 @@ import { formatDate } from '@/utils/date';
 import { AvailableLanguage } from '@/utils/i18n';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
-import { useAppSelector } from '@/hooks/store';
 
 interface IVolumeArticleCardProps {
   language: AvailableLanguage;
@@ -24,7 +23,6 @@ interface IVolumeArticleCardProps {
 
 function VolumeArticleCard({ language, t, article }: IVolumeArticleCardProps): React.JSX.Element {
   const [openedAbstract, setOpenedAbstract] = useState(false);
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const articlePath = `/${PATHS.articles}/${article.id}`.replace(/\/\/+/g, '/');
 

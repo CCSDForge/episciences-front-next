@@ -58,16 +58,15 @@ export default function SectionsClient({
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Initialiser la page depuis les query params ou initialPage
   const pageFromUrl = searchParams?.get('page');
   const pageNumber = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : initialPage;
 
   const [currentPage, setCurrentPage] = useState(pageNumber);
-  const [sections, setSections] = useState(initialSections);
+  const [sections] = useState(initialSections);
   const [sectionsData, setSectionsData] = useState(initialSections);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   // Synchroniser currentPage avec les query params
   useEffect(() => {

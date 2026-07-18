@@ -95,11 +95,7 @@ export default function VolumesClient({
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
-  const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
-
-  const rvcode = reduxRvcode || journalId;
 
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [volumes, setVolumes] = useState(initialVolumes);
@@ -111,7 +107,6 @@ export default function VolumesClient({
   const [taggedFilters, setTaggedFilters] = useState<IVolumeFilter[]>([]);
   const [openedFiltersModal, setOpenedFiltersModal] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
 
   // Update local state when props change (Server Component re-render)
@@ -122,9 +117,6 @@ export default function VolumesClient({
       setIsLoadingData(false); // Hide loader
     }
   }, [initialVolumes]);
-
-  const getSelectedTypes = (): string[] => types.filter(t => t.isChecked).map(t => t.value);
-  const getSelectedYears = (): number[] => years.filter(y => y.isSelected).map(y => y.year);
 
   const updateParams = (newTypes: IVolumeTypeSelection[], newYears: IVolumeYearSelection[]) => {
     const params = new URLSearchParams();
