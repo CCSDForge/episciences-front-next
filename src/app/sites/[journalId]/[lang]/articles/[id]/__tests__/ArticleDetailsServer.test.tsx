@@ -9,6 +9,14 @@ vi.mock('next/navigation', () => ({
   usePathname: vi.fn(() => '/articles/1'),
 }));
 
+// Mock next/image
+vi.mock('next/image', () => ({
+  default: ({ src, alt, ...props }: any) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt={alt} {...props} />
+  ),
+}));
+
 vi.mock('@/components/MathJax/MathJax', () => ({
   default: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
 }));
@@ -152,7 +160,7 @@ describe('ArticleDetailsServer', () => {
     );
     expect(img).toHaveAttribute(
       'src',
-      expect.stringContaining('epijinfo.episciences.org%2Fpublic%2Fdocuments%2F1%2Ffig1.png')
+      'https://epijinfo.episciences.org/public/documents/1/fig1.png'
     );
   });
 
