@@ -78,4 +78,28 @@ describe('getFormattedStatsAsPieChart', () => {
     const result = getFormattedStatsAsPieChart({ 'being-to-publish': {} });
     expect(result).toEqual([]);
   });
+
+  it('formats only the being-to-publish accepted count', () => {
+    const result = getFormattedStatsAsPieChart({ 'being-to-publish': { accepted: 7 } });
+    expect(result).toEqual([{ status: 'accepted', count: 7, isBeingToPublishStatus: true }]);
+  });
+
+  it('formats only the being-to-publish other-status count', () => {
+    const result = getFormattedStatsAsPieChart({ 'being-to-publish': { 'other-status': 9 } });
+    expect(result).toEqual([{ status: 'other-status', count: 9, isBeingToPublishStatus: true }]);
+  });
+
+  it('formats all fields together', () => {
+    const result = getFormattedStatsAsPieChart({
+      published: 1,
+      refused: 2,
+      'being-to-publish': { accepted: 3, 'other-status': 4 },
+    });
+    expect(result).toEqual([
+      { status: 'published', count: 1 },
+      { status: 'refused', count: 2 },
+      { status: 'accepted', count: 3, isBeingToPublishStatus: true },
+      { status: 'other-status', count: 4, isBeingToPublishStatus: true },
+    ]);
+  });
 });
