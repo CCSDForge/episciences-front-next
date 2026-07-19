@@ -40,11 +40,11 @@ const VolumeDetailsMobileModal = dynamic(
 );
 
 interface VolumeDetailsClientProps {
-  initialVolume: IVolume | null;
-  initialArticles?: FetchedArticle[];
-  lang?: string;
-  journalId?: string;
-  breadcrumbLabels?: {
+  readonly initialVolume: IVolume | null;
+  readonly initialArticles?: FetchedArticle[];
+  readonly lang?: string;
+  readonly journalId?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     volumes: string;

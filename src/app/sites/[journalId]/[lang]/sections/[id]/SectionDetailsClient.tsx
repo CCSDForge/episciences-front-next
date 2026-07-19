@@ -13,13 +13,13 @@ import SectionDetailsSidebar from '@/components/Sidebars/SectionDetailsSidebar/S
 import './SectionDetails.scss';
 
 interface SectionDetailsClientProps {
-  section: ISection;
-  articles: IArticle[];
-  sectionId: string;
-  lang?: string;
-  sectionTitle: string;
-  sectionDescription: string;
-  breadcrumbLabels?: {
+  readonly section: ISection;
+  readonly articles: IArticle[];
+  readonly sectionId: string;
+  readonly lang?: string;
+  readonly sectionTitle: string;
+  readonly sectionDescription: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     sections: string;

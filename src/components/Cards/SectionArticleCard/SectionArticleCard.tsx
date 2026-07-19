@@ -16,9 +16,9 @@ import { handleKeyboardClick } from '@/utils/keyboard';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
 interface ISectionArticleCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  article: IArticle;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly article: IArticle;
 }
 
 export default function SectionArticleCard({

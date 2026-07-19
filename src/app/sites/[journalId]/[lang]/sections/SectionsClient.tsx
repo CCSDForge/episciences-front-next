@@ -22,14 +22,14 @@ interface SectionsData {
 }
 
 interface SectionsClientProps {
-  initialSections: {
+  readonly initialSections: {
     data: ISection[];
     totalItems: number;
     articlesCount?: number;
   } | null;
-  initialPage: number;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialPage: number;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     sections: string;

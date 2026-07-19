@@ -4,10 +4,10 @@ import React, { useState, ReactNode } from 'react';
 import { CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 
 interface SidebarCollapsibleWrapperProps {
-  title: string;
-  children: ReactNode;
-  initialOpen?: boolean;
-  className?: string;
+  readonly title: string;
+  readonly children: ReactNode;
+  readonly initialOpen?: boolean;
+  readonly className?: string;
 }
 
 /**

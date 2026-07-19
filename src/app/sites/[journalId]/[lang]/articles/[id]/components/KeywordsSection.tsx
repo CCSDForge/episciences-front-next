@@ -4,8 +4,8 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { getTextDirection, getLanguageLabel } from '@/utils/rtl-languages';
 
 interface KeywordsSectionProps {
-  keywordsData: any;
-  currentLanguage: AvailableLanguage;
+  readonly keywordsData: any;
+  readonly currentLanguage: AvailableLanguage;
 }
 
 export default function KeywordsSection({

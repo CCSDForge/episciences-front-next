@@ -32,19 +32,19 @@ interface IPageSection {
 }
 
 interface MarkdownPageWithSidebarProps {
-  content: string;
-  title: string;
-  isLoading?: boolean;
-  isUpdating?: boolean;
-  breadcrumbLabels: {
+  readonly content: string;
+  readonly title: string;
+  readonly isLoading?: boolean;
+  readonly isUpdating?: boolean;
+  readonly breadcrumbLabels: {
     parents: BreadcrumbItem[];
     current: string;
   };
-  lang?: string;
-  noContentMessage?: string;
-  languageNotice?: string;
-  lastUpdated?: string | null;
-  className?: string;
+  readonly lang?: string;
+  readonly noContentMessage?: string;
+  readonly languageNotice?: string;
+  readonly lastUpdated?: string | null;
+  readonly className?: string;
 }
 
 /**

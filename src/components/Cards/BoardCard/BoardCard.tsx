@@ -28,7 +28,7 @@ import { ORCID_URL } from '@/config/external-urls';
 function AffiliationWithRor({
   affiliation,
 }: {
-  affiliation: IBoardMemberAffiliation;
+  readonly affiliation: IBoardMemberAffiliation;
 }): React.JSX.Element {
   if (affiliation.rorId) {
     return (
@@ -56,11 +56,11 @@ function AffiliationWithRor({
 }
 
 interface IBoardCardPersonProps {
-  member: IBoardMember;
+  readonly member: IBoardMember;
   /** CSS class prefix, e.g. "boardCard-person" or "boardCard-full-initial-person" */
-  base: string;
-  displayRoles: (roles: string[]) => string;
-  defaultRoleLabel: string | null;
+  readonly base: string;
+  readonly displayRoles: (roles: string[]) => string;
+  readonly defaultRoleLabel: string | null;
 }
 
 /** Shared person header (photo/name/role) used by both full and collapsed layouts */
@@ -119,12 +119,12 @@ function BoardCardPerson({
 export type BoardCardState = 'expanded' | 'blurred' | 'default';
 
 interface IBoardCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  member: IBoardMember;
-  state: BoardCardState;
-  onToggle: () => void;
-  rolesLabels?: Record<string, string>;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly member: IBoardMember;
+  readonly state: BoardCardState;
+  readonly onToggle: () => void;
+  readonly rolesLabels?: Record<string, string>;
 }
 
 export default function BoardCard({

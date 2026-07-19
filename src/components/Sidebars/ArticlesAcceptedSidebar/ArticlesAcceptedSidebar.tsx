@@ -13,9 +13,9 @@ export interface IArticleTypeSelection {
 }
 
 interface IArticlesAcceptedSidebarProps {
-  t: TFunction<'translation', undefined>;
-  types: IArticleTypeSelection[];
-  onCheckTypeCallback: (value: string) => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly types: IArticleTypeSelection[];
+  readonly onCheckTypeCallback: (value: string) => void;
 }
 
 export default function ArticlesAcceptedSidebar({

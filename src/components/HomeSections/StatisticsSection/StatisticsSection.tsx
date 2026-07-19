@@ -10,9 +10,9 @@ import { statTypes } from '@/utils/stat';
 import './StatisticsSection.scss';
 
 interface IStatisticsSectionProps {
-  t: TFunction<'translation', undefined>;
-  i18n: i18n;
-  stats: IStat[];
+  readonly t: TFunction<'translation', undefined>;
+  readonly i18n: i18n;
+  readonly stats: IStat[];
 }
 
 export default function StatisticsSection({

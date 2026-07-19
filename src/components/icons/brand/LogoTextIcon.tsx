@@ -15,9 +15,9 @@
 import Image from 'next/image';
 
 export interface LogoTextIconProps {
-  size?: number;
-  className?: string;
-  ariaLabel?: string;
+  readonly size?: number;
+  readonly className?: string;
+  readonly ariaLabel?: string;
 }
 
 export default function LogoTextIcon({

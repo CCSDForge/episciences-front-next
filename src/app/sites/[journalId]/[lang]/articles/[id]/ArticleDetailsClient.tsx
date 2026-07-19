@@ -49,13 +49,13 @@ import './ArticleDetails.scss';
 import { logger } from '@/lib/logger';
 
 interface ArticleDetailsClientProps {
-  article: IArticle | null;
-  id: string;
-  initialRelatedVolume?: IVolume | null;
-  initialMetadataCSL?: string | null;
-  initialMetadataBibTeX?: string | null;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly article: IArticle | null;
+  readonly id: string;
+  readonly initialRelatedVolume?: IVolume | null;
+  readonly initialMetadataCSL?: string | null;
+  readonly initialMetadataBibTeX?: string | null;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     articles: string;

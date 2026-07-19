@@ -15,14 +15,14 @@ import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadAr
 import '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar.scss';
 
 interface ArticleDetailsSidebarServerProps {
-  article: IArticle;
-  relatedVolume?: IVolume | null;
-  metadataCSL?: string | null;
-  metadataBibTeX?: string | null;
-  metrics?: React.JSX.Element;
-  translations: Translations;
-  language?: string;
-  rvcode?: string;
+  readonly article: IArticle;
+  readonly relatedVolume?: IVolume | null;
+  readonly metadataCSL?: string | null;
+  readonly metadataBibTeX?: string | null;
+  readonly metrics?: React.JSX.Element;
+  readonly translations: Translations;
+  readonly language?: string;
+  readonly rvcode?: string;
 }
 
 export default function ArticleDetailsSidebarServer({

@@ -6,11 +6,11 @@ import './BoardsSidebar.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IBoardsSidebarProps {
-  t: TFunction<'translation', undefined>;
-  groups: string[];
-  openGroups: Set<number>;
-  onSetActiveGroupCallback: (index: number) => void;
-  tableOfContentsLabel?: string;
+  readonly t: TFunction<'translation', undefined>;
+  readonly groups: string[];
+  readonly openGroups: Set<number>;
+  readonly onSetActiveGroupCallback: (index: number) => void;
+  readonly tableOfContentsLabel?: string;
 }
 
 export default function BoardsSidebar({

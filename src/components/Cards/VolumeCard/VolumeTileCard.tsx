@@ -15,11 +15,11 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 
 interface IVolumeTileCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  volume: IVolume;
-  currentJournal?: IJournal;
-  journalCode?: string;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly volume: IVolume;
+  readonly currentJournal?: IJournal;
+  readonly journalCode?: string;
 }
 
 function VolumeTileCard({

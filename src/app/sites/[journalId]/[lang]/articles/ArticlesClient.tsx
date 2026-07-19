@@ -46,7 +46,7 @@ type EnhancedArticle = FetchedArticle & {
 };
 
 interface ArticlesClientProps {
-  initialArticles: {
+  readonly initialArticles: {
     data: IArticle[];
     totalItems: number;
     range?: {
@@ -54,13 +54,13 @@ interface ArticlesClientProps {
       types?: string[];
     };
   };
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     articles: string;
   };
-  countLabels?: {
+  readonly countLabels?: {
     article: string;
     articles: string;
   };

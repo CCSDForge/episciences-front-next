@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 interface HeaderClientWrapperProps {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }
 
 /**

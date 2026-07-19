@@ -55,16 +55,16 @@ function buildTypeSelections(rangeTypes: string[]): IArticleTypeSelection[] {
 }
 
 interface ArticlesAcceptedClientProps {
-  initialArticles: {
+  readonly initialArticles: {
     data: any[];
     totalItems: number;
   };
-  initialRange: {
+  readonly initialRange: {
     types?: string[];
     years?: number[];
   };
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     articlesAccepted: string;

@@ -18,11 +18,11 @@ export interface IArticleYearSelection {
 }
 
 interface IArticlesSidebarProps {
-  t: TFunction<'translation', undefined>;
-  types: IArticleTypeSelection[];
-  onCheckTypeCallback: (value: string) => void;
-  years: IArticleYearSelection[];
-  onCheckYearCallback: (year: number) => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly types: IArticleTypeSelection[];
+  readonly onCheckTypeCallback: (value: string) => void;
+  readonly years: IArticleYearSelection[];
+  readonly onCheckYearCallback: (year: number) => void;
 }
 
 export default function ArticlesSidebar({

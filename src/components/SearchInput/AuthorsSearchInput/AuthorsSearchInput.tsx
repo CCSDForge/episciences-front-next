@@ -5,14 +5,14 @@ import { SearchIcon } from '@/components/icons';
 import './AuthorsSearchInput.scss';
 
 interface IAuthorsSearchInputProps {
-  value: string;
-  placeholder: string;
-  onChangeCallback: (search: string) => void;
+  readonly value: string;
+  readonly placeholder: string;
+  readonly onChangeCallback: (search: string) => void;
   /**
    * Optional label for screen readers.
    * Defaults to "Search authors" if not provided.
    */
-  ariaLabel?: string;
+  readonly ariaLabel?: string;
 }
 
 export default function AuthorsSearchInput({

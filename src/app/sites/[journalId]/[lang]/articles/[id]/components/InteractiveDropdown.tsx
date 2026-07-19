@@ -36,11 +36,11 @@ import { useAppSelector } from '@/hooks/store';
 import { logger } from '@/lib/logger';
 
 interface InteractiveDropdownProps {
-  type: 'cite' | 'metadata' | 'share';
-  metadataCSL?: string | null;
-  metadataBibTeX?: string | null;
-  articleId?: string;
-  label?: string; // Optional pre-translated label
+  readonly type: 'cite' | 'metadata' | 'share';
+  readonly metadataCSL?: string | null;
+  readonly metadataBibTeX?: string | null;
+  readonly articleId?: string;
+  readonly label?: string; // Optional pre-translated label
 }
 
 export default function InteractiveDropdown({

@@ -7,8 +7,8 @@ import { IStatValueDetailsAsPieChart } from '@/types/stat';
 import './PieChart.scss';
 
 interface IPieChartProps {
-  t: TFunction<'translation', undefined>;
-  data: IStatValueDetailsAsPieChart[];
+  readonly t: TFunction<'translation', undefined>;
+  readonly data: IStatValueDetailsAsPieChart[];
 }
 
 export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element {

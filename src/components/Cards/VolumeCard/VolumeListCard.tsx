@@ -19,9 +19,9 @@ import { VOLUME_TYPE } from '@/utils/volume';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IVolumeListCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  volume: IVolume;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly volume: IVolume;
 }
 
 function VolumeListCard({ language, t, volume }: IVolumeListCardProps): React.JSX.Element {

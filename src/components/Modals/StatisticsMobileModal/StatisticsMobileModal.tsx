@@ -21,10 +21,10 @@ interface IStatisticYearSelection {
 }
 
 interface IStatisticsMobileModalProps {
-  t: TFunction<'translation', undefined>;
-  years: IStatisticYearSelection[];
-  onUpdateYearsCallback: (years: IStatisticYearSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly years: IStatisticYearSelection[];
+  readonly onUpdateYearsCallback: (years: IStatisticYearSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function StatisticsMobileModal({

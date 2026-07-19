@@ -21,7 +21,7 @@ import { acceptedLanguages } from '@/utils/language-utils';
 import { logger } from '@/lib/logger';
 
 interface ArticleDetailsPageProps {
-  params: Promise<{
+  readonly params: Promise<{
     id: string;
     lang: string;
     journalId: string;

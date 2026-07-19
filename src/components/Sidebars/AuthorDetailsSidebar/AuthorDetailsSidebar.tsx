@@ -14,11 +14,11 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { DOI_URL } from '@/config/external-urls';
 
 export interface IAuthorDetailsSidebarProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  rvcode?: string;
-  expandedAuthor?: IAuthor;
-  onCloseDetailsCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly rvcode?: string;
+  readonly expandedAuthor?: IAuthor;
+  readonly onCloseDetailsCallback: () => void;
 }
 
 export default function AuthorDetailsSidebar({

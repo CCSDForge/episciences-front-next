@@ -132,20 +132,20 @@ function buildInitAuthors(
 }
 
 interface SearchClientProps {
-  initialSearchResults: {
+  readonly initialSearchResults: {
     data: FetchedArticle[];
     totalItems: number;
     range?: SearchRange;
   };
-  initialSearch: string;
-  initialPage: number;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialSearch: string;
+  readonly initialPage: number;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     search: string;
   };
-  countLabels?: {
+  readonly countLabels?: {
     resultFor: string;
     resultsFor: string;
   };

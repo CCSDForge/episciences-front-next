@@ -47,12 +47,12 @@ import './ArticleDetailsSidebar.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IArticleDetailsSidebarProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  article?: IArticle;
-  relatedVolume?: IVolume;
-  citations: ICitation[];
-  metrics?: React.JSX.Element;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly article?: IArticle;
+  readonly relatedVolume?: IVolume;
+  readonly citations: ICitation[];
+  readonly metrics?: React.JSX.Element;
 }
 
 export default function ArticleDetailsSidebar({

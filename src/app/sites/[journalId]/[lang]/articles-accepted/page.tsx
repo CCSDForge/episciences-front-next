@@ -24,7 +24,7 @@ export async function generateMetadata(props: {
 }
 
 export default async function ArticlesAcceptedPage(props: {
-  params: Promise<{ lang: string; journalId: string }>;
+  readonly params: Promise<{ lang: string; journalId: string }>;
 }) {
   await connection();
 

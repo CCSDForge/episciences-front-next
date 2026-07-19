@@ -16,13 +16,13 @@ import { VOLUME_COVER_BLUR } from '@/utils/image-placeholders';
 import './VolumeDetailsSidebar.scss';
 
 interface IVolumeDetailsSidebarProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  volume?: IVolume;
-  articles?: IArticle[];
-  currentJournal?: IJournal;
-  relatedVolumes: IVolume[];
-  journalId?: string;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly volume?: IVolume;
+  readonly articles?: IArticle[];
+  readonly currentJournal?: IJournal;
+  readonly relatedVolumes: IVolume[];
+  readonly journalId?: string;
 }
 
 export default function VolumeDetailsSidebar({

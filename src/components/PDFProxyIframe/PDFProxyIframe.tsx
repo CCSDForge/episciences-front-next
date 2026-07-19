@@ -11,10 +11,10 @@ import './PDFProxyIframe.scss';
 const LOAD_TIMEOUT_MS = 25000;
 
 interface PDFProxyIframeProps {
-  src: string;
-  title?: string;
-  height?: string;
-  className?: string;
+  readonly src: string;
+  readonly title?: string;
+  readonly height?: string;
+  readonly className?: string;
 }
 
 type Status = 'loading' | 'loaded' | 'error';

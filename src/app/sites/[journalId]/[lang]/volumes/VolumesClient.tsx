@@ -57,13 +57,13 @@ interface IVolumeFilter {
 }
 
 interface VolumesClientProps {
-  initialVolumes: VolumesResponse | null;
-  initialPage: number;
-  initialTypes: string[];
-  initialYears: number[];
-  lang?: string;
-  journalId?: string;
-  breadcrumbLabels?: {
+  readonly initialVolumes: VolumesResponse | null;
+  readonly initialPage: number;
+  readonly initialTypes: string[];
+  readonly initialYears: number[];
+  readonly lang?: string;
+  readonly journalId?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     volumes: string;

@@ -16,8 +16,8 @@ interface BurgerMenuSection {
 }
 
 interface MobileBurgerMenuProps {
-  sections: BurgerMenuSection[];
-  lang: string;
+  readonly sections: BurgerMenuSection[];
+  readonly lang: string;
 }
 
 export default function MobileBurgerMenu({ sections, lang }: MobileBurgerMenuProps) {

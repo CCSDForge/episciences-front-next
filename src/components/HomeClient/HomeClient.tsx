@@ -27,10 +27,10 @@ import '@/styles/transitions.scss';
 import '@/styles/pages/Home.scss';
 
 interface HomeClientProps {
-  homeData: HomeData;
-  language: string;
-  journalId?: string;
-  journalConfig?: Record<string, string>;
+  readonly homeData: HomeData;
+  readonly language: string;
+  readonly journalId?: string;
+  readonly journalConfig?: Record<string, string>;
 }
 
 // Internal component that uses Redux

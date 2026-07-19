@@ -39,18 +39,18 @@ export interface ISearchResultAuthorSelection {
 }
 
 interface ISearchResultsSidebarProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  types: ISearchResultTypeSelection[];
-  onCheckTypeCallback: (value: string) => void;
-  years: ISearchResultYearSelection[];
-  onCheckYearCallback: (year: number) => void;
-  volumes: ISearchResultVolumeSelection[];
-  onCheckVolumeCallback: (id: number) => void;
-  sections: ISearchResultSectionSelection[];
-  onCheckSectionCallback: (id: number) => void;
-  authors: ISearchResultAuthorSelection[];
-  onCheckAuthorCallback: (fullname: string) => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly types: ISearchResultTypeSelection[];
+  readonly onCheckTypeCallback: (value: string) => void;
+  readonly years: ISearchResultYearSelection[];
+  readonly onCheckYearCallback: (year: number) => void;
+  readonly volumes: ISearchResultVolumeSelection[];
+  readonly onCheckVolumeCallback: (id: number) => void;
+  readonly sections: ISearchResultSectionSelection[];
+  readonly onCheckSectionCallback: (id: number) => void;
+  readonly authors: ISearchResultAuthorSelection[];
+  readonly onCheckAuthorCallback: (fullname: string) => void;
 }
 
 export default function SearchResultsSidebar({

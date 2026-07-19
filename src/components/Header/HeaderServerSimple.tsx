@@ -3,7 +3,7 @@ import { Link } from '@/components/Link/Link';
 import './Header.scss';
 
 interface HeaderServerSimpleProps {
-  lang?: string;
+  readonly lang?: string;
 }
 
 export default function HeaderServerSimple({

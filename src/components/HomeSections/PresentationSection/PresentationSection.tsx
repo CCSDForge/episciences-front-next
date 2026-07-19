@@ -23,10 +23,10 @@ const MAX_ABOUT_CONTENT_LENGTH_FULL = 1400;
 const MAX_NEWS_CONTENT_LENGTH = 350;
 
 interface IPresentationSectionProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  aboutContent?: Record<AvailableLanguage, string>;
-  lastInformation?: {
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly aboutContent?: Record<AvailableLanguage, string>;
+  readonly lastInformation?: {
     type: HOMEPAGE_LAST_INFORMATION_BLOCK;
     information?: IVolume | INews;
   };

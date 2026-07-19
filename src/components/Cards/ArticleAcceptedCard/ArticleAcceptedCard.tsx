@@ -17,10 +17,10 @@ export interface IArticleAcceptedCard extends IArticle {
 }
 
 interface IArticleAcceptedCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  article: IArticleAcceptedCard;
-  toggleAbstractCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly article: IArticleAcceptedCard;
+  readonly toggleAbstractCallback: () => void;
 }
 
 function ArticleAcceptedCard({

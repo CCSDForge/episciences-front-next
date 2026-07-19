@@ -11,17 +11,17 @@
  */
 
 export interface CaretLeftIconProps {
-  color?: string;
-  size?: number;
-  className?: string;
-  ariaLabel?: string;
-  onClick?: () => void;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  onTouchStart?: () => void;
-  onTouchEnd?: () => void;
-  onMouseDown?: () => void;
-  onMouseUp?: () => void;
+  readonly color?: string;
+  readonly size?: number;
+  readonly className?: string;
+  readonly ariaLabel?: string;
+  readonly onClick?: () => void;
+  readonly onMouseEnter?: () => void;
+  readonly onMouseLeave?: () => void;
+  readonly onTouchStart?: () => void;
+  readonly onTouchEnd?: () => void;
+  readonly onMouseDown?: () => void;
+  readonly onMouseUp?: () => void;
 }
 
 export default function CaretLeftIcon({

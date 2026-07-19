@@ -38,12 +38,12 @@ interface IVolumesFilter {
 }
 
 interface IVolumesMobileModalProps {
-  t: TFunction<'translation', undefined>;
-  initialTypes: IVolumesTypeSelection[];
-  onUpdateTypesCallback: (types: IVolumesTypeSelection[]) => void;
-  initialYears: IVolumesYearSelection[];
-  onUpdateYearsCallback: (years: IVolumesYearSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly initialTypes: IVolumesTypeSelection[];
+  readonly onUpdateTypesCallback: (types: IVolumesTypeSelection[]) => void;
+  readonly initialYears: IVolumesYearSelection[];
+  readonly onUpdateYearsCallback: (years: IVolumesYearSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function VolumesMobileModal({

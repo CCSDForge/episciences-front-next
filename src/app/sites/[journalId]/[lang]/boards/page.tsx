@@ -44,7 +44,7 @@ export async function generateMetadata(props: {
 }
 
 export default async function BoardsPage(props: {
-  params: Promise<{ journalId: string; lang: string }>;
+  readonly params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
   try {

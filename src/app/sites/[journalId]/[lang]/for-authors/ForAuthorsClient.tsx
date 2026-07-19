@@ -234,10 +234,10 @@ const parseSidebarHeaders = (toBeParsed: ForAuthorsContentMap): IForAuthorsHeade
 };
 
 interface ForAuthorsClientProps {
-  editorialWorkflowPage: ForAuthorsPage | null;
-  prepareSubmissionPage: ForAuthorsPage | null;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly editorialWorkflowPage: ForAuthorsPage | null;
+  readonly prepareSubmissionPage: ForAuthorsPage | null;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     parents: BreadcrumbItem[];
     current: string;
   };

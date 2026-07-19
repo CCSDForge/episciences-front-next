@@ -6,23 +6,23 @@ import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface CollapsibleSectionHeaderProps {
   /** Class(es) for the clickable trigger element. Pass the full string, including any conditional modifier. */
-  triggerClassName: string;
+  readonly triggerClassName: string;
   /** Class for the heading/text element. Omitted entirely (no attribute) when not provided. */
-  headingClassName?: string;
+  readonly headingClassName?: string;
   /** Class for the caret icon. Omitted entirely (no attribute) when not provided. */
-  caretClassName?: string;
+  readonly caretClassName?: string;
   /** Element type wrapping `title` - a heading level, or a plain tag when the trigger isn't a real heading. Defaults to 'h2'. */
-  as?: ElementType;
+  readonly as?: ElementType;
   /** id placed on the heading element, e.g. as a scroll anchor target. */
-  headingId?: string;
+  readonly headingId?: string;
   /** id of the content region this header controls; wired to aria-controls when provided. */
-  controlsId?: string;
-  title: ReactNode;
-  isOpen: boolean;
-  onToggle: () => void;
-  collapseLabel?: string;
-  expandLabel?: string;
-  caretSize?: number;
+  readonly controlsId?: string;
+  readonly title: ReactNode;
+  readonly isOpen: boolean;
+  readonly onToggle: () => void;
+  readonly collapseLabel?: string;
+  readonly expandLabel?: string;
+  readonly caretSize?: number;
 }
 
 /**

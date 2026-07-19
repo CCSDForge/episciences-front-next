@@ -12,9 +12,9 @@ import { BreadcrumbItem } from '@/utils/breadcrumbs';
 import './Indexing.scss';
 
 interface IndexingClientProps {
-  initialPage: any | null;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialPage: any | null;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     parents: BreadcrumbItem[];
     current: string;
   };

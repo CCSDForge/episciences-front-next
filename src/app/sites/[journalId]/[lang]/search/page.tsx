@@ -29,8 +29,8 @@ export async function generateMetadata(props: {
 }
 
 interface SearchPageProps {
-  params: Promise<{ lang: string; journalId: string }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly params: Promise<{ lang: string; journalId: string }>;
+  readonly searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function SearchPage(props: SearchPageProps) {

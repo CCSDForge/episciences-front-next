@@ -11,9 +11,9 @@ export interface IStatisticsYearSelection {
 }
 
 interface IStatisticsSidebarProps {
-  t: TFunction<'translation', undefined>;
-  years: IStatisticsYearSelection[];
-  onCheckYearCallback: (year: number) => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly years: IStatisticsYearSelection[];
+  readonly onCheckYearCallback: (year: number) => void;
 }
 
 export default function StatisticsSidebar({

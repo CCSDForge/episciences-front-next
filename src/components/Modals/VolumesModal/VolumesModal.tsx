@@ -20,12 +20,12 @@ export interface IVolumeYearSelection {
 }
 
 interface IVolumesModalProps {
-  t: TFunction<'translation', undefined>;
-  types: IVolumeTypeSelection[];
-  onCheckTypeCallback: (value: string) => void;
-  years: IVolumeYearSelection[];
-  onSelectYearCallback: (year: number) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly types: IVolumeTypeSelection[];
+  readonly onCheckTypeCallback: (value: string) => void;
+  readonly years: IVolumeYearSelection[];
+  readonly onSelectYearCallback: (year: number) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function VolumesModal({

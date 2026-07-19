@@ -8,7 +8,7 @@ import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import './VolumeDetailsDesktop.scss';
 
 interface IVolumeDetailsDesktopProps {
-  volume: IVolume;
+  readonly volume: IVolume;
 }
 
 export function VolumeDetailsDesktop({ volume }: IVolumeDetailsDesktopProps): React.JSX.Element {

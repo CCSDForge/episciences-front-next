@@ -20,19 +20,19 @@ interface BoardsData {
 }
 
 interface BoardsClientProps {
-  initialPages: IBoardPage[];
-  initialMembers: IBoardMember[];
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialPages: IBoardPage[];
+  readonly initialMembers: IBoardMember[];
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     boards: string;
   };
-  membersCountLabels?: {
+  readonly membersCountLabels?: {
     member: string;
     members: string;
   };
-  rolesLabels?: Record<string, string>;
-  tableOfContentsLabel?: string;
+  readonly rolesLabels?: Record<string, string>;
+  readonly tableOfContentsLabel?: string;
 }
 
 export default function BoardsClient({

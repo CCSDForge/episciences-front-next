@@ -14,9 +14,9 @@ import type { Components, ExtraProps } from 'react-markdown';
 import type { ComponentProps } from 'react';
 
 interface LinkedPublicationsSectionServerProps {
-  relatedItems: IArticleRelatedItem[];
-  translations: Translations;
-  language?: string;
+  readonly relatedItems: IArticleRelatedItem[];
+  readonly translations: Translations;
+  readonly language?: string;
 }
 
 function renderCitationMarkdownLink({

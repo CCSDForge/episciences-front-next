@@ -21,10 +21,10 @@ interface INewsYearSelection {
 }
 
 interface INewsMobileModalProps {
-  t: TFunction<'translation', undefined>;
-  years: INewsYearSelection[];
-  onUpdateYearsCallback: (years: INewsYearSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly years: INewsYearSelection[];
+  readonly onUpdateYearsCallback: (years: INewsYearSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function NewsMobileModal({

@@ -2,10 +2,10 @@ import { IArticle } from '@/types/article';
 import { getJournalBaseUrl, SIGNPOSTING_FORMATS } from '@/utils/signposting';
 
 interface SignpostingLinksProps {
-  article: IArticle;
-  rvcode: string;
-  id: string;
-  lang: string;
+  readonly article: IArticle;
+  readonly rvcode: string;
+  readonly id: string;
+  readonly lang: string;
 }
 
 export default function SignpostingLinks({ article, rvcode, id, lang }: SignpostingLinksProps) {

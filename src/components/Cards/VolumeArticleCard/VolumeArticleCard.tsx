@@ -16,9 +16,9 @@ import { handleKeyboardClick } from '@/utils/keyboard';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
 interface IVolumeArticleCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  article: IArticle;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly article: IArticle;
 }
 
 function VolumeArticleCard({ language, t, article }: IVolumeArticleCardProps): React.JSX.Element {

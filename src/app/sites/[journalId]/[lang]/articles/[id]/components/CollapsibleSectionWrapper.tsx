@@ -4,10 +4,10 @@ import React, { useState, ReactNode } from 'react';
 import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 
 interface CollapsibleSectionWrapperProps {
-  title: string;
-  children: ReactNode;
-  initialOpen?: boolean;
-  sectionKey: string;
+  readonly title: string;
+  readonly children: ReactNode;
+  readonly initialOpen?: boolean;
+  readonly sectionKey: string;
 }
 
 /**

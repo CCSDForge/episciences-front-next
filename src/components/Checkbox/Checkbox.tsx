@@ -4,27 +4,27 @@ import { useId } from 'react';
 import './Checkbox.scss';
 
 interface ICheckboxProps {
-  checked: boolean;
-  onChangeCallback: () => void;
+  readonly checked: boolean;
+  readonly onChangeCallback: () => void;
   /**
    * Optional label text to display next to the checkbox.
    * If provided, creates an accessible label association.
    */
-  label?: string;
+  readonly label?: string;
   /**
    * Optional ID for the checkbox input.
    * If not provided, a unique ID will be generated automatically.
    */
-  id?: string;
+  readonly id?: string;
   /**
    * Optional aria-label for cases where no visual label is needed.
    * Use when the checkbox purpose is clear from context.
    */
-  ariaLabel?: string;
+  readonly ariaLabel?: string;
   /**
    * Optional aria-describedby for additional description.
    */
-  ariaDescribedBy?: string;
+  readonly ariaDescribedBy?: string;
 }
 
 export default function Checkbox({

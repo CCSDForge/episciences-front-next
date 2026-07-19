@@ -6,8 +6,8 @@ import {
 } from '@/utils/colorContrast';
 
 interface JournalLayoutProps {
-  children: React.ReactNode;
-  params: Promise<{ journalId: string }>;
+  readonly children: React.ReactNode;
+  readonly params: Promise<{ journalId: string }>;
 }
 
 // Strip characters that could break out of a <style> tag (e.g. </style>)

@@ -8,7 +8,7 @@ import { IArticleCitedBy } from '@/types/article';
 import { buildOrcidUrl, buildDoiUrl } from '@/config/external-urls';
 
 interface CitedBySectionProps {
-  citedBy: IArticleCitedBy[];
+  readonly citedBy: IArticleCitedBy[];
 }
 
 export default function CitedBySection({ citedBy }: CitedBySectionProps): React.JSX.Element | null {

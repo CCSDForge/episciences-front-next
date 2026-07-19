@@ -41,7 +41,7 @@ export async function generateMetadata(props: {
 }
 
 export default async function SectionsPage(props: {
-  params: Promise<{ lang: string; journalId: string }>;
+  readonly params: Promise<{ lang: string; journalId: string }>;
 }) {
   const params = await props.params;
   const { lang, journalId } = params;

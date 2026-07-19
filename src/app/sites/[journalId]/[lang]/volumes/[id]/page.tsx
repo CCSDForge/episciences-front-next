@@ -37,7 +37,7 @@ export async function generateMetadata(props: {
 }
 
 export default async function VolumeDetailsPage(props: {
-  params: Promise<{ id: string; lang?: string; journalId: string }>;
+  readonly params: Promise<{ id: string; lang?: string; journalId: string }>;
 }) {
   const params = await props.params;
   const language = getLanguageFromParams(params);

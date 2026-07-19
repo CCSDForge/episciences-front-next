@@ -32,13 +32,13 @@ const NewsMobileModal = dynamic(
 );
 
 interface NewsClientProps {
-  initialNews: {
+  readonly initialNews: {
     data: INews[];
     totalItems: number;
     range?: Range;
   } | null;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     news: string;
   };

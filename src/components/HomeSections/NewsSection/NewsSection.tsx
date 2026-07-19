@@ -11,9 +11,9 @@ import { AvailableLanguage } from '@/utils/i18n';
 import './NewsSection.scss';
 
 interface INewsSectionProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  news: INews[];
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly news: INews[];
 }
 
 export default function NewsSection({ language, t, news }: INewsSectionProps): React.JSX.Element {

@@ -13,12 +13,12 @@ import './VolumeDetailsMobile.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IVolumeDetailsMobileProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  volume?: IVolume;
-  relatedVolumes: IVolume[];
-  onSelectRelatedVolumeCallback: (id: number) => void;
-  onCloseCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly volume?: IVolume;
+  readonly relatedVolumes: IVolume[];
+  readonly onSelectRelatedVolumeCallback: (id: number) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export function VolumeDetailsMobile({

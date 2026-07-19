@@ -3,7 +3,7 @@
 import { PDFProxyIframe } from '@/components/PDFProxyIframe/PDFProxyIframe';
 
 interface PreviewSectionProps {
-  previewHref: string;
+  readonly previewHref: string;
 }
 
 export default function PreviewSection({

@@ -53,8 +53,8 @@ interface ArticlesData {
 }
 
 export default async function ArticlesPage(props: {
-  params: Promise<{ lang: string; journalId: string }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly params: Promise<{ lang: string; journalId: string }>;
+  readonly searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
   const lang = params.lang || 'en';

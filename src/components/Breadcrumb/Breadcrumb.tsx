@@ -8,12 +8,12 @@ import { useParams, usePathname } from 'next/navigation';
 import './Breadcrumb.scss';
 
 interface IBreadcrumbProps {
-  parents: {
+  readonly parents: {
     path: string;
     label: string;
   }[];
-  crumbLabel: string;
-  lang?: string;
+  readonly crumbLabel: string;
+  readonly lang?: string;
 }
 
 export default function Breadcrumb({

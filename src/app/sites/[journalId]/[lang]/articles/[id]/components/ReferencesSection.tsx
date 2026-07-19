@@ -3,7 +3,7 @@ import { IArticleReference } from '@/types/article';
 import { DOI_URL } from '@/config/external-urls';
 
 interface ReferencesSectionProps {
-  references: IArticleReference[];
+  readonly references: IArticleReference[];
 }
 
 export default function ReferencesSection({

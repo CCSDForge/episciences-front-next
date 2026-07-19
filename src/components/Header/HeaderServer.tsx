@@ -55,8 +55,8 @@ function buildMobileSection(
 }
 
 interface HeaderServerProps {
-  lang?: string;
-  journalId?: string;
+  readonly lang?: string;
+  readonly journalId?: string;
 }
 
 export default async function HeaderServer({

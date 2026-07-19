@@ -9,12 +9,12 @@ import AuthorsSearchInput from '@/components/SearchInput/AuthorsSearchInput/Auth
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IAuthorsSidebarProps {
-  t: TFunction<'translation', undefined>;
-  search: string;
-  onSearchCallback: (search: string) => void;
-  activeLetter: string;
-  onSetActiveLetterCallback: (letter: string) => void;
-  lettersRange?: Record<string, number>;
+  readonly t: TFunction<'translation', undefined>;
+  readonly search: string;
+  readonly onSearchCallback: (search: string) => void;
+  readonly activeLetter: string;
+  readonly onSetActiveLetterCallback: (letter: string) => void;
+  readonly lettersRange?: Record<string, number>;
 }
 
 export default function AuthorsSidebar({

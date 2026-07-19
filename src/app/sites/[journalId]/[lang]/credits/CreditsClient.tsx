@@ -11,9 +11,9 @@ import { getLocalizedContent } from '@/utils/content-fallback';
 import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
 
 interface CreditsClientProps {
-  creditsPage: CreditsPage | null;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly creditsPage: CreditsPage | null;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     credits: string;
   };

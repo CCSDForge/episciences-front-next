@@ -26,20 +26,20 @@ interface IAuthorFilter {
 }
 
 interface AuthorsClientProps {
-  initialPage: number;
-  initialSearch: string;
-  initialLetter?: string;
-  initialAuthorsData?: {
+  readonly initialPage: number;
+  readonly initialSearch: string;
+  readonly initialLetter?: string;
+  readonly initialAuthorsData?: {
     items: IAuthor[];
     totalItems: number;
   };
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     authors: string;
   };
-  countLabels?: {
+  readonly countLabels?: {
     author: string;
     authors: string;
     authorFor: string;

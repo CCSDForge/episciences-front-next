@@ -11,8 +11,8 @@ export interface IAboutHeader {
 }
 
 interface IAboutSidebarProps {
-  headers: IAboutHeader[];
-  toggleHeaderCallback: (id: string) => void;
+  readonly headers: IAboutHeader[];
+  readonly toggleHeaderCallback: (id: string) => void;
 }
 
 export default function AboutSidebar({

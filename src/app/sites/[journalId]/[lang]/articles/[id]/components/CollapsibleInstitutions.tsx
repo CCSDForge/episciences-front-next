@@ -12,9 +12,9 @@ interface Author {
 }
 
 interface CollapsibleInstitutionsProps {
-  authors: Author[];
-  institutions: IInstitution[];
-  isMobile: boolean;
+  readonly authors: Author[];
+  readonly institutions: IInstitution[];
+  readonly isMobile: boolean;
 }
 
 export default function CollapsibleInstitutions({

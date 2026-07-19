@@ -11,9 +11,9 @@ import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 interface SearchBarProps {
-  lang?: string;
-  episciencesManagerUrl?: string;
-  journalCode?: string;
+  readonly lang?: string;
+  readonly episciencesManagerUrl?: string;
+  readonly journalCode?: string;
 }
 
 export default function SearchBar({

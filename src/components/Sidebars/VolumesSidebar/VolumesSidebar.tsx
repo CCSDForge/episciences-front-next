@@ -17,11 +17,11 @@ export interface IVolumeYearSelection {
 }
 
 interface IVolumesSidebarProps {
-  t: TFunction<'translation', undefined>;
-  types: IVolumeTypeSelection[];
-  onCheckTypeCallback: (value: string) => void;
-  years: IVolumeYearSelection[];
-  onSelectYearCallback: (year: number) => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly types: IVolumeTypeSelection[];
+  readonly onCheckTypeCallback: (value: string) => void;
+  readonly years: IVolumeYearSelection[];
+  readonly onSelectYearCallback: (year: number) => void;
 }
 
 export default function VolumesSidebar({

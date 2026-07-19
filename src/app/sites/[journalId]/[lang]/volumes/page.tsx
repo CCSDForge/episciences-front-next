@@ -186,8 +186,8 @@ export async function generateMetadata(props: {
 }
 
 export default async function VolumesPage(props: {
-  params: Promise<{ lang: string; journalId: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly params: Promise<{ lang: string; journalId: string }>;
+  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
   const { lang, journalId } = params;

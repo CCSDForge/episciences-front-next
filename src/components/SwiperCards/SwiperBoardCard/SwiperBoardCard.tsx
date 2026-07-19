@@ -18,7 +18,7 @@ import { ORCID_URL } from '@/config/external-urls';
 function AffiliationWithRor({
   affiliation,
 }: {
-  affiliation: IBoardMemberAffiliation;
+  readonly affiliation: IBoardMemberAffiliation;
 }): React.JSX.Element {
   if (affiliation.rorId) {
     return (
@@ -48,9 +48,9 @@ function AffiliationWithRor({
 export type SwiperBoardCardProps = IBoardMember;
 
 interface ISwiperBoardCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  member: IBoardMember;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly member: IBoardMember;
 }
 
 function SwiperBoardCard({ language, t, member }: ISwiperBoardCardProps): React.JSX.Element {

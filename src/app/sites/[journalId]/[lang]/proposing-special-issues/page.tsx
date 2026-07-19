@@ -41,7 +41,7 @@ export async function generateMetadata(props: {
 }
 
 export default async function ProposingSpecialIssuesPage(props: {
-  params: Promise<{ journalId: string; lang: string }>;
+  readonly params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
   const { journalId, lang } = params;

@@ -28,10 +28,10 @@ interface IArticlesAcceptedFilter {
 }
 
 interface IArticlesAcceptedMobileModalProps {
-  t: TFunction<'translation', undefined>;
-  initialTypes: IArticlesAcceptedTypeSelection[];
-  onUpdateTypesCallback: (types: IArticlesAcceptedTypeSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly initialTypes: IArticlesAcceptedTypeSelection[];
+  readonly onUpdateTypesCallback: (types: IArticlesAcceptedTypeSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function ArticlesAcceptedMobileModal({

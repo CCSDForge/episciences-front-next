@@ -64,28 +64,28 @@ interface ISearchResultsAuthorSelection {
 }
 
 interface ISearchResultsMobileModalProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  initialTypes: ISearchResultsTypeSelection[];
-  onUpdateTypesCallback: (types: ISearchResultsTypeSelection[]) => void;
-  initialYears: ISearchResultsYearSelection[];
-  onUpdateYearsCallback: (years: ISearchResultsYearSelection[]) => void;
-  initialVolumes: ISearchResultsVolumeSelection[];
-  onUpdateVolumesCallback: (volumes: ISearchResultsVolumeSelection[]) => void;
-  initialSections: ISearchResultsSectionSelection[];
-  onUpdateSectionsCallback: (sections: ISearchResultsSectionSelection[]) => void;
-  initialAuthors: ISearchResultsAuthorSelection[];
-  onUpdateAuthorsCallback: (authors: ISearchResultsAuthorSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly initialTypes: ISearchResultsTypeSelection[];
+  readonly onUpdateTypesCallback: (types: ISearchResultsTypeSelection[]) => void;
+  readonly initialYears: ISearchResultsYearSelection[];
+  readonly onUpdateYearsCallback: (years: ISearchResultsYearSelection[]) => void;
+  readonly initialVolumes: ISearchResultsVolumeSelection[];
+  readonly onUpdateVolumesCallback: (volumes: ISearchResultsVolumeSelection[]) => void;
+  readonly initialSections: ISearchResultsSectionSelection[];
+  readonly onUpdateSectionsCallback: (sections: ISearchResultsSectionSelection[]) => void;
+  readonly initialAuthors: ISearchResultsAuthorSelection[];
+  readonly onUpdateAuthorsCallback: (authors: ISearchResultsAuthorSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 interface IFilterSectionProps {
-  id: string;
-  title: string;
-  baseClass: string;
-  isOpened: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
+  readonly id: string;
+  readonly title: string;
+  readonly baseClass: string;
+  readonly isOpened: boolean;
+  readonly onToggle: () => void;
+  readonly children: React.ReactNode;
 }
 
 function FilterSection({

@@ -11,9 +11,9 @@ import { getLocalizedContent } from '@/utils/content-fallback';
 import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
 
 interface AboutClientProps {
-  initialPage: AboutPage | null;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialPage: AboutPage | null;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     about: string;
   };
