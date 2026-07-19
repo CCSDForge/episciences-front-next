@@ -35,7 +35,7 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
       '[Pre-Production] Journal Epijinfo fake journalInitializer';
     return {
       id: Number.parseInt(process.env.NEXT_PUBLIC_JOURNAL_ID || '3'),
-      code: process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'epijinfo',
+      code: rvcode || 'epijinfo',
       name: journalName,
       title: { fr: journalName, en: journalName } as Record<AvailableLanguage, string>,
       settings: [],
