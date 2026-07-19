@@ -80,7 +80,7 @@ function verifyToken(token: string, secret: string): boolean {
 function resolveAuthorization(headerToken: string, journalId?: string): boolean {
   if (journalId) {
     const journalToken =
-      process.env[`REVALIDATION_TOKEN_${journalId.toUpperCase().replace(/-/g, '_')}`];
+      process.env[`REVALIDATION_TOKEN_${journalId.toUpperCase().replaceAll('-', '_')}`];
     if (journalToken && verifyToken(headerToken, journalToken)) {
       return true;
     }
