@@ -49,25 +49,27 @@ export default async function ForAuthorsPage(props: {
   const params = await props.params;
   const { journalId, lang } = params;
 
-  if (!journalId) {
-    throw new Error('journalId is not defined');
-  }
-
   let editorialWorkflowPage = null;
   let prepareSubmissionPage = null;
-  let translations = {};
+
+  const translationsPromise = getServerTranslations(lang);
 
   try {
-    // Fetch all pages and translations in parallel
-    [editorialWorkflowPage, prepareSubmissionPage, translations] = await Promise.all([
-      fetchEditorialWorkflowPage(journalId),
-      fetchPrepareSubmissionPage(journalId),
-      getServerTranslations(lang),
-    ]);
+    if (journalId) {
+      // Fetch both pages in parallel
+      [editorialWorkflowPage, prepareSubmissionPage] = await Promise.all([
+        fetchEditorialWorkflowPage(journalId),
+        fetchPrepareSubmissionPage(journalId),
+      ]);
+    } else {
+      logger.warn('[ForAuthorsPage] journalId is not defined');
+    }
   } catch (error) {
     logger.warn('[ForAuthorsPage] Failed to fetch data:', error);
     // Data remains at fallback values (null/empty)
   }
+
+  const translations = await translationsPromise;
 
   const breadcrumbLabels = {
     parents: getBreadcrumbHierarchy('/for-authors', translations),

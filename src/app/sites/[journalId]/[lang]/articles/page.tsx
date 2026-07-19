@@ -61,9 +61,10 @@ export default async function ArticlesPage(props: {
   const { journalId } = params;
 
   // Extract page number from searchParams
-  const page = searchParams?.page
-    ? Math.max(1, Number.parseInt(searchParams.page as string, 10))
+  const parsedPage = searchParams?.page
+    ? Number.parseInt(searchParams.page as string, 10)
     : 1;
+  const page = Number.isNaN(parsedPage) ? 1 : Math.max(1, parsedPage);
 
   const translationsPromise = getServerTranslations(lang);
 
