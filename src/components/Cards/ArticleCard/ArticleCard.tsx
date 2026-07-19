@@ -118,7 +118,7 @@ function ArticleCard({
               </div>
             </DownloadArticleButton>
           )}
-          {article.id && (
+          {Boolean(article.id) && (
             <div ref={citationsDropdownRef} className="articleCard-anchor-icons-cite">
               <button
                 type="button"

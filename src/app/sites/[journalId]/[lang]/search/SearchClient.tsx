@@ -746,19 +746,24 @@ export default function SearchClient({
       <div className="articles-filters">
         {taggedFilters.length > 0 && (
           <div className="articles-filters-tags">
-            {taggedFilters.map(filter => (
-              <Tag
-                key={`${filter.type}-${filter.value}`}
-                text={
-                  filter.labelPath
-                    ? t(filter.labelPath)
-                    : filter.translatedLabel
-                      ? filter.translatedLabel[language]
-                      : filter.label!.toString()
-                }
-                onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
-              />
-            ))}
+            {taggedFilters.map(filter => {
+              let tagText: string;
+              if (filter.labelPath) {
+                tagText = t(filter.labelPath);
+              } else if (filter.translatedLabel) {
+                tagText = filter.translatedLabel[language];
+              } else {
+                tagText = filter.label!.toString();
+              }
+
+              return (
+                <Tag
+                  key={`${filter.type}-${filter.value}`}
+                  text={tagText}
+                  onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
+                />
+              );
+            })}
             <div
               className="articles-filters-tags-clear"
               role="button"

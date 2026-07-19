@@ -253,15 +253,17 @@ export default function ArticlesAcceptedClient({
   // Utiliser les données initiales si elles sont disponibles
   const displayArticlesAccepted = articlesAccepted || initialArticles;
 
+  const fallbackArticlesToRender: EnhancedArticleAccepted[] = Array.isArray(
+    displayArticlesAccepted?.data
+  )
+    ? displayArticlesAccepted.data.map((article: any) => ({
+        ...article,
+        openedAbstract: false,
+      }))
+    : [];
+
   const articlesToRender: EnhancedArticleAccepted[] =
-    enhancedArticlesAccepted.length > 0
-      ? enhancedArticlesAccepted
-      : Array.isArray(displayArticlesAccepted?.data)
-        ? displayArticlesAccepted.data.map((article: any) => ({
-            ...article,
-            openedAbstract: false,
-          }))
-        : [];
+    enhancedArticlesAccepted.length > 0 ? enhancedArticlesAccepted : fallbackArticlesToRender;
 
   const breadcrumbItems = [
     {

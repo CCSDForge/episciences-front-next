@@ -58,7 +58,10 @@ export default function CitedBySection({ citedBy }: CitedBySectionProps): React.
                         )}
                       </Fragment>
                     ))
-                    .reduce((prev, curr) => [prev, ', ', curr])}
+                    .reduce<ReactNode[]>(
+                      (prev, curr) => (prev.length === 0 ? [curr] : [...prev, ', ', curr]),
+                      []
+                    )}
                 </p>
                 <p className="articleDetails-content-article-section-content-citedBy-row-citations-citation-reference">
                   {t('pages.articleDetails.citedBySection.reference')} :{' '}

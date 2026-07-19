@@ -8,7 +8,7 @@ interface ErrorProps {
   readonly reset: () => void;
 }
 
-export default function Error({ error, reset }: ErrorProps) {
+export default function VolumesError({ error, reset }: ErrorProps) {
   useEffect(() => {
     logger.error('[Volumes Error]', error);
   }, [error]);

@@ -188,7 +188,7 @@ export default function InteractiveDropdown({
         a.click();
 
         window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        a.remove();
 
         toastSuccess(
           t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label })

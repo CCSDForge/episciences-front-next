@@ -21,6 +21,7 @@ export default function SidebarCollapsibleWrapper({
   className = 'articleDetailsSidebar-publicationDetails',
 }: SidebarCollapsibleWrapperProps): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(initialOpen);
+  const contentOpenedClass = isOpen ? `${className}-content-opened` : '';
 
   return (
     <div className={className}>
@@ -37,9 +38,7 @@ export default function SidebarCollapsibleWrapper({
           <CaretDownGreyIcon size={16} className={`${className}-title-caret`} ariaLabel="Expand" />
         )}
       </button>
-      <div className={`${className}-content ${isOpen ? `${className}-content-opened` : ''}`}>
-        {children}
-      </div>
+      <div className={`${className}-content ${contentOpenedClass}`}>{children}</div>
     </div>
   );
 }

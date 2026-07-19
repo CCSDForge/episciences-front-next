@@ -149,7 +149,7 @@ export default function VolumesClient({
   useEffect(() => {
     const pageParam = searchParams?.get('page');
     const pageNumber = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
+    if (!Number.isNaN(pageNumber) && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
     }
   }, [searchParams, currentPage]);
@@ -224,12 +224,14 @@ export default function VolumesClient({
 
       if (Array.isArray(volumes.range?.years) && volumes.range.years.length > 0) {
         // Ensure years are numbers
-        yearsToUse = volumes.range.years.map(y => Number(y)).filter(n => !isNaN(n) && n > 0);
+        yearsToUse = volumes.range.years
+          .map(y => Number(y))
+          .filter(n => !Number.isNaN(n) && n > 0);
       } else if (Array.isArray(volumes.data)) {
         // Fallback: extract years from current data if range is missing
         const extractedYears = volumes.data
           .map(v => Number(v.year))
-          .filter((y): y is number => !isNaN(y) && y > 0);
+          .filter((y): y is number => !Number.isNaN(y) && y > 0);
         yearsToUse = Array.from(new Set(extractedYears));
       }
 

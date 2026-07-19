@@ -259,7 +259,7 @@ export default function ForAuthorsClient({
     const dates = [editorialWorkflowPage?.date_updated, prepareSubmissionPage?.date_updated].filter(
       (d): d is string => !!d
     );
-    return dates.length > 0 ? dates.reduce((a, b) => (a > b ? a : b)) : null;
+    return dates.length > 0 ? dates.reduce((a, b) => (a > b ? a : b), dates[0]) : null;
   }, [editorialWorkflowPage, prepareSubmissionPage]);
 
   const [closedSectionIds, setClosedSectionIds] = useState<Set<string>>(new Set());

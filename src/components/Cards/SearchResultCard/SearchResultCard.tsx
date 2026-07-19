@@ -123,7 +123,7 @@ function SearchResultCard({
               </div>
             </DownloadArticleButton>
           )}
-          {searchResult.id && (
+          {Boolean(searchResult.id) && (
             <div ref={citationsDropdownRef} className="searchResultCardAnchorIconsCite">
               <button
                 type="button"

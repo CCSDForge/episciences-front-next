@@ -34,7 +34,7 @@ export default function VolumeDetailsSidebar({
   relatedVolumes,
   journalId,
 }: IVolumeDetailsSidebarProps): React.JSX.Element {
-  const NOT_RENDERED_SIDEBAR_METADATAS = ['tile'];
+  const NOT_RENDERED_SIDEBAR_METADATAS = new Set(['tile']);
 
   const displayJournalCode = (journalId || currentJournal?.code || '').toUpperCase();
 
@@ -48,7 +48,7 @@ export default function VolumeDetailsSidebar({
       metadata =>
         metadata.file &&
         metadata.title?.[language] &&
-        !NOT_RENDERED_SIDEBAR_METADATAS.includes(
+        !NOT_RENDERED_SIDEBAR_METADATAS.has(
           metadata.title[language].replace(/[\u0300-\u036f]/g, '').toLowerCase()
         )
     );

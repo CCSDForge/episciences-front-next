@@ -73,8 +73,8 @@ export function getLocalizedPath(path: string, lang: string): string {
 
   // Always add the language prefix
   // Ensure separator between lang and path for paths without a leading slash
-  const normalizedPath =
-    !cleanPath || cleanPath === '/' ? '' : cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+  const pathWithSeparator = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+  const normalizedPath = !cleanPath || cleanPath === '/' ? '' : pathWithSeparator;
   return `/${lang}${normalizedPath}`;
 }
 

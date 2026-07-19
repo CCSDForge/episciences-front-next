@@ -72,7 +72,7 @@ export default function SectionsClient({
   useEffect(() => {
     const pageParam = searchParams?.get('page');
     const pageNum = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!isNaN(pageNum) && pageNum !== currentPage) {
+    if (!Number.isNaN(pageNum) && pageNum !== currentPage) {
       setCurrentPage(pageNum);
     }
   }, [searchParams, currentPage]);

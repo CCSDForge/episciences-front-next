@@ -96,8 +96,6 @@ describe('language-utils', () => {
       if (nonDefaultLang) {
         const result = getLocalizedPath('/about', nonDefaultLang);
         expect(result).toBe(`/${nonDefaultLang}/about`);
-      } else {
-        expect(true).toBe(true); // Skip if only one language
       }
     });
 
@@ -111,8 +109,6 @@ describe('language-utils', () => {
       if (nonDefaultLang) {
         const result = getLocalizedPath('/', nonDefaultLang);
         expect(result).toBe(`/${nonDefaultLang}`);
-      } else {
-        expect(true).toBe(true); // Skip if only one language
       }
     });
 

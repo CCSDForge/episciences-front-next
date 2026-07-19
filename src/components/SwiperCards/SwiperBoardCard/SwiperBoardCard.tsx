@@ -120,7 +120,7 @@ function SwiperBoardCard({ language, t, member }: ISwiperBoardCardProps): React.
       {member.assignedSections?.length > 0 && (
         <div className="swiperBoardCard-assignedSections">
           {member.assignedSections
-            .filter(assignedSection => assignedSection.titles && assignedSection.titles[language])
+            .filter(assignedSection => assignedSection.titles?.[language])
             .map(assignedSection => assignedSection.titles[language])
             .filter(title => title && title.trim() !== '')
             .join(', ')}

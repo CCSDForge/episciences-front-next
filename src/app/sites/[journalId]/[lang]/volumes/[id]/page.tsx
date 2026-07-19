@@ -86,7 +86,7 @@ export default async function VolumeDetailsPage(props: {
 
     // Fetch all articles for the volume server-side
     let articles: FetchedArticle[] = [];
-    if (volumeData && volumeData.articles?.length) {
+    if (volumeData?.articles?.length) {
       logger.debug(
         `[Volume ${params.id}] Found ${volumeData.articles.length} articles in volume data`
       );

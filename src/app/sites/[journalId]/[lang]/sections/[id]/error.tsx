@@ -8,7 +8,7 @@ interface ErrorProps {
   readonly reset: () => void;
 }
 
-export default function Error({ error, reset }: ErrorProps) {
+export default function SectionDetailsError({ error, reset }: ErrorProps) {
   useEffect(() => {
     logger.error('[Section Error]', error);
   }, [error]);

@@ -48,16 +48,16 @@ export default async function ArticlesAcceptedPage(props: {
       getServerTranslations(lang),
     ]);
 
+    let rangeTypes: any[] = [];
+    if (articlesAccepted.range && 'types' in articlesAccepted.range) {
+      rangeTypes = Array.isArray(articlesAccepted.range.types) ? articlesAccepted.range.types : [];
+    }
+
     const formattedArticles = {
       data: Array.isArray(articlesAccepted.data) ? articlesAccepted.data : [],
       totalItems: articlesAccepted.totalItems || 0,
       range: {
-        types:
-          articlesAccepted.range && 'types' in articlesAccepted.range
-            ? Array.isArray(articlesAccepted.range.types)
-              ? articlesAccepted.range.types
-              : []
-            : [],
+        types: rangeTypes,
         years:
           articlesAccepted.range && Array.isArray(articlesAccepted.range.years)
             ? articlesAccepted.range.years

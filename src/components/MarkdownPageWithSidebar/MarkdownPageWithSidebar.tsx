@@ -110,7 +110,7 @@ export default function MarkdownPageWithSidebar({
     // Filter out empty sections (sections with only whitespace or just the heading)
     return sections.filter(section => {
       // Remove the heading line and check if there's actual content
-      const contentWithoutHeading = section.value.replace(/^#{1,3}\s*.*$/m, '').trim();
+      const contentWithoutHeading = section.value.replace(/^#{1,3}.*$/m, '').trim();
       // Also filter out sections that are just the title (empty title sections)
       if (section.title === '' && contentWithoutHeading.length === 0) {
         return false;
@@ -282,42 +282,48 @@ export default function MarkdownPageWithSidebar({
         ) : (
           <div className={`${className}-content-body`}>
             {pageSections.length > 0 ? (
-              pageSections.map((section, index) => (
-                <div
-                  key={`${section.id}-${index}`}
-                  className={`${className}-content-body-section ${!section.opened ? `${className}-content-body-section-hidden` : ''}`}
-                >
-                  {section.title && (
-                    <CollapsibleSectionHeader
-                      triggerClassName={`${className}-content-body-section-subtitle`}
-                      headingClassName={`${className}-content-body-section-subtitle-text`}
-                      caretClassName={`${className}-content-body-section-subtitle-caret`}
-                      headingId={section.id}
-                      controlsId={`section-content-${section.id}`}
-                      title={section.title}
-                      isOpen={section.opened}
-                      onToggle={(): void => toggleSectionHeader(section.id)}
-                    />
-                  )}
+              pageSections.map((section, index) => {
+                const hiddenSectionClass = !section.opened
+                  ? `${className}-content-body-section-hidden`
+                  : '';
+
+                return (
                   <div
-                    id={`section-content-${section.id}`}
-                    role="region"
-                    aria-labelledby={section.id}
+                    key={`${section.id}-${index}`}
+                    className={`${className}-content-body-section ${hiddenSectionClass}`}
                   >
-                    <MarkdownRenderer
-                      components={{
-                        img: renderMarkdownImage,
-                        a: renderMarkdownLink,
-                        h1: renderEmptyHeading,
-                        h2: renderEmptyHeading,
-                        h3: renderMarkdownH3,
-                      }}
+                    {section.title && (
+                      <CollapsibleSectionHeader
+                        triggerClassName={`${className}-content-body-section-subtitle`}
+                        headingClassName={`${className}-content-body-section-subtitle-text`}
+                        caretClassName={`${className}-content-body-section-subtitle-caret`}
+                        headingId={section.id}
+                        controlsId={`section-content-${section.id}`}
+                        title={section.title}
+                        isOpen={section.opened}
+                        onToggle={(): void => toggleSectionHeader(section.id)}
+                      />
+                    )}
+                    <div
+                      id={`section-content-${section.id}`}
+                      role="region"
+                      aria-labelledby={section.id}
                     >
-                      {section.value}
-                    </MarkdownRenderer>
+                      <MarkdownRenderer
+                        components={{
+                          img: renderMarkdownImage,
+                          a: renderMarkdownLink,
+                          h1: renderEmptyHeading,
+                          h2: renderEmptyHeading,
+                          h3: renderMarkdownH3,
+                        }}
+                      >
+                        {section.value}
+                      </MarkdownRenderer>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p>{noContentMessage || t('pages.common.noContent')}</p>
             )}

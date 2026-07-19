@@ -33,17 +33,17 @@ const parseTypesParam = (typeParam: SearchParamValue): string[] => {
 
 const parseYearsParam = (yearsParam: SearchParamValue): number[] => {
   if (typeof yearsParam === 'string') {
-    return [Number.parseInt(yearsParam, 10)].filter(y => !isNaN(y));
+    return [Number.parseInt(yearsParam, 10)].filter(y => !Number.isNaN(y));
   }
   if (Array.isArray(yearsParam)) {
-    return yearsParam.map(y => Number.parseInt(y, 10)).filter(y => !isNaN(y));
+    return yearsParam.map(y => Number.parseInt(y, 10)).filter(y => !Number.isNaN(y));
   }
   return [];
 };
 
 const parseValidPage = (pageParam: SearchParamValue): number => {
   const currentPage = typeof pageParam === 'string' ? Number.parseInt(pageParam, 10) : 1;
-  return isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
+  return Number.isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
 };
 
 // Counts logic:

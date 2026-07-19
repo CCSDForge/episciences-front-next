@@ -96,6 +96,8 @@ function FilterSection({
   onToggle,
   children,
 }: IFilterSectionProps): React.JSX.Element {
+  const openedListClass = isOpened ? `${baseClass}-list-opened` : '';
+
   return (
     <div className={baseClass}>
       <button
@@ -112,7 +114,7 @@ function FilterSection({
           <CaretDownGreyIcon size={16} className={`${baseClass}-title-caret`} />
         )}
       </button>
-      <div id={id} className={`${baseClass}-list ${isOpened ? `${baseClass}-list-opened` : ''}`}>
+      <div id={id} className={`${baseClass}-list ${openedListClass}`}>
         {children}
       </div>
     </div>
@@ -276,19 +278,19 @@ export default function SearchResultsMobileModal({
         {taggedFilters.length > 0 && (
           <div className="searchResultsMobileModal-tags">
             <div className="searchResultsMobileModal-tags-row">
-              {taggedFilters.map(filter => (
-                <Tag
-                  key={`${filter.type}-${filter.value}`}
-                  text={
-                    filter.labelPath
-                      ? t(filter.labelPath)
-                      : filter.translatedLabel
-                        ? filter.translatedLabel[language]
-                        : filter.label!.toString()
-                  }
-                  onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
-                />
-              ))}
+              {taggedFilters.map(filter => {
+                const fallbackLabel = filter.translatedLabel
+                  ? filter.translatedLabel[language]
+                  : (filter.label?.toString() ?? '');
+
+                return (
+                  <Tag
+                    key={`${filter.type}-${filter.value}`}
+                    text={filter.labelPath ? t(filter.labelPath) : fallbackLabel}
+                    onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
+                  />
+                );
+              })}
             </div>
             <button
               type="button"

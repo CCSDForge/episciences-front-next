@@ -148,7 +148,7 @@ export default function ArticlesClient({
   useEffect(() => {
     const pageParam = searchParams?.get('page');
     const pageNumber = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
+    if (!Number.isNaN(pageNumber) && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
     }
   }, [searchParams, currentPage]);

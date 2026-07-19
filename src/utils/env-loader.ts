@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { isValidJournalId, sanitizeForLog } from './validation';
 import { API_ROOT_ENDPOINT } from '@/config/api';
 import { logger } from '@/lib/logger';
@@ -39,7 +39,7 @@ export function getJournalsList(): string[] {
   }
 
   try {
-    const fs = require('fs');
+    const fs = require('node:fs');
     const journalsPath = path.join(process.cwd(), 'external-assets/journals.txt');
     const content = fs.readFileSync(journalsPath, 'utf-8');
     const journals = content
@@ -82,7 +82,7 @@ export function loadJournalConfig(journalCode: string): JournalConfig {
   }
 
   try {
-    const fs = require('fs');
+    const fs = require('node:fs');
     const baseDir = path.resolve(process.cwd(), 'external-assets');
     const envPath = path.resolve(baseDir, `.env.local.${journalCode}`);
 

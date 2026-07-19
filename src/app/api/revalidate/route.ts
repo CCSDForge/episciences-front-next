@@ -1,6 +1,6 @@
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { getClientIp, sanitizeForLog } from '@/utils/validation';
 import { logger } from '@/lib/logger';
 

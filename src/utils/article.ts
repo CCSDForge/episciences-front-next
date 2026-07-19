@@ -293,11 +293,11 @@ function extractRelatedItems(articleContent: RawArticleContent): IArticleRelated
 /** Extract funding statements from the `fundref` program block. */
 function extractFundings(articleContent: RawArticleContent): string[] {
   const program = articleContent.program;
+  const singleProgramFundref =
+    !Array.isArray(program) && program?.['@name'] === 'fundref' ? program : undefined;
   const fundref = Array.isArray(program)
     ? program.find(p => p['@name'] === 'fundref')
-    : program?.['@name'] === 'fundref'
-      ? program
-      : undefined;
+    : singleProgramFundref;
 
   const assertion = fundref?.assertion?.assertion;
   if (Array.isArray(assertion)) return assertion.map(a => a.value);

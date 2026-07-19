@@ -161,19 +161,19 @@ export default function BoardsClient({
                 <div className="boards-content-groups-group-content-grid">
                   {boardPerTitle.members.map((member, memberIndex) => {
                     const memberKey = `${groupIndex}-${memberIndex}`;
+                    const nonExpandedCardState =
+                      expandedMemberKey !== null && expandedMemberKey !== memberKey
+                        ? 'blurred'
+                        : 'default';
+                    const cardState =
+                      expandedMemberKey === memberKey ? 'expanded' : nonExpandedCardState;
                     return (
                       <BoardCard
                         key={member.id || memberKey}
                         language={currentLang}
                         t={t}
                         member={member}
-                        state={
-                          expandedMemberKey === memberKey
-                            ? 'expanded'
-                            : expandedMemberKey !== null
-                              ? 'blurred'
-                              : 'default'
-                        }
+                        state={cardState}
                         onToggle={(): void => handleMemberToggle(memberKey)}
                         rolesLabels={rolesLabels}
                       />

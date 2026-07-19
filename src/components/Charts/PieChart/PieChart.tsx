@@ -51,13 +51,15 @@ export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element
     index: number,
     colors: string[]
   ): React.JSX.Element => {
+    const statusLabel = t(`pages.statistics.statuses.${singleData.status}`);
+
     return (
       <div key={singleData.status} className="pieChart-legend-rows-row">
         <div
           className="pieChart-legend-rows-row-square"
           style={{ backgroundColor: colors[index % colors.length] }}
         ></div>
-        <div>{`${singleData.count} ${t(`pages.statistics.statuses.${singleData.status}`)}`}</div>
+        <div>{`${singleData.count} ${statusLabel}`}</div>
       </div>
     );
   };

@@ -397,17 +397,14 @@ export default function VolumeDetailsClient({
     },
   ];
 
+  const volumeNumSuffix = volume?.num ? ` ${volume.num}` : '';
+  const volumeDetailsTitle = `${breadcrumbLabels?.volumeDetails || t('pages.volumeDetails.title')}${volumeNumSuffix}`;
+
   return (
     <main className="volumeDetails">
-      <PageTitle
-        title={`${breadcrumbLabels?.volumeDetails || t('pages.volumeDetails.title')}${volume?.num ? ` ${volume.num}` : ''}`}
-      />
+      <PageTitle title={volumeDetailsTitle} />
 
-      <Breadcrumb
-        parents={breadcrumbItems}
-        crumbLabel={`${breadcrumbLabels?.volumeDetails || t('pages.volumeDetails.title')}${volume?.num ? ` ${volume.num}` : ''}`}
-        lang={lang}
-      />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={volumeDetailsTitle} lang={lang} />
 
       {openedRelatedVolumesMobileModal && (
         <VolumeDetailsMobileModal

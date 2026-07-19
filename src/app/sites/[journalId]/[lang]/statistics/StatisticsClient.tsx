@@ -221,21 +221,21 @@ export default function StatisticsClient({
 
   useEffect(() => {
     if (stats?.data) {
-      const glanceStatTypes = [
+      const glanceStatTypes = new Set([
         STAT_TYPE.ACCEPTANCE_RATE,
         STAT_TYPE.NB_SUBMISSIONS,
         STAT_TYPE.NB_SUBMISSIONS_DETAILS,
-      ];
-      const evaluationPublicationStatTypes = [
+      ]);
+      const evaluationPublicationStatTypes = new Set([
         STAT_TYPE.EVALUATION,
         STAT_TYPE.MEDIAN_SUBMISSION_PUBLICATION,
-      ];
+      ]);
 
       const glanceStats = stats.data.filter(stat =>
-        glanceStatTypes.includes(stat.name as STAT_TYPE)
+        glanceStatTypes.has(stat.name as STAT_TYPE)
       );
       let evaluationPublicationStats = stats.data.filter(stat =>
-        evaluationPublicationStatTypes.includes(stat.name as STAT_TYPE)
+        evaluationPublicationStatTypes.has(stat.name as STAT_TYPE)
       );
 
       const evaluationStat = evaluationPublicationStats.find(
@@ -310,7 +310,8 @@ export default function StatisticsClient({
       searchParams.append('years', year.toString());
     });
 
-    const newUrl = `${window.location.pathname}${selectedYears.length > 0 ? `?${searchParams.toString()}` : ''}`;
+    const searchQueryParam = selectedYears.length > 0 ? `?${searchParams.toString()}` : '';
+    const newUrl = `${window.location.pathname}${searchQueryParam}`;
     router.push(newUrl);
   };
 

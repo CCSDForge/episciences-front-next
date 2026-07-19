@@ -45,9 +45,8 @@ export function generateArticleMetadata({
   alternateLanguages,
   pdfDownloadUrl,
 }: IArticleMetaProps): Metadata {
-  const metadataTitle = article?.title
-    ? `${article.title}${currentJournal?.name ? ` | ${currentJournal.name}` : ''}`
-    : undefined;
+  const journalNameSuffix = currentJournal?.name ? ` | ${currentJournal.name}` : '';
+  const metadataTitle = article?.title ? `${article.title}${journalNameSuffix}` : undefined;
   const abstractString: string = getAbstractString(article?.abstract, language);
 
   const otherMetadata: Record<string, string | string[]> = {
