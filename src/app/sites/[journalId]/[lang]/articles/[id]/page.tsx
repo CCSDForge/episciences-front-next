@@ -9,12 +9,11 @@ import { isCrossJournalAccess, METADATA_TYPE } from '@/utils/article';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import { getServerTranslations } from '@/utils/server-i18n';
-import { getLanguageFromParams } from '@/utils/language-utils';
+import { getLanguageFromParams, acceptedLanguages } from '@/utils/language-utils';
 import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 import { AvailableLanguage } from '@/utils/i18n';
 import { loadJournalConfig } from '@/utils/env-loader';
 import { getJournalBaseUrl } from '@/utils/signposting';
-import { acceptedLanguages } from '@/utils/language-utils';
 import { logger } from '@/lib/logger';
 
 interface ArticleDetailsPageProps {
