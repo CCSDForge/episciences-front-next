@@ -112,34 +112,18 @@ describe('ClientProviders', () => {
       expect(screen.getByTestId('child-content')).toBeInTheDocument();
     });
 
-    it('wraps content with Redux Provider', () => {
+    it.each([
+      { description: 'wraps content with Redux Provider', testId: 'redux-provider' },
+      { description: 'wraps content with I18nextProvider', testId: 'i18n-provider' },
+      { description: 'wraps content with MathJaxContext', testId: 'mathjax-provider' },
+    ])('$description', ({ testId }) => {
       render(
         <ClientProviders>
           <div>Content</div>
         </ClientProviders>
       );
 
-      expect(screen.getByTestId('redux-provider')).toBeInTheDocument();
-    });
-
-    it('wraps content with I18nextProvider', () => {
-      render(
-        <ClientProviders>
-          <div>Content</div>
-        </ClientProviders>
-      );
-
-      expect(screen.getByTestId('i18n-provider')).toBeInTheDocument();
-    });
-
-    it('wraps content with MathJaxContext', () => {
-      render(
-        <ClientProviders>
-          <div>Content</div>
-        </ClientProviders>
-      );
-
-      expect(screen.getByTestId('mathjax-provider')).toBeInTheDocument();
+      expect(screen.getByTestId(testId)).toBeInTheDocument();
     });
   });
 

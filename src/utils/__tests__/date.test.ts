@@ -33,18 +33,12 @@ describe('formatDateForScholar', () => {
 
 describe('formatDate', () => {
   describe('valid date formats', () => {
-    it('should format ISO date string with timezone', () => {
-      const result = formatDate('2024-01-15T10:30:00Z', 'en');
-      expect(result).toBe('January 15, 2024');
-    });
-
-    it('should format DD/MM/YYYY format', () => {
-      const result = formatDate('15/01/2024', 'en');
-      expect(result).toBe('January 15, 2024');
-    });
-
-    it('should format YYYY-MM-DD format', () => {
-      const result = formatDate('2024-01-15', 'en');
+    it.each([
+      { description: 'should format ISO date string with timezone', input: '2024-01-15T10:30:00Z' },
+      { description: 'should format DD/MM/YYYY format', input: '15/01/2024' },
+      { description: 'should format YYYY-MM-DD format', input: '2024-01-15' },
+    ])('$description', ({ input }) => {
+      const result = formatDate(input, 'en');
       expect(result).toBe('January 15, 2024');
     });
 

@@ -136,18 +136,15 @@ describe('LanguageDropdown', () => {
   });
 
   describe('Accessibility - ARIA attributes', () => {
-    it('button has aria-haspopup="true"', () => {
+    it.each([
+      { description: 'button has aria-haspopup="true"', attribute: 'aria-haspopup', value: 'true' },
+      { description: 'button has aria-expanded="false" when closed', attribute: 'aria-expanded', value: 'false' },
+      { description: 'button has descriptive aria-label', attribute: 'aria-label', value: 'Select language' },
+    ])('$description', ({ attribute, value }) => {
       render(<LanguageDropdown />);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-haspopup', 'true');
-    });
-
-    it('button has aria-expanded="false" when closed', () => {
-      render(<LanguageDropdown />);
-
-      const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-expanded', 'false');
+      expect(button).toHaveAttribute(attribute, value);
     });
 
     it('button has aria-expanded="true" when open', async () => {
@@ -157,13 +154,6 @@ describe('LanguageDropdown', () => {
       await user.click(screen.getByRole('button'));
 
       expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true');
-    });
-
-    it('button has descriptive aria-label', () => {
-      render(<LanguageDropdown />);
-
-      const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-label', 'Select language');
     });
   });
 
@@ -285,51 +275,22 @@ describe('LanguageDropdown', () => {
   });
 
   describe('Menu item keyboard navigation', () => {
-    it('ArrowDown navigates to next menu item', async () => {
+    it.each([
+      { description: 'ArrowDown navigates to next menu item', key1: '{ArrowDown}', key2: '{ArrowDown}', expanded: 'true' },
+      { description: 'ArrowUp navigates to previous menu item', key1: '{ArrowUp}', key2: '{ArrowUp}', expanded: 'true' },
+      { description: 'Escape from menu item closes dropdown', key1: '{ArrowDown}', key2: '{Escape}', expanded: 'false' },
+    ])('$description', async ({ key1, key2, expanded }) => {
       const user = userEvent.setup();
       render(<LanguageDropdown />);
 
-      // Open dropdown with ArrowDown to focus first item
+      // Open dropdown / focus a menu item
       const button = screen.getByRole('button');
       button.focus();
-      await user.keyboard('{ArrowDown}');
+      await user.keyboard(key1);
 
-      // Navigate down
-      await user.keyboard('{ArrowDown}');
+      await user.keyboard(key2);
 
-      // Menu should still be open
-      expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true');
-    });
-
-    it('ArrowUp navigates to previous menu item', async () => {
-      const user = userEvent.setup();
-      render(<LanguageDropdown />);
-
-      // Open dropdown with ArrowUp to focus last item
-      const button = screen.getByRole('button');
-      button.focus();
-      await user.keyboard('{ArrowUp}');
-
-      // Navigate up
-      await user.keyboard('{ArrowUp}');
-
-      // Menu should still be open
-      expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true');
-    });
-
-    it('Escape from menu item closes dropdown', async () => {
-      const user = userEvent.setup();
-      render(<LanguageDropdown />);
-
-      // Open dropdown
-      const button = screen.getByRole('button');
-      button.focus();
-      await user.keyboard('{ArrowDown}');
-
-      // Press Escape
-      await user.keyboard('{Escape}');
-
-      expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', expanded);
     });
   });
 

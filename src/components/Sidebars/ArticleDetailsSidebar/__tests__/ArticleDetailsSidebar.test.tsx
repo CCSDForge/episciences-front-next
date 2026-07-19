@@ -288,29 +288,15 @@ describe('ArticleDetailsSidebar', () => {
   // Publication details
   // ─────────────────────────────────────────────────────────────────────────
   describe('Publication details', () => {
-    it('renders the publication details section title', () => {
+    it.each([
+      { description: 'renders the publication details section title', label: 'Publication Details' },
+      { description: 'shows submission date when present', label: 'Submitted on' },
+      { description: 'shows acceptance date when present', label: 'Accepted on' },
+      { description: 'shows publication date when present', label: 'Published on' },
+      { description: 'shows modification date when present', label: 'Last modified on' },
+    ])('$description', ({ label }) => {
       render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Publication Details')).toBeInTheDocument();
-    });
-
-    it('shows submission date when present', () => {
-      render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Submitted on')).toBeInTheDocument();
-    });
-
-    it('shows acceptance date when present', () => {
-      render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Accepted on')).toBeInTheDocument();
-    });
-
-    it('shows publication date when present', () => {
-      render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Published on')).toBeInTheDocument();
-    });
-
-    it('shows modification date when present', () => {
-      render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Last modified on')).toBeInTheDocument();
+      expect(screen.getByText(label)).toBeInTheDocument();
     });
 
     it('does not show submission date when absent', () => {

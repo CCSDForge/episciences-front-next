@@ -55,32 +55,13 @@ describe('getBreadcrumbHierarchy', () => {
   });
 
   describe('Publish category pages', () => {
-    it('generates correct breadcrumb for /for-authors', () => {
-      const result = getBreadcrumbHierarchy('/for-authors', mockTranslations);
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: '/', label: 'Home >' });
-      expect(result[1]).toEqual({ path: '#', label: 'Publish >' });
-    });
-
-    it('generates correct breadcrumb for /ethical-charter', () => {
-      const result = getBreadcrumbHierarchy('/ethical-charter', mockTranslations);
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: '/', label: 'Home >' });
-      expect(result[1]).toEqual({ path: '#', label: 'Publish >' });
-    });
-
-    it('generates correct breadcrumb for /for-reviewers', () => {
-      const result = getBreadcrumbHierarchy('/for-reviewers', mockTranslations);
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: '/', label: 'Home >' });
-      expect(result[1]).toEqual({ path: '#', label: 'Publish >' });
-    });
-
-    it('generates correct breadcrumb for /for-conference-organisers', () => {
-      const result = getBreadcrumbHierarchy('/for-conference-organisers', mockTranslations);
+    it.each([
+      { path: '/for-authors' },
+      { path: '/ethical-charter' },
+      { path: '/for-reviewers' },
+      { path: '/for-conference-organisers' },
+    ])('generates correct breadcrumb for $path', ({ path }) => {
+      const result = getBreadcrumbHierarchy(path, mockTranslations);
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({ path: '/', label: 'Home >' });
@@ -89,55 +70,29 @@ describe('getBreadcrumbHierarchy', () => {
   });
 
   describe('Content category pages', () => {
-    it('generates correct breadcrumb for /articles', () => {
-      const result = getBreadcrumbHierarchy('/articles', mockTranslations);
+    it.each([{ path: '/articles' }, { path: '/volumes' }, { path: '/authors' }])(
+      'generates correct breadcrumb for $path',
+      ({ path }) => {
+        const result = getBreadcrumbHierarchy(path, mockTranslations);
 
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: '/', label: 'Home >' });
-      expect(result[1]).toEqual({ path: '#', label: 'Articles & Issues >' });
-    });
-
-    it('generates correct breadcrumb for /volumes', () => {
-      const result = getBreadcrumbHierarchy('/volumes', mockTranslations);
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: '/', label: 'Home >' });
-      expect(result[1]).toEqual({ path: '#', label: 'Articles & Issues >' });
-    });
-
-    it('generates correct breadcrumb for /authors', () => {
-      const result = getBreadcrumbHierarchy('/authors', mockTranslations);
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: '/', label: 'Home >' });
-      expect(result[1]).toEqual({ path: '#', label: 'Articles & Issues >' });
-    });
+        expect(result).toHaveLength(2);
+        expect(result[0]).toEqual({ path: '/', label: 'Home >' });
+        expect(result[1]).toEqual({ path: '#', label: 'Articles & Issues >' });
+      }
+    );
   });
 
   describe('About category pages', () => {
-    it('generates correct breadcrumb for /about', () => {
-      const result = getBreadcrumbHierarchy('/about', mockTranslations);
+    it.each([{ path: '/about' }, { path: '/acknowledgements' }, { path: '/news' }])(
+      'generates correct breadcrumb for $path',
+      ({ path }) => {
+        const result = getBreadcrumbHierarchy(path, mockTranslations);
 
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: '/', label: 'Home >' });
-      expect(result[1]).toEqual({ path: '#', label: 'About >' });
-    });
-
-    it('generates correct breadcrumb for /acknowledgements', () => {
-      const result = getBreadcrumbHierarchy('/acknowledgements', mockTranslations);
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: '/', label: 'Home >' });
-      expect(result[1]).toEqual({ path: '#', label: 'About >' });
-    });
-
-    it('generates correct breadcrumb for /news', () => {
-      const result = getBreadcrumbHierarchy('/news', mockTranslations);
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: '/', label: 'Home >' });
-      expect(result[1]).toEqual({ path: '#', label: 'About >' });
-    });
+        expect(result).toHaveLength(2);
+        expect(result[0]).toEqual({ path: '/', label: 'Home >' });
+        expect(result[1]).toEqual({ path: '#', label: 'About >' });
+      }
+    );
   });
 
   describe('Standalone pages', () => {

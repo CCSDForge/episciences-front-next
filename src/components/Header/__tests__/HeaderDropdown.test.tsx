@@ -139,44 +139,19 @@ describe('HeaderDropdown', () => {
   // Keyboard — button
   // ─────────────────────────────────────────────────────────────────────────
   describe('keyboard navigation — button', () => {
-    it('Enter opens the dropdown and sets focusedIndex to 0', async () => {
+    it.each([
+      { description: 'Enter opens the dropdown and sets focusedIndex to 0', key: 'Enter', isOpen: false, expectedToggle: true },
+      { description: 'Space opens the dropdown', key: ' ', isOpen: false, expectedToggle: true },
+      { description: 'Enter on open dropdown closes it', key: 'Enter', isOpen: true, expectedToggle: false },
+      { description: 'ArrowDown opens and focuses first item', key: 'ArrowDown', isOpen: false, expectedToggle: true },
+    ])('$description', ({ key, isOpen, expectedToggle }) => {
       const onToggle = vi.fn();
-      renderDropdown({ onToggle });
+      renderDropdown({ isOpen, onToggle });
 
       const button = screen.getByRole('button');
-      fireEvent.keyDown(button, { key: 'Enter' });
+      fireEvent.keyDown(button, { key });
 
-      expect(onToggle).toHaveBeenCalledWith(true);
-    });
-
-    it('Space opens the dropdown', async () => {
-      const onToggle = vi.fn();
-      renderDropdown({ onToggle });
-
-      const button = screen.getByRole('button');
-      fireEvent.keyDown(button, { key: ' ' });
-
-      expect(onToggle).toHaveBeenCalledWith(true);
-    });
-
-    it('Enter on open dropdown closes it', () => {
-      const onToggle = vi.fn();
-      renderDropdown({ isOpen: true, onToggle });
-
-      const button = screen.getByRole('button');
-      fireEvent.keyDown(button, { key: 'Enter' });
-
-      expect(onToggle).toHaveBeenCalledWith(false);
-    });
-
-    it('ArrowDown opens and focuses first item', () => {
-      const onToggle = vi.fn();
-      renderDropdown({ onToggle });
-
-      const button = screen.getByRole('button');
-      fireEvent.keyDown(button, { key: 'ArrowDown' });
-
-      expect(onToggle).toHaveBeenCalledWith(true);
+      expect(onToggle).toHaveBeenCalledWith(expectedToggle);
     });
 
     it('ArrowUp opens and focuses last item', () => {
