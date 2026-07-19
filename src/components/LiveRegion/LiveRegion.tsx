@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface LiveRegionProps {
   readonly message: string;

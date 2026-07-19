@@ -1,6 +1,5 @@
 'use client';
 
-import { FilterIcon } from '@/components/icons';
 import { useState, useEffect, Fragment, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { TFunction } from 'i18next';

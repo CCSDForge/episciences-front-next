@@ -6,7 +6,7 @@ import {
   RawVolumeMetadata,
 } from '@/types/volume';
 import { AvailableLanguage } from '@/utils/i18n';
-import { PaginatedResponseWithCount, Range } from '@/utils/pagination';
+import { Range } from '@/utils/pagination';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { logger } from '@/lib/logger';
 

@@ -8,7 +8,6 @@ import { RawNews, transformRawNews } from '@/services/news';
 import { IVolume } from '@/types/volume';
 import { IStat } from '@/types/stat';
 import { FetchedArticle, formatArticle } from '@/utils/article';
-import { transformArticleForDisplay } from './article';
 import { formatVolume, VOLUME_TYPE } from '@/utils/volume';
 import { AvailableLanguage } from '@/utils/i18n';
 import { getJournalApiUrl } from '@/utils/env-loader';

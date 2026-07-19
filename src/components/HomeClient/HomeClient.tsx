@@ -1,7 +1,7 @@
 'use client';
 
 import { CaretRightGreyIcon } from '@/components/icons';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from '@/components/Link/Link';
 import { useTranslation } from 'react-i18next';
 import { HomeData } from '@/services/home';

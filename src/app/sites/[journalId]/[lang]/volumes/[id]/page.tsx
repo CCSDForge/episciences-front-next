@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { fetchVolume, fetchVolumes } from '@/services/volume';
+import { fetchVolume } from '@/services/volume';
 import { fetchArticle } from '@/services/article';
 import { getJournalByCode } from '@/services/journal';
 import { getLanguageFromParams } from '@/utils/language-utils';

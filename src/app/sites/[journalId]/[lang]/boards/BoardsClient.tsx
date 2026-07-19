@@ -6,7 +6,7 @@ import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
 import { IBoardMember } from '@/types/board';
 import { IBoardPage } from '@/services/board';
-import { getBoardsPerTitle, IBoardPerTitle } from '@/utils/board-transforms';
+import { getBoardsPerTitle } from '@/utils/board-transforms';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
 import BoardsSidebar from '@/components/Sidebars/BoardsSidebar/BoardsSidebar';
