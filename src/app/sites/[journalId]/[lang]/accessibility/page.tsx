@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { getServerTranslations, t as translate } from '@/utils/server-i18n';
 import { getBreadcrumbHierarchy } from '@/utils/breadcrumbs';
 import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/MarkdownPageWithSidebar';
@@ -42,7 +42,7 @@ export async function generateMetadata(props: {
 }
 
 export default async function AccessibilityPage(props: {
-  params: Promise<{ journalId: string; lang: string }>;
+  readonly params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
   const { journalId, lang } = params;

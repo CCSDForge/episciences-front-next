@@ -13,9 +13,9 @@ import './SwiperArticleAcceptedCard.scss';
 export type SwiperArticleAcceptedCardProps = FetchedArticle;
 
 interface ISwiperArticleAcceptedCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  article: FetchedArticle;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly article: FetchedArticle;
 }
 
 function SwiperArticleAcceptedCard({

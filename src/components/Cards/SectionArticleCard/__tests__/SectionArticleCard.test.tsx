@@ -77,25 +77,19 @@ const baseArticle: IArticle = {
 
 describe('SectionArticleCard', () => {
   describe('rendering', () => {
-    it('renders the article title', () => {
+    it.each([
+      { description: 'renders the article title', label: 'Graph Theory Applications in Social Networks' },
+      { description: 'renders authors joined by comma', label: 'Eve Torres, Frank Mueller' },
+      { description: 'renders the publication date', label: 'Jan 20, 2024' },
+    ])('$description', ({ label }) => {
       render(<SectionArticleCard language="en" t={mockT as any} article={baseArticle} />);
-      expect(screen.getByText('Graph Theory Applications in Social Networks')).toBeInTheDocument();
+      expect(screen.getByText(label)).toBeInTheDocument();
     });
 
     it('renders title as a link to the article detail page', () => {
       render(<SectionArticleCard language="en" t={mockT as any} article={baseArticle} />);
       const link = screen.getByRole('link', { name: /Graph Theory/ });
       expect(link).toHaveAttribute('href', expect.stringContaining('55'));
-    });
-
-    it('renders authors joined by comma', () => {
-      render(<SectionArticleCard language="en" t={mockT as any} article={baseArticle} />);
-      expect(screen.getByText('Eve Torres, Frank Mueller')).toBeInTheDocument();
-    });
-
-    it('renders the publication date', () => {
-      render(<SectionArticleCard language="en" t={mockT as any} article={baseArticle} />);
-      expect(screen.getByText('Jan 20, 2024')).toBeInTheDocument();
     });
 
     it('renders article tag when present', () => {

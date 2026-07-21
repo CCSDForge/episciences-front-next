@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 interface ClientOnlyProps {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }
 
 /**

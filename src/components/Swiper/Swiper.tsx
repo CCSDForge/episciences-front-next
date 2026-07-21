@@ -13,13 +13,13 @@ import 'swiper/css/navigation';
 import './Swiper.scss';
 
 interface ISwiperProps {
-  id: string;
-  type: SwiperCardType;
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  slidesPerView: number;
-  slidesPerGroup: number;
-  cards: SwiperCardContent[];
+  readonly id: string;
+  readonly type: SwiperCardType;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly slidesPerView: number;
+  readonly slidesPerGroup: number;
+  readonly cards: SwiperCardContent[];
 }
 
 export default function Swiper({
@@ -116,8 +116,8 @@ export default function Swiper({
             },
           }}
         >
-          {renderedCards.map((content: SwiperCardContent, key: number) => (
-            <SwiperSlide key={key}>
+          {renderedCards.map((content: SwiperCardContent) => (
+            <SwiperSlide key={content?.id}>
               <Card language={language} t={t} type={type} content={content} />
             </SwiperSlide>
           ))}

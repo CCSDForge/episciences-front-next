@@ -15,11 +15,11 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { VOLUME_TYPE } from '@/utils/volume';
 
 interface IVolumeTileCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  volume: IVolume;
-  currentJournal?: IJournal;
-  journalCode?: string;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly volume: IVolume;
+  readonly currentJournal?: IJournal;
+  readonly journalCode?: string;
 }
 
 function VolumeTileCard({
@@ -34,7 +34,7 @@ function VolumeTileCard({
 
   const formatVolumeNum = (): string => {
     const num = volume.num != null ? ` ${volume.num}` : '';
-    if (volume.types && volume.types.length) {
+    if (volume.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return `${t('common.volumeCard.proceeding')}${num}`;
       }

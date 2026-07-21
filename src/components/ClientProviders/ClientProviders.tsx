@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
-import { I18nextProvider } from 'react-i18next';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { MathJaxContext } from 'better-react-mathjax';
 
 import store from '@/store';
 import i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
 import i18n from '@/config/i18n';
 import { mathJaxConfig, mathJaxSrc } from '@/config/mathjax';
 import { JournalInitializer } from '@/components/JournalInitializer/JournalInitializer';

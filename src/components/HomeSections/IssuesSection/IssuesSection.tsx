@@ -12,11 +12,11 @@ import { PATHS } from '@/config/paths';
 import './IssuesSection.scss';
 
 interface IIssuesSectionProps {
-  language: string;
-  t: TFunction<'translation', undefined>;
-  issues: IIssue[];
-  currentJournal: IJournal | null;
-  journalId?: string;
+  readonly language: string;
+  readonly t: TFunction<'translation', undefined>;
+  readonly issues: IIssue[];
+  readonly currentJournal: IJournal | null;
+  readonly journalId?: string;
 }
 
 function IssuesSection({

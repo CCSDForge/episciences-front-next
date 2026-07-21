@@ -11,9 +11,9 @@ import MarkdownPageWithSidebar from '@/components/MarkdownPageWithSidebar/Markdo
 import { BreadcrumbItem } from '@/utils/breadcrumbs';
 
 interface ProposingSpecialIssuesClientProps {
-  initialPage: any | null;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialPage: any | null;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     parents: BreadcrumbItem[];
     current: string;
   };

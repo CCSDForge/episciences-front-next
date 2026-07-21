@@ -46,7 +46,7 @@ type EnhancedArticle = FetchedArticle & {
 };
 
 interface ArticlesClientProps {
-  initialArticles: {
+  readonly initialArticles: {
     data: IArticle[];
     totalItems: number;
     range?: {
@@ -54,13 +54,13 @@ interface ArticlesClientProps {
       types?: string[];
     };
   };
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     articles: string;
   };
-  countLabels?: {
+  readonly countLabels?: {
     article: string;
     articles: string;
   };
@@ -89,7 +89,6 @@ export default function ArticlesClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Initialiser la page depuis les query params ou 1 par défaut
   const pageFromUrl = searchParams?.get('page');
@@ -98,7 +97,7 @@ export default function ArticlesClient({
   const [enhancedArticles, setEnhancedArticles] = useState<EnhancedArticle[]>(() => {
     if (initialArticles?.data) {
       return initialArticles.data
-        .filter(article => article && article.title)
+        .filter(article => article?.title)
         .map(article => ({ ...article, openedAbstract: false }));
     }
     return [];
@@ -108,7 +107,6 @@ export default function ArticlesClient({
   const [taggedFilters, setTaggedFilters] = useState<IArticleFilter[]>([]);
   const [showAllAbstracts, setShowAllAbstracts] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [totalArticlesCount, setTotalArticlesCount] = useState<number>(
     initialArticles?.totalItems || 0
   );
@@ -150,7 +148,7 @@ export default function ArticlesClient({
   useEffect(() => {
     const pageParam = searchParams?.get('page');
     const pageNumber = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
+    if (!Number.isNaN(pageNumber) && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
     }
   }, [searchParams, currentPage]);
@@ -189,7 +187,7 @@ export default function ArticlesClient({
 
       setEnhancedArticles(
         paginatedData
-          .filter((article: any) => article && article.title)
+          .filter((article: any) => article?.title)
           .map((article: any) => ({ ...article, openedAbstract: false }))
       );
     }
@@ -207,7 +205,7 @@ export default function ArticlesClient({
     ) {
       if (initialArticles?.data) {
         const displayedArticles = initialArticles.data
-          .filter((article: any) => article && article.title)
+          .filter((article: any) => article?.title)
           .map((article: any) => ({ ...article, openedAbstract: false }));
 
         const newIds = displayedArticles.map((a: any) => a.id).join(',');
@@ -557,9 +555,9 @@ export default function ArticlesClient({
       <div className="articles-filters">
         {taggedFilters.length > 0 && (
           <div className="articles-filters-tags">
-            {taggedFilters.map((filter, index) => (
+            {taggedFilters.map(filter => (
               <Tag
-                key={index}
+                key={`${filter.type}-${filter.value}`}
                 text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
@@ -609,9 +607,9 @@ export default function ArticlesClient({
             <Loader />
           ) : (
             <div className="articles-content-results-cards">
-              {enhancedArticles.map((article, index) => (
+              {enhancedArticles.map(article => (
                 <ArticleCard
-                  key={index}
+                  key={article?.id}
                   language={language}
                   rvcode={rvcode}
                   t={t}

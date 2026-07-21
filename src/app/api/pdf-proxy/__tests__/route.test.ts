@@ -51,48 +51,40 @@ describe('GET /api/pdf-proxy', () => {
       expect(res.status).toBe(400);
     });
 
-    it('returns 403 when domain is not whitelisted', async () => {
-      const { GET } = await import('../route');
-      const res = await GET(makeRequest('https://evil.com/file.pdf'));
-      expect(res.status).toBe(403);
-    });
-
-    it('returns 403 for domain that contains whitelisted name as substring (bypass attempt)', async () => {
-      const { GET } = await import('../route');
+    it.each([
+      { description: 'domain is not whitelisted', url: 'https://evil.com/file.pdf', status: 403 },
       // "evilzenodo.org" contains "zenodo.org" — must be rejected
-      const res = await GET(makeRequest('https://evilzenodo.org/file.pdf'));
-      expect(res.status).toBe(403);
-    });
-
-    it('returns 403 for domain that appends whitelisted name (bypass attempt)', async () => {
-      const { GET } = await import('../route');
+      {
+        description: 'domain that contains whitelisted name as substring (bypass attempt)',
+        url: 'https://evilzenodo.org/file.pdf',
+        status: 403,
+      },
       // "zenodo.org.evil.com" contains "zenodo.org" — must be rejected
-      const res = await GET(makeRequest('https://zenodo.org.evil.com/file.pdf'));
-      expect(res.status).toBe(403);
-    });
-
-    it('returns 403 for HTTP (non-HTTPS) URL', async () => {
+      {
+        description: 'domain that appends whitelisted name (bypass attempt)',
+        url: 'https://zenodo.org.evil.com/file.pdf',
+        status: 403,
+      },
+      { description: 'HTTP (non-HTTPS) URL', url: 'http://zenodo.org/record/123/files/paper.pdf', status: 403 },
+      {
+        description: 'a whitelisted domain (zenodo.org)',
+        url: 'https://zenodo.org/record/123/files/paper.pdf',
+        status: 200,
+      },
+      {
+        description: 'a subdomain of a whitelisted domain',
+        url: 'https://data.zenodo.org/record/123/files/paper.pdf',
+        status: 200,
+      },
+      {
+        description: 'a whitelisted domain (arxiv.org)',
+        url: 'https://arxiv.org/pdf/2301.00001.pdf',
+        status: 200,
+      },
+    ])('returns $status for $description', async ({ url, status }) => {
       const { GET } = await import('../route');
-      const res = await GET(makeRequest('http://zenodo.org/record/123/files/paper.pdf'));
-      expect(res.status).toBe(403);
-    });
-
-    it('returns 200 for a whitelisted domain (zenodo.org)', async () => {
-      const { GET } = await import('../route');
-      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
-      expect(res.status).toBe(200);
-    });
-
-    it('returns 200 for a subdomain of a whitelisted domain', async () => {
-      const { GET } = await import('../route');
-      const res = await GET(makeRequest('https://data.zenodo.org/record/123/files/paper.pdf'));
-      expect(res.status).toBe(200);
-    });
-
-    it('returns 200 for a whitelisted domain (arxiv.org)', async () => {
-      const { GET } = await import('../route');
-      const res = await GET(makeRequest('https://arxiv.org/pdf/2301.00001.pdf'));
-      expect(res.status).toBe(200);
+      const res = await GET(makeRequest(url));
+      expect(res.status).toBe(status);
     });
   });
 

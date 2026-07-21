@@ -11,9 +11,9 @@ export interface INewsYearSelection {
 }
 
 interface INewsSidebarProps {
-  t: TFunction<'translation', undefined>;
-  years: INewsYearSelection[];
-  onSelectYearCallback: (year: number) => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly years: INewsYearSelection[];
+  readonly onSelectYearCallback: (year: number) => void;
 }
 
 export default function NewsSidebar({

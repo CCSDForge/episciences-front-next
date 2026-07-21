@@ -8,12 +8,12 @@ import { MenuItemConfig } from '@/config/menu';
 import './HeaderDropdown.scss';
 
 interface HeaderDropdownProps {
-  label: string; // Already translated label
-  items: MenuItemConfig[];
-  isOpen: boolean;
-  onToggle: (opened: boolean) => void;
-  dropdownKey: string; // 'content' | 'about' | 'publish'
-  className?: string;
+  readonly label: string; // Already translated label
+  readonly items: MenuItemConfig[];
+  readonly isOpen: boolean;
+  readonly onToggle: (opened: boolean) => void;
+  readonly dropdownKey: string; // 'content' | 'about' | 'publish'
+  readonly className?: string;
 }
 
 /**

@@ -11,9 +11,9 @@ import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useRouter } from 'next/navigation';
 import { Link } from '@/components/Link/Link';
 import { useAppSelector } from '@/hooks/store';
-import { formatArticle, FetchedArticle } from '@/utils/article';
+import { FetchedArticle } from '@/utils/article';
 import { useFetchVolumesQuery } from '@/store/features/volume/volume.query';
-import { RawArticle, IArticle } from '@/types/article';
+import { IArticle } from '@/types/article';
 import { IVolume, IVolumeMetadata } from '@/types/volume';
 import { formatDate } from '@/utils/date';
 import { VOLUME_TYPE } from '@/utils/volume';
@@ -40,11 +40,11 @@ const VolumeDetailsMobileModal = dynamic(
 );
 
 interface VolumeDetailsClientProps {
-  initialVolume: IVolume | null;
-  initialArticles?: FetchedArticle[];
-  lang?: string;
-  journalId?: string;
-  breadcrumbLabels?: {
+  readonly initialVolume: IVolume | null;
+  readonly initialArticles?: FetchedArticle[];
+  readonly lang?: string;
+  readonly journalId?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     volumes: string;
@@ -73,7 +73,7 @@ export default function VolumeDetailsClient({
 
   const rvcode = reduxRvcode || journalId;
 
-  const [volume, setVolume] = useState(initialVolume);
+  const [volume] = useState(initialVolume);
   const [isFetchingArticles, setIsFetchingArticles] = useState(false);
   const [articles, setArticles] = useState<FetchedArticle[]>(initialArticles);
   const [showFullMobileDescription, setShowFullMobileDescription] = useState(false);
@@ -89,7 +89,7 @@ export default function VolumeDetailsClient({
 
   const reorderRelatedVolumes = useCallback(
     (volumesToBeOrdered: IVolume[]): IVolume[] => {
-      if (!volume || !volumesToBeOrdered || !volumesToBeOrdered.length) return volumesToBeOrdered;
+      if (!volume || !volumesToBeOrdered?.length) return volumesToBeOrdered;
 
       const currentVolumeIndex = volumesToBeOrdered.findIndex(v => v.id === volume.id);
       if (currentVolumeIndex > -1) {
@@ -138,7 +138,7 @@ export default function VolumeDetailsClient({
   }, [initialArticles]);
 
   const renderVolumeType = (): React.JSX.Element => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return (
           <h1 className="volumeDetails-id-text">
@@ -183,7 +183,7 @@ export default function VolumeDetailsClient({
       />
     );
 
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return (
           <div
@@ -235,17 +235,15 @@ export default function VolumeDetailsClient({
       : 'volumeDetails-content-results-content-title';
 
     if (
-      volume?.types &&
-      volume.types.length &&
+      volume?.types?.length &&
       volume.types.includes(VOLUME_TYPE.PROCEEDINGS) &&
-      volume.settingsProceeding &&
-      volume.settingsProceeding.length
+      volume.settingsProceeding?.length
     ) {
       const conferenceName = volume.settingsProceeding.find(
         setting => setting.setting === 'conference_name'
       );
 
-      if (conferenceName && conferenceName.value) {
+      if (conferenceName?.value) {
         return (
           <div className={className}>
             {volume?.title
@@ -271,7 +269,7 @@ export default function VolumeDetailsClient({
     if (volume?.committee && volume.committee.length > 0) {
       return (
         <div className={className}>
-          {(!volume?.types || !volume?.types.includes(VOLUME_TYPE.PROCEEDINGS)) && (
+          {!volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) && (
             <span className="volumeDetails-content-results-content-committee-note">
               {t('common.volumeCommittee')} :
             </span>
@@ -374,13 +372,11 @@ export default function VolumeDetailsClient({
   };
 
   const getEdito = (): IVolumeMetadata | null => {
-    if (!volume?.metadatas || !volume.metadatas.length) return null;
+    if (!volume?.metadatas?.length) return null;
 
     const edito = volume.metadatas.find(
       metadata =>
-        metadata.title &&
-        metadata.title[language] &&
-        metadata.title[language].replace(/[\u0300-\u036f]/g, '').toLowerCase() === 'edito'
+        metadata.title?.[language]?.replace(/[\u0300-\u036f]/g, '').toLowerCase() === 'edito'
     );
 
     return edito || null;
@@ -401,17 +397,14 @@ export default function VolumeDetailsClient({
     },
   ];
 
+  const volumeNumSuffix = volume?.num ? ` ${volume.num}` : '';
+  const volumeDetailsTitle = `${breadcrumbLabels?.volumeDetails || t('pages.volumeDetails.title')}${volumeNumSuffix}`;
+
   return (
     <main className="volumeDetails">
-      <PageTitle
-        title={`${breadcrumbLabels?.volumeDetails || t('pages.volumeDetails.title')}${volume?.num ? ` ${volume.num}` : ''}`}
-      />
+      <PageTitle title={volumeDetailsTitle} />
 
-      <Breadcrumb
-        parents={breadcrumbItems}
-        crumbLabel={`${breadcrumbLabels?.volumeDetails || t('pages.volumeDetails.title')}${volume?.num ? ` ${volume.num}` : ''}`}
-        lang={lang}
-      />
+      <Breadcrumb parents={breadcrumbItems} crumbLabel={volumeDetailsTitle} lang={lang} />
 
       {openedRelatedVolumesMobileModal && (
         <VolumeDetailsMobileModal
@@ -451,10 +444,8 @@ export default function VolumeDetailsClient({
               <div className="volumeDetails-content-results-content">
                 {renderVolumeTitle(false)}
                 {renderVolumeCommittee(false)}
-                {volume?.types &&
-                  volume?.types.includes(VOLUME_TYPE.PROCEEDINGS) &&
-                  volume.settingsProceeding &&
-                  volume.settingsProceeding.length && (
+                {volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) &&
+                  volume.settingsProceeding?.length && (
                     <div className="volumeDetails-content-results-content-proceedingSettings">
                       <div className="volumeDetails-content-results-content-proceedingSettings-setting">
                         {renderProceedingTheme()}
@@ -483,7 +474,7 @@ export default function VolumeDetailsClient({
                     ? `${articles.length} ${t('common.articles')}`
                     : `${articles.length} ${t('common.article')}`}
                 </div>
-                {getEdito() && getEdito()!.content && getEdito()!.content![language] && (
+                {getEdito()?.content?.[language] && (
                   <div className="volumeDetails-content-results-content-edito">
                     <div className="volumeDetails-content-results-content-edito-title">
                       {getEdito()!.title![language]}
@@ -529,9 +520,9 @@ export default function VolumeDetailsClient({
                 <div className="volumeDetails-content-results-content-cards">
                   {articles
                     ?.filter(article => article)
-                    .map((article, index) => (
+                    .map(article => (
                       <VolumeArticleCard
-                        key={index}
+                        key={(article as IArticle).id}
                         language={language}
                         t={t}
                         article={article as IArticle}

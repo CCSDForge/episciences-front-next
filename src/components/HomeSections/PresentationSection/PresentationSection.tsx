@@ -23,10 +23,10 @@ const MAX_ABOUT_CONTENT_LENGTH_FULL = 1400;
 const MAX_NEWS_CONTENT_LENGTH = 350;
 
 interface IPresentationSectionProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  aboutContent?: Record<AvailableLanguage, string>;
-  lastInformation?: {
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly aboutContent?: Record<AvailableLanguage, string>;
+  readonly lastInformation?: {
     type: HOMEPAGE_LAST_INFORMATION_BLOCK;
     information?: IVolume | INews;
   };
@@ -145,7 +145,7 @@ export default function PresentationSection({
 
   const aboutText = getAboutContent();
   const hasValidAboutContent = !!aboutText;
-  const hasRightBlock = !!(lastInformation && lastInformation.information);
+  const hasRightBlock = !!lastInformation?.information;
 
   return (
     <div className="presentationSection">
@@ -173,7 +173,7 @@ export default function PresentationSection({
           </Link>
         </div>
       )}
-      {lastInformation && lastInformation.information && (
+      {lastInformation?.information && (
         <>
           {lastInformation.type === HOMEPAGE_LAST_INFORMATION_BLOCK.LAST_NEWS &&
             renderNewsContent(lastInformation.information as INews)}

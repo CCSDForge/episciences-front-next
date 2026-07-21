@@ -13,12 +13,12 @@ import './VolumeDetailsMobile.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IVolumeDetailsMobileProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  volume?: IVolume;
-  relatedVolumes: IVolume[];
-  onSelectRelatedVolumeCallback: (id: number) => void;
-  onCloseCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly volume?: IVolume;
+  readonly relatedVolumes: IVolume[];
+  readonly onSelectRelatedVolumeCallback: (id: number) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export function VolumeDetailsMobile({
@@ -62,7 +62,7 @@ export function VolumeDetailsMobile({
   }, [onClose]);
 
   const getTitle = (): string => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.proceedings');
       }
@@ -76,7 +76,7 @@ export function VolumeDetailsMobile({
   };
 
   const getSubmitText = (): string => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.lookAtSelectedProceedings');
       }
@@ -107,9 +107,9 @@ export function VolumeDetailsMobile({
         />
       </div>
       <div className="volumeDetailsMobile-relatedVolumes">
-        {relatedVolumes.map((relatedVolume, index) => (
+        {relatedVolumes.map(relatedVolume => (
           <div
-            key={index}
+            key={relatedVolume.id}
             className={`volumeDetailsMobile-relatedVolumes-volume ${relatedVolume.id === chosenVolume?.id && 'volumeDetailsMobile-relatedVolumes-volume-current'}`}
             role="button"
             tabIndex={0}

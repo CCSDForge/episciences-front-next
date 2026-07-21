@@ -26,7 +26,8 @@ export function getPeriodicalId(journalId: string): string {
 
 // WebPage @id includes lang since it is a localised resource
 export function getWebPageId(journalId: string, lang: string, route: string): string {
-  const cleanRoute = route === '/' ? '' : route.startsWith('/') ? route : `/${route}`;
+  const routeWithSeparator = route.startsWith('/') ? route : `/${route}`;
+  const cleanRoute = route === '/' ? '' : routeWithSeparator;
   return `${getJournalBaseUrl(journalId)}/${lang}${cleanRoute}#webpage`;
 }
 
@@ -234,7 +235,7 @@ export function generateBreadcrumbJsonLd(
     .filter(parent => parent.path !== '#')
     .map(parent => ({
       '@type': 'ListItem' as const,
-      name: parent.label.replace(/\s*>\s*$/, '').trim(),
+      name: parent.label.replace(/>\s*$/, '').trim(),
       item: parent.path.startsWith('http')
         ? parent.path
         : `${baseUrl}${getLocalizedPath(parent.path, lang)}`,

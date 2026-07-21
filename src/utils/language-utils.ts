@@ -24,7 +24,7 @@ export type AvailableLanguage = (typeof acceptedLanguages)[number];
  * @returns The language code or default language if not found
  */
 export function getLanguageFromParams(params: { lang?: string | string[] } | undefined): string {
-  if (!params || !params.lang) {
+  if (!params?.lang) {
     return defaultLanguage;
   }
 
@@ -73,8 +73,8 @@ export function getLocalizedPath(path: string, lang: string): string {
 
   // Always add the language prefix
   // Ensure separator between lang and path for paths without a leading slash
-  const normalizedPath =
-    !cleanPath || cleanPath === '/' ? '' : cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+  const pathWithSeparator = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+  const normalizedPath = !cleanPath || cleanPath === '/' ? '' : pathWithSeparator;
   return `/${lang}${normalizedPath}`;
 }
 

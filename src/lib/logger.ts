@@ -25,7 +25,7 @@ function getLevel(): Level {
 }
 
 class Logger {
-  private ctx: Record<string, unknown>;
+  private readonly ctx: Record<string, unknown>;
 
   constructor(ctx: Record<string, unknown> = {}) {
     this.ctx = ctx;

@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface LiveRegionProps {
-  message: string;
-  politeness?: 'polite' | 'assertive';
-  clearOnUnmount?: boolean;
+  readonly message: string;
+  readonly politeness?: 'polite' | 'assertive';
+  readonly clearOnUnmount?: boolean;
 }
 
 /**

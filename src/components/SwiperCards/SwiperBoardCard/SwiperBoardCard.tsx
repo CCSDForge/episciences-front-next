@@ -18,7 +18,7 @@ import { ORCID_URL } from '@/config/external-urls';
 function AffiliationWithRor({
   affiliation,
 }: {
-  affiliation: IBoardMemberAffiliation;
+  readonly affiliation: IBoardMemberAffiliation;
 }): React.JSX.Element {
   if (affiliation.rorId) {
     return (
@@ -48,9 +48,9 @@ function AffiliationWithRor({
 export type SwiperBoardCardProps = IBoardMember;
 
 interface ISwiperBoardCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  member: IBoardMember;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly member: IBoardMember;
 }
 
 function SwiperBoardCard({ language, t, member }: ISwiperBoardCardProps): React.JSX.Element {
@@ -107,17 +107,20 @@ function SwiperBoardCard({ language, t, member }: ISwiperBoardCardProps): React.
       </div>
       {member.affiliations && member.affiliations.length > 0 && (
         <div className="swiperBoardCard-affiliations">
-          {member.affiliations.map((affiliation, idx) => (
-            <div key={idx} className="swiperBoardCard-affiliation-item">
+          {member.affiliations.map(affiliation => (
+            <div
+              key={`${affiliation.label}-${affiliation.rorId ?? ''}`}
+              className="swiperBoardCard-affiliation-item"
+            >
               <AffiliationWithRor affiliation={affiliation} />
             </div>
           ))}
         </div>
       )}
-      {member.assignedSections && member.assignedSections.length > 0 && (
+      {member.assignedSections?.length > 0 && (
         <div className="swiperBoardCard-assignedSections">
           {member.assignedSections
-            .filter(assignedSection => assignedSection.titles && assignedSection.titles[language])
+            .filter(assignedSection => assignedSection.titles?.[language])
             .map(assignedSection => assignedSection.titles[language])
             .filter(title => title && title.trim() !== '')
             .join(', ')}

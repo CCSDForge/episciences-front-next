@@ -11,15 +11,15 @@
  */
 
 export interface CaretDownIconProps {
-  color?: string;
-  size?: number;
-  className?: string;
-  ariaLabel?: string;
-  onClick?: () => void;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  onTouchStart?: () => void;
-  onTouchEnd?: () => void;
+  readonly color?: string;
+  readonly size?: number;
+  readonly className?: string;
+  readonly ariaLabel?: string;
+  readonly onClick?: () => void;
+  readonly onMouseEnter?: () => void;
+  readonly onMouseLeave?: () => void;
+  readonly onTouchStart?: () => void;
+  readonly onTouchEnd?: () => void;
 }
 
 export default function CaretDownIcon({

@@ -456,6 +456,7 @@
     },
     "about": {
       "title": "The journal",
+      "noContent": "No information available about this journal.",
       "description": "Discover the mission, history and editorial team of this journal"
     },
     "news": {
@@ -559,6 +560,7 @@
     },
     "credits": {
       "title": "Credits",
+      "noContent": "No credits available for this journal.",
       "description": "Credits and legal notices"
     },
     "notFound": {

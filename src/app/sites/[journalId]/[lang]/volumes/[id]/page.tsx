@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { fetchVolume, fetchVolumes } from '@/services/volume';
+import { fetchVolume } from '@/services/volume';
 import { fetchArticle } from '@/services/article';
 import { getJournalByCode } from '@/services/journal';
 import { getLanguageFromParams } from '@/utils/language-utils';
@@ -37,7 +37,7 @@ export async function generateMetadata(props: {
 }
 
 export default async function VolumeDetailsPage(props: {
-  params: Promise<{ id: string; lang?: string; journalId: string }>;
+  readonly params: Promise<{ id: string; lang?: string; journalId: string }>;
 }) {
   const params = await props.params;
   const language = getLanguageFromParams(params);
@@ -72,7 +72,7 @@ export default async function VolumeDetailsPage(props: {
     // Tier 2: if the API returned a volume belonging to another journal, redirect.
     // Fail-closed: if rvid is present but the journal lookup failed, block rather than skip.
     if (volumeData.rvid !== undefined) {
-      if (!activeJournal || volumeData.rvid !== activeJournal.id) {
+      if (volumeData.rvid !== activeJournal?.id) {
         logger.warn('Cross-journal volume access blocked', {
           reason: 'volume-wrong-journal',
           resourceType: 'volume',
@@ -86,7 +86,7 @@ export default async function VolumeDetailsPage(props: {
 
     // Fetch all articles for the volume server-side
     let articles: FetchedArticle[] = [];
-    if (volumeData && volumeData.articles && volumeData.articles.length > 0) {
+    if (volumeData?.articles?.length) {
       logger.debug(
         `[Volume ${params.id}] Found ${volumeData.articles.length} articles in volume data`
       );

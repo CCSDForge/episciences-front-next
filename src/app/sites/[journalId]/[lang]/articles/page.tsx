@@ -53,17 +53,18 @@ interface ArticlesData {
 }
 
 export default async function ArticlesPage(props: {
-  params: Promise<{ lang: string; journalId: string }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly params: Promise<{ lang: string; journalId: string }>;
+  readonly searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
   const lang = params.lang || 'en';
   const { journalId } = params;
 
   // Extract page number from searchParams
-  const page = searchParams?.page
-    ? Math.max(1, Number.parseInt(searchParams.page as string, 10))
+  const parsedPage = searchParams?.page
+    ? Number.parseInt(searchParams.page as string, 10)
     : 1;
+  const page = Number.isNaN(parsedPage) ? 1 : Math.max(1, parsedPage);
 
   const translationsPromise = getServerTranslations(lang);
 

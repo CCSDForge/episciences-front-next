@@ -11,10 +11,10 @@
  */
 
 export interface TileIconProps {
-  color?: string;
-  size?: number;
-  className?: string;
-  ariaLabel?: string;
+  readonly color?: string;
+  readonly size?: number;
+  readonly className?: string;
+  readonly ariaLabel?: string;
 }
 
 export default function TileIcon({

@@ -10,9 +10,9 @@ import { statTypes } from '@/utils/stat';
 import './StatisticsSection.scss';
 
 interface IStatisticsSectionProps {
-  t: TFunction<'translation', undefined>;
-  i18n: i18n;
-  stats: IStat[];
+  readonly t: TFunction<'translation', undefined>;
+  readonly i18n: i18n;
+  readonly stats: IStat[];
 }
 
 export default function StatisticsSection({
@@ -27,30 +27,33 @@ export default function StatisticsSection({
 
   return (
     <div className="statisticsSection">
-      {filteredStats.map((singleStat, index) => (
-        <Fragment key={singleStat.name}>
-          <div className="statisticsSection-row">
-            {singleStat.unit ? (
-              <div className="statisticsSection-row-stat">
-                {singleStat.value}{' '}
-                {i18n.exists(`common.${singleStat.unit}`)
-                  ? singleStat.value && singleStat.value > 1
-                    ? t(`common.${singleStat.unit}s`)
-                    : t(`common.${singleStat.unit}`)
-                  : singleStat.unit}
+      {filteredStats.map((singleStat, index) => {
+        const unitKey =
+          singleStat.value && singleStat.value > 1
+            ? `common.${singleStat.unit}s`
+            : `common.${singleStat.unit}`;
+        const unitLabel = i18n.exists(`common.${singleStat.unit}`) ? t(unitKey) : singleStat.unit;
+
+        return (
+          <Fragment key={singleStat.name}>
+            <div className="statisticsSection-row">
+              {singleStat.unit ? (
+                <div className="statisticsSection-row-stat">
+                  {singleStat.value} {unitLabel}
+                </div>
+              ) : (
+                <div className="statisticsSection-row-stat">{singleStat.value}</div>
+              )}
+              <div className="statisticsSection-row-title">
+                {t(statTypes.find(stat => stat.value === singleStat.name)?.labelPath!)}
               </div>
-            ) : (
-              <div className="statisticsSection-row-stat">{singleStat.value}</div>
-            )}
-            <div className="statisticsSection-row-title">
-              {t(statTypes.find(stat => stat.value === singleStat.name)?.labelPath!)}
             </div>
-          </div>
-          <div
-            className={`${index !== filteredStats.length - 1 && 'statisticsSection-divider'}`}
-          ></div>
-        </Fragment>
-      ))}
+            <div
+              className={index !== filteredStats.length - 1 ? 'statisticsSection-divider' : ''}
+            ></div>
+          </Fragment>
+        );
+      })}
     </div>
   );
 }

@@ -45,12 +45,12 @@ export const getMarkdownImageURL = (path: string, rvcode: string) =>
 export const decodeText = (text: string): string => {
   return he
     .decode(text)
-    .replace(/\\_/g, '_')
-    .replace(/\\\*/g, '*')
-    .replace(/\\\(/g, '(')
-    .replace(/\\\)/g, ')')
-    .replace(/\\\[/g, '[')
-    .replace(/\\\]/g, ']')
-    .replace(/\\\\/g, '\\')
+    .replaceAll('\\_', '_')
+    .replaceAll('\\*', '*')
+    .replaceAll('\\(', '(')
+    .replaceAll('\\)', ')')
+    .replaceAll('\\[', '[')
+    .replaceAll('\\]', ']')
+    .replaceAll('\\\\', '\\')
     .trim();
 };

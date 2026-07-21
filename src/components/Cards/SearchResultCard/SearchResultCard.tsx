@@ -25,11 +25,11 @@ export interface ISearchResultCard extends IArticle {
 }
 
 interface ISearchResultCardProps {
-  language: AvailableLanguage;
-  rvcode?: string;
-  t: TFunction<'translation', undefined>;
-  searchResult: ISearchResultCard;
-  toggleAbstractCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly rvcode?: string;
+  readonly t: TFunction<'translation', undefined>;
+  readonly searchResult: ISearchResultCard;
+  readonly toggleAbstractCallback: () => void;
 }
 
 function SearchResultCard({
@@ -123,7 +123,7 @@ function SearchResultCard({
               </div>
             </DownloadArticleButton>
           )}
-          {searchResult.id && (
+          {Boolean(searchResult.id) && (
             <div ref={citationsDropdownRef} className="searchResultCardAnchorIconsCite">
               <button
                 type="button"

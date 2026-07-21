@@ -57,13 +57,13 @@ interface IVolumeFilter {
 }
 
 interface VolumesClientProps {
-  initialVolumes: VolumesResponse | null;
-  initialPage: number;
-  initialTypes: string[];
-  initialYears: number[];
-  lang?: string;
-  journalId?: string;
-  breadcrumbLabels?: {
+  readonly initialVolumes: VolumesResponse | null;
+  readonly initialPage: number;
+  readonly initialTypes: string[];
+  readonly initialYears: number[];
+  readonly lang?: string;
+  readonly journalId?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     volumes: string;
@@ -95,11 +95,7 @@ export default function VolumesClient({
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
-  const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
-
-  const rvcode = reduxRvcode || journalId;
 
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [volumes, setVolumes] = useState(initialVolumes);
@@ -111,7 +107,6 @@ export default function VolumesClient({
   const [taggedFilters, setTaggedFilters] = useState<IVolumeFilter[]>([]);
   const [openedFiltersModal, setOpenedFiltersModal] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
 
   // Update local state when props change (Server Component re-render)
@@ -122,9 +117,6 @@ export default function VolumesClient({
       setIsLoadingData(false); // Hide loader
     }
   }, [initialVolumes]);
-
-  const getSelectedTypes = (): string[] => types.filter(t => t.isChecked).map(t => t.value);
-  const getSelectedYears = (): number[] => years.filter(y => y.isSelected).map(y => y.year);
 
   const updateParams = (newTypes: IVolumeTypeSelection[], newYears: IVolumeYearSelection[]) => {
     const params = new URLSearchParams();
@@ -157,7 +149,7 @@ export default function VolumesClient({
   useEffect(() => {
     const pageParam = searchParams?.get('page');
     const pageNumber = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
+    if (!Number.isNaN(pageNumber) && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
     }
   }, [searchParams, currentPage]);
@@ -232,12 +224,14 @@ export default function VolumesClient({
 
       if (Array.isArray(volumes.range?.years) && volumes.range.years.length > 0) {
         // Ensure years are numbers
-        yearsToUse = volumes.range.years.map(y => Number(y)).filter(n => !isNaN(n) && n > 0);
+        yearsToUse = volumes.range.years
+          .map(y => Number(y))
+          .filter(n => !Number.isNaN(n) && n > 0);
       } else if (Array.isArray(volumes.data)) {
         // Fallback: extract years from current data if range is missing
         const extractedYears = volumes.data
           .map(v => Number(v.year))
-          .filter((y): y is number => !isNaN(y) && y > 0);
+          .filter((y): y is number => !Number.isNaN(y) && y > 0);
         yearsToUse = Array.from(new Set(extractedYears));
       }
 
@@ -502,9 +496,9 @@ export default function VolumesClient({
       {mode === RENDERING_MODE.LIST ? (
         <div className="volumes-filters">
           <div className="volumes-filters-tags">
-            {taggedFilters.map((filter, index) => (
+            {taggedFilters.map(filter => (
               <Tag
-                key={index}
+                key={`${filter.type}-${filter.value}`}
                 text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
@@ -545,9 +539,9 @@ export default function VolumesClient({
                   : `${t('common.filters.filter')}`}
               </div>
             </div>
-            {taggedFilters.map((filter, index) => (
+            {taggedFilters.map(filter => (
               <Tag
-                key={index}
+                key={`${filter.type}-${filter.value}`}
                 text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
@@ -602,9 +596,9 @@ export default function VolumesClient({
         )}
       </div>
       <div className="volumes-filtersMobile-tags">
-        {taggedFilters.map((filter, index) => (
+        {taggedFilters.map(filter => (
           <Tag
-            key={index}
+            key={`${filter.type}-${filter.value}`}
             text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
             onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
           />
@@ -627,10 +621,10 @@ export default function VolumesClient({
             <div
               className={`volumes-content-results-cards ${mode === RENDERING_MODE.TILE && 'volumes-content-results-cards-tiles'}`}
             >
-              {volumesData?.data.map((volume: IVolume, index: number) =>
+              {volumesData?.data.map((volume: IVolume) =>
                 mode === RENDERING_MODE.TILE ? (
                   <VolumeTileCard
-                    key={index}
+                    key={volume.id}
                     language={language}
                     t={t}
                     volume={volume}
@@ -638,7 +632,7 @@ export default function VolumesClient({
                     journalCode={journalId}
                   />
                 ) : (
-                  <VolumeListCard key={index} language={language} t={t} volume={volume} />
+                  <VolumeListCard key={volume.id} language={language} t={t} volume={volume} />
                 )
               )}
             </div>

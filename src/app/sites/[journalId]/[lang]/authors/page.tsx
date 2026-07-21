@@ -22,8 +22,8 @@ export async function generateMetadata(props: {
 }
 
 interface AuthorsPageProps {
-  params: Promise<{ lang: string; journalId: string }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly params: Promise<{ lang: string; journalId: string }>;
+  readonly searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function AuthorsPage(props: AuthorsPageProps) {
@@ -34,9 +34,10 @@ export default async function AuthorsPage(props: AuthorsPageProps) {
   const { lang } = params;
 
   // Extract initial params
-  const page = searchParams?.page
-    ? Math.max(1, Number.parseInt(searchParams.page as string, 10))
+  const parsedPage = searchParams?.page
+    ? Number.parseInt(searchParams.page as string, 10)
     : 1;
+  const page = Number.isNaN(parsedPage) ? 1 : Math.max(1, parsedPage);
   const search = (searchParams?.search as string) || '';
   const letter = (searchParams?.letter as string) || '';
 

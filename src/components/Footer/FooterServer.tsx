@@ -6,8 +6,8 @@ import { logger } from '@/lib/logger';
 const log = logger.child({ service: 'footer' });
 import { getJournalByCode } from '@/services/journal';
 import { PATHS } from '@/config/paths';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import './Footer.scss';
 
 const logoEpisciences = '/logos/logo-episciences.svg';
@@ -34,7 +34,7 @@ interface FooterServerProps {
 export default async function FooterServer({
   lang = 'en',
   journalId,
-}: FooterServerProps): Promise<React.JSX.Element> {
+}: Readonly<FooterServerProps>): Promise<React.JSX.Element> {
   const rvcode = journalId || process.env.NEXT_PUBLIC_JOURNAL_RVCODE || 'journal';
   const episciencesUrl = process.env.NEXT_PUBLIC_EPISCIENCES_URL || 'https://www.episciences.org';
 

@@ -4,8 +4,8 @@ import MathJax from '@/components/MathJax/MathJax';
 import { getTextDirection, getLanguageLabel } from '@/utils/rtl-languages';
 
 interface AbstractSectionProps {
-  abstractData: any;
-  currentLanguage: string;
+  readonly abstractData: any;
+  readonly currentLanguage: string;
 }
 
 export default function AbstractSection({

@@ -73,11 +73,14 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
 
   try {
     // Preserve Request objects (method, body, headers) — only rebuild when the URL was rewritten
-    const target: RequestInfo = isRequest
-      ? url === originalUrl
-        ? input
-        : new Request(url, input)
-      : url;
+    let target: RequestInfo;
+    if (!isRequest) {
+      target = url;
+    } else if (url === originalUrl) {
+      target = input;
+    } else {
+      target = new Request(url, input);
+    }
     const response = await originalFetch(target, { ...init, signal });
 
     log.debug(`${response.status} ${url}`);

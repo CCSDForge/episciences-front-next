@@ -4,11 +4,11 @@ import { useEffect } from 'react';
 import { logger } from '@/lib/logger';
 
 interface ErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
+  readonly error: Error & { digest?: string };
+  readonly reset: () => void;
 }
 
-export default function Error({ error, reset }: ErrorProps) {
+export default function NewsError({ error, reset }: ErrorProps) {
   useEffect(() => {
     logger.error('[News Error]', error);
   }, [error]);

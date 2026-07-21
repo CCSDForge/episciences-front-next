@@ -2,8 +2,7 @@ import { API_URL, API_PATHS } from '@/config/api';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'article' });
-import { IArticle, RawArticle } from '@/types/article';
-import { AvailableLanguage } from '@/utils/i18n';
+import { RawArticle } from '@/types/article';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { METADATA_TYPE, FetchedArticle, formatArticle } from '@/utils/article';
 import { fetchWithRetry } from '@/utils/fetch-with-retry';

@@ -64,28 +64,28 @@ interface ISearchResultsAuthorSelection {
 }
 
 interface ISearchResultsMobileModalProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  initialTypes: ISearchResultsTypeSelection[];
-  onUpdateTypesCallback: (types: ISearchResultsTypeSelection[]) => void;
-  initialYears: ISearchResultsYearSelection[];
-  onUpdateYearsCallback: (years: ISearchResultsYearSelection[]) => void;
-  initialVolumes: ISearchResultsVolumeSelection[];
-  onUpdateVolumesCallback: (volumes: ISearchResultsVolumeSelection[]) => void;
-  initialSections: ISearchResultsSectionSelection[];
-  onUpdateSectionsCallback: (sections: ISearchResultsSectionSelection[]) => void;
-  initialAuthors: ISearchResultsAuthorSelection[];
-  onUpdateAuthorsCallback: (authors: ISearchResultsAuthorSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly initialTypes: ISearchResultsTypeSelection[];
+  readonly onUpdateTypesCallback: (types: ISearchResultsTypeSelection[]) => void;
+  readonly initialYears: ISearchResultsYearSelection[];
+  readonly onUpdateYearsCallback: (years: ISearchResultsYearSelection[]) => void;
+  readonly initialVolumes: ISearchResultsVolumeSelection[];
+  readonly onUpdateVolumesCallback: (volumes: ISearchResultsVolumeSelection[]) => void;
+  readonly initialSections: ISearchResultsSectionSelection[];
+  readonly onUpdateSectionsCallback: (sections: ISearchResultsSectionSelection[]) => void;
+  readonly initialAuthors: ISearchResultsAuthorSelection[];
+  readonly onUpdateAuthorsCallback: (authors: ISearchResultsAuthorSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 interface IFilterSectionProps {
-  id: string;
-  title: string;
-  baseClass: string;
-  isOpened: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
+  readonly id: string;
+  readonly title: string;
+  readonly baseClass: string;
+  readonly isOpened: boolean;
+  readonly onToggle: () => void;
+  readonly children: React.ReactNode;
 }
 
 function FilterSection({
@@ -96,6 +96,8 @@ function FilterSection({
   onToggle,
   children,
 }: IFilterSectionProps): React.JSX.Element {
+  const openedListClass = isOpened ? `${baseClass}-list-opened` : '';
+
   return (
     <div className={baseClass}>
       <button
@@ -112,7 +114,7 @@ function FilterSection({
           <CaretDownGreyIcon size={16} className={`${baseClass}-title-caret`} />
         )}
       </button>
-      <div id={id} className={`${baseClass}-list ${isOpened ? `${baseClass}-list-opened` : ''}`}>
+      <div id={id} className={`${baseClass}-list ${openedListClass}`}>
         {children}
       </div>
     </div>
@@ -276,19 +278,19 @@ export default function SearchResultsMobileModal({
         {taggedFilters.length > 0 && (
           <div className="searchResultsMobileModal-tags">
             <div className="searchResultsMobileModal-tags-row">
-              {taggedFilters.map((filter, index) => (
-                <Tag
-                  key={index}
-                  text={
-                    filter.labelPath
-                      ? t(filter.labelPath)
-                      : filter.translatedLabel
-                        ? filter.translatedLabel[language]
-                        : filter.label!.toString()
-                  }
-                  onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
-                />
-              ))}
+              {taggedFilters.map(filter => {
+                const fallbackLabel = filter.translatedLabel
+                  ? filter.translatedLabel[language]
+                  : (filter.label?.toString() ?? '');
+
+                return (
+                  <Tag
+                    key={`${filter.type}-${filter.value}`}
+                    text={filter.labelPath ? t(filter.labelPath) : fallbackLabel}
+                    onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
+                  />
+                );
+              })}
             </div>
             <button
               type="button"
@@ -307,8 +309,8 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.TYPE)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.TYPE)}
           >
-            {types.map((type, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-types-list-choice">
+            {types.map(type => (
+              <div key={type.value} className="searchResultsMobileModal-filters-types-list-choice">
                 <div className="searchResultsMobileModal-filters-types-list-choice-row">
                   <div className="searchResultsMobileModal-filters-types-list-choice-row-checkbox">
                     <Checkbox
@@ -340,8 +342,8 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.YEAR)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.YEAR)}
           >
-            {years.map((y, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-years-list-choice">
+            {years.map(y => (
+              <div key={y.year} className="searchResultsMobileModal-filters-years-list-choice">
                 <div className="searchResultsMobileModal-filters-years-list-choice-row">
                   <div className="searchResultsMobileModal-filters-years-list-choice-row-checkbox">
                     <Checkbox
@@ -373,8 +375,8 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.VOLUME)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.VOLUME)}
           >
-            {volumes.map((volume, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-volumes-list-choice">
+            {volumes.map(volume => (
+              <div key={volume.id} className="searchResultsMobileModal-filters-volumes-list-choice">
                 <div className="searchResultsMobileModal-filters-volumes-list-choice-row">
                   <div className="searchResultsMobileModal-filters-volumes-list-choice-row-checkbox">
                     <Checkbox
@@ -403,8 +405,11 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.SECTION)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.SECTION)}
           >
-            {sections.map((section, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-sections-list-choice">
+            {sections.map(section => (
+              <div
+                key={section.id}
+                className="searchResultsMobileModal-filters-sections-list-choice"
+              >
                 <div className="searchResultsMobileModal-filters-sections-list-choice-row">
                   <div className="searchResultsMobileModal-filters-sections-list-choice-row-checkbox">
                     <Checkbox
@@ -433,8 +438,11 @@ export default function SearchResultsMobileModal({
             isOpened={isOpenedSection(FILTERS_SECTION.AUTHOR)}
             onToggle={(): void => toggleSection(FILTERS_SECTION.AUTHOR)}
           >
-            {authors.map((author, index) => (
-              <div key={index} className="searchResultsMobileModal-filters-authors-list-choice">
+            {authors.map(author => (
+              <div
+                key={author.fullname}
+                className="searchResultsMobileModal-filters-authors-list-choice"
+              >
                 <div className="searchResultsMobileModal-filters-authors-list-choice-row">
                   <div className="searchResultsMobileModal-filters-authors-list-choice-row-checkbox">
                     <Checkbox

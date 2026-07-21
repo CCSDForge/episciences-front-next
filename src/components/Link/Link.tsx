@@ -5,14 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { getLocalizedPath, defaultLanguage } from '@/utils/language-utils';
 
 type LinkProps = {
-  href: string;
-  children: React.ReactNode;
-  className?: string;
-  target?: string;
-  rel?: string;
-  ref?: React.Ref<HTMLAnchorElement>;
-  lang?: string;
-  [key: string]: any;
+  readonly href: string;
+  readonly children: React.ReactNode;
+  readonly className?: string;
+  readonly target?: string;
+  readonly rel?: string;
+  readonly ref?: React.Ref<HTMLAnchorElement>;
+  readonly lang?: string;
+  readonly [key: string]: any;
 };
 
 // Fonction utilitaire pour normaliser les chemins

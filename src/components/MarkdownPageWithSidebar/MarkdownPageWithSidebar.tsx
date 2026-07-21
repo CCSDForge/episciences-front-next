@@ -1,9 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect, useCallback } from 'react';
+import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
+import type { ExtraProps } from 'react-markdown';
+import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
 import {
@@ -30,19 +32,19 @@ interface IPageSection {
 }
 
 interface MarkdownPageWithSidebarProps {
-  content: string;
-  title: string;
-  isLoading?: boolean;
-  isUpdating?: boolean;
-  breadcrumbLabels: {
+  readonly content: string;
+  readonly title: string;
+  readonly isLoading?: boolean;
+  readonly isUpdating?: boolean;
+  readonly breadcrumbLabels: {
     parents: BreadcrumbItem[];
     current: string;
   };
-  lang?: string;
-  noContentMessage?: string;
-  languageNotice?: string;
-  lastUpdated?: string | null;
-  className?: string;
+  readonly lang?: string;
+  readonly noContentMessage?: string;
+  readonly languageNotice?: string;
+  readonly lastUpdated?: string | null;
+  readonly className?: string;
 }
 
 /**
@@ -108,7 +110,7 @@ export default function MarkdownPageWithSidebar({
     // Filter out empty sections (sections with only whitespace or just the heading)
     return sections.filter(section => {
       // Remove the heading line and check if there's actual content
-      const contentWithoutHeading = section.value.replace(/^#{1,3}\s*.*$/m, '').trim();
+      const contentWithoutHeading = section.value.replace(/^#{1,3}.*$/m, '').trim();
       // Also filter out sections that are just the title (empty title sections)
       if (section.title === '' && contentWithoutHeading.length === 0) {
         return false;
@@ -166,6 +168,53 @@ export default function MarkdownPageWithSidebar({
 
     return headers;
   }, []);
+
+  const renderMarkdownImage = useCallback(
+    ({ src, alt }: ComponentProps<'img'> & ExtraProps) => {
+      const rawSrc = typeof src === 'string' ? src : '';
+      // Only rewrite journal-relative paths - an already-absolute URL
+      // (e.g. an external logo) must not be prefixed with the journal host.
+      const resolvedSrc = rawSrc.includes('/public/')
+        ? getMarkdownImageURL(rawSrc, rvcode || '')
+        : rawSrc;
+      return (
+        <Image
+          src={resolvedSrc}
+          alt={alt || ''}
+          width={0}
+          height={0}
+          sizes="100vw"
+          style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
+        />
+      );
+    },
+    [rvcode]
+  );
+
+  const renderMarkdownLink = useCallback(
+    ({ href, children }: ComponentProps<'a'> & ExtraProps) => (
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className={`${className}-content-body-section-link`}
+      >
+        {children}
+      </a>
+    ),
+    [className]
+  );
+
+  const renderEmptyHeading = useCallback(() => <></>, []);
+
+  const renderMarkdownH3 = useCallback(
+    ({ node, children }: ComponentProps<'h3'> & ExtraProps) => {
+      const text = node ? getNodeText(node) : '';
+      const id = generateIdFromText(text);
+      return <h3 id={id}>{children}</h3>;
+    },
+    []
+  );
 
   const toggleSectionHeader = (id: string): void => {
     setPageSections(prevSections =>
@@ -233,91 +282,48 @@ export default function MarkdownPageWithSidebar({
         ) : (
           <div className={`${className}-content-body`}>
             {pageSections.length > 0 ? (
-              pageSections.map((section, index) => (
-                <div
-                  key={`${section.id}-${index}`}
-                  className={`${className}-content-body-section ${!section.opened ? `${className}-content-body-section-hidden` : ''}`}
-                >
-                  {section.title && (
-                    <div
-                      className={`${className}-content-body-section-subtitle`}
-                      role="button"
-                      tabIndex={0}
-                      aria-expanded={section.opened}
-                      aria-controls={`section-content-${section.id}`}
-                      onClick={(): void => toggleSectionHeader(section.id)}
-                      onKeyDown={(e): void => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          toggleSectionHeader(section.id);
-                        }
-                      }}
-                    >
-                      <h2
-                        id={section.id}
-                        className={`${className}-content-body-section-subtitle-text`}
-                      >
-                        {section.title}
-                      </h2>
-                      {section.opened ? (
-                        <CaretUpBlackIcon
-                          size={16}
-                          className={`${className}-content-body-section-subtitle-caret`}
-                          ariaLabel="Collapse section"
-                        />
-                      ) : (
-                        <CaretDownBlackIcon
-                          size={16}
-                          className={`${className}-content-body-section-subtitle-caret`}
-                          ariaLabel="Expand section"
-                        />
-                      )}
-                    </div>
-                  )}
+              pageSections.map((section, index) => {
+                const hiddenSectionClass = !section.opened
+                  ? `${className}-content-body-section-hidden`
+                  : '';
+
+                return (
                   <div
-                    id={`section-content-${section.id}`}
-                    role="region"
-                    aria-labelledby={section.id}
+                    key={`${section.id}-${index}`}
+                    className={`${className}-content-body-section ${hiddenSectionClass}`}
                   >
-                    <MarkdownRenderer
-                      components={{
-                        img: ({ src, alt }) => (
-                          <Image
-                            src={getMarkdownImageURL(
-                              typeof src === 'string' ? src : '',
-                              rvcode || ''
-                            )}
-                            alt={alt || ''}
-                            width={0}
-                            height={0}
-                            sizes="100vw"
-                            style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
-                          />
-                        ),
-                        a: ({ href, children }) => (
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={`${className}-content-body-section-link`}
-                          >
-                            {children}
-                          </a>
-                        ),
-                        h1: () => <></>,
-                        h2: () => <></>,
-                        h3: ({ node, children }) => {
-                          const text = node ? getNodeText(node) : '';
-                          const id = generateIdFromText(text);
-                          return <h3 id={id}>{children}</h3>;
-                        },
-                      }}
+                    {section.title && (
+                      <CollapsibleSectionHeader
+                        triggerClassName={`${className}-content-body-section-subtitle`}
+                        headingClassName={`${className}-content-body-section-subtitle-text`}
+                        caretClassName={`${className}-content-body-section-subtitle-caret`}
+                        headingId={section.id}
+                        controlsId={`section-content-${section.id}`}
+                        title={section.title}
+                        isOpen={section.opened}
+                        onToggle={(): void => toggleSectionHeader(section.id)}
+                      />
+                    )}
+                    <div
+                      id={`section-content-${section.id}`}
+                      role="region"
+                      aria-labelledby={section.id}
                     >
-                      {section.value}
-                    </MarkdownRenderer>
+                      <MarkdownRenderer
+                        components={{
+                          img: renderMarkdownImage,
+                          a: renderMarkdownLink,
+                          h1: renderEmptyHeading,
+                          h2: renderEmptyHeading,
+                          h3: renderMarkdownH3,
+                        }}
+                      >
+                        {section.value}
+                      </MarkdownRenderer>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p>{noContentMessage || t('pages.common.noContent')}</p>
             )}

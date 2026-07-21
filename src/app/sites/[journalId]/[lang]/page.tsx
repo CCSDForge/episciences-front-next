@@ -50,7 +50,7 @@ export async function generateMetadata(props: {
 }
 
 export default async function HomePage(props: {
-  params: Promise<{ journalId: string; lang: string }>;
+  readonly params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
   const language = params.lang || 'fr';

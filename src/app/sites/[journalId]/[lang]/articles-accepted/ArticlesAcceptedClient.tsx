@@ -55,16 +55,16 @@ function buildTypeSelections(rangeTypes: string[]): IArticleTypeSelection[] {
 }
 
 interface ArticlesAcceptedClientProps {
-  initialArticles: {
+  readonly initialArticles: {
     data: any[];
     totalItems: number;
   };
-  initialRange: {
+  readonly initialRange: {
     types?: string[];
     years?: number[];
   };
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     articlesAccepted: string;
@@ -95,7 +95,6 @@ export default function ArticlesAcceptedClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   const [isHydrated, setIsHydrated] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -131,7 +130,7 @@ export default function ArticlesAcceptedClient({
       const initialData = Array.isArray(initialArticles.data) ? initialArticles.data : [];
       setEnhancedArticlesAccepted(
         initialData
-          .filter((article: any) => article && article.title)
+          .filter((article: any) => article?.title)
           .map((article: any) => ({ ...article, openedAbstract: false }))
       );
     }
@@ -149,7 +148,7 @@ export default function ArticlesAcceptedClient({
     if (!isStaticBuild && articlesAccepted?.data) {
       const articlesData = Array.isArray(articlesAccepted.data) ? articlesAccepted.data : [];
       const displayedArticlesAccepted = articlesData
-        .filter(article => article && article.title)
+        .filter(article => article?.title)
         .map(article => ({ ...article, openedAbstract: false }));
 
       setEnhancedArticlesAccepted(displayedArticlesAccepted as EnhancedArticleAccepted[]);
@@ -254,6 +253,18 @@ export default function ArticlesAcceptedClient({
   // Utiliser les données initiales si elles sont disponibles
   const displayArticlesAccepted = articlesAccepted || initialArticles;
 
+  const fallbackArticlesToRender: EnhancedArticleAccepted[] = Array.isArray(
+    displayArticlesAccepted?.data
+  )
+    ? displayArticlesAccepted.data.map((article: any) => ({
+        ...article,
+        openedAbstract: false,
+      }))
+    : [];
+
+  const articlesToRender: EnhancedArticleAccepted[] =
+    enhancedArticlesAccepted.length > 0 ? enhancedArticlesAccepted : fallbackArticlesToRender;
+
   const breadcrumbItems = [
     {
       path: '/',
@@ -323,9 +334,9 @@ export default function ArticlesAcceptedClient({
       <div className="articlesAccepted-filters">
         {taggedFilters.length > 0 && (
           <div className="articlesAccepted-filters-tags">
-            {taggedFilters.map((filter, index) => (
+            {taggedFilters.map(filter => (
               <Tag
-                key={index}
+                key={filter.value}
                 text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.value)}
               />
@@ -367,25 +378,13 @@ export default function ArticlesAcceptedClient({
             <Loader />
           ) : (
             <div className="articlesAccepted-content-results-cards">
-              {enhancedArticlesAccepted.length > 0 ? (
-                enhancedArticlesAccepted.map((article, index) => (
+              {articlesToRender.length > 0 ? (
+                articlesToRender.map(article => (
                   <ArticleAcceptedCard
-                    key={index}
+                    key={article?.id}
                     language={language}
                     t={t}
                     article={article as IArticleAcceptedCard}
-                    toggleAbstractCallback={(): void => toggleAbstract(article?.id)}
-                  />
-                ))
-              ) : displayArticlesAccepted?.data &&
-                Array.isArray(displayArticlesAccepted.data) &&
-                displayArticlesAccepted.data.length > 0 ? (
-                displayArticlesAccepted.data.map((article: any, index: number) => (
-                  <ArticleAcceptedCard
-                    key={index}
-                    language={language}
-                    t={t}
-                    article={{ ...article, openedAbstract: false } as IArticleAcceptedCard}
                     toggleAbstractCallback={(): void => toggleAbstract(article?.id)}
                   />
                 ))

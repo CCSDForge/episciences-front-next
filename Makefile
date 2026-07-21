@@ -1,4 +1,10 @@
-.PHONY: build up down logs clean hosts rebuild help dev-nginx dev-nginx-down dev-nginx-logs dev-nginx-rebuild deploy-preprod deploy-production deploy-commit-production rollback-preprod rollback-production
+.PHONY: build up down logs clean hosts rebuild help dev-nginx dev-nginx-down dev-nginx-logs dev-nginx-rebuild deploy-preprod deploy-production deploy-commit-production rollback-preprod rollback-production sonar
+
+# Load environment variables from .env.local if it exists
+ifneq (,$(wildcard .env.local))
+    include .env.local
+    export
+endif
 
 # Default journals for testing
 JOURNALS ?= epijinfo,dmtcs
@@ -35,6 +41,7 @@ help:
 	@echo "  make format           Format code (Prettier)"
 	@echo "  make format-check     Check code formatting (Prettier)"
 	@echo "  make quality          Run all quality checks (lint + format)"
+	@echo "  make sonar            Run SonarQube analysis"
 	@echo ""
 	@echo "--- Deployment (Ansistrano) ---"
 	@echo "  make deploy-preprod                        Deploy to preprod (2 VMs)"
@@ -120,9 +127,14 @@ format:
 
 format-check:
 	@echo "Checking formatting..."
-	npm run format:check
+	@npm run format:check
 
 quality: lint format-check
+
+sonar:
+	@echo "Running SonarQube analysis..."
+	@npm run test:coverage
+	@npm run sonar
 
 clean:
 	docker compose $(COMPOSE_ARGS) down -v --rmi local

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
@@ -26,20 +26,20 @@ interface IAuthorFilter {
 }
 
 interface AuthorsClientProps {
-  initialPage: number;
-  initialSearch: string;
-  initialLetter?: string;
-  initialAuthorsData?: {
+  readonly initialPage: number;
+  readonly initialSearch: string;
+  readonly initialLetter?: string;
+  readonly initialAuthorsData?: {
     items: IAuthor[];
     totalItems: number;
   };
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     authors: string;
   };
-  countLabels?: {
+  readonly countLabels?: {
     author: string;
     authors: string;
     authorFor: string;
@@ -312,9 +312,9 @@ export default function AuthorsClient({
       {getAuthorsCount()}
       <div className="authors-filters">
         <div className="authors-filters-tags">
-          {taggedFilters.map((filter, index) => (
+          {taggedFilters.map(filter => (
             <Tag
-              key={index}
+              key={filter.type}
               text={
                 filter.value === 'others'
                   ? countLabels?.others || t('pages.authors.others')
@@ -363,7 +363,7 @@ export default function AuthorsClient({
             <div className="authors-content-results-cards">
               {authors?.map((author, index) => (
                 <AuthorCard
-                  key={index}
+                  key={author.name}
                   t={t}
                   author={author}
                   expandedCard={expandedAuthorIndex === index}

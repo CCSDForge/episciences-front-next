@@ -11,8 +11,8 @@ export interface IAboutHeader {
 }
 
 interface IAboutSidebarProps {
-  headers: IAboutHeader[];
-  toggleHeaderCallback: (id: string) => void;
+  readonly headers: IAboutHeader[];
+  readonly toggleHeaderCallback: (id: string) => void;
 }
 
 export default function AboutSidebar({
@@ -31,8 +31,8 @@ export default function AboutSidebar({
 
   return (
     <nav className="aboutSidebar" aria-label="Table of contents">
-      {headers.map((header, index) => (
-        <div key={index} className="aboutSidebar-header">
+      {headers.map(header => (
+        <div key={header.id} className="aboutSidebar-header">
           <div className="aboutSidebar-header-title">
             <a href={`#${header.id}`} onClick={e => handleAnchorClick(e, header.id)}>
               <div className="aboutSidebar-header-title-text">{header.value}</div>
@@ -56,9 +56,9 @@ export default function AboutSidebar({
           </div>
           {header.opened && (
             <div className="aboutSidebar-header-subheaders">
-              {header.children.map((subheader, subIndex) => (
+              {header.children.map(subheader => (
                 <a
-                  key={subIndex}
+                  key={subheader.id}
                   href={`#${subheader.id}`}
                   onClick={e => handleAnchorClick(e, subheader.id)}
                 >

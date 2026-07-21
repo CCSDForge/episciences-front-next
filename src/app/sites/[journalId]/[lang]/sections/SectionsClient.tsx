@@ -22,14 +22,14 @@ interface SectionsData {
 }
 
 interface SectionsClientProps {
-  initialSections: {
+  readonly initialSections: {
     data: ISection[];
     totalItems: number;
     articlesCount?: number;
   } | null;
-  initialPage: number;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialPage: number;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     sections: string;
@@ -58,22 +58,21 @@ export default function SectionsClient({
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Initialiser la page depuis les query params ou initialPage
   const pageFromUrl = searchParams?.get('page');
   const pageNumber = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : initialPage;
 
   const [currentPage, setCurrentPage] = useState(pageNumber);
-  const [sections, setSections] = useState(initialSections);
+  const [sections] = useState(initialSections);
   const [sectionsData, setSectionsData] = useState(initialSections);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   // Synchroniser currentPage avec les query params
   useEffect(() => {
     const pageParam = searchParams?.get('page');
     const pageNum = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!isNaN(pageNum) && pageNum !== currentPage) {
+    if (!Number.isNaN(pageNum) && pageNum !== currentPage) {
       setCurrentPage(pageNum);
     }
   }, [searchParams, currentPage]);
@@ -128,7 +127,7 @@ export default function SectionsClient({
   };
 
   const getArticlesCount = (): React.JSX.Element | null => {
-    if (sections && sections.articlesCount) {
+    if (sections?.articlesCount) {
       if (sections.articlesCount > 1) {
         return (
           <div className="sections-title-count-text sections-title-count-text-articles">
@@ -182,8 +181,8 @@ export default function SectionsClient({
             <Loader />
           ) : (
             <div className="sections-content-results-cards">
-              {sectionsData?.data.map((section, index) => (
-                <SectionCard key={index} language={language} t={t} section={section} />
+              {sectionsData?.data.map(section => (
+                <SectionCard key={section.id} language={language} t={t} section={section} />
               ))}
             </div>
           )}

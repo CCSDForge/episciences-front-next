@@ -25,11 +25,11 @@ export interface IArticleCard extends IArticle {
 }
 
 interface IArticleCardProps {
-  language: AvailableLanguage;
-  rvcode?: string;
-  t: TFunction<'translation', undefined>;
-  article: IArticleCard;
-  toggleAbstractCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly rvcode?: string;
+  readonly t: TFunction<'translation', undefined>;
+  readonly article: IArticleCard;
+  readonly toggleAbstractCallback: () => void;
 }
 
 function ArticleCard({
@@ -118,7 +118,7 @@ function ArticleCard({
               </div>
             </DownloadArticleButton>
           )}
-          {article.id && (
+          {Boolean(article.id) && (
             <div ref={citationsDropdownRef} className="articleCard-anchor-icons-cite">
               <button
                 type="button"

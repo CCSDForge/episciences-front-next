@@ -11,9 +11,9 @@ import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 interface SearchBarProps {
-  lang?: string;
-  episciencesManagerUrl?: string;
-  journalCode?: string;
+  readonly lang?: string;
+  readonly episciencesManagerUrl?: string;
+  readonly journalCode?: string;
 }
 
 export default function SearchBar({
@@ -116,6 +116,18 @@ export default function SearchBar({
     );
   }
 
+  const submitButton = submitManagerLink ? (
+    <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
+      {t('components.header.search.submitButton')}
+      <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
+    </a>
+  ) : (
+    <button type="button" disabled>
+      {t('components.header.search.submitButton')}
+      <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
+    </button>
+  );
+
   return (
     <div
       id="search-bar"
@@ -167,16 +179,8 @@ export default function SearchBar({
         <div className="header-postheader-search-submit">
           {isFocused ? (
             <button type="submit">{t('components.header.search.searchButton')}</button>
-          ) : submitManagerLink ? (
-            <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
-              {t('components.header.search.submitButton')}
-              <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
-            </a>
           ) : (
-            <button type="button" disabled>
-              {t('components.header.search.submitButton')}
-              <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
-            </button>
+            submitButton
           )}
         </div>
       </form>

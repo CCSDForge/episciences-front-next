@@ -13,12 +13,12 @@ import { handleKeyboardClick } from '@/utils/keyboard';
 import { useMobileModal } from '@/hooks/useMobileModal';
 
 interface IVolumeDetailsMobileModalProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  volume?: IVolume;
-  relatedVolumes: IVolume[];
-  onSelectRelatedVolumeCallback: (id: number) => void;
-  onCloseCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly volume?: IVolume;
+  readonly relatedVolumes: IVolume[];
+  readonly onSelectRelatedVolumeCallback: (id: number) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function VolumeDetailsMobileModal({
@@ -44,7 +44,7 @@ export default function VolumeDetailsMobileModal({
   };
 
   const getTitle = (): string => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.proceedings');
       }
@@ -56,7 +56,7 @@ export default function VolumeDetailsMobileModal({
   };
 
   const getSubmitText = (): string => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.lookAtSelectedProceedings');
       }
@@ -90,9 +90,9 @@ export default function VolumeDetailsMobileModal({
           </button>
         </div>
         <div className="volumeDetailsMobileModal-relatedVolumes">
-          {relatedVolumes.map((relatedVolume, index) => (
+          {relatedVolumes.map(relatedVolume => (
             <div
-              key={index}
+              key={relatedVolume.id}
               className={`volumeDetailsMobileModal-relatedVolumes-volume ${relatedVolume.id === chosenVolume?.id ? 'volumeDetailsMobileModal-relatedVolumes-volume-current' : ''}`}
               role="button"
               tabIndex={0}

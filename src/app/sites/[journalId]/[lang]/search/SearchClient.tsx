@@ -132,20 +132,20 @@ function buildInitAuthors(
 }
 
 interface SearchClientProps {
-  initialSearchResults: {
+  readonly initialSearchResults: {
     data: FetchedArticle[];
     totalItems: number;
     range?: SearchRange;
   };
-  initialSearch: string;
-  initialPage: number;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialSearch: string;
+  readonly initialPage: number;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     search: string;
   };
-  countLabels?: {
+  readonly countLabels?: {
     resultFor: string;
     resultsFor: string;
   };
@@ -175,7 +175,6 @@ export default function SearchClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Use rvcode from Redux or fallback to environment variable
   const rvcode = reduxRvcode || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
@@ -747,19 +746,24 @@ export default function SearchClient({
       <div className="articles-filters">
         {taggedFilters.length > 0 && (
           <div className="articles-filters-tags">
-            {taggedFilters.map((filter, index) => (
-              <Tag
-                key={index}
-                text={
-                  filter.labelPath
-                    ? t(filter.labelPath)
-                    : filter.translatedLabel
-                      ? filter.translatedLabel[language]
-                      : filter.label!.toString()
-                }
-                onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
-              />
-            ))}
+            {taggedFilters.map(filter => {
+              let tagText: string;
+              if (filter.labelPath) {
+                tagText = t(filter.labelPath);
+              } else if (filter.translatedLabel) {
+                tagText = filter.translatedLabel[language];
+              } else {
+                tagText = filter.label!.toString();
+              }
+
+              return (
+                <Tag
+                  key={`${filter.type}-${filter.value}`}
+                  text={tagText}
+                  onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
+                />
+              );
+            })}
             <div
               className="articles-filters-tags-clear"
               role="button"
@@ -810,9 +814,9 @@ export default function SearchClient({
             <Loader />
           ) : (
             <div className="articles-content-results-cards">
-              {enhancedSearchResults.map((searchResult, index) => (
+              {enhancedSearchResults.map(searchResult => (
                 <ArticleCard
-                  key={index}
+                  key={searchResult.id}
                   language={language}
                   rvcode={rvcode}
                   t={t}

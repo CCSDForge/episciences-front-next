@@ -20,11 +20,11 @@ const MAX_CONTENT_LENGTH = 400;
 export type NewsTileCardState = 'expanded' | 'blurred' | 'default';
 
 interface INewsTileCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  news: INews;
-  state: NewsTileCardState;
-  onToggle: () => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly news: INews;
+  readonly state: NewsTileCardState;
+  readonly onToggle: () => void;
 }
 
 function NewsTileCard({

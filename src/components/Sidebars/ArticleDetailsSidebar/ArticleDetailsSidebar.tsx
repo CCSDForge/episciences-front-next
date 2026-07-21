@@ -5,7 +5,6 @@ import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'article-sidebar' });
 import { Link } from '@/components/Link/Link';
-import { useRouter } from 'next/navigation';
 import { TFunction } from 'i18next';
 import {
   EmailShareButton,
@@ -48,12 +47,12 @@ import './ArticleDetailsSidebar.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface IArticleDetailsSidebarProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  article?: IArticle;
-  relatedVolume?: IVolume;
-  citations: ICitation[];
-  metrics?: React.JSX.Element;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly article?: IArticle;
+  readonly relatedVolume?: IVolume;
+  readonly citations: ICitation[];
+  readonly metrics?: React.JSX.Element;
 }
 
 export default function ArticleDetailsSidebar({
@@ -64,7 +63,6 @@ export default function ArticleDetailsSidebar({
   citations,
   metrics,
 }: IArticleDetailsSidebarProps): React.JSX.Element {
-  const router = useRouter();
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const [openedPublicationDetails, setOpenedPublicationDetails] = useState(true);
@@ -270,7 +268,7 @@ export default function ArticleDetailsSidebar({
       a.click();
 
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      a.remove();
 
       toastSuccess(t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label }));
       setShowMetadatasDropdown(false);
@@ -346,9 +344,9 @@ export default function ArticleDetailsSidebar({
               className={`articleDetailsSidebar-links-link-modal-content ${showCitationsDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}
             >
               <div className="articleDetailsSidebar-links-link-modal-content-links">
-                {citations.map((citation, index) => (
+                {citations.map(citation => (
                   <div
-                    key={index}
+                    key={citation.key}
                     className="articleDetailsSidebar-links-link-modal-content-links-link"
                     role="button"
                     tabIndex={0}
@@ -388,9 +386,9 @@ export default function ArticleDetailsSidebar({
               className={`articleDetailsSidebar-links-link-modal-content ${showMetadatasDropdown && 'articleDetailsSidebar-links-link-modal-content-displayed'}`}
             >
               <div className="articleDetailsSidebar-links-link-modal-content-links">
-                {metadataTypes.map((metadata, index) => (
+                {metadataTypes.map(metadata => (
                   <div
-                    key={index}
+                    key={metadata.type}
                     className="articleDetailsSidebar-links-link-modal-content-links-link"
                     role="button"
                     tabIndex={0}
@@ -577,8 +575,11 @@ export default function ArticleDetailsSidebar({
           <div
             className={`articleDetailsSidebar-funding-content ${openedFunding && 'articleDetailsSidebar-funding-content-opened'}`}
           >
-            {article.fundings.map((fund: any, index: number) => (
-              <div key={index} className="articleDetailsSidebar-funding-content-row">
+            {article.fundings.map((fund: any) => (
+              <div
+                key={typeof fund === 'string' ? fund : `${fund.funder ?? ''}-${fund.award ?? ''}`}
+                className="articleDetailsSidebar-funding-content-row"
+              >
                 <div>{fund.funder || fund}</div>
                 {fund.award && <div>#{fund.award}</div>}
               </div>

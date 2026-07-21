@@ -26,22 +26,13 @@ describe('pagination', () => {
       expect(totalPages).toBe(4);
     });
 
-    it('should calculate correct offset for page 1', () => {
-      const page = 1;
+    it.each([
+      { page: 1, expectedOffset: 0 },
+      { page: 2, expectedOffset: 30 },
+      { page: 3, expectedOffset: 60 },
+    ])('should calculate correct offset for page $page', ({ page, expectedOffset }) => {
       const offset = (page - 1) * DEFAULT_ITEMS_PER_PAGE;
-      expect(offset).toBe(0);
-    });
-
-    it('should calculate correct offset for page 2', () => {
-      const page = 2;
-      const offset = (page - 1) * DEFAULT_ITEMS_PER_PAGE;
-      expect(offset).toBe(30);
-    });
-
-    it('should calculate correct offset for page 3', () => {
-      const page = 3;
-      const offset = (page - 1) * DEFAULT_ITEMS_PER_PAGE;
-      expect(offset).toBe(60);
+      expect(offset).toBe(expectedOffset);
     });
 
     it('should return 1 page for empty results', () => {

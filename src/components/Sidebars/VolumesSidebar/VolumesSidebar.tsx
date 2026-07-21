@@ -17,11 +17,11 @@ export interface IVolumeYearSelection {
 }
 
 interface IVolumesSidebarProps {
-  t: TFunction<'translation', undefined>;
-  types: IVolumeTypeSelection[];
-  onCheckTypeCallback: (value: string) => void;
-  years: IVolumeYearSelection[];
-  onSelectYearCallback: (year: number) => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly types: IVolumeTypeSelection[];
+  readonly onCheckTypeCallback: (value: string) => void;
+  readonly years: IVolumeYearSelection[];
+  readonly onSelectYearCallback: (year: number) => void;
 }
 
 export default function VolumesSidebar({
@@ -36,8 +36,8 @@ export default function VolumesSidebar({
       <div className="volumesSidebar-typesSection">
         <div className="volumesSidebar-typesSection-title">{t('common.filters.volumeTypes')}</div>
         <div className="volumesSidebar-typesSection-types">
-          {types.map((type, index) => (
-            <div key={index} className="volumesSidebar-typesSection-types-choice">
+          {types.map(type => (
+            <div key={type.value} className="volumesSidebar-typesSection-types-choice">
               <div className="volumesSidebar-typesSection-types-choice-checkbox">
                 <Checkbox
                   checked={type.isChecked}

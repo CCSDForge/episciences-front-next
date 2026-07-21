@@ -78,6 +78,7 @@ npm run start
 | `npm run test:run`      | Run tests once (CI mode)                |
 | `npm run test:ui`       | Run tests with UI                       |
 | `npm run test:coverage` | Generate test coverage report           |
+| `npm run sonar`         | Run SonarQube analysis                  |
 
 ## Testing
 
@@ -101,6 +102,21 @@ Test configuration:
 
 - **Environment:** happy-dom
 - **Coverage:** v8 provider with text, JSON, HTML, and LCOV reports
+
+### Code Quality & Security (SonarQube)
+
+To run a local SonarQube analysis:
+
+1. Ensure the SonarQube service is running (see the infrastructure repository).
+2. Generate an analysis token in SonarQube (My Account > Security > Generate Token).
+3. Add the token to your local environment file `.env.local`:
+   ```env
+   SONAR_TOKEN=squ_your_token_here
+   ```
+4. Run the analysis (this will run the tests with coverage first, then upload the results to SonarQube):
+   ```bash
+   make sonar
+   ```
 
 ## Architecture & Caching Strategy
 
@@ -343,6 +359,7 @@ Then access: `http://epijinfo.episciences.test:8080`
 | `make clean`             | Remove images and volumes                                |
 | `make hosts`             | Print required `/etc/hosts` entries                      |
 | `make valkey-status`     | Show Valkey cluster and Sentinel status                  |
+| `make sonar`             | Run tests with coverage and SonarQube scan               |
 
 See [Nginx Integration](docs/NGINX_INTEGRATION.md) for full documentation.
 

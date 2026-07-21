@@ -14,37 +14,12 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 
 <!-- END:nextjs-agent-rules -->
 
-- **Architecture**: Node.js server with ISR (Incremental Static Regeneration)
-- **Routing**: Middleware maps hostnames to journal codes → `/sites/[journalId]/[lang]/...`
-- **Rendering**: Server Components for data/SEO, Client Components for interactivity
-
 ## Essential Commands
 
 ```bash
-npm run dev          # Development server (port 8080)
-npm run dev:turbo    # Development server with Turbopack
-npm run build        # Production build
-npm run test         # Run tests (Vitest)
-npm run test:coverage # Run tests with coverage
-npm run lint         # Linter (ESLint)
-npm run format       # Format code (Prettier)
-npm run validate:pages # Validate ISR page configurations
+make sonar           # Run tests with coverage and SonarQube scan
 make build && make up # Test with Nginx (production-like)
 ```
-
-## Directory Structure
-
-| Path                                | Description                                          |
-| ----------------------------------- | ---------------------------------------------------- |
-| `src/app/sites/[journalId]/[lang]/` | Multi-tenant page routes                             |
-| `src/middleware.ts`                 | Hostname → journalId routing                         |
-| `src/services/`                     | API fetching with `safeFetch()`                      |
-| `src/utils/`                        | Shared utility functions                             |
-| `src/lib/`                          | Infrastructure: logger, Valkey client, cache handler |
-| `src/hooks/`                        | Custom React hooks                                   |
-| `src/components/`                   | Shared UI components                                 |
-| `external-assets/`                  | Per-journal config and logos                         |
-| `docs/`                             | Detailed documentation                               |
 
 ## Critical Patterns
 
@@ -119,8 +94,3 @@ Use semantic CSS variables for text colors (WCAG compliance):
 | Logging & Server Logs        | `docs/PRODUCTION_DEPLOYMENT.md`                    |
 | Valkey Deployment            | `docs/DEPLOYMENT_VALKEY.md`                        |
 | Valkey Cache Strategy        | `docs/VALKEY_CACHE_STRATEGY.md`                    |
-
-## Token Efficiency
-
-- Use `rg`/`grep` or line ranges instead of reading entire files
-- Be concise; skip summaries unless requested

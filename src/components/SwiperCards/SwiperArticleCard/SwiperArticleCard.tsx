@@ -14,9 +14,9 @@ import './SwiperArticleCard.scss';
 export type SwiperArticleCardProps = FetchedArticle;
 
 interface ISwiperArticleCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  article: FetchedArticle;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly article: FetchedArticle;
 }
 
 function SwiperArticleCard({ language, t, article }: ISwiperArticleCardProps): React.JSX.Element {

@@ -1,10 +1,11 @@
 'use client';
 
-import { CaretUpBlackIcon, CaretDownBlackIcon, FilterIcon } from '@/components/icons';
 import { useState, useEffect, Fragment, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
+import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
 import { fetchStatistics } from '@/services/statistics';
@@ -27,7 +28,6 @@ import {
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import PieChart from '@/components/Charts/PieChart/PieChart';
-import { handleKeyboardClick } from '@/utils/keyboard';
 import StatisticsSidebar, {
   IStatisticsYearSelection,
 } from '@/components/Sidebars/StatisticsSidebar/StatisticsSidebar';
@@ -38,6 +38,93 @@ const StatisticsMobileModal = dynamic(
   () => import('@/components/Modals/StatisticsMobileModal/StatisticsMobileModal'),
   { ssr: false, loading: () => null }
 );
+
+const getStatDividerClassName = (isEvaluation: boolean, index: number): string => {
+  const isSecond = index % 2 === 1;
+
+  return isEvaluation
+    ? `statistics-content-results-cards-row-stats-divider statistics-content-results-cards-row-stats-divider-evaluation ${isSecond && 'statistics-content-results-cards-row-stats-divider-evaluation-second'}`
+    : `statistics-content-results-cards-row-stats-divider statistics-content-results-cards-row-stats-divider-glance ${isSecond && 'statistics-content-results-cards-row-stats-divider-glance-second'}`;
+};
+
+const getStatUnitClassName = (isEvaluation: boolean): string =>
+  `${isEvaluation && 'statistics-content-results-cards-row-stats-row-stat-unit statistics-content-results-cards-row-stats-row-stat-unit-evaluation'}`;
+
+interface StatisticUnitProps {
+  value: number | undefined;
+  unit: string;
+  isEvaluation: boolean;
+  t: TFunction<'translation', undefined>;
+  i18nExists: (key: string) => boolean;
+}
+
+const StatisticUnit = ({
+  value,
+  unit,
+  isEvaluation,
+  t,
+  i18nExists,
+}: StatisticUnitProps): React.JSX.Element => {
+  if (!i18nExists(`common.${unit}`)) {
+    return (
+      <span className="statistics-content-results-cards-row-stats-row-stat-unit">{unit}</span>
+    );
+  }
+
+  return (
+    <span className={getStatUnitClassName(isEvaluation)}>
+      {value && value > 1 ? t(`common.${unit}s`) : t(`common.${unit}`)}
+    </span>
+  );
+};
+
+interface StatisticValueDisplayProps {
+  statistic: IStat;
+  isEvaluation: boolean;
+  t: TFunction<'translation', undefined>;
+  i18nExists: (key: string) => boolean;
+  statisticTitle: string | undefined;
+}
+
+const StatisticValueDisplay = ({
+  statistic,
+  isEvaluation,
+  t,
+  i18nExists,
+  statisticTitle,
+}: StatisticValueDisplayProps): React.JSX.Element => {
+  if (statistic.value && isIStatValueDetails(statistic.value)) {
+    return <PieChart t={t} data={getFormattedStatsAsPieChart(statistic.value)} />;
+  }
+
+  const value = statistic.value;
+  const statClassName = isEvaluation
+    ? 'statistics-content-results-cards-row-stats-row-stat statistics-content-results-cards-row-stats-row-stat-evaluation'
+    : 'statistics-content-results-cards-row-stats-row-stat';
+  const titleClassName = isEvaluation
+    ? 'statistics-content-results-cards-row-stats-row-title statistics-content-results-cards-row-stats-row-title-evaluation'
+    : 'statistics-content-results-cards-row-stats-row-title';
+
+  return (
+    <>
+      {statistic.unit ? (
+        <div className={statClassName}>
+          {value}
+          <StatisticUnit
+            value={value}
+            unit={statistic.unit}
+            isEvaluation={isEvaluation}
+            t={t}
+            i18nExists={i18nExists}
+          />
+        </div>
+      ) : (
+        <div className={statClassName}>{value}</div>
+      )}
+      <div className={titleClassName}>{statisticTitle}</div>
+    </>
+  );
+};
 
 interface StatisticsClientProps {
   initialStats?: IStatResponse;
@@ -63,7 +150,6 @@ export default function StatisticsClient({
   }, [lang, i18n]);
   const router = useRouter();
 
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
   const journalCode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const [statisticsPerLabel, setStatisticsPerLabel] = useState<IStatisticsPerLabel[]>([
@@ -81,7 +167,6 @@ export default function StatisticsClient({
     },
   ]);
   const [years, setYears] = useState<IStatisticsYearSelection[]>([]);
-  const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
 
   const {
     data: stats,
@@ -135,22 +220,22 @@ export default function StatisticsClient({
   }, [stats?.range?.years, years.length]);
 
   useEffect(() => {
-    if (stats && stats.data) {
-      const glanceStatTypes = [
+    if (stats?.data) {
+      const glanceStatTypes = new Set([
         STAT_TYPE.ACCEPTANCE_RATE,
         STAT_TYPE.NB_SUBMISSIONS,
         STAT_TYPE.NB_SUBMISSIONS_DETAILS,
-      ];
-      const evaluationPublicationStatTypes = [
+      ]);
+      const evaluationPublicationStatTypes = new Set([
         STAT_TYPE.EVALUATION,
         STAT_TYPE.MEDIAN_SUBMISSION_PUBLICATION,
-      ];
+      ]);
 
       const glanceStats = stats.data.filter(stat =>
-        glanceStatTypes.includes(stat.name as STAT_TYPE)
+        glanceStatTypes.has(stat.name as STAT_TYPE)
       );
       let evaluationPublicationStats = stats.data.filter(stat =>
-        evaluationPublicationStatTypes.includes(stat.name as STAT_TYPE)
+        evaluationPublicationStatTypes.has(stat.name as STAT_TYPE)
       );
 
       const evaluationStat = evaluationPublicationStats.find(
@@ -225,7 +310,8 @@ export default function StatisticsClient({
       searchParams.append('years', year.toString());
     });
 
-    const newUrl = `${window.location.pathname}${selectedYears.length > 0 ? `?${searchParams.toString()}` : ''}`;
+    const searchQueryParam = selectedYears.length > 0 ? `?${searchParams.toString()}` : '';
+    const newUrl = `${window.location.pathname}${searchQueryParam}`;
     router.push(newUrl);
   };
 
@@ -256,8 +342,6 @@ export default function StatisticsClient({
     setStatisticsPerLabel(updatedStatistics);
   };
 
-  const renderSelectedYears = (): string => getSelectedYears().reverse().join(', ');
-
   const getBlockRendering = (statName: string) =>
     statisticsBlocksConfiguration().find(config => config.key === statName);
 
@@ -287,7 +371,7 @@ export default function StatisticsClient({
             <Loader />
           ) : (
             <div className="statistics-content-results-cards">
-              {statisticsPerLabel.map((statisticPerLabel, index) => {
+              {statisticsPerLabel.map(statisticPerLabel => {
                 let filteredStatistics = statisticPerLabel.statistics
                   .filter(statistic => statistic.value !== null)
                   .filter(statistic => getBlockRendering(statistic.name)?.render);
@@ -299,94 +383,44 @@ export default function StatisticsClient({
                 });
 
                 return (
-                  <div key={index} className="statistics-content-results-cards-row">
-                    <div
-                      className="statistics-content-results-cards-row-title"
-                      role="button"
-                      tabIndex={0}
-                      aria-expanded={statisticPerLabel.isOpened}
-                      onClick={(): void => toggleStatisticsSection(statisticPerLabel.labelKey)}
-                      onKeyDown={e =>
-                        handleKeyboardClick(e, () =>
-                          toggleStatisticsSection(statisticPerLabel.labelKey)
-                        )
-                      }
-                    >
-                      <div className="statistics-content-results-cards-row-title-text">
-                        {t(statisticPerLabel.labelPath)}
-                      </div>
-                      {statisticPerLabel.isOpened ? (
-                        <CaretUpBlackIcon
-                          size={16}
-                          className="statistics-content-results-cards-row-title-caret"
-                          ariaLabel="Collapse section"
-                        />
-                      ) : (
-                        <CaretDownBlackIcon
-                          size={16}
-                          className="statistics-content-results-cards-row-title-caret"
-                          ariaLabel="Expand section"
-                        />
-                      )}
-                    </div>
+                  <div key={statisticPerLabel.labelKey} className="statistics-content-results-cards-row">
+                    <CollapsibleSectionHeader
+                      as="div"
+                      triggerClassName="statistics-content-results-cards-row-title"
+                      headingClassName="statistics-content-results-cards-row-title-text"
+                      caretClassName="statistics-content-results-cards-row-title-caret"
+                      title={t(statisticPerLabel.labelPath)}
+                      isOpen={statisticPerLabel.isOpened}
+                      onToggle={(): void => toggleStatisticsSection(statisticPerLabel.labelKey)}
+                    />
                     <div
                       className={`statistics-content-results-cards-row-stats ${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION && 'statistics-content-results-cards-row-stats-evaluation'} ${statisticPerLabel.isOpened && 'statistics-content-results-cards-row-stats-active'}`}
                     >
-                      {filteredStatistics.map((statistic, index) => (
-                        <Fragment key={index}>
-                          <div className="statistics-content-results-cards-row-stats-row">
-                            {statistic.value && isIStatValueDetails(statistic.value) ? (
-                              <PieChart t={t} data={getFormattedStatsAsPieChart(statistic.value)} />
-                            ) : (
-                              <>
-                                {statistic.unit ? (
-                                  <div
-                                    className={`${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION ? 'statistics-content-results-cards-row-stats-row-stat statistics-content-results-cards-row-stats-row-stat-evaluation' : 'statistics-content-results-cards-row-stats-row-stat'}`}
-                                  >
-                                    {statistic.value}
-                                    {i18n.exists(`common.${statistic.unit}`) ? (
-                                      <span
-                                        className={`${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION && 'statistics-content-results-cards-row-stats-row-stat-unit statistics-content-results-cards-row-stats-row-stat-unit-evaluation'}`}
-                                      >
-                                        {statistic.value && statistic.value > 1
-                                          ? t(`common.${statistic.unit}s`)
-                                          : t(`common.${statistic.unit}`)}
-                                      </span>
-                                    ) : (
-                                      <span className="statistics-content-results-cards-row-stats-row-stat-unit">
-                                        {statistic.unit}
-                                      </span>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div
-                                    className={`${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION ? 'statistics-content-results-cards-row-stats-row-stat statistics-content-results-cards-row-stats-row-stat-evaluation' : 'statistics-content-results-cards-row-stats-row-stat'}`}
-                                  >
-                                    {statistic.value}
-                                  </div>
-                                )}
-                                <div
-                                  className={`${statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION ? 'statistics-content-results-cards-row-stats-row-title statistics-content-results-cards-row-stats-row-title-evaluation' : 'statistics-content-results-cards-row-stats-row-title'}`}
-                                >
-                                  {getStatisticTitle(statistic)}
-                                </div>
-                              </>
+                      {filteredStatistics.map((statistic, index) => {
+                        const isEvaluation =
+                          statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION;
+                        const isLast = index === filteredStatistics.length - 1;
+
+                        return (
+                          <Fragment key={statistic.name}>
+                            <div className="statistics-content-results-cards-row-stats-row">
+                              <StatisticValueDisplay
+                                statistic={statistic}
+                                isEvaluation={isEvaluation}
+                                t={t}
+                                i18nExists={key => i18n.exists(key)}
+                                statisticTitle={getStatisticTitle(statistic)}
+                              />
+                            </div>
+                            {!isLast && (
+                              <div className={getStatDividerClassName(isEvaluation, index)}></div>
                             )}
-                          </div>
-                          {index !== filteredStatistics.length - 1 && (
-                            <div
-                              className={`${
-                                statisticPerLabel.labelKey === STAT_LABEL.EVALUATION_PUBLICATION
-                                  ? `statistics-content-results-cards-row-stats-divider statistics-content-results-cards-row-stats-divider-evaluation ${index % 2 === 1 && 'statistics-content-results-cards-row-stats-divider-evaluation-second'}`
-                                  : `statistics-content-results-cards-row-stats-divider statistics-content-results-cards-row-stats-divider-glance ${index % 2 === 1 && 'statistics-content-results-cards-row-stats-divider-glance-second'}`
-                              }`}
-                            ></div>
-                          )}
-                          {index !== filteredStatistics.length - 1 && index % 2 === 1 && (
-                            <div className="statistics-content-results-cards-row-stats-mobileLine"></div>
-                          )}
-                        </Fragment>
-                      ))}
+                            {!isLast && index % 2 === 1 && (
+                              <div className="statistics-content-results-cards-row-stats-mobileLine"></div>
+                            )}
+                          </Fragment>
+                        );
+                      })}
                     </div>
                   </div>
                 );

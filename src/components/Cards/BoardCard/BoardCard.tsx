@@ -28,7 +28,7 @@ import { ORCID_URL } from '@/config/external-urls';
 function AffiliationWithRor({
   affiliation,
 }: {
-  affiliation: IBoardMemberAffiliation;
+  readonly affiliation: IBoardMemberAffiliation;
 }): React.JSX.Element {
   if (affiliation.rorId) {
     return (
@@ -56,11 +56,11 @@ function AffiliationWithRor({
 }
 
 interface IBoardCardPersonProps {
-  member: IBoardMember;
+  readonly member: IBoardMember;
   /** CSS class prefix, e.g. "boardCard-person" or "boardCard-full-initial-person" */
-  base: string;
-  displayRoles: (roles: string[]) => string;
-  defaultRoleLabel: string | null;
+  readonly base: string;
+  readonly displayRoles: (roles: string[]) => string;
+  readonly defaultRoleLabel: string | null;
 }
 
 /** Shared person header (photo/name/role) used by both full and collapsed layouts */
@@ -95,7 +95,7 @@ function BoardCardPerson({
           <div className={`${base}-title-name-text`}>
             {member.firstname} {member.lastname}
           </div>
-          {member.orcid && member.orcid.length > 0 && (
+          {(member.orcid?.length ?? 0) > 0 && (
             <Link
               href={`${ORCID_URL}/${member.orcid}`}
               title={member.orcid}
@@ -119,12 +119,12 @@ function BoardCardPerson({
 export type BoardCardState = 'expanded' | 'blurred' | 'default';
 
 interface IBoardCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  member: IBoardMember;
-  state: BoardCardState;
-  onToggle: () => void;
-  rolesLabels?: Record<string, string>;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly member: IBoardMember;
+  readonly state: BoardCardState;
+  readonly onToggle: () => void;
+  readonly rolesLabels?: Record<string, string>;
 }
 
 export default function BoardCard({
@@ -135,13 +135,6 @@ export default function BoardCard({
   onToggle,
   rolesLabels,
 }: IBoardCardProps): React.JSX.Element {
-  const getRoleLabel = (role: string) => {
-    if (rolesLabels && rolesLabels[role]) return rolesLabels[role];
-    // Fallback to t if rolesLabels is missing (or try to map if keys differ)
-    // Actually getBoardRoles handles a list.
-    return null;
-  };
-
   const displayRoles = (roles: string[]) => {
     if (rolesLabels) {
       return roles
@@ -172,16 +165,19 @@ export default function BoardCard({
               defaultRoleLabel={defaultRoleLabel}
             />
           </div>
-          {member.affiliations && member.affiliations.length > 0 && (
+          {(member.affiliations?.length ?? 0) > 0 && (
             <div className="boardCard-full-initial-affiliations">
-              {member.affiliations.map((affiliation, idx) => (
-                <div key={idx} className="boardCard-affiliation-item">
+              {member.affiliations.map(affiliation => (
+                <div
+                  key={affiliation.rorId || affiliation.label}
+                  className="boardCard-affiliation-item"
+                >
                   <AffiliationWithRor affiliation={affiliation} />
                 </div>
               ))}
             </div>
           )}
-          {member.assignedSections && member.assignedSections.length > 0 && (
+          {(member.assignedSections?.length ?? 0) > 0 && (
             <div className="boardCard-full-initial-assignedSections">
               {member.assignedSections
                 .map(assignedSection => assignedSection.titles[language])
@@ -277,16 +273,19 @@ export default function BoardCard({
           defaultRoleLabel={defaultRoleLabel}
         />
       </div>
-      {member.affiliations && member.affiliations.length > 0 && (
+      {(member.affiliations?.length ?? 0) > 0 && (
         <div className="boardCard-affiliations">
-          {member.affiliations.map((affiliation, idx) => (
-            <div key={idx} className="boardCard-affiliation-item">
+          {member.affiliations.map(affiliation => (
+            <div
+              key={`${affiliation.rorId ?? ''}-${affiliation.label}`}
+              className="boardCard-affiliation-item"
+            >
               <AffiliationWithRor affiliation={affiliation} />
             </div>
           ))}
         </div>
       )}
-      {member.assignedSections && member.assignedSections.length > 0 && (
+      {(member.assignedSections?.length ?? 0) > 0 && (
         <div className="boardCard-assignedSections">
           {member.assignedSections
             .map(assignedSection => {

@@ -42,7 +42,7 @@ export async function generateMetadata(props: {
 }
 
 type Props = {
-  params: Promise<{ journalId: string; lang: string }>;
+  readonly params: Promise<{ journalId: string; lang: string }>;
 };
 
 export default async function NewsPage(props: Props) {
@@ -50,18 +50,22 @@ export default async function NewsPage(props: Props) {
   const { journalId, lang } = params;
 
   let newsData = null;
-  let translations = {};
+
+  // Fetch translations independently of news: a translations failure must not
+  // discard news data that was already fetched successfully (Promise.all fails fast).
+  const translationsPromise = getServerTranslations(lang).catch(error => {
+    logger.warn('[NewsPage] Failed to fetch translations:', error);
+    return {};
+  });
 
   try {
-    // Fetch news and translations in parallel
-    [newsData, translations] = await Promise.all([
-      fetchNews({ rvcode: journalId }),
-      getServerTranslations(lang),
-    ]);
+    newsData = await fetchNews({ rvcode: journalId });
   } catch (error) {
-    logger.warn('[NewsPage] Failed to fetch data:', error);
+    logger.warn('[NewsPage] Failed to fetch news:', error);
     // Data remains at fallback values
   }
+
+  const translations = await translationsPromise;
 
   const breadcrumbLabels = {
     home: t('pages.home.title', translations),

@@ -9,12 +9,12 @@ import { AvailableLanguage } from '@/utils/i18n';
 import './SectionDetailsSidebar.scss';
 
 interface ISectionDetailsSidebarProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  section?: ISection;
-  articles?: IArticle[];
-  currentJournal?: IJournal;
-  sectionId: string;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly section?: ISection;
+  readonly articles?: IArticle[];
+  readonly currentJournal?: IJournal;
+  readonly sectionId: string;
 }
 
 export default function SectionDetailsSidebar({

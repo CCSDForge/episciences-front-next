@@ -66,7 +66,7 @@ function toError(error: unknown): Error {
 
 function calculateBackoffDelay(attempt: number, baseDelay: number, maxDelay: number): number {
   const exponentialDelay = baseDelay * Math.pow(2, attempt);
-  const jitter = Math.random() * 1000;
+  const jitter = Math.random() * 1000; // NOSONAR - timing jitter only, not security-sensitive
   return Math.min(exponentialDelay + jitter, maxDelay);
 }
 

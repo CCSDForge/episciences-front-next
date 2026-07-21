@@ -12,7 +12,6 @@ import {
 } from '@/components/icons';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import {
   BlueskyShareButton,
@@ -37,11 +36,11 @@ import { useAppSelector } from '@/hooks/store';
 import { logger } from '@/lib/logger';
 
 interface InteractiveDropdownProps {
-  type: 'cite' | 'metadata' | 'share';
-  metadataCSL?: string | null;
-  metadataBibTeX?: string | null;
-  articleId?: string;
-  label?: string; // Optional pre-translated label
+  readonly type: 'cite' | 'metadata' | 'share';
+  readonly metadataCSL?: string | null;
+  readonly metadataBibTeX?: string | null;
+  readonly articleId?: string;
+  readonly label?: string; // Optional pre-translated label
 }
 
 export default function InteractiveDropdown({
@@ -52,7 +51,6 @@ export default function InteractiveDropdown({
   label,
 }: InteractiveDropdownProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -190,7 +188,7 @@ export default function InteractiveDropdown({
         a.click();
 
         window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        a.remove();
 
         toastSuccess(
           t('pages.articleDetails.metadata.downloadSuccess', { format: metadata.label })
@@ -232,9 +230,9 @@ export default function InteractiveDropdown({
         role="menu"
         onKeyDown={handleMenuKeyDown}
       >
-        {citations.map((citation, index) => (
+        {citations.map(citation => (
           <button
-            key={index}
+            key={citation.key}
             type="button"
             role="menuitem"
             className="articleDetailsSidebar-links-link-modal-content-links-link"
@@ -255,9 +253,9 @@ export default function InteractiveDropdown({
       role="menu"
       onKeyDown={handleMenuKeyDown}
     >
-      {metadataTypes.map((metadata, index) => (
+      {metadataTypes.map(metadata => (
         <button
-          key={index}
+          key={metadata.type}
           type="button"
           role="menuitem"
           className="articleDetailsSidebar-links-link-modal-content-links-link"

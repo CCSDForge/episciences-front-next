@@ -115,14 +115,13 @@ describe('AuthorDetailsSidebar', () => {
       expect(screen.getByText('Article Title With <em>Markup</em>')).toBeInTheDocument();
     });
 
-    it('renders formatted publication date', () => {
+    it.each([
+      { description: 'renders formatted publication date', label: 'Published on 15/01/2024' },
+      { description: 'renders DOI link when doi is present', label: '10.1234/test.doi' },
+      { description: 'renders "See more" link for each article', label: 'See more' },
+    ])('$description', ({ label }) => {
       render(<AuthorDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Published on 15/01/2024')).toBeInTheDocument();
-    });
-
-    it('renders DOI link when doi is present', () => {
-      render(<AuthorDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('10.1234/test.doi')).toBeInTheDocument();
+      expect(screen.getByText(label)).toBeInTheDocument();
     });
 
     it('does not render DOI section when doi is absent', () => {
@@ -130,11 +129,6 @@ describe('AuthorDetailsSidebar', () => {
       mockUseFetchAuthorArticlesQuery.mockReturnValue({ data: { data: [articleNoDoi] } });
       render(<AuthorDetailsSidebar {...defaultProps} />);
       expect(screen.queryByText('DOI')).not.toBeInTheDocument();
-    });
-
-    it('renders "See more" link for each article', () => {
-      render(<AuthorDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('See more')).toBeInTheDocument();
     });
 
     it('"See more" link points to the article page', () => {

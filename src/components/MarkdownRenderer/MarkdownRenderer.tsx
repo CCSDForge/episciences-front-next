@@ -6,10 +6,10 @@ import type { PluggableList } from 'unified';
 import './MarkdownRenderer.scss';
 
 export interface MarkdownRendererProps {
-  children: string;
-  components?: Components;
-  remarkPlugins?: PluggableList;
-  urlTransform?: (url: string) => string;
+  readonly children: string;
+  readonly components?: Components;
+  readonly remarkPlugins?: PluggableList;
+  readonly urlTransform?: (url: string) => string;
 }
 
 function isEmptyNode(node: React.ReactNode): boolean {

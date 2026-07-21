@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 export function useBaseUrl() {
   // En mode développement, retourner directement l'URL du serveur de développement
   if (process.env.NODE_ENV === 'development') {

@@ -1,7 +1,7 @@
 import { IClassificationItem } from '@/types/article';
 
 interface ClassificationsSectionProps {
-  classifications: IClassificationItem[];
+  readonly classifications: IClassificationItem[];
 }
 
 export default function ClassificationsSection({

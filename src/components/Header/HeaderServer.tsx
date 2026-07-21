@@ -13,8 +13,8 @@ import { getJournalByCode } from '@/services/journal';
 import { menuConfig, getVisibleMenuItems, processMenuItemPath } from '@/config/menu';
 import { fetchVolumes } from '@/services/volume';
 import { getPublicJournalConfig } from '@/utils/env-loader';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import './Header.scss';
 import '@/components/SkipLink/SkipLink.scss';
 
@@ -55,8 +55,8 @@ function buildMobileSection(
 }
 
 interface HeaderServerProps {
-  lang?: string;
-  journalId?: string;
+  readonly lang?: string;
+  readonly journalId?: string;
 }
 
 export default async function HeaderServer({

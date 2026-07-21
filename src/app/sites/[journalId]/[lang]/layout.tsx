@@ -47,8 +47,8 @@ export async function generateStaticParams() {
 }
 
 interface LanguageLayoutProps {
-  children: ReactNode;
-  params: Promise<{ lang: string; journalId: string }>;
+  readonly children: ReactNode;
+  readonly params: Promise<{ lang: string; journalId: string }>;
 }
 
 /**

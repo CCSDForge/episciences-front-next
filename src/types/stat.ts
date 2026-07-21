@@ -45,10 +45,7 @@ export const getFormattedStatsAsPieChart = (value: IStatValue): IStatValueDetail
     stats.push({ status: 'refused', count: typedValue.refused });
   }
 
-  if (
-    typedValue['being-to-publish'] !== undefined &&
-    typedValue['being-to-publish'].accepted !== undefined
-  ) {
+  if (typedValue['being-to-publish']?.accepted !== undefined) {
     stats.push({
       status: 'accepted',
       count: typedValue['being-to-publish'].accepted,
@@ -56,10 +53,7 @@ export const getFormattedStatsAsPieChart = (value: IStatValue): IStatValueDetail
     });
   }
 
-  if (
-    typedValue['being-to-publish'] !== undefined &&
-    typedValue['being-to-publish']['other-status'] !== undefined
-  ) {
+  if (typedValue['being-to-publish']?.['other-status'] !== undefined) {
     stats.push({
       status: 'other-status',
       count: typedValue['being-to-publish']['other-status'],

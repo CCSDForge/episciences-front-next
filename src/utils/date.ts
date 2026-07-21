@@ -5,7 +5,7 @@ const log = logger.child({ service: 'date' });
 
 // Helper: validates that a Date object is valid
 const createValidDate = (date: Date): Date | null => {
-  return !isNaN(date.getTime()) ? date : null;
+  return !Number.isNaN(date.getTime()) ? date : null;
 };
 
 // Helper: parses date parts and creates a Date object
@@ -18,7 +18,7 @@ const parseDateParts = (
   if (parts.length !== 3) return null;
 
   const parsed = parts.map(p => Number.parseInt(p, 10));
-  if (parsed.some(isNaN)) return null;
+  if (parsed.some(Number.isNaN)) return null;
 
   const year = parsed[yearIndex];
   const month = parsed[monthIndex];

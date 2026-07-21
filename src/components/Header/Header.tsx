@@ -21,7 +21,6 @@ import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setSearch } from '@/store/features/search/search.slice';
 import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 import { availableLanguages } from '@/utils/i18n';
-import { VOLUME_TYPE } from '@/utils/volume';
 import Button from '@/components/Button/Button';
 import LanguageDropdown from '@/components/LanguageDropdown/LanguageDropdown';
 import HeaderSearchInput from '@/components/SearchInput/HeaderSearchInput/HeaderSearchInput';
@@ -33,12 +32,12 @@ function HeaderSignIn({
   showSeparator,
   signInText,
   newWindowText,
-}: {
+}: Readonly<{
   signInLink: string;
   showSeparator: boolean;
   signInText: string;
   newWindowText: string;
-}): React.JSX.Element {
+}>): React.JSX.Element {
   return (
     <>
       {showSeparator && (
@@ -66,7 +65,7 @@ interface HeaderProps {
   };
 }
 
-export default function Header({ currentJournal }: HeaderProps): React.JSX.Element {
+export default function Header({ currentJournal }: Readonly<HeaderProps>): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
@@ -168,8 +167,6 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
     language === 'fr'
       ? process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE_FR!
       : process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE!;
-
-  const isMobileReduced = (): boolean => isReduced && isMobileOnly;
 
   // Keyboard handler for burger menu
   const handleBurgerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {

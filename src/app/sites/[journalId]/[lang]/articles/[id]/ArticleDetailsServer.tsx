@@ -26,14 +26,14 @@ import { generateScholarlyArticleJsonLd } from '@/utils/schema';
 import './ArticleDetails.scss';
 
 interface ArticleDetailsServerProps {
-  article: IArticle;
-  id: string;
-  journalId?: string;
-  relatedVolume?: IVolume | null;
-  metadataCSL?: string | null;
-  metadataBibTeX?: string | null;
-  translations: Translations;
-  language?: string;
+  readonly article: IArticle;
+  readonly id: string;
+  readonly journalId?: string;
+  readonly relatedVolume?: IVolume | null;
+  readonly metadataCSL?: string | null;
+  readonly metadataBibTeX?: string | null;
+  readonly translations: Translations;
+  readonly language?: string;
 }
 
 interface EnhancedArticleAuthor extends IArticleAuthor {

@@ -96,19 +96,17 @@ describe('SearchResultsSidebar', () => {
   // Conditional rendering
   // ─────────────────────────────────────────────────────────────────────────
   describe('conditional section rendering', () => {
-    it('renders types section when types are provided', () => {
-      renderSidebar();
-      expect(screen.getByText('Document Types')).toBeInTheDocument();
-    });
+    it.each(['Document Types', 'Years', 'Volumes', 'Sections', 'Authors'])(
+      'renders %s section when provided',
+      label => {
+        renderSidebar();
+        expect(screen.getByText(label)).toBeInTheDocument();
+      }
+    );
 
     it('hides types section when types array is empty', () => {
       renderSidebar({ types: [] });
       expect(screen.queryByText('Document Types')).not.toBeInTheDocument();
-    });
-
-    it('renders years section when years are provided', () => {
-      renderSidebar();
-      expect(screen.getByText('Years')).toBeInTheDocument();
     });
 
     it('hides years section when years array is empty', () => {
@@ -116,29 +114,14 @@ describe('SearchResultsSidebar', () => {
       expect(screen.queryByText('Years')).not.toBeInTheDocument();
     });
 
-    it('renders volumes section when volumes are provided', () => {
-      renderSidebar();
-      expect(screen.getByText('Volumes')).toBeInTheDocument();
-    });
-
     it('hides volumes section when volumes array is empty', () => {
       renderSidebar({ volumes: [] });
       expect(screen.queryByText('Volumes')).not.toBeInTheDocument();
     });
 
-    it('renders sections section when sections are provided', () => {
-      renderSidebar();
-      expect(screen.getByText('Sections')).toBeInTheDocument();
-    });
-
     it('hides sections section when sections array is empty', () => {
       renderSidebar({ sections: [] });
       expect(screen.queryByText('Sections')).not.toBeInTheDocument();
-    });
-
-    it('renders authors section when authors are provided', () => {
-      renderSidebar();
-      expect(screen.getByText('Authors')).toBeInTheDocument();
     });
 
     it('hides authors section when authors array is empty', () => {
