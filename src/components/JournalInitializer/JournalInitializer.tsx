@@ -9,6 +9,20 @@ import { setCurrentJournal } from '@/store/features/journal/journal.slice';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { AvailableLanguage } from '@/utils/i18n';
 
+// Créer un journal par défaut pour le build statique
+function createDefaultJournal(rvcode: string) {
+  const journalName =
+    process.env.NEXT_PUBLIC_JOURNAL_NAME ||
+    '[Pre-Production] Journal Epijinfo fake journalInitializer';
+  return {
+    id: Number.parseInt(process.env.NEXT_PUBLIC_JOURNAL_ID || '3'),
+    code: rvcode || 'epijinfo',
+    name: journalName,
+    title: { fr: journalName, en: journalName } as Record<AvailableLanguage, string>,
+    settings: [],
+  };
+}
+
 export function JournalInitializer({ journalId }: { journalId?: string }) {
   const dispatch = useAppDispatch();
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
@@ -27,20 +41,6 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
     pollingInterval: 0,
     refetchOnMountOrArgChange: true,
   });
-
-  // Créer un journal par défaut pour le build statique
-  const createDefaultJournal = () => {
-    const journalName =
-      process.env.NEXT_PUBLIC_JOURNAL_NAME ||
-      '[Pre-Production] Journal Epijinfo fake journalInitializer';
-    return {
-      id: Number.parseInt(process.env.NEXT_PUBLIC_JOURNAL_ID || '3'),
-      code: rvcode || 'epijinfo',
-      name: journalName,
-      title: { fr: journalName, en: journalName } as Record<AvailableLanguage, string>,
-      settings: [],
-    };
-  };
 
   // Effet pour initialiser le journal dans le store
   useEffect(() => {
@@ -64,7 +64,7 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
     if (error) {
       // En cas d'erreur et absence de journal dans le store, utiliser un fallback
       if (!currentJournal) {
-        dispatch(setCurrentJournal(createDefaultJournal()));
+        dispatch(setCurrentJournal(createDefaultJournal(rvcode)));
       }
 
       // Attendre 2 secondes et réessayer
@@ -74,7 +74,7 @@ export function JournalInitializer({ journalId }: { journalId?: string }) {
 
       return () => clearTimeout(timer);
     }
-  }, [error, refetch, currentJournal, dispatch]);
+  }, [error, refetch, currentJournal, dispatch, rvcode]);
 
   return null;
 }

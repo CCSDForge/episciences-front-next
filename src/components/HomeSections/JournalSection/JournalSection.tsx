@@ -13,7 +13,7 @@ interface IJournalSectionProps {
 
 function JournalSectionLink({ ...props }: React.ComponentProps<'a'>): React.JSX.Element {
   return (
-    <Link href={props.href!} target="_blank" rel="noopener noreferrer">
+    <Link href={props.href ?? '#'} target="_blank" rel="noopener noreferrer">
       {props.children}
     </Link>
   );

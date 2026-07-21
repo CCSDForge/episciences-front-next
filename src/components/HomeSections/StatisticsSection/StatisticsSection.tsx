@@ -49,7 +49,7 @@ export default function StatisticsSection({
               </div>
             </div>
             <div
-              className={`${index !== filteredStats.length - 1 && 'statisticsSection-divider'}`}
+              className={index !== filteredStats.length - 1 ? 'statisticsSection-divider' : ''}
             ></div>
           </Fragment>
         );
