@@ -50,10 +50,18 @@ Pages that rarely change. On-demand revalidation is the only way to update them.
 | About                     | `/sites/[journalId]/[lang]/about`                     |
 | Credits                   | `/sites/[journalId]/[lang]/credits`                   |
 | For authors               | `/sites/[journalId]/[lang]/for-authors`               |
+| For editors               | `/sites/[journalId]/[lang]/for-editors`               |
 | For reviewers             | `/sites/[journalId]/[lang]/for-reviewers`             |
 | For conference organisers | `/sites/[journalId]/[lang]/for-conference-organisers` |
 | Acknowledgements          | `/sites/[journalId]/[lang]/acknowledgements`          |
 | Indexing                  | `/sites/[journalId]/[lang]/indexing`                  |
+| Ethical charter           | `/sites/[journalId]/[lang]/ethical-charter`           |
+| Proposing special issues  | `/sites/[journalId]/[lang]/proposing-special-issues`  |
+| Accessibility\*           | `/sites/[journalId]/[lang]/accessibility`             |
+
+\* Accessibility has no backing API service — its content is read from a local markdown
+file at build time (`fs.readFileSync`), not `fetch()`. It has no Data Cache entry and
+`CACHE_TTL_PAGES` does not apply to it; it can only change via a new deployment.
 
 ### Dynamic Pages (Daily ISR)
 
@@ -93,15 +101,19 @@ Published content is effectively immutable; on-demand revalidation handles corre
 All fetch-level cache durations are configurable. They default to **3600 s (1 hour)**
 when the variable is not set. Set to `false` to cache indefinitely (on-demand only).
 
-| Variable               | Service(s)                                                                                                                                                               | Default |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| `CACHE_TTL_NEWS`       | `news.ts`                                                                                                                                                                | 3600    |
-| `CACHE_TTL_VOLUMES`    | `volume.ts`                                                                                                                                                              | 3600    |
-| `CACHE_TTL_ARTICLES`   | `article.ts`, `section.ts`                                                                                                                                               | 3600    |
-| `CACHE_TTL_PAGES`      | `about.ts`, `credits.ts`, `forReviewers.ts`, `indexing.ts`, `indexation.ts`, `acknowledgements.ts`, `forConferenceOrganisers.ts`, `proposingSpecialIssues.ts`, `page.ts` | 3600    |
-| `CACHE_TTL_STATISTICS` | `stat.ts`, `statistics.ts`                                                                                                                                               | 3600    |
-| `CACHE_TTL_MEMBERS`    | `board.ts`, `home.ts` (members)                                                                                                                                          | 3600    |
-| `CACHE_TTL_SECTIONS`   | `section.ts`                                                                                                                                                             | 3600    |
+| Variable               | Service(s)                                                                                                                                                                                      | Default |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `CACHE_TTL_NEWS`       | `news.ts`                                                                                                                                                                                       | 3600    |
+| `CACHE_TTL_VOLUMES`    | `volume.ts`                                                                                                                                                                                     | 3600    |
+| `CACHE_TTL_ARTICLES`   | `article.ts`, `section.ts`                                                                                                                                                                      | 3600    |
+| `CACHE_TTL_PAGES`      | `about.ts`, `credits.ts`, `forAuthors.ts`, `forEditors.ts`, `forReviewers.ts`, `indexing.ts`, `indexation.ts`, `acknowledgements.ts`, `forConferenceOrganisers.ts`, `proposingSpecialIssues.ts` | 3600    |
+| `CACHE_TTL_STATISTICS` | `stat.ts`, `statistics.ts`                                                                                                                                                                      | 3600    |
+| `CACHE_TTL_MEMBERS`    | `board.ts`, `home.ts` (members)                                                                                                                                                                 | 3600    |
+| `CACHE_TTL_SECTIONS`   | `section.ts`                                                                                                                                                                                    | 3600    |
+
+`services/page.ts` (`fetchPage()`) is dead code — no callers anywhere in the app — despite
+previously being listed here. Not removed from the codebase as part of this doc update;
+flagged for a future cleanup.
 
 ### Cache Tag Naming Convention
 
@@ -164,9 +176,13 @@ indexation
 pages
 └── page-{page_code}-{rvcode}     ← fine-grained page tag (e.g. page-about-epijinfo)
 
-credits / for-reviewers / for-conference-organisers /
+credits / for-reviewers / for-editors / for-conference-organisers /
 proposing-special-issues / acknowledgements
 └── {page-type}-{rvcode}          ← dedicated tag per editorial page (no home page section)
+
+editorial-workflow / ethical-charter / prepare-submission
+└── {page-type}-{rvcode}          ← the 3 for-authors/ethical-charter sub-sections
+                                     (services/forAuthors.ts), no home page section
 
 stats / statistics
 ├── stats-{rvcode}                ← home page stats block
