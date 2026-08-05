@@ -1,7 +1,10 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import InteractiveDropdown from '../InteractiveDropdown';
+import CiteDropdown from '../CiteDropdown';
+import MetadataDropdown from '../MetadataDropdown';
+import ShareDropdown from '../ShareDropdown';
+import { SidebarDropdown, useSidebarDropdown } from '../SidebarDropdown/SidebarDropdown';
 
 // --- Mocks ---
 
@@ -105,7 +108,7 @@ const getTrigger = () => document.querySelector<HTMLButtonElement>('button[aria-
 
 // --- Tests ---
 
-describe('InteractiveDropdown', () => {
+describe('sidebar dropdowns', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetCitations.mockResolvedValue([
@@ -119,23 +122,23 @@ describe('InteractiveDropdown', () => {
   // Conditional rendering
   // ─────────────────────────────────────────────────────────────────────────
   describe('Conditional rendering', () => {
-    it('returns null for type=cite when both metadataCSL and metadataBibTeX are absent', () => {
-      const { container } = render(<InteractiveDropdown type="cite" />);
+    it('CiteDropdown returns null when both metadataCSL and metadataBibTeX are absent', () => {
+      const { container } = render(<CiteDropdown />);
       expect(container.firstChild).toBeNull();
     });
 
-    it('renders for type=cite when metadataCSL is provided', () => {
-      render(<InteractiveDropdown type="cite" metadataCSL={DEFAULT_CSL} />);
+    it('CiteDropdown renders when metadataCSL is provided', () => {
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} />);
       expect(getTrigger()).toBeInTheDocument();
     });
 
-    it('renders for type=metadata when metadata types are available', () => {
-      render(<InteractiveDropdown type="metadata" articleId="42" />);
+    it('MetadataDropdown renders when metadata types are available', () => {
+      render(<MetadataDropdown articleId="42" />);
       expect(getTrigger()).toBeInTheDocument();
     });
 
-    it('renders for type=share', () => {
-      render(<InteractiveDropdown type="share" />);
+    it('ShareDropdown renders', () => {
+      render(<ShareDropdown />);
       expect(getTrigger()).toBeInTheDocument();
     });
   });
@@ -145,19 +148,19 @@ describe('InteractiveDropdown', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('ARIA attributes', () => {
     it('trigger button has aria-expanded=false initially', () => {
-      render(<InteractiveDropdown type="share" />);
+      render(<ShareDropdown />);
       expect(getTrigger()).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('trigger button has aria-expanded=true after click (dropdown closed initially)', () => {
-      render(<InteractiveDropdown type="share" />);
+      render(<ShareDropdown />);
       // fireEvent.click does not fire mouseenter, so the toggle goes false → true
       fireEvent.click(getTrigger());
       expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('trigger button has aria-haspopup="menu"', () => {
-      render(<InteractiveDropdown type="share" />);
+      render(<ShareDropdown />);
       expect(getTrigger()).toHaveAttribute('aria-haspopup', 'menu');
     });
   });
@@ -165,13 +168,13 @@ describe('InteractiveDropdown', () => {
   // ─────────────────────────────────────────────────────────────────────────
   // Type: cite
   // ─────────────────────────────────────────────────────────────────────────
-  describe('type=cite', () => {
+  describe('CiteDropdown', () => {
     it('shows loading state while generating citations', async () => {
       let resolve: (v: any) => void;
       mockGetCitations.mockReturnValue(new Promise(r => (resolve = r)));
 
       const user = userEvent.setup();
-      render(<InteractiveDropdown type="cite" metadataCSL={DEFAULT_CSL} />);
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} />);
       await user.click(getTrigger());
 
       expect(screen.getByText(/common.loading/i)).toBeInTheDocument();
@@ -182,13 +185,7 @@ describe('InteractiveDropdown', () => {
 
     it('shows citation keys after generation', async () => {
       const user = userEvent.setup();
-      render(
-        <InteractiveDropdown
-          type="cite"
-          metadataCSL={DEFAULT_CSL}
-          metadataBibTeX={DEFAULT_BIBTEX}
-        />
-      );
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} metadataBibTeX={DEFAULT_BIBTEX} />);
       await user.click(getTrigger());
 
       await waitFor(() => {
@@ -199,7 +196,7 @@ describe('InteractiveDropdown', () => {
 
     it('does not call getCitations a second time when already generated', async () => {
       const user = userEvent.setup();
-      render(<InteractiveDropdown type="cite" metadataCSL={DEFAULT_CSL} />);
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} />);
       await user.click(getTrigger());
       await waitFor(() => expect(mockGetCitations).toHaveBeenCalledOnce());
       // Close then reopen
@@ -214,7 +211,7 @@ describe('InteractiveDropdown', () => {
         { key: 'Empty', citation: '   ' },
       ]);
       const user = userEvent.setup();
-      render(<InteractiveDropdown type="cite" metadataCSL={DEFAULT_CSL} />);
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} />);
       await user.click(getTrigger());
       await waitFor(() =>
         expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument()
@@ -225,13 +222,13 @@ describe('InteractiveDropdown', () => {
     it('shows error toast when getCitations throws', async () => {
       mockGetCitations.mockRejectedValue(new Error('network error'));
       const user = userEvent.setup();
-      render(<InteractiveDropdown type="cite" metadataCSL={DEFAULT_CSL} />);
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} />);
       await user.click(getTrigger());
       await waitFor(() => expect(mockToastError).toHaveBeenCalledOnce());
     });
 
-    it('uses QuoteBlackIcon for type=cite', () => {
-      render(<InteractiveDropdown type="cite" metadataCSL={DEFAULT_CSL} />);
+    it('uses QuoteBlackIcon', () => {
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} />);
       expect(screen.getByTestId('quote-icon')).toBeInTheDocument();
     });
   });
@@ -239,10 +236,10 @@ describe('InteractiveDropdown', () => {
   // ─────────────────────────────────────────────────────────────────────────
   // Type: metadata
   // ─────────────────────────────────────────────────────────────────────────
-  describe('type=metadata', () => {
+  describe('MetadataDropdown', () => {
     it('renders all metadata type buttons in the menu', async () => {
       const user = userEvent.setup();
-      render(<InteractiveDropdown type="metadata" articleId="42" />);
+      render(<MetadataDropdown articleId="42" />);
       await user.click(getTrigger());
       expect(screen.getByRole('menuitem', { name: 'BibTeX' })).toBeInTheDocument();
       expect(screen.getByRole('menuitem', { name: 'RIS' })).toBeInTheDocument();
@@ -252,7 +249,7 @@ describe('InteractiveDropdown', () => {
       const user = userEvent.setup();
       global.URL.createObjectURL = vi.fn(() => 'blob:test');
       global.URL.revokeObjectURL = vi.fn();
-      render(<InteractiveDropdown type="metadata" articleId="42" />);
+      render(<MetadataDropdown articleId="42" />);
       await user.click(getTrigger());
       await user.click(screen.getByRole('menuitem', { name: 'BibTeX' }));
       await waitFor(() => expect(mockFetchArticleMetadata).toHaveBeenCalledOnce());
@@ -265,14 +262,14 @@ describe('InteractiveDropdown', () => {
       mockFetchArticleMetadata.mockResolvedValue(null);
       global.URL.createObjectURL = vi.fn(() => 'blob:test');
       const user = userEvent.setup();
-      render(<InteractiveDropdown type="metadata" articleId="42" />);
+      render(<MetadataDropdown articleId="42" />);
       await user.click(getTrigger());
       await user.click(screen.getByRole('menuitem', { name: 'RIS' }));
       await waitFor(() => expect(mockToastError).toHaveBeenCalledOnce());
     });
 
-    it('uses QuoteBlackIcon for type=metadata', () => {
-      render(<InteractiveDropdown type="metadata" articleId="42" />);
+    it('uses QuoteBlackIcon', () => {
+      render(<MetadataDropdown articleId="42" />);
       expect(screen.getByTestId('quote-icon')).toBeInTheDocument();
     });
   });
@@ -280,9 +277,9 @@ describe('InteractiveDropdown', () => {
   // ─────────────────────────────────────────────────────────────────────────
   // Type: share
   // ─────────────────────────────────────────────────────────────────────────
-  describe('type=share', () => {
+  describe('ShareDropdown', () => {
     it('renders all social share buttons in the DOM (always mounted)', () => {
-      render(<InteractiveDropdown type="share" />);
+      render(<ShareDropdown />);
       // Social buttons are always in the DOM (visibility controlled by CSS class)
       expect(screen.getByTestId('share-bluesky')).toBeInTheDocument();
       expect(screen.getByTestId('share-facebook')).toBeInTheDocument();
@@ -292,13 +289,13 @@ describe('InteractiveDropdown', () => {
       expect(screen.getByTestId('share-twitter')).toBeInTheDocument();
     });
 
-    it('uses ShareIcon for type=share', () => {
-      render(<InteractiveDropdown type="share" />);
+    it('uses ShareIcon', () => {
+      render(<ShareDropdown />);
       expect(screen.getByTestId('share-icon')).toBeInTheDocument();
     });
 
     it('toggle button opens the dropdown when clicked from closed state', () => {
-      render(<InteractiveDropdown type="share" />);
+      render(<ShareDropdown />);
       expect(getTrigger()).toHaveAttribute('aria-expanded', 'false');
       // fireEvent.click avoids the mouseenter side-effect that would invert the toggle
       fireEvent.click(getTrigger());
@@ -311,7 +308,7 @@ describe('InteractiveDropdown', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('Keyboard navigation', () => {
     it('closes dropdown on Escape key', () => {
-      render(<InteractiveDropdown type="share" />);
+      render(<ShareDropdown />);
       // Open via mouseenter (no toggle side-effect)
       fireEvent.mouseEnter(getTrigger().closest('div')!);
       expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
@@ -321,7 +318,7 @@ describe('InteractiveDropdown', () => {
     });
 
     it('opens dropdown on mouse enter and closes on mouse leave', () => {
-      render(<InteractiveDropdown type="share" />);
+      render(<ShareDropdown />);
       const container = getTrigger().closest('div')!;
       fireEvent.mouseEnter(container);
       expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
@@ -330,14 +327,14 @@ describe('InteractiveDropdown', () => {
     });
 
     it('ArrowDown on trigger opens the dropdown', () => {
-      render(<InteractiveDropdown type="share" />);
+      render(<ShareDropdown />);
       expect(getTrigger()).toHaveAttribute('aria-expanded', 'false');
       fireEvent.keyDown(getTrigger(), { key: 'ArrowDown' });
       expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('ArrowUp on trigger opens the dropdown', () => {
-      render(<InteractiveDropdown type="share" />);
+      render(<ShareDropdown />);
       expect(getTrigger()).toHaveAttribute('aria-expanded', 'false');
       fireEvent.keyDown(getTrigger(), { key: 'ArrowUp' });
       expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
@@ -345,13 +342,7 @@ describe('InteractiveDropdown', () => {
 
     it('ArrowDown navigates to next menuitem in cite dropdown', async () => {
       const user = userEvent.setup();
-      render(
-        <InteractiveDropdown
-          type="cite"
-          metadataCSL={DEFAULT_CSL}
-          metadataBibTeX={DEFAULT_BIBTEX}
-        />
-      );
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} metadataBibTeX={DEFAULT_BIBTEX} />);
       await user.click(getTrigger());
       await waitFor(() =>
         expect(screen.getByRole('menuitem', { name: 'APA' })).toBeInTheDocument()
@@ -365,13 +356,7 @@ describe('InteractiveDropdown', () => {
 
     it('ArrowUp navigates to previous menuitem in cite dropdown', async () => {
       const user = userEvent.setup();
-      render(
-        <InteractiveDropdown
-          type="cite"
-          metadataCSL={DEFAULT_CSL}
-          metadataBibTeX={DEFAULT_BIBTEX}
-        />
-      );
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} metadataBibTeX={DEFAULT_BIBTEX} />);
       await user.click(getTrigger());
       await waitFor(() =>
         expect(screen.getByRole('menuitem', { name: 'MLA' })).toBeInTheDocument()
@@ -385,13 +370,7 @@ describe('InteractiveDropdown', () => {
 
     it('ArrowDown wraps from last to first menuitem', async () => {
       const user = userEvent.setup();
-      render(
-        <InteractiveDropdown
-          type="cite"
-          metadataCSL={DEFAULT_CSL}
-          metadataBibTeX={DEFAULT_BIBTEX}
-        />
-      );
+      render(<CiteDropdown metadataCSL={DEFAULT_CSL} metadataBibTeX={DEFAULT_BIBTEX} />);
       await user.click(getTrigger());
       await waitFor(() =>
         expect(screen.getByRole('menuitem', { name: 'MLA' })).toBeInTheDocument()
@@ -405,7 +384,7 @@ describe('InteractiveDropdown', () => {
 
     it('Home focuses the first menuitem in metadata dropdown', async () => {
       const user = userEvent.setup();
-      render(<InteractiveDropdown type="metadata" articleId="42" />);
+      render(<MetadataDropdown articleId="42" />);
       await user.click(getTrigger());
 
       const items = screen.getAllByRole('menuitem');
@@ -416,7 +395,7 @@ describe('InteractiveDropdown', () => {
 
     it('End focuses the last menuitem in metadata dropdown', async () => {
       const user = userEvent.setup();
-      render(<InteractiveDropdown type="metadata" articleId="42" />);
+      render(<MetadataDropdown articleId="42" />);
       await user.click(getTrigger());
 
       const items = screen.getAllByRole('menuitem');
@@ -427,7 +406,7 @@ describe('InteractiveDropdown', () => {
 
     it('Escape in menu closes the dropdown and returns focus to trigger', async () => {
       const user = userEvent.setup();
-      render(<InteractiveDropdown type="metadata" articleId="42" />);
+      render(<MetadataDropdown articleId="42" />);
       await user.click(getTrigger());
 
       const items = screen.getAllByRole('menuitem');
@@ -444,8 +423,50 @@ describe('InteractiveDropdown', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('label prop', () => {
     it('renders the provided label instead of falling back to t()', () => {
-      render(<InteractiveDropdown type="share" label="Partager" />);
+      render(<ShareDropdown label="Partager" />);
       expect(screen.getByText('Partager')).toBeInTheDocument();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Shared shell contract
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('SidebarDropdown contract', () => {
+    it('throws when a piece is rendered outside its provider', () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      expect(() =>
+        render(
+          <SidebarDropdown.Frame>
+            <SidebarDropdown.Trigger icon={null} label="Orphan" />
+          </SidebarDropdown.Frame>
+        )
+      ).toThrow(/inside <SidebarDropdown.Provider>/);
+
+      consoleError.mockRestore();
+    });
+
+    it('exposes state, actions and meta to components rendered inside the provider', () => {
+      function StateProbe() {
+        const { state, actions, meta } = useSidebarDropdown();
+        return (
+          <button type="button" data-open={state.isOpen} onClick={actions.open}>
+            {meta.frameRef ? 'has-refs' : 'no-refs'}
+          </button>
+        );
+      }
+
+      render(
+        <SidebarDropdown.Provider>
+          <StateProbe />
+        </SidebarDropdown.Provider>
+      );
+
+      const probe = screen.getByRole('button', { name: 'has-refs' });
+      expect(probe).toHaveAttribute('data-open', 'false');
+
+      fireEvent.click(probe);
+      expect(probe).toHaveAttribute('data-open', 'true');
     });
   });
 });

@@ -5,8 +5,15 @@ import { IArticle } from '@/types/article';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { IVolume } from '@/types/volume';
 
-vi.mock('../InteractiveDropdown', () => ({
-  default: ({ label }: { label: string }) => <div data-testid="interactive-dropdown">{label}</div>,
+// vi.mock factories are hoisted, so each stub has to be inlined.
+vi.mock('../CiteDropdown', () => ({
+  default: ({ label }: { label: string }) => <div data-testid="cite-dropdown">{label}</div>,
+}));
+vi.mock('../MetadataDropdown', () => ({
+  default: ({ label }: { label: string }) => <div data-testid="metadata-dropdown">{label}</div>,
+}));
+vi.mock('../ShareDropdown', () => ({
+  default: ({ label }: { label: string }) => <div data-testid="share-dropdown">{label}</div>,
 }));
 
 const translations = {
@@ -25,7 +32,13 @@ const translations = {
         publishedOn: 'Published on',
         lastModifiedOn: 'Last modified on',
       },
-      actions: { download: 'Download', openOn: 'Open on', cite: 'Cite', metadata: 'Metadata', share: { text: 'Share' } },
+      actions: {
+        download: 'Download',
+        openOn: 'Open on',
+        cite: 'Cite',
+        metadata: 'Metadata',
+        share: { text: 'Share' },
+      },
       download: { openPDF: 'Open PDF' },
       funding: 'Funding',
       metrics: { title: 'Metrics', views: 'views', downloads: 'downloads' },
@@ -46,7 +59,11 @@ const baseArticle: IArticle = {
 describe('ArticleDetailsSidebarServer', () => {
   it('renders the cite/metadata/share dropdowns', () => {
     render(
-      <ArticleDetailsSidebarServer article={baseArticle} translations={translations} language="en" />
+      <ArticleDetailsSidebarServer
+        article={baseArticle}
+        translations={translations}
+        language="en"
+      />
     );
 
     expect(screen.getByText('Cite')).toBeInTheDocument();
@@ -82,7 +99,11 @@ describe('ArticleDetailsSidebarServer', () => {
 
   it('renders the DOI link', () => {
     render(
-      <ArticleDetailsSidebarServer article={baseArticle} translations={translations} language="en" />
+      <ArticleDetailsSidebarServer
+        article={baseArticle}
+        translations={translations}
+        language="en"
+      />
     );
 
     const link = screen.getByText('10.1234/abc').closest('a');
@@ -102,7 +123,12 @@ describe('ArticleDetailsSidebarServer', () => {
   });
 
   it('renders the related volume link with a localized path', () => {
-    const relatedVolume: IVolume = { id: 5, num: 3, types: [], title: { en: 'Volume title' } } as never;
+    const relatedVolume: IVolume = {
+      id: 5,
+      num: 3,
+      types: [],
+      title: { en: 'Volume title' },
+    } as never;
     render(
       <ArticleDetailsSidebarServer
         article={baseArticle}
@@ -171,7 +197,12 @@ describe('ArticleDetailsSidebarServer', () => {
   it('shows "Imported on" instead of "Submitted on" and hides "Accepted on" for imported articles', () => {
     render(
       <ArticleDetailsSidebarServer
-        article={{ ...baseArticle, submissionDate: '2023-10-01', acceptanceDate: '2023-11-01', isImported: true }}
+        article={{
+          ...baseArticle,
+          submissionDate: '2023-10-01',
+          acceptanceDate: '2023-11-01',
+          isImported: true,
+        }}
         translations={translations}
         language="en"
       />
@@ -197,7 +228,11 @@ describe('ArticleDetailsSidebarServer', () => {
 
   it('omits funding when the article has none', () => {
     render(
-      <ArticleDetailsSidebarServer article={baseArticle} translations={translations} language="en" />
+      <ArticleDetailsSidebarServer
+        article={baseArticle}
+        translations={translations}
+        language="en"
+      />
     );
 
     expect(screen.queryByText('Funding')).not.toBeInTheDocument();

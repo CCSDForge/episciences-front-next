@@ -8,7 +8,9 @@ import { PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
 import { getLicenseLabelInfo } from '@/utils/article';
 import { ExternalLinkBlackIcon, DownloadBlackIcon } from '@/components/icons';
-import InteractiveDropdown from './InteractiveDropdown';
+import CiteDropdown from './CiteDropdown';
+import MetadataDropdown from './MetadataDropdown';
+import ShareDropdown from './ShareDropdown';
 import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
@@ -294,22 +296,16 @@ export default function ArticleDetailsSidebarServer({
           </a>
         )}
 
-        <InteractiveDropdown
-          type="cite"
+        <CiteDropdown
           metadataCSL={metadataCSL}
           metadataBibTeX={metadataBibTeX}
-          articleId={article.id.toString()}
           label={t('pages.articleDetails.actions.cite', translations)}
         />
-        <InteractiveDropdown
-          type="metadata"
+        <MetadataDropdown
           articleId={article.id.toString()}
           label={t('pages.articleDetails.actions.metadata', translations)}
         />
-        <InteractiveDropdown
-          type="share"
-          label={t('pages.articleDetails.actions.share.text', translations)}
-        />
+        <ShareDropdown label={t('pages.articleDetails.actions.share.text', translations)} />
       </div>
 
       <SidebarCollapsibleWrapper
