@@ -22,8 +22,8 @@
  * loads the cache handler via require().
  */
 
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 const { getValkeyClient } = require('./valkey-client');
 
 // Read the Next.js Build ID so we can reject cache entries from a previous build.
