@@ -300,7 +300,7 @@ describe('CacheHandler', () => {
       });
 
       const handler = makeHandler();
-      await handler.set('stream-key', { body: stream }, { revalidate: false, tags: [] });
+      await handler.set('stream-key', { body: stream }, { cacheControl: { revalidate: false }, tags: [] });
 
       expect(stored).toBeDefined();
       const parsed = JSON.parse(stored!);
@@ -320,7 +320,7 @@ describe('CacheHandler', () => {
   describe('set()', () => {
     it('stores entry without TTL for revalidate: false', async () => {
       const handler = makeHandler();
-      await handler.set('static-key', { html: 'test' }, { revalidate: false, tags: [] });
+      await handler.set('static-key', { html: 'test' }, { cacheControl: { revalidate: false }, tags: [] });
 
       const pipeline = mockClient._pipeline;
       // Should call set without 'EX'
@@ -334,7 +334,7 @@ describe('CacheHandler', () => {
 
     it('stores entry with TTL = revalidate * 3', async () => {
       const handler = makeHandler();
-      await handler.set('dynamic-key', { html: 'test' }, { revalidate: 3600, tags: [] });
+      await handler.set('dynamic-key', { html: 'test' }, { cacheControl: { revalidate: 3600 }, tags: [] });
 
       const pipeline = mockClient._pipeline;
       expect(pipeline.set).toHaveBeenCalledWith(
@@ -350,7 +350,7 @@ describe('CacheHandler', () => {
       await handler.set(
         'article-1',
         { html: '' },
-        { revalidate: 86400, tags: ['articles', 'journal-epijinfo'] }
+        { cacheControl: { revalidate: 86400 }, tags: ['articles', 'journal-epijinfo'] }
       );
 
       const pipeline = mockClient._pipeline;
@@ -363,7 +363,7 @@ describe('CacheHandler', () => {
     it('stores lastModified timestamp in the entry', async () => {
       const before = Date.now();
       const handler = makeHandler();
-      await handler.set('ts-key', { x: 1 }, { revalidate: false, tags: [] });
+      await handler.set('ts-key', { x: 1 }, { cacheControl: { revalidate: false }, tags: [] });
       const after = Date.now();
 
       const pipeline = mockClient._pipeline;
@@ -377,7 +377,7 @@ describe('CacheHandler', () => {
       mockClient._pipelineExec.mockRejectedValue(new Error('ECONNRESET'));
       const handler = makeHandler();
 
-      await handler.set('fallback-key', { x: 1 }, { revalidate: 60, tags: [] });
+      await handler.set('fallback-key', { x: 1 }, { cacheControl: { revalidate: 60 }, tags: [] });
 
       // Entry should be in memory cache
       const stored = _internals.memGet('data:fallback-key');
@@ -587,7 +587,7 @@ describe('CacheHandler', () => {
       expect(_internals.getCbState()).toBe(_internals.CB_STATE.OPEN);
 
       // set() should go to in-memory
-      await handler.set('open-key', { data: 'test' }, { revalidate: 60, tags: [] });
+      await handler.set('open-key', { data: 'test' }, { cacheControl: { revalidate: 60 }, tags: [] });
       const stored = _internals.memGet('data:open-key');
       expect(stored).not.toBeNull();
     });
@@ -611,7 +611,7 @@ describe('CacheHandler', () => {
 
     it('set() stores in in-memory cache', async () => {
       const handler = makeHandler();
-      await handler.set('y', { z: 1 }, { revalidate: false, tags: [] });
+      await handler.set('y', { z: 1 }, { cacheControl: { revalidate: false }, tags: [] });
       const stored = _internals.memGet('data:y');
       expect(stored).not.toBeNull();
       expect(stored?.value).toEqual({ z: 1 });
