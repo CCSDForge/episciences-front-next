@@ -91,6 +91,8 @@ export default function Header({ currentJournal }: Readonly<HeaderProps>): React
     about: false,
     publish: false,
   });
+  // Tracks the route the dropdown state belongs to, so it can be reset on navigation.
+  const [dropdownPathname, setDropdownPathname] = useState(pathname);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const mobileMenuDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -134,9 +136,12 @@ export default function Header({ currentJournal }: Readonly<HeaderProps>): React
     };
   }, [reducedScrollPosition]);
 
-  useEffect(() => {
+  // Close every dropdown when a navigation happens. Adjusting state during render rather
+  // than in an effect avoids the extra render pass (https://react.dev/learn/you-might-not-need-an-effect).
+  if (dropdownPathname !== pathname) {
+    setDropdownPathname(pathname);
     setShowDropdown({ content: false, about: false, publish: false });
-  }, [pathname]);
+  }
 
   const toggleDropdown = useCallback((menu: string, opened: boolean): void => {
     setShowDropdown(prev => ({ ...prev, [menu]: opened }));

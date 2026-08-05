@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import type { ExtraProps } from 'react-markdown';
@@ -67,8 +68,10 @@ export default function MarkdownPageWithSidebar({
   const { t } = useTranslation();
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
-  const [pageSections, setPageSections] = useState<IPageSection[]>([]);
-  const [sidebarHeaders, setSidebarHeaders] = useState<IAboutHeader[]>([]);
+  // Only the user's collapse choices live in state; the sections themselves are parsed
+  // from `content` during render so they are available on the very first (server) pass.
+  const [closedSectionIds, setClosedSectionIds] = useState<Set<string>>(new Set());
+  const [closedHeaderIds, setClosedHeaderIds] = useState<Set<string>>(new Set());
 
   const parseContentSections = useCallback((toBeParsed: string | undefined): IPageSection[] => {
     if (!toBeParsed) return [];
@@ -169,6 +172,24 @@ export default function MarkdownPageWithSidebar({
     return headers;
   }, []);
 
+  const pageSections = useMemo<IPageSection[]>(
+    () =>
+      parseContentSections(content).map(section => ({
+        ...section,
+        opened: !closedSectionIds.has(section.id),
+      })),
+    [content, parseContentSections, closedSectionIds]
+  );
+
+  const sidebarHeaders = useMemo<IAboutHeader[]>(
+    () =>
+      parseSidebarHeaders(content).map(header => ({
+        ...header,
+        opened: !closedHeaderIds.has(header.id),
+      })),
+    [content, parseSidebarHeaders, closedHeaderIds]
+  );
+
   const renderMarkdownImage = useCallback(
     ({ src, alt }: ComponentProps<'img'> & ExtraProps) => {
       const rawSrc = typeof src === 'string' ? src : '';
@@ -207,42 +228,26 @@ export default function MarkdownPageWithSidebar({
 
   const renderEmptyHeading = useCallback(() => <></>, []);
 
-  const renderMarkdownH3 = useCallback(
-    ({ node, children }: ComponentProps<'h3'> & ExtraProps) => {
-      const text = node ? getNodeText(node) : '';
-      const id = generateIdFromText(text);
-      return <h3 id={id}>{children}</h3>;
-    },
-    []
-  );
+  const renderMarkdownH3 = useCallback(({ node, children }: ComponentProps<'h3'> & ExtraProps) => {
+    const text = node ? getNodeText(node) : '';
+    const id = generateIdFromText(text);
+    return <h3 id={id}>{children}</h3>;
+  }, []);
 
-  const toggleSectionHeader = (id: string): void => {
-    setPageSections(prevSections =>
-      prevSections.map(section => ({
-        ...section,
-        opened: section.id === id ? !section.opened : section.opened,
-      }))
-    );
-  };
+  const toggleClosedId = (setClosedIds: Dispatch<SetStateAction<Set<string>>>, id: string): void =>
+    setClosedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
 
-  const toggleSidebarHeader = (id: string): void => {
-    setSidebarHeaders(prevHeaders =>
-      prevHeaders.map(header => ({
-        ...header,
-        opened: header.id === id ? !header.opened : header.opened,
-      }))
-    );
-  };
+  const toggleSectionHeader = (id: string): void => toggleClosedId(setClosedSectionIds, id);
 
-  useEffect(() => {
-    if (content) {
-      const sections = parseContentSections(content);
-      const headers = parseSidebarHeaders(content);
-
-      setPageSections(sections);
-      setSidebarHeaders(headers);
-    }
-  }, [content, parseContentSections, parseSidebarHeaders]);
+  const toggleSidebarHeader = (id: string): void => toggleClosedId(setClosedHeaderIds, id);
 
   // Handle URL hash on initial load and when content changes
   useEffect(() => {

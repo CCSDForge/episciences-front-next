@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 import dynamic from 'next/dynamic';
 import { AvailableLanguage } from '@/utils/i18n';
 import { truncate } from '@/utils/string';
@@ -64,7 +65,7 @@ export default function VolumeDetailsClient({
 }: VolumeDetailsClientProps): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useIsHydrated();
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
@@ -74,18 +75,13 @@ export default function VolumeDetailsClient({
   const rvcode = reduxRvcode || journalId;
 
   const [volume] = useState(initialVolume);
-  const [isFetchingArticles, setIsFetchingArticles] = useState(false);
-  const [articles, setArticles] = useState<FetchedArticle[]>(initialArticles);
+  // The server component owns the article list — used directly rather than mirrored in state.
+  const articles: FetchedArticle[] = initialArticles;
   const [showFullMobileDescription, setShowFullMobileDescription] = useState(false);
   const [openedRelatedVolumesMobileModal, setOpenedRelatedVolumesMobileModal] = useState(false);
-  const [relatedVolumesData, setRelatedVolumesData] = useState<IVolume[]>([]);
 
   // Vérifier si on est en mode statique
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const reorderRelatedVolumes = useCallback(
     (volumesToBeOrdered: IVolume[]): IVolume[] => {
@@ -118,24 +114,14 @@ export default function VolumeDetailsClient({
     }
   );
 
-  // Effet pour gérer les volumes liés en mode statique
-  useEffect(() => {
+  // Volumes liés : dérivés pendant le rendu plutôt que dans un effet.
+  // En mode statique, aucun appel API n'est fait : seul le volume courant est affiché.
+  const relatedVolumesData = useMemo<IVolume[]>(() => {
     if (isStaticBuild) {
-      // En mode statique, ne pas faire d'appels API
-      setRelatedVolumesData(volume ? [volume] : []);
-    } else if (relatedVolumes?.data) {
-      // En mode développement, utiliser les données de l'API
-      setRelatedVolumesData(reorderRelatedVolumes(relatedVolumes.data));
+      return volume ? [volume] : [];
     }
+    return relatedVolumes?.data ? reorderRelatedVolumes(relatedVolumes.data) : [];
   }, [relatedVolumes, volume, isStaticBuild, reorderRelatedVolumes]);
-
-  // Update articles when initialArticles changes (only needed in dev mode for client-side navigation)
-  useEffect(() => {
-    if (initialArticles && initialArticles.length > 0) {
-      setArticles(initialArticles);
-      setIsFetchingArticles(false);
-    }
-  }, [initialArticles]);
 
   const renderVolumeType = (): React.JSX.Element => {
     if (volume?.types?.length) {
@@ -419,7 +405,7 @@ export default function VolumeDetailsClient({
         />
       )}
 
-      {isFetchingArticles || isFetchingRelatedVolumes ? (
+      {isFetchingRelatedVolumes ? (
         <Loader />
       ) : (
         <div className="volumeDetails-volume">

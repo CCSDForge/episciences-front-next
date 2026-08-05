@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
 import { useClientSideFetch } from '@/hooks/useClientSideFetch';
@@ -39,11 +38,9 @@ export default function IndexingClient({
     enabled: !!rvcode,
   });
 
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, [pageData]);
+  // Derived during render rather than in an effect: the server already provides the page,
+  // so the loader only shows while an actual client-side fetch is in flight.
+  const isLoading = !pageData && isUpdating;
 
   const contentResult = getLocalizedContent(pageData?.content, language);
   const titleResult = getLocalizedContent(pageData?.title, language);

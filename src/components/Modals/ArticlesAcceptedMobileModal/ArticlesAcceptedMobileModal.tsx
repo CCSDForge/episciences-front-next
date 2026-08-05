@@ -1,7 +1,7 @@
 'use client';
 
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { TFunction } from 'i18next';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
@@ -41,11 +41,9 @@ export default function ArticlesAcceptedMobileModal({
   onCloseCallback,
 }: IArticlesAcceptedMobileModalProps): React.JSX.Element {
   const [types, setTypes] = useState<IArticlesAcceptedTypeSelection[]>(initialTypes);
-  const [taggedFilters, setTaggedFilters] = useState<IArticlesAcceptedFilter[]>([]);
 
   const clearTaggedFilters = useCallback((): void => {
     setTypes(prev => prev.map(t => ({ ...t, isChecked: false })));
-    setTaggedFilters([]);
   }, []);
 
   const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
@@ -56,15 +54,11 @@ export default function ArticlesAcceptedMobileModal({
     { key: FILTERS_SECTION.TYPE, isOpened: false },
   ]);
 
-  const setAllTaggedFilters = useCallback((): void => {
-    setTaggedFilters(
-      types.filter(t => t.isChecked).map(t => ({ value: t.value, labelPath: t.labelPath }))
-    );
-  }, [types]);
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<IArticlesAcceptedFilter[]>(
+    () => types.filter(t => t.isChecked).map(t => ({ value: t.value, labelPath: t.labelPath })),
+    [types]
+  );
 
   const onCheckType = (value: string): void => {
     setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: !t.isChecked } : t)));

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
@@ -80,7 +80,6 @@ export default function AuthorsClient({
   const [activeLetter, setActiveLetter] = useState(initialLetter);
   const [authors, setAuthors] = useState<IAuthor[]>(initialAuthorsData?.items || []);
   const [totalAuthors, setTotalAuthors] = useState(initialAuthorsData?.totalItems || 0);
-  const [taggedFilters, setTaggedFilters] = useState<IAuthorFilter[]>([]);
   const [expandedAuthorIndex, setExpandedAuthorIndex] = useState(-1);
 
   // Memoize fetch dependencies to avoid infinite loops
@@ -236,24 +235,20 @@ export default function AuthorsClient({
     );
   };
 
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: IAuthorFilter[] = [];
+  // Pure projection of the active letter and search term: derived during render, not in
+  // an effect.
+  const taggedFilters = useMemo<IAuthorFilter[]>(() => {
+    const filters: IAuthorFilter[] = [];
 
     if (activeLetter) {
-      initFilters.push({
-        type: 'activeLetter',
-        value: activeLetter,
-      });
+      filters.push({ type: 'activeLetter', value: activeLetter });
     }
 
     if (searchValue) {
-      initFilters.push({
-        type: 'search',
-        value: searchValue,
-      });
+      filters.push({ type: 'search', value: searchValue });
     }
 
-    setTaggedFilters(initFilters);
+    return filters;
   }, [activeLetter, searchValue]);
 
   const onCloseTaggedFilter = useCallback(
@@ -283,12 +278,7 @@ export default function AuthorsClient({
     }
     setSearchValue('');
     setActiveLetter('');
-    setTaggedFilters([]);
   }, [pathname, router]);
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
 
   const breadcrumbItems = [
     {

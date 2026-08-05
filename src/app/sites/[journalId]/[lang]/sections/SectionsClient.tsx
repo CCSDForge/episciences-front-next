@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -59,37 +59,26 @@ export default function SectionsClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
 
-  // Initialiser la page depuis les query params ou initialPage
+  // The query string is the source of truth for the current page — no local mirror state.
   const pageFromUrl = searchParams?.get('page');
-  const pageNumber = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : initialPage;
+  const parsedPage = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : initialPage;
+  const currentPage = Number.isNaN(parsedPage) ? initialPage : parsedPage;
 
-  const [currentPage, setCurrentPage] = useState(pageNumber);
-  const [sections] = useState(initialSections);
-  const [sectionsData, setSectionsData] = useState(initialSections);
+  const sections = initialSections;
   const [isLoading] = useState(false);
 
-  // Synchroniser currentPage avec les query params
-  useEffect(() => {
-    const pageParam = searchParams?.get('page');
-    const pageNum = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!Number.isNaN(pageNum) && pageNum !== currentPage) {
-      setCurrentPage(pageNum);
-    }
-  }, [searchParams, currentPage]);
-
   // Pagination côté client
-  useEffect(() => {
-    if (initialSections?.data) {
-      const startIndex = (currentPage - 1) * SECTIONS_PER_PAGE;
-      const endIndex = startIndex + SECTIONS_PER_PAGE;
-      const paginatedData = initialSections.data.slice(startIndex, endIndex);
+  const sectionsData = useMemo(() => {
+    if (!initialSections?.data) return initialSections;
 
-      setSectionsData({
-        ...initialSections,
-        data: paginatedData,
-        totalItems: initialSections.totalItems,
-      });
-    }
+    const startIndex = (currentPage - 1) * SECTIONS_PER_PAGE;
+    const endIndex = startIndex + SECTIONS_PER_PAGE;
+
+    return {
+      ...initialSections,
+      data: initialSections.data.slice(startIndex, endIndex),
+      totalItems: initialSections.totalItems,
+    };
   }, [initialSections, currentPage]);
 
   // Memoize handlePageClick to prevent Pagination re-renders
@@ -99,7 +88,6 @@ export default function SectionsClient({
       if (pathname) {
         router.push(`${pathname}?page=${newPage}`);
       }
-      setCurrentPage(newPage);
       // Scroll vers le haut de la page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },

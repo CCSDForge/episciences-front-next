@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { TFunction } from 'i18next';
 import { AvailableLanguage } from '@/utils/i18n';
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
@@ -141,7 +141,6 @@ export default function SearchResultsMobileModal({
   const [volumes, setVolumes] = useState<ISearchResultsVolumeSelection[]>(initialVolumes);
   const [sections, setSections] = useState<ISearchResultsSectionSelection[]>(initialSections);
   const [authors, setAuthors] = useState<ISearchResultsAuthorSelection[]>(initialAuthors);
-  const [taggedFilters, setTaggedFilters] = useState<ISearchResultsFilter[]>([]);
   const [announcement, setAnnouncement] = useState('');
 
   const clearTaggedFilters = useCallback((): void => {
@@ -150,7 +149,6 @@ export default function SearchResultsMobileModal({
     setVolumes(prev => prev.map(v => ({ ...v, isChecked: false })));
     setSections(prev => prev.map(s => ({ ...s, isChecked: false })));
     setAuthors(prev => prev.map(a => ({ ...a, isChecked: false })));
-    setTaggedFilters([]);
   }, []);
 
   const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
@@ -166,39 +164,27 @@ export default function SearchResultsMobileModal({
     { key: FILTERS_SECTION.AUTHOR, isOpened: false },
   ]);
 
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: ISearchResultsFilter[] = [];
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
-      });
-    years
-      .filter(y => y.isChecked)
-      .forEach(y => {
-        initFilters.push({ type: 'year', value: y.year, label: y.year });
-      });
-    volumes
-      .filter(v => v.isChecked)
-      .forEach(v => {
-        initFilters.push({ type: 'volume', value: v.id, translatedLabel: v.label });
-      });
-    sections
-      .filter(s => s.isChecked)
-      .forEach(s => {
-        initFilters.push({ type: 'section', value: s.id, translatedLabel: s.label });
-      });
-    authors
-      .filter(a => a.isChecked)
-      .forEach(a => {
-        initFilters.push({ type: 'author', value: a.fullname, label: a.fullname });
-      });
-    setTaggedFilters(initFilters);
-  }, [types, years, volumes, sections, authors]);
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<ISearchResultsFilter[]>(
+    () => [
+      ...types
+        .filter(t => t.isChecked)
+        .map(t => ({ type: 'type' as const, value: t.value, labelPath: t.labelPath })),
+      ...years
+        .filter(y => y.isChecked)
+        .map(y => ({ type: 'year' as const, value: y.year, label: y.year })),
+      ...volumes
+        .filter(v => v.isChecked)
+        .map(v => ({ type: 'volume' as const, value: v.id, translatedLabel: v.label })),
+      ...sections
+        .filter(s => s.isChecked)
+        .map(s => ({ type: 'section' as const, value: s.id, translatedLabel: s.label })),
+      ...authors
+        .filter(a => a.isChecked)
+        .map(a => ({ type: 'author' as const, value: a.fullname, label: a.fullname })),
+    ],
+    [types, years, volumes, sections, authors]
+  );
 
   const onCheckType = (value: string): void => {
     setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: !t.isChecked } : t)));

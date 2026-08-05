@@ -2,6 +2,7 @@
 
 import { FilterIcon } from '@/components/icons';
 import { useState, useEffect, useCallback } from 'react';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
 import PageTitle from '@/components/PageTitle/PageTitle';
@@ -79,10 +80,6 @@ export default function ArticlesAcceptedClient({
 }: ArticlesAcceptedClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
   // Synchroniser la langue avec le paramètre de l'URL
   useEffect(() => {
     if (lang && i18n.language !== lang) {
@@ -96,7 +93,7 @@ export default function ArticlesAcceptedClient({
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
-  const [isHydrated, setIsHydrated] = useState(false);
+  const isHydrated = useIsHydrated();
   const [currentPage, setCurrentPage] = useState(1);
   const [enhancedArticlesAccepted, setEnhancedArticlesAccepted] = useState<
     EnhancedArticleAccepted[]

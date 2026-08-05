@@ -77,7 +77,13 @@ export default function NewsClient({
   const [fullNewsIndex, setFullNewsIndex] = useState(-1);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
   const [news, setNews] = useState(initialNews);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Identifies the query the currently displayed news belong to. Comparing it against the
+  // query the URL asks for derives the loading flag during render, so the fetch effect
+  // below never has to call setState synchronously.
+  const requestKey = `${rvcode ?? ''}|${currentPage}|${selectedYearsFromUrl.join(',')}`;
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const isLoading = !!rvcode && loadedKey !== requestKey;
 
   const years: INewsYearSelection[] = availableYears.map(y => ({
     year: y,
@@ -87,7 +93,8 @@ export default function NewsClient({
   useEffect(() => {
     if (!rvcode) return;
 
-    setIsLoading(true);
+    let cancelled = false;
+
     fetchNews({
       rvcode,
       page: currentPage,
@@ -95,13 +102,20 @@ export default function NewsClient({
       years: selectedYearsFromUrl,
     })
       .then(data => {
+        if (cancelled) return;
         setNews(data);
         if (data?.range?.years) {
           setAvailableYears(prev => (prev.length === 0 ? data.range!.years! : prev));
         }
       })
-      .finally(() => setIsLoading(false));
-  }, [rvcode, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+      .finally(() => {
+        if (!cancelled) setLoadedKey(requestKey);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requestKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePageClick = useCallback(
     (selectedItem: { selected: number }): void => {

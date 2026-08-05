@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Fragment, useCallback } from 'react';
+import { useState, useEffect, Fragment, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
@@ -32,6 +32,56 @@ import StatisticsSidebar, {
   IStatisticsYearSelection,
 } from '@/components/Sidebars/StatisticsSidebar/StatisticsSidebar';
 import { statisticsBlocksConfiguration } from '@/config/statistics';
+
+const GLANCE_STAT_TYPES = new Set([
+  STAT_TYPE.ACCEPTANCE_RATE,
+  STAT_TYPE.NB_SUBMISSIONS,
+  STAT_TYPE.NB_SUBMISSIONS_DETAILS,
+]);
+
+const EVALUATION_PUBLICATION_STAT_TYPES = new Set([
+  STAT_TYPE.EVALUATION,
+  STAT_TYPE.MEDIAN_SUBMISSION_PUBLICATION,
+]);
+
+/** Splits the raw stats into the two display groups, flattening the evaluation sub-values. */
+const splitStatsPerLabel = (data: IStat[] | undefined) => {
+  if (!data) return { glanceStats: [] as IStat[], evaluationPublicationStats: [] as IStat[] };
+
+  const glanceStats = data.filter(stat => GLANCE_STAT_TYPES.has(stat.name as STAT_TYPE));
+  let evaluationPublicationStats = data.filter(stat =>
+    EVALUATION_PUBLICATION_STAT_TYPES.has(stat.name as STAT_TYPE)
+  );
+
+  const evaluationStat = evaluationPublicationStats.find(
+    stat => stat.value !== null && isIStatValueEvaluation(stat.value!)
+  );
+
+  if (evaluationStat) {
+    const evaluationValue = evaluationStat.value as IStatValueEvaluation;
+
+    evaluationPublicationStats = [
+      ...evaluationPublicationStats,
+      {
+        name: 'medianReviewsNumber',
+        unit: evaluationStat.unit,
+        value: evaluationValue['median-reviews-number'] ?? 0,
+      },
+      {
+        name: 'reviewsReceived',
+        unit: evaluationStat.unit,
+        value: evaluationValue['reviews-received'] ?? 0,
+      },
+      {
+        name: 'reviewsRequested',
+        unit: evaluationStat.unit,
+        value: evaluationValue['reviews-requested'] ?? 0,
+      },
+    ].filter(stat => stat.value !== null && !isIStatValueEvaluation(stat.value!));
+  }
+
+  return { glanceStats, evaluationPublicationStats };
+};
 
 // Lazy load mobile modal
 const StatisticsMobileModal = dynamic(
@@ -66,9 +116,7 @@ const StatisticUnit = ({
   i18nExists,
 }: StatisticUnitProps): React.JSX.Element => {
   if (!i18nExists(`common.${unit}`)) {
-    return (
-      <span className="statistics-content-results-cards-row-stats-row-stat-unit">{unit}</span>
-    );
+    return <span className="statistics-content-results-cards-row-stats-row-stat-unit">{unit}</span>;
   }
 
   return (
@@ -152,21 +200,10 @@ export default function StatisticsClient({
 
   const journalCode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
-  const [statisticsPerLabel, setStatisticsPerLabel] = useState<IStatisticsPerLabel[]>([
-    {
-      labelKey: STAT_LABEL.GLANCE,
-      labelPath: 'pages.statistics.labels.glance',
-      statistics: [],
-      isOpened: true,
-    },
-    {
-      labelKey: STAT_LABEL.EVALUATION_PUBLICATION,
-      labelPath: 'pages.statistics.labels.evaluationPublication',
-      statistics: [],
-      isOpened: true,
-    },
-  ]);
-  const [years, setYears] = useState<IStatisticsYearSelection[]>([]);
+  // Only the collapse state and the user's year picks live in state — everything else is
+  // derived from the fetched stats during render.
+  const [closedLabels, setClosedLabels] = useState<Set<STAT_LABEL>>(new Set());
+  const [checkedYears, setCheckedYears] = useState<Set<number>>(new Set());
 
   const {
     data: stats,
@@ -203,81 +240,34 @@ export default function StatisticsClient({
     enabled: !!journalCode,
   });
 
+  const years = useMemo<IStatisticsYearSelection[]>(
+    () => (stats?.range?.years ?? []).map(y => ({ year: y, isChecked: checkedYears.has(y) })),
+    [stats, checkedYears]
+  );
+
   const getSelectedYears = useCallback(
     (): number[] => years.filter(y => y.isChecked).map(y => y.year),
     [years]
   );
 
-  useEffect(() => {
-    if (stats?.range?.years && years.length === 0) {
-      const initYears = stats.range.years.map(y => ({
-        year: y,
-        isChecked: false,
-      }));
+  const statisticsPerLabel = useMemo<IStatisticsPerLabel[]>(() => {
+    const { glanceStats, evaluationPublicationStats } = splitStatsPerLabel(stats?.data);
 
-      setYears(initYears);
-    }
-  }, [stats?.range?.years, years.length]);
-
-  useEffect(() => {
-    if (stats?.data) {
-      const glanceStatTypes = new Set([
-        STAT_TYPE.ACCEPTANCE_RATE,
-        STAT_TYPE.NB_SUBMISSIONS,
-        STAT_TYPE.NB_SUBMISSIONS_DETAILS,
-      ]);
-      const evaluationPublicationStatTypes = new Set([
-        STAT_TYPE.EVALUATION,
-        STAT_TYPE.MEDIAN_SUBMISSION_PUBLICATION,
-      ]);
-
-      const glanceStats = stats.data.filter(stat =>
-        glanceStatTypes.has(stat.name as STAT_TYPE)
-      );
-      let evaluationPublicationStats = stats.data.filter(stat =>
-        evaluationPublicationStatTypes.has(stat.name as STAT_TYPE)
-      );
-
-      const evaluationStat = evaluationPublicationStats.find(
-        stat => stat.value !== null && isIStatValueEvaluation(stat.value!)
-      );
-      if (evaluationStat) {
-        evaluationPublicationStats.push({
-          name: 'medianReviewsNumber',
-          unit: evaluationStat.unit,
-          value: (evaluationStat.value as IStatValueEvaluation)['median-reviews-number'] ?? 0,
-        });
-
-        evaluationPublicationStats.push({
-          name: 'reviewsReceived',
-          unit: evaluationStat.unit,
-          value: (evaluationStat.value as IStatValueEvaluation)['reviews-received'] ?? 0,
-        });
-
-        evaluationPublicationStats.push({
-          name: 'reviewsRequested',
-          unit: evaluationStat.unit,
-          value: (evaluationStat.value as IStatValueEvaluation)['reviews-requested'] ?? 0,
-        });
-
-        evaluationPublicationStats = evaluationPublicationStats.filter(
-          stat => stat.value !== null && !isIStatValueEvaluation(stat.value!)
-        );
-      }
-
-      setStatisticsPerLabel(prevStatisticsPerLabel => {
-        return prevStatisticsPerLabel.map(statisticPerLabel => {
-          return {
-            ...statisticPerLabel,
-            statistics:
-              statisticPerLabel.labelKey === STAT_LABEL.GLANCE
-                ? glanceStats
-                : evaluationPublicationStats,
-          };
-        });
-      });
-    }
-  }, [stats]);
+    return [
+      {
+        labelKey: STAT_LABEL.GLANCE,
+        labelPath: 'pages.statistics.labels.glance',
+        statistics: glanceStats,
+        isOpened: !closedLabels.has(STAT_LABEL.GLANCE),
+      },
+      {
+        labelKey: STAT_LABEL.EVALUATION_PUBLICATION,
+        labelPath: 'pages.statistics.labels.evaluationPublication',
+        statistics: evaluationPublicationStats,
+        isOpened: !closedLabels.has(STAT_LABEL.EVALUATION_PUBLICATION),
+      },
+    ];
+  }, [stats, closedLabels]);
 
   const selectedYearsStr = getSelectedYears().join(',');
 
@@ -288,18 +278,17 @@ export default function StatisticsClient({
   }, [selectedYearsStr, journalCode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onCheckYear = (year: number): void => {
-    const updatedYears = years.map(y => {
-      if (y.year === year) {
-        return { ...y, isChecked: !y.isChecked };
-      }
+    const updatedCheckedYears = new Set(checkedYears);
+    if (updatedCheckedYears.has(year)) {
+      updatedCheckedYears.delete(year);
+    } else {
+      updatedCheckedYears.add(year);
+    }
 
-      return { ...y };
-    });
-
-    setYears(updatedYears);
+    setCheckedYears(updatedCheckedYears);
 
     // Mettre à jour l'URL avec les années sélectionnées
-    const selectedYears = updatedYears.filter(y => y.isChecked).map(y => y.year);
+    const selectedYears = years.filter(y => updatedCheckedYears.has(y.year)).map(y => y.year);
     const searchParams = new URLSearchParams(window.location.search);
 
     // Effacer les années existantes
@@ -328,18 +317,15 @@ export default function StatisticsClient({
   };
 
   const toggleStatisticsSection = (labelKey: STAT_LABEL): void => {
-    const updatedStatistics = statisticsPerLabel.map(statisticPerLabel => {
-      if (statisticPerLabel.labelKey === labelKey) {
-        return {
-          ...statisticPerLabel,
-          isOpened: !statisticPerLabel.isOpened,
-        };
+    setClosedLabels(prev => {
+      const next = new Set(prev);
+      if (next.has(labelKey)) {
+        next.delete(labelKey);
+      } else {
+        next.add(labelKey);
       }
-
-      return { ...statisticPerLabel };
+      return next;
     });
-
-    setStatisticsPerLabel(updatedStatistics);
   };
 
   const getBlockRendering = (statName: string) =>
@@ -383,7 +369,10 @@ export default function StatisticsClient({
                 });
 
                 return (
-                  <div key={statisticPerLabel.labelKey} className="statistics-content-results-cards-row">
+                  <div
+                    key={statisticPerLabel.labelKey}
+                    className="statistics-content-results-cards-row"
+                  >
                     <CollapsibleSectionHeader
                       as="div"
                       triggerClassName="statistics-content-results-cards-row-title"

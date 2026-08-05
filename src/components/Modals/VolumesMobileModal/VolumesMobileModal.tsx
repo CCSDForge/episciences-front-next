@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { TFunction } from 'i18next';
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import Button from '@/components/Button/Button';
@@ -56,12 +56,9 @@ export default function VolumesMobileModal({
 }: IVolumesMobileModalProps): React.JSX.Element {
   const [types, setTypes] = useState<IVolumesTypeSelection[]>(initialTypes);
   const [years, setYears] = useState<IVolumesYearSelection[]>(initialYears);
-  const [taggedFilters, setTaggedFilters] = useState<IVolumesFilter[]>([]);
-
   const clearTaggedFilters = useCallback((): void => {
     setTypes(prev => prev.map(t => ({ ...t, isChecked: false })));
     setYears(prev => prev.map(y => ({ ...y, isSelected: false })));
-    setTaggedFilters([]);
   }, []);
 
   const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
@@ -73,24 +70,18 @@ export default function VolumesMobileModal({
     { key: FILTERS_SECTION.YEAR, isOpened: false },
   ]);
 
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: IVolumesFilter[] = [];
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
-      });
-    years
-      .filter(y => y.isSelected)
-      .forEach(y => {
-        initFilters.push({ type: 'year', value: y.year, label: y.year });
-      });
-    setTaggedFilters(initFilters);
-  }, [types, years]);
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<IVolumesFilter[]>(
+    () => [
+      ...types
+        .filter(t => t.isChecked)
+        .map(t => ({ type: 'type' as const, value: t.value, labelPath: t.labelPath })),
+      ...years
+        .filter(y => y.isSelected)
+        .map(y => ({ type: 'year' as const, value: y.year, label: y.year })),
+    ],
+    [types, years]
+  );
 
   const onCheckType = (value: string): void => {
     setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: !t.isChecked } : t)));

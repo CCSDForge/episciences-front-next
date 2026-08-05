@@ -1,7 +1,7 @@
 'use client';
 
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { TFunction } from 'i18next';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
@@ -57,13 +57,11 @@ export default function ArticlesMobileModal({
 }: Readonly<IArticlesMobileModalProps>): React.JSX.Element {
   const [types, setTypes] = useState<IArticlesTypeSelection[]>(initialTypes);
   const [years, setYears] = useState<IArticlesYearSelection[]>(initialYears);
-  const [taggedFilters, setTaggedFilters] = useState<IArticlesFilter[]>([]);
   const [announcement, setAnnouncement] = useState('');
 
   const clearTaggedFilters = useCallback((): void => {
     setTypes(prev => prev.map(t => ({ ...t, isChecked: false })));
     setYears(prev => prev.map(y => ({ ...y, isChecked: false })));
-    setTaggedFilters([]);
   }, []);
 
   const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
@@ -76,24 +74,18 @@ export default function ArticlesMobileModal({
     { key: FILTERS_SECTION.YEAR, isOpened: false },
   ]);
 
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: IArticlesFilter[] = [];
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
-      });
-    years
-      .filter(y => y.isChecked)
-      .forEach(y => {
-        initFilters.push({ type: 'year', value: y.year, label: y.year });
-      });
-    setTaggedFilters(initFilters);
-  }, [types, years]);
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<IArticlesFilter[]>(
+    () => [
+      ...types
+        .filter(t => t.isChecked)
+        .map(t => ({ type: 'type' as const, value: t.value, labelPath: t.labelPath })),
+      ...years
+        .filter(y => y.isChecked)
+        .map(y => ({ type: 'year' as const, value: y.year, label: y.year })),
+    ],
+    [types, years]
+  );
 
   const onCheckType = (value: string): void => {
     setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: !t.isChecked } : t)));
@@ -197,10 +189,7 @@ export default function ArticlesMobileModal({
               className={`articlesMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesMobileModal-filters-types-list-opened'}`}
             >
               {types.map(type => (
-                <div
-                  key={type.value}
-                  className="articlesMobileModal-filters-types-list-choice"
-                >
+                <div key={type.value} className="articlesMobileModal-filters-types-list-choice">
                   <div className="articlesMobileModal-filters-types-list-choice-checkbox">
                     <Checkbox
                       checked={type.isChecked}
