@@ -27,12 +27,26 @@
     ci: true
     production: false
 
+# The release directory itself has no .git (Ansistrano exports the checked-out
+# commit into releases/<id>/ without the repo metadata, which only lives in the
+# persistent repo/ cache). next.config.js's own `git rev-parse` therefore fails
+# there and falls back to 'unknown' — pass the real SHA in explicitly so the
+# deterministic build ID (see next.config.js generateBuildId) reflects the
+# actual deployed commit instead of a constant that never changes.
+- name: Read deployed commit SHA from the Ansistrano repo cache
+  ansible.builtin.command:
+    cmd: git rev-parse --short HEAD
+    chdir: '{{ ansistrano_deploy_to }}/repo'
+  register: deployed_git_sha
+  changed_when: false
+
 - name: Build Next.js application
   ansible.builtin.command:
     cmd: npm run build
     chdir: '{{ ansistrano_release_path.stdout }}'
   environment:
     NODE_ENV: production
+    NEXT_BUILD_GIT_SHA: '{{ deployed_git_sha.stdout }}'
   changed_when: true
 
 - name: Copy static assets into standalone output
