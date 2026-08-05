@@ -71,7 +71,7 @@ function lastRewritePath(): string {
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('middleware — hostname detection', () => {
+describe('proxy — hostname detection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     delete process.env.NEXT_PUBLIC_EPISCIENCES_DOMAIN;
@@ -87,14 +87,14 @@ describe('middleware — hostname detection', () => {
   // -------------------------------------------------------------------------
 
   it('extracts journalId from exact production subdomain (epijinfo.episciences.org)', async () => {
-    const { middleware } = await import('../middleware');
-    await middleware(makeRequest('epijinfo.episciences.org'));
+    const { proxy } = await import('../proxy');
+    await proxy(makeRequest('epijinfo.episciences.org'));
     expect(lastRewritePath()).toContain('/sites/epijinfo/');
   });
 
   it('extracts journalId from nested subdomain (epijinfo.preprod.episciences.org)', async () => {
-    const { middleware } = await import('../middleware');
-    await middleware(makeRequest('epijinfo.preprod.episciences.org'));
+    const { proxy } = await import('../proxy');
+    await proxy(makeRequest('epijinfo.preprod.episciences.org'));
     expect(lastRewritePath()).toContain('/sites/epijinfo/');
   });
 
@@ -104,16 +104,16 @@ describe('middleware — hostname detection', () => {
 
   it('does not treat "evilepisciences.org" as production host (substring bypass)', async () => {
     process.env.NEXT_PUBLIC_JOURNAL_RVCODE = 'epijinfo';
-    const { middleware } = await import('../middleware');
-    await middleware(makeRequest('evilepisciences.org'));
+    const { proxy } = await import('../proxy');
+    await proxy(makeRequest('evilepisciences.org'));
     // Must NOT route as if "evilepisciences" were a valid journal from the hostname
     expect(lastRewritePath()).not.toContain('/sites/evilepisciences/');
   });
 
   it('does not treat "episciences.org.attacker.com" as production host (append bypass)', async () => {
     process.env.NEXT_PUBLIC_JOURNAL_RVCODE = 'epijinfo';
-    const { middleware } = await import('../middleware');
-    await middleware(makeRequest('episciences.org.attacker.com'));
+    const { proxy } = await import('../proxy');
+    await proxy(makeRequest('episciences.org.attacker.com'));
     // First segment would be "episciences" — must NOT be used as journalId
     expect(lastRewritePath()).not.toContain('/sites/episciences/');
   });
@@ -124,8 +124,8 @@ describe('middleware — hostname detection', () => {
 
   it('respects NEXT_PUBLIC_EPISCIENCES_DOMAIN env var', async () => {
     process.env.NEXT_PUBLIC_EPISCIENCES_DOMAIN = 'custom-domain.fr';
-    const { middleware } = await import('../middleware');
-    await middleware(makeRequest('jtam.custom-domain.fr'));
+    const { proxy } = await import('../proxy');
+    await proxy(makeRequest('jtam.custom-domain.fr'));
     expect(lastRewritePath()).toContain('/sites/jtam/');
   });
 
@@ -134,8 +134,8 @@ describe('middleware — hostname detection', () => {
   // -------------------------------------------------------------------------
 
   it('bypasses rewrite for /robots.txt request', async () => {
-    const { middleware } = await import('../middleware');
-    await middleware(makeRequest('epijinfo.episciences.org', '/robots.txt'));
+    const { proxy } = await import('../proxy');
+    await proxy(makeRequest('epijinfo.episciences.org', '/robots.txt'));
     expect(NextResponse.next).toHaveBeenCalled();
     expect(NextResponse.rewrite).not.toHaveBeenCalled();
   });
@@ -150,9 +150,9 @@ describe('middleware — hostname detection', () => {
     { description: 'dev subdomain with invalid journalId format', hostname: 'bad_name.localhost' },
   ])('falls back to DEFAULT_JOURNAL for $description', async ({ hostname }) => {
     process.env.NEXT_PUBLIC_JOURNAL_RVCODE = 'epijinfo';
-    const { middleware } = await import('../middleware');
+    const { proxy } = await import('../proxy');
     // underscore is not allowed in journalId pattern [a-z0-9-]
-    await middleware(makeRequest(hostname));
+    await proxy(makeRequest(hostname));
     expect(lastRewritePath()).toContain('/sites/epijinfo/');
   });
 
@@ -161,8 +161,8 @@ describe('middleware — hostname detection', () => {
   // -------------------------------------------------------------------------
 
   it('adds api-catalog discovery header on home page', async () => {
-    const { middleware } = await import('../middleware');
-    const response = await middleware(makeRequest('epijinfo.episciences.org', '/'));
+    const { proxy } = await import('../proxy');
+    const response = await proxy(makeRequest('epijinfo.episciences.org', '/'));
     expect(response.headers.append).toHaveBeenCalledWith(
       'Link',
       expect.stringContaining('rel="api-catalog"')
@@ -174,8 +174,8 @@ describe('middleware — hostname detection', () => {
   });
 
   it('adds Signposting headers on article landing pages', async () => {
-    const { middleware } = await import('../middleware');
-    const response = await middleware(makeRequest('epijinfo.episciences.org', '/articles/1234'));
+    const { proxy } = await import('../proxy');
+    const response = await proxy(makeRequest('epijinfo.episciences.org', '/articles/1234'));
     expect(response.headers.set).toHaveBeenCalledWith(
       'Link',
       expect.stringContaining('rel="linkset"')
@@ -191,7 +191,7 @@ describe('middleware — hostname detection', () => {
 // Language rejection — non-accepted language prefix
 // ---------------------------------------------------------------------------
 
-describe('middleware — non-accepted language prefix redirect', () => {
+describe('proxy — non-accepted language prefix redirect', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
@@ -223,8 +223,8 @@ describe('middleware — non-accepted language prefix redirect', () => {
       getLocalizedPath: (p: string, l: string) => `/${l}${p}`,
     }));
 
-    const { middleware } = await import('../middleware');
-    await middleware(makeRequest('pspa.episciences.org', '/en/about'));
+    const { proxy } = await import('../proxy');
+    await proxy(makeRequest('pspa.episciences.org', '/en/about'));
 
     expect(NextResponse.redirect).toHaveBeenCalledWith(
       expect.objectContaining({ pathname: '/fr/about' }),
@@ -249,8 +249,8 @@ describe('middleware — non-accepted language prefix redirect', () => {
       getLocalizedPath: (p: string, l: string) => `/${l}${p}`,
     }));
 
-    const { middleware } = await import('../middleware');
-    await middleware(makeRequest('pspa.episciences.org', '/fr/about'));
+    const { proxy } = await import('../proxy');
+    await proxy(makeRequest('pspa.episciences.org', '/fr/about'));
 
     expect(NextResponse.redirect).not.toHaveBeenCalled();
     expect(NextResponse.rewrite).toHaveBeenCalled();

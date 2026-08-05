@@ -186,7 +186,7 @@ episciences-front-next/
 │   ├── components/      # Reusable React components
 │   ├── config/          # Configuration files
 │   ├── hooks/           # React hooks
-│   ├── middleware.ts    # Multi-tenant routing logic
+│   ├── proxy.ts         # Multi-tenant routing logic (Next.js 16 proxy, formerly middleware.ts)
 │   ├── services/        # Data fetching with Cache Tags
 │   ├── store/           # Redux store
 │   ├── types/           # TypeScript types

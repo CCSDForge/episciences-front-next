@@ -10,7 +10,7 @@ import {
 import { isValidJournalId, sanitizeForLog } from '@/utils/validation';
 import { logger } from '@/lib/logger';
 
-const log = logger.child({ service: 'middleware' });
+const log = logger.child({ service: 'proxy' });
 // import { journalExists } from '@/utils/static-paths'; // REMOVE: Uses fs, incompatible with Edge
 import { journals } from '@/config/journals-generated';
 import { journalLanguages } from '@/config/journals-languages-generated';
@@ -48,7 +48,7 @@ function detectJournalId(hostname: string): string {
     if (isValidJournalId(extractedId)) {
       return extractedId;
     }
-    log.warn(`[Middleware] Invalid journalId format from hostname: ${sanitizeForLog(extractedId)}`);
+    log.warn(`[Proxy] Invalid journalId format from hostname: ${sanitizeForLog(extractedId)}`);
     return DEFAULT_JOURNAL;
   }
 
@@ -58,14 +58,14 @@ function detectJournalId(hostname: string): string {
     if (isValidJournalId(subdomain)) {
       return subdomain;
     }
-    log.warn(`[Middleware] Invalid journalId format from subdomain: ${sanitizeForLog(subdomain)}`);
+    log.warn(`[Proxy] Invalid journalId format from subdomain: ${sanitizeForLog(subdomain)}`);
     return DEFAULT_JOURNAL;
   }
 
   return DEFAULT_JOURNAL;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const url = request.nextUrl;
   // Use Host header instead of nextUrl.hostname for multi-tenant routing
   const hostHeader = request.headers.get('host') || '';
@@ -77,7 +77,7 @@ export function middleware(request: NextRequest) {
   }
 
   log.debug(
-    `[Middleware] Incoming request: ${sanitizeForLog(pathname)} (Host: ${sanitizeForLog(hostname)})`
+    `[Proxy] Incoming request: ${sanitizeForLog(pathname)} (Host: ${sanitizeForLog(hostname)})`
   );
 
   // Ignore static files with extensions
@@ -88,12 +88,12 @@ export function middleware(request: NextRequest) {
   // 1. Journal Detection (Multi-tenancy)
   let journalId = detectJournalId(hostname);
 
-  log.debug(`[Middleware] Detected journalId: ${sanitizeForLog(journalId)}`);
+  log.debug(`[Proxy] Detected journalId: ${sanitizeForLog(journalId)}`);
 
   // 2. Validate journalId exists in registry
   if (!journalExists(journalId)) {
     log.warn(
-      `[Middleware] Unknown journalId: ${sanitizeForLog(journalId)}, redirecting to default`
+      `[Proxy] Unknown journalId: ${sanitizeForLog(journalId)}, redirecting to default`
     );
     // Redirect to default journal instead of showing error page
     journalId = DEFAULT_JOURNAL;
@@ -130,7 +130,7 @@ export function middleware(request: NextRequest) {
   // NOTE: We use 'sites' not '_sites' because folders starting with _ are private in Next.js
   const internalPath = `/sites/${journalId}/${targetLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
 
-  log.debug(`[Middleware] Rewriting to: ${sanitizeForLog(internalPath)}`);
+  log.debug(`[Proxy] Rewriting to: ${sanitizeForLog(internalPath)}`);
 
   const rewriteUrl = new URL(internalPath, request.url);
   rewriteUrl.search = url.search;

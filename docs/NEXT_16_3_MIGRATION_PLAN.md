@@ -161,14 +161,20 @@ le spécificateur nu (`fs`, `path`), pas le préfixe `node:`.
 (convention Next 16+), **le runtime devient Node.js et n'est plus configurable** — ce qui élimine
 structurellement toute la classe de bug rencontrée (`node:fs` fonctionne nativement en runtime Node).
 
-**Action recommandée** (indépendante de la 16.3, mais à faire dans la foulée) :
-1. Renommer `middleware.ts` → `proxy.ts`, `export function middleware` → `export function proxy`.
-2. Renommer le flag déjà présent dans `next.config.js` : `skipMiddlewareUrlNormalize` n'est pas utilisé
-   ici, mais vérifier qu'aucune référence résiduelle au nom `middleware` ne subsiste dans la config.
-3. Revalider tout le comportement multi-tenant (tests d'intégration + `make build && make up`) avant
-   déploiement, car ce fichier est sur le chemin critique de **toutes** les requêtes.
-4. Le codemod officiel `npx @next/codemod@canary upgrade latest` gère ce renommage automatiquement —
-   à utiliser plutôt qu'un renommage manuel.
+**Action effectuée le 2026-08-05** (renommage manuel — le codemod n'a pas pu l'appliquer, son
+installation ayant échoué avant l'étape de transformation, voir Phase 1) :
+1. [x] `git mv src/middleware.ts src/proxy.ts` (+ `src/__tests__/middleware.test.ts` → `proxy.test.ts`).
+2. [x] `export function middleware` → `export function proxy`, `logger.child({ service: 'middleware' })`
+   → `'proxy'`, préfixes de log `[Middleware]` → `[Proxy]`.
+3. [x] Aucune référence résiduelle au flag `skipMiddlewareUrlNormalize` (le projet utilise déjà
+   `skipProxyUrlNormalize`, nom Next 16 correct, dans `next.config.js`).
+4. [x] Docs mises à jour : `README.md` (arborescence), `docs/LOCAL_TESTING_GUIDE.md`.
+5. [x] Revalidé : `npm run test:run` (3170/3170), `npm run build` (Turbopack, `ƒ Proxy (Middleware)`
+   dans le récapitulatif de routes, aucune erreur).
+
+Reste à faire : redéployer en préprod et revalider le comportement multi-tenant en conditions réelles
+(le test local `make build && make up` de la Phase 1 couvre déjà le routing via `curl -H "Host: ..."`,
+mais pas un déploiement complet).
 
 ---
 
@@ -246,4 +252,4 @@ avec la même prudence :
 - Confirmer que `deployment/ansible/rollback.yml` redémarre bien le service systemd après un rollback
   (corrigé dans `a287ae8`) avant de considérer le rollback comme un filet de sécurité fiable.
 - Garder `VALKEY_ENABLED=false` disponible comme interrupteur de secours si le cache handler custom
-  interagit mal avec un changement de runtime (`proxy.ts`) ou de streaming SSR.
+interagit mal avec un changement de runtime (`proxy.ts`) ou de streaming SSR.
