@@ -1,7 +1,6 @@
-import { logger } from '@/lib/logger';
 import { getJournalApiUrl } from '@/utils/env-loader';
-
-const log = logger.child({ service: 'for-authors' });
+import { safeFetchData } from '@/utils/api-error-handler';
+import { CACHE_TTL } from '@/utils/cache-ttl';
 
 export interface ForAuthorsPage {
   title: Record<string, string>;
@@ -9,80 +8,65 @@ export interface ForAuthorsPage {
   date_updated?: string;
 }
 
-/**
- * Fetch editorial workflow page content at build time
- * @param rvcode - Journal code
- * @returns Editorial workflow page data
- */
-export const fetchEditorialWorkflowPage = async (
-  rvcode: string
-): Promise<ForAuthorsPage | null> => {
+export async function fetchEditorialWorkflowPage(rvcode: string): Promise<ForAuthorsPage | null> {
   const apiUrl = getJournalApiUrl(rvcode);
-  const url = `${apiUrl}/pages?page_code=editorial-workflow&rvcode=${rvcode}`;
+  return safeFetchData<ForAuthorsPage | null>(
+    async () => {
+      const response = await fetch(
+        `${apiUrl}/pages?page_code=editorial-workflow&rvcode=${rvcode}`,
+        {
+          next: {
+            revalidate: CACHE_TTL.pages,
+            tags: ['editorial-workflow', `editorial-workflow-${rvcode}`],
+          },
+        }
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      return data['hydra:member']?.[0] || null;
+    },
+    null,
+    `fetchEditorialWorkflowPage(${rvcode})`
+  );
+}
 
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      log.error(`Failed to fetch editorial workflow page: ${response.statusText}`);
-      return null;
-    }
-
-    const data = await response.json();
-    return data['hydra:member']?.[0] || null;
-  } catch (error) {
-    log.error('Error fetching editorial workflow page:', error);
-    return null;
-  }
-};
-
-/**
- * Fetch ethical charter page content at build time
- * @param rvcode - Journal code
- * @returns Ethical charter page data
- */
-export const fetchEthicalCharterPage = async (rvcode: string): Promise<ForAuthorsPage | null> => {
+export async function fetchEthicalCharterPage(rvcode: string): Promise<ForAuthorsPage | null> {
   const apiUrl = getJournalApiUrl(rvcode);
-  const url = `${apiUrl}/pages?page_code=ethical-charter&rvcode=${rvcode}`;
+  return safeFetchData<ForAuthorsPage | null>(
+    async () => {
+      const response = await fetch(`${apiUrl}/pages?page_code=ethical-charter&rvcode=${rvcode}`, {
+        next: {
+          revalidate: CACHE_TTL.pages,
+          tags: ['ethical-charter', `ethical-charter-${rvcode}`],
+        },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      return data['hydra:member']?.[0] || null;
+    },
+    null,
+    `fetchEthicalCharterPage(${rvcode})`
+  );
+}
 
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      log.error(`Failed to fetch ethical charter page: ${response.statusText}`);
-      return null;
-    }
-
-    const data = await response.json();
-    return data['hydra:member']?.[0] || null;
-  } catch (error) {
-    log.error('Error fetching ethical charter page:', error);
-    return null;
-  }
-};
-
-/**
- * Fetch prepare submission page content at build time
- * @param rvcode - Journal code
- * @returns Prepare submission page data
- */
-export const fetchPrepareSubmissionPage = async (
-  rvcode: string
-): Promise<ForAuthorsPage | null> => {
+export async function fetchPrepareSubmissionPage(rvcode: string): Promise<ForAuthorsPage | null> {
   const apiUrl = getJournalApiUrl(rvcode);
-  const url = `${apiUrl}/pages?page_code=prepare-submission&rvcode=${rvcode}`;
-
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data['hydra:member']?.[0] || null;
-  } catch (error) {
-    log.error('Error fetching prepare submission page:', error);
-    return null;
-  }
-};
+  return safeFetchData<ForAuthorsPage | null>(
+    async () => {
+      const response = await fetch(
+        `${apiUrl}/pages?page_code=prepare-submission&rvcode=${rvcode}`,
+        {
+          next: {
+            revalidate: CACHE_TTL.pages,
+            tags: ['prepare-submission', `prepare-submission-${rvcode}`],
+          },
+        }
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      return data['hydra:member']?.[0] || null;
+    },
+    null,
+    `fetchPrepareSubmissionPage(${rvcode})`
+  );
+}
