@@ -1,7 +1,7 @@
 'use client';
 
 import { FilterIcon } from '@/components/icons';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
@@ -42,7 +42,10 @@ type EnhancedArticleAccepted = FetchedArticle & {
   openedAbstract: boolean;
 };
 
-function buildTypeSelections(rangeTypes: string[]): IArticleTypeSelection[] {
+function buildTypeSelections(
+  rangeTypes: string[],
+  checkedValues: ReadonlySet<string>
+): IArticleTypeSelection[] {
   return rangeTypes
     .filter(t => articleTypes.some(at => at.value === t))
     .map(t => {
@@ -50,7 +53,7 @@ function buildTypeSelections(rangeTypes: string[]): IArticleTypeSelection[] {
       return {
         labelPath: matchingType.labelPath,
         value: matchingType.value,
-        isChecked: false,
+        isChecked: checkedValues.has(matchingType.value),
       };
     });
 }
@@ -95,17 +98,19 @@ export default function ArticlesAcceptedClient({
 
   const isHydrated = useIsHydrated();
   const [currentPage, setCurrentPage] = useState(1);
-  const [enhancedArticlesAccepted, setEnhancedArticlesAccepted] = useState<
-    EnhancedArticleAccepted[]
-  >([]);
-  const [types, setTypes] = useState<IArticleTypeSelection[]>([]);
-  const [taggedFilters, setTaggedFilters] = useState<IArticleAcceptedFilter[]>([]);
+  // Only the user's own choices live in state; the lists themselves are derived below.
+  const [checkedTypes, setCheckedTypes] = useState<Set<string>>(new Set());
+  const [openedAbstractIds, setOpenedAbstractIds] = useState<Set<number>>(new Set());
   const [showAllAbstracts, setShowAllAbstracts] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
 
-  const getSelectedTypes = (): string[] => types.filter(t => t.isChecked).map(t => t.value);
-
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
+
+  // Sorted so the query cache key stays stable regardless of the order boxes were ticked.
+  const selectedTypes = useMemo(
+    () => Array.from(checkedTypes).sort((a, b) => a.localeCompare(b)),
+    [checkedTypes]
+  );
 
   const { data: articlesAccepted, isFetching: isFetchingArticlesAccepted } = useFetchArticlesQuery(
     {
@@ -113,7 +118,7 @@ export default function ArticlesAcceptedClient({
       page: currentPage,
       itemsPerPage: ARTICLES_ACCEPTED_PER_PAGE,
       onlyAccepted: true,
-      types: getSelectedTypes(),
+      types: selectedTypes,
     },
     {
       skip: !rvcode || isStaticBuild,
@@ -121,43 +126,14 @@ export default function ArticlesAcceptedClient({
     }
   );
 
-  // En mode statique uniquement : utiliser les données initiales
-  useEffect(() => {
-    if (isStaticBuild && initialArticles?.data) {
-      const initialData = Array.isArray(initialArticles.data) ? initialArticles.data : [];
-      setEnhancedArticlesAccepted(
-        initialData
-          .filter((article: any) => article?.title)
-          .map((article: any) => ({ ...article, openedAbstract: false }))
-      );
-    }
-  }, [initialArticles, isStaticBuild]);
+  // The server range wins when it has entries; otherwise fall back to the API facets.
+  const types = useMemo(() => {
+    const initial = Array.isArray(initialRange?.types) ? initialRange.types : [];
+    const fetched = articlesAccepted?.range?.types;
+    const rangeTypes = initial.length > 0 ? initial : Array.isArray(fetched) ? fetched : [];
 
-  useEffect(() => {
-    if (initialRange?.types && types.length === 0) {
-      const typesArray = Array.isArray(initialRange.types) ? initialRange.types : [];
-      setTypes(buildTypeSelections(typesArray));
-    }
-  }, [initialRange, types.length]);
-
-  // En mode non-statique : utiliser les données de l'API query
-  useEffect(() => {
-    if (!isStaticBuild && articlesAccepted?.data) {
-      const articlesData = Array.isArray(articlesAccepted.data) ? articlesAccepted.data : [];
-      const displayedArticlesAccepted = articlesData
-        .filter(article => article?.title)
-        .map(article => ({ ...article, openedAbstract: false }));
-
-      setEnhancedArticlesAccepted(displayedArticlesAccepted as EnhancedArticleAccepted[]);
-    }
-  }, [isStaticBuild, articlesAccepted?.data]);
-
-  useEffect(() => {
-    const rangeTypes = articlesAccepted?.range?.types;
-    if (rangeTypes) {
-      setTypes(prev => (prev.length > 0 ? prev : buildTypeSelections(rangeTypes)));
-    }
-  }, [articlesAccepted?.range?.types]);
+    return buildTypeSelections(rangeTypes, checkedTypes);
+  }, [initialRange, articlesAccepted, checkedTypes]);
 
   // Memoize handlePageClick to prevent Pagination re-renders
   const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
@@ -166,101 +142,79 @@ export default function ArticlesAcceptedClient({
 
   const onCheckType = (value: string): void => {
     setCurrentPage(1);
-
-    const updatedTypes = types.map(t => {
-      if (t.value === value) {
-        return { ...t, isChecked: !t.isChecked };
+    setCheckedTypes(prev => {
+      const next = new Set(prev);
+      if (next.has(value)) {
+        next.delete(value);
+      } else {
+        next.add(value);
       }
-
-      return { ...t };
+      return next;
     });
-
-    setTypes(updatedTypes);
   };
 
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: IArticleAcceptedFilter[] = [];
-
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({
-          value: t.value,
-          labelPath: t.labelPath,
-        });
-      });
-
-    setTaggedFilters(initFilters);
-  }, [types]);
+  /** Replaces the whole selection, e.g. when the mobile modal applies its filters. */
+  const updateTypes = (updated: IArticleTypeSelection[]): void => {
+    setCheckedTypes(new Set(updated.filter(t => t.isChecked).map(t => t.value)));
+  };
 
   const onCloseTaggedFilter = (value: string | number) => {
-    const updatedTypes = types.map(t => {
-      if (t.value === value) {
-        return { ...t, isChecked: false };
-      }
-
-      return t;
+    setCheckedTypes(prev => {
+      const next = new Set(prev);
+      next.delete(String(value));
+      return next;
     });
-
-    setTypes(updatedTypes);
   };
 
-  const clearTaggedFilters = (): void => {
-    const updatedTypes = types.map(t => {
-      return { ...t, isChecked: false };
-    });
+  const clearTaggedFilters = (): void => setCheckedTypes(new Set());
 
-    setTypes(updatedTypes);
-    setTaggedFilters([]);
-  };
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
+  // Pure projection of the current selection: derived during render, not in an effect.
+  const taggedFilters = useMemo<IArticleAcceptedFilter[]>(
+    () => types.filter(t => t.isChecked).map(t => ({ value: t.value, labelPath: t.labelPath })),
+    [types]
+  );
 
   const toggleAbstract = (articleId?: number): void => {
     if (!articleId) return;
 
-    const updatedArticlesAccepted = enhancedArticlesAccepted.map(article => {
-      if (article?.id === articleId) {
-        return {
-          ...article,
-          openedAbstract: !article.openedAbstract,
-        };
+    setOpenedAbstractIds(prev => {
+      const next = new Set(prev);
+      if (next.has(articleId)) {
+        next.delete(articleId);
+      } else {
+        next.add(articleId);
       }
-
-      return { ...article };
+      return next;
     });
-
-    setEnhancedArticlesAccepted(updatedArticlesAccepted);
-  };
-
-  const toggleAllAbstracts = (): void => {
-    const isShown = !showAllAbstracts;
-
-    const updatedArticlesAccepted = enhancedArticlesAccepted.map(article => ({
-      ...article,
-      openedAbstract: isShown,
-    }));
-
-    setEnhancedArticlesAccepted(updatedArticlesAccepted);
-    setShowAllAbstracts(isShown);
   };
 
   // Utiliser les données initiales si elles sont disponibles
   const displayArticlesAccepted = articlesAccepted || initialArticles;
 
-  const fallbackArticlesToRender: EnhancedArticleAccepted[] = Array.isArray(
-    displayArticlesAccepted?.data
-  )
-    ? displayArticlesAccepted.data.map((article: any) => ({
-        ...article,
-        openedAbstract: false,
-      }))
-    : [];
+  // The article list is a projection of whichever payload is current, with the abstract
+  // toggles applied on top — no mirroring into state.
+  const articlesToRender = useMemo<EnhancedArticleAccepted[]>(() => {
+    const source = isStaticBuild ? initialArticles : displayArticlesAccepted;
+    const data = Array.isArray(source?.data) ? source.data : [];
 
-  const articlesToRender: EnhancedArticleAccepted[] =
-    enhancedArticlesAccepted.length > 0 ? enhancedArticlesAccepted : fallbackArticlesToRender;
+    return data
+      .filter((article: any) => article?.title)
+      .map((article: any) => ({
+        ...article,
+        openedAbstract: openedAbstractIds.has(article.id),
+      }));
+  }, [isStaticBuild, initialArticles, displayArticlesAccepted, openedAbstractIds]);
+
+  const toggleAllAbstracts = (): void => {
+    const isShown = !showAllAbstracts;
+
+    setShowAllAbstracts(isShown);
+    setOpenedAbstractIds(
+      isShown
+        ? new Set(articlesToRender.map(article => article.id).filter(Boolean) as number[])
+        : new Set()
+    );
+  };
 
   const breadcrumbItems = [
     {
@@ -321,7 +275,7 @@ export default function ArticlesAcceptedClient({
               <ArticlesAcceptedMobileModal
                 t={t}
                 initialTypes={types}
-                onUpdateTypesCallback={setTypes}
+                onUpdateTypesCallback={updateTypes}
                 onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
               />
             )}

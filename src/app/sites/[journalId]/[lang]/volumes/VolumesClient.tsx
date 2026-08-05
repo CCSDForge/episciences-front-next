@@ -7,7 +7,15 @@ import {
   TileBlackIcon,
   TileGreyIcon,
 } from '@/components/icons';
-import { useState, useEffect, useCallback } from 'react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useOptimistic,
+  useRef,
+  useTransition,
+} from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -97,157 +105,77 @@ export default function VolumesClient({
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
 
-  const [currentPage, setCurrentPage] = useState(initialPage);
-  const [volumes, setVolumes] = useState(initialVolumes);
-  const [volumesData, setVolumesData] = useState(initialVolumes);
   const [mode, setMode] = useState<RENDERING_MODE>(RENDERING_MODE.LIST);
-  const [types, setTypes] = useState<IVolumeTypeSelection[]>([]);
-
-  const [years, setYears] = useState<IVolumeYearSelection[]>([]);
-  const [taggedFilters, setTaggedFilters] = useState<IVolumeFilter[]>([]);
   const [openedFiltersModal, setOpenedFiltersModal] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
-  const [isLoadingData, setIsLoadingData] = useState(false);
 
-  // Update local state when props change (Server Component re-render)
-  useEffect(() => {
-    if (initialVolumes) {
-      setVolumes(initialVolumes);
-      setVolumesData(initialVolumes); // Directly update data
-      setIsLoadingData(false); // Hide loader
-    }
-  }, [initialVolumes]);
+  // Filtering and pagination are entirely URL-driven: the server component re-renders with
+  // fresh props on every navigation, so nothing here is mirrored into state.
+  const volumes = initialVolumes;
 
-  const updateParams = (newTypes: IVolumeTypeSelection[], newYears: IVolumeYearSelection[]) => {
+  const pageParam = searchParams?.get('page');
+  const parsedPage = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : initialPage;
+  const currentPage = Number.isNaN(parsedPage) ? initialPage : parsedPage;
+
+  const [isLoadingData, startNavigation] = useTransition();
+
+  // Shows the click immediately, then falls back to the props once the navigation lands.
+  const [selection, applySelection] = useOptimistic(
+    { types: initialTypes, years: initialYears },
+    (_current, next: { types: string[]; years: number[] }) => next
+  );
+
+  const navigateWithFilters = (nextTypes: string[], nextYears: number[]): void => {
     const params = new URLSearchParams();
-
-    // Add types
-    newTypes
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        params.append('type', t.value);
-      });
-
-    // Add years
-    newYears
-      .filter(y => y.isSelected)
-      .forEach(y => {
-        params.append('years', y.year.toString());
-      });
-
-    // Reset to page 1
+    nextTypes.forEach(type => params.append('type', type));
+    nextYears.forEach(year => params.append('years', year.toString()));
     params.set('page', '1');
 
     const queryString = params.toString();
     const url = queryString ? `${pathname}?${queryString}` : pathname || '';
 
-    setIsLoadingData(true);
-    router.push(url);
+    startNavigation(() => {
+      applySelection({ types: nextTypes, years: nextYears });
+      router.push(url);
+    });
   };
 
-  // Synchroniser currentPage avec les query params
-  useEffect(() => {
-    const pageParam = searchParams?.get('page');
-    const pageNumber = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!Number.isNaN(pageNumber) && pageNumber !== currentPage) {
-      setCurrentPage(pageNumber);
+  // Available facets: the API range wins, otherwise fall back to the known types / the
+  // years present in the current payload.
+  const types = useMemo<IVolumeTypeSelection[]>(() => {
+    const rangeTypes = Array.isArray(volumes?.range?.types) ? volumes.range.types : [];
+    const typesSource = rangeTypes.length > 0 ? rangeTypes : volumeTypes.map(vt => vt.value);
+
+    logger.debug('Deriving types from source', { typesSource, selected: selection.types });
+
+    return typesSource
+      .map(t => volumeTypes.find(vt => vt.value === t))
+      .filter((vt): vt is NonNullable<typeof vt> => vt !== undefined)
+      .map(vt => ({
+        labelPath: vt.labelPath,
+        value: vt.value,
+        isChecked: selection.types.includes(vt.value),
+      }));
+  }, [volumes, selection.types]);
+
+  const years = useMemo<IVolumeYearSelection[]>(() => {
+    const rangeYears = Array.isArray(volumes?.range?.years) ? volumes.range.years : [];
+
+    let yearsToUse = rangeYears.map(y => Number(y)).filter(n => !Number.isNaN(n) && n > 0);
+
+    if (yearsToUse.length === 0 && Array.isArray(volumes?.data)) {
+      yearsToUse = Array.from(
+        new Set(volumes.data.map(v => Number(v.year)).filter(y => !Number.isNaN(y) && y > 0))
+      );
     }
-  }, [searchParams, currentPage]);
 
-  useEffect(() => {
-    if (types.length > 0) {
-      setTypes(currentTypes => {
-        const needsUpdate = currentTypes.some(t => t.isChecked !== initialTypes.includes(t.value));
+    return yearsToUse
+      .sort((a, b) => b - a)
+      .map(y => ({ year: y, isSelected: selection.years.includes(y) }));
+  }, [volumes, selection.years]);
 
-        if (!needsUpdate) return currentTypes;
-
-        return currentTypes.map(type => ({
-          ...type,
-          isChecked: initialTypes.includes(type.value),
-        }));
-      });
-    }
-  }, [initialTypes, types.length]);
-
-  // Initialize years selection from props
-  useEffect(() => {
-    if (years.length > 0) {
-      setYears(currentYears => {
-        const needsUpdate = currentYears.some(y => {
-          const shouldBeSelected = initialYears.includes(y.year);
-          return y.isSelected !== shouldBeSelected;
-        });
-
-        if (!needsUpdate) return currentYears;
-
-        return currentYears.map(y => ({
-          ...y,
-          isSelected: initialYears.includes(y.year),
-        }));
-      });
-    }
-  }, [initialYears, years.length]);
-
-  useEffect(() => {
-    // If we have volumes data (even empty) and types are not yet initialized
-    if (volumes && types.length === 0) {
-      // Use types from range if available, otherwise fallback to all known types
-      // This ensures the sidebar is visible even if the API doesn't return range data
-      const rangeTypes = Array.isArray(volumes.range?.types) ? volumes.range.types : [];
-      const typesSource = rangeTypes.length > 0 ? rangeTypes : volumeTypes.map(vt => vt.value);
-
-      logger.debug('Initializing types from source', { typesSource, initialTypes });
-
-      const initTypes = typesSource
-        .filter(t => volumeTypes.find(vt => vt.value === t))
-        .map(t => {
-          const matchingType = volumeTypes.find(vt => vt.value === t);
-          if (!matchingType) return null;
-
-          return {
-            labelPath: matchingType.labelPath,
-            value: matchingType.value,
-            isChecked: initialTypes.includes(matchingType.value),
-          };
-        })
-        .filter((t): t is NonNullable<typeof t> => t !== null);
-
-      if (initTypes.length > 0) {
-        setTypes(initTypes);
-      }
-    }
-  }, [volumes, types.length, initialTypes]);
-
-  useEffect(() => {
-    if (volumes && years.length === 0) {
-      let yearsToUse: number[] = [];
-
-      if (Array.isArray(volumes.range?.years) && volumes.range.years.length > 0) {
-        // Ensure years are numbers
-        yearsToUse = volumes.range.years
-          .map(y => Number(y))
-          .filter(n => !Number.isNaN(n) && n > 0);
-      } else if (Array.isArray(volumes.data)) {
-        // Fallback: extract years from current data if range is missing
-        const extractedYears = volumes.data
-          .map(v => Number(v.year))
-          .filter((y): y is number => !Number.isNaN(y) && y > 0);
-        yearsToUse = Array.from(new Set(extractedYears));
-      }
-
-      if (yearsToUse.length > 0) {
-        // Sort descending
-        yearsToUse.sort((a, b) => b - a);
-
-        logger.debug('Initializing years from:', yearsToUse);
-        const initYears = yearsToUse.map(y => ({
-          year: y,
-          isSelected: initialYears.includes(y),
-        }));
-        setYears(initYears);
-      }
-    }
-  }, [volumes, years.length, initialYears]);
+  const selectedTypeValues = types.filter(t => t.isChecked).map(t => t.value);
+  const selectedYearValues = years.filter(y => y.isSelected).map(y => y.year);
 
   // Client-side filtering removed in favor of server-side filtering via URL params
 
@@ -261,7 +189,6 @@ export default function VolumesClient({
         params.set('page', newPage.toString());
         router.push(`${pathname}?${params.toString()}`);
       }
-      setCurrentPage(newPage);
       // Scroll vers le haut de la page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -317,71 +244,56 @@ export default function VolumesClient({
   };
 
   const onCheckType = (value: string): void => {
-    const updatedTypes = types.map(t => {
-      if (t.value === value) {
-        return { ...t, isChecked: !t.isChecked };
-      }
+    const nextTypes = selectedTypeValues.includes(value)
+      ? selectedTypeValues.filter(t => t !== value)
+      : [...selectedTypeValues, value];
 
-      return { ...t };
-    });
-
-    setTypes(updatedTypes);
-    updateParams(updatedTypes, years);
+    navigateWithFilters(nextTypes, selectedYearValues);
   };
 
   const onSelectYear = (year: number): void => {
-    const updatedYears = years.map(y => {
-      if (y.year === year) {
-        return { ...y, isSelected: !y.isSelected };
-      }
+    const nextYears = selectedYearValues.includes(year)
+      ? selectedYearValues.filter(y => y !== year)
+      : [...selectedYearValues, year];
 
-      return { ...y };
-    });
-
-    setYears(updatedYears);
-    updateParams(types, updatedYears);
+    navigateWithFilters(selectedTypeValues, nextYears);
   };
 
   const onCloseTaggedFilter = (type: VolumeTypeFilter, value: string | number) => {
     if (type === 'type') {
-      const updatedTypes = types.map(t => {
-        if (t.value === value) {
-          return { ...t, isChecked: false };
-        }
-
-        return t;
-      });
-
-      setTypes(updatedTypes);
-      updateParams(updatedTypes, years);
+      navigateWithFilters(
+        selectedTypeValues.filter(t => t !== value),
+        selectedYearValues
+      );
     } else if (type === 'year') {
-      const updatedYears = years.map(y => {
-        if (y.year === value) {
-          return { ...y, isSelected: false };
-        }
-
-        return y;
-      });
-
-      setYears(updatedYears);
-      updateParams(types, updatedYears);
+      navigateWithFilters(
+        selectedTypeValues,
+        selectedYearValues.filter(y => y !== value)
+      );
     }
   };
 
-  const clearTaggedFilters = (): void => {
-    const updatedTypes = types.map(t => {
-      return { ...t, isChecked: false };
-    });
+  const clearTaggedFilters = (): void => navigateWithFilters([], []);
 
-    const updatedYears = years.map(y => {
-      return { ...y, isSelected: false };
-    });
+  /**
+   * VolumesMobileModal applies its filters by calling the types callback and then the years
+   * callback in the same tick. Staging the types lets both land in a single navigation
+   * instead of two competing ones.
+   */
+  const stagedModalTypes = useRef<string[] | null>(null);
 
-    setTypes(updatedTypes);
-    setYears(updatedYears);
-    setTaggedFilters([]);
+  const onModalUpdateTypes = (updated: IVolumeTypeSelection[]): void => {
+    stagedModalTypes.current = updated.filter(t => t.isChecked).map(t => t.value);
+  };
 
-    updateParams(updatedTypes, updatedYears);
+  const onModalUpdateYears = (updated: IVolumeYearSelection[]): void => {
+    const nextTypes = stagedModalTypes.current ?? selectedTypeValues;
+    stagedModalTypes.current = null;
+
+    navigateWithFilters(
+      nextTypes,
+      updated.filter(y => y.isSelected).map(y => y.year)
+    );
   };
 
   const toggleFiltersModal = () => {
@@ -390,31 +302,18 @@ export default function VolumesClient({
     setOpenedFiltersModal(!openedFiltersModal);
   };
 
-  useEffect(() => {
-    const initFilters: IVolumeFilter[] = [];
-
-    types
-      .filter(type => type.isChecked)
-      .forEach(type => {
-        initFilters.push({
-          type: 'type',
-          value: type.value,
-          labelPath: type.labelPath,
-        });
-      });
-
-    years
-      .filter(y => y.isSelected)
-      .forEach(y => {
-        initFilters.push({
-          type: 'year',
-          value: y.year,
-          label: y.year,
-        });
-      });
-
-    setTaggedFilters(initFilters);
-  }, [types, years]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<IVolumeFilter[]>(
+    () => [
+      ...types
+        .filter(type => type.isChecked)
+        .map(type => ({ type: 'type' as const, value: type.value, labelPath: type.labelPath })),
+      ...years
+        .filter(y => y.isSelected)
+        .map(y => ({ type: 'year' as const, value: y.year, label: y.year })),
+    ],
+    [types, years]
+  );
 
   const breadcrumbItems = [
     {
@@ -588,9 +487,9 @@ export default function VolumesClient({
           <VolumesMobileModal
             t={t}
             initialTypes={types}
-            onUpdateTypesCallback={setTypes}
+            onUpdateTypesCallback={onModalUpdateTypes}
             initialYears={years}
-            onUpdateYearsCallback={setYears}
+            onUpdateYearsCallback={onModalUpdateYears}
             onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
           />
         )}
@@ -621,7 +520,7 @@ export default function VolumesClient({
             <div
               className={`volumes-content-results-cards ${mode === RENDERING_MODE.TILE && 'volumes-content-results-cards-tiles'}`}
             >
-              {volumesData?.data.map((volume: IVolume) =>
+              {volumes?.data.map((volume: IVolume) =>
                 mode === RENDERING_MODE.TILE ? (
                   <VolumeTileCard
                     key={volume.id}
@@ -641,7 +540,7 @@ export default function VolumesClient({
         <Pagination
           currentPage={currentPage}
           itemsPerPage={VOLUMES_PER_PAGE}
-          totalItems={volumesData?.totalItems}
+          totalItems={volumes?.totalItems}
           onPageChange={handlePageClick}
         />
       </div>
