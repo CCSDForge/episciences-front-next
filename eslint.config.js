@@ -19,14 +19,17 @@ module.exports = [
       'jsx-a11y/label-has-associated-control': 'error',
       'jsx-a11y/no-static-element-interactions': 'warn',
       'jsx-a11y/click-events-have-key-events': 'warn',
-      // eslint-config-next 16.3.0 bundles eslint-plugin-react-hooks v7, which adds these
-      // React Compiler readiness rules as errors. The project doesn't enable reactCompiler,
-      // and the ~90 existing call sites (mostly the isMounted hydration-guard pattern) are a
-      // separate cleanup, not part of the Next.js 16.3 upgrade — downgraded to warn for now.
+      // React Compiler readiness rules from eslint-plugin-react-hooks v7 (bundled with
+      // eslint-config-next 16.3). All call sites have been cleaned up except the ones below.
+      //
+      // `set-state-in-effect` still has 26 occurrences, all concentrated in four heavily
+      // tested list components whose state flow needs a dedicated rewrite:
+      //   - articles/ArticlesClient.tsx (7)
+      //   - volumes/VolumesClient.tsx (7)
+      //   - search/SearchClient.tsx (7)
+      //   - articles-accepted/ArticlesAcceptedClient.tsx (5)
+      // Promote it to 'error' once those are migrated to render-time derivation.
       'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/error-boundaries': 'warn',
-      'react-hooks/immutability': 'warn',
-      'react-hooks/preserve-manual-memoization': 'warn',
     },
   },
 ];
