@@ -391,12 +391,22 @@ class CacheHandler {
 
   /**
    * Store a cache entry.
+   *
+   * Next.js's set() context shape differs by entry kind (see
+   * SetIncrementalFetchCacheContext / SetIncrementalResponseCacheContext in
+   * node_modules/next/dist/server/response-cache/types.d.ts): FETCH entries
+   * carry only `tags` (no revalidate info at all); PAGE/route entries carry
+   * `cacheControl: { revalidate, expire }`. So `ttl` below is only ever set
+   * for page entries — fetch entries get no Redis expiry and rely on
+   * revalidateTag()/build-id mismatch for cleanup instead.
+   *
    * @param {string} key
    * @param {any} data
-   * @param {{ revalidate?: number | false, tags?: string[] }} ctx
+   * @param {{ tags?: string[], cacheControl?: { revalidate?: number | false } }} ctx
    */
   async set(key, data, ctx) {
-    const { revalidate, tags = [] } = ctx || {};
+    const tags = ctx?.tags || [];
+    const revalidate = ctx?.cacheControl?.revalidate;
     const dataKey = this._dataKey(key);
 
     const processedData = await preprocessValue(data);
