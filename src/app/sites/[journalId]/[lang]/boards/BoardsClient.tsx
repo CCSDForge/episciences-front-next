@@ -72,17 +72,17 @@ export default function BoardsClient({
   // the same position in a different group from also appearing expanded/blurred.
   const [expandedMemberKey, setExpandedMemberKey] = useState<string | null>(null);
 
+  const boardsPerTitle = useMemo(() => {
+    if (!initialMembers?.length) return [];
+
+    return getBoardsPerTitle(initialPages || [], initialMembers, currentLang);
+  }, [initialPages, initialMembers, currentLang]);
+
   const getPagesLabels = (): string[] => {
     if (!boardsPerTitle.length) return [];
 
     return boardsPerTitle.map(board => rolesLabels?.[board.page_code] || board.title);
   };
-
-  const boardsPerTitle = useMemo(() => {
-    if (!boardsData?.members?.length) return [];
-
-    return getBoardsPerTitle(boardsData.pages || [], boardsData.members, currentLang);
-  }, [boardsData.pages, boardsData.members, currentLang]);
 
   const handleGroupToggle = (index: number): void => {
     setOpenGroups(prev => {
