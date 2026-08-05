@@ -20,10 +20,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('next/image', () => ({
-  default: ({ src, alt }: { src: string; alt: string }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} />
-  ),
+  default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
 }));
 
 vi.mock('@/hooks/store', () => ({
@@ -121,7 +118,10 @@ describe('VolumeDetailsClient', () => {
   it('renders the volume description as markdown', () => {
     render(
       <VolumeDetailsClient
-        initialVolume={{ ...baseVolume, description: { fr: 'Une description', en: 'A description' } }}
+        initialVolume={{
+          ...baseVolume,
+          description: { fr: 'Une description', en: 'A description' },
+        }}
         lang="fr"
       />
     );

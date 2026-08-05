@@ -15,7 +15,6 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('next/image', () => ({
   default: ({ src, alt, ...props }: { src: string; alt: string; [key: string]: unknown }) => (
-    // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={alt} {...props} />
   ),
 }));
@@ -108,7 +107,18 @@ describe('Header - mobile burger menu', () => {
   });
 
   it('renders the burger icon when isMobileOnly is true', () => {
-    render(<Header currentJournal={{ id: 1, code: 'test', name: 'Test Journal', description: '', createdAt: '', updatedAt: '' }} />);
+    render(
+      <Header
+        currentJournal={{
+          id: 1,
+          code: 'test',
+          name: 'Test Journal',
+          description: '',
+          createdAt: '',
+          updatedAt: '',
+        }}
+      />
+    );
     expect(screen.getByTestId('burger-icon')).toBeInTheDocument();
   });
 

@@ -3,7 +3,7 @@ const prettierConfig = require('eslint-config-prettier');
 
 module.exports = [
   {
-    ignores: ['.claude/**'],
+    ignores: ['.claude/**', 'coverage/**'],
   },
   ...nextConfig,
   prettierConfig,

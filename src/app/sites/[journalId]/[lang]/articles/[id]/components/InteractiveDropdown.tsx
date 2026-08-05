@@ -210,7 +210,7 @@ export default function InteractiveDropdown({
   const renderCiteDropdown = () => {
     if (isLoadingCitations) {
       return (
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- keyboard nav handled when items load
+        // Keyboard nav is handled once the items have loaded.
         <div
           className="articleDetailsSidebar-links-link-modal-content-links"
           role="menu"
@@ -224,7 +224,7 @@ export default function InteractiveDropdown({
     }
 
     return (
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- keyboard navigation delegated from trigger
+      // Keyboard navigation is delegated from the trigger button.
       <div
         className="articleDetailsSidebar-links-link-modal-content-links"
         role="menu"
@@ -247,7 +247,7 @@ export default function InteractiveDropdown({
   };
 
   const renderMetadataDropdown = () => (
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- keyboard navigation delegated from trigger
+    // Keyboard navigation is delegated from the trigger button.
     <div
       className="articleDetailsSidebar-links-link-modal-content-links"
       role="menu"

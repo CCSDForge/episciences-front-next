@@ -35,10 +35,7 @@ vi.mock('next/image', () => ({
     src: string;
     alt: string;
     [key: string]: unknown;
-  }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} {...props} />
-  ),
+  }) => <img src={src} alt={alt} {...props} />,
 }));
 
 // Mock react-i18next
@@ -243,7 +240,10 @@ describe('Header', () => {
     Object.defineProperty(window, 'scrollY', { value: 0, writable: true });
     mockState.searchReducer.search = '';
     mockState.i18nReducer.language = 'en';
-    mockState.journalReducer = { currentJournal: { name: 'Test Journal', code: 'test' }, config: undefined };
+    mockState.journalReducer = {
+      currentJournal: { name: 'Test Journal', code: 'test' },
+      config: undefined,
+    };
     mockState.volumeReducer.lastVolume = { id: 1 };
     delete process.env.NEXT_PUBLIC_EPISCIENCES_MANAGER;
   });
@@ -454,10 +454,7 @@ describe('Header', () => {
         .getAllByRole('link')
         .filter(link => link.getAttribute('href')?.includes('/user/login'));
       expect(signInLinks.length).toBeGreaterThan(0);
-      expect(signInLinks[0]).toHaveAttribute(
-        'href',
-        'https://manager.test/test/user/login'
-      );
+      expect(signInLinks[0]).toHaveAttribute('href', 'https://manager.test/test/user/login');
     });
 
     it('omits the sign-in link when no manager URL is configured', () => {

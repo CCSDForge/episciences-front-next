@@ -21,10 +21,7 @@ vi.mock('@/hooks/store', () => ({
 
 // Mock next/image
 vi.mock('next/image', () => ({
-  default: ({ src, alt, ...props }: any) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} {...props} />
-  ),
+  default: ({ src, alt, ...props }: any) => <img src={src} alt={alt} {...props} />,
 }));
 
 // Mock the MathJax component
@@ -314,9 +311,7 @@ Content for section 2
 
       await waitFor(() => {
         const img = container.querySelector('img');
-        expect(img?.getAttribute('src')).toBe(
-          'https://cdn.example.com/logo.png'
-        );
+        expect(img?.getAttribute('src')).toBe('https://cdn.example.com/logo.png');
         expect(img?.getAttribute('src')).not.toContain('episciences.org');
       });
     });
