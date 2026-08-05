@@ -255,14 +255,24 @@ To make them time-based, set `CACHE_TTL_PAGES=86400` in your environment.
 
 ### Stale Content After Deployment
 
-With Valkey, the Data Cache persists across deployments. Pages will serve the
-previously cached API responses until:
+Valkey itself survives restarts, but `cache-handler.js` deliberately does **not** let
+entries survive a deployment: `_parseEntry()` compares each entry's `__buildId`
+against the current build's `BUILD_ID` and treats any mismatch as a miss — for
+**both** Full Route Cache (`PAGE`) entries and Data Cache (`FETCH`) entries. The
+same check runs as a startup sweep in `initialize()`, deleting stale entries from
+Valkey outright.
 
-- their TTL expires, or
-- a revalidation webhook is called.
+This means every deployment invalidates the entire Data Cache across all journals,
+not just the rendered HTML — the first requests after a deploy will re-fetch from
+the API for every page touched (visible in logs as a burst of `MISS`/`SET` entries
+right after rollout). This is a deliberate safety choice: if a deployment changes
+how a service transforms API data (e.g. a new expected field), a `FETCH` entry
+cached under the old build could have the old shape and cause runtime errors under
+the new code. Trading a post-deploy cache-cold-start burst for that safety margin
+is intentional — see the cache-handler.js `set()`/`_parseEntry()` comments.
 
-This is intentional (cache survives restarts). To force a full flush after a deployment,
-run `redis-cli FLUSHDB` against the Valkey master (use with caution in production).
+To force a full flush manually (e.g. outside of a deployment), run `redis-cli
+FLUSHDB` against the Valkey master (use with caution in production).
 
 ---
 
