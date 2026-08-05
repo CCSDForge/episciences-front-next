@@ -1,5 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import { checkA11y } from '@/test-utils/axe-helper';
 import Loader from '../Loader';
 
@@ -13,20 +13,6 @@ vi.mock('react-loader-spinner', () => ({
 }));
 
 describe('Loader', () => {
-  const mockGetComputedStyle = vi.fn();
-
-  beforeEach(() => {
-    // Mock getComputedStyle
-    mockGetComputedStyle.mockReturnValue({
-      getPropertyValue: vi.fn().mockReturnValue('#3498db'),
-    });
-    vi.stubGlobal('getComputedStyle', mockGetComputedStyle);
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
   describe('Basic rendering', () => {
     it('renders the loader container', () => {
       const { container } = render(<Loader />);
@@ -49,31 +35,23 @@ describe('Loader', () => {
   });
 
   describe('Color handling', () => {
-    it('uses CSS variable --primary for color', async () => {
+    // The CSS variable is handed straight to the SVG `stroke` attribute, so the spinner
+    // follows the journal theme without any DOM read — and from the very first render.
+    it('passes the --primary CSS variable through to TailSpin', () => {
       render(<Loader />);
 
-      await waitFor(() => {
-        const loader = screen.getByTestId('tailspin-loader');
-        expect(loader).toHaveAttribute('data-color', '#3498db');
-      });
-    });
-
-    it('falls back to default color if CSS variable is empty', async () => {
-      mockGetComputedStyle.mockReturnValue({
-        getPropertyValue: vi.fn().mockReturnValue(''),
-      });
-
-      render(<Loader />);
-
-      // Initial render uses default #000000
       const loader = screen.getByTestId('tailspin-loader');
-      expect(loader).toHaveAttribute('data-color', '#000000');
+      expect(loader).toHaveAttribute('data-color', 'var(--primary)');
     });
 
-    it('reads color from document.documentElement', () => {
+    it('does not read the computed style of the document', () => {
+      const getComputedStyleSpy = vi.spyOn(window, 'getComputedStyle');
+
       render(<Loader />);
 
-      expect(mockGetComputedStyle).toHaveBeenCalledWith(document.documentElement);
+      expect(getComputedStyleSpy).not.toHaveBeenCalledWith(document.documentElement);
+
+      getComputedStyleSpy.mockRestore();
     });
   });
 

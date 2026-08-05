@@ -9,6 +9,7 @@ import {
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 
 interface SearchBarProps {
   readonly lang?: string;
@@ -25,17 +26,14 @@ export default function SearchBar({
   const { t, i18n } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsHydrated();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  // Ensure i18n is initialized with correct language before rendering
+  // Ensure i18n is initialized with the correct language. Rendering is gated on hydration
+  // rather than on this effect, so the translated labels appear on the first client pass.
   useEffect(() => {
     if (lang && i18n.language !== lang) {
-      i18n.changeLanguage(lang).then(() => {
-        setIsClient(true);
-      });
-    } else {
-      setIsClient(true);
+      i18n.changeLanguage(lang);
     }
   }, [lang, i18n]);
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { Provider } from 'react-redux';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { MathJaxContext } from 'better-react-mathjax';
@@ -75,12 +76,11 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
     return i18n;
   });
 
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsHydrated();
 
   // Sync Redux store after hydration.
   // i18n language is already set in the instance created above — no changeLanguage needed.
   useEffect(() => {
-    setIsClient(true);
     store.dispatch(setLanguage((initialLanguage || initialLang) as any));
     if (initialJournal) store.dispatch(setCurrentJournal(initialJournal));
     if (apiEndpoint) store.dispatch(setApiEndpoint(apiEndpoint));

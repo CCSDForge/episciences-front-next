@@ -2,6 +2,7 @@
 
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect, useMemo } from 'react';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
 import MathJax from '@/components/MathJax/MathJax';
@@ -87,7 +88,7 @@ export default function ArticleDetailsClient({
   breadcrumbLabels,
 }: ArticleDetailsClientProps): React.JSX.Element {
   const { t } = useTranslation();
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useIsHydrated();
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
@@ -136,7 +137,6 @@ export default function ArticleDetailsClient({
   const [citations, setCitations] = useState<ICitation[]>([]);
 
   useEffect(() => {
-    setIsMounted(true);
     async function fetchData() {
       // Skip client-side fetching if data was provided server-side
       if (initialRelatedVolume !== undefined && initialMetadataCSL !== undefined) {

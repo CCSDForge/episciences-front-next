@@ -5,6 +5,7 @@ import { Swiper as SwiperReactLib, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
 import { useEffect, useMemo, useState } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 import Card, { SwiperCardType, SwiperCardContent } from '@/components/SwiperCards/SwiperCard';
 import { CaretLeftBlackIcon, CaretRightBlackIcon } from '@/components/icons';
 import 'swiper/css';
@@ -34,10 +35,9 @@ export default function Swiper({
   // État pour stocker l'information si l'écran est mobile ou tablet
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useIsHydrated();
 
   useEffect(() => {
-    setIsMounted(true);
     // Fonction pour déterminer si l'écran est mobile ou tablette
     const checkDevice = () => {
       const width = window.innerWidth;
