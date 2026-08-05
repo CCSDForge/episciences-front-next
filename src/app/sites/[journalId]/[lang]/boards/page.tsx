@@ -47,76 +47,85 @@ export default async function BoardsPage(props: {
   readonly params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
-  try {
-    const { journalId, lang } = params;
+  const { journalId, lang } = params;
 
+  // Only the data fetching is wrapped: the degraded UI below is rendered outside the
+  // try/catch so that no JSX tree sits inside an error handler.
+  let translations: Awaited<ReturnType<typeof getServerTranslations>> | null = null;
+  let pages: Awaited<ReturnType<typeof fetchBoardPages>> | null = null;
+  let members: Awaited<ReturnType<typeof fetchBoardMembers>> | null = null;
+
+  try {
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
 
-    const [translations, pages, members] = await Promise.all([
+    [translations, pages, members] = await Promise.all([
       getServerTranslations(lang),
       fetchBoardPages(journalId),
       fetchBoardMembers(journalId),
     ]);
-
-    const breadcrumbLabels = {
-      home: t('pages.home.title', translations),
-      boards: t('pages.boards.title', translations),
-    };
-
-    const membersCountLabels = {
-      member: t('common.member', translations),
-      members: t('common.members', translations),
-    };
-
-    const rolesLabels = {
-      // Board types
-      'introduction-board': t('pages.boards.types.introductionBoard', translations),
-      'technical-board': t('pages.boards.types.technicalBoard', translations),
-      'editorial-board': t('pages.boards.types.editorialBoard', translations),
-      'scientific-advisory-board': t('pages.boards.types.scientificAdvisoryBoard', translations),
-      'reviewers-board': t('pages.boards.types.reviewersBoard', translations),
-      'former-members': t('pages.boards.types.formerMember', translations),
-      'operating-charter-board': t('pages.boards.types.operatingCharterBoard', translations),
-
-      // Member roles
-      'chief-editor': t('pages.boards.roles.chiefEditor', translations),
-      'managing-editor': t('pages.boards.roles.managingEditor', translations),
-      editor: t('pages.boards.roles.editor', translations),
-      'handling-editor': t('pages.boards.roles.handlingEditor', translations),
-      'guest-editor': t('pages.boards.roles.guestEditor', translations),
-      copyeditor: t('pages.boards.roles.copyeditor', translations),
-      secretary: t('pages.boards.roles.secretary', translations),
-      'advisory-board': t('pages.boards.roles.advisoryBoard', translations),
-      member: t('pages.boards.roles.member', translations),
-      'former-member': t('pages.boards.roles.formerMember', translations),
-    };
-
-    const tableOfContentsLabel = t('pages.boards.tableOfContents', translations);
-
-    return (
-      <>
-        <JsonLd
-          data={generateWebPageJsonLd('WebPage', journalId, lang, '/boards', {
-            name: t('pages.boards.title', translations),
-          })}
-        />
-        <BoardsClient
-          initialPages={pages}
-          initialMembers={members}
-          lang={lang}
-          breadcrumbLabels={breadcrumbLabels}
-          membersCountLabels={membersCountLabels}
-          rolesLabels={rolesLabels}
-          tableOfContentsLabel={tableOfContentsLabel}
-        />
-      </>
-    );
-  } catch (error) {
+  } catch {
     logger.warn(
       `[Build] Boards data could not be fully loaded for journal "${params.journalId}" (API mismatch or error).`
     );
+  }
+
+  if (!translations || !pages || !members) {
     return <div>Content currently unavailable for this journal.</div>;
   }
+
+  const breadcrumbLabels = {
+    home: t('pages.home.title', translations),
+    boards: t('pages.boards.title', translations),
+  };
+
+  const membersCountLabels = {
+    member: t('common.member', translations),
+    members: t('common.members', translations),
+  };
+
+  const rolesLabels = {
+    // Board types
+    'introduction-board': t('pages.boards.types.introductionBoard', translations),
+    'technical-board': t('pages.boards.types.technicalBoard', translations),
+    'editorial-board': t('pages.boards.types.editorialBoard', translations),
+    'scientific-advisory-board': t('pages.boards.types.scientificAdvisoryBoard', translations),
+    'reviewers-board': t('pages.boards.types.reviewersBoard', translations),
+    'former-members': t('pages.boards.types.formerMember', translations),
+    'operating-charter-board': t('pages.boards.types.operatingCharterBoard', translations),
+
+    // Member roles
+    'chief-editor': t('pages.boards.roles.chiefEditor', translations),
+    'managing-editor': t('pages.boards.roles.managingEditor', translations),
+    editor: t('pages.boards.roles.editor', translations),
+    'handling-editor': t('pages.boards.roles.handlingEditor', translations),
+    'guest-editor': t('pages.boards.roles.guestEditor', translations),
+    copyeditor: t('pages.boards.roles.copyeditor', translations),
+    secretary: t('pages.boards.roles.secretary', translations),
+    'advisory-board': t('pages.boards.roles.advisoryBoard', translations),
+    member: t('pages.boards.roles.member', translations),
+    'former-member': t('pages.boards.roles.formerMember', translations),
+  };
+
+  const tableOfContentsLabel = t('pages.boards.tableOfContents', translations);
+
+  return (
+    <>
+      <JsonLd
+        data={generateWebPageJsonLd('WebPage', journalId, lang, '/boards', {
+          name: t('pages.boards.title', translations),
+        })}
+      />
+      <BoardsClient
+        initialPages={pages}
+        initialMembers={members}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+        membersCountLabels={membersCountLabels}
+        rolesLabels={rolesLabels}
+        tableOfContentsLabel={tableOfContentsLabel}
+      />
+    </>
+  );
 }

@@ -30,14 +30,20 @@ export default async function ArticlesAcceptedPage(props: {
 
   const params = await props.params;
   const { lang, journalId } = params;
-  try {
-    const ARTICLES_ACCEPTED_PER_PAGE = 10;
 
+  const ARTICLES_ACCEPTED_PER_PAGE = 10;
+
+  // Only the data fetching is wrapped: the degraded UI below is rendered outside the
+  // try/catch so that no JSX tree sits inside an error handler.
+  let articlesAccepted: Awaited<ReturnType<typeof fetchArticles>> | null = null;
+  let translations: Awaited<ReturnType<typeof getServerTranslations>> | null = null;
+
+  try {
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
 
-    const [articlesAccepted, translations] = await Promise.all([
+    [articlesAccepted, translations] = await Promise.all([
       fetchArticles({
         rvcode: journalId,
         page: 1,
@@ -47,40 +53,11 @@ export default async function ArticlesAcceptedPage(props: {
       }),
       getServerTranslations(lang),
     ]);
-
-    let rangeTypes: any[] = [];
-    if (articlesAccepted.range && 'types' in articlesAccepted.range) {
-      rangeTypes = Array.isArray(articlesAccepted.range.types) ? articlesAccepted.range.types : [];
-    }
-
-    const formattedArticles = {
-      data: Array.isArray(articlesAccepted.data) ? articlesAccepted.data : [],
-      totalItems: articlesAccepted.totalItems || 0,
-      range: {
-        types: rangeTypes,
-        years:
-          articlesAccepted.range && Array.isArray(articlesAccepted.range.years)
-            ? articlesAccepted.range.years
-            : [],
-      },
-    };
-
-    const breadcrumbLabels = {
-      home: t('pages.home.title', translations),
-      content: t('common.content', translations),
-      articlesAccepted: t('pages.articlesAccepted.title', translations),
-    };
-
-    return (
-      <ArticlesAcceptedClient
-        initialArticles={formattedArticles}
-        initialRange={formattedArticles.range}
-        lang={lang}
-        breadcrumbLabels={breadcrumbLabels}
-      />
-    );
   } catch (error) {
     logger.error('Error fetching articles accepted:', error);
+  }
+
+  if (!articlesAccepted || !translations) {
     return (
       <ArticlesAcceptedClient
         initialArticles={{ data: [], totalItems: 0 }}
@@ -89,4 +66,36 @@ export default async function ArticlesAcceptedPage(props: {
       />
     );
   }
+
+  let rangeTypes: any[] = [];
+  if (articlesAccepted.range && 'types' in articlesAccepted.range) {
+    rangeTypes = Array.isArray(articlesAccepted.range.types) ? articlesAccepted.range.types : [];
+  }
+
+  const formattedArticles = {
+    data: Array.isArray(articlesAccepted.data) ? articlesAccepted.data : [],
+    totalItems: articlesAccepted.totalItems || 0,
+    range: {
+      types: rangeTypes,
+      years:
+        articlesAccepted.range && Array.isArray(articlesAccepted.range.years)
+          ? articlesAccepted.range.years
+          : [],
+    },
+  };
+
+  const breadcrumbLabels = {
+    home: t('pages.home.title', translations),
+    content: t('common.content', translations),
+    articlesAccepted: t('pages.articlesAccepted.title', translations),
+  };
+
+  return (
+    <ArticlesAcceptedClient
+      initialArticles={formattedArticles}
+      initialRange={formattedArticles.range}
+      lang={lang}
+      breadcrumbLabels={breadcrumbLabels}
+    />
+  );
 }

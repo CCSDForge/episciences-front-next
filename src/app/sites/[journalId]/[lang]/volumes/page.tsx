@@ -141,7 +141,11 @@ const buildFinalVolumesData = (
   fullRangeData: FetchVolumesResult,
   isFiltering: boolean
 ): FetchVolumesResult => {
-  const { totalItems, articlesCount } = resolveVolumeCounts(volumesData, fullRangeData, isFiltering);
+  const { totalItems, articlesCount } = resolveVolumeCounts(
+    volumesData,
+    fullRangeData,
+    isFiltering
+  );
 
   return {
     ...volumesData,
@@ -198,6 +202,11 @@ export default async function VolumesPage(props: {
 
   logger.debug('VolumesPage searchParams', { types, years, page: validPage, journalId });
 
+  // Rendering stays outside the try/catch: failures bubble up to the nearest error.tsx
+  // boundary instead of being caught around the JSX tree.
+  let finalVolumesData: ReturnType<typeof buildFinalVolumesData>;
+  let translations: Awaited<ReturnType<typeof getServerTranslations>>;
+
   try {
     if (!journalId) {
       throw new Error('journalId is not defined');
@@ -225,43 +234,44 @@ export default async function VolumesPage(props: {
       years: [],
     });
 
-    const [volumesData, fullRangeData, translations] = await Promise.all([
+    const [volumesData, fullRangeData, fetchedTranslations] = await Promise.all([
       volumePromise,
       fullRangePromise,
       getServerTranslations(lang),
     ]);
 
-    const finalVolumesData = buildFinalVolumesData(volumesData, fullRangeData, isFiltering);
-
-    const breadcrumbLabels = {
-      home: t('pages.home.title', translations),
-      content: t('common.content', translations),
-      volumes: t('pages.volumes.title', translations),
-    };
-
-    return (
-      <>
-        <JsonLd
-          data={generateCollectionPageJsonLd(journalId, lang, '/volumes', {
-            name: t('pages.volumes.title', translations),
-            numberOfItems: finalVolumesData.totalItems,
-          })}
-        />
-        <Suspense fallback={<Loader />}>
-          <VolumesClient
-            initialVolumes={finalVolumesData}
-            initialPage={validPage}
-            initialTypes={types}
-            initialYears={years}
-            lang={lang}
-            journalId={journalId}
-            breadcrumbLabels={breadcrumbLabels}
-          />
-        </Suspense>
-      </>
-    );
+    translations = fetchedTranslations;
+    finalVolumesData = buildFinalVolumesData(volumesData, fullRangeData, isFiltering);
   } catch (error) {
     logger.error('Error fetching volumes:', error);
     throw error;
   }
+
+  const breadcrumbLabels = {
+    home: t('pages.home.title', translations),
+    content: t('common.content', translations),
+    volumes: t('pages.volumes.title', translations),
+  };
+
+  return (
+    <>
+      <JsonLd
+        data={generateCollectionPageJsonLd(journalId, lang, '/volumes', {
+          name: t('pages.volumes.title', translations),
+          numberOfItems: finalVolumesData.totalItems,
+        })}
+      />
+      <Suspense fallback={<Loader />}>
+        <VolumesClient
+          initialVolumes={finalVolumesData}
+          initialPage={validPage}
+          initialTypes={types}
+          initialYears={years}
+          lang={lang}
+          journalId={journalId}
+          breadcrumbLabels={breadcrumbLabels}
+        />
+      </Suspense>
+    </>
+  );
 }

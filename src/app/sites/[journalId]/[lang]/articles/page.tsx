@@ -61,96 +61,75 @@ export default async function ArticlesPage(props: {
   const { journalId } = params;
 
   // Extract page number from searchParams
-  const parsedPage = searchParams?.page
-    ? Number.parseInt(searchParams.page as string, 10)
-    : 1;
+  const parsedPage = searchParams?.page ? Number.parseInt(searchParams.page as string, 10) : 1;
   const page = Number.isNaN(parsedPage) ? 1 : Math.max(1, parsedPage);
 
   const translationsPromise = getServerTranslations(lang);
 
-  try {
-    const ARTICLES_PER_PAGE = 20; // Default page size for SSR
+  const ARTICLES_PER_PAGE = 20; // Default page size for SSR
 
+  // Only the data fetching is wrapped: rendering happens outside the try/catch so that no
+  // JSX tree sits inside an error handler. On failure the page degrades to an empty list.
+  let articles: Awaited<ReturnType<typeof fetchArticles>> | null = null;
+
+  try {
     if (!journalId) {
       throw new Error('Journal code not available');
     }
 
-    const [translations, articles] = await Promise.all([
-      translationsPromise,
-      fetchArticles({
-        rvcode: journalId,
-        page: page,
-        itemsPerPage: ARTICLES_PER_PAGE,
-        onlyAccepted: false,
-        types: [],
-      }),
-    ]);
+    articles = await fetchArticles({
+      rvcode: journalId,
+      page: page,
+      itemsPerPage: ARTICLES_PER_PAGE,
+      onlyAccepted: false,
+      types: [],
+    });
+  } catch (error) {
+    logger.error('Error fetching articles:', error);
+  }
 
-    const formattedArticles: ArticlesData = {
-      data: Array.isArray(articles.data) ? articles.data : [],
-      totalItems: articles.totalItems || 0,
-      range: {
-        years: Array.isArray(articles.range?.years) ? articles.range.years : [],
-        types: Array.isArray(articles.range?.types) ? articles.range.types : [],
-      },
-    };
+  const translations = await translationsPromise;
 
-    const breadcrumbLabels = {
-      home: t('pages.home.title', translations),
-      content: t('common.content', translations),
-      articles: t('pages.articles.title', translations),
-    };
+  const formattedArticles: ArticlesData = articles
+    ? {
+        data: Array.isArray(articles.data) ? articles.data : [],
+        totalItems: articles.totalItems || 0,
+        range: {
+          years: Array.isArray(articles.range?.years) ? articles.range.years : [],
+          types: Array.isArray(articles.range?.types) ? articles.range.types : [],
+        },
+      }
+    : { data: [], totalItems: 0, range: { years: [] } };
 
-    const countLabels = {
-      article: t('common.article', translations),
-      articles: t('common.articles', translations),
-    };
+  const breadcrumbLabels = {
+    home: t('pages.home.title', translations),
+    content: t('common.content', translations),
+    articles: t('pages.articles.title', translations),
+  };
 
-    return (
-      <>
+  const countLabels = {
+    article: t('common.article', translations),
+    articles: t('common.articles', translations),
+  };
+
+  return (
+    <>
+      {articles && (
         <JsonLd
           data={generateCollectionPageJsonLd(journalId, lang, '/articles', {
             name: t('pages.articles.title', translations),
             numberOfItems: formattedArticles.totalItems,
           })}
         />
-        <Suspense fallback={<Loader />}>
-          <ArticlesClient
-            initialArticles={formattedArticles}
-            lang={lang}
-            breadcrumbLabels={breadcrumbLabels}
-            countLabels={countLabels}
-          />
-        </Suspense>
-      </>
-    );
-  } catch (error) {
-    logger.error('Error fetching articles:', error);
-    const translations = await translationsPromise;
-    const emptyState: ArticlesData = {
-      data: [],
-      totalItems: 0,
-      range: {
-        years: [],
-      },
-    };
-
-    return (
+      )}
       <Suspense fallback={<Loader />}>
         <ArticlesClient
-          initialArticles={emptyState}
+          initialArticles={formattedArticles}
           lang={lang}
-          breadcrumbLabels={{
-            home: t('pages.home.title', translations),
-            content: t('common.content', translations),
-            articles: t('pages.articles.title', translations),
-          }}
-          countLabels={{
-            article: t('common.article', translations),
-            articles: t('common.articles', translations),
-          }}
+          breadcrumbLabels={breadcrumbLabels}
+          countLabels={countLabels}
         />
       </Suspense>
-    );
-  }
+    </>
+  );
 }
