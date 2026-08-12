@@ -34,6 +34,7 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Proposing Special Issues Page**: Added a page to explain the process of pitching and managing special issues for journals.
 - **Nginx Production Configuration**: Integrated a production Nginx configuration with a strict Content Security Policy (CSP) to enhance front-end security and mitigate XSS risks.
 - **Internal RSS/Atom Proxies**: Implemented internal caching proxy routes for RSS/Atom feeds to protect backend endpoints from heavy load while providing fast feed responses.
+- **CLOCKSS Archival Permission**: Added CLOCKSS metadata permission statement to every page to support digital preservation harvesting.
 
 ### Changed
 
@@ -49,6 +50,7 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Streamlined PDF Downloads**: Replaced proxy redirects with a direct streaming `/download` route that opens PDFs in a new tab, preventing blank page redirects and improving accessibility.
 - **Dynamic Homepage Layouts**: Updated configuration parser to allow journals to dynamically toggle homepage sections (news, volumes) based on their specific configuration without code changes.
 - **Article Section Ordering**: Inverted the display order of sections on the article page: the PDF preview block now appears before the bibliographic references section.
+- **Development Server Port**: Changed default development server port from `8080` to `5000` in `package.json` to prevent port conflicts with local Docker services.
 
 ### Fixed
 
@@ -66,6 +68,8 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Special Issue Filter**: Fixed the `special_issue` filter parameter in the homepage volumes fetch.
 - **Request Cancellation**: Properly aborted timed-out upstream HTTP requests in the global fetch interceptor via `AbortController` (combining signals with `AbortSignal.any`) and fixed request recreation bugs.
 - **API Proxy Timeout**: Implemented a 15-second upstream timeout on the dynamic API proxy route to prevent hung connections.
+- **PDF Download Route Reliability**: Added `force-dynamic`, header encoding, sanitized logging, and error detail preservation to the article PDF download route.
+- **Ansistrano Rollback**: Ensured systemd service restart after Ansistrano rollback.
 
 ### Security
 

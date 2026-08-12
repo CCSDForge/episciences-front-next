@@ -57,6 +57,7 @@ export const journalLanguages: Record<string, { default: string; accepted: strin
   'rdm-preprod': { default: 'fr', accepted: ["fr","en","es"] },
   'resciencec-preprod': { default: 'en', accepted: ["en"] },
   'resciencex-preprod': { default: 'en', accepted: ["en"] },
+  'satcom-preprod': { default: 'en', accepted: ["en"] },
   'slovo': { default: 'fr', accepted: ["fr"] },
   'slovo-preprod': { default: 'fr', accepted: ["fr"] },
   'societes-plurielles': { default: 'fr', accepted: ["fr","en"] },

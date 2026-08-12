@@ -8,8 +8,8 @@
   "scripts": {
     "preflight": "node scripts/copy-logos.js && node scripts/generate-journals.js && node scripts/generate-journals-languages.js",
     "predev": "npm run preflight",
-    "dev": "next dev -p 8080",
-    "dev:turbo": "next dev --turbo -p 8080",
+    "dev": "next dev -p 5000",
+    "dev:turbo": "next dev --turbo -p 5000",
     "prebuild": "npm run preflight",
     "build": "next build",
     "build:turbo": "next build --turbo",
