@@ -70,6 +70,10 @@ Usually the right type is clear. Three of them cause the most questions:
 - **API Proxy Timeout**: Implemented a 15-second upstream timeout on the dynamic API proxy route to prevent hung connections.
 - **PDF Download Route Reliability**: Added `force-dynamic`, header encoding, sanitized logging, and error detail preservation to the article PDF download route.
 - **Ansistrano Rollback**: Ensured systemd service restart after Ansistrano rollback.
+- **Section Details Title**: Displayed the actual localized section title on section details pages (`/sections/[id]`) instead of a static "Section {id}" heading.
+- **Deterministic Build ID**: Sourced the Git commit SHA from Ansistrano's repository cache (`NEXT_BUILD_GIT_SHA`) as a deterministic build ID to prevent Valkey cache thrashing across multi-server deployments.
+- **For-Authors Page Caching**: Wired `CACHE_TTL.pages` and tag-based revalidation into `for-authors` service fetches to align with other static editorial pages.
+- **Next.js 16 Cache Handler Compatibility**: Updated the custom Valkey `CacheHandler` to extract page revalidation TTL from `ctx.cacheControl.revalidate`, matching Next.js 16 API changes.
 
 ### Security
 
