@@ -73,6 +73,7 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Security
 
+- **Dependency Vulnerability Remediation**: Resolved 9 high-severity advisories across project dependencies via `npm audit fix` (upgraded Next.js to 16.3.0, along with patches for PostCSS, Sharp, Undici, JS-YAML, Nanoid, Immutable, Brace-Expansion, and SVGO).
 - **IP Header Sanitization**: Strengthened `sanitizeIp` with structural IPv4/IPv6 validation to prevent IP spoofing through fake proxy headers.
 - **Hostname Substring Bypass**: Fixed a vulnerability in the middleware routing that could allow unauthorized domains to bypass tenant lookup if their hostname contained a valid tenant name as a substring.
 - **Path Containment Enforcement**: Added strict path resolution checks when loading journal configs to prevent directory traversal and local file read vulnerabilities.
