@@ -50,10 +50,18 @@ Pages that rarely change. On-demand revalidation is the only way to update them.
 | About                     | `/sites/[journalId]/[lang]/about`                     |
 | Credits                   | `/sites/[journalId]/[lang]/credits`                   |
 | For authors               | `/sites/[journalId]/[lang]/for-authors`               |
+| For editors               | `/sites/[journalId]/[lang]/for-editors`               |
 | For reviewers             | `/sites/[journalId]/[lang]/for-reviewers`             |
 | For conference organisers | `/sites/[journalId]/[lang]/for-conference-organisers` |
 | Acknowledgements          | `/sites/[journalId]/[lang]/acknowledgements`          |
 | Indexing                  | `/sites/[journalId]/[lang]/indexing`                  |
+| Ethical charter           | `/sites/[journalId]/[lang]/ethical-charter`           |
+| Proposing special issues  | `/sites/[journalId]/[lang]/proposing-special-issues`  |
+| Accessibility\*           | `/sites/[journalId]/[lang]/accessibility`             |
+
+\* Accessibility has no backing API service — its content is read from a local markdown
+file at build time (`fs.readFileSync`), not `fetch()`. It has no Data Cache entry and
+`CACHE_TTL_PAGES` does not apply to it; it can only change via a new deployment.
 
 ### Dynamic Pages (Daily ISR)
 
@@ -93,15 +101,19 @@ Published content is effectively immutable; on-demand revalidation handles corre
 All fetch-level cache durations are configurable. They default to **3600 s (1 hour)**
 when the variable is not set. Set to `false` to cache indefinitely (on-demand only).
 
-| Variable               | Service(s)                                                                                                                                                               | Default |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| `CACHE_TTL_NEWS`       | `news.ts`                                                                                                                                                                | 3600    |
-| `CACHE_TTL_VOLUMES`    | `volume.ts`                                                                                                                                                              | 3600    |
-| `CACHE_TTL_ARTICLES`   | `article.ts`, `section.ts`                                                                                                                                               | 3600    |
-| `CACHE_TTL_PAGES`      | `about.ts`, `credits.ts`, `forReviewers.ts`, `indexing.ts`, `indexation.ts`, `acknowledgements.ts`, `forConferenceOrganisers.ts`, `proposingSpecialIssues.ts`, `page.ts` | 3600    |
-| `CACHE_TTL_STATISTICS` | `stat.ts`, `statistics.ts`                                                                                                                                               | 3600    |
-| `CACHE_TTL_MEMBERS`    | `board.ts`, `home.ts` (members)                                                                                                                                          | 3600    |
-| `CACHE_TTL_SECTIONS`   | `section.ts`                                                                                                                                                             | 3600    |
+| Variable               | Service(s)                                                                                                                                                                                      | Default |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `CACHE_TTL_NEWS`       | `news.ts`                                                                                                                                                                                       | 3600    |
+| `CACHE_TTL_VOLUMES`    | `volume.ts`                                                                                                                                                                                     | 3600    |
+| `CACHE_TTL_ARTICLES`   | `article.ts`, `section.ts`                                                                                                                                                                      | 3600    |
+| `CACHE_TTL_PAGES`      | `about.ts`, `credits.ts`, `forAuthors.ts`, `forEditors.ts`, `forReviewers.ts`, `indexing.ts`, `indexation.ts`, `acknowledgements.ts`, `forConferenceOrganisers.ts`, `proposingSpecialIssues.ts` | 3600    |
+| `CACHE_TTL_STATISTICS` | `stat.ts`, `statistics.ts`                                                                                                                                                                      | 3600    |
+| `CACHE_TTL_MEMBERS`    | `board.ts`, `home.ts` (members)                                                                                                                                                                 | 3600    |
+| `CACHE_TTL_SECTIONS`   | `section.ts`                                                                                                                                                                                    | 3600    |
+
+`services/page.ts` (`fetchPage()`) is dead code — no callers anywhere in the app — despite
+previously being listed here. Not removed from the codebase as part of this doc update;
+flagged for a future cleanup.
 
 ### Cache Tag Naming Convention
 
@@ -164,9 +176,13 @@ indexation
 pages
 └── page-{page_code}-{rvcode}     ← fine-grained page tag (e.g. page-about-epijinfo)
 
-credits / for-reviewers / for-conference-organisers /
+credits / for-reviewers / for-editors / for-conference-organisers /
 proposing-special-issues / acknowledgements
 └── {page-type}-{rvcode}          ← dedicated tag per editorial page (no home page section)
+
+editorial-workflow / ethical-charter / prepare-submission
+└── {page-type}-{rvcode}          ← the 3 for-authors/ethical-charter sub-sections
+                                     (services/forAuthors.ts), no home page section
 
 stats / statistics
 ├── stats-{rvcode}                ← home page stats block
@@ -239,14 +255,24 @@ To make them time-based, set `CACHE_TTL_PAGES=86400` in your environment.
 
 ### Stale Content After Deployment
 
-With Valkey, the Data Cache persists across deployments. Pages will serve the
-previously cached API responses until:
+Valkey itself survives restarts, but `cache-handler.js` deliberately does **not** let
+entries survive a deployment: `_parseEntry()` compares each entry's `__buildId`
+against the current build's `BUILD_ID` and treats any mismatch as a miss — for
+**both** Full Route Cache (`PAGE`) entries and Data Cache (`FETCH`) entries. The
+same check runs as a startup sweep in `initialize()`, deleting stale entries from
+Valkey outright.
 
-- their TTL expires, or
-- a revalidation webhook is called.
+This means every deployment invalidates the entire Data Cache across all journals,
+not just the rendered HTML — the first requests after a deploy will re-fetch from
+the API for every page touched (visible in logs as a burst of `MISS`/`SET` entries
+right after rollout). This is a deliberate safety choice: if a deployment changes
+how a service transforms API data (e.g. a new expected field), a `FETCH` entry
+cached under the old build could have the old shape and cause runtime errors under
+the new code. Trading a post-deploy cache-cold-start burst for that safety margin
+is intentional — see the cache-handler.js `set()`/`_parseEntry()` comments.
 
-This is intentional (cache survives restarts). To force a full flush after a deployment,
-run `redis-cli FLUSHDB` against the Valkey master (use with caution in production).
+To force a full flush manually (e.g. outside of a deployment), run `redis-cli
+FLUSHDB` against the Valkey master (use with caution in production).
 
 ---
 

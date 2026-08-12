@@ -20,6 +20,19 @@ const nextConfig = {
   // Do not advertise the framework in response headers
   poweredByHeader: false,
 
+  // Deterministic build ID (git commit) instead of Next's random per-build hash.
+  // The Ansistrano preprod/prod pipeline builds independently and in parallel on
+  // each server (see deployment/ansible/deploy.yml) — a random BUILD_ID would make
+  // every server's build ID diverge, and the Valkey cache handler treats any
+  // __buildId mismatch as stale (src/lib/cache-handler.js), causing the servers to
+  // continuously invalidate each other's cache entries even for identical code.
+  //
+  // NEXT_BUILD_GIT_SHA is set by deployment/ansible/tasks/build.yml from the
+  // Ansistrano repo cache (which has .git); GIT_COMMIT (execSync above) is the
+  // fallback for local dev, where .git is present in the working directory but
+  // NOT in an Ansistrano release directory (export strategy strips it there).
+  generateBuildId: async () => process.env.NEXT_BUILD_GIT_SHA || GIT_COMMIT,
+
   env: {
     NEXT_GIT_BRANCH: GIT_BRANCH,
     NEXT_GIT_COMMIT: GIT_COMMIT,
