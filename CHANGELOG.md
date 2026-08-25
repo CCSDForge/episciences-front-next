@@ -21,6 +21,8 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1] - 2026-08-25
+
 ### Added
 
 - MSC 2020 (Mathematics Subject Classification) section on article detail pages, displayed below Keywords. Classification codes link to zbmath.org. Data sourced from `document.database.current.classifications.msc2020` in the API response.
@@ -35,6 +37,12 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Nginx Production Configuration**: Integrated a production Nginx configuration with a strict Content Security Policy (CSP) to enhance front-end security and mitigate XSS risks.
 - **Internal RSS/Atom Proxies**: Implemented internal caching proxy routes for RSS/Atom feeds to protect backend endpoints from heavy load while providing fast feed responses.
 - **CLOCKSS Archival Permission**: Added CLOCKSS metadata permission statement to every page to support digital preservation harvesting.
+- **Schema.org JSON-LD Structured Data**: Injected Schema.org JSON-LD metadata across pages (`WebSite`, `Periodical`, `Organization` on homepage, `ScholarlyArticle` on article details, `BreadcrumbList` on breadcrumbs, and `WebPage`/`CollectionPage` on secondary and accessibility pages) to improve search engine indexing and SEO.
+- **Search Engine Indexing Control**: Added support for `NEXT_PUBLIC_JOURNAL_ALLOW_INDEXING=false` in journal configuration to block web crawler indexing where required.
+- **Last Updated Date on Editorial Pages**: Added display of the last modification date on API-driven editorial pages (`/about`, `/for-authors`).
+- **Journal Subtitle in Header**: Displayed the journal subtitle in the expanded banner header.
+- **Editorial Board Copyeditor Role**: Added support for the `copyeditor` role with localized labels (`fr`, `en`, `es`).
+- **Build Metadata Generator Tag**: Added a meta `generator` tag including current branch and commit information.
 
 ### Changed
 
@@ -50,6 +58,8 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Streamlined PDF Downloads**: Replaced proxy redirects with a direct streaming `/download` route that opens PDFs in a new tab, preventing blank page redirects and improving accessibility.
 - **Dynamic Homepage Layouts**: Updated configuration parser to allow journals to dynamically toggle homepage sections (news, volumes) based on their specific configuration without code changes.
 - **Article Section Ordering**: Inverted the display order of sections on the article page: the PDF preview block now appears before the bibliographic references section.
+- **Dynamic Page Titles**: Sourced journal titles dynamically from API metadata instead of hardcoded 'Episciences' in page title templates.
+- **Scientific Advisory Board Ordering**: Displayed scientific advisory board before editorial board on the boards page.
 - **Development Server Port**: Changed default development server port from `8080` to `5000` in `package.json` to prevent port conflicts with local Docker services.
 
 ### Fixed
@@ -59,6 +69,13 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Middleware Redirection Loop**: Resolved an infinite rewrite loop in the multi-tenant routing middleware that caused HTTP 431 errors on certain hostname configurations.
 - **PDF Preview Hydration Race Condition**: Fixed a race condition in `PDFProxyIframe` that prevented article PDFs from displaying in the preview frame on slow connections.
 - **Editorial Board Photos Distortion**: Applied `object-fit: cover` to board member images to prevent photo distortion when aspect ratios differ.
+- **Board Members Without CMS Page & Card Expansion**: Ensured board members with no configured CMS page are rendered in a fallback group, and resolved card expansion/blur state sharing across multiple board groups.
+- **For-Authors Page Rendering & Collapsible Sections**: Extracted Markdown heading text recursively to avoid truncating formatted headings, prevented the page title from creating an empty section, kept collapsed section headers visible, replaced `useEffect` loading flicker with `useMemo`, and memoized Markdown renderer components to prevent unwanted subtree remounts.
+- **Indexing Page Shared Mixin Styling**: Restored shared markdown-page styling on the Indexing page by extracting common rules into a reusable SCSS mixin (`_markdown-page-mixin.scss`).
+- **API Proxy Path Encoding**: Replaced character-stripping sanitization with RFC-compliant percent-encoding on proxy path segments, preserving spaces and accented characters in author search queries.
+- **Markdown Table Cells Color**: Removed forced `--primary-text` color from table cells, allowing `tbody` cells to inherit standard text colors.
+- **Articles & Volumes Deduplication**: Deduplicated article counts when articles belong to multiple volumes, and deduplicated author articles keeping highest version.
+- **Chrome PDF Viewer Display**: Fixed intermittent "This content is blocked" error in Chrome PDF viewer preview.
 - **Homepage News Date**: Restored the publication date in the news block on the homepage.
 - **Sign-in Redirection**: Appended `/user/login` to the base manager URL for the header sign-in link.
 - **Localized Pagination**: Localized pagination control `aria-labels` and moved them from SVG icons to the link elements themselves to improve accessibility (WCAG).
