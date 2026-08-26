@@ -369,6 +369,25 @@ describe('article service', () => {
       );
     });
 
+    it('percent-encodes the paper id so it cannot inject path segments or query strings', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: async () => '<xml/>',
+      }) as unknown as typeof fetch;
+
+      await fetchArticleMetadata({
+        rvcode: 'epijinfo',
+        paperid: '42?admin=true#fragment',
+        type: 'bibtex' as never,
+      });
+
+      const [url] = vi.mocked(global.fetch).mock.calls[0];
+      expect(url).toBe(
+        `https://api.epijinfo.test/papers/export/${encodeURIComponent('42?admin=true#fragment')}/bibtex?code=epijinfo`
+      );
+      expect(url).not.toContain('/42?admin=true#fragment/');
+    });
+
     it('returns null without warning on 404', async () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
 
