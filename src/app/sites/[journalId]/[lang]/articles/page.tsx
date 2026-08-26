@@ -13,8 +13,8 @@ import { generateCollectionPageJsonLd } from '@/utils/schema';
 
 const ArticlesClient = dynamic(() => import('./ArticlesClient'));
 
-// ISR: revalidate every hour, but serve stale content if API is down
-export const revalidate = 3600;
+// Controlled by CACHE_TTL.articles in fetchArticles (default: 3600s, configurable via CACHE_TTL_ARTICLES)
+export const revalidate = false;
 
 // Pre-generate articles page for all journals at build time
 export async function generateStaticParams() {

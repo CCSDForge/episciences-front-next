@@ -123,18 +123,20 @@ describe('article service', () => {
       expect(url).toContain('42%3Fadmin%3Dtrue');
     });
 
-    it('builds clean cache tags without empty entries when rvcode is absent', async () => {
+    it('builds clean cache tags and uses CACHE_TTL.articles without empty entries when rvcode is absent', async () => {
       await fetchArticle('42');
 
       const [, options] = mockFetchWithRetry.mock.calls[0];
       expect(options.next.tags).toEqual(['articles', 'article-42']);
+      expect(options.next.revalidate).toBe(3600);
     });
 
-    it('includes the journal tag when rvcode is provided', async () => {
+    it('includes the journal tag and revalidate TTL when rvcode is provided', async () => {
       await fetchArticle('42', 'epijinfo');
 
       const [, options] = mockFetchWithRetry.mock.calls[0];
       expect(options.next.tags).toEqual(['articles', 'article-42', 'articles-epijinfo']);
+      expect(options.next.revalidate).toBe(3600);
     });
 
     it('returns null and logs debug when the article is a 404', async () => {
@@ -273,6 +275,15 @@ describe('article service', () => {
       const result = await fetchExportLink(42, 'bibtex', 'epijinfo');
 
       expect(result).toBe('@article{...}');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.epijinfo.test/papers/export/42/bibtex?code=epijinfo',
+        {
+          next: {
+            revalidate: 3600,
+            tags: ['articles', 'article-42', 'articles-epijinfo'],
+          },
+        }
+      );
     });
 
     it('returns null when the response is not ok', async () => {
@@ -347,6 +358,34 @@ describe('article service', () => {
       });
 
       expect(result).toBe('<xml/>');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.epijinfo.test/papers/export/1/bibtex?code=epijinfo',
+        {
+          next: {
+            revalidate: 3600,
+            tags: ['articles', 'article-1', 'articles-epijinfo'],
+          },
+        }
+      );
+    });
+
+    it('percent-encodes the paper id so it cannot inject path segments or query strings', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: async () => '<xml/>',
+      }) as unknown as typeof fetch;
+
+      await fetchArticleMetadata({
+        rvcode: 'epijinfo',
+        paperid: '42?admin=true#fragment',
+        type: 'bibtex' as never,
+      });
+
+      const [url] = vi.mocked(global.fetch).mock.calls[0];
+      expect(url).toBe(
+        `https://api.epijinfo.test/papers/export/${encodeURIComponent('42?admin=true#fragment')}/bibtex?code=epijinfo`
+      );
+      expect(url).not.toContain('/42?admin=true#fragment/');
     });
 
     it('returns null without warning on 404', async () => {

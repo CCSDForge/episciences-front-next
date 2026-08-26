@@ -165,7 +165,8 @@ export default async function Page() {
 | Static editorial (about, credits)     | `false`          | Rarely changes        |
 | Moderately dynamic (home, volumes)    | `86400` (24h)    | Weekly updates        |
 | Frequently updated (news)             | `3600` (1h)      | Multiple updates/day  |
-| Published content (articles, volumes) | `604800` (7d)    | Immutable + on-demand |
+| Articles (detail, list)               | `false`          | Configurable via `CACHE_TTL_ARTICLES` (default: 3600s) + on-demand |
+| Published details (volumes, sections) | `604800` (7d)    | Immutable + on-demand |
 | User-specific (search, dashboard)     | `connection()`   | Dynamic per request   |
 
 **Example:**
