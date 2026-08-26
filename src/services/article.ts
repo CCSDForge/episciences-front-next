@@ -155,7 +155,9 @@ async function fetchRawArticle(paperid: string | number, rvcode: string = ''): P
     {
       next: {
         revalidate: CACHE_TTL.articles,
-        tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''],
+        tags: ['articles', `article-${paperid}`, rvcode ? `articles-${rvcode}` : ''].filter(
+          Boolean
+        ),
       },
     }
   );
@@ -176,8 +178,8 @@ export async function fetchArticle(
     const response = await fetchWithRetry(
       `${apiRoot}${API_PATHS.papers}${encodeURIComponent(paperid)}`,
       {
-        cache: 'force-cache',
         next: {
+          revalidate: CACHE_TTL.articles,
           tags: ['articles', `article-${paperid}`, rvcode && `articles-${rvcode}`].filter(
             Boolean
           ) as string[],
@@ -213,7 +215,15 @@ export async function fetchExportLink(
     // "fetchExportLink" -> retourne le texte
 
     const response = await fetch(
-      `${apiUrl}${API_PATHS.papers}export/${paperid}/${type}?code=${journalCode}`
+      `${apiUrl}${API_PATHS.papers}export/${paperid}/${type}?code=${journalCode}`,
+      {
+        next: {
+          revalidate: CACHE_TTL.articles,
+          tags: ['articles', `article-${paperid}`, journalCode && `articles-${journalCode}`].filter(
+            Boolean
+          ) as string[],
+        },
+      }
     );
 
     if (!response.ok) {
@@ -320,7 +330,15 @@ export async function fetchArticleMetadata({
   try {
     const apiRoot = getJournalApiUrl(rvcode);
     const response = await fetch(
-      `${apiRoot}${API_PATHS.papers}export/${paperid}/${type}?code=${rvcode}`
+      `${apiRoot}${API_PATHS.papers}export/${paperid}/${type}?code=${rvcode}`,
+      {
+        next: {
+          revalidate: CACHE_TTL.articles,
+          tags: ['articles', `article-${paperid}`, rvcode && `articles-${rvcode}`].filter(
+            Boolean
+          ) as string[],
+        },
+      }
     );
 
     if (!response.ok) {
