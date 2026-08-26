@@ -21,6 +21,10 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+### Changed
+
+- **Search Result Article Enrichment Cache**: Disabled Next.js Data Cache (`cache: 'no-store'`) on article detail lookups within search results to prevent caching stale or cross-journal search-enriched article data.
+
 ## [v1] - 2026-08-25
 
 ### Added
