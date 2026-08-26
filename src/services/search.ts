@@ -96,9 +96,7 @@ export async function fetchSearchResults({
       headers: {
         'Content-Type': 'application/json',
       },
-      next: {
-        tags: ['search'],
-      },
+      cache: 'no-store',
     });
 
     if (!response.ok) {
