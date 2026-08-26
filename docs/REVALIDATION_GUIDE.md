@@ -185,19 +185,17 @@ and as a section on the home page. Both are invalidated together.
 
 Each of these pages has its own tag. They do **not** appear on the home page.
 
-| Page                      | Tag                                  |
-| ------------------------- | ------------------------------------ |
-| Credits                   | `credits-{rvcode}`                   |
-| For reviewers             | `for-reviewers-{rvcode}`             |
-| For conference organisers | `for-conference-organisers-{rvcode}` |
-| Proposing special issues  | `proposing-special-issues-{rvcode}`  |
-| Acknowledgements          | `acknowledgements-{rvcode}`          |
-
-> **⚠ For Authors sub-pages not revalidatable on demand** — The three sub-pages of the
-> "For Authors" section (`editorial-workflow`, `ethical-charter`, `prepare-submission`)
-> use raw `fetch()` without Next.js cache tags. They can only be refreshed via time-based
-> TTL or a full server restart. This is a known gap; avoid triggering webhook calls for
-> these pages.
+| Page                                  | Tag                                  |
+| ------------------------------------- | ------------------------------------ |
+| Credits                               | `credits-{rvcode}`                   |
+| For editors                           | `for-editors-{rvcode}`               |
+| For reviewers                         | `for-reviewers-{rvcode}`             |
+| For conference organisers             | `for-conference-organisers-{rvcode}` |
+| Proposing special issues              | `proposing-special-issues-{rvcode}`  |
+| Acknowledgements                      | `acknowledgements-{rvcode}`          |
+| For authors: Editorial workflow       | `editorial-workflow-{rvcode}`        |
+| For authors: Ethical charter          | `ethical-charter-{rvcode}`           |
+| For authors: Prepare submission       | `prepare-submission-{rvcode}`        |
 
 ---
 

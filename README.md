@@ -220,6 +220,11 @@ Additional documentation is available in the `docs/` folder:
 - [Revalidation Guide](docs/REVALIDATION_GUIDE.md) - On-demand revalidation API & webhooks
 - [Valkey Cache Strategy](docs/VALKEY_CACHE_STRATEGY.md) - Distributed cache design and circuit breaker
 
+### Backend Integration & Revalidation Specs
+
+- [Symfony Revalidation Specification](docs/REVALIDATION_IMPLEMENTATION_SPEC_SYMFONY.md) - Specification for implementing cache revalidation in the Symfony backend
+- [Zend Framework 1 Revalidation Specification](docs/REVALIDATION_IMPLEMENTATION_SPEC_ZF1.md) - Specification for implementing cache revalidation in the legacy ZF1 backend
+
 ### Configuration & Development
 
 - [Configuration Guide](docs/CONFIGURATION_GUIDE.md) - Dynamic runtime configuration
@@ -362,9 +367,3 @@ Then access: `http://epijinfo.episciences.test:8080`
 | `make sonar`             | Run tests with coverage and SonarQube scan               |
 
 See [Nginx Integration](docs/NGINX_INTEGRATION.md) for full documentation.
-
-## Contributing
-
-Please follow the code conventions and migration rules defined in the documentation files (`CLAUDE.md` / `GEMINI.md`).
-
-**Important:** Use `git add <file>` specifically. Never use `git add .` or `git add -A`.
