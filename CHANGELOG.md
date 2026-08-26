@@ -31,6 +31,9 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Changed
 
+- **Search Result Article Enrichment Cache**: Disabled Next.js Data Cache (`cache: 'no-store'`) on article detail lookups within search results to prevent caching stale or cross-journal search-enriched article data.
+- **Server Component Error Propagation**: Moved JSX rendering out of `try/catch` blocks in server components to allow React and Next.js error boundaries to handle rendering failures natively.
+- **Hydration State Management**: Added `useIsHydrated` hook to manage client hydration state cleanly, replacing mount-guard `useEffect` patterns.
 - **Single SVG Journal Logos**: Simplified journal logo management by using a single SVG per journal instead of separate big/small versions.
 - **Responsive Header & Footer**: Improved header and footer layout to prevent layout shifts across devices, with flexible search bar width and adjusted mobile preheader layout.
 - **Framework & Dependencies Upgrade**: Upgraded Next.js to 16.3.0 and React to 19.2.8.
@@ -45,6 +48,10 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Board Dependencies**: Aligned `boardsPerTitle` `useMemo` dependencies in `BoardsClient`.
 - **Test Suite Coverage**: Added comprehensive unit test coverage for layouts, feed routes, and server components, raising test coverage to >82%.
 - **Cross-Journal Access Guard**: Centralized cross-journal access protection across article details, downloads, preview, and linksets.
+
+### Security
+
+- **Nanoid Vulnerability Remediation**: Updated dependency override for `nanoid` to `>=3.3.18` to resolve vulnerability GHSA-2v37-7h3g-55p8.
 
 ## [v1] - 2026-08-25
 
