@@ -115,9 +115,7 @@ export async function fetchSearchResults({
         const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
         const rvcodeParam = typeof window !== 'undefined' && rvcode ? `?rvcode=${rvcode}` : '';
         const response = await fetch(`${apiRoot}${API_PATHS.papers}${articleId}${rvcodeParam}`, {
-          next: {
-            tags: ['article', `article-${articleId}`],
-          },
+          cache: 'no-store',
         });
 
         if (!response.ok) {
