@@ -1,18 +1,21 @@
 @use '@/styles/breakpoints.scss';
 .articlesMobileModal {
-  position: absolute;
+  position: fixed;
   left: 0px;
   right: 0px;
-  top: 130px;
-  height: 100%;
+  // 415px = main's default margin-top (285px) + space for the heading/count row (130px)
+  top: 415px;
+  bottom: 0px;
   background: var(--white);
   z-index: 3;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
   color: var(--grey-dark);
 
   @media (max-width: breakpoints.$xsm) {
-    top: 50px;
+    // 255px = main's margin-top at this breakpoint (205px) + space for the heading/count row (50px)
+    top: 255px;
   }
 
   &-title {
