@@ -72,7 +72,11 @@ describe('ArticlesAcceptedClient', () => {
 
   it('renders articles returned by the query', () => {
     render(
-      <ArticlesAcceptedClient initialArticles={initialArticles} initialRange={initialRange} lang="fr" />
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
     );
 
     expect(screen.getByText('Article 1')).toBeInTheDocument();
@@ -86,7 +90,11 @@ describe('ArticlesAcceptedClient', () => {
     } as any);
 
     const { container } = render(
-      <ArticlesAcceptedClient initialArticles={initialArticles} initialRange={initialRange} lang="fr" />
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
     );
 
     await waitFor(() => expect(container.querySelector('.loader')).toBeInTheDocument());
@@ -111,12 +119,14 @@ describe('ArticlesAcceptedClient', () => {
 
   it('checks a type filter from the sidebar and adds a tag', () => {
     render(
-      <ArticlesAcceptedClient initialArticles={initialArticles} initialRange={initialRange} lang="fr" />
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
     );
 
-    const sidebarCheckbox = document.querySelector(
-      'input[type="checkbox"]'
-    ) as HTMLInputElement;
+    const sidebarCheckbox = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
     fireEvent.click(sidebarCheckbox);
 
     expect(document.querySelector('.articlesAccepted-filters-tags')).toBeInTheDocument();
@@ -124,12 +134,14 @@ describe('ArticlesAcceptedClient', () => {
 
   it('clears all tagged filters when "clear all" is clicked', () => {
     render(
-      <ArticlesAcceptedClient initialArticles={initialArticles} initialRange={initialRange} lang="fr" />
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
     );
 
-    const sidebarCheckbox = document.querySelector(
-      'input[type="checkbox"]'
-    ) as HTMLInputElement;
+    const sidebarCheckbox = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
     fireEvent.click(sidebarCheckbox);
     expect(document.querySelector('.articlesAccepted-filters-tags')).toBeInTheDocument();
 
@@ -139,7 +151,11 @@ describe('ArticlesAcceptedClient', () => {
 
   it('toggles all abstracts open/closed', () => {
     render(
-      <ArticlesAcceptedClient initialArticles={initialArticles} initialRange={initialRange} lang="fr" />
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
     );
 
     const toggle = screen.getAllByText('common.toggleAbstracts.showAll')[0];
@@ -150,7 +166,11 @@ describe('ArticlesAcceptedClient', () => {
 
   it('opens the mobile filters modal, applies types from it, then closes it', () => {
     render(
-      <ArticlesAcceptedClient initialArticles={initialArticles} initialRange={initialRange} lang="fr" />
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
     );
 
     const filterTile = document.querySelector(
@@ -171,7 +191,11 @@ describe('ArticlesAcceptedClient', () => {
     } as any);
 
     render(
-      <ArticlesAcceptedClient initialArticles={initialArticles} initialRange={initialRange} lang="fr" />
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
     );
 
     expect(screen.getByText('Article 1')).toBeInTheDocument();

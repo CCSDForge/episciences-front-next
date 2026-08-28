@@ -36,8 +36,7 @@ describe('JournalLayout', () => {
 
     // In happy-dom a <style> element rendered via dangerouslySetInnerHTML stays in the
     // render container rather than hoisting to document.head; check both to be safe.
-    const style =
-      container.querySelector('style') ?? document.head.querySelector('style');
+    const style = container.querySelector('style') ?? document.head.querySelector('style');
     expect(style).not.toBeNull();
 
     const cssText = style!.innerHTML;

@@ -138,8 +138,16 @@ describe('LanguageDropdown', () => {
   describe('Accessibility - ARIA attributes', () => {
     it.each([
       { description: 'button has aria-haspopup="true"', attribute: 'aria-haspopup', value: 'true' },
-      { description: 'button has aria-expanded="false" when closed', attribute: 'aria-expanded', value: 'false' },
-      { description: 'button has descriptive aria-label', attribute: 'aria-label', value: 'Select language' },
+      {
+        description: 'button has aria-expanded="false" when closed',
+        attribute: 'aria-expanded',
+        value: 'false',
+      },
+      {
+        description: 'button has descriptive aria-label',
+        attribute: 'aria-label',
+        value: 'Select language',
+      },
     ])('$description', ({ attribute, value }) => {
       render(<LanguageDropdown />);
 
@@ -276,9 +284,24 @@ describe('LanguageDropdown', () => {
 
   describe('Menu item keyboard navigation', () => {
     it.each([
-      { description: 'ArrowDown navigates to next menu item', key1: '{ArrowDown}', key2: '{ArrowDown}', expanded: 'true' },
-      { description: 'ArrowUp navigates to previous menu item', key1: '{ArrowUp}', key2: '{ArrowUp}', expanded: 'true' },
-      { description: 'Escape from menu item closes dropdown', key1: '{ArrowDown}', key2: '{Escape}', expanded: 'false' },
+      {
+        description: 'ArrowDown navigates to next menu item',
+        key1: '{ArrowDown}',
+        key2: '{ArrowDown}',
+        expanded: 'true',
+      },
+      {
+        description: 'ArrowUp navigates to previous menu item',
+        key1: '{ArrowUp}',
+        key2: '{ArrowUp}',
+        expanded: 'true',
+      },
+      {
+        description: 'Escape from menu item closes dropdown',
+        key1: '{ArrowDown}',
+        key2: '{Escape}',
+        expanded: 'false',
+      },
     ])('$description', async ({ key1, key2, expanded }) => {
       const user = userEvent.setup();
       render(<LanguageDropdown />);

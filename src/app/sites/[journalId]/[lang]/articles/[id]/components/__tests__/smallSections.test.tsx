@@ -19,16 +19,19 @@ describe('ClassificationsSection', () => {
             sourceName: 'MSC',
             classificationName: 'MSC2020',
           },
-          { code: '03B15', label: '', description: '', sourceName: 'MSC', classificationName: 'MSC2020' },
+          {
+            code: '03B15',
+            label: '',
+            description: '',
+            sourceName: 'MSC',
+            classificationName: 'MSC2020',
+          },
         ]}
       />
     );
 
     const link = screen.getByRole('link', { name: /03B10/ });
-    expect(link).toHaveAttribute(
-      'href',
-      'https://zbmath.org/classification/?q=03B10'
-    );
+    expect(link).toHaveAttribute('href', 'https://zbmath.org/classification/?q=03B10');
     expect(screen.getByText(/Classical first-order logic/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '03B15' })).toBeInTheDocument();
   });

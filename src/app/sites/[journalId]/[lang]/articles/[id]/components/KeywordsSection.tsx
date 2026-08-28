@@ -25,10 +25,7 @@ export default function KeywordsSection({
     return (
       <ul className="keywords-list">
         {keywordsData.map((keyword: string) => (
-          <li
-            className="articleDetails-content-article-section-content-keywords-tag"
-            key={keyword}
-          >
+          <li className="articleDetails-content-article-section-content-keywords-tag" key={keyword}>
             {keyword}
           </li>
         ))}
@@ -93,10 +90,7 @@ export default function KeywordsSection({
     return (
       <ul className="keywords-list" dir={direction}>
         {keywords.map((keyword: string) => (
-          <li
-            className="articleDetails-content-article-section-content-keywords-tag"
-            key={keyword}
-          >
+          <li className="articleDetails-content-article-section-content-keywords-tag" key={keyword}>
             {keyword}
           </li>
         ))}

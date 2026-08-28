@@ -107,7 +107,12 @@ describe('formatArticle', () => {
           mainPdfUrl: 'https://hal/pdf',
           volume: { id: 12 },
           graphical_abstract_file: 'ga.png',
-          journal: { id: 1, url: 'https://epijournal.episciences.org', code: 'epijournal', name: 'Epijournal' },
+          journal: {
+            id: 1,
+            url: 'https://epijournal.episciences.org',
+            code: 'epijournal',
+            name: 'Epijournal',
+          },
         },
       });
       const result = formatArticle(raw);

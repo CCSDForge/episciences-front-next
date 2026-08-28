@@ -292,7 +292,10 @@ describe('ArticleDetailsSidebar', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('Publication details', () => {
     it.each([
-      { description: 'renders the publication details section title', label: 'Publication Details' },
+      {
+        description: 'renders the publication details section title',
+        label: 'Publication Details',
+      },
       { description: 'shows submission date when present', label: 'Submitted on' },
       { description: 'shows acceptance date when present', label: 'Accepted on' },
       { description: 'shows publication date when present', label: 'Published on' },

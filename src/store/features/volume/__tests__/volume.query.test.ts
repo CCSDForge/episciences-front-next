@@ -67,10 +67,10 @@ describe('volume.query - fetchVolumes', () => {
 
   it('defaults range.years to an empty array when the API omits it', async () => {
     global.fetch = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({ 'hydra:member': [], 'hydra:totalItems': 0 }),
-        { status: 200, headers: { 'content-type': 'application/json' } }
-      )
+      new Response(JSON.stringify({ 'hydra:member': [], 'hydra:totalItems': 0 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
     ) as unknown as typeof fetch;
 
     const store = buildStore();

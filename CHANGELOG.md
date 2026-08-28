@@ -139,4 +139,3 @@ Usually the right type is clear. Three of them cause the most questions:
 
 - **Duplicate CSP Headers**: Removed Content Security Policy (CSP) and HSTS definitions from Next.js config to avoid duplicate header conflicts, since these are now managed by Nginx upstream.
 - **Unused Preconnect Hints**: Removed obsolete preconnect and dns-prefetch tags to clean up page headers and prevent unnecessary DNS lookups.
-

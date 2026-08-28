@@ -4,9 +4,7 @@ import KeywordsSection from '../KeywordsSection';
 
 describe('KeywordsSection', () => {
   it('returns null when keywordsData is null or undefined', () => {
-    const { container: c1 } = render(
-      <KeywordsSection keywordsData={null} currentLanguage="en" />
-    );
+    const { container: c1 } = render(<KeywordsSection keywordsData={null} currentLanguage="en" />);
     expect(c1).toBeEmptyDOMElement();
 
     const { container: c2 } = render(
@@ -44,10 +42,7 @@ describe('KeywordsSection', () => {
 
   it('groups keywords by language with badges and a separator between groups', () => {
     const { container, getByText } = render(
-      <KeywordsSection
-        keywordsData={{ en: ['alpha'], fr: ['bêta'] }}
-        currentLanguage="en"
-      />
+      <KeywordsSection keywordsData={{ en: ['alpha'], fr: ['bêta'] }} currentLanguage="en" />
     );
 
     expect(container.querySelector('.keywords-multilingual')).toBeInTheDocument();

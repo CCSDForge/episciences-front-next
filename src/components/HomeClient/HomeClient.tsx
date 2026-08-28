@@ -159,8 +159,7 @@ function HomeClientInner({
     const shouldRenderIndexation = indexationConfig?.render && !!indexation?.content;
 
     const issuesConfig = getBlockRendering(HOMEPAGE_BLOCK.SPECIAL_ISSUES);
-    const shouldRenderIssues =
-      issuesConfig?.render && issues?.data && issues.data.length > 0;
+    const shouldRenderIssues = issuesConfig?.render && issues?.data && issues.data.length > 0;
 
     const acceptedArticlesConfig = getBlockRendering(
       HOMEPAGE_BLOCK.LATEST_ACCEPTED_ARTICLES_CAROUSEL

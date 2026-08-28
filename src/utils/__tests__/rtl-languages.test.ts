@@ -240,7 +240,6 @@ describe('rtl-languages utilities', () => {
         expect(label.length).toBeGreaterThan(0);
       });
     });
-
   });
 
   describe('isRTLLanguageCode', () => {

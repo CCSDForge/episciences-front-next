@@ -65,7 +65,11 @@ describe('GET /api/pdf-proxy', () => {
         url: 'https://zenodo.org.evil.com/file.pdf',
         status: 403,
       },
-      { description: 'HTTP (non-HTTPS) URL', url: 'http://zenodo.org/record/123/files/paper.pdf', status: 403 },
+      {
+        description: 'HTTP (non-HTTPS) URL',
+        url: 'http://zenodo.org/record/123/files/paper.pdf',
+        status: 403,
+      },
       {
         description: 'a whitelisted domain (zenodo.org)',
         url: 'https://zenodo.org/record/123/files/paper.pdf',

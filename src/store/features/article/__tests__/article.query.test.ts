@@ -82,10 +82,10 @@ describe('article.query - fetchArticles', () => {
   it('skips the client-side enrichment during static builds', async () => {
     process.env.NEXT_PUBLIC_STATIC_BUILD = 'true';
     const fetchMock = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({ 'hydra:member': [{ paperid: 1 }], 'hydra:totalItems': 1 }),
-        { status: 200, headers: { 'content-type': 'application/json' } }
-      )
+      new Response(JSON.stringify({ 'hydra:member': [{ paperid: 1 }], 'hydra:totalItems': 1 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
     );
     global.fetch = fetchMock as unknown as typeof fetch;
 
@@ -126,9 +126,7 @@ describe('article.query - fetchArticle', () => {
 
     expect('data' in result).toBe(true);
     if ('data' in result) {
-      expect(result.data).toEqual(
-        expect.objectContaining({ paperid: 42, formatted: true })
-      );
+      expect(result.data).toEqual(expect.objectContaining({ paperid: 42, formatted: true }));
     }
   });
 });

@@ -40,9 +40,7 @@ const aboutPage: AboutPage = {
 
 describe('AboutClient', () => {
   it('renders the breadcrumb and page title from breadcrumbLabels', () => {
-    render(
-      <AboutClient initialPage={aboutPage} lang="en" breadcrumbLabels={breadcrumbLabels} />
-    );
+    render(<AboutClient initialPage={aboutPage} lang="en" breadcrumbLabels={breadcrumbLabels} />);
 
     expect(screen.getByText('Home >')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'The journal' })).toBeInTheDocument();
@@ -60,9 +58,7 @@ describe('AboutClient', () => {
 
   it('renders each H2 as a collapsible section and toggles it on click', async () => {
     const user = userEvent.setup();
-    render(
-      <AboutClient initialPage={aboutPage} lang="en" breadcrumbLabels={breadcrumbLabels} />
-    );
+    render(<AboutClient initialPage={aboutPage} lang="en" breadcrumbLabels={breadcrumbLabels} />);
 
     const missionHeading = screen.getByRole('heading', { level: 2, name: 'Mission' });
     expect(screen.getByRole('heading', { level: 2, name: 'History' })).toBeInTheDocument();
@@ -87,7 +83,9 @@ describe('AboutClient', () => {
       content: { en: '## Mission\n\nSome content.' },
     };
 
-    render(<AboutClient initialPage={frenchOnlyPage} lang="fr" breadcrumbLabels={breadcrumbLabels} />);
+    render(
+      <AboutClient initialPage={frenchOnlyPage} lang="fr" breadcrumbLabels={breadcrumbLabels} />
+    );
 
     expect(screen.getByRole('status')).toHaveTextContent('common.contentNotInLanguage');
   });

@@ -26,7 +26,10 @@ describe('VolumeDetailsDesktop', () => {
   it('renders the committee note for non-proceedings volumes', () => {
     render(
       <VolumeDetailsDesktop
-        volume={{ ...baseVolume, committee: [{ screenName: 'Jane' }, { screenName: 'John' }] as never }}
+        volume={{
+          ...baseVolume,
+          committee: [{ screenName: 'Jane' }, { screenName: 'John' }] as never,
+        }}
       />
     );
 

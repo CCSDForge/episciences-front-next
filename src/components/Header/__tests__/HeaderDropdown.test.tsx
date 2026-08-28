@@ -140,10 +140,25 @@ describe('HeaderDropdown', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('keyboard navigation — button', () => {
     it.each([
-      { description: 'Enter opens the dropdown and sets focusedIndex to 0', key: 'Enter', isOpen: false, expectedToggle: true },
+      {
+        description: 'Enter opens the dropdown and sets focusedIndex to 0',
+        key: 'Enter',
+        isOpen: false,
+        expectedToggle: true,
+      },
       { description: 'Space opens the dropdown', key: ' ', isOpen: false, expectedToggle: true },
-      { description: 'Enter on open dropdown closes it', key: 'Enter', isOpen: true, expectedToggle: false },
-      { description: 'ArrowDown opens and focuses first item', key: 'ArrowDown', isOpen: false, expectedToggle: true },
+      {
+        description: 'Enter on open dropdown closes it',
+        key: 'Enter',
+        isOpen: true,
+        expectedToggle: false,
+      },
+      {
+        description: 'ArrowDown opens and focuses first item',
+        key: 'ArrowDown',
+        isOpen: false,
+        expectedToggle: true,
+      },
     ])('$description', ({ key, isOpen, expectedToggle }) => {
       const onToggle = vi.fn();
       renderDropdown({ isOpen, onToggle });

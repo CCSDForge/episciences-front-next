@@ -13,9 +13,7 @@ vi.mock('react-i18next', () => ({
 
 describe('LinkedPublicationsSection', () => {
   it('returns null when relatedItems is null/undefined', () => {
-    const { container: c1 } = render(
-      <LinkedPublicationsSection relatedItems={null as never} />
-    );
+    const { container: c1 } = render(<LinkedPublicationsSection relatedItems={null as never} />);
     expect(c1).toBeEmptyDOMElement();
 
     const { container: c2 } = render(
@@ -32,14 +30,20 @@ describe('LinkedPublicationsSection', () => {
   it('returns null when all items are filtered out (isSameAs / hasPreprint)', () => {
     const { container } = render(
       <LinkedPublicationsSection
-        relatedItems={[
-          { value: 'a', identifierType: 'uri', relationshipType: INTER_WORK_RELATIONSHIP.IS_SAME_AS },
-          {
-            value: 'b',
-            identifierType: 'uri',
-            relationshipType: INTER_WORK_RELATIONSHIP.HAS_PREPRINT,
-          },
-        ] as never}
+        relatedItems={
+          [
+            {
+              value: 'a',
+              identifierType: 'uri',
+              relationshipType: INTER_WORK_RELATIONSHIP.IS_SAME_AS,
+            },
+            {
+              value: 'b',
+              identifierType: 'uri',
+              relationshipType: INTER_WORK_RELATIONSHIP.HAS_PREPRINT,
+            },
+          ] as never
+        }
       />
     );
     expect(container).toBeEmptyDOMElement();

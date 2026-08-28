@@ -92,9 +92,7 @@ export function proxy(request: NextRequest) {
 
   // 2. Validate journalId exists in registry
   if (!journalExists(journalId)) {
-    log.warn(
-      `[Proxy] Unknown journalId: ${sanitizeForLog(journalId)}, redirecting to default`
-    );
+    log.warn(`[Proxy] Unknown journalId: ${sanitizeForLog(journalId)}, redirecting to default`);
     // Redirect to default journal instead of showing error page
     journalId = DEFAULT_JOURNAL;
   }

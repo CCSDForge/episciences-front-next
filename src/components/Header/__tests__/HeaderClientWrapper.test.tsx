@@ -58,9 +58,14 @@ describe('HeaderClientWrapper', () => {
     });
 
     it.each([
-      { description: 'adds header-reduced class when scrolled past 100px', scrollY: 150, expected: true },
       {
-        description: 'does not add header-reduced class exactly at 100px (threshold is strictly greater)',
+        description: 'adds header-reduced class when scrolled past 100px',
+        scrollY: 150,
+        expected: true,
+      },
+      {
+        description:
+          'does not add header-reduced class exactly at 100px (threshold is strictly greater)',
         scrollY: 100,
         expected: false,
       },

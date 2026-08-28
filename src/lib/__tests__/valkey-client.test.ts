@@ -221,11 +221,7 @@ describe('getValkeyClient()', () => {
       expect(() => handlers.close()).not.toThrow();
       expect(() => handlers['+sentinel']({ host: 'sentinel-1', port: 26379 })).not.toThrow();
       expect(() =>
-        handlers['+switch-master'](
-          'mymaster',
-          { host: 'old', port: 1 },
-          { host: 'new', port: 2 }
-        )
+        handlers['+switch-master']('mymaster', { host: 'old', port: 1 }, { host: 'new', port: 2 })
       ).not.toThrow();
     });
   });

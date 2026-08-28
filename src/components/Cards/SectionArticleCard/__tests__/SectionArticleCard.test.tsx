@@ -78,7 +78,10 @@ const baseArticle: IArticle = {
 describe('SectionArticleCard', () => {
   describe('rendering', () => {
     it.each([
-      { description: 'renders the article title', label: 'Graph Theory Applications in Social Networks' },
+      {
+        description: 'renders the article title',
+        label: 'Graph Theory Applications in Social Networks',
+      },
       { description: 'renders authors joined by comma', label: 'Eve Torres, Frank Mueller' },
       { description: 'renders the publication date', label: 'Jan 20, 2024' },
     ])('$description', ({ label }) => {

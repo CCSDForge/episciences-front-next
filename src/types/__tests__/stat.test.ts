@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  isIStatValueDetails,
-  isIStatValueEvaluation,
-  getFormattedStatsAsPieChart,
-} from '../stat';
+import { isIStatValueDetails, isIStatValueEvaluation, getFormattedStatsAsPieChart } from '../stat';
 
 describe('isIStatValueDetails', () => {
   it('returns true when published is defined', () => {

@@ -79,7 +79,9 @@ function convertMdastToReact(nodes: Node[], keyPrefix = 'md'): React.ReactNode[]
           React.createElement(
             'strong',
             { key },
-            renderedChildren && renderedChildren.length === 1 ? renderedChildren[0] : renderedChildren
+            renderedChildren && renderedChildren.length === 1
+              ? renderedChildren[0]
+              : renderedChildren
           )
         );
         break;
@@ -91,7 +93,9 @@ function convertMdastToReact(nodes: Node[], keyPrefix = 'md'): React.ReactNode[]
           React.createElement(
             'em',
             { key },
-            renderedChildren && renderedChildren.length === 1 ? renderedChildren[0] : renderedChildren
+            renderedChildren && renderedChildren.length === 1
+              ? renderedChildren[0]
+              : renderedChildren
           )
         );
         break;

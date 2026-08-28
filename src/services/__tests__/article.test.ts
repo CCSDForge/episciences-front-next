@@ -295,7 +295,9 @@ describe('article service', () => {
     });
 
     it('returns null and logs on fetch error', async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
 
       const result = await fetchExportLink(42, 'bibtex', 'epijinfo');
 
@@ -322,7 +324,9 @@ describe('article service', () => {
     });
 
     it('returns undefined and logs when the response is not ok', async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
 
       const result = await getArticleById('missing');
 
@@ -330,7 +334,9 @@ describe('article service', () => {
     });
 
     it('returns undefined and logs on fetch error', async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
 
       const result = await getArticleById(1);
 
@@ -389,7 +395,9 @@ describe('article service', () => {
     });
 
     it('returns null without warning on 404', async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
 
       const result = await fetchArticleMetadata({
         rvcode: 'epijinfo',
@@ -401,7 +409,9 @@ describe('article service', () => {
     });
 
     it('returns null and warns on other non-ok statuses', async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 }) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: false, status: 500 }) as unknown as typeof fetch;
 
       const result = await fetchArticleMetadata({
         rvcode: 'epijinfo',
@@ -413,7 +423,9 @@ describe('article service', () => {
     });
 
     it('returns null and logs on fetch error', async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
 
       const result = await fetchArticleMetadata({
         rvcode: 'epijinfo',

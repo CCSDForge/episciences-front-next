@@ -149,10 +149,7 @@ export default function SearchResultsSidebar({
           <div className="searchResultsSidebar-volumesSection-volumes">
             <div className="searchResultsSidebar-volumesSection-volumes-list">
               {volumes.map(v => (
-                <div
-                  key={v.id}
-                  className="searchResultsSidebar-volumesSection-volumes-list-choice"
-                >
+                <div key={v.id} className="searchResultsSidebar-volumesSection-volumes-list-choice">
                   <div className="searchResultsSidebar-volumesSection-volumes-list-choice-checkbox">
                     <Checkbox
                       checked={v.isChecked}

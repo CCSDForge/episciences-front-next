@@ -100,9 +100,7 @@ describe('ArticleDetailsClient', () => {
   });
 
   it('shows the loader while data has not yet been fetched client-side', () => {
-    const { container } = render(
-      <ArticleDetailsClient article={baseArticle} id="1" lang="fr" />
-    );
+    const { container } = render(<ArticleDetailsClient article={baseArticle} id="1" lang="fr" />);
 
     expect(container.querySelector('.loader')).toBeInTheDocument();
   });
@@ -175,9 +173,10 @@ describe('ArticleDetailsClient', () => {
     );
 
     await screen.findAllByText('Sample Article');
-    const abstractHeader = screen.getByTestId('abstract-section').closest(
-      '.articleDetails-content-article-section'
-    )!.querySelector('[role="button"]') as HTMLElement;
+    const abstractHeader = screen
+      .getByTestId('abstract-section')
+      .closest('.articleDetails-content-article-section')!
+      .querySelector('[role="button"]') as HTMLElement;
 
     expect(abstractHeader).toHaveAttribute('aria-expanded', 'true');
     fireEvent.click(abstractHeader);
@@ -220,9 +219,7 @@ describe('ArticleDetailsClient', () => {
     vi.mocked(fetchVolume).mockResolvedValue({ id: 1 } as never);
     vi.mocked(fetchArticleMetadata).mockResolvedValue('{}');
 
-    render(
-      <ArticleDetailsClient article={{ ...baseArticle, volumeId: 7 }} id="1" lang="fr" />
-    );
+    render(<ArticleDetailsClient article={{ ...baseArticle, volumeId: 7 }} id="1" lang="fr" />);
 
     await waitFor(() => expect(fetchVolume).toHaveBeenCalledWith('journal', 7, 'fr'));
     expect(fetchArticleMetadata).toHaveBeenCalled();
@@ -240,9 +237,7 @@ describe('ArticleDetailsClient', () => {
       />
     );
 
-    await waitFor(() =>
-      expect(screen.getByTestId('article-details-sidebar')).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId('article-details-sidebar')).toBeInTheDocument());
     expect(screen.getAllByText('No authors processed yet').length).toBeGreaterThan(0);
   });
 });

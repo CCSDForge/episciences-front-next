@@ -503,9 +503,7 @@ export default function Header({ currentJournal }: Readonly<HeaderProps>): React
             {journalName || currentJournal?.name || defaultJournalTitle}
           </span>
           {journalSubtitle && (
-            <span className="header-journal-subtitle">
-              {renderInlineMarkdown(journalSubtitle)}
-            </span>
+            <span className="header-journal-subtitle">{renderInlineMarkdown(journalSubtitle)}</span>
           )}
         </div>
       </div>

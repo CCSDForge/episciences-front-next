@@ -139,9 +139,7 @@ describe('VolumesPage', () => {
       const { default: VolumesPage } = await import('../page');
       await VolumesPage(makeProps('epijinfo', 'en', { page: 'not-a-number', years: 'abc' }));
 
-      expect(fetchVolumes).toHaveBeenCalledWith(
-        expect.objectContaining({ page: 1, years: [] })
-      );
+      expect(fetchVolumes).toHaveBeenCalledWith(expect.objectContaining({ page: 1, years: [] }));
     });
 
     it('falls back to page 1 when the page param is 0 or negative', async () => {

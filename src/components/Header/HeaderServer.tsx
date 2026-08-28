@@ -215,9 +215,7 @@ export default async function HeaderServer({
         <div className="header-journal-title">
           <span className="header-journal-title-main">{journalName}</span>
           {journalSubtitle && (
-            <span className="header-journal-subtitle">
-              {renderInlineMarkdown(journalSubtitle)}
-            </span>
+            <span className="header-journal-subtitle">{renderInlineMarkdown(journalSubtitle)}</span>
           )}
         </div>
       </div>

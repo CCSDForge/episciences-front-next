@@ -19,10 +19,7 @@ export default function CitedBySection({ citedBy }: CitedBySectionProps): React.
   return (
     <div className="articleDetails-content-article-section-content-citedBy">
       {citedBy.map(cb => (
-        <div
-          key={cb.source}
-          className="articleDetails-content-article-section-content-citedBy-row"
-        >
+        <div key={cb.source} className="articleDetails-content-article-section-content-citedBy-row">
           <p className="articleDetails-content-article-section-content-citedBy-row-source">
             {t('pages.articleDetails.citedBySection.source')}
             {cb.source}

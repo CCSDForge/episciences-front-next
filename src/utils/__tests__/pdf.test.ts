@@ -48,9 +48,7 @@ describe('generateArticleFilename', () => {
 describe('getPdfProxyUrl', () => {
   it('defaults to inline disposition', () => {
     const url = getPdfProxyUrl('https://zenodo.org/file.pdf');
-    expect(url).toBe(
-      '/api/pdf-proxy?url=https%3A%2F%2Fzenodo.org%2Ffile.pdf&disposition=inline'
-    );
+    expect(url).toBe('/api/pdf-proxy?url=https%3A%2F%2Fzenodo.org%2Ffile.pdf&disposition=inline');
   });
 
   it('appends the filename only for attachment disposition', () => {

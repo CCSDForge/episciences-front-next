@@ -185,17 +185,17 @@ and as a section on the home page. Both are invalidated together.
 
 Each of these pages has its own tag. They do **not** appear on the home page.
 
-| Page                                  | Tag                                  |
-| ------------------------------------- | ------------------------------------ |
-| Credits                               | `credits-{rvcode}`                   |
-| For editors                           | `for-editors-{rvcode}`               |
-| For reviewers                         | `for-reviewers-{rvcode}`             |
-| For conference organisers             | `for-conference-organisers-{rvcode}` |
-| Proposing special issues              | `proposing-special-issues-{rvcode}`  |
-| Acknowledgements                      | `acknowledgements-{rvcode}`          |
-| For authors: Editorial workflow       | `editorial-workflow-{rvcode}`        |
-| For authors: Ethical charter          | `ethical-charter-{rvcode}`           |
-| For authors: Prepare submission       | `prepare-submission-{rvcode}`        |
+| Page                            | Tag                                  |
+| ------------------------------- | ------------------------------------ |
+| Credits                         | `credits-{rvcode}`                   |
+| For editors                     | `for-editors-{rvcode}`               |
+| For reviewers                   | `for-reviewers-{rvcode}`             |
+| For conference organisers       | `for-conference-organisers-{rvcode}` |
+| Proposing special issues        | `proposing-special-issues-{rvcode}`  |
+| Acknowledgements                | `acknowledgements-{rvcode}`          |
+| For authors: Editorial workflow | `editorial-workflow-{rvcode}`        |
+| For authors: Ethical charter    | `ethical-charter-{rvcode}`           |
+| For authors: Prepare submission | `prepare-submission-{rvcode}`        |
 
 ---
 
@@ -237,62 +237,62 @@ by a dedicated tag above.
 Use the journal-agnostic form of a tag to invalidate across **all** journals at once.
 Use with caution in a multi-tenant setup.
 
-| Tag                          | Invalidates                                          |
-| ---------------------------- | ---------------------------------------------------- |
-| `articles`                   | All articles, all journals                           |
-| `articles-accepted`          | All accepted articles, all journals                  |
-| `volumes`                    | All volumes, all journals                            |
-| `news`                       | All news, all journals                               |
-| `sections`                   | All sections, all journals                           |
-| `boards`                     | All board pages, all journals                        |
-| `members`                    | All member lists, all journals                       |
-| `stats`                      | Homepage stats block, all journals                   |
-| `statistics`                 | Full statistics page, all journals                   |
-| `pages`                      | All generic editorial pages, all journals            |
-| `about`                      | All about pages, all journals                        |
-| `acknowledgements`           | All acknowledgements pages, all journals             |
-| `credits`                    | All credits pages, all journals                      |
-| `editorial-workflow`         | All editorial workflow pages, all journals           |
-| `ethical-charter`            | All ethical charter pages, all journals              |
-| `for-conference-organisers`  | All conference organisers pages, all journals        |
-| `for-editors`                | All for editors pages, all journals                  |
-| `for-reviewers`              | All for reviewers pages, all journals                |
-| `indexation`                 | All indexation metrics pages, all journals           |
-| `indexing`                   | All indexing pages, all journals                     |
-| `prepare-submission`         | All prepare submission pages, all journals           |
-| `proposing-special-issues`   | All proposing special issues pages, all journals     |
+| Tag                         | Invalidates                                      |
+| --------------------------- | ------------------------------------------------ |
+| `articles`                  | All articles, all journals                       |
+| `articles-accepted`         | All accepted articles, all journals              |
+| `volumes`                   | All volumes, all journals                        |
+| `news`                      | All news, all journals                           |
+| `sections`                  | All sections, all journals                       |
+| `boards`                    | All board pages, all journals                    |
+| `members`                   | All member lists, all journals                   |
+| `stats`                     | Homepage stats block, all journals               |
+| `statistics`                | Full statistics page, all journals               |
+| `pages`                     | All generic editorial pages, all journals        |
+| `about`                     | All about pages, all journals                    |
+| `acknowledgements`          | All acknowledgements pages, all journals         |
+| `credits`                   | All credits pages, all journals                  |
+| `editorial-workflow`        | All editorial workflow pages, all journals       |
+| `ethical-charter`           | All ethical charter pages, all journals          |
+| `for-conference-organisers` | All conference organisers pages, all journals    |
+| `for-editors`               | All for editors pages, all journals              |
+| `for-reviewers`             | All for reviewers pages, all journals            |
+| `indexation`                | All indexation metrics pages, all journals       |
+| `indexing`                  | All indexing pages, all journals                 |
+| `prepare-submission`        | All prepare submission pages, all journals       |
+| `proposing-special-issues`  | All proposing special issues pages, all journals |
 
 ---
 
 ## 4. Complete Tag-by-Tag Summary
 
-| Tag                                  | Service file                         | Also tagged with                                      |
-| ------------------------------------ | ------------------------------------ | ----------------------------------------------------- |
-| `about-{rvcode}`                     | `about.ts`, `home.ts`                | `about`, `pages`, `page-about-{rvcode}`               |
-| `acknowledgements-{rvcode}`          | `acknowledgements.ts`                | `acknowledgements`                                    |
-| `article-{id}`                       | `article.ts`, `home.ts`              | `articles`, `articles-{rvcode}`                       |
-| `articles-{rvcode}`                  | `article.ts`, `home.ts`              | `articles`                                            |
-| `articles-accepted-{rvcode}`         | `article.ts`                         | `articles-accepted`                                   |
-| `boards-{rvcode}`                    | `board.ts`, `home.ts`                | `boards`, `members`, `members-{rvcode}`               |
-| `credits-{rvcode}`                   | `credits.ts`                         | `credits`                                             |
-| `editorial-workflow-{rvcode}`        | `forAuthors.ts`                      | `editorial-workflow`                                  |
-| `ethical-charter-{rvcode}`           | `forAuthors.ts`                      | `ethical-charter`                                     |
-| `for-conference-organisers-{rvcode}` | `forConferenceOrganisers.ts`         | `for-conference-organisers`                           |
-| `for-editors-{rvcode}`               | `forEditors.ts`                      | `for-editors`                                         |
-| `for-reviewers-{rvcode}`             | `forReviewers.ts`                    | `for-reviewers`                                       |
-| `indexation-{rvcode}`                | `indexation.ts`                      | `indexation`                                          |
-| `indexing-{rvcode}`                  | `indexing.ts`, `home.ts`             | `indexing`, `pages`, `page-journal-indexing-{rvcode}` |
-| `members-{rvcode}`                   | `board.ts`, `home.ts`                | `members`, `boards`, `boards-{rvcode}`                |
-| `news-{rvcode}`                      | `news.ts`, `home.ts`                 | `news`                                                |
-| `prepare-submission-{rvcode}`        | `forAuthors.ts`                      | `prepare-submission`                                  |
-| `proposing-special-issues-{rvcode}`  | `proposingSpecialIssues.ts`          | `proposing-special-issues`                            |
-| `section-{id}-{rvcode}`              | `section.ts`                         | `sections`, `sections-{rvcode}`, `section-{id}`       |
-| `section-articles-{id}-{rvcode}`     | `section.ts` (fetchSectionArticles)  | `articles`, `articles-{rvcode}`, `article-{id}`       |
-| `sections-{rvcode}`                  | `section.ts`                         | `sections`                                            |
-| `stats-{rvcode}`                     | `stat.ts`, `home.ts`                 | `stats`                                               |
-| `statistics-{rvcode}`                | `statistics.ts`                      | `statistics`                                          |
-| `volume-{id}`                        | `volume.ts`                          | `volumes`, `volumes-{rvcode}`                         |
-| `volumes-{rvcode}`                   | `volume.ts`, `home.ts`               | `volumes`                                             |
+| Tag                                  | Service file                        | Also tagged with                                      |
+| ------------------------------------ | ----------------------------------- | ----------------------------------------------------- |
+| `about-{rvcode}`                     | `about.ts`, `home.ts`               | `about`, `pages`, `page-about-{rvcode}`               |
+| `acknowledgements-{rvcode}`          | `acknowledgements.ts`               | `acknowledgements`                                    |
+| `article-{id}`                       | `article.ts`, `home.ts`             | `articles`, `articles-{rvcode}`                       |
+| `articles-{rvcode}`                  | `article.ts`, `home.ts`             | `articles`                                            |
+| `articles-accepted-{rvcode}`         | `article.ts`                        | `articles-accepted`                                   |
+| `boards-{rvcode}`                    | `board.ts`, `home.ts`               | `boards`, `members`, `members-{rvcode}`               |
+| `credits-{rvcode}`                   | `credits.ts`                        | `credits`                                             |
+| `editorial-workflow-{rvcode}`        | `forAuthors.ts`                     | `editorial-workflow`                                  |
+| `ethical-charter-{rvcode}`           | `forAuthors.ts`                     | `ethical-charter`                                     |
+| `for-conference-organisers-{rvcode}` | `forConferenceOrganisers.ts`        | `for-conference-organisers`                           |
+| `for-editors-{rvcode}`               | `forEditors.ts`                     | `for-editors`                                         |
+| `for-reviewers-{rvcode}`             | `forReviewers.ts`                   | `for-reviewers`                                       |
+| `indexation-{rvcode}`                | `indexation.ts`                     | `indexation`                                          |
+| `indexing-{rvcode}`                  | `indexing.ts`, `home.ts`            | `indexing`, `pages`, `page-journal-indexing-{rvcode}` |
+| `members-{rvcode}`                   | `board.ts`, `home.ts`               | `members`, `boards`, `boards-{rvcode}`                |
+| `news-{rvcode}`                      | `news.ts`, `home.ts`                | `news`                                                |
+| `prepare-submission-{rvcode}`        | `forAuthors.ts`                     | `prepare-submission`                                  |
+| `proposing-special-issues-{rvcode}`  | `proposingSpecialIssues.ts`         | `proposing-special-issues`                            |
+| `section-{id}-{rvcode}`              | `section.ts`                        | `sections`, `sections-{rvcode}`, `section-{id}`       |
+| `section-articles-{id}-{rvcode}`     | `section.ts` (fetchSectionArticles) | `articles`, `articles-{rvcode}`, `article-{id}`       |
+| `sections-{rvcode}`                  | `section.ts`                        | `sections`                                            |
+| `stats-{rvcode}`                     | `stat.ts`, `home.ts`                | `stats`                                               |
+| `statistics-{rvcode}`                | `statistics.ts`                     | `statistics`                                          |
+| `volume-{id}`                        | `volume.ts`                         | `volumes`, `volumes-{rvcode}`                         |
+| `volumes-{rvcode}`                   | `volume.ts`, `home.ts`              | `volumes`                                             |
 
 ---
 

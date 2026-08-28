@@ -79,7 +79,9 @@ interface SectionBuilderState {
 }
 
 const createEmptySection = (withNumerotation: boolean): IForAuthorsSection =>
-  withNumerotation ? { id: '', value: '', opened: true, cards: [] } : { id: '', value: '', opened: true };
+  withNumerotation
+    ? { id: '', value: '', opened: true, cards: [] }
+    : { id: '', value: '', opened: true };
 
 const flushCardContent = (section: IForAuthorsSection, cardContent: string): void => {
   if (cardContent && section.cards && section.cards.length > 0) {
@@ -112,7 +114,12 @@ const startNewCard = (node: RootContent, state: SectionBuilderState): void => {
 
   flushCardContent(state.currentSection, state.currentCardContent);
   state.currentCardContent = '';
-  state.currentSection.cards!.push({ id: h3Id, title: h3Title, content: '', index: state.h3Counter });
+  state.currentSection.cards!.push({
+    id: h3Id,
+    title: h3Title,
+    content: '',
+    index: state.h3Counter,
+  });
 };
 
 const appendNumberedNode = (node: RootContent, state: SectionBuilderState): void => {

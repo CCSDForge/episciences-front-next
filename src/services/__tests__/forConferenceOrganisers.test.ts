@@ -96,6 +96,5 @@ describe('forConferenceOrganisers service', () => {
 
       expect(result).toEqual(mockData);
     });
-
   });
 });

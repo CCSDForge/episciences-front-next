@@ -212,9 +212,9 @@ describe('SearchClient', () => {
     await screen.findByText('Result 1');
     fireEvent.click(screen.getByLabelText('components.pagination.next'));
 
-    await waitFor(() => expect(fetchSearchResults).toHaveBeenCalledWith(
-      expect.objectContaining({ page: 2 })
-    ));
+    await waitFor(() =>
+      expect(fetchSearchResults).toHaveBeenCalledWith(expect.objectContaining({ page: 2 }))
+    );
   });
 
   it('shows a loader while a filtered search request is in flight', async () => {
@@ -243,7 +243,9 @@ describe('SearchClient', () => {
   it('uses custom breadcrumb and count labels when provided', () => {
     render(
       <SearchClient
-        initialSearchResults={{ ...initialSearchResults, data: [mockResults[0]], totalItems: 1 } as any}
+        initialSearchResults={
+          { ...initialSearchResults, data: [mockResults[0]], totalItems: 1 } as any
+        }
         initialSearch="graph"
         initialPage={1}
         lang="fr"

@@ -127,10 +127,7 @@ describe('ArticlesClient', () => {
     window.scrollTo = scrollToSpy;
 
     render(
-      <ArticlesClient
-        initialArticles={{ ...initialArticles, totalItems: 50 } as any}
-        lang="fr"
-      />
+      <ArticlesClient initialArticles={{ ...initialArticles, totalItems: 50 } as any} lang="fr" />
     );
 
     fireEvent.click(screen.getByLabelText('components.pagination.next'));

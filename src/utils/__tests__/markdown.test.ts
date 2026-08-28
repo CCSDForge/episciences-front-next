@@ -303,35 +303,45 @@ describe('markdown utilities', () => {
     });
 
     it('renders italic text with asterisks', () => {
-      const { container } = render(React.createElement('span', null, renderInlineMarkdown('*Italic text*')));
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('*Italic text*'))
+      );
       const em = container.querySelector('em');
       expect(em).toBeInTheDocument();
       expect(em?.textContent).toBe('Italic text');
     });
 
     it('renders italic text with underscores', () => {
-      const { container } = render(React.createElement('span', null, renderInlineMarkdown('_Italic text_')));
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('_Italic text_'))
+      );
       const em = container.querySelector('em');
       expect(em).toBeInTheDocument();
       expect(em?.textContent).toBe('Italic text');
     });
 
     it('renders bold text with double asterisks', () => {
-      const { container } = render(React.createElement('span', null, renderInlineMarkdown('**Bold text**')));
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('**Bold text**'))
+      );
       const strong = container.querySelector('strong');
       expect(strong).toBeInTheDocument();
       expect(strong?.textContent).toBe('Bold text');
     });
 
     it('renders bold text with double underscores', () => {
-      const { container } = render(React.createElement('span', null, renderInlineMarkdown('__Bold text__')));
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('__Bold text__'))
+      );
       const strong = container.querySelector('strong');
       expect(strong).toBeInTheDocument();
       expect(strong?.textContent).toBe('Bold text');
     });
 
     it('renders bold and italic with triple asterisks', () => {
-      const { container } = render(React.createElement('span', null, renderInlineMarkdown('***Bold and italic***')));
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('***Bold and italic***'))
+      );
       const strong = container.querySelector('strong');
       const em = container.querySelector('em');
       expect(strong).toBeInTheDocument();
@@ -341,7 +351,9 @@ describe('markdown utilities', () => {
     });
 
     it('renders bold and italic with triple underscores', () => {
-      const { container } = render(React.createElement('span', null, renderInlineMarkdown('___Bold and italic___')));
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('___Bold and italic___'))
+      );
       const strong = container.querySelector('strong');
       const em = container.querySelector('em');
       expect(strong).toBeInTheDocument();
@@ -352,7 +364,11 @@ describe('markdown utilities', () => {
 
     it('renders mixed plain text, bold, and italic', () => {
       const { container } = render(
-        React.createElement('span', null, renderInlineMarkdown('Science & *Motricité* and **Sports**'))
+        React.createElement(
+          'span',
+          null,
+          renderInlineMarkdown('Science & *Motricité* and **Sports**')
+        )
       );
       expect(container.textContent).toBe('Science & Motricité and Sports');
       expect(container.querySelector('em')?.textContent).toBe('Motricité');
@@ -399,7 +415,11 @@ describe('markdown utilities', () => {
 
     it('does not create non-inline elements (headings, links) and strips their markup safely', () => {
       const { container } = render(
-        React.createElement('span', null, renderInlineMarkdown('# Heading with [link](https://example.com)'))
+        React.createElement(
+          'span',
+          null,
+          renderInlineMarkdown('# Heading with [link](https://example.com)')
+        )
       );
       expect(container.querySelector('h1')).toBeNull();
       expect(container.querySelector('a')).toBeNull();
@@ -417,7 +437,11 @@ describe('markdown utilities', () => {
 
       it('safely escapes img with onerror event handlers', () => {
         const { container } = render(
-          React.createElement('span', null, renderInlineMarkdown('<img src="x" onerror="alert(1)">'))
+          React.createElement(
+            'span',
+            null,
+            renderInlineMarkdown('<img src="x" onerror="alert(1)">')
+          )
         );
         expect(container.querySelector('img')).toBeNull();
         expect(container.textContent).toBe('<img src="x" onerror="alert(1)">');

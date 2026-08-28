@@ -230,9 +230,7 @@ describe('VolumesClient', () => {
       screen.getByText('common.renderingMode.tile').closest('[role="button"]') as HTMLElement
     );
 
-    const filterTile = document.querySelector(
-      '.volumes-filters-tags-filterTile'
-    ) as HTMLElement;
+    const filterTile = document.querySelector('.volumes-filters-tags-filterTile') as HTMLElement;
     fireEvent.click(filterTile);
 
     expect(screen.getByTestId('volumes-modal')).toBeInTheDocument();
@@ -252,9 +250,7 @@ describe('VolumesClient', () => {
       />
     );
 
-    const mobileFilterTile = document.querySelector(
-      '.volumes-filtersMobile-tile'
-    ) as HTMLElement;
+    const mobileFilterTile = document.querySelector('.volumes-filtersMobile-tile') as HTMLElement;
     fireEvent.click(mobileFilterTile);
 
     expect(screen.getByTestId('volumes-modal')).toBeInTheDocument();

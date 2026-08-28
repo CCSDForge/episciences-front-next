@@ -51,9 +51,7 @@ describe('VolumeDetailsMobile', () => {
       />
     );
 
-    expect(
-      screen.getByText('pages.volumeDetails.relatedVolumes.volumes')
-    ).toBeInTheDocument();
+    expect(screen.getByText('pages.volumeDetails.relatedVolumes.volumes')).toBeInTheDocument();
     expect(
       screen.getByText('pages.volumeDetails.relatedVolumes.lookAtSelectedVolume')
     ).toBeInTheDocument();
@@ -71,9 +69,7 @@ describe('VolumeDetailsMobile', () => {
       />
     );
 
-    expect(
-      screen.getByText('pages.volumeDetails.relatedVolumes.proceedings')
-    ).toBeInTheDocument();
+    expect(screen.getByText('pages.volumeDetails.relatedVolumes.proceedings')).toBeInTheDocument();
     expect(
       screen.getByText('pages.volumeDetails.relatedVolumes.lookAtSelectedProceedings')
     ).toBeInTheDocument();

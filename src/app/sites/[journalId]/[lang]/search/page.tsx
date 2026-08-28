@@ -41,9 +41,7 @@ export default async function SearchPage(props: SearchPageProps) {
 
   // Extract search params
   const search = (searchParams?.terms as string) || (searchParams?.q as string) || '';
-  const parsedPage = searchParams?.page
-    ? Number.parseInt(searchParams.page as string, 10)
-    : 1;
+  const parsedPage = searchParams?.page ? Number.parseInt(searchParams.page as string, 10) : 1;
   const page = Number.isNaN(parsedPage) ? 1 : Math.max(1, parsedPage);
 
   // Fetch translations and search results in parallel

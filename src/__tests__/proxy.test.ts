@@ -146,7 +146,10 @@ describe('proxy — hostname detection', () => {
 
   it.each([
     { description: 'plain localhost hostname', hostname: 'localhost' },
-    { description: 'production hostname with invalid journalId format', hostname: 'invalid_code.episciences.org' },
+    {
+      description: 'production hostname with invalid journalId format',
+      hostname: 'invalid_code.episciences.org',
+    },
     { description: 'dev subdomain with invalid journalId format', hostname: 'bad_name.localhost' },
   ])('falls back to DEFAULT_JOURNAL for $description', async ({ hostname }) => {
     process.env.NEXT_PUBLIC_JOURNAL_RVCODE = 'epijinfo';

@@ -27,7 +27,10 @@ describe('journal.slice', () => {
   });
 
   it('setJournalConfig stores the config object', () => {
-    const state = reducer(initialState, setJournalConfig({ NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR: '#fff' }));
+    const state = reducer(
+      initialState,
+      setJournalConfig({ NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR: '#fff' })
+    );
     expect(selectJournalConfig({ journalReducer: state })).toEqual({
       NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR: '#fff',
     });

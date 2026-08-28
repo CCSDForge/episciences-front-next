@@ -77,10 +77,7 @@ export default function VolumeDetailsSidebar({
   };
 
   const renderVolumeTemplateNumber = (): React.JSX.Element => {
-    if (
-      volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) &&
-      volume.settingsProceeding?.length
-    ) {
+    if (volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) && volume.settingsProceeding?.length) {
       const conferenceAcronym = volume!.settingsProceeding!.find(
         setting => setting.setting === 'conference_acronym'
       );

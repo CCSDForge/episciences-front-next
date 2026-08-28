@@ -48,7 +48,10 @@ const statsData = {
   data: [
     { name: 'nb-submissions', value: 42, unit: 'submission' },
     { name: 'acceptance-rate', value: 75, unit: 'percent' },
-    { name: 'evaluation', value: { 'median-reviews-number': 3, 'reviews-received': 10, 'reviews-requested': 12 } },
+    {
+      name: 'evaluation',
+      value: { 'median-reviews-number': 3, 'reviews-received': 10, 'reviews-requested': 12 },
+    },
   ],
   range: { years: [2023, 2024] },
 };

@@ -94,9 +94,9 @@ describe('CollapsibleInstitutions', () => {
       <CollapsibleInstitutions authors={authors} institutions={institutions} isMobile={false} />
     );
 
-    expect(container.querySelector('.articleDetails-content-article-institutions')).toHaveTextContent(
-      'MIT'
-    );
+    expect(
+      container.querySelector('.articleDetails-content-article-institutions')
+    ).toHaveTextContent('MIT');
 
     const caret = screen.getByLabelText('Collapse institutions');
     fireEvent.click(caret);
@@ -132,10 +132,7 @@ describe('CitedBySection', () => {
           {
             title: 'Citing paper',
             sourceTitle: 'Some Journal',
-            authors: [
-              { fullname: 'Alice', orcid: '0000-0002' },
-              { fullname: 'Bob' },
-            ],
+            authors: [{ fullname: 'Alice', orcid: '0000-0002' }, { fullname: 'Bob' }],
             reference: { volume: '3', year: '2023', page: '42' },
             doi: '10.1234/cited',
           },

@@ -131,10 +131,13 @@ describe('VolumeDetailsPage', () => {
         makeVolume({ rvid: 1, articles: [{ paperid: 100 }, { paperid: 101 }] }) as never
       );
       vi.mocked(getJournalByCode).mockResolvedValue({ id: 1 } as never);
-      vi.mocked(fetchArticle).mockImplementation(async (docid: string) => ({
-        id: Number(docid),
-        title: `Article ${docid}`,
-      }) as never);
+      vi.mocked(fetchArticle).mockImplementation(
+        async (docid: string) =>
+          ({
+            id: Number(docid),
+            title: `Article ${docid}`,
+          }) as never
+      );
 
       const { default: VolumeDetailsPage } = await import('../page');
       const jsx = await VolumeDetailsPage(makeProps());

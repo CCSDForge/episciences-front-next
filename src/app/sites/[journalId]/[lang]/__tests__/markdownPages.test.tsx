@@ -115,75 +115,78 @@ const pages = [
   },
 ] as const;
 
-describe.each(pages)('$name (MarkdownPageWithSidebar pattern)', ({ Component, fetchMock, titleKey, noContentKey, directPage }) => {
-  beforeEach(() => {
-    fetchMock.mockReset();
-  });
+describe.each(pages)(
+  '$name (MarkdownPageWithSidebar pattern)',
+  ({ Component, fetchMock, titleKey, noContentKey, directPage }) => {
+    beforeEach(() => {
+      fetchMock.mockReset();
+    });
 
-  it('renders the localized title and content from initialPage', () => {
-    render(
-      <Component
-        initialPage={{
-          title: { en: 'Custom Title', fr: 'Titre personnalisé' },
-          content: { en: 'Custom content', fr: 'Contenu personnalisé' },
-        }}
-        lang="en"
-      />
-    );
+    it('renders the localized title and content from initialPage', () => {
+      render(
+        <Component
+          initialPage={{
+            title: { en: 'Custom Title', fr: 'Titre personnalisé' },
+            content: { en: 'Custom content', fr: 'Contenu personnalisé' },
+          }}
+          lang="en"
+        />
+      );
 
-    expect(screen.getByText('Custom Title')).toBeInTheDocument();
-    expect(screen.getByText('Custom content')).toBeInTheDocument();
-  });
+      expect(screen.getByText('Custom Title')).toBeInTheDocument();
+      expect(screen.getByText('Custom content')).toBeInTheDocument();
+    });
 
-  it('falls back to the translated title when initialPage has none', () => {
-    render(<Component initialPage={null} lang="en" />);
-    expect(screen.getAllByText(titleKey).length).toBeGreaterThan(0);
-  });
+    it('falls back to the translated title when initialPage has none', () => {
+      render(<Component initialPage={null} lang="en" />);
+      expect(screen.getAllByText(titleKey).length).toBeGreaterThan(0);
+    });
 
-  it('shows the no-content message when there is no content in any language', () => {
-    render(<Component initialPage={{ title: { en: 'T' }, content: {} }} lang="en" />);
-    expect(screen.getByText(noContentKey)).toBeInTheDocument();
-  });
+    it('shows the no-content message when there is no content in any language', () => {
+      render(<Component initialPage={{ title: { en: 'T' }, content: {} }} lang="en" />);
+      expect(screen.getByText(noContentKey)).toBeInTheDocument();
+    });
 
-  it('shows a language-not-available notice when content only exists in the default language', () => {
-    // getLocalizedContent only falls back from requestedLang to the app's defaultLanguage
-    // ('en' unless NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE is set) — so the requested language
-    // here must differ from that default for the fallback branch to trigger.
-    render(
-      <Component
-        initialPage={{ title: { en: 'T' }, content: { en: 'English only content' } }}
-        lang="fr"
-      />
-    );
+    it('shows a language-not-available notice when content only exists in the default language', () => {
+      // getLocalizedContent only falls back from requestedLang to the app's defaultLanguage
+      // ('en' unless NEXT_PUBLIC_JOURNAL_DEFAULT_LANGUAGE is set) — so the requested language
+      // here must differ from that default for the fallback branch to trigger.
+      render(
+        <Component
+          initialPage={{ title: { en: 'T' }, content: { en: 'English only content' } }}
+          lang="fr"
+        />
+      );
 
-    expect(screen.getByText('common.contentNotInLanguage')).toBeInTheDocument();
-    expect(screen.getByText('English only content')).toBeInTheDocument();
-  });
+      expect(screen.getByText('common.contentNotInLanguage')).toBeInTheDocument();
+      expect(screen.getByText('English only content')).toBeInTheDocument();
+    });
 
-  it('fetches the page client-side and merges data once resolved', async () => {
-    const page = { title: { en: 'Fetched Title' }, content: { en: 'Fetched content' } };
-    fetchMock.mockResolvedValue((directPage ? page : { 'hydra:member': [page] }) as never);
+    it('fetches the page client-side and merges data once resolved', async () => {
+      const page = { title: { en: 'Fetched Title' }, content: { en: 'Fetched content' } };
+      fetchMock.mockResolvedValue((directPage ? page : { 'hydra:member': [page] }) as never);
 
-    render(<Component initialPage={null} lang="en" />);
+      render(<Component initialPage={null} lang="en" />);
 
-    expect(await screen.findByText('Fetched Title')).toBeInTheDocument();
-    // Content sections are parsed in a separate effect that fires after the title
-    // re-render commits, so wait for it independently rather than asserting in lockstep.
-    expect(await screen.findByText('Fetched content')).toBeInTheDocument();
-  });
+      expect(await screen.findByText('Fetched Title')).toBeInTheDocument();
+      // Content sections are parsed in a separate effect that fires after the title
+      // re-render commits, so wait for it independently rather than asserting in lockstep.
+      expect(await screen.findByText('Fetched content')).toBeInTheDocument();
+    });
 
-  it('uses custom breadcrumb labels when provided', () => {
-    render(
-      <Component
-        initialPage={{ title: { en: 'T' }, content: { en: 'C' } }}
-        lang="en"
-        breadcrumbLabels={{
-          parents: [{ path: '/', label: 'Custom home >' }],
-          current: 'Custom current',
-        }}
-      />
-    );
+    it('uses custom breadcrumb labels when provided', () => {
+      render(
+        <Component
+          initialPage={{ title: { en: 'T' }, content: { en: 'C' } }}
+          lang="en"
+          breadcrumbLabels={{
+            parents: [{ path: '/', label: 'Custom home >' }],
+            current: 'Custom current',
+          }}
+        />
+      );
 
-    expect(screen.getAllByText('Custom current').length).toBeGreaterThan(0);
-  });
-});
+      expect(screen.getAllByText('Custom current').length).toBeGreaterThan(0);
+    });
+  }
+);

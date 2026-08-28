@@ -40,7 +40,9 @@ const creditsPage: CreditsPage = {
 
 describe('CreditsClient', () => {
   it('renders the breadcrumb and page title from breadcrumbLabels', () => {
-    render(<CreditsClient creditsPage={creditsPage} lang="en" breadcrumbLabels={breadcrumbLabels} />);
+    render(
+      <CreditsClient creditsPage={creditsPage} lang="en" breadcrumbLabels={breadcrumbLabels} />
+    );
 
     expect(screen.getByText('Home >')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'Credits' })).toBeInTheDocument();
@@ -58,7 +60,9 @@ describe('CreditsClient', () => {
 
   it('renders each H2 as a collapsible section and toggles it on click', async () => {
     const user = userEvent.setup();
-    render(<CreditsClient creditsPage={creditsPage} lang="en" breadcrumbLabels={breadcrumbLabels} />);
+    render(
+      <CreditsClient creditsPage={creditsPage} lang="en" breadcrumbLabels={breadcrumbLabels} />
+    );
 
     const teamHeading = screen.getByRole('heading', { level: 2, name: 'Editorial team' });
     expect(screen.getByRole('heading', { level: 2, name: 'Funders' })).toBeInTheDocument();
@@ -91,7 +95,9 @@ describe('CreditsClient', () => {
   });
 
   it('shows no language notice when content is available in the requested language', () => {
-    render(<CreditsClient creditsPage={creditsPage} lang="en" breadcrumbLabels={breadcrumbLabels} />);
+    render(
+      <CreditsClient creditsPage={creditsPage} lang="en" breadcrumbLabels={breadcrumbLabels} />
+    );
 
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });

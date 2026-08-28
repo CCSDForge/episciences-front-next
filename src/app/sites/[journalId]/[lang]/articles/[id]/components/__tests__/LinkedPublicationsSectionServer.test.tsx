@@ -1,10 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import LinkedPublicationsSectionServer from '../LinkedPublicationsSectionServer';
-import {
-  INTER_WORK_RELATIONSHIP,
-  LINKED_PUBLICATION_IDENTIFIER_TYPE,
-} from '@/utils/article';
+import { INTER_WORK_RELATIONSHIP, LINKED_PUBLICATION_IDENTIFIER_TYPE } from '@/utils/article';
 import { Translations } from '@/utils/server-i18n';
 
 const translations: Translations = {
@@ -29,7 +26,11 @@ describe('LinkedPublicationsSectionServer', () => {
     const { container } = render(
       <LinkedPublicationsSectionServer
         relatedItems={[
-          { value: 'a', identifierType: 'uri', relationshipType: INTER_WORK_RELATIONSHIP.IS_SAME_AS },
+          {
+            value: 'a',
+            identifierType: 'uri',
+            relationshipType: INTER_WORK_RELATIONSHIP.IS_SAME_AS,
+          },
           {
             value: 'b',
             identifierType: 'uri',

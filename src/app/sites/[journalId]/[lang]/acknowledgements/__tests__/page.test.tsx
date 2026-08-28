@@ -16,9 +16,7 @@ vi.mock('@/utils/language-utils', () => ({
 }));
 
 vi.mock('./AcknowledgementsClient', () => ({
-  default: (props: any) => (
-    <div data-testid="acknowledgements-client">{JSON.stringify(props)}</div>
-  ),
+  default: (props: any) => <div data-testid="acknowledgements-client">{JSON.stringify(props)}</div>,
 }));
 
 import { fetchAcknowledgementsPage } from '@/services/acknowledgements';

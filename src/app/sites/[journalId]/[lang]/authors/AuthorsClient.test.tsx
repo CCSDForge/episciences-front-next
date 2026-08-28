@@ -76,9 +76,7 @@ describe('AuthorsClient', () => {
       }) as any
     );
 
-    const { container } = render(
-      <AuthorsClient initialPage={1} initialSearch="" lang="fr" />
-    );
+    const { container } = render(<AuthorsClient initialPage={1} initialSearch="" lang="fr" />);
 
     expect(container.querySelector('.authors-content-loader')).toBeInTheDocument();
 
@@ -183,9 +181,7 @@ describe('AuthorsClient', () => {
     fireEvent.click(await screen.findByText('Jane Doe'));
     expect(document.querySelector('.authorDetailsSidebar')).toBeInTheDocument();
 
-    const closeButton = document.querySelector(
-      '.authorDetailsSidebar-close'
-    ) as HTMLElement | null;
+    const closeButton = document.querySelector('.authorDetailsSidebar-close') as HTMLElement | null;
     if (closeButton) {
       fireEvent.click(closeButton);
       expect(document.querySelector('.authorDetailsSidebar')).not.toBeInTheDocument();
