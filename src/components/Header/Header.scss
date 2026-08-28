@@ -348,7 +348,6 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       max-width: 100%;
-      opacity: 0.85;
 
       @media (max-width: breakpoints.$xsm),
         (max-width: breakpoints.$sm) and (orientation: landscape) {
