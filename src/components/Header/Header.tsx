@@ -25,6 +25,7 @@ import Button from '@/components/Button/Button';
 import LanguageDropdown from '@/components/LanguageDropdown/LanguageDropdown';
 import HeaderSearchInput from '@/components/SearchInput/HeaderSearchInput/HeaderSearchInput';
 import HeaderDropdown from './HeaderDropdown';
+import { renderInlineMarkdown } from '@/utils/markdown';
 
 /** Sign-in link shown in both reduced and full header variants */
 function HeaderSignIn({
@@ -501,7 +502,11 @@ export default function Header({ currentJournal }: Readonly<HeaderProps>): React
           <span className="header-journal-title-main">
             {journalName || currentJournal?.name || defaultJournalTitle}
           </span>
-          {journalSubtitle && <span className="header-journal-subtitle">{journalSubtitle}</span>}
+          {journalSubtitle && (
+            <span className="header-journal-subtitle">
+              {renderInlineMarkdown(journalSubtitle)}
+            </span>
+          )}
         </div>
       </div>
       <nav className="header-postheader" ref={mobileMenuDropdownRef} aria-label="Main navigation">

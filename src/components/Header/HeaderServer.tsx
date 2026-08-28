@@ -13,6 +13,7 @@ import { getJournalByCode } from '@/services/journal';
 import { menuConfig, getVisibleMenuItems, processMenuItemPath } from '@/config/menu';
 import { fetchVolumes } from '@/services/volume';
 import { getPublicJournalConfig } from '@/utils/env-loader';
+import { renderInlineMarkdown } from '@/utils/markdown';
 import fs from 'node:fs';
 import path from 'node:path';
 import './Header.scss';
@@ -213,7 +214,11 @@ export default async function HeaderServer({
         </div>
         <div className="header-journal-title">
           <span className="header-journal-title-main">{journalName}</span>
-          {journalSubtitle && <span className="header-journal-subtitle">{journalSubtitle}</span>}
+          {journalSubtitle && (
+            <span className="header-journal-subtitle">
+              {renderInlineMarkdown(journalSubtitle)}
+            </span>
+          )}
         </div>
       </div>
 

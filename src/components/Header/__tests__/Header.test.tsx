@@ -477,6 +477,23 @@ describe('Header', () => {
 
       expect(screen.getByText('A subtitle')).toBeInTheDocument();
     });
+
+    it('renders markdown bold and italic in the subtitle', () => {
+      mockState.journalReducer = {
+        currentJournal: {
+          name: 'Test Journal',
+          code: 'test',
+          subtitle: 'Science & *Motricité* with **Bold**',
+        } as never,
+        config: undefined,
+      };
+      const { container } = render(<Header {...defaultProps} />);
+
+      const subtitle = container.querySelector('.header-journal-subtitle');
+      expect(subtitle).toBeInTheDocument();
+      expect(subtitle?.querySelector('em')?.textContent).toBe('Motricité');
+      expect(subtitle?.querySelector('strong')?.textContent).toBe('Bold');
+    });
   });
 
   describe('Language availability', () => {
