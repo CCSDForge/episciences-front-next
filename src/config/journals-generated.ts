@@ -57,6 +57,7 @@ export const journals: string[] = [
   "rdm-preprod",
   "resciencec-preprod",
   "resciencex-preprod",
+  "satcom-preprod",
   "slovo",
   "slovo-preprod",
   "societes-plurielles",
