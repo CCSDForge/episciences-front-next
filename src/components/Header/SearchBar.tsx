@@ -2,7 +2,7 @@
 
 import {
   SearchIcon,
-  ExternalLinkWhiteIcon,
+  ExternalLinkIcon,
   CaretLeftGreyIcon,
   CloseBlackIcon,
 } from '@/components/icons';
@@ -100,12 +100,12 @@ export default function SearchBar({
             {submitManagerLink ? (
               <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
                 Submit
-                <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
+                <ExternalLinkIcon size={14} ariaLabel="External link" />
               </a>
             ) : (
               <button type="submit" disabled>
                 Submit
-                <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
+                <ExternalLinkIcon size={14} ariaLabel="External link" />
               </button>
             )}
           </div>
@@ -117,12 +117,12 @@ export default function SearchBar({
   const submitButton = submitManagerLink ? (
     <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
       {t('components.header.search.submitButton')}
-      <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
+      <ExternalLinkIcon size={14} ariaLabel="External link" />
     </a>
   ) : (
     <button type="button" disabled>
       {t('components.header.search.submitButton')}
-      <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
+      <ExternalLinkIcon size={14} ariaLabel="External link" />
     </button>
   );
 
