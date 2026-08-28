@@ -37,7 +37,7 @@ vi.mock('@/components/icons', () => ({
   SearchIcon: ({ ariaLabel }: { ariaLabel?: string }) => (
     <span data-testid="search-icon" aria-label={ariaLabel} />
   ),
-  ExternalLinkWhiteIcon: ({ ariaLabel }: { ariaLabel?: string }) => (
+  ExternalLinkIcon: ({ ariaLabel }: { ariaLabel?: string }) => (
     <span data-testid="external-link-icon" aria-label={ariaLabel} />
   ),
   CaretLeftGreyIcon: ({ ariaLabel }: { ariaLabel?: string }) => (
