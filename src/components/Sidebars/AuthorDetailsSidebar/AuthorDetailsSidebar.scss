@@ -10,7 +10,7 @@
   bottom: 0;
   background: var(--white);
   padding: 32px 32px 32px 90px;
-  border-left: 2px solid var(--primary-border);
+  border-left: 2px solid var(--accent-border);
   overflow-y: scroll;
 
   @media (max-width: breakpoints.$sm) {
@@ -23,7 +23,7 @@
     top: 30px;
     left: 0;
     border-left: none;
-    border-top: 1px solid var(--primary-border);
+    border-top: 1px solid var(--accent-border);
   }
 
   &-close {

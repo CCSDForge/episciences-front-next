@@ -16,6 +16,7 @@
  * --primary-text-on-gray       Text on gray backgrounds (WCAG AA 4.5:1)
  * --primary-text-on-dark       Text on dark backgrounds (WCAG AA 4.5:1)
  * --primary-border             Borders and UI components (WCAG AA 3:1)
+ * --accent-border               Decorative brand-color accent borders/stripes (NOT contrast-adjusted, alias of --primary)
  *
  * SEMANTIC COLORS (Auto-generated from primary):
  * --link-color                 Links (WCAG AA 4.5:1)
@@ -49,6 +50,11 @@
   --grey-darker: #{$grey-darker};
   --blue-navy: #{$blue-navy};
   --blue-navy-dark: #{$blue-navy-dark};
+
+  // Decorative accent borders/stripes (card banners, callout borders): always the
+  // raw brand color, never contrast-adjusted. Single point to change if that
+  // decision changes later — see docs/ACCESSIBLE_COLOR_SYSTEM.md.
+  --accent-border: var(--primary);
 
   // Dynamic colors are set by applyThemeVariables() in src/config/theme.ts
   // They are generated per journal based on NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR
