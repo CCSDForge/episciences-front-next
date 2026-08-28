@@ -23,6 +23,7 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Changed
 
+- **Configurable Article Cache TTL**: Updated article detail and list pages to delegate ISR cache duration to `CACHE_TTL_ARTICLES` (default: 3600s, configurable via environment variables) instead of a hardcoded 7-day TTL, with `next: { revalidate, tags }` wired across `fetchArticle`, `fetchArticleMetadata`, and `fetchExportLink` while preserving on-demand revalidation.
 - **Search Result Article Enrichment Cache**: Disabled Next.js Data Cache (`cache: 'no-store'`) on article detail lookups within search results to prevent caching stale or cross-journal search-enriched article data.
 
 ## [v1] - 2026-08-25

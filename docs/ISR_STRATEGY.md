@@ -80,6 +80,17 @@ file at build time (`fs.readFileSync`), not `fetch()`. It has no Data Cache entr
 | ---- | -------------------------------- |
 | News | `/sites/[journalId]/[lang]/news` |
 
+### Articles Pages (Configurable ISR + On-Demand)
+
+**File:** `export const revalidate = false` (TTL controlled by `CACHE_TTL_ARTICLES`, default: 3600s / 1h)
+
+Articles pages (detail and list) inherit their revalidation TTL from `CACHE_TTL.articles` defined on `fetchArticle` / `fetchArticles`. On-demand revalidation (`revalidateTag`) provides instant updates.
+
+| Page           | Route                                     |
+| -------------- | ----------------------------------------- |
+| Article detail | `/sites/[journalId]/[lang]/articles/[id]` |
+| Articles list  | `/sites/[journalId]/[lang]/articles`      |
+
 ### Detail Pages (Weekly ISR + On-Demand)
 
 **File:** `export const revalidate = 604800` (7 days)
@@ -88,7 +99,6 @@ Published content is effectively immutable; on-demand revalidation handles corre
 
 | Page           | Route                                     |
 | -------------- | ----------------------------------------- |
-| Article detail | `/sites/[journalId]/[lang]/articles/[id]` |
 | Volume detail  | `/sites/[journalId]/[lang]/volumes/[id]`  |
 | Section detail | `/sites/[journalId]/[lang]/sections/[id]` |
 

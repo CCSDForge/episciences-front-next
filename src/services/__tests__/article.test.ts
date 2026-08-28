@@ -1,5 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { transformArticleForDisplay, fetchArticle } from '../article';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  transformArticleForDisplay,
+  fetchArticle,
+  fetchExportLink,
+  fetchArticleMetadata,
+} from '../article';
 
 // Mock utils/article
 vi.mock('@/utils/article', () => ({
@@ -115,18 +120,151 @@ describe('article service', () => {
       expect(url).toContain('42%3Fadmin%3Dtrue');
     });
 
-    it('builds clean cache tags without empty entries when rvcode is absent', async () => {
+    it('builds clean cache tags and uses CACHE_TTL.articles without empty entries when rvcode is absent', async () => {
       await fetchArticle('42');
 
       const [, options] = mockFetchWithRetry.mock.calls[0];
       expect(options.next.tags).toEqual(['articles', 'article-42']);
+      expect(options.next.revalidate).toBe(3600);
     });
 
-    it('includes the journal tag when rvcode is provided', async () => {
+    it('includes the journal tag and revalidate TTL when rvcode is provided', async () => {
       await fetchArticle('42', 'epijinfo');
 
       const [, options] = mockFetchWithRetry.mock.calls[0];
       expect(options.next.tags).toEqual(['articles', 'article-42', 'articles-epijinfo']);
+      expect(options.next.revalidate).toBe(3600);
+    });
+  });
+
+  describe('fetchExportLink', () => {
+    const originalFetch = global.fetch;
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+    });
+
+    it('returns the exported text on success', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: async () => '@article{...}',
+      }) as unknown as typeof fetch;
+
+      const result = await fetchExportLink(42, 'bibtex', 'epijinfo');
+
+      expect(result).toBe('@article{...}');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.epijinfo.test/papers/export/42/bibtex?code=epijinfo',
+        {
+          next: {
+            revalidate: 3600,
+            tags: ['articles', 'article-42', 'articles-epijinfo'],
+          },
+        }
+      );
+    });
+
+    it('returns null when the response is not ok', async () => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: false }) as unknown as typeof fetch;
+
+      const result = await fetchExportLink(42, 'endnote', 'epijinfo');
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null and logs on fetch error', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
+
+      const result = await fetchExportLink(42, 'bibtex', 'epijinfo');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('fetchArticleMetadata', () => {
+    const originalFetch = global.fetch;
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+    });
+
+    it('returns the metadata text on success', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: async () => '<xml/>',
+      }) as unknown as typeof fetch;
+
+      const result = await fetchArticleMetadata({
+        rvcode: 'epijinfo',
+        paperid: '1',
+        type: 'bibtex' as never,
+      });
+
+      expect(result).toBe('<xml/>');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.epijinfo.test/papers/export/1/bibtex?code=epijinfo',
+        {
+          next: {
+            revalidate: 3600,
+            tags: ['articles', 'article-1', 'articles-epijinfo'],
+          },
+        }
+      );
+    });
+
+    it('percent-encodes the paper id so it cannot inject path segments or query strings', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: async () => '<xml/>',
+      }) as unknown as typeof fetch;
+
+      await fetchArticleMetadata({
+        rvcode: 'epijinfo',
+        paperid: '42?admin=true#fragment',
+        type: 'bibtex' as never,
+      });
+
+      const [url] = vi.mocked(global.fetch).mock.calls[0];
+      expect(url).toBe(
+        `https://api.epijinfo.test/papers/export/${encodeURIComponent('42?admin=true#fragment')}/bibtex?code=epijinfo`
+      );
+      expect(url).not.toContain('/42?admin=true#fragment/');
+    });
+
+    it('returns null without warning on 404', async () => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
+
+      const result = await fetchArticleMetadata({
+        rvcode: 'epijinfo',
+        paperid: '1',
+        type: 'bibtex' as never,
+      });
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null and warns on other non-ok statuses', async () => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 }) as unknown as typeof fetch;
+
+      const result = await fetchArticleMetadata({
+        rvcode: 'epijinfo',
+        paperid: '1',
+        type: 'bibtex' as never,
+      });
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null and logs on fetch error', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
+
+      const result = await fetchArticleMetadata({
+        rvcode: 'epijinfo',
+        paperid: '1',
+        type: 'bibtex' as never,
+      });
+
+      expect(result).toBeNull();
     });
   });
 });

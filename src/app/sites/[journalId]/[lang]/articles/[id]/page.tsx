@@ -33,7 +33,8 @@ const getCachedVolume = cache((journalId: string, volumeId: number, lang: Availa
   fetchVolume(journalId, volumeId, lang)
 );
 
-export const revalidate = 604800; // 7 days
+// Controlled by CACHE_TTL.articles in fetchArticle (default: 3600s, configurable via CACHE_TTL_ARTICLES)
+export const revalidate = false;
 
 export async function generateStaticParams() {
   return [];
