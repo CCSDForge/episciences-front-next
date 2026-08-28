@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { generateIdFromText, decodeText, getMarkdownImageURL, getNodeText } from '../markdown';
+import React from 'react';
+import { render } from '@testing-library/react';
+import {
+  generateIdFromText,
+  decodeText,
+  getMarkdownImageURL,
+  getNodeText,
+  renderInlineMarkdown,
+} from '../markdown';
 
 describe('markdown utilities', () => {
   describe('generateIdFromText', () => {
@@ -276,6 +284,167 @@ describe('markdown utilities', () => {
         ],
       };
       expect(getNodeText(node as any)).toBe('Run make build first');
+    });
+  });
+
+  describe('renderInlineMarkdown', () => {
+    it('returns null for null, undefined, or empty string', () => {
+      expect(renderInlineMarkdown(null)).toBeNull();
+      expect(renderInlineMarkdown(undefined)).toBeNull();
+      expect(renderInlineMarkdown('')).toBeNull();
+    });
+
+    it('returns plain text when no markdown formatting is present', () => {
+      expect(renderInlineMarkdown('Plain subtitle text')).toBe('Plain subtitle text');
+    });
+
+    it('decodes HTML entities in text', () => {
+      expect(renderInlineMarkdown('Science &amp; Motricit&eacute;')).toBe('Science & Motricité');
+    });
+
+    it('renders italic text with asterisks', () => {
+      const { container } = render(React.createElement('span', null, renderInlineMarkdown('*Italic text*')));
+      const em = container.querySelector('em');
+      expect(em).toBeInTheDocument();
+      expect(em?.textContent).toBe('Italic text');
+    });
+
+    it('renders italic text with underscores', () => {
+      const { container } = render(React.createElement('span', null, renderInlineMarkdown('_Italic text_')));
+      const em = container.querySelector('em');
+      expect(em).toBeInTheDocument();
+      expect(em?.textContent).toBe('Italic text');
+    });
+
+    it('renders bold text with double asterisks', () => {
+      const { container } = render(React.createElement('span', null, renderInlineMarkdown('**Bold text**')));
+      const strong = container.querySelector('strong');
+      expect(strong).toBeInTheDocument();
+      expect(strong?.textContent).toBe('Bold text');
+    });
+
+    it('renders bold text with double underscores', () => {
+      const { container } = render(React.createElement('span', null, renderInlineMarkdown('__Bold text__')));
+      const strong = container.querySelector('strong');
+      expect(strong).toBeInTheDocument();
+      expect(strong?.textContent).toBe('Bold text');
+    });
+
+    it('renders bold and italic with triple asterisks', () => {
+      const { container } = render(React.createElement('span', null, renderInlineMarkdown('***Bold and italic***')));
+      const strong = container.querySelector('strong');
+      const em = container.querySelector('em');
+      expect(strong).toBeInTheDocument();
+      expect(em).toBeInTheDocument();
+      expect(em?.contains(strong) || strong?.contains(em)).toBe(true);
+      expect(container.textContent).toBe('Bold and italic');
+    });
+
+    it('renders bold and italic with triple underscores', () => {
+      const { container } = render(React.createElement('span', null, renderInlineMarkdown('___Bold and italic___')));
+      const strong = container.querySelector('strong');
+      const em = container.querySelector('em');
+      expect(strong).toBeInTheDocument();
+      expect(em).toBeInTheDocument();
+      expect(em?.contains(strong) || strong?.contains(em)).toBe(true);
+      expect(container.textContent).toBe('Bold and italic');
+    });
+
+    it('renders mixed plain text, bold, and italic', () => {
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('Science & *Motricité* and **Sports**'))
+      );
+      expect(container.textContent).toBe('Science & Motricité and Sports');
+      expect(container.querySelector('em')?.textContent).toBe('Motricité');
+      expect(container.querySelector('strong')?.textContent).toBe('Sports');
+    });
+
+    it('renders nested italic inside bold', () => {
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('**Bold and *italic* combined**'))
+      );
+      const strong = container.querySelector('strong');
+      const em = container.querySelector('em');
+      expect(strong).toBeInTheDocument();
+      expect(em).toBeInTheDocument();
+      expect(strong).toContainElement(em);
+      expect(strong?.textContent).toBe('Bold and italic combined');
+    });
+
+    it('renders nested bold inside italic with same delimiter (regression: *Italic **bold** text*)', () => {
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('*Italic **bold** text*'))
+      );
+      const em = container.querySelector('em');
+      const strong = container.querySelector('strong');
+      expect(em).toBeInTheDocument();
+      expect(strong).toBeInTheDocument();
+      expect(em).toContainElement(strong);
+      expect(em?.textContent).toBe('Italic bold text');
+      expect(strong?.textContent).toBe('bold');
+    });
+
+    it('renders nested bold inside italic with underscore delimiters (_Italic __bold__ text_)', () => {
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('_Italic __bold__ text_'))
+      );
+      const em = container.querySelector('em');
+      const strong = container.querySelector('strong');
+      expect(em).toBeInTheDocument();
+      expect(strong).toBeInTheDocument();
+      expect(em).toContainElement(strong);
+      expect(em?.textContent).toBe('Italic bold text');
+      expect(strong?.textContent).toBe('bold');
+    });
+
+    it('does not create non-inline elements (headings, links) and strips their markup safely', () => {
+      const { container } = render(
+        React.createElement('span', null, renderInlineMarkdown('# Heading with [link](https://example.com)'))
+      );
+      expect(container.querySelector('h1')).toBeNull();
+      expect(container.querySelector('a')).toBeNull();
+      expect(container.textContent).toBe('Heading with link');
+    });
+
+    describe('security and XSS prevention', () => {
+      it('safely escapes script tags without executing or creating script DOM elements', () => {
+        const { container } = render(
+          React.createElement('span', null, renderInlineMarkdown('<script>alert("xss")</script>'))
+        );
+        expect(container.querySelector('script')).toBeNull();
+        expect(container.textContent).toBe('<script>alert("xss")</script>');
+      });
+
+      it('safely escapes img with onerror event handlers', () => {
+        const { container } = render(
+          React.createElement('span', null, renderInlineMarkdown('<img src="x" onerror="alert(1)">'))
+        );
+        expect(container.querySelector('img')).toBeNull();
+        expect(container.textContent).toBe('<img src="x" onerror="alert(1)">');
+      });
+
+      it('safely renders HTML tags inside markdown emphasis as plain text nodes', () => {
+        const { container } = render(
+          React.createElement(
+            'span',
+            null,
+            renderInlineMarkdown('*<iframe src="https://malicious.test"></iframe>*')
+          )
+        );
+        expect(container.querySelector('iframe')).toBeNull();
+        const em = container.querySelector('em');
+        expect(em).toBeInTheDocument();
+        expect(em?.textContent).toBe('<iframe src="https://malicious.test"></iframe>');
+      });
+
+      it('safely handles malicious long inputs without catastrophic backtracking (ReDoS)', () => {
+        const maliciousInput = '*'.repeat(5000) + 'test';
+        const startTime = performance.now();
+        const result = renderInlineMarkdown(maliciousInput);
+        const duration = performance.now() - startTime;
+        expect(duration).toBeLessThan(500);
+        expect(result).toBeDefined();
+      });
     });
   });
 });

@@ -82,6 +82,21 @@ describe('HeaderServer', () => {
     expect(screen.getByText('A subtitle')).toBeInTheDocument();
   });
 
+  it('renders markdown bold and italic in the journal subtitle', async () => {
+    vi.mocked(getJournalByCode).mockResolvedValue({
+      name: 'Epi Journal',
+      subtitle: 'Science & *Motricité* with **Bold**',
+    } as never);
+    vi.mocked(fetchVolumes).mockResolvedValue({ data: [] } as never);
+
+    const { container } = render(await HeaderServer({ lang: 'en', journalId: 'epijinfo' }));
+
+    const subtitle = container.querySelector('.header-journal-subtitle');
+    expect(subtitle).toBeInTheDocument();
+    expect(subtitle?.querySelector('em')?.textContent).toBe('Motricité');
+    expect(subtitle?.querySelector('strong')?.textContent).toBe('Bold');
+  });
+
   it('renders the sign-in link when a manager URL is configured', async () => {
     vi.mocked(getJournalByCode).mockResolvedValue({ name: 'Epi Journal' } as never);
     vi.mocked(fetchVolumes).mockResolvedValue({ data: [] } as never);
