@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getLicenseLabelInfo } from '../article';
+import { getLicenseLabelInfo, getCitations, CITATION_TEMPLATE } from '../article';
 
 describe('getLicenseLabelInfo', () => {
   describe('Creative Commons licenses', () => {
@@ -113,5 +113,82 @@ describe('getLicenseLabelInfo', () => {
       // @ts-ignore
       expect(getLicenseLabelInfo(undefined)).toBeNull();
     });
+  });
+});
+
+describe('getCitations', () => {
+  const sampleCSL = JSON.stringify({
+    id: 'test-article-1',
+    type: 'article-journal',
+    title: 'Quantum Computing and Cryptography',
+    author: [
+      { family: 'Turing', given: 'Alan' },
+      { family: 'Lovelace', given: 'Ada' },
+    ],
+    issued: {
+      'date-parts': [[2024, 3, 15]],
+    },
+    'container-title': 'Journal of Open Science',
+    volume: '42',
+    issue: '2',
+    page: '100-115',
+    DOI: '10.1000/182',
+  });
+
+  it('should return an empty array when csl is undefined or empty', async () => {
+    expect(await getCitations()).toEqual([]);
+    expect(await getCitations('')).toEqual([]);
+    expect(await getCitations('   ')).toEqual([]);
+  });
+
+  it('should return all citation formats with valid content for valid CSL input', async () => {
+    const citations = await getCitations(sampleCSL);
+
+    expect(citations).toHaveLength(6);
+
+    const ams = citations.find(c => c.key === CITATION_TEMPLATE.AMS);
+    const apa = citations.find(c => c.key === CITATION_TEMPLATE.APA);
+    const bibtex = citations.find(c => c.key === CITATION_TEMPLATE.BIBTEX);
+    const ieee = citations.find(c => c.key === CITATION_TEMPLATE.IEEE);
+    const mla = citations.find(c => c.key === CITATION_TEMPLATE.MLA);
+    const vancouver = citations.find(c => c.key === CITATION_TEMPLATE.VANCOUVER);
+
+    expect(ams).toBeDefined();
+    expect(apa).toBeDefined();
+    expect(bibtex).toBeDefined();
+    expect(ieee).toBeDefined();
+    expect(mla).toBeDefined();
+    expect(vancouver).toBeDefined();
+
+    // BibTeX is empty initially in getCitations (fetched separately from metadataBibTeX)
+    expect(bibtex?.citation).toBe('');
+
+    // APA
+    expect(apa?.citation).toContain('Turing');
+    expect(apa?.citation).toContain('Quantum Computing and Cryptography');
+    expect(apa?.citation).toContain('2024');
+
+    // AMS (custom style: asserts that the template is registered)
+    expect(ams?.citation).not.toBe('');
+    expect(ams?.citation).toContain('Turing');
+    expect(ams?.citation).toContain('Quantum Computing and Cryptography');
+
+    // IEEE (custom style: asserts that the template is registered)
+    expect(ieee?.citation).not.toBe('');
+    expect(ieee?.citation).toContain('A. Turing');
+    expect(ieee?.citation).toContain('Quantum Computing and Cryptography');
+
+    // MLA
+    expect(mla?.citation).toContain('Turing');
+    expect(mla?.citation).toContain('Quantum Computing and Cryptography');
+
+    // Vancouver
+    expect(vancouver?.citation).toContain('Turing');
+    expect(vancouver?.citation).toContain('Quantum Computing and Cryptography');
+  });
+
+  it('should handle malformed CSL input gracefully without throwing', async () => {
+    const result = await getCitations('{ malformed json');
+    expect(result).toEqual([]);
   });
 });
