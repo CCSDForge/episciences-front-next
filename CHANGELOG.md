@@ -23,6 +23,10 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Added
 
+- **Nakala IIIF Repository Preview**: Added a provider-agnostic repository preview architecture and an interactive Nakala IIIF embedded viewer for linked dataset publications on article detail pages. Related-item metadata is resolved server-side (keeping client `connect-src` CSP strict) and loaded into a sandboxed `ExternalEmbedViewer` on-demand upon user interaction.
+- **HTTPS Development Script**: Added `npm run dev:https` script leveraging Next.js experimental HTTPS to enable local testing of embedded iframes governed by HTTPS `frame-ancestors` policies (such as Nakala).
+- **Semantic Decorative Accent Token**: Added `--accent-border` CSS variable (aliasing raw `--primary`) across card banners, sidebars, modals, and footers to maintain vibrant journal branding without dark WCAG contrast overrides intended for text/functional borders.
+- **Generic Iframe Loading Hook**: Extracted `useIframeLoadState` hook managing iframe loading, error, timeout, and retry states for embedded viewers.
 - **Journal Subtitle Markdown Formatting**: Added inline Markdown support (`*italic*` / `_italic_`, `**bold**` / `__bold__`, and `***bold italic***` / `___bold italic___`) for journal subtitles in both client and server Header components via a dedicated XSS-safe inline rendering utility.
 - **Mathematics Subject Classification (MSC 2020)**: Added MSC 2020 classification section on article detail pages below keywords, with classification codes linking to zbmath.org (sourced from API classifications).
 - **Responsive Mobile Navigation**: Added a mobile burger menu for header navigation on smaller screen viewports.
@@ -32,6 +36,9 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Changed
 
+- **CSP Frame-Ancestors & Frame-Src**: Updated Nginx Content Security Policy templates to authorize `frame-src https://api.nakala.fr` for Nakala embeds, backed by automated CSP provider test assertions.
+- **Search Submit Icon Color**: Switched search submit button external link icon to `currentColor` (`ExternalLinkIcon`) to adapt dynamically to the theme's `--button-text-on-primary-bg`.
+- **Prettier Code Formatting**: Formatted codebase and test suites via Prettier.
 - **Journal Subtitle Styling & Typography**: Removed default italic style and opacity reduction on journal subtitles in the Header, allowing plain text by default and increased font size to 30px.
 - **Configurable Article Cache TTL**: Updated article detail and list pages to delegate ISR cache duration to `CACHE_TTL_ARTICLES` (default: 3600s, configurable via environment variables) instead of a hardcoded 7-day TTL, with `next: { revalidate, tags }` wired across `fetchArticle`, `fetchArticleMetadata`, and `fetchExportLink` while preserving on-demand revalidation.
 - **Search Result Article Enrichment Cache**: Disabled Next.js Data Cache (`cache: 'no-store'`) on article detail lookups within search results to prevent caching stale or cross-journal search-enriched article data.
@@ -47,6 +54,12 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Fixed
 
+- **Mobile Modal & Filter Panel Heights**: Fixed bottom-sheet modals (`ArticlesMobileModal`, `ArticlesAcceptedMobileModal`, `NewsMobileModal`, `StatisticsMobileModal`, `VolumeDetailsMobileModal`) collapsing or leaving gaps above the page footer by setting `position: fixed` with viewport-relative boundaries (`top`/`bottom: 0`).
+- **Volumes Mobile Modal Layout & Selectors**: Fixed broken class name prefixes in `VolumesMobileModal`, restored styling selectors, corrected document type translation keys (`type.labelPath`), and normalized button styles.
+- **Markdown Inline AST Parser**: Fixed inline markdown formatting parsing via AST traversal to correctly handle nested and repeated delimiter tags without regex failure or ReDoS vulnerabilities.
+- **Nakala Preview Error Handling & Embargo**: Hardened repository preview against malformed related-item URLs (avoiding page crashes) and unparseable embargo dates (defaulting to fail-closed/hidden).
+- **Paper ID Percent-Encoding**: Ensured `paperid` is consistently percent-encoded in API metadata and export fetches (`fetchArticleMetadata`, `fetchExportLink`).
+- **Search Bar Test Mock**: Fixed stale mock icon export in `SearchBar.test.tsx`.
 - **Code Quality & Cognitive Complexity**: Resolved SonarQube code smells, cognitive complexity, and S-rules across 50+ components and tests.
 - **Board Dependencies**: Aligned `boardsPerTitle` `useMemo` dependencies in `BoardsClient`.
 - **Test Suite Coverage**: Added comprehensive unit test coverage for layouts, feed routes, and server components, raising test coverage to >82%.
