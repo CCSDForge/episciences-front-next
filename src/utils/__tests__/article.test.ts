@@ -178,9 +178,11 @@ describe('getCitations', () => {
     expect(ieee?.citation).toContain('A. Turing');
     expect(ieee?.citation).toContain('Quantum Computing and Cryptography');
 
-    // MLA
-    expect(mla?.citation).toContain('Turing');
-    expect(mla?.citation).toContain('Quantum Computing and Cryptography');
+    // MLA (custom style: asserts that the template is registered and distinct from APA)
+    expect(mla?.citation).not.toBe('');
+    expect(mla?.citation).toContain('Turing, Alan');
+    expect(mla?.citation).toContain('“Quantum Computing and Cryptography.”');
+    expect(mla?.citation).not.toEqual(apa?.citation);
 
     // Vancouver
     expect(vancouver?.citation).toContain('Turing');

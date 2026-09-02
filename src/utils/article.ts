@@ -580,8 +580,8 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
     // Register plugins
     await import('@citation-js/plugin-csl');
 
-    // Register custom CSL templates (IEEE and AMS are not bundled in plugin-csl)
-    const [{ AMS_CSL, IEEE_CSL }, coreModule] = await Promise.all([
+    // Register custom CSL templates (IEEE, AMS, and MLA are not bundled in plugin-csl)
+    const [{ AMS_CSL, IEEE_CSL, MLA_CSL }, coreModule] = await Promise.all([
       import('@/config/csl-styles'),
       import('@citation-js/core') as Promise<any>,
     ]);
@@ -589,6 +589,7 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
     if (cslTemplates) {
       if (!cslTemplates.has('ams')) cslTemplates.add('ams', AMS_CSL);
       if (!cslTemplates.has('ieee')) cslTemplates.add('ieee', IEEE_CSL);
+      if (!cslTemplates.has('mla')) cslTemplates.add('mla', MLA_CSL);
     }
 
     // Parse CSL data - it might be a JSON string, so try to parse it
