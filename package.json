@@ -10,6 +10,8 @@
     "predev": "npm run preflight",
     "dev": "next dev -p 8080",
     "dev:turbo": "next dev --turbo -p 8080",
+    "predev:https": "npm run preflight",
+    "dev:https": "next dev --experimental-https -p 8443",
     "prebuild": "npm run preflight",
     "build": "next build",
     "build:turbo": "next build --turbo",

@@ -397,7 +397,18 @@
         "pdfDisplayTitle": "PDF Display",
         "pdfDisplayMessage": "The PDF cannot be displayed directly. Click the button below to open it in a new tab or download it."
       },
-      "description": "Article details, abstract and full text"
+      "description": "Article details, abstract and full text",
+      "repositoryPreview": {
+        "preview": "Preview",
+        "hidePreview": "Hide preview",
+        "viewerTitle": "{{provider}} viewer",
+        "imageBadge": "Image",
+        "loading": "Loading viewer…",
+        "error": "Preview could not be loaded",
+        "retry": "Retry",
+        "selectFile": "Select a file",
+        "openOnRepository": "Open on {{provider}}"
+      }
     },
     "articlesAccepted": {
       "title": "To be published",

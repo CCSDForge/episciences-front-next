@@ -17,3 +17,5 @@ export const MATHJAX_URL =
 export const ZOTERO_URL = process.env.NEXT_PUBLIC_ZOTERO_HOMEPAGE || 'https://www.zotero.org';
 export const CREATIVE_COMMONS_URL =
   process.env.NEXT_PUBLIC_CREATIVE_COMMONS_HOMEPAGE || 'https://creativecommons.org';
+export const NAKALA_URL = process.env.NEXT_PUBLIC_NAKALA_HOMEPAGE || 'https://nakala.fr';
+export const NAKALA_API_URL = process.env.NEXT_PUBLIC_NAKALA_API_URL || 'https://api.nakala.fr';

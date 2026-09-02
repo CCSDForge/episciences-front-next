@@ -198,6 +198,10 @@ export type { PlusCircleIconProps } from './ui/PlusCircleIcon';
 export { default as MinusCircleIcon } from './ui/MinusCircleIcon';
 export type { MinusCircleIconProps } from './ui/MinusCircleIcon';
 
+// Dataset Icon (linked repository dataset, provider-neutral)
+export { default as DatasetIcon } from './ui/DatasetIcon';
+export type { DatasetIconProps } from './ui/DatasetIcon';
+
 // ============================================================
 // BRAND ICONS
 // ============================================================
@@ -213,6 +217,14 @@ export type { LogoTextIconProps } from './brand/LogoTextIcon';
 // ORCID Icon
 export { default as OrcidIcon } from './brand/OrcidIcon';
 export type { OrcidIconProps } from './brand/OrcidIcon';
+
+// Eye Icon (preview toggle)
+export { default as EyeIcon } from './actions/EyeIcon';
+export type { EyeIconProps } from './actions/EyeIcon';
+
+// Eye Slash Icon (hide preview toggle)
+export { default as EyeSlashIcon } from './actions/EyeSlashIcon';
+export type { EyeSlashIconProps } from './actions/EyeSlashIcon';
 
 // Re-export icon colors from utility
 export { ICON_COLORS } from '@/utils/icon-colors';

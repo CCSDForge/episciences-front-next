@@ -242,6 +242,99 @@
                 height: 400px;
               }
             }
+
+            &-repository {
+              &-header {
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 8px;
+              }
+
+              &-icon {
+                display: inline-flex;
+                color: var(--primary-text);
+              }
+
+              &-typeBadge {
+                width: fit-content;
+                color: var(--primary-text);
+                background: var(--grey-lighter);
+                border: 1px solid var(--grey-light);
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+              }
+
+              &-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                margin-left: auto;
+                padding: 4px 10px;
+                border: 1px solid var(--primary-border);
+                border-radius: 4px;
+                background: transparent;
+                color: var(--primary-text);
+                font-size: 13px;
+                cursor: pointer;
+
+                &:hover {
+                  background: var(--grey-lighter);
+                }
+
+                &:focus-visible {
+                  outline: 3px solid var(--focus-color);
+                }
+              }
+
+              &-citation {
+                font-size: 14px;
+              }
+
+              &-viewer {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+              }
+
+              &-tabs {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+              }
+
+              &-tab {
+                padding: 4px 10px;
+                border: 1px solid var(--grey-light);
+                border-radius: 4px;
+                background: transparent;
+                color: var(--primary-text);
+                font-size: 13px;
+                cursor: pointer;
+
+                &[aria-selected='true'] {
+                  background: var(--primary);
+                  color: var(--button-text-on-primary-bg);
+                  border-color: var(--primary);
+                }
+              }
+
+              &-selectLabel {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                font-size: 13px;
+                color: var(--primary-text);
+                width: fit-content;
+              }
+
+              &-select {
+                padding: 4px 8px;
+                border: 1px solid var(--grey-light);
+                border-radius: 4px;
+              }
+            }
           }
 
           &-references {

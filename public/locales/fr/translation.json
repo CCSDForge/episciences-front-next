@@ -404,7 +404,18 @@
         "pdfDisplayTitle": "Affichage du PDF",
         "pdfDisplayMessage": "Le PDF ne peut pas être affiché directement. Cliquez sur le bouton ci-dessous pour l'ouvrir dans un nouvel onglet ou le télécharger."
       },
-      "description": "Détails de l'article, résumé et texte intégral"
+      "description": "Détails de l'article, résumé et texte intégral",
+      "repositoryPreview": {
+        "preview": "Prévisualiser",
+        "hidePreview": "Masquer la prévisualisation",
+        "viewerTitle": "Visualisateur {{provider}}",
+        "imageBadge": "Image",
+        "loading": "Chargement du visualisateur…",
+        "error": "Impossible de charger la prévisualisation",
+        "retry": "Réessayer",
+        "selectFile": "Sélectionner un fichier",
+        "openOnRepository": "Ouvrir sur {{provider}}"
+      }
     },
     "articlesAccepted": {
       "title": "À paraître",
