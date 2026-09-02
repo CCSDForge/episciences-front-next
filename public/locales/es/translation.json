@@ -406,7 +406,6 @@
         "loading": "Cargando el visualizador…",
         "error": "No se pudo cargar la previsualización",
         "retry": "Reintentar",
-        "noPreview": "Ningún archivo previsualizable en este depósito",
         "selectFile": "Seleccionar un archivo",
         "openOnRepository": "Abrir en {{provider}}"
       }

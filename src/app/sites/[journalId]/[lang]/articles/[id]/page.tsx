@@ -5,7 +5,7 @@ import { fetchArticle, fetchArticleMetadata } from '@/services/article';
 import { fetchVolume } from '@/services/volume';
 import { getJournalByCode } from '@/services/journal';
 import ArticleDetailsServer from './ArticleDetailsServer';
-import { isCrossJournalAccess, METADATA_TYPE } from '@/utils/article';
+import { INTER_WORK_RELATIONSHIP, isCrossJournalAccess, METADATA_TYPE } from '@/utils/article';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import { getServerTranslations } from '@/utils/server-i18n';
@@ -191,7 +191,14 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
     }
   }
 
-  const repositoryPreviews = await resolveRepositoryPreviews(article.relatedItems ?? []);
+  // LinkedPublicationsSectionServer never renders isSameAs/hasPreprint items, so skip
+  // fetching their repository preview.
+  const previewableRelatedItems = (article.relatedItems ?? []).filter(
+    relatedItem =>
+      relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
+      relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.HAS_PREPRINT
+  );
+  const repositoryPreviews = await resolveRepositoryPreviews(previewableRelatedItems);
 
   return (
     <ArticleDetailsServer

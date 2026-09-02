@@ -413,7 +413,6 @@
         "loading": "Chargement du visualisateur…",
         "error": "Impossible de charger la prévisualisation",
         "retry": "Réessayer",
-        "noPreview": "Aucun fichier prévisualisable dans ce dépôt",
         "selectFile": "Sélectionner un fichier",
         "openOnRepository": "Ouvrir sur {{provider}}"
       }

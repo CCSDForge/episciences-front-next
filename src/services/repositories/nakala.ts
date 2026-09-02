@@ -71,8 +71,13 @@ function match(value: string): string | null {
     const isDoiHost = host === 'doi.org' || host === 'dx.doi.org';
     if (!isNakalaHost && !isDoiHost) return null;
 
-    const path = decodeURIComponent(url.pathname).replace(/^\/+/, '');
-    return normalizeCandidate(path);
+    let path: string;
+    try {
+      path = decodeURIComponent(url.pathname);
+    } catch {
+      return null;
+    }
+    return normalizeCandidate(path.replace(/^\/+/, ''));
   }
 
   return normalizeCandidate(raw);
@@ -85,7 +90,8 @@ function landingUrl(identifier: string): string {
 function isEmbargoed(file: NakalaFile): boolean {
   if (!file.embargoed) return false;
   const embargoDate = new Date(file.embargoed);
-  if (Number.isNaN(embargoDate.getTime())) return false;
+  // Fail closed: an unparseable embargo value must not expose a flagged file.
+  if (Number.isNaN(embargoDate.getTime())) return true;
   return embargoDate.getTime() > Date.now();
 }
 

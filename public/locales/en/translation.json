@@ -406,7 +406,6 @@
         "loading": "Loading viewer…",
         "error": "Preview could not be loaded",
         "retry": "Retry",
-        "noPreview": "No previewable file in this deposit",
         "selectFile": "Select a file",
         "openOnRepository": "Open on {{provider}}"
       }
