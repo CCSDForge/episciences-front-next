@@ -69,6 +69,7 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Security
 
+- **Transitive Dependency Vulnerabilities Remediation**: Added dependency overrides for `browserslist` (`>=4.28.8`, GHSA-c83g-rgw3-j3cx, GHSA-73wf-gq98-2v4g), `@xmldom/xmldom` (`>=0.9.12`, GHSA-6gmq-8vp8-gcm6), and `postcss-selector-parser` (`>=7.1.5`, GHSA-w9m9-85wc-3x92).
 - **Nanoid Vulnerability Remediation**: Updated dependency override for `nanoid` to `>=3.3.18` to resolve vulnerability GHSA-2v37-7h3g-55p8.
 
 ## [v1] - 2026-08-25
