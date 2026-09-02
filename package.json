@@ -27,9 +27,9 @@
     "sonar": "npx @sonar/scan"
   },
   "dependencies": {
-    "@citation-js/core": "^0.7.14",
-    "@citation-js/plugin-csl": "^0.7.14",
-    "@citation-js/plugin-doi": "^0.7.14",
+    "@citation-js/core": "^0.7.21",
+    "@citation-js/plugin-csl": "^0.7.22",
+    "@citation-js/plugin-doi": "^0.7.21",
     "better-react-mathjax": "^2.0.3",
     "citation-js": "^0.7.22",
     "date-fns": "^4.1.0",
