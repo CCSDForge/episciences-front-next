@@ -23,6 +23,8 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Added
 
+- **Official MLA Citation Style**: Integrated the official Modern Language Association (MLA 9th edition) CSL style template into `src/config/csl-styles.ts` and registered it in `getCitations()`, generating genuine MLA-formatted citations with full author names, quoted titles, and journal volume/issue details.
+- **Citation Generation Test Suite**: Added comprehensive unit tests for `getCitations()` in `src/utils/__tests__/article.test.ts` validating real citation output across all supported templates (AMS, APA, BibTeX, IEEE, MLA, Vancouver) without mocks, asserting style distinctness and graceful handling of malformed input.
 - **Nakala IIIF Repository Preview**: Added a provider-agnostic repository preview architecture and an interactive Nakala IIIF embedded viewer for linked dataset publications on article detail pages. Related-item metadata is resolved server-side (keeping client `connect-src` CSP strict) and loaded into a sandboxed `ExternalEmbedViewer` on-demand upon user interaction.
 - **HTTPS Development Script**: Added `npm run dev:https` script leveraging Next.js experimental HTTPS to enable local testing of embedded iframes governed by HTTPS `frame-ancestors` policies (such as Nakala).
 - **Semantic Decorative Accent Token**: Added `--accent-border` CSS variable (aliasing raw `--primary`) across card banners, sidebars, modals, and footers to maintain vibrant journal branding without dark WCAG contrast overrides intended for text/functional borders.
@@ -37,6 +39,7 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Changed
 
+- **Citation.js Dependencies Alignment**: Aligned `@citation-js/core` (`^0.7.21`), `@citation-js/plugin-csl` (`^0.7.22`), and `@citation-js/plugin-doi` (`^0.7.21`) to the latest stable 0.7.x releases, resolving peer dependency conflicts while preserving Next.js Turbopack browser-bundle compatibility.
 - **CSP Frame-Ancestors & Frame-Src**: Updated Nginx Content Security Policy templates to authorize `frame-src https://api.nakala.fr` for Nakala embeds, backed by automated CSP provider test assertions.
 - **Search Submit Icon Color**: Switched search submit button external link icon to `currentColor` (`ExternalLinkIcon`) to adapt dynamically to the theme's `--button-text-on-primary-bg`.
 - **Prettier Code Formatting**: Formatted codebase and test suites via Prettier.
@@ -55,6 +58,7 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Fixed
 
+- **MLA Citation Fallback to APA**: Fixed MLA citation generation which previously produced duplicate APA-formatted text due to missing MLA CSL template registration in Citation.js.
 - **Mobile Modal & Filter Panel Heights**: Fixed bottom-sheet modals (`ArticlesMobileModal`, `ArticlesAcceptedMobileModal`, `NewsMobileModal`, `StatisticsMobileModal`, `VolumeDetailsMobileModal`) collapsing or leaving gaps above the page footer by setting `position: fixed` with viewport-relative boundaries (`top`/`bottom: 0`).
 - **Volumes Mobile Modal Layout & Selectors**: Fixed broken class name prefixes in `VolumesMobileModal`, restored styling selectors, corrected document type translation keys (`type.labelPath`), and normalized button styles.
 - **Markdown Inline AST Parser**: Fixed inline markdown formatting parsing via AST traversal to correctly handle nested and repeated delimiter tags without regex failure or ReDoS vulnerabilities.
