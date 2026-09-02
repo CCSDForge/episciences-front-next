@@ -21,6 +21,8 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1.1.0] - 2026-09-03
+
 ### Added
 
 - **Official MLA Citation Style**: Integrated the official Modern Language Association (MLA 9th edition) CSL style template into `src/config/csl-styles.ts` and registered it in `getCitations()`, generating genuine MLA-formatted citations with full author names, quoted titles, and journal volume/issue details.
