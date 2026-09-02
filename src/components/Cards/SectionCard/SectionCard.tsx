@@ -14,9 +14,9 @@ import { getLocalizedContent } from '@/utils/content-fallback';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 interface ISectionCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  section: ISection;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly section: ISection;
 }
 
 function SectionCard({ language, t, section }: ISectionCardProps): React.JSX.Element {

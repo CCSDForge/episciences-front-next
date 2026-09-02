@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { TFunction } from 'i18next';
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
 import Button from '@/components/Button/Button';
@@ -38,12 +38,12 @@ interface IVolumesFilter {
 }
 
 interface IVolumesMobileModalProps {
-  t: TFunction<'translation', undefined>;
-  initialTypes: IVolumesTypeSelection[];
-  onUpdateTypesCallback: (types: IVolumesTypeSelection[]) => void;
-  initialYears: IVolumesYearSelection[];
-  onUpdateYearsCallback: (years: IVolumesYearSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly initialTypes: IVolumesTypeSelection[];
+  readonly onUpdateTypesCallback: (types: IVolumesTypeSelection[]) => void;
+  readonly initialYears: IVolumesYearSelection[];
+  readonly onUpdateYearsCallback: (years: IVolumesYearSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function VolumesMobileModal({
@@ -56,12 +56,9 @@ export default function VolumesMobileModal({
 }: IVolumesMobileModalProps): React.JSX.Element {
   const [types, setTypes] = useState<IVolumesTypeSelection[]>(initialTypes);
   const [years, setYears] = useState<IVolumesYearSelection[]>(initialYears);
-  const [taggedFilters, setTaggedFilters] = useState<IVolumesFilter[]>([]);
-
   const clearTaggedFilters = useCallback((): void => {
     setTypes(prev => prev.map(t => ({ ...t, isChecked: false })));
     setYears(prev => prev.map(y => ({ ...y, isSelected: false })));
-    setTaggedFilters([]);
   }, []);
 
   const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
@@ -73,24 +70,18 @@ export default function VolumesMobileModal({
     { key: FILTERS_SECTION.YEAR, isOpened: false },
   ]);
 
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: IVolumesFilter[] = [];
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
-      });
-    years
-      .filter(y => y.isSelected)
-      .forEach(y => {
-        initFilters.push({ type: 'year', value: y.year, label: y.year });
-      });
-    setTaggedFilters(initFilters);
-  }, [types, years]);
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<IVolumesFilter[]>(
+    () => [
+      ...types
+        .filter(t => t.isChecked)
+        .map(t => ({ type: 'type' as const, value: t.value, labelPath: t.labelPath })),
+      ...years
+        .filter(y => y.isSelected)
+        .map(y => ({ type: 'year' as const, value: y.year, label: y.year })),
+    ],
+    [types, years]
+  );
 
   const onCheckType = (value: string): void => {
     setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: !t.isChecked } : t)));
@@ -123,27 +114,32 @@ export default function VolumesMobileModal({
         aria-modal="true"
         aria-labelledby="volumes-modal-title"
       >
-        <div className="title">
-          <h2 id="volumes-modal-title" className="title-text">
+        <div className="volumesMobileModal-title">
+          <h2 id="volumes-modal-title" className="volumesMobileModal-title-text">
             {t('common.filters.filter')}
           </h2>
-          <button type="button" className="titleClose" onClick={onClose} aria-label="Close">
+          <button
+            type="button"
+            className="volumesMobileModal-title-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
             <CloseBlackIcon size={24} />
           </button>
         </div>
         {taggedFilters.length > 0 && (
-          <div className="tags">
-            <div className="tagsRow">
-              {taggedFilters.map((filter, index) => (
+          <div className="volumesMobileModal-tags">
+            <div className="volumesMobileModal-tags-row">
+              {taggedFilters.map(filter => (
                 <Tag
-                  key={index}
+                  key={`${filter.type}-${filter.value}`}
                   text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                   onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
                 />
               ))}
             </div>
             <div
-              className="tagsClear"
+              className="volumesMobileModal-tags-clear"
               role="button"
               tabIndex={0}
               onClick={clearTaggedFilters}
@@ -153,9 +149,9 @@ export default function VolumesMobileModal({
             </div>
           </div>
         )}
-        <div className="filters">
-          <div className="filtersTypes">
-            <div className="filtersTypesTitle">
+        <div className="volumesMobileModal-filters">
+          <div className="volumesMobileModal-filters-types">
+            <div className="volumesMobileModal-filters-types-title">
               <button
                 type="button"
                 aria-expanded={isOpenedSection(FILTERS_SECTION.TYPE)}
@@ -166,46 +162,46 @@ export default function VolumesMobileModal({
               {isOpenedSection(FILTERS_SECTION.TYPE) ? (
                 <CaretUpGreyIcon
                   size={16}
-                  className="filtersTypesTitleCaret"
+                  className="volumesMobileModal-filters-types-title-caret"
                   ariaLabel="Collapse"
                   onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
                 />
               ) : (
                 <CaretDownGreyIcon
                   size={16}
-                  className="filtersTypesTitleCaret"
+                  className="volumesMobileModal-filters-types-title-caret"
                   ariaLabel="Expand"
                   onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
                 />
               )}
             </div>
             <div
-              className={`filtersTypesList ${isOpenedSection(FILTERS_SECTION.TYPE) ? 'filtersTypesListOpened' : ''}`}
+              className={`volumesMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) ? 'volumesMobileModal-filters-types-list-opened' : ''}`}
             >
-              {types.map((type, index) => (
-                <div key={index} className="filtersTypesListChoice">
+              {types.map(type => (
+                <div key={type.value} className="volumesMobileModal-filters-types-list-choice">
                   <div>
                     <Checkbox
                       checked={type.isChecked}
                       onChangeCallback={(): void => onCheckType(type.value)}
-                      ariaLabel={t(`common.volumeTypes.${type.value}`)}
+                      ariaLabel={t(type.labelPath)}
                     />
                   </div>
                   <span
-                    className={`filtersTypesListChoiceLabel ${type.isChecked ? 'filtersTypesListChoiceLabelChecked' : ''}`}
+                    className={`volumesMobileModal-filters-types-list-choice-label ${type.isChecked ? 'volumesMobileModal-filters-types-list-choice-label-checked' : ''}`}
                     role="button"
                     tabIndex={0}
                     onClick={(): void => onCheckType(type.value)}
                     onKeyDown={e => handleKeyboardClick(e, (): void => onCheckType(type.value))}
                   >
-                    {t(`common.volumeTypes.${type.value}`)}
+                    {t(type.labelPath)}
                   </span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="filtersYears">
-            <div className="filtersYearsTitle">
+          <div className="volumesMobileModal-filters-years">
+            <div className="volumesMobileModal-filters-years-title">
               <button
                 type="button"
                 aria-expanded={isOpenedSection(FILTERS_SECTION.YEAR)}
@@ -216,24 +212,24 @@ export default function VolumesMobileModal({
               {isOpenedSection(FILTERS_SECTION.YEAR) ? (
                 <CaretUpGreyIcon
                   size={16}
-                  className="filtersYearsTitleCaret"
+                  className="volumesMobileModal-filters-years-title-caret"
                   ariaLabel="Collapse"
                   onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
                 />
               ) : (
                 <CaretDownGreyIcon
                   size={16}
-                  className="filtersYearsTitleCaret"
+                  className="volumesMobileModal-filters-years-title-caret"
                   ariaLabel="Expand"
                   onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
                 />
               )}
             </div>
             <div
-              className={`filtersYearsList ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'filtersYearsListOpened' : ''}`}
+              className={`volumesMobileModal-filters-years-list ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'volumesMobileModal-filters-years-list-opened' : ''}`}
             >
-              {years.map((y, index) => (
-                <div key={index} className="filtersYearsListChoice">
+              {years.map(y => (
+                <div key={y.year} className="volumesMobileModal-filters-years-list-choice">
                   <div>
                     <Checkbox
                       checked={y.isSelected}
@@ -242,7 +238,7 @@ export default function VolumesMobileModal({
                     />
                   </div>
                   <span
-                    className={`filtersYearsListChoiceLabel ${y.isSelected ? 'filtersYearsListChoiceLabelChecked' : ''}`}
+                    className={`volumesMobileModal-filters-years-list-choice-label ${y.isSelected ? 'volumesMobileModal-filters-years-list-choice-label-checked' : ''}`}
                     role="button"
                     tabIndex={0}
                     onClick={(): void => onCheckYear(y.year)}
@@ -255,7 +251,7 @@ export default function VolumesMobileModal({
             </div>
           </div>
         </div>
-        <div className="submit">
+        <div className="volumesMobileModal-submit">
           <Button
             text={t('common.filters.applyFilters')}
             onClickCallback={(): void => onApplyFilters()}

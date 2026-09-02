@@ -56,7 +56,7 @@ export function transformBoardMember(rawMember: RawBoardMember): IBoardMember {
   // Transform roles: flatten nested arrays and replace underscores with hyphens
   const roles =
     rawMember.roles && rawMember.roles.length > 0
-      ? rawMember.roles.flat().map((role: string) => role.replace(/_/g, '-'))
+      ? rawMember.roles.flat().map((role: string) => role.replaceAll('_', '-'))
       : [];
 
   // Parse social media links

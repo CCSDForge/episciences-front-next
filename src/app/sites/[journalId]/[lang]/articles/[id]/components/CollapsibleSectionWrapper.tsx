@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState, ReactNode } from 'react';
-import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
-import { handleKeyboardClick } from '@/utils/keyboard';
+import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
 
 interface CollapsibleSectionWrapperProps {
-  title: string;
-  children: ReactNode;
-  initialOpen?: boolean;
-  sectionKey: string;
+  readonly title: string;
+  readonly children: ReactNode;
+  readonly initialOpen?: boolean;
+  readonly sectionKey: string;
 }
 
 /**
@@ -27,29 +26,15 @@ export default function CollapsibleSectionWrapper({
 
   return (
     <div className="articleDetails-content-article-section">
-      <div
-        role="button"
-        tabIndex={0}
-        aria-expanded={isOpen}
-        className={`articleDetails-content-article-section-title ${!isOpen && 'articleDetails-content-article-section-closed'}`}
-        onClick={toggleSection}
-        onKeyDown={e => handleKeyboardClick(e, toggleSection)}
-      >
-        <div className="articleDetails-content-article-section-title-text">{title}</div>
-        {isOpen ? (
-          <CaretUpBlackIcon
-            size={16}
-            className="articleDetails-content-article-section-title-caret"
-            ariaLabel="Collapse section"
-          />
-        ) : (
-          <CaretDownBlackIcon
-            size={16}
-            className="articleDetails-content-article-section-title-caret"
-            ariaLabel="Expand section"
-          />
-        )}
-      </div>
+      <CollapsibleSectionHeader
+        triggerClassName={`articleDetails-content-article-section-title ${!isOpen && 'articleDetails-content-article-section-closed'}`}
+        headingClassName="articleDetails-content-article-section-title-text"
+        caretClassName="articleDetails-content-article-section-title-caret"
+        as="div"
+        title={title}
+        isOpen={isOpen}
+        onToggle={toggleSection}
+      />
       <div
         className={`articleDetails-content-article-section-content ${isOpen && 'articleDetails-content-article-section-content-opened'}`}
       >

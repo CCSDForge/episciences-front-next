@@ -1,4 +1,4 @@
-import { apiCall, fetchPaginatedResults } from './api.helper';
+import { apiCall } from './api.helper';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'author' });

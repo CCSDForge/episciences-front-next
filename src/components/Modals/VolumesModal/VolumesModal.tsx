@@ -20,12 +20,12 @@ export interface IVolumeYearSelection {
 }
 
 interface IVolumesModalProps {
-  t: TFunction<'translation', undefined>;
-  types: IVolumeTypeSelection[];
-  onCheckTypeCallback: (value: string) => void;
-  years: IVolumeYearSelection[];
-  onSelectYearCallback: (year: number) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly types: IVolumeTypeSelection[];
+  readonly onCheckTypeCallback: (value: string) => void;
+  readonly years: IVolumeYearSelection[];
+  readonly onSelectYearCallback: (year: number) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function VolumesModal({
@@ -65,8 +65,8 @@ export default function VolumesModal({
             {t('common.filters.volumeTypes')}
           </h2>
           <div className="volumesModal-typesSection-types">
-            {types.map((type, index) => (
-              <div key={index} className="volumesModal-typesSection-types-choice">
+            {types.map(type => (
+              <div key={type.value} className="volumesModal-typesSection-types-choice">
                 <div>
                   <Checkbox
                     checked={type.isChecked}

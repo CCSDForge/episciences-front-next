@@ -8,12 +8,12 @@ import { useParams, usePathname } from 'next/navigation';
 import './Breadcrumb.scss';
 
 interface IBreadcrumbProps {
-  parents: {
+  readonly parents: {
     path: string;
     label: string;
   }[];
-  crumbLabel: string;
-  lang?: string;
+  readonly crumbLabel: string;
+  readonly lang?: string;
 }
 
 export default function Breadcrumb({
@@ -35,8 +35,8 @@ export default function Breadcrumb({
       {jsonLd && <JsonLd data={jsonLd} />}
       <nav className="breadcrumb" aria-label="Breadcrumb">
         <ol>
-          {parents.map((parent, index) => (
-            <li key={index} className="breadcrumb-parent">
+          {parents.map(parent => (
+            <li key={`${parent.path}-${parent.label}`} className="breadcrumb-parent">
               {parent.path === '#' ? (
                 <span>{parent.label}</span>
               ) : (

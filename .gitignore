@@ -81,3 +81,6 @@ build.log
 /public/sitemap.xml
 /public/logos/*.svg
 !/public/logos/logo-episciences.svg
+/.scannerwork/
+
+certificates

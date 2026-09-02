@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { readonly children: React.ReactNode }) {
   // Note: On ne peut pas utiliser headers() ici car cela force le rendu dynamique de toute l'application,
   // ce qui casse les pages en ISR/SSG comme les articles.
   // La langue correcte est gérée au niveau des sous-layouts via les paramètres d'URL.

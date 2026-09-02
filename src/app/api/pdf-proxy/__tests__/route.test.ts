@@ -51,48 +51,44 @@ describe('GET /api/pdf-proxy', () => {
       expect(res.status).toBe(400);
     });
 
-    it('returns 403 when domain is not whitelisted', async () => {
-      const { GET } = await import('../route');
-      const res = await GET(makeRequest('https://evil.com/file.pdf'));
-      expect(res.status).toBe(403);
-    });
-
-    it('returns 403 for domain that contains whitelisted name as substring (bypass attempt)', async () => {
-      const { GET } = await import('../route');
+    it.each([
+      { description: 'domain is not whitelisted', url: 'https://evil.com/file.pdf', status: 403 },
       // "evilzenodo.org" contains "zenodo.org" — must be rejected
-      const res = await GET(makeRequest('https://evilzenodo.org/file.pdf'));
-      expect(res.status).toBe(403);
-    });
-
-    it('returns 403 for domain that appends whitelisted name (bypass attempt)', async () => {
-      const { GET } = await import('../route');
+      {
+        description: 'domain that contains whitelisted name as substring (bypass attempt)',
+        url: 'https://evilzenodo.org/file.pdf',
+        status: 403,
+      },
       // "zenodo.org.evil.com" contains "zenodo.org" — must be rejected
-      const res = await GET(makeRequest('https://zenodo.org.evil.com/file.pdf'));
-      expect(res.status).toBe(403);
-    });
-
-    it('returns 403 for HTTP (non-HTTPS) URL', async () => {
+      {
+        description: 'domain that appends whitelisted name (bypass attempt)',
+        url: 'https://zenodo.org.evil.com/file.pdf',
+        status: 403,
+      },
+      {
+        description: 'HTTP (non-HTTPS) URL',
+        url: 'http://zenodo.org/record/123/files/paper.pdf',
+        status: 403,
+      },
+      {
+        description: 'a whitelisted domain (zenodo.org)',
+        url: 'https://zenodo.org/record/123/files/paper.pdf',
+        status: 200,
+      },
+      {
+        description: 'a subdomain of a whitelisted domain',
+        url: 'https://data.zenodo.org/record/123/files/paper.pdf',
+        status: 200,
+      },
+      {
+        description: 'a whitelisted domain (arxiv.org)',
+        url: 'https://arxiv.org/pdf/2301.00001.pdf',
+        status: 200,
+      },
+    ])('returns $status for $description', async ({ url, status }) => {
       const { GET } = await import('../route');
-      const res = await GET(makeRequest('http://zenodo.org/record/123/files/paper.pdf'));
-      expect(res.status).toBe(403);
-    });
-
-    it('returns 200 for a whitelisted domain (zenodo.org)', async () => {
-      const { GET } = await import('../route');
-      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
-      expect(res.status).toBe(200);
-    });
-
-    it('returns 200 for a subdomain of a whitelisted domain', async () => {
-      const { GET } = await import('../route');
-      const res = await GET(makeRequest('https://data.zenodo.org/record/123/files/paper.pdf'));
-      expect(res.status).toBe(200);
-    });
-
-    it('returns 200 for a whitelisted domain (arxiv.org)', async () => {
-      const { GET } = await import('../route');
-      const res = await GET(makeRequest('https://arxiv.org/pdf/2301.00001.pdf'));
-      expect(res.status).toBe(200);
+      const res = await GET(makeRequest(url));
+      expect(res.status).toBe(status);
     });
   });
 
@@ -182,6 +178,112 @@ describe('GET /api/pdf-proxy', () => {
       const { OPTIONS } = await import('../route');
       const res = await OPTIONS();
       expect(res.headers.get('Access-Control-Allow-Origin')).toBe('https://episciences.org');
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Disposition & Filename
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('disposition and filename', () => {
+    it('returns 400 when disposition is invalid', async () => {
+      const { GET } = await import('../route');
+      const req = new NextRequest(
+        'http://localhost/api/pdf-proxy?url=https://zenodo.org/file.pdf&disposition=invalid',
+        { method: 'GET', headers: { 'x-forwarded-for': '1.2.3.4' } }
+      );
+      const res = await GET(req);
+      expect(res.status).toBe(400);
+      const text = await res.text();
+      expect(text).toContain('Invalid disposition parameter');
+    });
+
+    it('sets attachment with sanitized filename when disposition is attachment', async () => {
+      const { GET } = await import('../route');
+      const req = new NextRequest(
+        'http://localhost/api/pdf-proxy?url=https://zenodo.org/file.pdf&disposition=attachment&filename=my/unsafe;file.pdf',
+        { method: 'GET', headers: { 'x-forwarded-for': '1.2.3.4' } }
+      );
+      const res = await GET(req);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Disposition')).toBe('attachment; filename="my_unsafe_file.pdf"');
+    });
+
+    it('sets Content-Length when provided by upstream', async () => {
+      global.fetch = vi.fn().mockResolvedValue(
+        new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Length': '1048576',
+          },
+        })
+      );
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/file.pdf'));
+      expect(res.headers.get('Content-Length')).toBe('1048576');
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Upstream errors and timeouts
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('error handling and timeouts', () => {
+    it('returns upstream status code when upstream returns non-ok response', async () => {
+      global.fetch = vi.fn().mockResolvedValue(
+        new Response('Not Found', {
+          status: 404,
+          statusText: 'Not Found',
+        })
+      );
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/file.pdf'));
+      expect(res.status).toBe(404);
+      const text = await res.text();
+      expect(text).toContain('Failed to fetch PDF: Not Found');
+    });
+
+    it('returns 504 on request timeout (AbortError)', async () => {
+      const abortError = new Error('The user aborted a request.');
+      abortError.name = 'AbortError';
+      global.fetch = vi.fn().mockRejectedValue(abortError);
+
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/file.pdf'));
+      expect(res.status).toBe(504);
+      const text = await res.text();
+      expect(text).toBe('Request timeout');
+    });
+
+    it('returns 500 on unexpected network or parsing error', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Connection reset by peer'));
+
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/file.pdf'));
+      expect(res.status).toBe(500);
+      const text = await res.text();
+      expect(text).toBe('Internal server error');
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Rate limiting
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('rate limiting', () => {
+    it('returns 429 when client exceeds rate limit', async () => {
+      const { GET } = await import('../route');
+      const targetIp = '99.88.77.66';
+
+      // Exhaust 30 allowed requests
+      for (let i = 0; i < 30; i++) {
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', targetIp));
+        expect(res.status).toBe(200);
+      }
+
+      // 31st request should be blocked
+      const blockedRes = await GET(makeRequest('https://zenodo.org/file.pdf', targetIp));
+      expect(blockedRes.status).toBe(429);
+      const text = await blockedRes.text();
+      expect(text).toBe('Too many requests');
     });
   });
 });

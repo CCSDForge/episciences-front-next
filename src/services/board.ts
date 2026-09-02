@@ -1,4 +1,3 @@
-import { API_URL } from '@/config/api';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'board' });

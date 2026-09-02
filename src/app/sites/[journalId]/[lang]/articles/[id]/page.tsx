@@ -1,27 +1,24 @@
 import React, { cache } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { fetchArticle, fetchArticles, fetchArticleMetadata } from '@/services/article';
+import { fetchArticle, fetchArticleMetadata } from '@/services/article';
 import { fetchVolume } from '@/services/volume';
 import { getJournalByCode } from '@/services/journal';
-import ArticleDetailsClient from './ArticleDetailsClient';
 import ArticleDetailsServer from './ArticleDetailsServer';
-import { FetchedArticle, METADATA_TYPE } from '@/utils/article';
+import { INTER_WORK_RELATIONSHIP, isCrossJournalAccess, METADATA_TYPE } from '@/utils/article';
 import { IArticle } from '@/types/article';
 import { IVolume } from '@/types/volume';
-import { getServerTranslations, t, defaultLanguage, availableLanguages } from '@/utils/server-i18n';
-import { getLanguageFromParams } from '@/utils/language-utils';
-import { combineWithLanguageParams } from '@/utils/static-params-helper';
-import { initBuildProgress, logArticleProgress } from '@/utils/build-progress';
+import { getServerTranslations } from '@/utils/server-i18n';
+import { getLanguageFromParams, acceptedLanguages } from '@/utils/language-utils';
 import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 import { AvailableLanguage } from '@/utils/i18n';
 import { loadJournalConfig } from '@/utils/env-loader';
 import { getJournalBaseUrl } from '@/utils/signposting';
-import { acceptedLanguages } from '@/utils/language-utils';
 import { logger } from '@/lib/logger';
+import { resolveRepositoryPreviews } from '@/services/repositories';
 
 interface ArticleDetailsPageProps {
-  params: Promise<{
+  readonly params: Promise<{
     id: string;
     lang: string;
     journalId: string;
@@ -129,28 +126,32 @@ export async function generateMetadata(props: ArticleDetailsPageProps): Promise<
 export default async function ArticleDetailsPage(props: ArticleDetailsPageProps) {
   const params = await props.params;
 
+  const { id, journalId } = params;
+
+  // Get language from params
+  const language = getLanguageFromParams(params);
+
+  // Vérifier si nous avons un ID factice
+  if (id === 'no-articles-found') {
+    return (
+      <div className="error-message">
+        <h1>Aucun article disponible</h1>
+
+        <p>Page placeholder pour les détails d&apos;articles</p>
+      </div>
+    );
+  }
+
+  // Only the data fetching is wrapped: rendering stays outside the try/catch so that
+  // failures bubble up to the nearest error.tsx boundary.
+  let translations: Awaited<ReturnType<typeof getServerTranslations>>;
+  let article: Awaited<ReturnType<typeof getCachedArticle>>;
+  let metadataCSL: Awaited<ReturnType<typeof fetchArticleMetadata>> | null;
+  let metadataBibTeX: Awaited<ReturnType<typeof fetchArticleMetadata>> | null;
+
   try {
-    const { id, journalId } = params;
-
-    // Get language from params
-
-    const language = getLanguageFromParams(params);
-
-    // Vérifier si nous avons un ID factice
-
-    if (id === 'no-articles-found') {
-      return (
-        <div className="error-message">
-          <h1>Aucun article disponible</h1>
-
-          <p>Page placeholder pour les détails d&apos;articles</p>
-        </div>
-      );
-    }
-
     // Fetch all data server-side for complete pre-rendering (translations en parallèle)
-
-    const [translations, [article, metadataCSL, metadataBibTeX]] = await Promise.all([
+    [translations, [article, metadataCSL, metadataBibTeX]] = await Promise.all([
       getServerTranslations(language),
       Promise.all([
         getCachedArticle(id, journalId),
@@ -164,53 +165,52 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
         ),
       ]),
     ]);
-
-    // Tier 1: null means the journal-scoped API returned no result
-    if (!article) {
-      notFound();
-    }
-
-    // Tier 2: best-effort check — only triggers when the API returns `journalCode`.
-    // Primary protection is Tier 1: the request already used a journal-scoped API base URL,
-    // so a cross-journal article would have returned null (404) above.
-    if (article.journalCode !== undefined && article.journalCode !== journalId) {
-      logger.warn('Cross-journal article access blocked', {
-        reason: 'article-wrong-journal',
-        resourceType: 'article',
-        resourceId: id,
-        articleJournalCode: article.journalCode,
-        requestedJournalCode: journalId,
-      });
-      notFound();
-    }
-
-    // Fetch related volume if article has volumeId
-
-    let relatedVolume: IVolume | null = null;
-
-    if (article.volumeId) {
-      try {
-        relatedVolume = await getCachedVolume(journalId, Number(article.volumeId), language);
-      } catch (error) {
-        logger.error('Error fetching volume:', error);
-      }
-    }
-
-    return (
-      <ArticleDetailsServer
-        article={article as IArticle}
-        id={id}
-        journalId={journalId}
-        relatedVolume={relatedVolume}
-        metadataCSL={metadataCSL}
-        metadataBibTeX={metadataBibTeX}
-        translations={translations}
-        language={language}
-      />
-    );
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
     logger.error(`Erreur lors de la récupération de l'article ${params.id}:`, error);
     throw error;
   }
+
+  // Tier 1: null means the journal-scoped API returned no result
+  if (!article) {
+    notFound();
+  }
+
+  // Cross-journal access guard: see isCrossJournalAccess() for rationale.
+  if (isCrossJournalAccess(article, journalId, { route: 'details', resourceId: id })) {
+    notFound();
+  }
+
+  // Fetch related volume if article has volumeId
+  let relatedVolume: IVolume | null = null;
+
+  if (article.volumeId) {
+    try {
+      relatedVolume = await getCachedVolume(journalId, Number(article.volumeId), language);
+    } catch (error) {
+      logger.error('Error fetching volume:', error);
+    }
+  }
+
+  // LinkedPublicationsSectionServer never renders isSameAs/hasPreprint items, so skip
+  // fetching their repository preview.
+  const previewableRelatedItems = (article.relatedItems ?? []).filter(
+    relatedItem =>
+      relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.IS_SAME_AS &&
+      relatedItem.relationshipType !== INTER_WORK_RELATIONSHIP.HAS_PREPRINT
+  );
+  const repositoryPreviews = await resolveRepositoryPreviews(previewableRelatedItems);
+
+  return (
+    <ArticleDetailsServer
+      article={article as IArticle}
+      id={id}
+      journalId={journalId}
+      relatedVolume={relatedVolume}
+      metadataCSL={metadataCSL}
+      metadataBibTeX={metadataBibTeX}
+      translations={translations}
+      language={language}
+      repositoryPreviews={repositoryPreviews}
+    />
+  );
 }

@@ -2,10 +2,10 @@
 
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { useState, useEffect, useMemo } from 'react';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
 import MathJax from '@/components/MathJax/MathJax';
-import { useRouter } from 'next/navigation';
 import { isMobileOnly } from 'react-device-detect';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
@@ -50,13 +50,13 @@ import './ArticleDetails.scss';
 import { logger } from '@/lib/logger';
 
 interface ArticleDetailsClientProps {
-  article: IArticle | null;
-  id: string;
-  initialRelatedVolume?: IVolume | null;
-  initialMetadataCSL?: string | null;
-  initialMetadataBibTeX?: string | null;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly article: IArticle | null;
+  readonly id: string;
+  readonly initialRelatedVolume?: IVolume | null;
+  readonly initialMetadataCSL?: string | null;
+  readonly initialMetadataBibTeX?: string | null;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     articles: string;
@@ -88,13 +88,11 @@ export default function ArticleDetailsClient({
   breadcrumbLabels,
 }: ArticleDetailsClientProps): React.JSX.Element {
   const { t } = useTranslation();
-  const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useIsHydrated();
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
 
   const [relatedVolume, setRelatedVolume] = useState<IVolume | undefined>(
     initialRelatedVolume || undefined
@@ -139,7 +137,6 @@ export default function ArticleDetailsClient({
   const [citations, setCitations] = useState<ICitation[]>([]);
 
   useEffect(() => {
-    setIsMounted(true);
     async function fetchData() {
       // Skip client-side fetching if data was provided server-side
       if (initialRelatedVolume !== undefined && initialMetadataCSL !== undefined) {

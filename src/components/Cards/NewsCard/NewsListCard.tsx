@@ -18,9 +18,9 @@ import { handleKeyboardClick } from '@/utils/keyboard';
 const MAX_CONTENT_LENGTH = 400;
 
 interface INewsListCardProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  news: INews;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly news: INews;
 }
 
 function NewsListCard({ language, t, news }: INewsListCardProps): React.JSX.Element {

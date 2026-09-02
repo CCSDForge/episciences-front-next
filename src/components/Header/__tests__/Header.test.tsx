@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { checkA11y } from '@/test-utils/axe-helper';
@@ -35,10 +35,7 @@ vi.mock('next/image', () => ({
     src: string;
     alt: string;
     [key: string]: unknown;
-  }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} {...props} />
-  ),
+  }) => <img src={src} alt={alt} {...props} />,
 }));
 
 // Mock react-i18next
@@ -62,17 +59,15 @@ vi.mock('react-i18next', () => ({
 
 // Mock Redux hooks
 const mockDispatch = vi.fn();
+const mockState = {
+  searchReducer: { search: '' },
+  i18nReducer: { language: 'en' },
+  journalReducer: { currentJournal: { name: 'Test Journal', code: 'test' }, config: undefined },
+  volumeReducer: { lastVolume: { id: 1 } },
+};
 vi.mock('@/hooks/store', () => ({
   useAppDispatch: () => mockDispatch,
-  useAppSelector: (selector: (state: unknown) => unknown) => {
-    const mockState = {
-      searchReducer: { search: '' },
-      i18nReducer: { language: 'en' },
-      journalReducer: { currentJournal: { name: 'Test Journal', code: 'test' } },
-      volumeReducer: { lastVolume: { id: 1 } },
-    };
-    return selector(mockState);
-  },
+  useAppSelector: (selector: (state: unknown) => unknown) => selector(mockState),
 }));
 
 // Mock Link component
@@ -119,6 +114,23 @@ vi.mock('@/components/icons', () => ({
   ),
   ExternalLinkWhiteIcon: ({ size }: { size: number }) => (
     <span data-testid="external-link-icon" data-size={size} role="img" aria-label="External link" />
+  ),
+  UserCircleIcon: ({
+    size,
+    ariaLabel,
+    className,
+  }: {
+    size: number;
+    ariaLabel?: string;
+    className?: string;
+  }) => (
+    <span
+      data-testid="user-circle-icon"
+      data-size={size}
+      role="img"
+      aria-label={ariaLabel}
+      className={className}
+    />
   ),
 }));
 
@@ -187,7 +199,7 @@ vi.mock('@/config/menu', () => ({
     },
     standalone: [],
   },
-  getVisibleMenuItems: () => [],
+  getVisibleMenuItems: vi.fn(() => []),
   processMenuItemPath: (item: unknown) => item,
 }));
 
@@ -226,6 +238,14 @@ describe('Header', () => {
     vi.clearAllMocks();
     // Reset scroll position
     Object.defineProperty(window, 'scrollY', { value: 0, writable: true });
+    mockState.searchReducer.search = '';
+    mockState.i18nReducer.language = 'en';
+    mockState.journalReducer = {
+      currentJournal: { name: 'Test Journal', code: 'test' },
+      config: undefined,
+    };
+    mockState.volumeReducer.lastVolume = { id: 1 };
+    delete process.env.NEXT_PUBLIC_EPISCIENCES_MANAGER;
   });
 
   describe('Basic rendering', () => {
@@ -360,23 +380,14 @@ describe('Header', () => {
   });
 
   describe('CSS classes for layout', () => {
-    it('applies header class', () => {
-      const { container } = render(<Header {...defaultProps} />);
+    it.each([['.header'], ['.header-preheader'], ['.header-postheader']])(
+      'applies %s class',
+      (selector: string) => {
+        const { container } = render(<Header {...defaultProps} />);
 
-      expect(container.querySelector('.header')).toBeInTheDocument();
-    });
-
-    it('applies preheader class', () => {
-      const { container } = render(<Header {...defaultProps} />);
-
-      expect(container.querySelector('.header-preheader')).toBeInTheDocument();
-    });
-
-    it('applies postheader class', () => {
-      const { container } = render(<Header {...defaultProps} />);
-
-      expect(container.querySelector('.header-postheader')).toBeInTheDocument();
-    });
+        expect(container.querySelector(selector)).toBeInTheDocument();
+      }
+    );
   });
 
   describe('Accessibility - axe-core validation', () => {
@@ -401,6 +412,111 @@ describe('Header', () => {
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();
+    });
+  });
+
+  describe('Search interactions', () => {
+    it('dispatches setSearch when typing in the search input', async () => {
+      const user = userEvent.setup();
+      render(<Header {...defaultProps} />);
+
+      await user.type(screen.getByTestId('header-search-input'), 'g');
+
+      expect(mockDispatch).toHaveBeenCalled();
+    });
+
+    it('does not navigate when submitting an empty search', async () => {
+      const user = userEvent.setup();
+      render(<Header {...defaultProps} />);
+
+      await user.type(screen.getByTestId('header-search-input'), '{Enter}');
+
+      expect(mockPush).not.toHaveBeenCalled();
+    });
+
+    it('navigates to the search page when submitting a non-empty search', async () => {
+      mockState.searchReducer.search = 'graph theory';
+      const user = userEvent.setup();
+      render(<Header {...defaultProps} />);
+
+      await user.type(screen.getByTestId('header-search-input'), '{Enter}');
+
+      expect(mockPush).toHaveBeenCalledWith('/search?terms=graph%20theory');
+    });
+  });
+
+  describe('Sign-in link', () => {
+    it('renders the sign-in link when the manager URL is configured', () => {
+      process.env.NEXT_PUBLIC_EPISCIENCES_MANAGER = 'https://manager.test';
+      render(<Header {...defaultProps} />);
+
+      const signInLinks = screen
+        .getAllByRole('link')
+        .filter(link => link.getAttribute('href')?.includes('/user/login'));
+      expect(signInLinks.length).toBeGreaterThan(0);
+      expect(signInLinks[0]).toHaveAttribute('href', 'https://manager.test/test/user/login');
+    });
+
+    it('omits the sign-in link when no manager URL is configured', () => {
+      render(<Header {...defaultProps} />);
+
+      const signInLinks = screen
+        .getAllByRole('link')
+        .filter(link => link.getAttribute('href')?.includes('/user/login'));
+      expect(signInLinks).toHaveLength(0);
+    });
+  });
+
+  describe('Journal subtitle', () => {
+    it('renders the subtitle when provided', () => {
+      mockState.journalReducer = {
+        currentJournal: { name: 'Test Journal', code: 'test', subtitle: 'A subtitle' } as never,
+        config: undefined,
+      };
+      render(<Header {...defaultProps} />);
+
+      expect(screen.getByText('A subtitle')).toBeInTheDocument();
+    });
+
+    it('renders markdown bold and italic in the subtitle', () => {
+      mockState.journalReducer = {
+        currentJournal: {
+          name: 'Test Journal',
+          code: 'test',
+          subtitle: 'Science & *Motricité* with **Bold**',
+        } as never,
+        config: undefined,
+      };
+      const { container } = render(<Header {...defaultProps} />);
+
+      const subtitle = container.querySelector('.header-journal-subtitle');
+      expect(subtitle).toBeInTheDocument();
+      expect(subtitle?.querySelector('em')?.textContent).toBe('Motricité');
+      expect(subtitle?.querySelector('strong')?.textContent).toBe('Bold');
+    });
+  });
+
+  describe('Language availability', () => {
+    it('renders the language homepage link in French when language is fr', () => {
+      process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE_FR = 'https://fr.test/journals';
+      mockState.i18nReducer.language = 'fr';
+      render(<Header {...defaultProps} />);
+
+      const journalLink = screen.getByRole('link', { name: 'All Journals' });
+      expect(journalLink).toHaveAttribute('href', 'https://fr.test/journals');
+    });
+  });
+
+  describe('Reduced header (scrolled state)', () => {
+    it('switches to the reduced header layout after scrolling past the threshold', async () => {
+      const { container } = render(<Header {...defaultProps} />);
+
+      Object.defineProperty(window, 'scrollY', { value: 200, writable: true });
+      window.dispatchEvent(new Event('scroll'));
+
+      await waitFor(() => {
+        expect(container.querySelector('.header-reduced')).toBeInTheDocument();
+      });
     });
   });
 });

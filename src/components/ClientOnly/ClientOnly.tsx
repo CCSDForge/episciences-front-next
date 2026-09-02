@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 
 interface ClientOnlyProps {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }
 
 /**
@@ -11,11 +11,7 @@ interface ClientOnlyProps {
  * Utile pour éviter les erreurs d'hydratation avec des bibliothèques comme i18n et redux.
  */
 export default function ClientOnly({ children }: ClientOnlyProps) {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useIsHydrated();
 
   if (!isMounted) {
     return null;

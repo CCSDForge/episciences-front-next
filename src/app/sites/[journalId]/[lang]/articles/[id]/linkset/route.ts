@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchArticle } from '@/services/article';
+import { isCrossJournalAccess } from '@/utils/article';
 import { getJournalBaseUrl, SIGNPOSTING_FORMATS } from '@/utils/signposting';
 
 export async function GET(
@@ -14,6 +15,10 @@ export async function GET(
 
   const article = await fetchArticle(id, journalId);
   if (!article) {
+    return new NextResponse('Not found', { status: 404 });
+  }
+
+  if (isCrossJournalAccess(article, journalId, { route: 'linkset', resourceId: id })) {
     return new NextResponse('Not found', { status: 404 });
   }
 

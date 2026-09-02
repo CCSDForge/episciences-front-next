@@ -6,17 +6,17 @@ import { ChangeEvent, KeyboardEvent, useState, useRef, useId } from 'react';
 import './HeaderSearchInput.scss';
 
 interface IHeaderSearchInputProps {
-  value: string;
-  placeholder: string;
-  isSearching: boolean;
-  setIsSearchingCallback: (isSearching: boolean) => void;
-  onChangeCallback: (search: string) => void;
-  onSubmitCallback: () => void;
+  readonly value: string;
+  readonly placeholder: string;
+  readonly isSearching: boolean;
+  readonly setIsSearchingCallback: (isSearching: boolean) => void;
+  readonly onChangeCallback: (search: string) => void;
+  readonly onSubmitCallback: () => void;
   /**
    * Optional label for screen readers.
    * Defaults to "Search" if not provided.
    */
-  ariaLabel?: string;
+  readonly ariaLabel?: string;
 }
 
 export default function HeaderSearchInput({

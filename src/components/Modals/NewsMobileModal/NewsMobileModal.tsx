@@ -21,10 +21,10 @@ interface INewsYearSelection {
 }
 
 interface INewsMobileModalProps {
-  t: TFunction<'translation', undefined>;
-  years: INewsYearSelection[];
-  onUpdateYearsCallback: (years: INewsYearSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly years: INewsYearSelection[];
+  readonly onUpdateYearsCallback: (years: INewsYearSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function NewsMobileModal({
@@ -109,8 +109,8 @@ export default function NewsMobileModal({
             <div
               className={`newsMobileModal-filters-years-list ${isOpenedSection(FILTERS_SECTION.YEAR) && 'newsMobileModal-filters-years-list-opened'}`}
             >
-              {filtersYears.map((y, index) => (
-                <div key={index} className="newsMobileModal-filters-years-list-choice">
+              {filtersYears.map(y => (
+                <div key={y.year} className="newsMobileModal-filters-years-list-choice">
                   <div className="newsMobileModal-filters-years-list-choice-checkbox">
                     <Checkbox
                       checked={y.isSelected}

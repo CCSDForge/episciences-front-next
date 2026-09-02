@@ -3,9 +3,9 @@
 import React from 'react';
 
 interface DownloadArticleButtonProps {
-  downloadHref: string;
-  ariaLabel: string;
-  children: React.ReactNode;
+  readonly downloadHref: string;
+  readonly ariaLabel: string;
+  readonly children: React.ReactNode;
 }
 
 export default function DownloadArticleButton({

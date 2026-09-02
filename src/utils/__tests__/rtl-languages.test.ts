@@ -201,9 +201,13 @@ describe('rtl-languages utilities', () => {
       expect(getLanguageLabel('')).toBe('');
     });
 
-    it('should return uppercase code as fallback for valid codes', () => {
-      // When Intl.DisplayNames is not available or fails, returns uppercase
-      const result = getLanguageLabel('en');
+    it.each([
+      { description: 'should return uppercase code as fallback for valid codes', code: 'en' },
+      { description: 'should default to English when displayLang is not provided', code: 'ar' },
+      { description: 'should handle invalid language codes gracefully', code: 'invalid-code' },
+    ])('$description', ({ code }) => {
+      // When Intl.DisplayNames is not available or fails, returns uppercase (or some fallback)
+      const result = getLanguageLabel(code);
       expect(typeof result).toBe('string');
       expect(result.length).toBeGreaterThan(0);
     });
@@ -218,12 +222,6 @@ describe('rtl-languages utilities', () => {
       const labelFr = getLanguageLabel('ar', 'fr');
       expect(typeof labelFr).toBe('string');
       expect(labelFr.length).toBeGreaterThan(0);
-    });
-
-    it('should default to English when displayLang is not provided', () => {
-      const result = getLanguageLabel('ar');
-      expect(typeof result).toBe('string');
-      expect(result.length).toBeGreaterThan(0);
     });
 
     it('should handle RTL language codes', () => {
@@ -241,13 +239,6 @@ describe('rtl-languages utilities', () => {
         expect(typeof label).toBe('string');
         expect(label.length).toBeGreaterThan(0);
       });
-    });
-
-    it('should handle invalid language codes gracefully', () => {
-      const result = getLanguageLabel('invalid-code');
-      expect(typeof result).toBe('string');
-      // Should return uppercase or some fallback
-      expect(result.length).toBeGreaterThan(0);
     });
   });
 

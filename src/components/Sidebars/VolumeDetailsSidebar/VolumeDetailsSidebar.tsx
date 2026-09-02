@@ -16,13 +16,13 @@ import { VOLUME_COVER_BLUR } from '@/utils/image-placeholders';
 import './VolumeDetailsSidebar.scss';
 
 interface IVolumeDetailsSidebarProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  volume?: IVolume;
-  articles?: IArticle[];
-  currentJournal?: IJournal;
-  relatedVolumes: IVolume[];
-  journalId?: string;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly volume?: IVolume;
+  readonly articles?: IArticle[];
+  readonly currentJournal?: IJournal;
+  readonly relatedVolumes: IVolume[];
+  readonly journalId?: string;
 }
 
 export default function VolumeDetailsSidebar({
@@ -34,7 +34,7 @@ export default function VolumeDetailsSidebar({
   relatedVolumes,
   journalId,
 }: IVolumeDetailsSidebarProps): React.JSX.Element {
-  const NOT_RENDERED_SIDEBAR_METADATAS = ['tile'];
+  const NOT_RENDERED_SIDEBAR_METADATAS = new Set(['tile']);
 
   const displayJournalCode = (journalId || currentJournal?.code || '').toUpperCase();
 
@@ -42,21 +42,20 @@ export default function VolumeDetailsSidebar({
   const volumeArticles = articles.length > 0 ? articles : volume?.articles || [];
 
   const renderMetadatas = (): IVolumeMetadata[] => {
-    if (!volume?.metadatas || !volume.metadatas.length) return [];
+    if (!volume?.metadatas?.length) return [];
 
     return volume.metadatas.filter(
       metadata =>
         metadata.file &&
-        metadata.title &&
-        metadata.title[language] &&
-        !NOT_RENDERED_SIDEBAR_METADATAS.includes(
+        metadata.title?.[language] &&
+        !NOT_RENDERED_SIDEBAR_METADATAS.has(
           metadata.title[language].replace(/[\u0300-\u036f]/g, '').toLowerCase()
         )
     );
   };
 
   const renderVolumeTemplateSpecial = (): React.JSX.Element => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return (
           <div className="volumeDetailsSidebar-template-volume">
@@ -78,12 +77,7 @@ export default function VolumeDetailsSidebar({
   };
 
   const renderVolumeTemplateNumber = (): React.JSX.Element => {
-    if (
-      volume?.types &&
-      volume?.types.includes(VOLUME_TYPE.PROCEEDINGS) &&
-      volume.settingsProceeding &&
-      volume.settingsProceeding.length
-    ) {
+    if (volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) && volume.settingsProceeding?.length) {
       const conferenceAcronym = volume!.settingsProceeding!.find(
         setting => setting.setting === 'conference_acronym'
       );
@@ -91,12 +85,7 @@ export default function VolumeDetailsSidebar({
         setting => setting.setting === 'conference_number'
       );
 
-      if (
-        conferenceAcronym &&
-        conferenceAcronym.value &&
-        conferenceNumber &&
-        conferenceNumber.value
-      ) {
+      if (conferenceAcronym?.value && conferenceNumber?.value) {
         return (
           <div className="volumeDetailsSidebar-template-number volumeDetailsSidebar-template-number-conference">{`${conferenceAcronym.value} ${conferenceNumber.value}`}</div>
         );
@@ -107,7 +96,7 @@ export default function VolumeDetailsSidebar({
   };
 
   const renderRelatedVolumesTitle = (): string => {
-    if (volume?.types && volume.types.length) {
+    if (volume?.types?.length) {
       if (volume.types.includes(VOLUME_TYPE.PROCEEDINGS)) {
         return t('pages.volumeDetails.relatedVolumes.proceedings');
       }
@@ -160,9 +149,9 @@ export default function VolumeDetailsSidebar({
             </span>
           </Link>
         )}
-        {renderMetadatas().map((metadata, index) => (
+        {renderMetadatas().map(metadata => (
           <Link
-            key={index}
+            key={metadata.file}
             className="volumeDetailsSidebar-actions-action"
             href={`https://${journalId || currentJournal?.code}.episciences.org/public/volumes/${volume?.id}/${metadata.file}`}
             target="_blank"
@@ -174,7 +163,7 @@ export default function VolumeDetailsSidebar({
               ariaLabel={`Download ${metadata.title?.[language] || 'file'}`}
             />
             <span className="volumeDetailsSidebar-actions-action-text">
-              {metadata.title && metadata.title[language]}
+              {metadata.title?.[language]}
             </span>
           </Link>
         ))}
@@ -186,9 +175,9 @@ export default function VolumeDetailsSidebar({
           </div>
           <div className="volumeDetailsSidebar-relatedVolumes-volumes">
             <div className="volumeDetailsSidebar-relatedVolumes-volumes-list">
-              {relatedVolumes.map((relatedVolume, index) => (
+              {relatedVolumes.map(relatedVolume => (
                 <Link
-                  key={index}
+                  key={relatedVolume.id}
                   href={`${PATHS.volumes}/${relatedVolume.id}`}
                   lang={language}
                   className={`volumeDetailsSidebar-relatedVolumes-volumes-list-volume ${relatedVolume.id === volume?.id && 'volumeDetailsSidebar-relatedVolumes-volumes-list-volume-current'}`}

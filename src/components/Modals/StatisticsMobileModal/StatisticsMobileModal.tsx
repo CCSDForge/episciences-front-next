@@ -21,10 +21,10 @@ interface IStatisticYearSelection {
 }
 
 interface IStatisticsMobileModalProps {
-  t: TFunction<'translation', undefined>;
-  years: IStatisticYearSelection[];
-  onUpdateYearsCallback: (years: IStatisticYearSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly years: IStatisticYearSelection[];
+  readonly onUpdateYearsCallback: (years: IStatisticYearSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function StatisticsMobileModal({
@@ -102,8 +102,8 @@ export default function StatisticsMobileModal({
             <div
               className={`filtersYearsList ${isOpenedSection(FILTERS_SECTION.YEAR) ? 'filtersYearsListOpened' : ''}`}
             >
-              {filtersYears.map((y, index) => (
-                <div key={index} className="filtersYearsListChoice">
+              {filtersYears.map(y => (
+                <div key={y.year} className="filtersYearsListChoice">
                   <div>
                     <Checkbox
                       checked={y.isChecked}

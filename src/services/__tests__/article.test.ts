@@ -2,7 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   transformArticleForDisplay,
   fetchArticle,
+  fetchArticles,
+  fetchAcceptedArticles,
   fetchExportLink,
+  getArticleById,
   fetchArticleMetadata,
 } from '../article';
 
@@ -135,6 +138,125 @@ describe('article service', () => {
       expect(options.next.tags).toEqual(['articles', 'article-42', 'articles-epijinfo']);
       expect(options.next.revalidate).toBe(3600);
     });
+
+    it('returns null and logs debug when the article is a 404', async () => {
+      mockFetchWithRetry.mockRejectedValueOnce(new Error('HTTP 404: Not Found'));
+
+      const result = await fetchArticle('999', 'epijinfo');
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null and logs error for a non-404 failure', async () => {
+      mockFetchWithRetry.mockRejectedValueOnce(new Error('Network error'));
+
+      const result = await fetchArticle('999', 'epijinfo');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('fetchArticles', () => {
+    beforeEach(() => {
+      mockFetchWithRetry.mockReset();
+    });
+
+    it('fetches the list then resolves each raw article to a display article', async () => {
+      mockFetchWithRetry
+        .mockResolvedValueOnce({
+          json: async () => ({
+            'hydra:member': [{ paperid: 1 }],
+            'hydra:totalItems': 1,
+            'hydra:range': { publicationYears: [2024], types: ['research-article'] },
+          }),
+        })
+        .mockResolvedValueOnce({
+          json: async () => ({ '@id': '/api/papers/1', paperid: 1 }),
+        });
+
+      const result = await fetchArticles({ rvcode: 'epijinfo', page: 1, itemsPerPage: 10 });
+
+      expect(result.totalItems).toBe(1);
+      expect(result.range).toEqual({ years: [2024], types: ['research-article'] });
+      expect(result.data).toHaveLength(1);
+    });
+
+    it('appends onlyAccepted, types, years and articleIds filters to the query', async () => {
+      mockFetchWithRetry.mockResolvedValue({
+        json: async () => ({ 'hydra:member': [], 'hydra:totalItems': 0 }),
+      });
+
+      await fetchArticles({
+        rvcode: 'epijinfo',
+        page: 1,
+        itemsPerPage: 10,
+        onlyAccepted: true,
+        types: ['research-article'],
+        years: [2023],
+        articleIds: ['7'],
+      });
+
+      const [url] = mockFetchWithRetry.mock.calls[0];
+      expect(url).toContain('only_accepted=true');
+      expect(url).toContain('type%5B%5D=research-article');
+      expect(url).toContain('year%5B%5D=2023');
+      expect(url).toContain('id%5B%5D=7');
+    });
+
+    it('returns an empty result and logs on failure', async () => {
+      mockFetchWithRetry.mockRejectedValue(new Error('boom'));
+
+      const result = await fetchArticles({ rvcode: 'epijinfo', page: 1, itemsPerPage: 10 });
+
+      expect(result).toEqual({ data: [], totalItems: 0, range: undefined });
+    });
+  });
+
+  describe('fetchAcceptedArticles', () => {
+    const originalFetch = global.fetch;
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+    });
+
+    it('returns transformed articles, total and types', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          articles: [{ id: 1, title: 'A' }],
+          total: 1,
+          types: ['research-article'],
+        }),
+      }) as unknown as typeof fetch;
+
+      const result = await fetchAcceptedArticles('epijinfo', 1, {
+        type: 'research-article',
+        tagged: ['tag1'],
+      });
+
+      expect(result.total).toBe(1);
+      expect(result.types).toEqual(['research-article']);
+      expect(result.articles).toEqual([{ id: 1, title: 'A' }]);
+    });
+
+    it('defaults types to an empty array when absent', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ articles: [], total: 0 }),
+      }) as unknown as typeof fetch;
+
+      const result = await fetchAcceptedArticles('epijinfo');
+
+      expect(result.types).toEqual([]);
+    });
+
+    it('throws when the response is not ok', async () => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: false }) as unknown as typeof fetch;
+
+      await expect(fetchAcceptedArticles('epijinfo')).rejects.toThrow(
+        'Failed to fetch accepted articles'
+      );
+    });
   });
 
   describe('fetchExportLink', () => {
@@ -173,11 +295,52 @@ describe('article service', () => {
     });
 
     it('returns null and logs on fetch error', async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
 
       const result = await fetchExportLink(42, 'bibtex', 'epijinfo');
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('getArticleById', () => {
+    const originalFetch = global.fetch;
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+    });
+
+    it('returns a transformed article on success', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ id: 1, title: 'Already Formatted', authors: [] }),
+      }) as unknown as typeof fetch;
+
+      const result = await getArticleById(1);
+
+      expect(result).toEqual({ id: 1, title: 'Already Formatted', authors: [] });
+    });
+
+    it('returns undefined and logs when the response is not ok', async () => {
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
+
+      const result = await getArticleById('missing');
+
+      expect(result).toBeUndefined();
+    });
+
+    it('returns undefined and logs on fetch error', async () => {
+      global.fetch = vi
+        .fn()
+        .mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
+
+      const result = await getArticleById(1);
+
+      expect(result).toBeUndefined();
     });
   });
 
@@ -232,7 +395,9 @@ describe('article service', () => {
     });
 
     it('returns null without warning on 404', async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
 
       const result = await fetchArticleMetadata({
         rvcode: 'epijinfo',
@@ -244,7 +409,9 @@ describe('article service', () => {
     });
 
     it('returns null and warns on other non-ok statuses', async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 }) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: false, status: 500 }) as unknown as typeof fetch;
 
       const result = await fetchArticleMetadata({
         rvcode: 'epijinfo',
@@ -256,7 +423,9 @@ describe('article service', () => {
     });
 
     it('returns null and logs on fetch error', async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
+      global.fetch = vi
+        .fn()
+        .mockRejectedValue(new Error('network down')) as unknown as typeof fetch;
 
       const result = await fetchArticleMetadata({
         rvcode: 'epijinfo',

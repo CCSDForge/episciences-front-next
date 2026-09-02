@@ -110,7 +110,6 @@ export interface IClassificationItem {
 
 export type RawArticle = IPartialArticle &
   IArticle & {
-    rvcode?: string;
     document: {
       journal?: {
         journal_article: IRawArticleContent;
@@ -165,6 +164,12 @@ export type RawArticle = IPartialArticle &
           section?: {
             id: number;
             titles: Record<AvailableLanguage, string>;
+          };
+          journal?: {
+            id: number;
+            url: string;
+            code: string;
+            name: string;
           };
           classifications?: {
             msc2020?: {

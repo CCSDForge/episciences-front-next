@@ -52,7 +52,7 @@ type EnhancedSearchResult = FetchedArticle & {
 
 function buildInitTypes(
   rangeTypes: NonNullable<SearchRange['types']>,
-  prevTypes: ISearchResultTypeSelection[]
+  checkedValues: ReadonlySet<string>
 ): ISearchResultTypeSelection[] {
   return rangeTypes
     .filter(t => articleTypes.some(at => at.value === t.value))
@@ -62,26 +62,26 @@ function buildInitTypes(
         labelPath: matchingType.labelPath,
         value: matchingType.value,
         count: t.count,
-        isChecked: prevTypes.find(type => type.value === matchingType.value)?.isChecked ?? false,
+        isChecked: checkedValues.has(matchingType.value),
       };
     });
 }
 
 function buildInitYears(
   rangeYears: NonNullable<SearchRange['years']>,
-  prevYears: ISearchResultYearSelection[]
+  checkedValues: ReadonlySet<number>
 ): ISearchResultYearSelection[] {
   return rangeYears.map(y => ({
     year: y.value,
     count: y.count,
-    isChecked: prevYears.find(year => year.year === y.value)?.isChecked ?? false,
+    isChecked: checkedValues.has(y.value),
   }));
 }
 
 function buildInitVolumes(
   rangeVolumes: NonNullable<SearchRange['volumes']>,
   language: AvailableLanguage,
-  prevVolumes: ISearchResultVolumeSelection[]
+  checkedValues: ReadonlySet<number>
 ): ISearchResultVolumeSelection[] {
   return (
     rangeVolumes[language]?.map(v => {
@@ -92,7 +92,7 @@ function buildInitVolumes(
           en: rangeVolumes.en?.find(vol => Number.parseInt(Object.keys(vol)[0]) === id)?.[id] ?? '',
           fr: rangeVolumes.fr?.find(vol => Number.parseInt(Object.keys(vol)[0]) === id)?.[id] ?? '',
         },
-        isChecked: prevVolumes.find(volume => volume.id === id)?.isChecked ?? false,
+        isChecked: checkedValues.has(id),
       };
     }) ?? []
   );
@@ -101,7 +101,7 @@ function buildInitVolumes(
 function buildInitSections(
   rangeSections: NonNullable<SearchRange['sections']>,
   language: AvailableLanguage,
-  prevSections: ISearchResultSectionSelection[]
+  checkedValues: ReadonlySet<number>
 ): ISearchResultSectionSelection[] {
   return (
     rangeSections[language]?.map(s => {
@@ -114,7 +114,7 @@ function buildInitSections(
           fr:
             rangeSections.fr?.find(sec => Number.parseInt(Object.keys(sec)[0]) === id)?.[id] ?? '',
         },
-        isChecked: prevSections.find(section => section.id === id)?.isChecked ?? false,
+        isChecked: checkedValues.has(id),
       };
     }) ?? []
   );
@@ -122,30 +122,45 @@ function buildInitSections(
 
 function buildInitAuthors(
   rangeAuthors: NonNullable<SearchRange['authors']>,
-  prevAuthors: ISearchResultAuthorSelection[]
+  checkedValues: ReadonlySet<string>
 ): ISearchResultAuthorSelection[] {
   return rangeAuthors.map(a => ({
     fullname: a.value,
     count: a.count,
-    isChecked: prevAuthors.find(author => author.fullname === a.value)?.isChecked ?? false,
+    isChecked: checkedValues.has(a.value),
   }));
 }
 
+/** Adds `value` when absent, removes it otherwise, always returning a new Set. */
+function toggleInSet<T>(source: ReadonlySet<T>, value: T): Set<T> {
+  const next = new Set(source);
+  if (next.has(value)) {
+    next.delete(value);
+  } else {
+    next.add(value);
+  }
+  return next;
+}
+
+function checkedValuesOf<T, K>(items: T[], isChecked: (item: T) => boolean, key: (item: T) => K) {
+  return new Set(items.filter(isChecked).map(key));
+}
+
 interface SearchClientProps {
-  initialSearchResults: {
+  readonly initialSearchResults: {
     data: FetchedArticle[];
     totalItems: number;
     range?: SearchRange;
   };
-  initialSearch: string;
-  initialPage: number;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialSearch: string;
+  readonly initialPage: number;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     search: string;
   };
-  countLabels?: {
+  readonly countLabels?: {
     resultFor: string;
     resultsFor: string;
   };
@@ -175,69 +190,49 @@ export default function SearchClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const reduxRvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
   // Use rvcode from Redux or fallback to environment variable
   const rvcode = reduxRvcode || process.env.NEXT_PUBLIC_JOURNAL_RVCODE;
 
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [search, setSearch] = useState(initialSearch);
-  const [searchResults, setSearchResults] = useState(initialSearchResults);
-  const [isLoading, setIsLoading] = useState(false);
-  const [enhancedSearchResults, setEnhancedSearchResults] = useState<EnhancedSearchResult[]>([]);
-  const [types, setTypes] = useState<ISearchResultTypeSelection[]>([]);
-  const [years, setYears] = useState<ISearchResultYearSelection[]>([]);
-  const [volumes, setVolumes] = useState<ISearchResultVolumeSelection[]>([]);
-  const [sections, setSections] = useState<ISearchResultSectionSelection[]>([]);
-  const [authors, setAuthors] = useState<ISearchResultAuthorSelection[]>([]);
-  const [taggedFilters, setTaggedFilters] = useState<ISearchResultFilter[]>([]);
+
+  // Only the user's own choices live in state; every list below is derived from the results.
+  const [checkedTypes, setCheckedTypes] = useState<Set<string>>(new Set());
+  const [checkedYears, setCheckedYears] = useState<Set<number>>(new Set());
+  const [checkedVolumes, setCheckedVolumes] = useState<Set<number>>(new Set());
+  const [checkedSections, setCheckedSections] = useState<Set<number>>(new Set());
+  const [checkedAuthors, setCheckedAuthors] = useState<Set<string>>(new Set());
+  const [openedAbstractIds, setOpenedAbstractIds] = useState<Set<number>>(new Set());
   const [showAllAbstracts, setShowAllAbstracts] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
 
-  // Memoize selected values to stabilize dependencies
+  // The query string owns the search terms; the prop is only the first-render fallback.
+  const search = searchParams?.get('terms') || searchParams?.get('q') || initialSearch;
+
+  // Sorted so the request key stays stable regardless of the order boxes were ticked.
   const selectedTypeValues = useMemo(
-    () =>
-      types
-        .filter(t => t.isChecked)
-        .map(t => t.value)
-        .sort((a, b) => a.localeCompare(b)),
-    [types]
+    () => Array.from(checkedTypes).sort((a, b) => a.localeCompare(b)),
+    [checkedTypes]
   );
   const selectedYearValues = useMemo(
-    () =>
-      years
-        .filter(y => y.isChecked)
-        .map(y => y.year)
-        .sort((a, b) => a - b),
-    [years]
+    () => Array.from(checkedYears).sort((a, b) => a - b),
+    [checkedYears]
   );
   const selectedVolumeValues = useMemo(
-    () =>
-      volumes
-        .filter(v => v.isChecked)
-        .map(v => v.id)
-        .sort((a, b) => a - b),
-    [volumes]
+    () => Array.from(checkedVolumes).sort((a, b) => a - b),
+    [checkedVolumes]
   );
   const selectedSectionValues = useMemo(
-    () =>
-      sections
-        .filter(s => s.isChecked)
-        .map(s => s.id)
-        .sort((a, b) => a - b),
-    [sections]
+    () => Array.from(checkedSections).sort((a, b) => a - b),
+    [checkedSections]
   );
   const selectedAuthorValues = useMemo(
-    () =>
-      authors
-        .filter(a => a.isChecked)
-        .map(a => a.fullname)
-        .sort((a, b) => a.localeCompare(b)),
-    [authors]
+    () => Array.from(checkedAuthors).sort((a, b) => a.localeCompare(b)),
+    [checkedAuthors]
   );
 
-  // Create a stable string key representing the search state
-  // This will only change when search params *value* changes, not when array references change
+  // Stable string key representing the search state: it only changes when the *content* of
+  // the params changes, not when array references do.
   const searchParamsKey = JSON.stringify({
     search,
     rvcode,
@@ -249,122 +244,83 @@ export default function SearchClient({
     selectedAuthorValues,
   });
 
-  const getSelectedTypes = useCallback(() => selectedTypeValues, [selectedTypeValues]);
-  const getSelectedYears = useCallback(() => selectedYearValues, [selectedYearValues]);
-  const getSelectedVolumes = useCallback(() => selectedVolumeValues, [selectedVolumeValues]);
-  const getSelectedSections = useCallback(() => selectedSectionValues, [selectedSectionValues]);
-  const getSelectedAuthors = useCallback(() => selectedAuthorValues, [selectedAuthorValues]);
+  /**
+   * Results are tagged with the request key that produced them. Comparing that key with the
+   * one the current inputs ask for derives the loading flag during render, so the fetch
+   * effect below never calls setState synchronously.
+   */
+  const [fetched, setFetched] = useState<{
+    key: string;
+    results: typeof initialSearchResults;
+  } | null>(null);
 
-  const performFilteredSearch = useCallback(async () => {
-    if (!search || !rvcode) return;
+  const isFetchable = !!search && !!rvcode;
+  const isLoading = isFetchable && fetched?.key !== searchParamsKey;
+  const searchResults = fetched?.key === searchParamsKey ? fetched.results : initialSearchResults;
 
-    setIsLoading(true);
-    try {
-      const results = await fetchSearchResults({
-        terms: search,
-        rvcode,
-        page: currentPage,
-        itemsPerPage: SEARCH_RESULTS_PER_PAGE,
-        types: selectedTypeValues,
-        years: selectedYearValues,
-        volumes: selectedVolumeValues,
-        sections: selectedSectionValues,
-        authors: selectedAuthorValues,
+  useEffect(() => {
+    if (!isFetchable) return;
+
+    let cancelled = false;
+
+    fetchSearchResults({
+      terms: search,
+      rvcode,
+      page: currentPage,
+      itemsPerPage: SEARCH_RESULTS_PER_PAGE,
+      types: selectedTypeValues,
+      years: selectedYearValues,
+      volumes: selectedVolumeValues,
+      sections: selectedSectionValues,
+      authors: selectedAuthorValues,
+    })
+      .then(results => {
+        if (!cancelled) setFetched({ key: searchParamsKey, results });
+      })
+      .catch(error => {
+        logger.error('Search failed:', error);
+        if (!cancelled) setFetched({ key: searchParamsKey, results: initialSearchResults });
       });
-      setSearchResults(results);
-    } catch (error) {
-      logger.error('Search failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [
-    search,
-    rvcode,
-    currentPage,
-    selectedTypeValues,
-    selectedYearValues,
-    selectedVolumeValues,
-    selectedSectionValues,
-    selectedAuthorValues,
-  ]);
 
-  // Read search query from URL parameters
-  // Note: 'search' intentionally omitted from deps to avoid infinite loop
-  // We only want to sync from URL → state, not trigger on every state change
-  useEffect(() => {
-    const urlSearch = searchParams?.get('terms') || searchParams?.get('q') || '';
-    if (urlSearch && urlSearch !== search) {
-      setSearch(urlSearch);
-    }
+    return () => {
+      cancelled = true;
+    };
+    // Only refetch when the *content* of the params changes, not their references.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParamsKey]);
 
-  // Perform search when search params change (debounced by the key)
-  // Use searchParamsKey to prevent infinite loops from reference changes
-  useEffect(() => {
-    performFilteredSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParamsKey]); // Only fetch when the *content* of params changes, not references
+  // Facets are a projection of the current results crossed with the user's selections.
+  const types = useMemo(
+    () => buildInitTypes(searchResults?.range?.types ?? [], checkedTypes),
+    [searchResults, checkedTypes]
+  );
+  const years = useMemo(
+    () => buildInitYears(searchResults?.range?.years ?? [], checkedYears),
+    [searchResults, checkedYears]
+  );
+  const volumes = useMemo(
+    () => buildInitVolumes(searchResults?.range?.volumes ?? {}, language, checkedVolumes),
+    [searchResults, language, checkedVolumes]
+  );
+  const sections = useMemo(
+    () => buildInitSections(searchResults?.range?.sections ?? {}, language, checkedSections),
+    [searchResults, language, checkedSections]
+  );
+  const authors = useMemo(
+    () => buildInitAuthors(searchResults?.range?.authors ?? [], checkedAuthors),
+    [searchResults, checkedAuthors]
+  );
 
-  // Trigger search when filters change
-  useEffect(() => {
-    if (search && rvcode) {
-      // Only trigger if we have basic search params and filters have changed
-      const hasActiveFilters =
-        types.some(t => t.isChecked) ||
-        years.some(y => y.isChecked) ||
-        volumes.some(v => v.isChecked) ||
-        sections.some(s => s.isChecked) ||
-        authors.some(a => a.isChecked);
-
-      if (hasActiveFilters) {
-        // Reset to page 1 when filters change.
-        if (currentPage !== 1) {
-          setCurrentPage(1);
-        }
-      }
-    }
-  }, [types, years, volumes, sections, authors, search, rvcode, currentPage]);
-
-  // Initialiser les données quand les résultats de recherche changent
-  useEffect(() => {
-    if (initialSearchResults) {
-      setSearchResults(initialSearchResults);
-    }
-  }, [initialSearchResults]);
-
-  // Filtrer les résultats de recherche
-  useEffect(() => {
-    if (searchResults?.range) {
-      const {
-        types: rangeTypes,
-        years: rangeYears,
-        volumes: rangeVolumes,
-        sections: rangeSections,
-        authors: rangeAuthors,
-      } = searchResults.range;
-
-      if (rangeTypes) {
-        setTypes(prevTypes => buildInitTypes(rangeTypes, prevTypes));
-      }
-
-      if (rangeYears) {
-        setYears(prevYears => buildInitYears(rangeYears, prevYears));
-      }
-
-      if (rangeVolumes) {
-        setVolumes(prevVolumes => buildInitVolumes(rangeVolumes, language, prevVolumes));
-      }
-
-      if (rangeSections) {
-        setSections(prevSections => buildInitSections(rangeSections, language, prevSections));
-      }
-
-      if (rangeAuthors) {
-        setAuthors(prevAuthors => buildInitAuthors(rangeAuthors, prevAuthors));
-      }
-    }
-  }, [searchResults, language]);
+  const enhancedSearchResults = useMemo<EnhancedSearchResult[]>(
+    () =>
+      (searchResults?.data ?? [])
+        .filter(searchResult => searchResult?.title)
+        .map(searchResult => ({
+          ...searchResult,
+          openedAbstract: openedAbstractIds.has(searchResult!.id as number),
+        })) as EnhancedSearchResult[],
+    [searchResults, openedAbstractIds]
+  );
 
   const updateUrlAndSearch = useCallback(() => {
     const params = new URLSearchParams();
@@ -372,52 +328,39 @@ export default function SearchClient({
     params.append('terms', search);
     params.append('page', currentPage.toString());
 
-    const selectedTypes = getSelectedTypes();
-    const selectedYears = getSelectedYears();
-    const selectedVolumes = getSelectedVolumes();
-    const selectedSections = getSelectedSections();
-    const selectedAuthors = getSelectedAuthors();
+    selectedTypeValues.forEach(type => params.append('types', type));
+    selectedYearValues.forEach(year => params.append('years', year.toString()));
+    selectedVolumeValues.forEach(volume => params.append('volumes', volume.toString()));
+    selectedSectionValues.forEach(section => params.append('sections', section.toString()));
+    selectedAuthorValues.forEach(author => params.append('authors', author));
 
-    selectedTypes.forEach(type => params.append('types', type));
-    selectedYears.forEach(year => params.append('years', year.toString()));
-    selectedVolumes.forEach(volume => params.append('volumes', volume.toString()));
-    selectedSections.forEach(section => params.append('sections', section.toString()));
-    selectedAuthors.forEach(author => params.append('authors', author));
-
-    // Mettre à jour l'URL
     router.push(`${PATHS.search}?${params.toString()}`);
   }, [
     search,
     currentPage,
-    getSelectedTypes,
-    getSelectedYears,
-    getSelectedVolumes,
-    getSelectedSections,
-    getSelectedAuthors,
+    selectedTypeValues,
+    selectedYearValues,
+    selectedVolumeValues,
+    selectedSectionValues,
+    selectedAuthorValues,
     router,
   ]);
 
-  // Mettre à jour les résultats de recherche quand les filtres changent
+  const hasActiveFilters =
+    selectedTypeValues.length > 0 ||
+    selectedYearValues.length > 0 ||
+    selectedVolumeValues.length > 0 ||
+    selectedSectionValues.length > 0 ||
+    selectedAuthorValues.length > 0;
+
+  // Mirror the active filters and the page into the URL. Keyed on the request key so the
+  // effect cannot re-fire on mere reference changes.
   useEffect(() => {
-    // Ne mettre à jour l'URL que si on a des filtres actifs ou si on change de page
-    if (taggedFilters.length > 0 || currentPage !== initialPage) {
+    if (hasActiveFilters || currentPage !== initialPage) {
       updateUrlAndSearch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taggedFilters, currentPage, initialPage]);
-
-  // Mettre à jour les résultats améliorés lorsque les résultats de recherche changent
-  useEffect(() => {
-    if (searchResults) {
-      const displayedSearchResults = searchResults?.data
-        .filter(searchResult => searchResult?.title)
-        .map(searchResult => {
-          return { ...searchResult, openedAbstract: false };
-        });
-
-      setEnhancedSearchResults(displayedSearchResults as EnhancedSearchResult[]);
-    }
-  }, [searchResults]);
+  }, [searchParamsKey]);
 
   // Memoize handlePageClick to prevent Pagination re-renders
   const handlePageClick = useCallback((selectedItem: { selected: number }): void => {
@@ -426,244 +369,129 @@ export default function SearchClient({
 
   const onCheckType = (value: string): void => {
     setCurrentPage(1);
-
-    const updatedTypes = types.map(t => {
-      if (t.value === value) {
-        return { ...t, isChecked: !t.isChecked };
-      }
-
-      return { ...t };
-    });
-
-    setTypes(updatedTypes);
+    setCheckedTypes(prev => toggleInSet(prev, value));
   };
 
   const onCheckYear = (year: number): void => {
     setCurrentPage(1);
-
-    const updatedYears = years.map(y => {
-      if (y.year === year) {
-        return { ...y, isChecked: !y.isChecked };
-      }
-
-      return { ...y };
-    });
-
-    setYears(updatedYears);
+    setCheckedYears(prev => toggleInSet(prev, year));
   };
 
   const onCheckVolume = (id: number): void => {
     setCurrentPage(1);
-
-    const updatedVolumes = volumes.map(v => {
-      if (v.id === id) {
-        return { ...v, isChecked: !v.isChecked };
-      }
-
-      return { ...v };
-    });
-
-    setVolumes(updatedVolumes);
+    setCheckedVolumes(prev => toggleInSet(prev, id));
   };
 
   const onCheckSection = (id: number): void => {
     setCurrentPage(1);
-
-    const updatedSections = sections.map(s => {
-      if (s.id === id) {
-        return { ...s, isChecked: !s.isChecked };
-      }
-
-      return { ...s };
-    });
-
-    setSections(updatedSections);
+    setCheckedSections(prev => toggleInSet(prev, id));
   };
 
   const onCheckAuthor = (fullname: string): void => {
     setCurrentPage(1);
-
-    const updatedAuthors = authors.map(a => {
-      if (a.fullname === fullname) {
-        return { ...a, isChecked: !a.isChecked };
-      }
-
-      return { ...a };
-    });
-
-    setAuthors(updatedAuthors);
+    setCheckedAuthors(prev => toggleInSet(prev, fullname));
   };
 
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: ISearchResultFilter[] = [];
+  // Replace a whole selection, e.g. when the mobile modal applies its filters.
+  const updateTypes = (updated: ISearchResultTypeSelection[]): void =>
+    setCheckedTypes(
+      checkedValuesOf(
+        updated,
+        t => t.isChecked,
+        t => t.value
+      )
+    );
+  const updateYears = (updated: ISearchResultYearSelection[]): void =>
+    setCheckedYears(
+      checkedValuesOf(
+        updated,
+        y => y.isChecked,
+        y => y.year
+      )
+    );
+  const updateVolumes = (updated: ISearchResultVolumeSelection[]): void =>
+    setCheckedVolumes(
+      checkedValuesOf(
+        updated,
+        v => v.isChecked,
+        v => v.id
+      )
+    );
+  const updateSections = (updated: ISearchResultSectionSelection[]): void =>
+    setCheckedSections(
+      checkedValuesOf(
+        updated,
+        sec => sec.isChecked,
+        sec => sec.id
+      )
+    );
+  const updateAuthors = (updated: ISearchResultAuthorSelection[]): void =>
+    setCheckedAuthors(
+      checkedValuesOf(
+        updated,
+        a => a.isChecked,
+        a => a.fullname
+      )
+    );
 
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({
-          type: 'type',
-          value: t.value,
-          labelPath: t.labelPath,
-        });
-      });
-
-    years
-      .filter(y => y.isChecked)
-      .forEach(y => {
-        initFilters.push({
-          type: 'year',
-          value: y.year,
-          label: y.year,
-        });
-      });
-
-    volumes
-      .filter(v => v.isChecked)
-      .forEach(v => {
-        initFilters.push({
-          type: 'volume',
-          value: v.id,
-          translatedLabel: v.label,
-        });
-      });
-
-    sections
-      .filter(s => s.isChecked)
-      .forEach(s => {
-        initFilters.push({
-          type: 'section',
-          value: s.id,
-          translatedLabel: s.label,
-        });
-      });
-
-    authors
-      .filter(a => a.isChecked)
-      .forEach(a => {
-        initFilters.push({
-          type: 'author',
-          value: a.fullname,
-          label: a.fullname,
-        });
-      });
-
-    setTaggedFilters(initFilters);
-  }, [types, years, volumes, sections, authors]);
-
-  // Mettre à jour les filtres tagués lorsque les filtres changent
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<ISearchResultFilter[]>(
+    () => [
+      ...types
+        .filter(t => t.isChecked)
+        .map(t => ({ type: 'type' as const, value: t.value, labelPath: t.labelPath })),
+      ...years
+        .filter(y => y.isChecked)
+        .map(y => ({ type: 'year' as const, value: y.year, label: y.year })),
+      ...volumes
+        .filter(v => v.isChecked)
+        .map(v => ({ type: 'volume' as const, value: v.id, translatedLabel: v.label })),
+      ...sections
+        .filter(sec => sec.isChecked)
+        .map(sec => ({ type: 'section' as const, value: sec.id, translatedLabel: sec.label })),
+      ...authors
+        .filter(a => a.isChecked)
+        .map(a => ({ type: 'author' as const, value: a.fullname, label: a.fullname })),
+    ],
+    [types, years, volumes, sections, authors]
+  );
 
   const onCloseTaggedFilter = (type: SearchResultTypeFilter, value: string | number) => {
+    setCurrentPage(1);
+
     if (type === 'type') {
-      const updatedTypes = types.map(t => {
-        if (t.value === value) {
-          return { ...t, isChecked: false };
-        }
-
-        return t;
-      });
-
-      setTypes(updatedTypes);
+      setCheckedTypes(prev => toggleInSet(prev, String(value)));
     } else if (type === 'year') {
-      const updatedYears = years.map(y => {
-        if (y.year === value) {
-          return { ...y, isChecked: false };
-        }
-
-        return y;
-      });
-
-      setYears(updatedYears);
+      setCheckedYears(prev => toggleInSet(prev, Number(value)));
     } else if (type === 'volume') {
-      const updatedVolumes = volumes.map(v => {
-        if (v.id === value) {
-          return { ...v, isChecked: false };
-        }
-
-        return v;
-      });
-
-      setVolumes(updatedVolumes);
+      setCheckedVolumes(prev => toggleInSet(prev, Number(value)));
     } else if (type === 'section') {
-      const updatedSections = sections.map(s => {
-        if (s.id === value) {
-          return { ...s, isChecked: false };
-        }
-
-        return s;
-      });
-
-      setSections(updatedSections);
+      setCheckedSections(prev => toggleInSet(prev, Number(value)));
     } else if (type === 'author') {
-      const updatedAuthors = authors.map(a => {
-        if (a.fullname === value) {
-          return { ...a, isChecked: false };
-        }
-
-        return a;
-      });
-
-      setAuthors(updatedAuthors);
+      setCheckedAuthors(prev => toggleInSet(prev, String(value)));
     }
   };
 
   const clearTaggedFilters = (): void => {
-    const updatedTypes = types.map(t => {
-      return { ...t, isChecked: false };
-    });
-
-    const updatedYears = years.map(y => {
-      return { ...y, isChecked: false };
-    });
-
-    const updatedVolumes = volumes.map(v => {
-      return { ...v, isChecked: false };
-    });
-
-    const updatedSections = sections.map(s => {
-      return { ...s, isChecked: false };
-    });
-
-    const updatedAuthors = authors.map(a => {
-      return { ...a, isChecked: false };
-    });
-
-    setTypes(updatedTypes);
-    setYears(updatedYears);
-    setVolumes(updatedVolumes);
-    setSections(updatedSections);
-    setAuthors(updatedAuthors);
-    setTaggedFilters([]);
+    setCurrentPage(1);
+    setCheckedTypes(new Set());
+    setCheckedYears(new Set());
+    setCheckedVolumes(new Set());
+    setCheckedSections(new Set());
+    setCheckedAuthors(new Set());
   };
 
   const toggleAbstract = (searchResultId?: number): void => {
     if (!searchResultId) return;
-
-    const updatedSearchResults = enhancedSearchResults.map(searchResult => {
-      if (searchResult?.id === searchResultId) {
-        return {
-          ...searchResult,
-          openedAbstract: !searchResult.openedAbstract,
-        };
-      }
-
-      return { ...searchResult };
-    });
-
-    setEnhancedSearchResults(updatedSearchResults);
+    setOpenedAbstractIds(prev => toggleInSet(prev, searchResultId));
   };
 
   const toggleAllAbstracts = (): void => {
     const isShown = !showAllAbstracts;
 
-    const updatedSearchResults = enhancedSearchResults.map(searchResult => ({
-      ...searchResult,
-      openedAbstract: isShown,
-    }));
-
-    setEnhancedSearchResults(updatedSearchResults);
+    setOpenedAbstractIds(
+      isShown ? new Set(enhancedSearchResults.map(r => r.id as number).filter(Boolean)) : new Set()
+    );
     setShowAllAbstracts(isShown);
   };
 
@@ -729,15 +557,15 @@ export default function SearchClient({
                 language={language}
                 t={t}
                 initialTypes={types}
-                onUpdateTypesCallback={setTypes}
+                onUpdateTypesCallback={updateTypes}
                 initialYears={years}
-                onUpdateYearsCallback={setYears}
+                onUpdateYearsCallback={updateYears}
                 initialVolumes={volumes}
-                onUpdateVolumesCallback={setVolumes}
+                onUpdateVolumesCallback={updateVolumes}
                 initialSections={sections}
-                onUpdateSectionsCallback={setSections}
+                onUpdateSectionsCallback={updateSections}
                 initialAuthors={authors}
-                onUpdateAuthorsCallback={setAuthors}
+                onUpdateAuthorsCallback={updateAuthors}
                 onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
               />
             )}
@@ -747,19 +575,24 @@ export default function SearchClient({
       <div className="articles-filters">
         {taggedFilters.length > 0 && (
           <div className="articles-filters-tags">
-            {taggedFilters.map((filter, index) => (
-              <Tag
-                key={index}
-                text={
-                  filter.labelPath
-                    ? t(filter.labelPath)
-                    : filter.translatedLabel
-                      ? filter.translatedLabel[language]
-                      : filter.label!.toString()
-                }
-                onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
-              />
-            ))}
+            {taggedFilters.map(filter => {
+              let tagText: string;
+              if (filter.labelPath) {
+                tagText = t(filter.labelPath);
+              } else if (filter.translatedLabel) {
+                tagText = filter.translatedLabel[language];
+              } else {
+                tagText = filter.label!.toString();
+              }
+
+              return (
+                <Tag
+                  key={`${filter.type}-${filter.value}`}
+                  text={tagText}
+                  onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
+                />
+              );
+            })}
             <div
               className="articles-filters-tags-clear"
               role="button"
@@ -810,9 +643,9 @@ export default function SearchClient({
             <Loader />
           ) : (
             <div className="articles-content-results-cards">
-              {enhancedSearchResults.map((searchResult, index) => (
+              {enhancedSearchResults.map(searchResult => (
                 <ArticleCard
-                  key={index}
+                  key={searchResult.id}
                   language={language}
                   rvcode={rvcode}
                   t={t}

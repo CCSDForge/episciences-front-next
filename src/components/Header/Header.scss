@@ -343,12 +343,10 @@
     &-subtitle {
       font-size: 30px;
       font-weight: 400;
-      font-style: italic;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       max-width: 100%;
-      opacity: 0.85;
 
       @media (max-width: breakpoints.$xsm),
         (max-width: breakpoints.$sm) and (orientation: landscape) {

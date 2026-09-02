@@ -17,10 +17,10 @@ export type SwiperCardContent =
   | SwiperBoardCardProps;
 
 export interface ISwiperCardProps {
-  type: SwiperCardType;
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  content: SwiperCardContent;
+  readonly type: SwiperCardType;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly content: SwiperCardContent;
 }
 
 export default function Card({ type, language, t, content }: ISwiperCardProps): React.JSX.Element {

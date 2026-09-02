@@ -10,6 +10,8 @@
     "predev": "npm run preflight",
     "dev": "next dev -p 5000",
     "dev:turbo": "next dev --turbo -p 5000",
+    "predev:https": "npm run preflight",
+    "dev:https": "next dev --experimental-https -p 8443",
     "prebuild": "npm run preflight",
     "build": "next build",
     "build:turbo": "next build --turbo",
@@ -21,12 +23,13 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "validate:pages": "tsx scripts/validate-pages.ts"
+    "validate:pages": "tsx scripts/validate-pages.ts",
+    "sonar": "npx @sonar/scan"
   },
   "dependencies": {
-    "@citation-js/core": "^0.7.14",
-    "@citation-js/plugin-csl": "^0.7.14",
-    "@citation-js/plugin-doi": "^0.7.14",
+    "@citation-js/core": "^0.7.21",
+    "@citation-js/plugin-csl": "^0.7.22",
+    "@citation-js/plugin-doi": "^0.7.21",
     "better-react-mathjax": "^2.0.3",
     "citation-js": "^0.7.22",
     "date-fns": "^4.1.0",
@@ -34,10 +37,10 @@
     "he": "^1.2.0",
     "i18next": "^23.16.8",
     "i18next-resources-to-backend": "^1.2.1",
-    "next": "^16.2.2",
-    "react": "^19.2.6",
+    "next": "16.3.0",
+    "react": "19.2.8",
     "react-device-detect": "^2.2.3",
-    "react-dom": "^19.2.6",
+    "react-dom": "19.2.8",
     "react-i18next": "^14.1.1",
     "react-loader-spinner": "^8.0.2",
     "react-markdown": "^9.0.1",
@@ -62,8 +65,8 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/he": "^1.2.3",
     "@types/node": "^22",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
     "@types/react-i18next": "^8.1.0",
     "@types/xml2js": "^0.4.14",
     "@typescript-eslint/eslint-plugin": "^8.59.3",
@@ -93,7 +96,18 @@
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": ">=7.29.4",
     "postcss": ">=8.5.10",
+    "nanoid": ">=3.3.18",
     "glob": ">=10.5.0",
-    "tmp": ">=0.2.6"
+    "tmp": ">=0.2.6",
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": {
+        "brace-expansion": ">=5.0.7"
+      }
+    },
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "browserslist": ">=4.28.8",
+    "@xmldom/xmldom": ">=0.9.12",
+    "postcss-selector-parser": ">=7.1.5"
   }
 }

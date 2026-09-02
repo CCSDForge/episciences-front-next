@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -22,14 +22,14 @@ interface SectionsData {
 }
 
 interface SectionsClientProps {
-  initialSections: {
+  readonly initialSections: {
     data: ISection[];
     totalItems: number;
     articlesCount?: number;
   } | null;
-  initialPage: number;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly initialPage: number;
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     sections: string;
@@ -58,39 +58,27 @@ export default function SectionsClient({
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
-  // Initialiser la page depuis les query params ou initialPage
+  // The query string is the source of truth for the current page — no local mirror state.
   const pageFromUrl = searchParams?.get('page');
-  const pageNumber = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : initialPage;
+  const parsedPage = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : initialPage;
+  const currentPage = Number.isNaN(parsedPage) ? initialPage : parsedPage;
 
-  const [currentPage, setCurrentPage] = useState(pageNumber);
-  const [sections, setSections] = useState(initialSections);
-  const [sectionsData, setSectionsData] = useState(initialSections);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Synchroniser currentPage avec les query params
-  useEffect(() => {
-    const pageParam = searchParams?.get('page');
-    const pageNum = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!isNaN(pageNum) && pageNum !== currentPage) {
-      setCurrentPage(pageNum);
-    }
-  }, [searchParams, currentPage]);
+  const sections = initialSections;
+  const [isLoading] = useState(false);
 
   // Pagination côté client
-  useEffect(() => {
-    if (initialSections?.data) {
-      const startIndex = (currentPage - 1) * SECTIONS_PER_PAGE;
-      const endIndex = startIndex + SECTIONS_PER_PAGE;
-      const paginatedData = initialSections.data.slice(startIndex, endIndex);
+  const sectionsData = useMemo(() => {
+    if (!initialSections?.data) return initialSections;
 
-      setSectionsData({
-        ...initialSections,
-        data: paginatedData,
-        totalItems: initialSections.totalItems,
-      });
-    }
+    const startIndex = (currentPage - 1) * SECTIONS_PER_PAGE;
+    const endIndex = startIndex + SECTIONS_PER_PAGE;
+
+    return {
+      ...initialSections,
+      data: initialSections.data.slice(startIndex, endIndex),
+      totalItems: initialSections.totalItems,
+    };
   }, [initialSections, currentPage]);
 
   // Memoize handlePageClick to prevent Pagination re-renders
@@ -100,7 +88,6 @@ export default function SectionsClient({
       if (pathname) {
         router.push(`${pathname}?page=${newPage}`);
       }
-      setCurrentPage(newPage);
       // Scroll vers le haut de la page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -128,7 +115,7 @@ export default function SectionsClient({
   };
 
   const getArticlesCount = (): React.JSX.Element | null => {
-    if (sections && sections.articlesCount) {
+    if (sections?.articlesCount) {
       if (sections.articlesCount > 1) {
         return (
           <div className="sections-title-count-text sections-title-count-text-articles">
@@ -182,8 +169,8 @@ export default function SectionsClient({
             <Loader />
           ) : (
             <div className="sections-content-results-cards">
-              {sectionsData?.data.map((section, index) => (
-                <SectionCard key={index} language={language} t={t} section={section} />
+              {sectionsData?.data.map(section => (
+                <SectionCard key={section.id} language={language} t={t} section={section} />
               ))}
             </div>
           )}

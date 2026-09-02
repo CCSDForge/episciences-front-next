@@ -19,6 +19,11 @@ vi.mock('@/hooks/store', () => ({
   useAppSelector: () => 'journal-code',
 }));
 
+// Mock next/image
+vi.mock('next/image', () => ({
+  default: ({ src, alt, ...props }: any) => <img src={src} alt={alt} {...props} />,
+}));
+
 // Mock the MathJax component
 vi.mock('@/components/MathJax/MathJax', () => ({
   default: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
@@ -273,5 +278,42 @@ Content for section 2
       },
       { timeout: 500 }
     );
+  });
+
+  describe('image URL resolution', () => {
+    // next/image's real loader rewrites `src` to `/_next/image?url=<encoded>&...`,
+    // so assert on the encoded target URL it was given rather than an exact match.
+    it('rewrites journal-relative "/public/" image paths through getMarkdownImageURL', async () => {
+      const { container } = render(
+        <MarkdownPageWithSidebar
+          content={'## Section 1\n\n![alt text](/public/logo.png)'}
+          title="Test Page"
+          breadcrumbLabels={mockBreadcrumbLabels}
+        />
+      );
+
+      await waitFor(() => {
+        const img = container.querySelector('img');
+        expect(img?.getAttribute('src')).toBe(
+          'https://journal-code.episciences.org/public/logo.png'
+        );
+      });
+    });
+
+    it('leaves an already-absolute external image URL untouched', async () => {
+      const { container } = render(
+        <MarkdownPageWithSidebar
+          content={'## Section 1\n\n![alt text](https://cdn.example.com/logo.png)'}
+          title="Test Page"
+          breadcrumbLabels={mockBreadcrumbLabels}
+        />
+      );
+
+      await waitFor(() => {
+        const img = container.querySelector('img');
+        expect(img?.getAttribute('src')).toBe('https://cdn.example.com/logo.png');
+        expect(img?.getAttribute('src')).not.toContain('episciences.org');
+      });
+    });
   });
 });

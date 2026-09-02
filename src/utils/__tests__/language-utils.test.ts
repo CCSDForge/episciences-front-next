@@ -96,8 +96,6 @@ describe('language-utils', () => {
       if (nonDefaultLang) {
         const result = getLocalizedPath('/about', nonDefaultLang);
         expect(result).toBe(`/${nonDefaultLang}/about`);
-      } else {
-        expect(true).toBe(true); // Skip if only one language
       }
     });
 
@@ -111,8 +109,6 @@ describe('language-utils', () => {
       if (nonDefaultLang) {
         const result = getLocalizedPath('/', nonDefaultLang);
         expect(result).toBe(`/${nonDefaultLang}`);
-      } else {
-        expect(true).toBe(true); // Skip if only one language
       }
     });
 
@@ -180,23 +176,13 @@ describe('language-utils', () => {
       expect(result).toBe(defaultLanguage);
     });
 
-    it('should return default language for path without prefix', () => {
-      const result = getLanguageFromPathname('/about');
-      expect(result).toBe(defaultLanguage);
-    });
-
-    it('should return default language for root path', () => {
-      const result = getLanguageFromPathname('/');
-      expect(result).toBe(defaultLanguage);
-    });
-
-    it('should return default language for empty path', () => {
-      const result = getLanguageFromPathname('');
-      expect(result).toBe(defaultLanguage);
-    });
-
-    it('should validate language code from pathname', () => {
-      const result = getLanguageFromPathname('/invalid/about');
+    it.each([
+      { description: 'should return default language for path without prefix', input: '/about' },
+      { description: 'should return default language for root path', input: '/' },
+      { description: 'should return default language for empty path', input: '' },
+      { description: 'should validate language code from pathname', input: '/invalid/about' },
+    ])('$description', ({ input }) => {
+      const result = getLanguageFromPathname(input);
       expect(result).toBe(defaultLanguage);
     });
 

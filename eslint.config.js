@@ -19,11 +19,9 @@ module.exports = [
       'jsx-a11y/label-has-associated-control': 'error',
       'jsx-a11y/no-static-element-interactions': 'warn',
       'jsx-a11y/click-events-have-key-events': 'warn',
-      // ESLint 9 / react-hooks v7 readiness rules
-      'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/error-boundaries': 'warn',
-      'react-hooks/immutability': 'warn',
-      'react-hooks/preserve-manual-memoization': 'warn',
+      // The React Compiler readiness rules from eslint-plugin-react-hooks v7 (bundled with
+      // eslint-config-next 16.3) are all clean and left at the severity the preset ships,
+      // i.e. 'error'. Nothing to override here.
     },
   },
 ];

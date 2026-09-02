@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 
-import { fetchVolumes } from '@/services/volume';
+import { fetchVolumes, FetchVolumesResult } from '@/services/volume';
+import { IVolume } from '@/types/volume';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
 import { acceptedLanguages } from '@/utils/language-utils';
@@ -17,6 +18,146 @@ import { generateCollectionPageJsonLd } from '@/utils/schema';
 const VolumesClient = dynamic(() => import('./VolumesClient'));
 
 const VOLUMES_PER_PAGE = 20;
+
+type SearchParamValue = string | string[] | undefined;
+
+const parseTypesParam = (typeParam: SearchParamValue): string[] => {
+  if (typeof typeParam === 'string') {
+    return [typeParam];
+  }
+  if (Array.isArray(typeParam)) {
+    return typeParam;
+  }
+  return [];
+};
+
+const parseYearsParam = (yearsParam: SearchParamValue): number[] => {
+  if (typeof yearsParam === 'string') {
+    return [Number.parseInt(yearsParam, 10)].filter(y => !Number.isNaN(y));
+  }
+  if (Array.isArray(yearsParam)) {
+    return yearsParam.map(y => Number.parseInt(y, 10)).filter(y => !Number.isNaN(y));
+  }
+  return [];
+};
+
+const parseValidPage = (pageParam: SearchParamValue): number => {
+  const currentPage = typeof pageParam === 'string' ? Number.parseInt(pageParam, 10) : 1;
+  return Number.isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
+};
+
+// Counts logic:
+// 1. If we are filtering, we trust the volumesData counts (matching volumes)
+// 2. If we are NOT filtering, we prefer the counts from fullRangeData if they are higher
+//    (since fullRangeData fetches 250 items and might have better fallback counts)
+const resolveTotalItems = (
+  volumesData: FetchVolumesResult,
+  fullRangeData: FetchVolumesResult,
+  isFiltering: boolean
+): number => {
+  if (
+    !isFiltering &&
+    fullRangeData?.totalItems &&
+    fullRangeData.totalItems > volumesData.totalItems
+  ) {
+    return fullRangeData.totalItems;
+  }
+  return volumesData.totalItems;
+};
+
+const resolveArticlesCount = (
+  volumesData: FetchVolumesResult,
+  fullRangeData: FetchVolumesResult,
+  isFiltering: boolean
+): number | undefined => {
+  if (
+    !isFiltering &&
+    fullRangeData?.articlesCount &&
+    (volumesData.articlesCount === undefined ||
+      volumesData.articlesCount === 0 ||
+      fullRangeData.articlesCount > volumesData.articlesCount)
+  ) {
+    return fullRangeData.articlesCount;
+  }
+  return volumesData.articlesCount;
+};
+
+/** Counts unique articles across volumes when the API doesn't return an aggregate count. */
+const countUniqueArticles = (volumes: IVolume[]): number => {
+  const uniqueArticleIds = new Set<number>();
+  volumes.forEach(vol => {
+    vol.articles?.forEach(article => {
+      if (article.paperid) uniqueArticleIds.add(article.paperid);
+    });
+  });
+  return uniqueArticleIds.size;
+};
+
+const resolveVolumeCounts = (
+  volumesData: FetchVolumesResult,
+  fullRangeData: FetchVolumesResult,
+  isFiltering: boolean
+): { totalItems: number; articlesCount: number | undefined } => {
+  const totalItems = resolveTotalItems(volumesData, fullRangeData, isFiltering);
+  let articlesCount = resolveArticlesCount(volumesData, fullRangeData, isFiltering);
+
+  // FINAL FALLBACK: If articlesCount is still 0 but we have volumes,
+  // it's likely the API didn't return the aggregate count.
+  const displayData = volumesData.data;
+  if (articlesCount === 0 && displayData.length > 0) {
+    const sourceData =
+      !isFiltering && fullRangeData?.data && fullRangeData.data.length > displayData.length
+        ? fullRangeData.data
+        : displayData;
+    articlesCount = countUniqueArticles(sourceData);
+  }
+
+  return { totalItems, articlesCount };
+};
+
+const resolveVolumesRangeTypes = (
+  fullRangeData: FetchVolumesResult,
+  volumesData: FetchVolumesResult
+): string[] | undefined =>
+  (fullRangeData?.range?.types?.length ?? 0) > 0
+    ? fullRangeData?.range?.types
+    : volumesData.range?.types || [];
+
+const resolveVolumesYears = (fullRangeData: FetchVolumesResult): number[] => {
+  if (fullRangeData?.range?.years && fullRangeData.range.years.length > 0) {
+    return fullRangeData.range.years;
+  }
+  if (fullRangeData?.data && fullRangeData.data.length > 0) {
+    const extracted = fullRangeData.data
+      .map(v => v.year)
+      .filter((y): y is number => typeof y === 'number');
+    return Array.from(new Set(extracted)).sort((a, b) => b - a);
+  }
+  return [];
+};
+
+const buildFinalVolumesData = (
+  volumesData: FetchVolumesResult,
+  fullRangeData: FetchVolumesResult,
+  isFiltering: boolean
+): FetchVolumesResult => {
+  const { totalItems, articlesCount } = resolveVolumeCounts(
+    volumesData,
+    fullRangeData,
+    isFiltering
+  );
+
+  return {
+    ...volumesData,
+    data: volumesData.data,
+    totalItems,
+    articlesCount,
+    range: {
+      types: resolveVolumesRangeTypes(fullRangeData, volumesData),
+      years: resolveVolumesYears(fullRangeData),
+    },
+  };
+};
 
 // Volume list updates moderately - daily revalidation is appropriate
 export const revalidate = 86400; // 24 hours
@@ -49,35 +190,22 @@ export async function generateMetadata(props: {
 }
 
 export default async function VolumesPage(props: {
-  params: Promise<{ lang: string; journalId: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly params: Promise<{ lang: string; journalId: string }>;
+  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
   const { lang, journalId } = params;
 
-  // Parse types from searchParams
-  const typeParam = searchParams.type;
-  let types: string[] = [];
-  if (typeof typeParam === 'string') {
-    types = [typeParam];
-  } else if (Array.isArray(typeParam)) {
-    types = typeParam;
-  }
-
-  // Parse years from searchParams
-  const yearsParam = searchParams.years;
-  let years: number[] = [];
-  if (typeof yearsParam === 'string') {
-    years = [Number.parseInt(yearsParam, 10)].filter(y => !isNaN(y));
-  } else if (Array.isArray(yearsParam)) {
-    years = yearsParam.map(y => Number.parseInt(y, 10)).filter(y => !isNaN(y));
-  }
-
-  const pageParam = searchParams.page;
-  const currentPage = typeof pageParam === 'string' ? Number.parseInt(pageParam, 10) : 1;
-  const validPage = isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
+  const types = parseTypesParam(searchParams.type);
+  const years = parseYearsParam(searchParams.years);
+  const validPage = parseValidPage(searchParams.page);
 
   logger.debug('VolumesPage searchParams', { types, years, page: validPage, journalId });
+
+  // Rendering stays outside the try/catch: failures bubble up to the nearest error.tsx
+  // boundary instead of being caught around the JSX tree.
+  let finalVolumesData: ReturnType<typeof buildFinalVolumesData>;
+  let translations: Awaited<ReturnType<typeof getServerTranslations>>;
 
   try {
     if (!journalId) {
@@ -106,109 +234,44 @@ export default async function VolumesPage(props: {
       years: [],
     });
 
-    const [volumesData, fullRangeData, translations] = await Promise.all([
+    const [volumesData, fullRangeData, fetchedTranslations] = await Promise.all([
       volumePromise,
       fullRangePromise,
       getServerTranslations(lang),
     ]);
 
-    // Helper to get years
-    const getYears = (): number[] => {
-      if (fullRangeData?.range?.years && fullRangeData.range.years.length > 0) {
-        return fullRangeData.range.years;
-      }
-      if (fullRangeData?.data && fullRangeData.data.length > 0) {
-        const extracted = fullRangeData.data
-          .map(v => v.year)
-          .filter((y): y is number => typeof y === 'number');
-        return Array.from(new Set(extracted)).sort((a, b) => b - a);
-      }
-      return [];
-    };
-
-    const displayData = volumesData.data;
-    let totalItems = volumesData.totalItems;
-    let articlesCount = volumesData.articlesCount;
-
-    // Logic for counts:
-    // 1. If we are filtering, we trust the volumesData counts (matching volumes)
-    // 2. If we are NOT filtering, we prefer the counts from fullRangeData if they are higher
-    //    (since fullRangeData fetches 250 items and might have better fallback counts)
-    if (!isFiltering) {
-      if (fullRangeData?.totalItems && fullRangeData.totalItems > totalItems) {
-        totalItems = fullRangeData.totalItems;
-      }
-      if (
-        fullRangeData?.articlesCount &&
-        (articlesCount === undefined ||
-          articlesCount === 0 ||
-          fullRangeData.articlesCount > articlesCount)
-      ) {
-        articlesCount = fullRangeData.articlesCount;
-      }
-    }
-
-    // FINAL FALLBACK: If articlesCount is still 0 but we have volumes,
-    // it's likely the API didn't return the aggregate count.
-    // Use a Set to deduplicate articles that belong to multiple volumes.
-    if (articlesCount === 0 && displayData.length > 0) {
-      const sourceData =
-        !isFiltering && fullRangeData?.data && fullRangeData.data.length > displayData.length
-          ? fullRangeData.data
-          : displayData;
-
-      const uniqueArticleIds = new Set<number>();
-      sourceData.forEach(vol => {
-        vol.articles?.forEach(article => {
-          if (article.paperid) uniqueArticleIds.add(article.paperid);
-        });
-      });
-      articlesCount = uniqueArticleIds.size;
-    }
-
-    const finalVolumesData = {
-      ...volumesData,
-      data: displayData,
-      totalItems: totalItems,
-      articlesCount: articlesCount,
-      range: {
-        types:
-          (fullRangeData?.range?.types?.length ?? 0) > 0
-            ? fullRangeData?.range?.types
-            : volumesData.range?.types || [],
-        years: getYears(),
-      },
-    };
-
-    const breadcrumbLabels = {
-      home: t('pages.home.title', translations),
-      content: t('common.content', translations),
-      volumes: t('pages.volumes.title', translations),
-    };
-
-    return (
-      <>
-        <JsonLd
-          data={generateCollectionPageJsonLd(journalId, lang, '/volumes', {
-            name: t('pages.volumes.title', translations),
-            numberOfItems: finalVolumesData.totalItems,
-          })}
-        />
-        <Suspense fallback={<Loader />}>
-          <VolumesClient
-            initialVolumes={finalVolumesData}
-            initialPage={validPage}
-            initialTypes={types}
-            initialYears={years}
-            lang={lang}
-            journalId={journalId}
-            breadcrumbLabels={breadcrumbLabels}
-          />
-        </Suspense>
-      </>
-    );
+    translations = fetchedTranslations;
+    finalVolumesData = buildFinalVolumesData(volumesData, fullRangeData, isFiltering);
   } catch (error) {
     logger.error('Error fetching volumes:', error);
     throw error;
   }
+
+  const breadcrumbLabels = {
+    home: t('pages.home.title', translations),
+    content: t('common.content', translations),
+    volumes: t('pages.volumes.title', translations),
+  };
+
+  return (
+    <>
+      <JsonLd
+        data={generateCollectionPageJsonLd(journalId, lang, '/volumes', {
+          name: t('pages.volumes.title', translations),
+          numberOfItems: finalVolumesData.totalItems,
+        })}
+      />
+      <Suspense fallback={<Loader />}>
+        <VolumesClient
+          initialVolumes={finalVolumesData}
+          initialPage={validPage}
+          initialTypes={types}
+          initialYears={years}
+          lang={lang}
+          journalId={journalId}
+          breadcrumbLabels={breadcrumbLabels}
+        />
+      </Suspense>
+    </>
+  );
 }

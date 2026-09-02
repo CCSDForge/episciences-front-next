@@ -26,20 +26,20 @@ interface IAuthorFilter {
 }
 
 interface AuthorsClientProps {
-  initialPage: number;
-  initialSearch: string;
-  initialLetter?: string;
-  initialAuthorsData?: {
+  readonly initialPage: number;
+  readonly initialSearch: string;
+  readonly initialLetter?: string;
+  readonly initialAuthorsData?: {
     items: IAuthor[];
     totalItems: number;
   };
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     authors: string;
   };
-  countLabels?: {
+  readonly countLabels?: {
     author: string;
     authors: string;
     authorFor: string;
@@ -80,7 +80,6 @@ export default function AuthorsClient({
   const [activeLetter, setActiveLetter] = useState(initialLetter);
   const [authors, setAuthors] = useState<IAuthor[]>(initialAuthorsData?.items || []);
   const [totalAuthors, setTotalAuthors] = useState(initialAuthorsData?.totalItems || 0);
-  const [taggedFilters, setTaggedFilters] = useState<IAuthorFilter[]>([]);
   const [expandedAuthorIndex, setExpandedAuthorIndex] = useState(-1);
 
   // Memoize fetch dependencies to avoid infinite loops
@@ -236,24 +235,20 @@ export default function AuthorsClient({
     );
   };
 
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: IAuthorFilter[] = [];
+  // Pure projection of the active letter and search term: derived during render, not in
+  // an effect.
+  const taggedFilters = useMemo<IAuthorFilter[]>(() => {
+    const filters: IAuthorFilter[] = [];
 
     if (activeLetter) {
-      initFilters.push({
-        type: 'activeLetter',
-        value: activeLetter,
-      });
+      filters.push({ type: 'activeLetter', value: activeLetter });
     }
 
     if (searchValue) {
-      initFilters.push({
-        type: 'search',
-        value: searchValue,
-      });
+      filters.push({ type: 'search', value: searchValue });
     }
 
-    setTaggedFilters(initFilters);
+    return filters;
   }, [activeLetter, searchValue]);
 
   const onCloseTaggedFilter = useCallback(
@@ -283,12 +278,7 @@ export default function AuthorsClient({
     }
     setSearchValue('');
     setActiveLetter('');
-    setTaggedFilters([]);
   }, [pathname, router]);
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
 
   const breadcrumbItems = [
     {
@@ -312,9 +302,9 @@ export default function AuthorsClient({
       {getAuthorsCount()}
       <div className="authors-filters">
         <div className="authors-filters-tags">
-          {taggedFilters.map((filter, index) => (
+          {taggedFilters.map(filter => (
             <Tag
-              key={index}
+              key={filter.type}
               text={
                 filter.value === 'others'
                   ? countLabels?.others || t('pages.authors.others')
@@ -363,7 +353,7 @@ export default function AuthorsClient({
             <div className="authors-content-results-cards">
               {authors?.map((author, index) => (
                 <AuthorCard
-                  key={index}
+                  key={author.name}
                   t={t}
                   author={author}
                   expandedCard={expandedAuthorIndex === index}

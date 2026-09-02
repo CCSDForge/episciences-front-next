@@ -8,21 +8,23 @@ import { PATHS } from '@/config/paths';
 import { Translations, t } from '@/utils/server-i18n';
 import { getLicenseLabelInfo } from '@/utils/article';
 import { ExternalLinkBlackIcon, DownloadBlackIcon } from '@/components/icons';
-import InteractiveDropdown from './InteractiveDropdown';
+import CiteDropdown from './CiteDropdown';
+import MetadataDropdown from './MetadataDropdown';
+import ShareDropdown from './ShareDropdown';
 import SidebarCollapsibleWrapper from './SidebarCollapsibleWrapper';
 import DownloadArticleButton from '@/components/DownloadArticleButton/DownloadArticleButton';
 
 import '@/components/Sidebars/ArticleDetailsSidebar/ArticleDetailsSidebar.scss';
 
 interface ArticleDetailsSidebarServerProps {
-  article: IArticle;
-  relatedVolume?: IVolume | null;
-  metadataCSL?: string | null;
-  metadataBibTeX?: string | null;
-  metrics?: React.JSX.Element;
-  translations: Translations;
-  language?: string;
-  rvcode?: string;
+  readonly article: IArticle;
+  readonly relatedVolume?: IVolume | null;
+  readonly metadataCSL?: string | null;
+  readonly metadataBibTeX?: string | null;
+  readonly metrics?: React.JSX.Element;
+  readonly translations: Translations;
+  readonly language?: string;
+  readonly rvcode?: string;
 }
 
 export default function ArticleDetailsSidebarServer({
@@ -207,8 +209,11 @@ export default function ArticleDetailsSidebarServer({
         initialOpen={true}
         className="articleDetailsSidebar-funding"
       >
-        {article.fundings.map((fund: any, index: number) => (
-          <div key={index} className="articleDetailsSidebar-funding-content-row">
+        {article.fundings.map((fund: any) => (
+          <div
+            key={typeof fund === 'string' ? fund : `${fund.funder ?? ''}-${fund.award ?? ''}`}
+            className="articleDetailsSidebar-funding-content-row"
+          >
             <div>{fund.funder || fund}</div>
             {fund.award && <div>#{fund.award}</div>}
           </div>
@@ -291,22 +296,16 @@ export default function ArticleDetailsSidebarServer({
           </a>
         )}
 
-        <InteractiveDropdown
-          type="cite"
+        <CiteDropdown
           metadataCSL={metadataCSL}
           metadataBibTeX={metadataBibTeX}
-          articleId={article.id.toString()}
           label={t('pages.articleDetails.actions.cite', translations)}
         />
-        <InteractiveDropdown
-          type="metadata"
+        <MetadataDropdown
           articleId={article.id.toString()}
           label={t('pages.articleDetails.actions.metadata', translations)}
         />
-        <InteractiveDropdown
-          type="share"
-          label={t('pages.articleDetails.actions.share.text', translations)}
-        />
+        <ShareDropdown label={t('pages.articleDetails.actions.share.text', translations)} />
       </div>
 
       <SidebarCollapsibleWrapper

@@ -5,7 +5,7 @@ The application uses a single Next.js instance to serve multiple journals based 
 
 ## How it works
 
-The application relies on **Middleware** (`src/middleware.ts`) to intercept requests:
+The application relies on a **Proxy** (`src/proxy.ts`, the Next.js 16 rename of `middleware.ts`) to intercept requests:
 
 1. It reads the **Hostname** from the request header.
 2. It extracts the subdomain (e.g., `epijinfo` from `epijinfo.localhost`).

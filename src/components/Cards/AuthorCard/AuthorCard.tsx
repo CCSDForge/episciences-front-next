@@ -9,10 +9,10 @@ import { IAuthor } from '@/types/author';
 import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IAuthorCardProps {
-  t: TFunction<'translation', undefined>;
-  author: IAuthor;
-  expandedCard: boolean;
-  setExpandedAuthorIndexCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly author: IAuthor;
+  readonly expandedCard: boolean;
+  readonly setExpandedAuthorIndexCallback: () => void;
 }
 
 function AuthorCard({

@@ -78,7 +78,7 @@ vi.mock('@/config/paths', () => ({
 
 // --- Fixtures ---
 
-const mockT = vi.fn((key: string) => {
+const baseTImpl = (key: string): string => {
   const t: Record<string, string> = {
     'common.publicationDetails': 'Publication Details',
     'common.submittedOn': 'Submitted on',
@@ -99,7 +99,9 @@ const mockT = vi.fn((key: string) => {
     'pages.articleDetails.volumeDetails.proceeding': 'Proceeding',
   };
   return t[key] ?? key;
-}) as any;
+};
+
+const mockT = vi.fn(baseTImpl) as any;
 
 const baseArticle: any = {
   id: 42,
@@ -129,6 +131,7 @@ describe('ArticleDetailsSidebar', () => {
     vi.clearAllMocks();
     mockGetMetadataTypes.mockReturnValue([]);
     mockGetLicenseLabelInfo.mockReturnValue(null);
+    mockT.mockImplementation(baseTImpl);
   });
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -288,29 +291,18 @@ describe('ArticleDetailsSidebar', () => {
   // Publication details
   // ─────────────────────────────────────────────────────────────────────────
   describe('Publication details', () => {
-    it('renders the publication details section title', () => {
+    it.each([
+      {
+        description: 'renders the publication details section title',
+        label: 'Publication Details',
+      },
+      { description: 'shows submission date when present', label: 'Submitted on' },
+      { description: 'shows acceptance date when present', label: 'Accepted on' },
+      { description: 'shows publication date when present', label: 'Published on' },
+      { description: 'shows modification date when present', label: 'Last modified on' },
+    ])('$description', ({ label }) => {
       render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Publication Details')).toBeInTheDocument();
-    });
-
-    it('shows submission date when present', () => {
-      render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Submitted on')).toBeInTheDocument();
-    });
-
-    it('shows acceptance date when present', () => {
-      render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Accepted on')).toBeInTheDocument();
-    });
-
-    it('shows publication date when present', () => {
-      render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Published on')).toBeInTheDocument();
-    });
-
-    it('shows modification date when present', () => {
-      render(<ArticleDetailsSidebar {...defaultProps} />);
-      expect(screen.getByText('Last modified on')).toBeInTheDocument();
+      expect(screen.getByText(label)).toBeInTheDocument();
     });
 
     it('does not show submission date when absent', () => {
@@ -532,6 +524,257 @@ describe('ArticleDetailsSidebar', () => {
     it('does not render metrics when not provided', () => {
       render(<ArticleDetailsSidebar {...defaultProps} />);
       expect(screen.queryByTestId('metrics')).not.toBeInTheDocument();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Multilingual title fallback (getMultilingualTitle) via section rendering
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('Section title fallback', () => {
+    it('returns nothing when section title object is empty', () => {
+      const article = { ...baseArticle, section: { title: {} } };
+      const { container } = render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
+      expect(
+        container.querySelector('.articleDetailsSidebar-volumeDetails-section')
+      ).not.toBeInTheDocument();
+    });
+
+    it('falls back to the first available language when neither current nor English exist', () => {
+      const article = { ...baseArticle, section: { title: { es: 'Sección física' } } };
+      render(<ArticleDetailsSidebar {...defaultProps} language="fr" article={article} />);
+      expect(screen.getByText('Sección física')).toBeInTheDocument();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // License with a resolved label (getLicenseLabelInfo returns a match)
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('License label resolution', () => {
+    it('uses the resolved translation label when getLicenseLabelInfo matches', () => {
+      mockGetLicenseLabelInfo.mockReturnValue({ parent: 'licenses', key: 'ccBy' });
+      mockT.mockImplementation((key: string, opts?: any) => {
+        if (key === 'licenses' && opts?.returnObjects) {
+          return { ccBy: 'Creative Commons Attribution' };
+        }
+        const t: Record<string, string> = { 'pages.articleDetails.license': 'License' };
+        return t[key] ?? key;
+      });
+
+      const article = { ...baseArticle, license: 'CC-BY' };
+      render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
+
+      expect(screen.getByText('Creative Commons Attribution')).toBeInTheDocument();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Hover-based dropdown toggling
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('Hover-based dropdown toggling', () => {
+    it('shows and hides the citations dropdown on mouse enter/leave', () => {
+      const citations = [{ key: 'BibTeX', value: '@article{test}' }] as any[];
+      const { container } = render(
+        <ArticleDetailsSidebar {...defaultProps} citations={citations} />
+      );
+      const trigger = screen.getByText('Cite').closest('[role="button"]')!;
+
+      fireEvent.mouseEnter(trigger);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeInTheDocument();
+
+      fireEvent.mouseLeave(trigger);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeNull();
+    });
+
+    it('toggles the citations dropdown on touch start', () => {
+      const citations = [{ key: 'BibTeX', value: '@article{test}' }] as any[];
+      const { container } = render(
+        <ArticleDetailsSidebar {...defaultProps} citations={citations} />
+      );
+      const trigger = screen.getByText('Cite').closest('[role="button"]')!;
+
+      fireEvent.touchStart(trigger);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeInTheDocument();
+    });
+
+    it('shows and hides the metadata dropdown on mouse enter/leave', () => {
+      mockGetMetadataTypes.mockReturnValue([{ type: 'bib', label: 'BibTeX' }]);
+      const { container } = render(<ArticleDetailsSidebar {...defaultProps} />);
+      const trigger = screen.getByText('Metadata').closest('[role="button"]')!;
+
+      fireEvent.mouseEnter(trigger);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeInTheDocument();
+
+      fireEvent.mouseLeave(trigger);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeNull();
+    });
+
+    it('shows and hides the share dropdown on mouse enter/leave and touch start', () => {
+      const { container } = render(<ArticleDetailsSidebar {...defaultProps} />);
+      const trigger = screen.getByText('Share').closest('[role="button"]')!;
+
+      fireEvent.mouseEnter(trigger);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeInTheDocument();
+      fireEvent.mouseLeave(trigger);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeNull();
+
+      fireEvent.touchStart(trigger);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeInTheDocument();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Keyboard interactions
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('Keyboard interactions', () => {
+    it('toggles publication details with Enter key', () => {
+      const { container } = render(<ArticleDetailsSidebar {...defaultProps} />);
+      const toggle = screen.getByText('Publication Details').closest('[role="button"]')!;
+
+      fireEvent.keyDown(toggle, { key: 'Enter' });
+      expect(
+        container.querySelector('.articleDetailsSidebar-publicationDetails-content-opened')
+      ).toBeNull();
+    });
+
+    it('toggles funding with Enter key', () => {
+      const article = { ...baseArticle, fundings: [{ funder: 'ANR' }] };
+      const { container } = render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
+      const toggle = screen.getByText('Funding').closest('[role="button"]')!;
+
+      fireEvent.keyDown(toggle, { key: 'Enter' });
+      expect(container.querySelector('.articleDetailsSidebar-funding-content-opened')).toBeNull();
+    });
+
+    it('toggles the cite dropdown with the Space key and copies via keyboard on a citation item', () => {
+      const citations = [{ key: 'BibTeX', value: '@article{test}' }] as any[];
+      render(<ArticleDetailsSidebar {...defaultProps} citations={citations} />);
+
+      const trigger = screen.getByText('Cite').closest('[role="button"]')!;
+      fireEvent.keyDown(trigger, { key: ' ' });
+
+      const bibtexItem = screen.getByText('BibTeX');
+      fireEvent.keyDown(bibtexItem, { key: 'Enter' });
+      expect(mockCopyToClipboardCitation).toHaveBeenCalledWith(citations[0], mockT);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Metadata download flow
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('Metadata download', () => {
+    it('downloads metadata successfully and shows a success toast', async () => {
+      const { fetchArticleMetadata } = await import('@/services/article');
+      vi.mocked(fetchArticleMetadata).mockResolvedValue('BibTeX content');
+      const { toastSuccess } = await import('@/utils/toast');
+
+      mockGetMetadataTypes.mockReturnValue([{ type: 'bib', label: 'BibTeX' }]);
+      render(<ArticleDetailsSidebar {...defaultProps} />);
+
+      const trigger = screen.getByText('Metadata').closest('[role="button"]')!;
+      fireEvent.click(trigger);
+      const bibtexItem = screen.getByText('BibTeX');
+
+      await userEvent.setup().click(bibtexItem);
+
+      expect(fetchArticleMetadata).toHaveBeenCalledWith({
+        rvcode: 'myjournal',
+        paperid: '42',
+        type: 'bib',
+      });
+      expect(toastSuccess).toHaveBeenCalled();
+    });
+
+    it('shows an error toast when the metadata content is empty', async () => {
+      const { fetchArticleMetadata } = await import('@/services/article');
+      vi.mocked(fetchArticleMetadata).mockResolvedValue(null as never);
+      const { toastError } = await import('@/utils/toast');
+
+      mockGetMetadataTypes.mockReturnValue([{ type: 'bib', label: 'BibTeX' }]);
+      render(<ArticleDetailsSidebar {...defaultProps} />);
+
+      fireEvent.click(screen.getByText('Metadata').closest('[role="button"]')!);
+      await userEvent.setup().click(screen.getByText('BibTeX'));
+
+      expect(toastError).toHaveBeenCalled();
+    });
+
+    it('shows an error toast when fetchArticleMetadata rejects', async () => {
+      const { fetchArticleMetadata } = await import('@/services/article');
+      vi.mocked(fetchArticleMetadata).mockRejectedValue(new Error('network down'));
+      const { toastError } = await import('@/utils/toast');
+
+      mockGetMetadataTypes.mockReturnValue([{ type: 'bib', label: 'BibTeX' }]);
+      render(<ArticleDetailsSidebar {...defaultProps} />);
+
+      fireEvent.click(screen.getByText('Metadata').closest('[role="button"]')!);
+      await userEvent.setup().click(screen.getByText('BibTeX'));
+
+      expect(toastError).toHaveBeenCalled();
+    });
+
+    it('does nothing when article id is missing', async () => {
+      const { fetchArticleMetadata } = await import('@/services/article');
+      vi.mocked(fetchArticleMetadata).mockClear();
+
+      mockGetMetadataTypes.mockReturnValue([{ type: 'bib', label: 'BibTeX' }]);
+      const article = { ...baseArticle, id: undefined };
+      render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
+
+      fireEvent.click(screen.getByText('Metadata').closest('[role="button"]')!);
+      fireEvent.click(screen.getByText('BibTeX'));
+
+      expect(fetchArticleMetadata).not.toHaveBeenCalled();
+    });
+
+    it('supports downloading via touch end on a metadata item', async () => {
+      const { fetchArticleMetadata } = await import('@/services/article');
+      vi.mocked(fetchArticleMetadata).mockResolvedValue('BibTeX content');
+
+      mockGetMetadataTypes.mockReturnValue([{ type: 'bib', label: 'BibTeX' }]);
+      render(<ArticleDetailsSidebar {...defaultProps} />);
+
+      fireEvent.click(screen.getByText('Metadata').closest('[role="button"]')!);
+      fireEvent.touchEnd(screen.getByText('BibTeX'));
+
+      await vi.waitFor(() => expect(fetchArticleMetadata).toHaveBeenCalled());
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Touch-outside handlers
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('Touch-outside handling', () => {
+    it('closes the citations dropdown on a touch outside of it', () => {
+      const citations = [{ key: 'BibTeX', value: '@article{test}' }] as any[];
+      const { container } = render(
+        <ArticleDetailsSidebar {...defaultProps} citations={citations} />
+      );
+      const trigger = screen.getByText('Cite').closest('[role="button"]')!;
+      fireEvent.click(trigger);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeInTheDocument();
+
+      fireEvent.touchStart(document.body);
+      expect(
+        container.querySelector('.articleDetailsSidebar-links-link-modal-content-displayed')
+      ).toBeNull();
     });
   });
 });

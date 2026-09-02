@@ -300,7 +300,11 @@ describe('CacheHandler', () => {
       });
 
       const handler = makeHandler();
-      await handler.set('stream-key', { body: stream }, { cacheControl: { revalidate: false }, tags: [] });
+      await handler.set(
+        'stream-key',
+        { body: stream },
+        { cacheControl: { revalidate: false }, tags: [] }
+      );
 
       expect(stored).toBeDefined();
       const parsed = JSON.parse(stored!);
@@ -320,7 +324,11 @@ describe('CacheHandler', () => {
   describe('set()', () => {
     it('stores entry without TTL for revalidate: false', async () => {
       const handler = makeHandler();
-      await handler.set('static-key', { html: 'test' }, { cacheControl: { revalidate: false }, tags: [] });
+      await handler.set(
+        'static-key',
+        { html: 'test' },
+        { cacheControl: { revalidate: false }, tags: [] }
+      );
 
       const pipeline = mockClient._pipeline;
       // Should call set without 'EX'
@@ -334,7 +342,11 @@ describe('CacheHandler', () => {
 
     it('stores entry with TTL = revalidate * 3', async () => {
       const handler = makeHandler();
-      await handler.set('dynamic-key', { html: 'test' }, { cacheControl: { revalidate: 3600 }, tags: [] });
+      await handler.set(
+        'dynamic-key',
+        { html: 'test' },
+        { cacheControl: { revalidate: 3600 }, tags: [] }
+      );
 
       const pipeline = mockClient._pipeline;
       expect(pipeline.set).toHaveBeenCalledWith(
@@ -587,7 +599,11 @@ describe('CacheHandler', () => {
       expect(_internals.getCbState()).toBe(_internals.CB_STATE.OPEN);
 
       // set() should go to in-memory
-      await handler.set('open-key', { data: 'test' }, { cacheControl: { revalidate: 60 }, tags: [] });
+      await handler.set(
+        'open-key',
+        { data: 'test' },
+        { cacheControl: { revalidate: 60 }, tags: [] }
+      );
       const stored = _internals.memGet('data:open-key');
       expect(stored).not.toBeNull();
     });

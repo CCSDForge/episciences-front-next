@@ -1,6 +1,6 @@
 interface SkipLinkProps {
-  href: string;
-  children: React.ReactNode;
+  readonly href: string;
+  readonly children: React.ReactNode;
 }
 
 export default function SkipLink({ href, children }: SkipLinkProps): React.JSX.Element {

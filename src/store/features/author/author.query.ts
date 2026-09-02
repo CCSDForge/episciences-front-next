@@ -59,7 +59,6 @@ export const authorApi = createApi({
         return `browse/authors-search/${fullname}?pagination=false&code=${rvcode}`;
       },
       transformResponse(baseQueryReturnValue: PaginatedResponse<RawAuthorArticle>) {
-        const totalItems = baseQueryReturnValue['hydra:totalItems'];
         const byPaperId = new Map<number, RawAuthorArticle>();
         for (const article of baseQueryReturnValue['hydra:member']) {
           const existing = byPaperId.get(article.paperid);

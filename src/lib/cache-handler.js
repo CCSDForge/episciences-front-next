@@ -350,7 +350,7 @@ class CacheHandler {
   _parseEntry(key, raw) {
     try {
       const entry = deserialize(raw);
-      if (!entry || entry.__v !== CACHE_FORMAT_VERSION) {
+      if (entry?.__v !== CACHE_FORMAT_VERSION) {
         if (process.env.CACHE_DEBUG === 'true')
           console.log(`[CacheHandler] STALE (version mismatch) ${key}`);
         return null;
@@ -457,7 +457,7 @@ class CacheHandler {
       if (err || !raw) continue;
       try {
         const entry = JSON.parse(raw);
-        if (entry && entry.__buildId !== BUILD_ID) staleKeys.push(ioKeys[i]);
+        if (entry?.__buildId !== BUILD_ID) staleKeys.push(ioKeys[i]);
       } catch {
         // Malformed entry — leave it; get() will treat it as a miss.
       }
@@ -557,7 +557,7 @@ class CacheHandler {
         // In-memory fallback: scan and remove matching entries
         let removed = 0;
         for (const [k, v] of memoryCache.entries()) {
-          if (v.data && v.data.tags && v.data.tags.includes(tag)) {
+          if (v.data?.tags?.includes(tag)) {
             memoryCache.delete(k);
             removed++;
           }

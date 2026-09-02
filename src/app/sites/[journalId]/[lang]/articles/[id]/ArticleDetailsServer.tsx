@@ -23,17 +23,20 @@ import CollapsibleSectionWrapper from './components/CollapsibleSectionWrapper';
 import SignpostingLinks from '@/components/SignpostingLinks/SignpostingLinks';
 import JsonLd from '@/components/Meta/JsonLd';
 import { generateScholarlyArticleJsonLd } from '@/utils/schema';
+import { RepositoryPreview } from '@/types/repository-preview';
 import './ArticleDetails.scss';
 
 interface ArticleDetailsServerProps {
-  article: IArticle;
-  id: string;
-  journalId?: string;
-  relatedVolume?: IVolume | null;
-  metadataCSL?: string | null;
-  metadataBibTeX?: string | null;
-  translations: Translations;
-  language?: string;
+  readonly article: IArticle;
+  readonly id: string;
+  readonly journalId?: string;
+  readonly relatedVolume?: IVolume | null;
+  readonly metadataCSL?: string | null;
+  readonly metadataBibTeX?: string | null;
+  readonly translations: Translations;
+  readonly language?: string;
+  /** Server-resolved repository previews (e.g. Nakala), keyed by `${identifierType}-${value}`. */
+  readonly repositoryPreviews?: Record<string, RepositoryPreview>;
 }
 
 interface EnhancedArticleAuthor extends IArticleAuthor {
@@ -60,6 +63,7 @@ export default function ArticleDetailsServer({
   metadataBibTeX,
   translations,
   language,
+  repositoryPreviews,
 }: ArticleDetailsServerProps): React.JSX.Element {
   // Process authors and institutions
   const allAuthors: EnhancedArticleAuthor[] = [];
@@ -198,6 +202,7 @@ export default function ArticleDetailsServer({
         relatedItems={article.relatedItems}
         translations={translations}
         language={language}
+        repositoryPreviews={repositoryPreviews}
       />
     );
   };

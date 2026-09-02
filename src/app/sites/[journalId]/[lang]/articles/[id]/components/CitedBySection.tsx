@@ -8,7 +8,7 @@ import { IArticleCitedBy } from '@/types/article';
 import { buildOrcidUrl, buildDoiUrl } from '@/config/external-urls';
 
 interface CitedBySectionProps {
-  citedBy: IArticleCitedBy[];
+  readonly citedBy: IArticleCitedBy[];
 }
 
 export default function CitedBySection({ citedBy }: CitedBySectionProps): React.JSX.Element | null {
@@ -18,16 +18,16 @@ export default function CitedBySection({ citedBy }: CitedBySectionProps): React.
 
   return (
     <div className="articleDetails-content-article-section-content-citedBy">
-      {citedBy.map((cb, index) => (
-        <div key={index} className="articleDetails-content-article-section-content-citedBy-row">
+      {citedBy.map(cb => (
+        <div key={cb.source} className="articleDetails-content-article-section-content-citedBy-row">
           <p className="articleDetails-content-article-section-content-citedBy-row-source">
             {t('pages.articleDetails.citedBySection.source')}
             {cb.source}
           </p>
           <ul className="articleDetails-content-article-section-content-citedBy-row-citations">
-            {cb.citations.map((citation, index) => (
+            {cb.citations.map(citation => (
               <li
-                key={index}
+                key={citation.doi}
                 className="articleDetails-content-article-section-content-citedBy-row-citations-citation"
               >
                 <p className="articleDetails-content-article-section-content-citedBy-row-citations-citation-title">
@@ -39,8 +39,8 @@ export default function CitedBySection({ citedBy }: CitedBySectionProps): React.
                 <p className="articleDetails-content-article-section-content-citedBy-row-citations-citation-authors">
                   {t('pages.articleDetails.citedBySection.authors')} :{' '}
                   {citation.authors
-                    .map<ReactNode>((author, index) => (
-                      <Fragment key={index}>
+                    .map<ReactNode>(author => (
+                      <Fragment key={author.orcid || author.fullname}>
                         <span>{author.fullname}</span>
                         {author.orcid && (
                           <Link
@@ -55,7 +55,10 @@ export default function CitedBySection({ citedBy }: CitedBySectionProps): React.
                         )}
                       </Fragment>
                     ))
-                    .reduce((prev, curr) => [prev, ', ', curr])}
+                    .reduce<ReactNode[]>(
+                      (prev, curr) => (prev.length === 0 ? [curr] : [...prev, ', ', curr]),
+                      []
+                    )}
                 </p>
                 <p className="articleDetails-content-article-section-content-citedBy-row-citations-citation-reference">
                   {t('pages.articleDetails.citedBySection.reference')} :{' '}

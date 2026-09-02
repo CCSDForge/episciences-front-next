@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { logger } from '@/lib/logger';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 
 const log = logger.child({ service: 'pdf-proxy' });
 import './PDFProxyIframe.scss';
@@ -11,10 +12,10 @@ import './PDFProxyIframe.scss';
 const LOAD_TIMEOUT_MS = 25000;
 
 interface PDFProxyIframeProps {
-  src: string;
-  title?: string;
-  height?: string;
-  className?: string;
+  readonly src: string;
+  readonly title?: string;
+  readonly height?: string;
+  readonly className?: string;
 }
 
 type Status = 'loading' | 'loaded' | 'error';
@@ -27,16 +28,21 @@ export function PDFProxyIframe({
 }: PDFProxyIframeProps) {
   const [status, setStatus] = useState<Status>('loading');
   const [retryKey, setRetryKey] = useState(0);
-  const [isMounted, setIsMounted] = useState(false);
+  const [trackedSrc, setTrackedSrc] = useState(src);
+  const isMounted = useIsHydrated();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  // Reset the status when the PDF URL changes, adjusting state during render rather than
+  // in an effect (https://react.dev/learn/you-might-not-need-an-effect).
+  if (trackedSrc !== src) {
+    setTrackedSrc(src);
+    setStatus('loading');
+  }
 
+  // Arm the load timeout for every (src, retry) attempt. The status itself is reset by the
+  // block above and by the retry handler, so this effect never sets state synchronously.
   useEffect(() => {
     if (!isMounted) return;
-    setStatus('loading');
     timerRef.current = setTimeout(() => setStatus('error'), LOAD_TIMEOUT_MS);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -76,7 +82,10 @@ export function PDFProxyIframe({
           <button
             type="button"
             className="pdf-proxy-iframe-retry"
-            onClick={() => setRetryKey(k => k + 1)}
+            onClick={() => {
+              setRetryKey(k => k + 1);
+              setStatus('loading');
+            }}
           >
             Retry
           </button>

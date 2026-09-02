@@ -69,8 +69,8 @@ export default function Footer(): React.JSX.Element {
 
   const getPublishingPolicyAnchor = (): string => {
     return language === 'fr'
-      ? `/${PATHS.about.replace(/^\//, '')}#politiques-de-publication`
-      : `/${PATHS.about.replace(/^\//, '')}#publishing-policies`;
+      ? `${PATHS.about}#politiques-de-publication`
+      : `${PATHS.about}#publishing-policy`;
   };
 
   return (

@@ -11,20 +11,20 @@
  */
 
 export interface CloseIconProps {
-  color?: string;
-  size?: number;
-  className?: string;
-  ariaLabel?: string;
-  onClick?: () => void;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  onTouchStart?: () => void;
-  onTouchEnd?: () => void;
-  onMouseDown?: () => void;
-  onMouseUp?: () => void;
-  onKeyDown?: (e: React.KeyboardEvent) => void;
-  role?: string;
-  tabIndex?: number;
+  readonly color?: string;
+  readonly size?: number;
+  readonly className?: string;
+  readonly ariaLabel?: string;
+  readonly onClick?: () => void;
+  readonly onMouseEnter?: () => void;
+  readonly onMouseLeave?: () => void;
+  readonly onTouchStart?: () => void;
+  readonly onTouchEnd?: () => void;
+  readonly onMouseDown?: () => void;
+  readonly onMouseUp?: () => void;
+  readonly onKeyDown?: (e: React.KeyboardEvent) => void;
+  readonly role?: string;
+  readonly tabIndex?: number;
 }
 
 export default function CloseIcon({

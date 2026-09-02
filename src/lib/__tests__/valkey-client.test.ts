@@ -173,6 +173,58 @@ describe('getValkeyClient()', () => {
     const callArgs = MockRedisCtor.mock.calls[0][0];
     expect(callArgs.name).toBe('mymaster');
   });
+
+  describe('retry and reconnect strategies', () => {
+    beforeEach(() => {
+      vi.stubEnv('VALKEY_SENTINEL_HOSTS', 'sentinel-1:26379');
+      getValkeyClient();
+    });
+
+    it('sentinelRetryStrategy backs off exponentially and caps at 30s', () => {
+      const { sentinelRetryStrategy } = MockRedisCtor.mock.calls[0][0];
+      expect(sentinelRetryStrategy(1)).toBe(500);
+      expect(sentinelRetryStrategy(100)).toBe(30000);
+    });
+
+    it('retryStrategy backs off exponentially and caps at 10s', () => {
+      const { retryStrategy } = MockRedisCtor.mock.calls[0][0];
+      expect(retryStrategy(1)).toBe(200);
+      expect(retryStrategy(100)).toBe(10000);
+    });
+
+    it('reconnectOnError reconnects on known transient errors', () => {
+      const { reconnectOnError } = MockRedisCtor.mock.calls[0][0];
+      expect(reconnectOnError(new Error('READONLY You cannot write'))).toBe(true);
+      expect(reconnectOnError(new Error('ECONNRESET'))).toBe(true);
+      expect(reconnectOnError(new Error('ECONNREFUSED'))).toBe(true);
+    });
+
+    it('reconnectOnError does not reconnect on unrelated errors', () => {
+      const { reconnectOnError } = MockRedisCtor.mock.calls[0][0];
+      expect(reconnectOnError(new Error('WRONGPASS'))).toBe(false);
+    });
+  });
+
+  describe('event handler logging', () => {
+    it('invokes each registered handler without throwing', () => {
+      vi.stubEnv('VALKEY_SENTINEL_HOSTS', 'sentinel-1:26379');
+      getValkeyClient();
+
+      const handlers: Record<string, (...args: unknown[]) => void> = Object.fromEntries(
+        mockOn.mock.calls as [string, (...args: unknown[]) => void][]
+      );
+
+      expect(() => handlers.connect()).not.toThrow();
+      expect(() => handlers.ready()).not.toThrow();
+      expect(() => handlers.error(new Error('boom'))).not.toThrow();
+      expect(() => handlers.reconnecting(500)).not.toThrow();
+      expect(() => handlers.close()).not.toThrow();
+      expect(() => handlers['+sentinel']({ host: 'sentinel-1', port: 26379 })).not.toThrow();
+      expect(() =>
+        handlers['+switch-master']('mymaster', { host: 'old', port: 1 }, { host: 'new', port: 2 })
+      ).not.toThrow();
+    });
+  });
 });
 
 describe('resetValkeyClient()', () => {

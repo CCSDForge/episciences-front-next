@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
@@ -13,13 +13,13 @@ import SectionDetailsSidebar from '@/components/Sidebars/SectionDetailsSidebar/S
 import './SectionDetails.scss';
 
 interface SectionDetailsClientProps {
-  section: ISection;
-  articles: IArticle[];
-  sectionId: string;
-  lang?: string;
-  sectionTitle: string;
-  sectionDescription: string;
-  breadcrumbLabels?: {
+  readonly section: ISection;
+  readonly articles: IArticle[];
+  readonly sectionId: string;
+  readonly lang?: string;
+  readonly sectionTitle: string;
+  readonly sectionDescription: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     sections: string;
@@ -48,13 +48,9 @@ export default function SectionDetailsClient({
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
 
-  const [displayedArticles, setDisplayedArticles] = useState<IArticle[]>(articles);
-
-  useEffect(() => {
-    if (articles) {
-      setDisplayedArticles(articles);
-    }
-  }, [articles]);
+  // The server component is the single source of truth for the article list, so it is used
+  // directly rather than mirrored into local state.
+  const displayedArticles = articles ?? [];
 
   const renderSectionCommittee = (isMobile: boolean): React.JSX.Element | null => {
     const className = isMobile

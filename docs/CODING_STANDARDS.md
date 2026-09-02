@@ -160,14 +160,14 @@ export default async function Page() {
 
 ### Revalidation Times by Content Type
 
-| Content Type                          | Revalidate Value | Reason                |
-| ------------------------------------- | ---------------- | --------------------- |
-| Static editorial (about, credits)     | `false`          | Rarely changes        |
-| Moderately dynamic (home, volumes)    | `86400` (24h)    | Weekly updates        |
-| Frequently updated (news)             | `3600` (1h)      | Multiple updates/day  |
+| Content Type                          | Revalidate Value | Reason                                                             |
+| ------------------------------------- | ---------------- | ------------------------------------------------------------------ |
+| Static editorial (about, credits)     | `false`          | Rarely changes                                                     |
+| Moderately dynamic (home, volumes)    | `86400` (24h)    | Weekly updates                                                     |
+| Frequently updated (news)             | `3600` (1h)      | Multiple updates/day                                               |
 | Articles (detail, list)               | `false`          | Configurable via `CACHE_TTL_ARTICLES` (default: 3600s) + on-demand |
-| Published details (volumes, sections) | `604800` (7d)    | Immutable + on-demand |
-| User-specific (search, dashboard)     | `connection()`   | Dynamic per request   |
+| Published details (volumes, sections) | `604800` (7d)    | Immutable + on-demand                                              |
+| User-specific (search, dashboard)     | `connection()`   | Dynamic per request                                                |
 
 **Example:**
 

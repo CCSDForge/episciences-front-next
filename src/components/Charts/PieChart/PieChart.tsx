@@ -7,8 +7,8 @@ import { IStatValueDetailsAsPieChart } from '@/types/stat';
 import './PieChart.scss';
 
 interface IPieChartProps {
-  t: TFunction<'translation', undefined>;
-  data: IStatValueDetailsAsPieChart[];
+  readonly t: TFunction<'translation', undefined>;
+  readonly data: IStatValueDetailsAsPieChart[];
 }
 
 export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element {
@@ -51,13 +51,15 @@ export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element
     index: number,
     colors: string[]
   ): React.JSX.Element => {
+    const statusLabel = t(`pages.statistics.statuses.${singleData.status}`);
+
     return (
-      <div key={index} className="pieChart-legend-rows-row">
+      <div key={singleData.status} className="pieChart-legend-rows-row">
         <div
           className="pieChart-legend-rows-row-square"
           style={{ backgroundColor: colors[index % colors.length] }}
         ></div>
-        <div>{`${singleData.count} ${t(`pages.statistics.statuses.${singleData.status}`)}`}</div>
+        <div>{`${singleData.count} ${statusLabel}`}</div>
       </div>
     );
   };
@@ -67,8 +69,8 @@ export default function PieChart({ t, data }: IPieChartProps): React.JSX.Element
       <ResponsiveContainer>
         <RechartsPieChart>
           <Pie dataKey="count" data={data}>
-            {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+            {data.map((entry, index) => (
+              <Cell key={entry.status} fill={CHART_COLORS[index % CHART_COLORS.length]} />
             ))}
           </Pie>
         </RechartsPieChart>

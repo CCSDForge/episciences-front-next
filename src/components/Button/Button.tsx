@@ -10,10 +10,10 @@ interface IconProps {
 }
 
 interface IButtonProps {
-  text: string;
-  onClickCallback: () => void;
-  IconComponent?: React.ComponentType<IconProps>;
-  iconSize?: number;
+  readonly text: string;
+  readonly onClickCallback: () => void;
+  readonly IconComponent?: React.ComponentType<IconProps>;
+  readonly iconSize?: number;
 }
 
 export default function Button({

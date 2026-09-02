@@ -5,8 +5,8 @@ import store from '@/store';
 import Header from '@/components/Header/Header';
 
 interface ClientLayoutProps {
-  children: React.ReactNode;
-  currentJournal: {
+  readonly children: React.ReactNode;
+  readonly currentJournal: {
     id: number;
     code: string;
     name: string;

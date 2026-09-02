@@ -21,11 +21,11 @@ import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { setSearch } from '@/store/features/search/search.slice';
 import { selectJournalConfig } from '@/store/features/journal/journal.slice';
 import { availableLanguages } from '@/utils/i18n';
-import { VOLUME_TYPE } from '@/utils/volume';
 import Button from '@/components/Button/Button';
 import LanguageDropdown from '@/components/LanguageDropdown/LanguageDropdown';
 import HeaderSearchInput from '@/components/SearchInput/HeaderSearchInput/HeaderSearchInput';
 import HeaderDropdown from './HeaderDropdown';
+import { renderInlineMarkdown } from '@/utils/markdown';
 
 /** Sign-in link shown in both reduced and full header variants */
 function HeaderSignIn({
@@ -33,12 +33,12 @@ function HeaderSignIn({
   showSeparator,
   signInText,
   newWindowText,
-}: {
+}: Readonly<{
   signInLink: string;
   showSeparator: boolean;
   signInText: string;
   newWindowText: string;
-}): React.JSX.Element {
+}>): React.JSX.Element {
   return (
     <>
       {showSeparator && (
@@ -66,7 +66,7 @@ interface HeaderProps {
   };
 }
 
-export default function Header({ currentJournal }: HeaderProps): React.JSX.Element {
+export default function Header({ currentJournal }: Readonly<HeaderProps>): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
@@ -92,6 +92,8 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
     about: false,
     publish: false,
   });
+  // Tracks the route the dropdown state belongs to, so it can be reset on navigation.
+  const [dropdownPathname, setDropdownPathname] = useState(pathname);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const mobileMenuDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -135,9 +137,12 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
     };
   }, [reducedScrollPosition]);
 
-  useEffect(() => {
+  // Close every dropdown when a navigation happens. Adjusting state during render rather
+  // than in an effect avoids the extra render pass (https://react.dev/learn/you-might-not-need-an-effect).
+  if (dropdownPathname !== pathname) {
+    setDropdownPathname(pathname);
     setShowDropdown({ content: false, about: false, publish: false });
-  }, [pathname]);
+  }
 
   const toggleDropdown = useCallback((menu: string, opened: boolean): void => {
     setShowDropdown(prev => ({ ...prev, [menu]: opened }));
@@ -168,8 +173,6 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
     language === 'fr'
       ? process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE_FR!
       : process.env.NEXT_PUBLIC_EPISCIENCES_JOURNALS_PAGE!;
-
-  const isMobileReduced = (): boolean => isReduced && isMobileOnly;
 
   // Keyboard handler for burger menu
   const handleBurgerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
@@ -499,7 +502,9 @@ export default function Header({ currentJournal }: HeaderProps): React.JSX.Eleme
           <span className="header-journal-title-main">
             {journalName || currentJournal?.name || defaultJournalTitle}
           </span>
-          {journalSubtitle && <span className="header-journal-subtitle">{journalSubtitle}</span>}
+          {journalSubtitle && (
+            <span className="header-journal-subtitle">{renderInlineMarkdown(journalSubtitle)}</span>
+          )}
         </div>
       </div>
       <nav className="header-postheader" ref={mobileMenuDropdownRef} aria-label="Main navigation">

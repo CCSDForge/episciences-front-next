@@ -12,9 +12,8 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage/session';
 import { setupListeners } from '@reduxjs/toolkit/query';
-import { Middleware } from '@reduxjs/toolkit';
 
-import rootReducer, { RootReducer } from './features';
+import rootReducer from './features';
 import { aboutApi } from './features/about/about.query';
 import { articleApi } from '@/store/features/article';
 import { authorApi } from './features/author/author.query';

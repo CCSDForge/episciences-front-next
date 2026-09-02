@@ -8,6 +8,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
 import { useAppSelector } from '@/hooks/store';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { useFetchArticlesQuery } from '@/store/features/article/article.query';
 import { IArticle } from '@/types/article';
 import { FetchedArticle, articleTypes } from '@/utils/article';
@@ -46,7 +47,7 @@ type EnhancedArticle = FetchedArticle & {
 };
 
 interface ArticlesClientProps {
-  initialArticles: {
+  readonly initialArticles: {
     data: IArticle[];
     totalItems: number;
     range?: {
@@ -54,16 +55,33 @@ interface ArticlesClientProps {
       types?: string[];
     };
   };
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     content: string;
     articles: string;
   };
-  countLabels?: {
+  readonly countLabels?: {
     article: string;
     articles: string;
   };
+}
+
+/** Adds `value` when absent, removes it otherwise, always returning a new Set. */
+function toggleInSet<T>(source: ReadonlySet<T>, value: T): Set<T> {
+  const next = new Set(source);
+  if (next.has(value)) {
+    next.delete(value);
+  } else {
+    next.add(value);
+  }
+  return next;
+}
+
+function removeFromSet<T>(source: ReadonlySet<T>, value: T): Set<T> {
+  const next = new Set(source);
+  next.delete(value);
+  return next;
 }
 
 export default function ArticlesClient({
@@ -89,39 +107,31 @@ export default function ArticlesClient({
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
-  const journalName = useAppSelector(state => state.journalReducer.currentJournal?.name);
 
-  // Initialiser la page depuis les query params ou 1 par défaut
+  // The query string is the source of truth for the current page.
   const pageFromUrl = searchParams?.get('page');
-  const initialPage = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : 1;
-  const [currentPage, setCurrentPage] = useState(initialPage);
-  const [enhancedArticles, setEnhancedArticles] = useState<EnhancedArticle[]>(() => {
-    if (initialArticles?.data) {
-      return initialArticles.data
-        .filter(article => article && article.title)
-        .map(article => ({ ...article, openedAbstract: false }));
-    }
-    return [];
-  });
-  const [types, setTypes] = useState<IArticleTypeSelection[]>([]);
-  const [years, setYears] = useState<IArticleYearSelection[]>([]);
-  const [taggedFilters, setTaggedFilters] = useState<IArticleFilter[]>([]);
+  const parsedPage = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : 1;
+  const currentPage = Number.isNaN(parsedPage) ? 1 : parsedPage;
+
+  // Only the user's own choices live in state; the lists themselves are derived below.
+  const [checkedTypes, setCheckedTypes] = useState<Set<string>>(new Set());
+  const [checkedYears, setCheckedYears] = useState<Set<number>>(new Set());
+  const [openedAbstractIds, setOpenedAbstractIds] = useState<Set<number>>(new Set());
   const [showAllAbstracts, setShowAllAbstracts] = useState(false);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [totalArticlesCount, setTotalArticlesCount] = useState<number>(
-    initialArticles?.totalItems || 0
-  );
-  const [isMounted, setIsMounted] = useState(false);
   const [announcement, setAnnouncement] = useState('');
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useIsHydrated();
 
-  // Memoize filters to prevent re-renders
-  const selectedTypes = useMemo(() => types.filter(t => t.isChecked).map(t => t.value), [types]);
-  const selectedYears = useMemo(() => years.filter(y => y.isChecked).map(y => y.year), [years]);
+  // Sorted so the query cache key stays stable regardless of the order boxes were ticked.
+  const selectedTypes = useMemo(
+    () => Array.from(checkedTypes).sort((a, b) => a.localeCompare(b)),
+    [checkedTypes]
+  );
+  const selectedYears = useMemo(
+    () => Array.from(checkedYears).sort((a, b) => b - a),
+    [checkedYears]
+  );
 
   const isStaticBuild = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
 
@@ -146,197 +156,127 @@ export default function ArticlesClient({
     }
   );
 
-  // Synchroniser currentPage avec les query params
-  useEffect(() => {
-    const pageParam = searchParams?.get('page');
-    const pageNumber = pageParam ? Math.max(1, Number.parseInt(pageParam, 10)) : 1;
-    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
-      setCurrentPage(pageNumber);
-    }
-  }, [searchParams, currentPage]);
+  // Available facets: the API range wins, otherwise they are extracted from the current page.
+  const types = useMemo<IArticleTypeSelection[]>(() => {
+    const fromRange = initialArticles?.range?.types ?? [];
+    const fromData = Array.from(
+      new Set((initialArticles?.data ?? []).map((article: any) => article.tag).filter(Boolean))
+    );
+    const source = fromRange.length > 0 ? fromRange : fromData;
 
-  useEffect(() => {
-    // En mode statique uniquement : filtrage et pagination côté client
-    if (isStaticBuild && initialArticles?.data) {
-      const initialData = Array.isArray(initialArticles.data) ? initialArticles.data : [];
+    return source
+      .filter(t => articleTypes.some(at => at.value === t))
+      .map(t => {
+        const matchingType = articleTypes.find(at => at.value === t)!;
+        return {
+          labelPath: matchingType.labelPath,
+          value: matchingType.value,
+          isChecked: checkedTypes.has(matchingType.value),
+        };
+      });
+  }, [initialArticles, checkedTypes]);
 
-      let filteredData = initialData;
-      // Use memoized values inside effect? No, we need types and years to be reactive
-      const currentSelectedTypes = types.filter(t => t.isChecked).map(t => t.value);
-      const currentSelectedYears = years.filter(y => y.isChecked).map(y => y.year);
+  const years = useMemo<IArticleYearSelection[]>(() => {
+    const fromRange = initialArticles?.range?.years ?? [];
+    const fromData = Array.from(
+      new Set(
+        (initialArticles?.data ?? [])
+          .map((article: any) =>
+            article.publicationDate ? new Date(article.publicationDate).getFullYear() : undefined
+          )
+          .filter((year): year is number => year !== undefined)
+      )
+    );
+    const source = fromRange.length > 0 ? fromRange : fromData;
 
-      if (currentSelectedTypes.length > 0) {
-        filteredData = filteredData.filter((article: any) =>
-          currentSelectedTypes.includes(article.tag || '')
+    return [...source]
+      .sort((a, b) => b - a)
+      .map(y => ({ year: y, isChecked: checkedYears.has(y) }));
+  }, [initialArticles, checkedYears]);
+
+  /** The list to display plus its total, with a signature used to detect real changes. */
+  interface ArticlesView {
+    items: EnhancedArticle[];
+    total: number;
+    signature: string;
+  }
+
+  const buildView = (data: any[], total: number): ArticlesView => {
+    const items = data
+      .filter((article: any) => article?.title)
+      .map((article: any) => ({ ...article, openedAbstract: false })) as EnhancedArticle[];
+
+    return { items, total, signature: `${items.map(a => a.id).join(',')}|${total}` };
+  };
+
+  const initialView = useMemo(
+    () => buildView(initialArticles?.data ?? [], initialArticles?.totalItems || 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [initialArticles]
+  );
+
+  /**
+   * The view the current inputs ask for, or null while RTK Query is still enriching a
+   * freshly fetched page (its first payload has no titles yet).
+   */
+  const requestedView = useMemo<ArticlesView | null>(() => {
+    // En mode statique : filtrage et pagination côté client
+    if (isStaticBuild) {
+      let filtered = Array.isArray(initialArticles?.data) ? initialArticles.data : [];
+
+      if (selectedTypes.length > 0) {
+        filtered = filtered.filter((article: any) => selectedTypes.includes(article.tag || ''));
+      }
+
+      if (selectedYears.length > 0) {
+        filtered = filtered.filter((article: any) =>
+          selectedYears.includes(new Date(article.publicationDate).getFullYear())
         );
       }
 
-      if (currentSelectedYears.length > 0) {
-        filteredData = filteredData.filter((article: any) => {
-          const articleYear = new Date(article.publicationDate).getFullYear();
-          return currentSelectedYears.includes(articleYear);
-        });
-      }
-
-      // En mode statique, on filtre et pagine côté client
-      const totalFiltered = filteredData.length;
-      setTotalArticlesCount(totalFiltered);
-
-      // Appliquer la pagination côté client
       const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
-      const endIndex = startIndex + ARTICLES_PER_PAGE;
-      const paginatedData = filteredData.slice(startIndex, endIndex);
-
-      setEnhancedArticles(
-        paginatedData
-          .filter((article: any) => article && article.title)
-          .map((article: any) => ({ ...article, openedAbstract: false }))
-      );
-    }
-  }, [initialArticles, types, years, isStaticBuild, currentPage]);
-
-  useEffect(() => {
-    if (isStaticBuild) return;
-
-    // When filters are cleared (back to page 1 with no filters), restore initial data
-    if (
-      shouldSkipFetch &&
-      currentPage === 1 &&
-      selectedTypes.length === 0 &&
-      selectedYears.length === 0
-    ) {
-      if (initialArticles?.data) {
-        const displayedArticles = initialArticles.data
-          .filter((article: any) => article && article.title)
-          .map((article: any) => ({ ...article, openedAbstract: false }));
-
-        const newIds = displayedArticles.map((a: any) => a.id).join(',');
-        const currentIds = enhancedArticles.map(a => a.id).join(',');
-
-        if (newIds !== currentIds || initialArticles.totalItems !== totalArticlesCount) {
-          setTotalArticlesCount(initialArticles.totalItems || 0);
-          setEnhancedArticles(displayedArticles as EnhancedArticle[]);
-        }
-      }
-      return;
+      return buildView(filtered.slice(startIndex, startIndex + ARTICLES_PER_PAGE), filtered.length);
     }
 
-    // Update from RTK Query when fetch was actually executed (not skipped)
-    if (articles && !shouldSkipFetch) {
-      // Wait for enriched data (with titles) before updating
-      // The onQueryStarted in article.query.ts enriches partial data with full article details
-      const hasCompleteData = articles.data.some(article => article?.title);
-      if (!hasCompleteData) {
-        return; // Wait for onQueryStarted to enrich the data
-      }
-
-      const displayedArticles = articles?.data
-        .filter(article => article?.title)
-        .map(article => ({ ...article, openedAbstract: false }));
-
-      // Only update if data actually changed to prevent flash/re-render
-      const newIds = displayedArticles.map(a => a.id).join(',');
-      const currentIds = enhancedArticles.map(a => a.id).join(',');
-
-      if (newIds !== currentIds || articles.totalItems !== totalArticlesCount) {
-        setTotalArticlesCount(articles.totalItems || 0);
-        setEnhancedArticles(displayedArticles as EnhancedArticle[]);
-      }
+    // Page 1 without filters: the fetch is skipped, the server payload is authoritative
+    if (shouldSkipFetch) {
+      return initialView;
     }
+
+    if (!articles) return null;
+
+    // Wait for onQueryStarted to enrich the partial payload with full article details
+    if (!articles.data.some(article => article?.title)) return null;
+
+    return buildView(articles.data, articles.totalItems || 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isStaticBuild,
-    articles,
-    shouldSkipFetch,
-    currentPage,
-    selectedTypes.length,
-    selectedYears.length,
     initialArticles,
+    initialView,
+    selectedTypes,
+    selectedYears,
+    currentPage,
+    shouldSkipFetch,
+    articles,
   ]);
 
-  useEffect(() => {
-    if (types.length === 0) {
-      // Priorité 1: Utiliser les types du range fourni par l'API (tous les types disponibles)
-      if (initialArticles?.range?.types && initialArticles.range.types.length > 0) {
-        const initTypes = initialArticles.range.types
-          .filter(t => articleTypes.find(at => at.value === t))
-          .map(t => {
-            const matchingType = articleTypes.find(at => at.value === t);
-            return {
-              labelPath: matchingType!.labelPath,
-              value: matchingType!.value,
-              isChecked: false,
-            };
-          });
+  // Keep the last complete view on screen while a new page is being enriched, adjusting
+  // state during render rather than in an effect.
+  const [displayedView, setDisplayedView] = useState<ArticlesView>(initialView);
+  if (requestedView && requestedView.signature !== displayedView.signature) {
+    setDisplayedView(requestedView);
+  }
 
-        if (initTypes.length > 0) {
-          setTypes(initTypes);
-        }
-      }
-      // Fallback: Extraire les types des articles de la page courante
-      else if (initialArticles?.data) {
-        const availableTypes = Array.from(
-          new Set(initialArticles.data.map((article: any) => article.tag).filter(Boolean))
-        );
-
-        const initTypes = availableTypes
-          .filter(t => articleTypes.find(at => at.value === t))
-          .map(t => {
-            const matchingType = articleTypes.find(at => at.value === t);
-            return {
-              labelPath: matchingType!.labelPath,
-              value: matchingType!.value,
-              isChecked: false,
-            };
-          });
-
-        if (initTypes.length > 0) {
-          setTypes(initTypes);
-        }
-      }
-    }
-  }, [initialArticles, types]);
-
-  useEffect(() => {
-    if (years.length === 0) {
-      // Priorité 1: Utiliser les années du range fourni par l'API (toutes les années disponibles)
-      if (initialArticles?.range?.years && initialArticles.range.years.length > 0) {
-        const sortedYears = [...initialArticles.range.years].sort((a, b) => b - a);
-        const initYears = sortedYears.map(y => ({
-          year: y,
-          isChecked: false,
-        }));
-
-        if (initYears.length > 0) {
-          setYears(initYears);
-        }
-      }
-      // Fallback: Extraire les années des articles de la page courante
-      else if (initialArticles?.data) {
-        const availableYears = Array.from(
-          new Set(
-            initialArticles.data
-              .map((article: any) => {
-                if (article.publicationDate) {
-                  return new Date(article.publicationDate).getFullYear();
-                }
-                return undefined;
-              })
-              .filter((year): year is number => year !== undefined)
-          )
-        ).sort((a, b) => b - a);
-
-        const initYears = availableYears.map(y => ({
-          year: y,
-          isChecked: false,
-        }));
-
-        if (initYears.length > 0) {
-          setYears(initYears);
-        }
-      }
-    }
-  }, [initialArticles, years]);
+  const totalArticlesCount = displayedView.total;
+  const enhancedArticles = useMemo<EnhancedArticle[]>(
+    () =>
+      displayedView.items.map(article => ({
+        ...article,
+        openedAbstract: openedAbstractIds.has(article.id as number),
+      })),
+    [displayedView, openedAbstractIds]
+  );
 
   const handlePageClick = useCallback(
     (selectedItem: { selected: number }): void => {
@@ -344,7 +284,6 @@ export default function ArticlesClient({
       if (pathname) {
         router.push(`${pathname}?page=${newPage}`);
       }
-      setCurrentPage(newPage);
       // Announce page change to screen readers
       setAnnouncement(t('common.pagination.pageLoaded', { page: newPage }));
       // Scroll vers le haut de la page
@@ -353,128 +292,69 @@ export default function ArticlesClient({
     [pathname, router, t]
   );
 
-  const onCheckType = (value: string): void => {
-    const updatedTypes = types.map(t => {
-      if (t.value === value) {
-        return { ...t, isChecked: !t.isChecked };
-      }
-
-      return { ...t };
-    });
-
-    setTypes(updatedTypes);
-    setCurrentPage(1);
+  /** Returns to page 1: the router push is what actually resets `currentPage`. */
+  const resetToFirstPage = (): void => {
     if (pathname) {
-      router.push(pathname); // Retour à la page 1
+      router.push(pathname);
     }
+  };
+
+  const onCheckType = (value: string): void => {
+    setCheckedTypes(prev => toggleInSet(prev, value));
+    resetToFirstPage();
   };
 
   const onCheckYear = (year: number): void => {
-    const updatedYears = years.map(y => {
-      if (y.year === year) {
-        return { ...y, isChecked: !y.isChecked };
-      }
-
-      return { ...y };
-    });
-
-    setYears(updatedYears);
-    setCurrentPage(1);
-    if (pathname) {
-      router.push(pathname); // Retour à la page 1
-    }
+    setCheckedYears(prev => toggleInSet(prev, year));
+    resetToFirstPage();
   };
+
+  /** Replaces a whole selection, e.g. when the mobile modal applies its filters. */
+  const updateTypes = (updated: IArticleTypeSelection[]): void =>
+    setCheckedTypes(new Set(updated.filter(t => t.isChecked).map(t => t.value)));
+
+  const updateYears = (updated: IArticleYearSelection[]): void =>
+    setCheckedYears(new Set(updated.filter(y => y.isChecked).map(y => y.year)));
 
   const onCloseTaggedFilter = (type: ArticleTypeFilter, value: string | number): void => {
     if (type === 'type') {
-      const updatedTypes = types.map(t => {
-        if (t.value === value) {
-          return { ...t, isChecked: false };
-        }
-
-        return t;
-      });
-
-      setTypes(updatedTypes);
+      setCheckedTypes(prev => removeFromSet(prev, String(value)));
     } else if (type === 'year') {
-      const updatedYears = years.map(y => {
-        if (y.year === value) {
-          return { ...y, isChecked: false };
-        }
-
-        return y;
-      });
-
-      setYears(updatedYears);
+      setCheckedYears(prev => removeFromSet(prev, Number(value)));
     }
   };
 
   const clearTaggedFilters = (): void => {
-    const updatedTypes = types.map(t => {
-      return { ...t, isChecked: false };
-    });
-
-    const updatedYears = years.map(y => {
-      return { ...y, isChecked: false };
-    });
-
-    setTypes(updatedTypes);
-    setYears(updatedYears);
-    setTaggedFilters([]);
+    setCheckedTypes(new Set());
+    setCheckedYears(new Set());
   };
 
-  useEffect(() => {
-    const initFilters: IArticleFilter[] = [];
-
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({
-          type: 'type',
-          value: t.value,
-          labelPath: t.labelPath,
-        });
-      });
-
-    years
-      .filter(y => y.isChecked)
-      .forEach(y => {
-        initFilters.push({
-          type: 'year',
-          value: y.year,
-          label: y.year,
-        });
-      });
-
-    setTaggedFilters(initFilters);
-  }, [types, years]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<IArticleFilter[]>(
+    () => [
+      ...types
+        .filter(t => t.isChecked)
+        .map(t => ({ type: 'type' as const, value: t.value, labelPath: t.labelPath })),
+      ...years
+        .filter(y => y.isChecked)
+        .map(y => ({ type: 'year' as const, value: y.year, label: y.year })),
+    ],
+    [types, years]
+  );
 
   const toggleAbstract = (articleId?: number): void => {
     if (!articleId) return;
-
-    const updatedArticles = enhancedArticles.map(article => {
-      if (article?.id === articleId) {
-        return {
-          ...article,
-          openedAbstract: !article.openedAbstract,
-        };
-      }
-
-      return { ...article };
-    });
-
-    setEnhancedArticles(updatedArticles);
+    setOpenedAbstractIds(prev => toggleInSet(prev, articleId));
   };
 
   const toggleAllAbstracts = (): void => {
     const isShown = !showAllAbstracts;
 
-    const updatedArticles = enhancedArticles.map(article => ({
-      ...article,
-      openedAbstract: isShown,
-    }));
-
-    setEnhancedArticles(updatedArticles);
+    setOpenedAbstractIds(
+      isShown
+        ? new Set(enhancedArticles.map(article => article.id as number).filter(Boolean))
+        : new Set()
+    );
     setShowAllAbstracts(isShown);
 
     // Announce state change to screen readers
@@ -544,9 +424,9 @@ export default function ArticlesClient({
               <ArticlesMobileModal
                 t={t}
                 initialTypes={types}
-                onUpdateTypesCallback={setTypes}
+                onUpdateTypesCallback={updateTypes}
                 initialYears={years}
-                onUpdateYearsCallback={setYears}
+                onUpdateYearsCallback={updateYears}
                 onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
               />
             )}
@@ -557,9 +437,9 @@ export default function ArticlesClient({
       <div className="articles-filters">
         {taggedFilters.length > 0 && (
           <div className="articles-filters-tags">
-            {taggedFilters.map((filter, index) => (
+            {taggedFilters.map(filter => (
               <Tag
-                key={index}
+                key={`${filter.type}-${filter.value}`}
                 text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                 onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
               />
@@ -609,9 +489,9 @@ export default function ArticlesClient({
             <Loader />
           ) : (
             <div className="articles-content-results-cards">
-              {enhancedArticles.map((article, index) => (
+              {enhancedArticles.map(article => (
                 <ArticleCard
-                  key={index}
+                  key={article?.id}
                   language={language}
                   rvcode={rvcode}
                   t={t}

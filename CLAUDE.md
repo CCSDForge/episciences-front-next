@@ -14,37 +14,12 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 
 <!-- END:nextjs-agent-rules -->
 
-- **Architecture**: Node.js server with ISR (Incremental Static Regeneration)
-- **Routing**: Middleware maps hostnames to journal codes → `/sites/[journalId]/[lang]/...`
-- **Rendering**: Server Components for data/SEO, Client Components for interactivity
-
 ## Essential Commands
 
 ```bash
-npm run dev          # Development server (port 8080)
-npm run dev:turbo    # Development server with Turbopack
-npm run build        # Production build
-npm run test         # Run tests (Vitest)
-npm run test:coverage # Run tests with coverage
-npm run lint         # Linter (ESLint)
-npm run format       # Format code (Prettier)
-npm run validate:pages # Validate ISR page configurations
+make sonar           # Run tests with coverage and SonarQube scan
 make build && make up # Test with Nginx (production-like)
 ```
-
-## Directory Structure
-
-| Path                                | Description                                          |
-| ----------------------------------- | ---------------------------------------------------- |
-| `src/app/sites/[journalId]/[lang]/` | Multi-tenant page routes                             |
-| `src/middleware.ts`                 | Hostname → journalId routing                         |
-| `src/services/`                     | API fetching with `safeFetch()`                      |
-| `src/utils/`                        | Shared utility functions                             |
-| `src/lib/`                          | Infrastructure: logger, Valkey client, cache handler |
-| `src/hooks/`                        | Custom React hooks                                   |
-| `src/components/`                   | Shared UI components                                 |
-| `external-assets/`                  | Per-journal config and logos                         |
-| `docs/`                             | Detailed documentation                               |
 
 ## Critical Patterns
 
@@ -62,13 +37,13 @@ make build && make up # Test with Nginx (production-like)
 
 ### ISR Strategy
 
-| Content Type            | Revalidate    | On-demand |
-| ----------------------- | ------------- | --------- |
-| Static (about, credits) | `false`       | Yes       |
-| Dynamic (home, volumes) | `86400` (24h) | Yes       |
-| News                    | `3600` (1h)   | Yes       |
-| Articles (detail, list) | `false` (via `CACHE_TTL_ARTICLES`) | Yes |
-| Details (volumes, sections) | `604800` (7d) | Yes |
+| Content Type                | Revalidate                         | On-demand |
+| --------------------------- | ---------------------------------- | --------- |
+| Static (about, credits)     | `false`                            | Yes       |
+| Dynamic (home, volumes)     | `86400` (24h)                      | Yes       |
+| News                        | `3600` (1h)                        | Yes       |
+| Articles (detail, list)     | `false` (via `CACHE_TTL_ARTICLES`) | Yes       |
+| Details (volumes, sections) | `604800` (7d)                      | Yes       |
 
 Layouts MUST NOT define `revalidate`. See `docs/ISR_STRATEGY.md`.
 
@@ -103,25 +78,3 @@ Use semantic CSS variables for text colors (WCAG compliance):
 
 - Conventional commits: `feat`, `fix`, `refactor`, `chore`, etc.
 - Add files specifically: `git add <file>` (never `git add .` or `-A`)
-
-## Documentation Index
-
-| Topic                        | File                                               |
-| ---------------------------- | -------------------------------------------------- |
-| ISR & Caching                | `docs/ISR_STRATEGY.md`                             |
-| Webhooks & Revalidation      | `docs/REVALIDATION_GUIDE.md`                       |
-| Revalidation Specs (Symfony) | `docs/REVALIDATION_IMPLEMENTATION_SPEC_SYMFONY.md` |
-| Revalidation Specs (ZF1)     | `docs/REVALIDATION_IMPLEMENTATION_SPEC_ZF1.md`     |
-| Runtime Configuration        | `docs/CONFIGURATION_GUIDE.md`                      |
-| Local Testing                | `docs/LOCAL_TESTING_GUIDE.md`                      |
-| Nginx & Docker               | `docs/NGINX_INTEGRATION.md`                        |
-| Color Accessibility          | `docs/ACCESSIBLE_COLOR_SYSTEM.md`                  |
-| Code Standards               | `docs/CODING_STANDARDS.md`                         |
-| Logging & Server Logs        | `docs/PRODUCTION_DEPLOYMENT.md`                    |
-| Valkey Deployment            | `docs/DEPLOYMENT_VALKEY.md`                        |
-| Valkey Cache Strategy        | `docs/VALKEY_CACHE_STRATEGY.md`                    |
-
-## Token Efficiency
-
-- Use `rg`/`grep` or line ranges instead of reading entire files
-- Be concise; skip summaries unless requested

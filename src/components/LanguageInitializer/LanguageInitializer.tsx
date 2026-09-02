@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import i18next from 'i18next';
 import { useAppDispatch } from '@/hooks/store';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
 import { getLanguageFromPathname } from '@/utils/language-utils';
 
@@ -19,22 +20,18 @@ interface LanguageInitializerProps {
  *
  * Only runs on client-side after mount to avoid SSR issues with Redux store.
  */
-export function LanguageInitializer({ initialLanguage }: LanguageInitializerProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export function LanguageInitializer({ initialLanguage }: Readonly<LanguageInitializerProps>) {
+  const isHydrated = useIsHydrated();
 
   // Only render the actual initializer after mounting
-  if (!mounted) {
+  if (!isHydrated) {
     return null;
   }
 
   return <LanguageInitializerClient initialLanguage={initialLanguage} />;
 }
 
-function LanguageInitializerClient({ initialLanguage }: LanguageInitializerProps) {
+function LanguageInitializerClient({ initialLanguage }: Readonly<LanguageInitializerProps>) {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
 

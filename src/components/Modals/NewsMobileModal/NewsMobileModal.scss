@@ -1,15 +1,17 @@
 @use '@/styles/breakpoints.scss' as breakpoints;
 
 .newsMobileModal {
-  position: absolute;
+  position: fixed;
   left: 0px;
   right: 0px;
-  top: 60px;
-  height: 100%;
+  // 265px = main's margin-top at the mobile breakpoint (205px) + space for the heading/count row (60px)
+  top: 265px;
+  bottom: 0px;
   background: var(--white);
   z-index: 3;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
   color: var(--grey-dark);
 
   &-title {

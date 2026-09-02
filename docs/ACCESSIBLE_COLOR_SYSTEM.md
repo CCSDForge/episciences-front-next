@@ -42,6 +42,7 @@ We automatically generate WCAG-compliant variants:
 | `--primary-text-on-gray`      | AA         | 4.5:1    | Text on light gray (#f5f5f5)                     |
 | `--primary-text-on-dark`      | AA         | 4.5:1    | Text on dark backgrounds                         |
 | `--primary-border`            | AA         | 3:1      | Borders, icons, UI components                    |
+| `--accent-border`             | N/A        | Original | Decorative accent borders/stripes (card banners, callout borders) — alias of `--primary`, not contrast-adjusted |
 | `--link-color`                | AA         | 4.5:1    | Links                                            |
 | `--link-hover-color`          | AAA        | 7:1      | Link hover/focus states                          |
 | `--heading-color`             | AA         | 4.5:1    | Headings                                         |

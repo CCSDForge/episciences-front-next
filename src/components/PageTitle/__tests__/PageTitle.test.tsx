@@ -112,45 +112,29 @@ describe('PageTitle', () => {
   });
 
   describe('Various page titles', () => {
-    it('handles empty title', async () => {
+    it.each([
+      { description: 'handles empty title', title: '', expectedTitle: '| Journal' },
+      {
+        description: 'handles special characters in title',
+        title: 'Articles & News',
+        expectedTitle: 'Articles & News | Journal',
+      },
+      {
+        description: 'handles unicode characters',
+        title: 'Recherche en mathématiques',
+        expectedTitle: 'Recherche en mathématiques | Journal',
+      },
+    ])('$description', async ({ title, expectedTitle }) => {
       const store = createMockStore('Journal');
 
       render(
         <Provider store={store}>
-          <PageTitle title="" />
+          <PageTitle title={title} />
         </Provider>
       );
 
       await waitFor(() => {
-        expect(document.title).toBe('| Journal');
-      });
-    });
-
-    it('handles special characters in title', async () => {
-      const store = createMockStore('Journal');
-
-      render(
-        <Provider store={store}>
-          <PageTitle title="Articles & News" />
-        </Provider>
-      );
-
-      await waitFor(() => {
-        expect(document.title).toBe('Articles & News | Journal');
-      });
-    });
-
-    it('handles unicode characters', async () => {
-      const store = createMockStore('Journal');
-
-      render(
-        <Provider store={store}>
-          <PageTitle title="Recherche en mathématiques" />
-        </Provider>
-      );
-
-      await waitFor(() => {
-        expect(document.title).toBe('Recherche en mathématiques | Journal');
+        expect(document.title).toBe(expectedTitle);
       });
     });
 

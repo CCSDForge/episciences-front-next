@@ -19,17 +19,22 @@ vi.mock('@/utils/pdf', () => ({
 }));
 
 vi.mock('@/utils/validation', () => ({
-  isValidJournalId: vi.fn((id: string) => id === 'lmcs' || id === 'ops'),
+  isValidJournalId: vi.fn((id: string) => id === 'lmcs' || id === 'ops' || id === 'fajpc'),
   sanitizeForLog: vi.fn((v: string) => v),
 }));
 
-vi.mock('@/lib/logger', () => ({
-  logger: {
+vi.mock('@/lib/logger', () => {
+  const fakeLogger = {
     debug: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
-  },
-}));
+    child: vi.fn(),
+  };
+  fakeLogger.child.mockReturnValue(fakeLogger);
+  return { logger: fakeLogger };
+});
+
+import { fetchArticle } from '@/services/article';
 
 function makeRequest(journalId: string, id: string): NextRequest {
   return new NextRequest(`http://localhost/sites/${journalId}/fr/articles/${id}/download`);
@@ -52,7 +57,10 @@ describe('GET /articles/[id]/download', () => {
 
   it('returns 400 for an invalid journal ID', async () => {
     const { GET } = await import('../route');
-    const res = await GET(makeRequest('invalid_journal!', '42'), makeContext('invalid_journal!', '42'));
+    const res = await GET(
+      makeRequest('invalid_journal!', '42'),
+      makeContext('invalid_journal!', '42')
+    );
     expect(res.status).toBe(400);
   });
 
@@ -63,7 +71,6 @@ describe('GET /articles/[id]/download', () => {
   });
 
   it('returns 404 when article is not found', async () => {
-    const { fetchArticle } = await import('@/services/article');
     vi.mocked(fetchArticle).mockResolvedValueOnce(null);
 
     const { GET } = await import('../route');
@@ -71,10 +78,57 @@ describe('GET /articles/[id]/download', () => {
     expect(res.status).toBe(404);
   });
 
+  it('returns 404 when the article belongs to a different journal', async () => {
+    vi.mocked(fetchArticle).mockResolvedValueOnce({
+      id: 18632,
+      journalCode: 'fajpc',
+      pdfLink: 'https://hal.science/hal-05671009v1/document',
+      title: 'Some article',
+    } as never);
+
+    const { GET } = await import('../route');
+    const res = await GET(makeRequest('lmcs', '18632'), makeContext('lmcs', '18632'));
+
+    expect(res.status).toBe(404);
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('serves the PDF when the article belongs to the requested journal', async () => {
+    vi.mocked(fetchArticle).mockResolvedValueOnce({
+      id: 18632,
+      journalCode: 'fajpc',
+      pdfLink: 'https://hal.science/hal-05671009v1/document',
+      title: 'Some article',
+    } as never);
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      new Response('%PDF-1.4', { status: 200, headers: { 'Content-Length': '8' } })
+    );
+
+    const { GET } = await import('../route');
+    const res = await GET(makeRequest('fajpc', '18632'), makeContext('fajpc', '18632'));
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toBe('application/pdf');
+  });
+
+  it('serves the PDF when journalCode is absent from the payload', async () => {
+    vi.mocked(fetchArticle).mockResolvedValueOnce({
+      id: 18632,
+      pdfLink: 'https://hal.science/hal-05671009v1/document',
+      title: 'Some article',
+    } as never);
+    vi.mocked(global.fetch).mockResolvedValueOnce(new Response('%PDF-1.4', { status: 200 }));
+
+    const { GET } = await import('../route');
+    const res = await GET(makeRequest('fajpc', '18632'), makeContext('fajpc', '18632'));
+
+    expect(res.status).toBe(200);
+  });
+
   it('returns 404 when article has no pdfLink', async () => {
-    const { fetchArticle } = await import('@/services/article');
     vi.mocked(fetchArticle).mockResolvedValueOnce({
       id: 42,
+      journalCode: 'lmcs',
       title: 'Test',
       pdfLink: '',
     } as any);
@@ -85,11 +139,11 @@ describe('GET /articles/[id]/download', () => {
   });
 
   it('returns 403 when PDF domain is not allowed', async () => {
-    const { fetchArticle } = await import('@/services/article');
     const { isAllowedPdfDomain } = await import('@/utils/pdf');
 
     vi.mocked(fetchArticle).mockResolvedValueOnce({
       id: 42,
+      journalCode: 'lmcs',
       title: 'Test',
       pdfLink: 'https://malicious.domain/paper.pdf',
     } as any);
@@ -101,9 +155,9 @@ describe('GET /articles/[id]/download', () => {
   });
 
   it('returns 200 with streamed PDF and encoded Content-Disposition header', async () => {
-    const { fetchArticle } = await import('@/services/article');
     vi.mocked(fetchArticle).mockResolvedValueOnce({
       id: 16405,
+      journalCode: 'ops',
       title: 'Modeling of evaporation of macroparticles',
       pdfLink: 'https://hal.science/hal-012345/document',
     } as any);
@@ -133,16 +187,14 @@ describe('GET /articles/[id]/download', () => {
   });
 
   it('handles titles with special characters and quotes gracefully without breaking headers', async () => {
-    const { fetchArticle } = await import('@/services/article');
     vi.mocked(fetchArticle).mockResolvedValueOnce({
       id: 16405,
+      journalCode: 'ops',
       title: 'Modeling of "evaporation" & macroparticles / électricité',
       pdfLink: 'https://hal.science/hal-012345/document',
     } as any);
 
-    vi.mocked(global.fetch).mockResolvedValueOnce(
-      new Response('pdf-data', { status: 200 })
-    );
+    vi.mocked(global.fetch).mockResolvedValueOnce(new Response('pdf-data', { status: 200 }));
 
     const { GET } = await import('../route');
     const res = await GET(makeRequest('ops', '16405'), makeContext('ops', '16405'));
@@ -154,9 +206,9 @@ describe('GET /articles/[id]/download', () => {
   });
 
   it('returns 504 on request timeout', async () => {
-    const { fetchArticle } = await import('@/services/article');
     vi.mocked(fetchArticle).mockResolvedValueOnce({
       id: 42,
+      journalCode: 'lmcs',
       title: 'Timeout Test',
       pdfLink: 'https://hal.science/hal-012345/document',
     } as any);
@@ -172,7 +224,6 @@ describe('GET /articles/[id]/download', () => {
   });
 
   it('returns 500 and logs error on unexpected internal exception', async () => {
-    const { fetchArticle } = await import('@/services/article');
     vi.mocked(fetchArticle).mockRejectedValueOnce(new Error('Database connection failed'));
 
     const { GET } = await import('../route');

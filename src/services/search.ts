@@ -3,7 +3,7 @@ import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'search' });
 import { FetchedArticle, formatArticle } from '@/utils/article';
-import { PaginatedResponseWithRange, SearchRange } from '@/utils/pagination';
+import { SearchRange } from '@/utils/pagination';
 import { formatSearchRange } from '@/utils/search';
 import { ISearchResult } from '@/types/search';
 import { getJournalApiUrl } from '@/utils/env-loader';

@@ -32,10 +32,7 @@ vi.mock('@/components/Link/Link', () => ({
 
 // Mock next/image
 vi.mock('next/image', () => ({
-  default: ({ src, alt }: { src: string; alt: string }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} />
-  ),
+  default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
 }));
 
 // Mock icons
@@ -79,19 +76,21 @@ describe('VolumeListCard', () => {
     expect(screen.getAllByText(/Volume 7/).length).toBeGreaterThan(0);
   });
 
-  it('renders the volume title in the requested language', () => {
-    render(<VolumeListCard language="en" t={mockT as any} volume={baseVolume} />);
-    expect(screen.getByText('English Volume Title')).toBeInTheDocument();
-  });
-
-  it('renders the volume title in French', () => {
-    render(<VolumeListCard language="fr" t={mockT as any} volume={baseVolume} />);
-    expect(screen.getByText('Titre du volume en français')).toBeInTheDocument();
-  });
-
-  it('renders the article count', () => {
-    render(<VolumeListCard language="en" t={mockT as any} volume={baseVolume} />);
-    expect(screen.getByText(/2 articles/)).toBeInTheDocument();
+  it.each([
+    {
+      description: 'renders the volume title in the requested language',
+      language: 'en' as const,
+      label: 'English Volume Title',
+    },
+    {
+      description: 'renders the volume title in French',
+      language: 'fr' as const,
+      label: 'Titre du volume en français',
+    },
+    { description: 'renders the article count', language: 'en' as const, label: /2 articles/ },
+  ])('$description', ({ language, label }) => {
+    render(<VolumeListCard language={language} t={mockT as any} volume={baseVolume} />);
+    expect(screen.getByText(label)).toBeInTheDocument();
   });
 
   it('renders singular article for single article', () => {

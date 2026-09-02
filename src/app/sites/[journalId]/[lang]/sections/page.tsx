@@ -41,39 +41,44 @@ export async function generateMetadata(props: {
 }
 
 export default async function SectionsPage(props: {
-  params: Promise<{ lang: string; journalId: string }>;
+  readonly params: Promise<{ lang: string; journalId: string }>;
 }) {
   const params = await props.params;
   const { lang, journalId } = params;
+
+  // Rendering stays outside the try/catch: failures bubble up to the nearest error.tsx
+  // boundary instead of being caught around the JSX tree.
+  let sections: Awaited<ReturnType<typeof fetchSections>>;
+  let translations: Awaited<ReturnType<typeof getServerTranslations>>;
 
   try {
     if (!journalId) {
       throw new Error('journalId is not defined');
     }
 
-    const [sections, translations] = await Promise.all([
+    [sections, translations] = await Promise.all([
       fetchSections({ rvcode: journalId }),
       getServerTranslations(lang),
     ]);
-
-    const breadcrumbLabels = {
-      home: t('pages.home.title', translations),
-      content: t('common.content', translations),
-      sections: t('pages.sections.title', translations),
-    };
-
-    return (
-      <Suspense fallback={null}>
-        <SectionsClient
-          initialSections={sections}
-          initialPage={1}
-          lang={lang}
-          breadcrumbLabels={breadcrumbLabels}
-        />
-      </Suspense>
-    );
   } catch (error) {
     logger.error('Error fetching sections:', error);
     throw error;
   }
+
+  const breadcrumbLabels = {
+    home: t('pages.home.title', translations),
+    content: t('common.content', translations),
+    sections: t('pages.sections.title', translations),
+  };
+
+  return (
+    <Suspense fallback={null}>
+      <SectionsClient
+        initialSections={sections}
+        initialPage={1}
+        lang={lang}
+        breadcrumbLabels={breadcrumbLabels}
+      />
+    </Suspense>
+  );
 }

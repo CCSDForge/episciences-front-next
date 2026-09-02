@@ -8,12 +8,12 @@ import { MenuItemConfig } from '@/config/menu';
 import './HeaderDropdown.scss';
 
 interface HeaderDropdownProps {
-  label: string; // Already translated label
-  items: MenuItemConfig[];
-  isOpen: boolean;
-  onToggle: (opened: boolean) => void;
-  dropdownKey: string; // 'content' | 'about' | 'publish'
-  className?: string;
+  readonly label: string; // Already translated label
+  readonly items: MenuItemConfig[];
+  readonly isOpen: boolean;
+  readonly onToggle: (opened: boolean) => void;
+  readonly dropdownKey: string; // 'content' | 'about' | 'publish'
+  readonly className?: string;
 }
 
 /**
@@ -37,6 +37,8 @@ export default function HeaderDropdown({
   const { t } = useTranslation();
   const pathname = usePathname();
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  // Tracks the route the focus index belongs to, so it can be reset on navigation.
+  const [focusedPathname, setFocusedPathname] = useState(pathname);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -66,11 +68,13 @@ export default function HeaderDropdown({
     }
   }, [isOpen, focusedIndex]);
 
-  // Close dropdown when pathname changes (navigation occurred)
-  useEffect(() => {
-    onToggle(false);
+  // Reset the keyboard focus when a navigation occurs. Adjusting state during render rather
+  // than in an effect avoids the extra render pass. Closing the dropdown itself is the
+  // parent's job: Header already clears `showDropdown` on every pathname change.
+  if (focusedPathname !== pathname) {
+    setFocusedPathname(pathname);
     setFocusedIndex(-1);
-  }, [pathname, onToggle]);
+  }
 
   // Keyboard handler for the dropdown button
   const handleButtonKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>): void => {

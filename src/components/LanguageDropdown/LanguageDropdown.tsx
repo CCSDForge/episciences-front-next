@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { CaretUpIcon, CaretDownIcon, TranslateIcon } from '@/components/icons';
 import './LanguageDropdown.scss';
@@ -30,7 +29,7 @@ interface ILanguageDropdownProps {
 export default function LanguageDropdown({
   initialLanguage,
   acceptedLanguages: acceptedLanguagesProp,
-}: ILanguageDropdownProps): React.JSX.Element | null {
+}: Readonly<ILanguageDropdownProps>): React.JSX.Element | null {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -201,7 +200,6 @@ export default function LanguageDropdown({
       <button
         ref={buttonRef}
         className="languageDropdown-button"
-        role="button"
         aria-haspopup="true"
         aria-expanded={showDropdown}
         aria-label={t('components.header.languageSelector')}

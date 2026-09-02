@@ -1,13 +1,13 @@
 'use client';
 
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { TFunction } from 'i18next';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
 import Tag from '@/components/Tag/Tag';
 import LiveRegion from '@/components/LiveRegion/LiveRegion';
-import FocusTrap from 'focus-trap-react';
+import { FocusTrap } from 'focus-trap-react';
 import './ArticlesMobileModal.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import { useMobileModal } from '@/hooks/useMobileModal';
@@ -54,16 +54,14 @@ export default function ArticlesMobileModal({
   initialYears,
   onUpdateYearsCallback,
   onCloseCallback,
-}: IArticlesMobileModalProps): React.JSX.Element {
+}: Readonly<IArticlesMobileModalProps>): React.JSX.Element {
   const [types, setTypes] = useState<IArticlesTypeSelection[]>(initialTypes);
   const [years, setYears] = useState<IArticlesYearSelection[]>(initialYears);
-  const [taggedFilters, setTaggedFilters] = useState<IArticlesFilter[]>([]);
   const [announcement, setAnnouncement] = useState('');
 
   const clearTaggedFilters = useCallback((): void => {
     setTypes(prev => prev.map(t => ({ ...t, isChecked: false })));
     setYears(prev => prev.map(y => ({ ...y, isChecked: false })));
-    setTaggedFilters([]);
   }, []);
 
   const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
@@ -76,24 +74,18 @@ export default function ArticlesMobileModal({
     { key: FILTERS_SECTION.YEAR, isOpened: false },
   ]);
 
-  const setAllTaggedFilters = useCallback((): void => {
-    const initFilters: IArticlesFilter[] = [];
-    types
-      .filter(t => t.isChecked)
-      .forEach(t => {
-        initFilters.push({ type: 'type', value: t.value, labelPath: t.labelPath });
-      });
-    years
-      .filter(y => y.isChecked)
-      .forEach(y => {
-        initFilters.push({ type: 'year', value: y.year, label: y.year });
-      });
-    setTaggedFilters(initFilters);
-  }, [types, years]);
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<IArticlesFilter[]>(
+    () => [
+      ...types
+        .filter(t => t.isChecked)
+        .map(t => ({ type: 'type' as const, value: t.value, labelPath: t.labelPath })),
+      ...years
+        .filter(y => y.isChecked)
+        .map(y => ({ type: 'year' as const, value: y.year, label: y.year })),
+    ],
+    [types, years]
+  );
 
   const onCheckType = (value: string): void => {
     setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: !t.isChecked } : t)));
@@ -151,9 +143,9 @@ export default function ArticlesMobileModal({
         {taggedFilters.length > 0 && (
           <div className="articlesMobileModal-tags">
             <div className="articlesMobileModal-tags-row">
-              {taggedFilters.map((filter, index) => (
+              {taggedFilters.map(filter => (
                 <Tag
-                  key={index}
+                  key={`${filter.type}-${filter.value}`}
                   text={filter.labelPath ? t(filter.labelPath) : filter.label!.toString()}
                   onCloseCallback={(): void => onCloseTaggedFilter(filter.type, filter.value)}
                 />
@@ -196,8 +188,8 @@ export default function ArticlesMobileModal({
               id="filter-section-type"
               className={`articlesMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesMobileModal-filters-types-list-opened'}`}
             >
-              {types.map((type, index) => (
-                <div key={index} className="articlesMobileModal-filters-types-list-choice">
+              {types.map(type => (
+                <div key={type.value} className="articlesMobileModal-filters-types-list-choice">
                   <div className="articlesMobileModal-filters-types-list-choice-checkbox">
                     <Checkbox
                       checked={type.isChecked}
@@ -245,8 +237,8 @@ export default function ArticlesMobileModal({
               id="filter-section-year"
               className={`articlesMobileModal-filters-years-list ${isOpenedSection(FILTERS_SECTION.YEAR) && 'articlesMobileModal-filters-years-list-opened'}`}
             >
-              {years.map((y, index) => (
-                <div key={index} className="articlesMobileModal-filters-years-list-choice">
+              {years.map(y => (
+                <div key={y.year} className="articlesMobileModal-filters-years-list-choice">
                   <div className="articlesMobileModal-filters-years-list-choice-checkbox">
                     <Checkbox
                       checked={y.isChecked}

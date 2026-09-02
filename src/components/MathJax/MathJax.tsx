@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MathJax as BetterMathJax } from 'better-react-mathjax';
 import { logger } from '@/lib/logger';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 
 const log = logger.child({ service: 'mathjax-component' });
 
@@ -26,12 +27,8 @@ const MathJax: React.FC<MathJaxProps> = ({
   component: Component = 'span',
   ...props
 }) => {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsHydrated();
   const containerRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Force MathJax typesetting after mount and when children change
   useEffect(() => {

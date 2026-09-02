@@ -18,7 +18,7 @@ import { RENDERING_MODE } from '@/utils/card';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import NewsListCard from '@/components/Cards/NewsCard/NewsListCard';
-import NewsTileCard from '@/components/Cards/NewsCard/NewsTileCard';
+import NewsTileCard, { NewsTileCardState } from '@/components/Cards/NewsCard/NewsTileCard';
 import NewsSidebar, { INewsYearSelection } from '@/components/Sidebars/NewsSidebar/NewsSidebar';
 import Pagination from '@/components/Pagination/Pagination';
 import { INews, Range, fetchNews } from '@/services/news';
@@ -32,13 +32,13 @@ const NewsMobileModal = dynamic(
 );
 
 interface NewsClientProps {
-  initialNews: {
+  readonly initialNews: {
     data: INews[];
     totalItems: number;
     range?: Range;
   } | null;
-  lang?: string;
-  breadcrumbLabels?: {
+  readonly lang?: string;
+  readonly breadcrumbLabels?: {
     home: string;
     news: string;
   };
@@ -77,7 +77,13 @@ export default function NewsClient({
   const [fullNewsIndex, setFullNewsIndex] = useState(-1);
   const [openedFiltersMobileModal, setOpenedFiltersMobileModal] = useState(false);
   const [news, setNews] = useState(initialNews);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Identifies the query the currently displayed news belong to. Comparing it against the
+  // query the URL asks for derives the loading flag during render, so the fetch effect
+  // below never has to call setState synchronously.
+  const requestKey = `${rvcode ?? ''}|${currentPage}|${selectedYearsFromUrl.join(',')}`;
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const isLoading = !!rvcode && loadedKey !== requestKey;
 
   const years: INewsYearSelection[] = availableYears.map(y => ({
     year: y,
@@ -87,7 +93,8 @@ export default function NewsClient({
   useEffect(() => {
     if (!rvcode) return;
 
-    setIsLoading(true);
+    let cancelled = false;
+
     fetchNews({
       rvcode,
       page: currentPage,
@@ -95,20 +102,27 @@ export default function NewsClient({
       years: selectedYearsFromUrl,
     })
       .then(data => {
+        if (cancelled) return;
         setNews(data);
         if (data?.range?.years) {
           setAvailableYears(prev => (prev.length === 0 ? data.range!.years! : prev));
         }
       })
-      .finally(() => setIsLoading(false));
-  }, [rvcode, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+      .finally(() => {
+        if (!cancelled) setLoadedKey(requestKey);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requestKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePageClick = useCallback(
     (selectedItem: { selected: number }): void => {
       const newPage = selectedItem.selected + 1;
-      router.push(
-        `/news?page=${newPage}${selectedYearsFromUrl.length > 0 ? `&years=${selectedYearsFromUrl.join(',')}` : ''}`
-      );
+      const yearsQueryParam =
+        selectedYearsFromUrl.length > 0 ? `&years=${selectedYearsFromUrl.join(',')}` : '';
+      router.push(`/news?page=${newPage}${yearsQueryParam}`);
     },
     [router, selectedYearsFromUrl]
   );
@@ -117,13 +131,15 @@ export default function NewsClient({
     const newSelected = selectedYearsFromUrl.includes(year)
       ? selectedYearsFromUrl.filter(y => y !== year)
       : [...selectedYearsFromUrl, year];
-    router.push(`/news?page=1${newSelected.length > 0 ? `&years=${newSelected.join(',')}` : ''}`);
+    const yearsQueryParam = newSelected.length > 0 ? `&years=${newSelected.join(',')}` : '';
+    router.push(`/news?page=1${yearsQueryParam}`);
   };
 
   const onApplyYearsFromModal = useCallback(
     (updatedYears: INewsYearSelection[]): void => {
       const selected = updatedYears.filter(y => y.isSelected).map(y => y.year);
-      router.push(`/news?page=1${selected.length > 0 ? `&years=${selected.join(',')}` : ''}`);
+      const yearsQueryParam = selected.length > 0 ? `&years=${selected.join(',')}` : '';
+      router.push(`/news?page=1${yearsQueryParam}`);
     },
     [router]
   );
@@ -231,28 +247,31 @@ export default function NewsClient({
             <div
               className={`news-content-results-cards ${mode === RENDERING_MODE.TILE && 'news-content-results-cards-grid'}`}
             >
-              {news?.data?.map((singleNews, index) =>
-                mode === RENDERING_MODE.TILE ? (
+              {news?.data?.map((singleNews, index) => {
+                let newsCardState: NewsTileCardState;
+                if (fullNewsIndex === index) {
+                  newsCardState = 'expanded';
+                } else if (fullNewsIndex !== -1) {
+                  newsCardState = 'blurred';
+                } else {
+                  newsCardState = 'default';
+                }
+
+                return mode === RENDERING_MODE.TILE ? (
                   <NewsTileCard
-                    key={index}
+                    key={singleNews.id}
                     language={language}
                     t={t}
                     news={singleNews}
-                    state={
-                      fullNewsIndex === index
-                        ? 'expanded'
-                        : fullNewsIndex !== -1
-                          ? 'blurred'
-                          : 'default'
-                    }
+                    state={newsCardState}
                     onToggle={(): void =>
                       fullNewsIndex !== index ? setFullNewsIndex(index) : setFullNewsIndex(-1)
                     }
                   />
                 ) : (
-                  <NewsListCard key={index} language={language} t={t} news={singleNews} />
-                )
-              )}
+                  <NewsListCard key={singleNews.id} language={language} t={t} news={singleNews} />
+                );
+              })}
             </div>
           )}
         </div>

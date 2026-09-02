@@ -57,34 +57,27 @@ describe('HeaderClientWrapper', () => {
       expect(header.classList.contains('header-reduced')).toBe(false);
     });
 
-    it('adds header-reduced class when scrolled past 100px', () => {
+    it.each([
+      {
+        description: 'adds header-reduced class when scrolled past 100px',
+        scrollY: 150,
+        expected: true,
+      },
+      {
+        description:
+          'does not add header-reduced class exactly at 100px (threshold is strictly greater)',
+        scrollY: 100,
+        expected: false,
+      },
+      { description: 'adds header-reduced at 101px', scrollY: 101, expected: true },
+    ])('$description', ({ scrollY, expected }) => {
       render(
         <HeaderClientWrapper>
           <div />
         </HeaderClientWrapper>
       );
-      act(() => simulateScroll(150));
-      expect(header.classList.contains('header-reduced')).toBe(true);
-    });
-
-    it('does not add header-reduced class exactly at 100px (threshold is strictly greater)', () => {
-      render(
-        <HeaderClientWrapper>
-          <div />
-        </HeaderClientWrapper>
-      );
-      act(() => simulateScroll(100));
-      expect(header.classList.contains('header-reduced')).toBe(false);
-    });
-
-    it('adds header-reduced at 101px', () => {
-      render(
-        <HeaderClientWrapper>
-          <div />
-        </HeaderClientWrapper>
-      );
-      act(() => simulateScroll(101));
-      expect(header.classList.contains('header-reduced')).toBe(true);
+      act(() => simulateScroll(scrollY));
+      expect(header.classList.contains('header-reduced')).toBe(expected);
     });
 
     it('removes header-reduced when scrolling back up below threshold', () => {

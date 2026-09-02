@@ -1,7 +1,7 @@
 'use client';
 
 import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { TFunction } from 'i18next';
 import Button from '@/components/Button/Button';
 import Checkbox from '@/components/Checkbox/Checkbox';
@@ -28,10 +28,10 @@ interface IArticlesAcceptedFilter {
 }
 
 interface IArticlesAcceptedMobileModalProps {
-  t: TFunction<'translation', undefined>;
-  initialTypes: IArticlesAcceptedTypeSelection[];
-  onUpdateTypesCallback: (types: IArticlesAcceptedTypeSelection[]) => void;
-  onCloseCallback: () => void;
+  readonly t: TFunction<'translation', undefined>;
+  readonly initialTypes: IArticlesAcceptedTypeSelection[];
+  readonly onUpdateTypesCallback: (types: IArticlesAcceptedTypeSelection[]) => void;
+  readonly onCloseCallback: () => void;
 }
 
 export default function ArticlesAcceptedMobileModal({
@@ -41,11 +41,9 @@ export default function ArticlesAcceptedMobileModal({
   onCloseCallback,
 }: IArticlesAcceptedMobileModalProps): React.JSX.Element {
   const [types, setTypes] = useState<IArticlesAcceptedTypeSelection[]>(initialTypes);
-  const [taggedFilters, setTaggedFilters] = useState<IArticlesAcceptedFilter[]>([]);
 
   const clearTaggedFilters = useCallback((): void => {
     setTypes(prev => prev.map(t => ({ ...t, isChecked: false })));
-    setTaggedFilters([]);
   }, []);
 
   const { modalRef, onClose, closeModal } = useMobileModal(onCloseCallback, {
@@ -56,15 +54,11 @@ export default function ArticlesAcceptedMobileModal({
     { key: FILTERS_SECTION.TYPE, isOpened: false },
   ]);
 
-  const setAllTaggedFilters = useCallback((): void => {
-    setTaggedFilters(
-      types.filter(t => t.isChecked).map(t => ({ value: t.value, labelPath: t.labelPath }))
-    );
-  }, [types]);
-
-  useEffect(() => {
-    setAllTaggedFilters();
-  }, [setAllTaggedFilters]);
+  // Pure projection of the current selections: derived during render, not in an effect.
+  const taggedFilters = useMemo<IArticlesAcceptedFilter[]>(
+    () => types.filter(t => t.isChecked).map(t => ({ value: t.value, labelPath: t.labelPath })),
+    [types]
+  );
 
   const onCheckType = (value: string): void => {
     setTypes(prev => prev.map(t => (t.value === value ? { ...t, isChecked: !t.isChecked } : t)));
@@ -105,9 +99,9 @@ export default function ArticlesAcceptedMobileModal({
         {taggedFilters.length > 0 && (
           <div className="articlesAcceptedMobileModal-tags">
             <div className="articlesAcceptedMobileModal-tags-row">
-              {taggedFilters.map((filter, index) => (
+              {taggedFilters.map(filter => (
                 <Tag
-                  key={index}
+                  key={filter.value}
                   text={t(filter.labelPath)}
                   onCloseCallback={(): void => onCloseTaggedFilter(filter.value)}
                 />
@@ -155,8 +149,11 @@ export default function ArticlesAcceptedMobileModal({
             <div
               className={`articlesAcceptedMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesAcceptedMobileModal-filters-types-list-opened'}`}
             >
-              {types.map((type, index) => (
-                <div key={index} className="articlesAcceptedMobileModal-filters-types-list-choice">
+              {types.map(type => (
+                <div
+                  key={type.value}
+                  className="articlesAcceptedMobileModal-filters-types-list-choice"
+                >
                   <div className="articlesAcceptedMobileModal-filters-types-list-choice-checkbox">
                     <Checkbox
                       checked={type.isChecked}

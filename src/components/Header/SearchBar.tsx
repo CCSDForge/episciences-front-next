@@ -2,18 +2,19 @@
 
 import {
   SearchIcon,
-  ExternalLinkWhiteIcon,
+  ExternalLinkIcon,
   CaretLeftGreyIcon,
   CloseBlackIcon,
 } from '@/components/icons';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { useIsHydrated } from '@/hooks/useIsHydrated';
 
 interface SearchBarProps {
-  lang?: string;
-  episciencesManagerUrl?: string;
-  journalCode?: string;
+  readonly lang?: string;
+  readonly episciencesManagerUrl?: string;
+  readonly journalCode?: string;
 }
 
 export default function SearchBar({
@@ -25,17 +26,14 @@ export default function SearchBar({
   const { t, i18n } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsHydrated();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  // Ensure i18n is initialized with correct language before rendering
+  // Ensure i18n is initialized with the correct language. Rendering is gated on hydration
+  // rather than on this effect, so the translated labels appear on the first client pass.
   useEffect(() => {
     if (lang && i18n.language !== lang) {
-      i18n.changeLanguage(lang).then(() => {
-        setIsClient(true);
-      });
-    } else {
-      setIsClient(true);
+      i18n.changeLanguage(lang);
     }
   }, [lang, i18n]);
 
@@ -102,12 +100,12 @@ export default function SearchBar({
             {submitManagerLink ? (
               <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
                 Submit
-                <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
+                <ExternalLinkIcon size={14} ariaLabel="External link" />
               </a>
             ) : (
               <button type="submit" disabled>
                 Submit
-                <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
+                <ExternalLinkIcon size={14} ariaLabel="External link" />
               </button>
             )}
           </div>
@@ -115,6 +113,18 @@ export default function SearchBar({
       </div>
     );
   }
+
+  const submitButton = submitManagerLink ? (
+    <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
+      {t('components.header.search.submitButton')}
+      <ExternalLinkIcon size={14} ariaLabel="External link" />
+    </a>
+  ) : (
+    <button type="button" disabled>
+      {t('components.header.search.submitButton')}
+      <ExternalLinkIcon size={14} ariaLabel="External link" />
+    </button>
+  );
 
   return (
     <div
@@ -167,16 +177,8 @@ export default function SearchBar({
         <div className="header-postheader-search-submit">
           {isFocused ? (
             <button type="submit">{t('components.header.search.searchButton')}</button>
-          ) : submitManagerLink ? (
-            <a href={submitManagerLink} target="_blank" rel="noopener noreferrer">
-              {t('components.header.search.submitButton')}
-              <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
-            </a>
           ) : (
-            <button type="button" disabled>
-              {t('components.header.search.submitButton')}
-              <ExternalLinkWhiteIcon size={14} ariaLabel="External link" />
-            </button>
+            submitButton
           )}
         </div>
       </form>

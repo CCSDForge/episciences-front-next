@@ -14,11 +14,11 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { DOI_URL } from '@/config/external-urls';
 
 export interface IAuthorDetailsSidebarProps {
-  language: AvailableLanguage;
-  t: TFunction<'translation', undefined>;
-  rvcode?: string;
-  expandedAuthor?: IAuthor;
-  onCloseDetailsCallback: () => void;
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly rvcode?: string;
+  readonly expandedAuthor?: IAuthor;
+  readonly onCloseDetailsCallback: () => void;
 }
 
 export default function AuthorDetailsSidebar({
@@ -43,8 +43,8 @@ export default function AuthorDetailsSidebar({
       />
       <div className="authorDetailsSidebar-content">
         <div className="authorDetailsSidebar-content-name">{expandedAuthor?.name}</div>
-        {articles?.data.map((article, index) => (
-          <div key={index} className="authorDetailsSidebar-content-article">
+        {articles?.data.map(article => (
+          <div key={article.id} className="authorDetailsSidebar-content-article">
             <div className="authorDetailsSidebar-content-article-title">
               <MathJax dynamic>{article.title}</MathJax>
             </div>

@@ -41,6 +41,53 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+function isValidDisposition(disposition: string): boolean {
+  return disposition === 'inline' || disposition === 'attachment';
+}
+
+// arxiv/zenodo may return an HTML error page with HTTP 200 (rate-limit, captcha, redirect).
+// Streaming HTML with Content-Type: application/pdf causes Chrome to display
+// "This content is blocked." in the iframe PDF viewer, so the upstream type must be checked.
+function isPdfContentType(contentType: string): boolean {
+  return contentType.includes('pdf') || contentType.includes('octet-stream');
+}
+
+function buildContentDisposition(disposition: string, filename: string | null): string {
+  if (disposition === 'attachment' && filename) {
+    const sanitizedFilename = filename.replace(/[^\w\s.-]/g, '_').slice(0, 200);
+    return `attachment; filename="${sanitizedFilename}"`;
+  }
+  return disposition;
+}
+
+function buildPdfResponseHeaders(
+  contentDisposition: string,
+  allowedOrigin: string,
+  contentLength: string | null
+): Headers {
+  const corsHeaders: Record<string, string> = {
+    'Content-Type': 'application/pdf', // Always force application/pdf (upstream may send application/octet-stream)
+    'Content-Disposition': contentDisposition, // 'inline' or 'attachment; filename="..."'
+    'Cache-Control': 'public, max-age=604800, immutable', // 7 days cache
+    'Access-Control-Allow-Methods': 'GET',
+    'X-Robots-Tag': 'noindex',
+  };
+  if (allowedOrigin) {
+    corsHeaders['Access-Control-Allow-Origin'] = allowedOrigin;
+  }
+
+  const headers = new Headers(corsHeaders);
+  if (contentLength) {
+    headers.set('Content-Length', contentLength);
+  }
+
+  return headers;
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === 'AbortError';
+}
+
 /**
  * GET /api/pdf-proxy - Proxy PDF requests to bypass CORS and control Content-Disposition
  * Query params:
@@ -69,7 +116,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Validate disposition parameter
-  if (disposition !== 'inline' && disposition !== 'attachment') {
+  if (!isValidDisposition(disposition)) {
     return new NextResponse('Invalid disposition parameter (must be inline or attachment)', {
       status: 400,
     });
@@ -105,44 +152,20 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Validate Content-Type from upstream — arxiv/zenodo may return an HTML error page with HTTP 200
-    // (rate-limit, captcha, redirect). Streaming HTML with Content-Type: application/pdf causes
-    // Chrome to display "This content is blocked." in the iframe PDF viewer.
+    // Validate Content-Type from upstream (see isPdfContentType for why)
     const upstreamContentType = response.headers.get('Content-Type') ?? '';
-    if (!upstreamContentType.includes('pdf') && !upstreamContentType.includes('octet-stream')) {
+    if (!isPdfContentType(upstreamContentType)) {
       logger.warn(
         `[PDF Proxy] Upstream returned unexpected Content-Type "${upstreamContentType}" for: ${sanitizeForLog(pdfUrl)}`
       );
       return new NextResponse('Upstream did not return a PDF', { status: 502 });
     }
 
-    // Build Content-Disposition header with optional filename
-    let contentDisposition = disposition;
-    if (disposition === 'attachment' && filename) {
-      // Sanitize filename and add to header
-      const sanitizedFilename = filename.replace(/[^\w\s.-]/g, '_').slice(0, 200);
-      contentDisposition = `attachment; filename="${sanitizedFilename}"`;
-    }
-
     // Stream response with controlled Content-Disposition
+    const contentDisposition = buildContentDisposition(disposition, filename);
     const allowedOrigin = process.env.NEXT_PUBLIC_EPISCIENCES_ALLOWED_ORIGIN || '';
-    const corsHeaders: Record<string, string> = {
-      'Content-Type': 'application/pdf', // Always force application/pdf (upstream may send application/octet-stream)
-      'Content-Disposition': contentDisposition, // 'inline' or 'attachment; filename="..."'
-      'Cache-Control': 'public, max-age=604800, immutable', // 7 days cache
-      'Access-Control-Allow-Methods': 'GET',
-      'X-Robots-Tag': 'noindex',
-    };
-    if (allowedOrigin) {
-      corsHeaders['Access-Control-Allow-Origin'] = allowedOrigin;
-    }
-    const headers = new Headers(corsHeaders);
-
-    // If Content-Length is available, forward it
     const contentLength = response.headers.get('Content-Length');
-    if (contentLength) {
-      headers.set('Content-Length', contentLength);
-    }
+    const headers = buildPdfResponseHeaders(contentDisposition, allowedOrigin, contentLength);
 
     logger.debug(
       `[PDF Proxy] Successfully proxied PDF from: ${sanitizeForLog(new URL(pdfUrl).hostname)}`
@@ -154,7 +177,7 @@ export async function GET(request: NextRequest) {
       headers,
     });
   } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (isAbortError(error)) {
       logger.error(`[PDF Proxy] Request timeout for: ${sanitizeForLog(pdfUrl)}`);
       return new NextResponse('Request timeout', { status: 504 });
     }

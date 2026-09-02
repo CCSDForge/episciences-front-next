@@ -45,24 +45,29 @@ describe('forConferenceOrganisers service', () => {
       expect(result).toEqual(mockData);
     });
 
-    it('should request page_code=for-conference-organisers', async () => {
+    it.each([
+      {
+        description: 'should request page_code=for-conference-organisers',
+        journalCode: 'myjournal',
+        expectedUrlPart: 'page_code=for-conference-organisers',
+      },
+      {
+        description: 'should include rvcode in request URL',
+        journalCode: 'myjournal',
+        expectedUrlPart: 'rvcode=myjournal',
+      },
+      {
+        description: 'should use different journal codes',
+        journalCode: 'dmtcs',
+        expectedUrlPart: 'api.dmtcs.test',
+      },
+    ])('$description', async ({ journalCode, expectedUrlPart }) => {
       mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [] }));
 
-      await fetchForConferenceOrganisersPage('myjournal');
+      await fetchForConferenceOrganisersPage(journalCode);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('page_code=for-conference-organisers'),
-        expect.any(Object)
-      );
-    });
-
-    it('should include rvcode in request URL', async () => {
-      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [] }));
-
-      await fetchForConferenceOrganisersPage('myjournal');
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('rvcode=myjournal'),
+        expect.stringContaining(expectedUrlPart),
         expect.any(Object)
       );
     });
@@ -90,17 +95,6 @@ describe('forConferenceOrganisers service', () => {
       const result = await fetchForConferenceOrganisersPage('myjournal');
 
       expect(result).toEqual(mockData);
-    });
-
-    it('should use different journal codes', async () => {
-      mockFetch.mockResolvedValue(createMockResponse({ 'hydra:member': [] }));
-
-      await fetchForConferenceOrganisersPage('dmtcs');
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('api.dmtcs.test'),
-        expect.any(Object)
-      );
     });
   });
 });

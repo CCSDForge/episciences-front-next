@@ -13,8 +13,9 @@ import { getJournalByCode } from '@/services/journal';
 import { menuConfig, getVisibleMenuItems, processMenuItemPath } from '@/config/menu';
 import { fetchVolumes } from '@/services/volume';
 import { getPublicJournalConfig } from '@/utils/env-loader';
-import fs from 'fs';
-import path from 'path';
+import { renderInlineMarkdown } from '@/utils/markdown';
+import fs from 'node:fs';
+import path from 'node:path';
 import './Header.scss';
 import '@/components/SkipLink/SkipLink.scss';
 
@@ -55,8 +56,8 @@ function buildMobileSection(
 }
 
 interface HeaderServerProps {
-  lang?: string;
-  journalId?: string;
+  readonly lang?: string;
+  readonly journalId?: string;
 }
 
 export default async function HeaderServer({
@@ -213,7 +214,9 @@ export default async function HeaderServer({
         </div>
         <div className="header-journal-title">
           <span className="header-journal-title-main">{journalName}</span>
-          {journalSubtitle && <span className="header-journal-subtitle">{journalSubtitle}</span>}
+          {journalSubtitle && (
+            <span className="header-journal-subtitle">{renderInlineMarkdown(journalSubtitle)}</span>
+          )}
         </div>
       </div>
 

@@ -43,7 +43,7 @@ export async function generateMetadata(props: {
 }
 
 export default async function AboutPage(props: {
-  params: Promise<{ journalId: string; lang: string }>;
+  readonly params: Promise<{ journalId: string; lang: string }>;
 }) {
   const params = await props.params;
   let pageData = null;

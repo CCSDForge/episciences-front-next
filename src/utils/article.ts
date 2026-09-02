@@ -48,6 +48,40 @@ export enum METADATA_TYPE {
 
 export type FetchedArticle = IArticle | undefined;
 
+/**
+ * Guards against the upstream papers API being global (not journal-scoped): a paper ID
+ * resolves regardless of which journal's base URL built the request, so ownership must be
+ * checked against the journal code reported in the payload itself. Logs a warning both when
+ * access is blocked and when `journalCode` is missing (guard inactive), so a silent bypass
+ * stays observable instead of failing open unnoticed.
+ */
+export function isCrossJournalAccess(
+  article: Pick<IArticle, 'journalCode'>,
+  journalId: string,
+  context: { route: string; resourceId: string }
+): boolean {
+  if (article.journalCode === undefined) {
+    log.warn('Article journalCode missing from API payload — cross-journal guard inactive', {
+      route: context.route,
+      resourceId: context.resourceId,
+      requestedJournalCode: journalId,
+    });
+    return false;
+  }
+
+  if (article.journalCode !== journalId) {
+    log.warn('Cross-journal article access blocked', {
+      route: context.route,
+      resourceId: context.resourceId,
+      articleJournalCode: article.journalCode,
+      requestedJournalCode: journalId,
+    });
+    return true;
+  }
+
+  return false;
+}
+
 // Type étendu pour ajouter le champ docid qui existe dans les réponses de l'API
 // mais qui n'est pas officiellement dans le type RawArticle
 interface ExtendedRawArticle extends RawArticle {
@@ -259,11 +293,11 @@ function extractRelatedItems(articleContent: RawArticleContent): IArticleRelated
 /** Extract funding statements from the `fundref` program block. */
 function extractFundings(articleContent: RawArticleContent): string[] {
   const program = articleContent.program;
+  const singleProgramFundref =
+    !Array.isArray(program) && program?.['@name'] === 'fundref' ? program : undefined;
   const fundref = Array.isArray(program)
     ? program.find(p => p['@name'] === 'fundref')
-    : program?.['@name'] === 'fundref'
-      ? program
-      : undefined;
+    : singleProgramFundref;
 
   const assertion = fundref?.assertion?.assertion;
   if (Array.isArray(assertion)) return assertion.map(a => a.value);
@@ -396,7 +430,7 @@ export function formatArticle(article: RawArticle): FetchedArticle {
 
     return {
       id,
-      journalCode: extendedArticle.rvcode,
+      journalCode: articleDB?.current?.journal?.code,
       title: articleContent.titles?.title,
       abstract: extractAbstract(articleContent),
       graphicalAbstract: articleDB?.current?.graphical_abstract_file,
@@ -546,8 +580,8 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
     // Register plugins
     await import('@citation-js/plugin-csl');
 
-    // Register custom CSL templates (IEEE and AMS are not bundled in plugin-csl)
-    const [{ AMS_CSL, IEEE_CSL }, coreModule] = await Promise.all([
+    // Register custom CSL templates (IEEE, AMS, and MLA are not bundled in plugin-csl)
+    const [{ AMS_CSL, IEEE_CSL, MLA_CSL }, coreModule] = await Promise.all([
       import('@/config/csl-styles'),
       import('@citation-js/core') as Promise<any>,
     ]);
@@ -555,6 +589,7 @@ export const getCitations = async (csl?: string): Promise<ICitation[]> => {
     if (cslTemplates) {
       if (!cslTemplates.has('ams')) cslTemplates.add('ams', AMS_CSL);
       if (!cslTemplates.has('ieee')) cslTemplates.add('ieee', IEEE_CSL);
+      if (!cslTemplates.has('mla')) cslTemplates.add('mla', MLA_CSL);
     }
 
     // Parse CSL data - it might be a JSON string, so try to parse it

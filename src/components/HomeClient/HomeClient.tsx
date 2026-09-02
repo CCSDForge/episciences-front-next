@@ -1,7 +1,7 @@
 'use client';
 
 import { CaretRightGreyIcon } from '@/components/icons';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from '@/components/Link/Link';
 import { useTranslation } from 'react-i18next';
 import { HomeData } from '@/services/home';
@@ -27,10 +27,10 @@ import '@/styles/transitions.scss';
 import '@/styles/pages/Home.scss';
 
 interface HomeClientProps {
-  homeData: HomeData;
-  language: string;
-  journalId?: string;
-  journalConfig?: Record<string, string>;
+  readonly homeData: HomeData;
+  readonly language: string;
+  readonly journalId?: string;
+  readonly journalConfig?: Record<string, string>;
 }
 
 // Internal component that uses Redux
@@ -159,8 +159,7 @@ function HomeClientInner({
     const shouldRenderIndexation = indexationConfig?.render && !!indexation?.content;
 
     const issuesConfig = getBlockRendering(HOMEPAGE_BLOCK.SPECIAL_ISSUES);
-    const shouldRenderIssues =
-      issuesConfig?.render && issues && issues.data && issues.data.length > 0;
+    const shouldRenderIssues = issuesConfig?.render && issues?.data && issues.data.length > 0;
 
     const acceptedArticlesConfig = getBlockRendering(
       HOMEPAGE_BLOCK.LATEST_ACCEPTED_ARTICLES_CAROUSEL
