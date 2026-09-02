@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import LinkedPublicationsSectionServer from '../LinkedPublicationsSectionServer';
 import { INTER_WORK_RELATIONSHIP, LINKED_PUBLICATION_IDENTIFIER_TYPE } from '@/utils/article';
 import { Translations } from '@/utils/server-i18n';
+import { RepositoryPreview } from '@/types/repository-preview';
 
 const translations: Translations = {
   pages: {
@@ -10,9 +11,34 @@ const translations: Translations = {
       relationships: {
         hasDerivation: 'Has derivation',
       },
+      repositoryPreview: {
+        preview: 'Preview',
+        hidePreview: 'Hide preview',
+        viewerTitle: '{{provider}} viewer',
+        imageBadge: 'Image',
+        loading: 'Loading…',
+        error: 'Failed to load',
+        retry: 'Retry',
+        selectFile: 'Select a file',
+        openOnRepository: 'Open on {{provider}}',
+      },
     },
   },
 } as unknown as Translations;
+
+const nakalaPreview: RepositoryPreview = {
+  providerId: 'nakala',
+  identifier: '10.34847/nkl.067bpg32',
+  landingUrl: 'https://nakala.fr/10.34847/nkl.067bpg32',
+  files: [
+    {
+      id: 'sha1',
+      label: 'Annexe.jpg',
+      embedUrl: 'https://api.nakala.fr/embed/10.34847/nkl.067bpg32/sha1?buttons=true',
+      kind: 'image',
+    },
+  ],
+};
 
 describe('LinkedPublicationsSectionServer', () => {
   it('returns null when relatedItems is empty', () => {
@@ -215,5 +241,51 @@ describe('LinkedPublicationsSectionServer', () => {
         '.articleDetails-content-article-section-content-linkedPublications-publication-badge'
       )
     ).not.toBeInTheDocument();
+  });
+
+  it('renders a repository preview item (with its toggle) even when the item also has a citation', () => {
+    render(
+      <LinkedPublicationsSectionServer
+        relatedItems={[
+          {
+            value: '10.34847/nkl.067bpg32',
+            identifierType: 'doi',
+            relationshipType: INTER_WORK_RELATIONSHIP.HAS_DERIVATION,
+            citation: 'Delvigne, V. et al. (2024). Microphotographies.',
+          },
+        ]}
+        translations={translations}
+        repositoryPreviews={{ 'doi-10.34847/nkl.067bpg32': nakalaPreview }}
+      />
+    );
+
+    // The repository branch renders the citation AND a preview toggle button — the plain
+    // citation-only branch (checked afterwards) would render no such button.
+    expect(screen.getByRole('button', { name: /Preview/ })).toBeInTheDocument();
+    expect(screen.getByText(/Delvigne, V\. et al\./)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '10.34847/nkl.067bpg32' })).toHaveAttribute(
+      'href',
+      'https://nakala.fr/10.34847/nkl.067bpg32'
+    );
+  });
+
+  it('renders the plain citation branch (no toggle) for an item with no repository preview', () => {
+    render(
+      <LinkedPublicationsSectionServer
+        relatedItems={[
+          {
+            value: 'unrelated-value',
+            identifierType: 'doi',
+            relationshipType: INTER_WORK_RELATIONSHIP.HAS_DERIVATION,
+            citation: 'A plain citation.',
+          },
+        ]}
+        translations={translations}
+        repositoryPreviews={{ 'doi-10.34847/nkl.067bpg32': nakalaPreview }}
+      />
+    );
+
+    expect(screen.queryByRole('button', { name: /Preview/ })).not.toBeInTheDocument();
+    expect(screen.getByText('A plain citation.')).toBeInTheDocument();
   });
 });

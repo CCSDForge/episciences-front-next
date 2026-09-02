@@ -397,7 +397,19 @@
         "pdfDisplayTitle": "Visualización del PDF",
         "pdfDisplayMessage": "El PDF no se puede mostrar directamente. Haga clic en el botón de abajo para abrirlo en una nueva pestaña o descargarlo."
       },
-      "description": "Detalles del artículo, resumen y texto completo"
+      "description": "Detalles del artículo, resumen y texto completo",
+      "repositoryPreview": {
+        "preview": "Previsualizar",
+        "hidePreview": "Ocultar la previsualización",
+        "viewerTitle": "Visualizador {{provider}}",
+        "imageBadge": "Imagen",
+        "loading": "Cargando el visualizador…",
+        "error": "No se pudo cargar la previsualización",
+        "retry": "Reintentar",
+        "noPreview": "Ningún archivo previsualizable en este depósito",
+        "selectFile": "Seleccionar un archivo",
+        "openOnRepository": "Abrir en {{provider}}"
+      }
     },
     "articlesAccepted": {
       "title": "Próximas publicaciones",

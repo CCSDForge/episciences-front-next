@@ -15,6 +15,7 @@ import { AvailableLanguage } from '@/utils/i18n';
 import { loadJournalConfig } from '@/utils/env-loader';
 import { getJournalBaseUrl } from '@/utils/signposting';
 import { logger } from '@/lib/logger';
+import { resolveRepositoryPreviews } from '@/services/repositories';
 
 interface ArticleDetailsPageProps {
   readonly params: Promise<{
@@ -190,6 +191,8 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
     }
   }
 
+  const repositoryPreviews = await resolveRepositoryPreviews(article.relatedItems ?? []);
+
   return (
     <ArticleDetailsServer
       article={article as IArticle}
@@ -200,6 +203,7 @@ export default async function ArticleDetailsPage(props: ArticleDetailsPageProps)
       metadataBibTeX={metadataBibTeX}
       translations={translations}
       language={language}
+      repositoryPreviews={repositoryPreviews}
     />
   );
 }
