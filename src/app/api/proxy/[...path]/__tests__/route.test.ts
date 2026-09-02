@@ -39,11 +39,13 @@ function makePostRequest(path: string, searchParams = '', body = '{}'): NextRequ
 describe('GET /api/proxy/[...path]', () => {
   beforeEach(() => {
     vi.resetModules();
-    global.fetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ data: 'ok' }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      })
+    global.fetch = vi.fn().mockImplementation(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ data: 'ok' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      )
     );
   });
 
@@ -155,17 +157,55 @@ describe('GET /api/proxy/[...path]', () => {
       const res = await GET(makeGetRequest('papers/42', '?rvcode=transformations'), context);
       expect(res.status).toBe(504);
     });
+
+    it('accepts code query param when rvcode is absent', async () => {
+      const { GET } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers'] }) };
+      const res = await GET(makeGetRequest('papers', '?code=epijinfo'), context);
+      expect(res.status).toBe(200);
+    });
+
+    it('returns 502 when upstream fetch throws unexpected network error', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Connection refused'));
+      const { GET } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers', '42'] }) };
+      const res = await GET(makeGetRequest('papers/42', '?rvcode=transformations'), context);
+      expect(res.status).toBe(502);
+      const body = await res.json();
+      expect(body.error).toBe('Failed to proxy request');
+    });
+
+    it('returns 429 when client IP exceeds rate limit in GET', async () => {
+      const { GET } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers'] }) };
+      const ip = '45.33.22.11';
+      const req = (clientIp: string) =>
+        new NextRequest('http://localhost/api/proxy/papers?rvcode=epijinfo', {
+          method: 'GET',
+          headers: { 'x-forwarded-for': clientIp },
+        });
+
+      for (let i = 0; i < 60; i++) {
+        const res = await GET(req(ip), context);
+        expect(res.status).toBe(200);
+      }
+
+      const blockedRes = await GET(req(ip), context);
+      expect(blockedRes.status).toBe(429);
+    });
   });
 });
 
 describe('POST /api/proxy/[...path]', () => {
   beforeEach(() => {
     vi.resetModules();
-    global.fetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ created: true }), {
-        status: 201,
-        headers: { 'Content-Type': 'application/json' },
-      })
+    global.fetch = vi.fn().mockImplementation(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ created: true }), {
+          status: 201,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      )
     );
   });
 
@@ -179,11 +219,67 @@ describe('POST /api/proxy/[...path]', () => {
       expect(body.error).toMatch(/missing rvcode/i);
     });
 
+    it('returns 400 when rvcode is invalid in POST', async () => {
+      const { POST } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers'] }) };
+      const res = await POST(makePostRequest('papers', '?rvcode=BAD_CODE!'), context);
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toMatch(/invalid journal code/i);
+    });
+
     it('returns proxied response when rvcode is valid in POST', async () => {
       const { POST } = await import('../route');
       const context = { params: Promise.resolve({ path: ['papers'] }) };
       const res = await POST(makePostRequest('papers', '?rvcode=epijinfo'), context);
       expect(res.status).toBe(201);
+    });
+
+    it('returns 504 on POST upstream timeout', async () => {
+      const timeoutError = new Error('Upstream timeout');
+      timeoutError.name = 'TimeoutError';
+      global.fetch = vi.fn().mockRejectedValue(timeoutError);
+
+      const { POST } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers'] }) };
+      const res = await POST(makePostRequest('papers', '?rvcode=epijinfo'), context);
+      expect(res.status).toBe(504);
+      const body = await res.json();
+      expect(body.error).toBe('Upstream timeout');
+    });
+
+    it('returns 502 on POST network failure', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network reset'));
+
+      const { POST } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers'] }) };
+      const res = await POST(makePostRequest('papers', '?rvcode=epijinfo'), context);
+      expect(res.status).toBe(502);
+      const body = await res.json();
+      expect(body.error).toBe('Failed to proxy request');
+    });
+
+    it('returns 429 when client IP exceeds rate limit in POST', async () => {
+      const { POST } = await import('../route');
+      const context = { params: Promise.resolve({ path: ['papers'] }) };
+      const ip = '123.123.123.123';
+      const req = () =>
+        new NextRequest('http://localhost/api/proxy/papers?rvcode=epijinfo', {
+          method: 'POST',
+          headers: {
+            'x-forwarded-for': ip,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({}),
+        });
+
+      for (let i = 0; i < 60; i++) {
+        const res = await POST(req(), context);
+        expect(res.status).toBe(201);
+      }
+
+      const blockedRes = await POST(req(), context);
+      expect(blockedRes.status).toBe(429);
     });
   });
 });

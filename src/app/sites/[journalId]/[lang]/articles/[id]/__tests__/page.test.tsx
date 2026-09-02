@@ -52,13 +52,24 @@ vi.mock('next/navigation', () => ({
 }));
 
 import { fetchArticle } from '@/services/article';
+import { fetchVolume } from '@/services/volume';
+import { getJournalByCode } from '@/services/journal';
 import { notFound } from 'next/navigation';
+import { generateArticleMetadata } from '@/components/Meta/ArticleMeta/ArticleMeta';
 
-function makeProps(journalId: string, id = '18632') {
-  return { params: Promise.resolve({ id, lang: 'fr', journalId }) };
+vi.mock('@/components/Meta/ArticleMeta/ArticleMeta', () => ({
+  generateArticleMetadata: vi.fn((args: any) => ({
+    title: args.article?.title ?? 'mock-title',
+    openGraph: { title: args.article?.title },
+    _metaArgs: args,
+  })),
+}));
+
+function makeProps(journalId: string, id = '18632', lang = 'fr') {
+  return { params: Promise.resolve({ id, lang, journalId }) };
 }
 
-describe('ArticleDetailsPage — cross-journal access guard', () => {
+describe('ArticleDetailsPage — cross-journal access guard and edge cases', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -113,5 +124,129 @@ describe('ArticleDetailsPage — cross-journal access guard', () => {
 
     await expect(ArticleDetailsPage(makeProps('fajpc'))).rejects.toThrow();
     expect(notFound).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders placeholder when id is no-articles-found', async () => {
+    const { default: ArticleDetailsPage } = await import('../page');
+
+    const result = await ArticleDetailsPage(makeProps('fajpc', 'no-articles-found'));
+    expect(result).toBeTruthy();
+    expect(fetchArticle).not.toHaveBeenCalled();
+  });
+});
+
+describe('generateMetadata', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns placeholder title when id is no-articles-found', async () => {
+    const { generateMetadata } = await import('../page');
+
+    const meta = await generateMetadata(makeProps('fajpc', 'no-articles-found'));
+    expect(meta).toEqual({ title: 'Aucun article disponible' });
+    expect(fetchArticle).not.toHaveBeenCalled();
+  });
+
+  it('returns not found title when article does not exist', async () => {
+    vi.mocked(fetchArticle).mockResolvedValue(null);
+
+    const { generateMetadata } = await import('../page');
+
+    const meta = await generateMetadata(makeProps('fajpc', '99999'));
+    expect(meta).toEqual({ title: 'Article non trouvé' });
+  });
+
+  it('generates complete metadata with array keywords and pdf link', async () => {
+    vi.mocked(fetchArticle).mockResolvedValue({
+      id: 18632,
+      title: 'Test Article Title',
+      authors: [{ fullname: 'John Doe' }],
+      keywords: ['AI', 'Testing'],
+      volumeId: 12,
+      pdfLink: 'https://example.org/article.pdf',
+    } as never);
+
+    vi.mocked(getJournalByCode).mockResolvedValue({
+      name: 'Journal of Testing',
+      code: 'fajpc',
+    } as never);
+
+    vi.mocked(fetchVolume).mockResolvedValue({
+      id: 12,
+      title: 'Volume 12',
+    } as never);
+
+    const { generateMetadata } = await import('../page');
+
+    const meta = await generateMetadata(makeProps('fajpc', '18632', 'fr'));
+    expect(generateArticleMetadata).toHaveBeenCalledTimes(1);
+    expect(meta).toHaveProperty('title', 'Test Article Title');
+
+    const metaArgs = vi.mocked(generateArticleMetadata).mock.calls[0][0];
+    expect(metaArgs.keywords).toEqual(['AI', 'Testing']);
+    expect(metaArgs.pdfDownloadUrl).toContain('/fr/articles/18632/download');
+    expect(metaArgs.relatedVolume).toEqual({ id: 12, title: 'Volume 12' });
+    expect(metaArgs.canonicalUrl).toBe('https://requested-journal.episciences.org/fr/articles/18632');
+  });
+
+  it('extracts keywords for language when keywords is an object', async () => {
+    vi.mocked(fetchArticle).mockResolvedValue({
+      id: 18632,
+      title: 'Localized Keywords Article',
+      keywords: {
+        fr: ['IA', 'Tests'],
+        en: ['AI', 'Testing'],
+      },
+    } as never);
+
+    const { generateMetadata } = await import('../page');
+
+    await generateMetadata(makeProps('fajpc', '18632', 'fr'));
+    const metaArgs = vi.mocked(generateArticleMetadata).mock.calls[0][0];
+    expect(metaArgs.keywords).toEqual(['IA', 'Tests']);
+    expect(metaArgs.pdfDownloadUrl).toBeUndefined();
+  });
+
+  it('falls back to all keywords if current language is not in keywords object', async () => {
+    vi.mocked(fetchArticle).mockResolvedValue({
+      id: 18632,
+      title: 'Fallback Keywords Article',
+      keywords: {
+        en: ['Machine Learning'],
+      },
+    } as never);
+
+    const { generateMetadata } = await import('../page');
+
+    await generateMetadata(makeProps('fajpc', '18632', 'fr'));
+    const metaArgs = vi.mocked(generateArticleMetadata).mock.calls[0][0];
+    expect(metaArgs.keywords).toEqual(['Machine Learning']);
+  });
+
+  it('handles volume fetch rejection gracefully', async () => {
+    vi.mocked(fetchArticle).mockResolvedValue({
+      id: 18632,
+      title: 'Article with Failed Volume',
+      volumeId: 999,
+    } as never);
+
+    vi.mocked(fetchVolume).mockRejectedValue(new Error('Volume not found'));
+
+    const { generateMetadata } = await import('../page');
+
+    const meta = await generateMetadata(makeProps('fajpc', '18632'));
+    expect(meta).toHaveProperty('title', 'Article with Failed Volume');
+    const metaArgs = vi.mocked(generateArticleMetadata).mock.calls[0][0];
+    expect(metaArgs.relatedVolume).toBeNull();
+  });
+
+  it('catches unexpected error and returns error title', async () => {
+    vi.mocked(fetchArticle).mockRejectedValue(new Error('Fatal database error'));
+
+    const { generateMetadata } = await import('../page');
+
+    const meta = await generateMetadata(makeProps('fajpc', '18632'));
+    expect(meta).toEqual({ title: "Erreur lors du chargement de l'article" });
   });
 });

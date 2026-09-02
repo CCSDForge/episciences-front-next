@@ -43,6 +43,23 @@ vi.mock('next/dynamic', () => ({
   default: () => (props: any) => (
     <div data-testid="search-mobile-modal">
       <button onClick={() => props.onCloseCallback()}>close-modal</button>
+      <button onClick={() => props.onUpdateTypesCallback?.([{ value: 'article', isChecked: true }])}>
+        update-types
+      </button>
+      <button onClick={() => props.onUpdateYearsCallback?.([{ year: 2024, isChecked: true }])}>
+        update-years
+      </button>
+      <button onClick={() => props.onUpdateVolumesCallback?.([{ id: 10, isChecked: true }])}>
+        update-volumes
+      </button>
+      <button onClick={() => props.onUpdateSectionsCallback?.([{ id: 20, isChecked: true }])}>
+        update-sections
+      </button>
+      <button
+        onClick={() => props.onUpdateAuthorsCallback?.([{ fullname: 'Doe, John', isChecked: true }])}
+      >
+        update-authors
+      </button>
     </div>
   ),
 }));
@@ -256,5 +273,124 @@ describe('SearchClient', () => {
 
     expect(screen.getAllByText('Recherche').length).toBeGreaterThan(0);
     expect(screen.getByText(/résultat pour/)).toBeInTheDocument();
+  });
+
+  it('renders correctly with 0 search results', () => {
+    render(
+      <SearchClient
+        initialSearchResults={{ data: [], totalItems: 0, range: {} } as any}
+        initialSearch="nonexistent"
+        initialPage={1}
+        lang="fr"
+      />
+    );
+
+    expect(screen.getByText(/common\.resultFor/)).toBeInTheDocument();
+  });
+
+  it('handles rich facets (year, volume, section, author) and tag removal', async () => {
+    const richRangeResults = {
+      data: mockResults,
+      totalItems: 2,
+      range: {
+        types: [{ value: 'article', count: 1 }],
+        years: [{ value: 2024, count: 2 }],
+        volumes: {
+          fr: [{ '10': 'Volume Dix' }],
+          en: [{ '10': 'Volume Ten' }],
+        },
+        sections: {
+          fr: [{ '20': 'Section Vingt' }],
+          en: [{ '20': 'Section Twenty' }],
+        },
+        authors: [{ value: 'Doe, John', count: 1 }],
+      },
+    };
+
+    render(
+      <SearchClient
+        initialSearchResults={richRangeResults as any}
+        initialSearch="graph"
+        initialPage={1}
+        lang="fr"
+      />
+    );
+
+    // Find all checkboxes
+    const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
+    expect(checkboxes.length).toBeGreaterThanOrEqual(5);
+
+    // Click year checkbox
+    fireEvent.click(checkboxes[1]);
+    await waitFor(() =>
+      expect(document.querySelector('.articles-filters-tags')).toBeInTheDocument()
+    );
+
+    // Remove the tag by clicking on its close button
+    const removeTagBtn = document.querySelector('.articles-filters-tags button');
+    if (removeTagBtn) {
+      fireEvent.click(removeTagBtn);
+      await waitFor(() =>
+        expect(document.querySelector('.articles-filters-tags')).not.toBeInTheDocument()
+      );
+    }
+  });
+
+  it('handles search fetch failure gracefully', async () => {
+    vi.mocked(fetchSearchResults).mockRejectedValueOnce(new Error('Search service down'));
+
+    render(
+      <SearchClient
+        initialSearchResults={initialSearchResults as any}
+        initialSearch="graph"
+        initialPage={1}
+        lang="fr"
+      />
+    );
+
+    const checkbox = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    fireEvent.click(checkbox);
+
+    // Should not crash and keep or restore results
+    await waitFor(() => {
+      expect(fetchSearchResults).toHaveBeenCalled();
+    });
+  });
+
+  it('updates filters when callbacks from mobile modal are triggered', async () => {
+    render(
+      <SearchClient
+        initialSearchResults={initialSearchResults as any}
+        initialSearch="graph"
+        initialPage={1}
+        lang="fr"
+      />
+    );
+
+    // Open modal
+    const filterTile = document.querySelector(
+      '.articles-title-count-filtersMobile-tile'
+    ) as HTMLElement;
+    fireEvent.click(filterTile);
+
+    expect(screen.getByTestId('search-mobile-modal')).toBeInTheDocument();
+
+    // Trigger update-types
+    fireEvent.click(screen.getByText('update-types'));
+    // Trigger update-years
+    fireEvent.click(screen.getByText('update-years'));
+    // Trigger update-volumes
+    fireEvent.click(screen.getByText('update-volumes'));
+    // Trigger update-sections
+    fireEvent.click(screen.getByText('update-sections'));
+    // Trigger update-authors
+    fireEvent.click(screen.getByText('update-authors'));
+
+    // Close modal
+    fireEvent.click(screen.getByText('close-modal'));
+
+    await waitFor(() => {
+      expect(document.querySelector('.articles-filters-tags')).toBeInTheDocument();
+    });
   });
 });
