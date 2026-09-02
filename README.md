@@ -30,11 +30,11 @@ It combines:
 - **i18next** for internationalization
 - **Vitest** for testing
 - **better-react-mathjax** for math rendering
-- **Middleware** for multi-tenancy
+- **Proxy** (`src/proxy.ts`) for multi-tenant routing
 
 ## Prerequisites
 
-- Node.js >= 20.0.0
+- Node.js >= 22.0.0
 - npm >= 9.x.x
 
 ## Getting Started
@@ -65,20 +65,23 @@ npm run start
 
 ## Available Scripts
 
-| Command                 | Description                             |
-| ----------------------- | --------------------------------------- |
-| `npm run dev`           | Start development server on port 8080   |
-| `npm run dev:turbo`     | Start development server with Turbopack |
-| `npm run build`         | Production build (standalone Node.js)   |
-| `npm run start`         | Start production server                 |
-| `npm run lint`          | Run ESLint                              |
-| `npm run format`        | Format code with Prettier               |
-| `npm run format:check`  | Check code formatting                   |
-| `npm run test`          | Run tests in watch mode                 |
-| `npm run test:run`      | Run tests once (CI mode)                |
-| `npm run test:ui`       | Run tests with UI                       |
-| `npm run test:coverage` | Generate test coverage report           |
-| `npm run sonar`         | Run SonarQube analysis                  |
+| Command                  | Description                                      |
+| ------------------------ | ------------------------------------------------ |
+| `npm run dev`            | Start development server on port 8080            |
+| `npm run dev:turbo`      | Start development server with Turbopack          |
+| `npm run dev:https`      | Start development server with HTTPS on port 8443 |
+| `npm run build`          | Production build (standalone Node.js)            |
+| `npm run build:turbo`    | Production build with Turbopack                  |
+| `npm run start`          | Start production server                          |
+| `npm run lint`           | Run ESLint                                       |
+| `npm run format`         | Format code with Prettier                        |
+| `npm run format:check`   | Check code formatting                            |
+| `npm run test`           | Run tests in watch mode                          |
+| `npm run test:run`       | Run tests once (CI mode)                         |
+| `npm run test:ui`        | Run tests with UI                                |
+| `npm run test:coverage`  | Generate test coverage report                    |
+| `npm run validate:pages` | Validate static pages configuration              |
+| `npm run sonar`          | Run SonarQube analysis                           |
 
 ## Testing
 
@@ -149,13 +152,13 @@ To avoid building unnecessary pages, use the `BUILD_ENV` variable:
 
 ## Local Development
 
-The application uses Middleware to handle multiple journals (tenants) from a single instance.
+The application uses a multi-tenant routing proxy (`src/proxy.ts`, conforming to Next.js 16 conventions) to handle multiple journals (tenants) from a single instance.
 
 ### Testing different journals locally
 
 #### 1. Via Subdomains (Recommended)
 
-The middleware detects the journal ID from the subdomain:
+The proxy detects the journal ID from the subdomain:
 
 - `http://epijinfo.localhost:8080`
 - `http://jds.localhost:8080`
@@ -186,6 +189,7 @@ episciences-front-next/
 │   ├── components/      # Reusable React components
 │   ├── config/          # Configuration files
 │   ├── hooks/           # React hooks
+│   ├── lib/             # Core utilities and structured logger (src/lib/logger.ts)
 │   ├── proxy.ts         # Multi-tenant routing logic (Next.js 16 proxy, formerly middleware.ts)
 │   ├── services/        # Data fetching with Cache Tags
 │   ├── store/           # Redux store

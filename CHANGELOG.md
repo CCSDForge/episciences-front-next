@@ -32,6 +32,7 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Responsive Mobile Navigation**: Added a mobile burger menu for header navigation on smaller screen viewports.
 - **News Link Styling**: Added underline styling for links in news card content to improve readability and visual cues.
 - **Code Quality & SonarQube Scan**: Added local SonarQube analysis target (`make sonar`) with automated coverage reporting.
+- **Extended Test Coverage**: Added unit test coverage for error boundaries and reset handlers (`ErrorFallback`, `RootErrorBoundary`), faceted search, tag removal and modal updates in `SearchClient`, API proxy branch and error case handling, signposting, editorial proposing special issues, and article detail page `generateMetadata`.
 - **Satcom Preprod Configuration**: Added pre-production journal profile for `satcom-preprod`.
 
 ### Changed
@@ -103,7 +104,6 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Article Section Ordering**: Inverted the display order of sections on the article page: the PDF preview block now appears before the bibliographic references section.
 - **Dynamic Page Titles**: Sourced journal titles dynamically from API metadata instead of hardcoded 'Episciences' in page title templates.
 - **Scientific Advisory Board Ordering**: Displayed scientific advisory board before editorial board on the boards page.
-- **Development Server Port**: Changed default development server port from `8080` to `5000` in `package.json` to prevent port conflicts with local Docker services.
 
 ### Fixed
 
