@@ -64,6 +64,7 @@ Usually the right type is clear. Three of them cause the most questions:
 - **Board Dependencies**: Aligned `boardsPerTitle` `useMemo` dependencies in `BoardsClient`.
 - **Test Suite Coverage**: Added comprehensive unit test coverage for layouts, feed routes, and server components, raising test coverage to >82%.
 - **Cross-Journal Access Guard**: Centralized cross-journal access protection across article details, downloads, preview, and linksets.
+- **Footer Publishing Policy Link**: Fixed malformed URL (e.g. `/en/enabout`) caused by manually prefixing the language locale in `Footer`/`FooterServer`, duplicating the prefix already applied by the shared `Link` component's localization, and corrected the English anchor to `#publishing-policy` (singular).
 
 ### Security
 

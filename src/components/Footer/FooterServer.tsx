@@ -84,8 +84,8 @@ export default async function FooterServer({
         `${episciencesUrl}/terms-of-use`;
   const publishingPolicyAnchor =
     lang === 'fr'
-      ? `/${lang}${PATHS.about}#politiques-de-publication`
-      : `/${lang}${PATHS.about}#publishing-policies`;
+      ? `${PATHS.about}#politiques-de-publication`
+      : `${PATHS.about}#publishing-policy`;
 
   // Load translations for the current language
   const translations = await getServerTranslations(lang);
