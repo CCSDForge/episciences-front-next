@@ -40,17 +40,17 @@ const nextConfig = {
 
   // Required when running behind a reverse proxy (HAProxy → Nginx → Node.js).
   //
-  // trustHostHeader: true  → resolve-routes.js builds initUrl from the Host header
-  //                          (e.g. https://epijinfo.episciences.org/) instead of
-  //                          the server's internal address (https://localhost:3000/).
+  // runProxy() (src/proxy.ts) reuses the initUrl stored in the request metadata
+  // instead of re-building it from fetchHostname. Without this the two URLs have
+  // different origins, getRelativeURL() cannot relativize the rewrite destination,
+  // and Next.js falls back to an external HTTPS proxy to localhost:3000 → EPROTO.
   //
-  // skipProxyUrlNormalize: true → runMiddleware() uses the same initUrl stored in
-  //                          request metadata instead of re-building it from
-  //                          fetchHostname. Without this the two URLs have different
-  //                          origins, getRelativeURL() cannot relativize the rewrite
-  //                          destination, and Next.js falls back to an external
-  //                          HTTPS proxy to localhost:3000 → EPROTO.
-  trustHostHeader: true,
+  // NOTE: a `trustHostHeader: true` sibling used to sit here. It was a no-op and
+  // only produced an "Unrecognized key(s)" warning: the option is not part of the
+  // next.config schema, it is read as `experimental.trustHostHeader`, and for
+  // `output: 'standalone'` the build hardcodes that field to `hasNextSupport`
+  // (Vercel-only, so always false here) in required-server-files.json. The
+  // EPROTO fix is skipProxyUrlNormalize alone.
   skipProxyUrlNormalize: true,
 
   // Distributed cache handler (Valkey/ioredis)
