@@ -5,6 +5,7 @@ import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'header' });
 import LanguageDropdownWrapper from './LanguageDropdownWrapper';
+import ThemeToggleWrapper from './ThemeToggleWrapper';
 import MobileBurgerMenu from './MobileBurgerMenu';
 import UserCircleIcon from '@/components/icons/ui/UserCircleIcon';
 import SkipLink from '@/components/SkipLink/SkipLink';
@@ -166,6 +167,7 @@ export default async function HeaderServer({
             {t('components.header.links.openAccessJournals', translations)}
           </Link>
           <div className="header-preheader-links-right">
+            <ThemeToggleWrapper />
             <LanguageDropdownWrapper lang={lang} acceptedLanguages={acceptedLanguages} />
             {signInUrl && (
               <>
@@ -239,6 +241,7 @@ export default async function HeaderServer({
           <span>{journalName}</span>
         </div>
         <div className="header-reduced-journal-dropdown">
+          <ThemeToggleWrapper />
           <LanguageDropdownWrapper lang={lang} acceptedLanguages={acceptedLanguages} />
           {signInUrl && (
             <>

@@ -15,11 +15,39 @@
     border-radius: 3px;
   }
 
+  // Not animated: animating scrollbar-color flickers under WebKit.
   &:hover {
-    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+    scrollbar-color: var(--border) transparent;
   }
 
   &:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.15);
+    background-color: var(--border);
+  }
+}
+
+/// Applies @content when the dark scheme is active — system-followed or pinned.
+/// Use for anything light-dark() can't express: icons, logos, filters, non-color values.
+@mixin when-dark {
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      @content;
+    }
+  }
+
+  :root[data-theme='dark'] & {
+    @content;
+  }
+}
+
+/// Applies @content when the light scheme is active — system-followed or pinned.
+@mixin when-light {
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) & {
+      @content;
+    }
+  }
+
+  :root[data-theme='light'] & {
+    @content;
   }
 }

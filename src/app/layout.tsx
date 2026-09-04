@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 // Importer l'intercepteur fetch pour logger toutes les requêtes
 import '@/utils/fetchInterceptor';
 import { defaultLanguage } from '@/utils/language-utils';
+import { THEME_BOOTSTRAP } from '@/config/theme-bootstrap';
 import '@/styles/index.scss';
 
 export const metadata: Metadata = {
@@ -22,13 +23,15 @@ export default function RootLayout({ children }: { readonly children: React.Reac
   // ce qui casse les pages en ISR/SSG comme les articles.
   // La langue correcte est gérée au niveau des sous-layouts via les paramètres d'URL.
   return (
-    <html lang={defaultLanguage}>
+    <html lang={defaultLanguage} suppressHydrationWarning>
       <head>
         <base href="/" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+        <meta name="color-scheme" content="light dark" suppressHydrationWarning />
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
       </head>
-      <body className="light-theme">
+      <body>
         {/* The JournalLayout at /sites/[journalId]/layout.tsx will provide ClientProviders */}
         {children}
         <div

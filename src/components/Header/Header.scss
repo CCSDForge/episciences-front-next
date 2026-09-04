@@ -2,10 +2,10 @@
 .header {
   height: 285px;
   width: 100%;
-  background: var(--white);
+  background: var(--surface);
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 2px 4px var(--black-shadow);
+  box-shadow: 0px 2px 4px var(--shadow);
   position: fixed;
   top: 0;
   z-index: 2;
@@ -32,6 +32,18 @@
       align-items: center;
       justify-content: center;
       border-bottom: 1px solid var(--primary);
+      // Light island: journal logos are polychrome SVGs designed for a white box —
+      // filter: invert() would wreck their colors, so the box itself stays light
+      // regardless of the active scheme (see docs/ACCESSIBLE_COLOR_SYSTEM.md §Logos).
+      color-scheme: only light;
+      background: var(--pure-white);
+      color: var(--pure-black);
+      accent-color: auto;
+      // border-box: padding must not change this box's outer footprint (would be a
+      // light-mode layout regression too, box-sizing here is content-box by default).
+      box-sizing: border-box;
+      padding: 4px;
+      border-radius: 4px;
 
       a {
         display: flex;
@@ -140,9 +152,27 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      // Light island: the Episciences wordmark SVG is drawn in dark navy/teal for a
+      // white background ("fond-clair" in the source file) — invisible on a dark
+      // surface. Same rationale as .header-journal-logo below.
+      color-scheme: only light;
+      background: var(--pure-white);
+      color: var(--pure-black);
+      accent-color: auto;
+      box-sizing: border-box;
+      padding: 4px;
+      border-radius: 4px;
 
       a {
         height: 100%;
+      }
+
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
       }
     }
 
@@ -245,9 +275,10 @@
     }
   }
 
-  // Sign-in inside reduced header (on primary background)
+  // Sign-in / theme toggle inside reduced header (on primary background)
   &-reduced-journal-dropdown {
-    .header-signin {
+    .header-signin,
+    .themeToggle {
       color: var(--button-text-on-primary-bg);
 
       &:focus-visible {
@@ -278,6 +309,14 @@
       justify-content: center;
       border: 1px solid var(--primary);
       border-left: none;
+      // Light island — see .header-reduced-journal-logo above for the rationale.
+      color-scheme: only light;
+      background: var(--pure-white);
+      color: var(--pure-black);
+      accent-color: auto;
+      box-sizing: border-box;
+      padding: 4px;
+      border-radius: 4px;
 
       a {
         display: flex;
@@ -409,7 +448,7 @@
             min-width: 100px;
             gap: 10px;
             padding: 7px 25px 10px 9px;
-            background: var(--white);
+            background: var(--surface-raised);
             color: var(--grey);
             border: 1px solid var(--grey-light);
             box-shadow: 0px 3px 6px var(--grey);
@@ -513,7 +552,7 @@
         height: 100%;
         border: 0;
         border-right: none;
-        background: var(--white);
+        background: var(--surface);
         padding: 0 10px;
         min-width: 200px;
 
@@ -666,7 +705,7 @@
           min-width: 162px;
           gap: 10px;
           padding: 7px 25px 10px 9px;
-          background: var(--white);
+          background: var(--surface-raised);
           color: var(--grey);
           border: 1px solid var(--grey-light);
           box-shadow: 0px 3px 6px var(--grey);

@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import JournalLayout from '../layout';
+import JournalLayout, { safeColor } from '../layout';
 import { loadJournalConfig } from '@/utils/env-loader';
 
 vi.mock('@/utils/env-loader', () => ({
@@ -10,6 +10,38 @@ vi.mock('@/utils/env-loader', () => ({
 function mockConfig(env: Record<string, string>): void {
   vi.mocked(loadJournalConfig).mockReturnValue({ code: 'journal', env });
 }
+
+function getStyleText(container: HTMLElement): string {
+  const style = container.querySelector('style') ?? document.head.querySelector('style');
+  expect(style).not.toBeNull();
+  return style!.innerHTML;
+}
+
+describe('safeColor', () => {
+  it('accepts hex colors of every valid length', () => {
+    for (const v of ['#abc', '#abcd', '#aabbcc', '#aabbccdd']) {
+      expect(safeColor(v, 'fallback')).toBe(v);
+    }
+  });
+
+  it('accepts oklch() colors', () => {
+    expect(safeColor('oklch(0.7 0.1 250)', 'fallback')).toBe('oklch(0.7 0.1 250)');
+    expect(safeColor('oklch(70% 0.1 250deg / 50%)', 'fallback')).toBe('oklch(70% 0.1 250deg / 50%)');
+  });
+
+  it('rejects a </style> breakout attempt', () => {
+    expect(safeColor('</style><script>alert(1)</script>', 'fallback')).toBe('fallback');
+  });
+
+  it('rejects url(...) and var(...) — never issued by our own generators, but defense in depth', () => {
+    expect(safeColor('url(javascript:alert(1))', 'fallback')).toBe('fallback');
+    expect(safeColor('var(--x)', 'fallback')).toBe('fallback');
+  });
+
+  it('rejects a bare CSS injection payload', () => {
+    expect(safeColor('red;} body{background:url(x)', 'fallback')).toBe('fallback');
+  });
+});
 
 describe('JournalLayout', () => {
   beforeEach(() => {
@@ -27,33 +59,38 @@ describe('JournalLayout', () => {
     expect(getByTestId('child')).toHaveTextContent('Hello');
   });
 
-  it('injects a style tag with the expected CSS custom property names', async () => {
+  it('injects a style tag with light/dark pairs for every L1 token', async () => {
     const jsx = await JournalLayout({
       params: Promise.resolve({ journalId: 'journal' }),
       children: <div>content</div>,
     });
     const { container } = render(jsx);
+    const cssText = getStyleText(container);
 
-    // In happy-dom a <style> element rendered via dangerouslySetInnerHTML stays in the
-    // render container rather than hoisting to document.head; check both to be safe.
-    const style = container.querySelector('style') ?? document.head.querySelector('style');
-    expect(style).not.toBeNull();
-
-    const cssText = style!.innerHTML;
-    expect(cssText).toContain('--primary:');
-    expect(cssText).toContain('--primary-text:');
-    expect(cssText).toContain('--primary-text-aaa:');
-    expect(cssText).toContain('--primary-text-large:');
-    expect(cssText).toContain('--primary-text-on-gray:');
-    expect(cssText).toContain('--primary-text-on-dark:');
-    expect(cssText).toContain('--primary-border:');
-    expect(cssText).toContain('--link-color:');
-    expect(cssText).toContain('--link-hover-color:');
-    expect(cssText).toContain('--heading-color:');
-    expect(cssText).toContain('--button-text-on-primary-bg:');
-    expect(cssText).toContain('--focus-color:');
-    expect(cssText).toContain('--focus-color-on-primary:');
-    expect(cssText).toContain('--focus-color-on-dark:');
+    for (const token of [
+      'primary-light',
+      'primary-dark',
+      'primary-text-light',
+      'primary-text-dark',
+      'primary-border-light',
+      'primary-border-dark',
+      'button-text-on-primary-bg-light',
+      'button-text-on-primary-bg-dark',
+      'focus-color-light',
+      'focus-color-dark',
+      'focus-color-on-primary-light',
+      'focus-color-on-primary-dark',
+      'focus-color-on-dark-dark',
+      'surface-dark',
+      'surface-2-dark',
+      'surface-raised-dark',
+      'text-strong-dark',
+      'text-dark',
+      'text-muted-dark',
+      'border-dark',
+    ]) {
+      expect(cssText).toContain(`--${token}:`);
+    }
     expect(cssText).toMatch(/^:root\{/);
   });
 
@@ -64,15 +101,15 @@ describe('JournalLayout', () => {
       params: Promise.resolve({ journalId: 'journal' }),
       children: <div>content</div>,
     });
-    const { container } = render(jsx);
-    const style = container.querySelector('style') ?? document.head.querySelector('style');
+    const cssText = getStyleText(render(jsx).container);
 
-    expect(style!.innerHTML).toContain('--primary:#336699');
+    // Light mode is a no-op pass-through of the raw brand color.
+    expect(cssText).toContain('--primary-light:#336699');
   });
 
-  // Security-relevant: sanitizeCssValue must strip anything that could break out of
-  // the <style> tag (e.g. a malicious primary-text-color override from journal config).
-  it('sanitizes a malicious CSS value to prevent </style> breakout / script injection', async () => {
+  // Security-relevant: a malicious override must never reach the emitted <style>,
+  // even as a substring — safeColor rejects the whole value rather than mangling it.
+  it('rejects a malicious CSS value to prevent </style> breakout / script injection', async () => {
     mockConfig({
       NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR: '#000000',
       NEXT_PUBLIC_JOURNAL_PRIMARY_TEXT_COLOR: '</style><script>alert(1)</script>',
@@ -82,13 +119,8 @@ describe('JournalLayout', () => {
       params: Promise.resolve({ journalId: 'journal' }),
       children: <div>content</div>,
     });
-    const { container } = render(jsx);
-    const style = container.querySelector('style') ?? document.head.querySelector('style');
-    const cssText = style!.innerHTML;
+    const cssText = getStyleText(render(jsx).container);
 
-    // The sanitizer strips any character outside [a-zA-Z0-9%.,() ] (plus '#'), so all
-    // angle brackets and slashes are removed — no tag can be reconstructed even though
-    // inert letters like "script" may remain as harmless plain text.
     expect(cssText).not.toContain('</style>');
     expect(cssText).not.toContain('<script>');
     expect(cssText).not.toMatch(/[<>/]/);
@@ -101,9 +133,8 @@ describe('JournalLayout', () => {
       params: Promise.resolve({ journalId: 'journal' }),
       children: <div>content</div>,
     });
-    const { container } = render(jsx);
-    const style = container.querySelector('style') ?? document.head.querySelector('style');
+    const cssText = getStyleText(render(jsx).container);
 
-    expect(style!.innerHTML).toContain('--primary:#000000');
+    expect(cssText).toContain('--primary-light:#000000');
   });
 });

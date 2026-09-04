@@ -1,0 +1,45 @@
+@use '@/styles/mixins';
+
+.themeToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-color, #0066cc);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  &-icon {
+    display: none;
+    flex-shrink: 0;
+    line-height: 0;
+
+    // Icon mirrors the currently active scheme (not the destination of a click).
+    &-sun {
+      @include mixins.when-light {
+        display: block;
+      }
+    }
+
+    &-moon {
+      @include mixins.when-dark {
+        display: block;
+      }
+    }
+  }
+
+  &-text {
+    min-width: 40px;
+    text-align: left;
+  }
+}
