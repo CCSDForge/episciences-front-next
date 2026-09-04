@@ -1,10 +1,12 @@
 @use '@/styles/breakpoints.scss';
+@use '@/styles/mixins';
 
 .boardCard {
   display: flex;
   flex-direction: column;
   padding: 25px;
-  border: 1px solid var(--grey);
+  border: 1px solid;
+  @include mixins.elevated-card;
   border-bottom: 4px solid var(--accent-border);
   cursor: pointer;
 

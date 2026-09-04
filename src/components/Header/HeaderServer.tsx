@@ -168,6 +168,9 @@ export default async function HeaderServer({
           </Link>
           <div className="header-preheader-links-right">
             <ThemeToggleWrapper />
+            <span className="header-signin-separator" aria-hidden="true">
+              |
+            </span>
             <LanguageDropdownWrapper lang={lang} acceptedLanguages={acceptedLanguages} />
             {signInUrl && (
               <>
@@ -242,6 +245,9 @@ export default async function HeaderServer({
         </div>
         <div className="header-reduced-journal-dropdown">
           <ThemeToggleWrapper />
+          <span className="header-signin-separator" aria-hidden="true">
+            |
+          </span>
           <LanguageDropdownWrapper lang={lang} acceptedLanguages={acceptedLanguages} />
           {signInUrl && (
             <>

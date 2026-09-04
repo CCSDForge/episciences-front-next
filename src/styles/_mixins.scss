@@ -51,3 +51,14 @@
     @content;
   }
 }
+
+/// GitHub-style card elevation: in light mode the card stays flush with the page
+/// (unchanged — border-only separation, as today); in dark mode it lifts one step
+/// off the page background (--surface-2) with a softer border (--border) instead
+/// of the stronger --grey used for the light-mode line. Apply alongside an
+/// existing `border: 1px solid;` / `border-bottom: 4px solid var(--accent-border);`
+/// declaration — this mixin only sets background and border-color.
+@mixin elevated-card {
+  background: light-dark(transparent, var(--surface-2));
+  border-color: light-dark(var(--grey), var(--border));
+}
