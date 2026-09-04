@@ -69,8 +69,10 @@
     &-blank {
       min-width: 0;
       flex: 1;
-      background: var(--primary);
-      color: var(--button-text-on-primary-bg);
+      // --brand (not --primary): the banner keeps the literal journal color in
+      // both themes — see theme.scss's "Scheme-invariant brand tokens".
+      background: var(--brand);
+      color: var(--text-on-brand);
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -102,9 +104,9 @@
       align-items: center;
       justify-content: flex-end;
       padding-right: 20px;
-      background: var(--primary);
-      color: var(--button-text-on-primary-bg);
-      border-bottom: 1px solid var(--primary);
+      background: var(--brand);
+      color: var(--text-on-brand);
+      border-bottom: 1px solid var(--brand);
 
       @media (max-width: breakpoints.$xsm) {
         min-width: unset;
@@ -275,19 +277,19 @@
     }
   }
 
-  // Sign-in / theme toggle inside reduced header (on primary background)
+  // Sign-in / theme toggle inside reduced header (on the --brand banner)
   &-reduced-journal-dropdown {
     .header-signin,
     .themeToggle {
-      color: var(--button-text-on-primary-bg);
+      color: var(--text-on-brand);
 
       &:focus-visible {
-        outline-color: var(--focus-color-on-primary, #ffffff);
+        outline-color: var(--focus-color-on-brand, #ffffff);
       }
     }
 
     .header-signin-separator {
-      color: var(--button-text-on-primary-bg);
+      color: var(--text-on-brand);
     }
   }
 
@@ -350,8 +352,10 @@
     &-title {
       width: 100%;
       padding-right: 80px;
-      background: var(--primary);
-      color: var(--button-text-on-primary-bg);
+      // --brand (not --primary): the banner keeps the literal journal color in
+      // both themes — see theme.scss's "Scheme-invariant brand tokens".
+      background: var(--brand);
+      color: var(--text-on-brand);
       display: flex;
       flex-direction: column;
       align-items: flex-end;

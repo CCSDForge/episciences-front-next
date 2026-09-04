@@ -68,6 +68,9 @@ describe('JournalLayout', () => {
     const cssText = getStyleText(container);
 
     for (const token of [
+      'brand',
+      'text-on-brand',
+      'focus-color-on-brand',
       'primary-light',
       'primary-dark',
       'primary-text-light',
@@ -105,6 +108,9 @@ describe('JournalLayout', () => {
 
     // Light mode is a no-op pass-through of the raw brand color.
     expect(cssText).toContain('--primary-light:#336699');
+    // --brand is scheme-invariant: the header banner keeps the literal journal
+    // color in both themes (no -light/-dark pair, unlike --primary).
+    expect(cssText).toContain('--brand:#336699');
   });
 
   // Security-relevant: a malicious override must never reach the emitted <style>,

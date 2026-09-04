@@ -53,6 +53,13 @@
 // no journal <style> effectively renders as today.
 // ---------------------------------------------------------------------------
 :root {
+  // Scheme-invariant brand tokens — see JournalLayout for why these don't get a
+  // -light/-dark pair. Consumed only by the header banner (.header-journal-title,
+  // .header-reduced-journal-blank/-dropdown).
+  --brand: #000000;
+  --text-on-brand: #ffffff;
+  --focus-color-on-brand: #ffffff;
+
   // Journal-brand-derived pairs
   --primary-light: #000000;
   --primary-dark: #808080;

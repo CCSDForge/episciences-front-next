@@ -47,6 +47,14 @@ export default async function JournalLayout(props: JournalLayoutProps) {
   const c = (value: string, fallback: string) => safeColor(value, fallback);
 
   const cssVars = [
+    // Scheme-invariant on purpose: the header banner keeps the journal's literal
+    // brand color in both themes rather than the dark-lightened --primary used
+    // for surface-contrast-sensitive roles (borders, focus rings). Its on-brand
+    // text/focus values are identical to the light-scheme ones since the
+    // background they're computed against never changes.
+    `--brand:${c(light.primary, '#000000')}`,
+    `--text-on-brand:${c(textOnPrimaryLight, '#ffffff')}`,
+    `--focus-color-on-brand:${c(light.focusOnPrimary, '#ffffff')}`,
     `--primary-light:${c(light.primary, '#000000')}`,
     `--primary-dark:${c(dark.primary, '#808080')}`,
     `--primary-text-light:${c(light.primaryTextOnWhite, '#000000')}`,
