@@ -71,11 +71,11 @@
   // Surfaces & text — dark side is brand-hue-tinted per journal; light side is
   // fixed (same values as the pre-dark-mode $white/$black/$grey* constants).
   --surface-light: #{$white};
-  --surface-dark: #161616;
+  --surface-dark: #191919;
   --surface-2-light: #f5f5f5;
-  --surface-2-dark: #1f1f1f;
+  --surface-2-dark: #222222;
   --surface-raised-light: #{$white};
-  --surface-raised-dark: #292929;
+  --surface-raised-dark: #2c2c2c;
   --text-strong-light: #{$black};
   --text-strong-dark: #f2f2f2;
   --text-light: #{$grey-dark};

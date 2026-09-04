@@ -194,11 +194,11 @@ export function generateDarkSurfaces(brandColor: string) {
   const toHexSafe = (l: number, c: number) => toHex(oklchToSrgbClamped({ l, c, h }));
 
   return {
-    // L=0.20 (~#161616 achromatic) rather than near-black L=0.165 (~#0e0e0e):
+    // L=0.213 (~#191919 achromatic) rather than near-black L=0.165 (~#0e0e0e):
     // still unambiguously "dark mode", less harsh than true black.
-    surface: toHexSafe(0.2, tint),
-    surface2: toHexSafe(0.24, tint * 0.9),
-    surfaceRaised: toHexSafe(0.28, tint * 0.8),
+    surface: toHexSafe(0.213, tint),
+    surface2: toHexSafe(0.253, tint * 0.9),
+    surfaceRaised: toHexSafe(0.293, tint * 0.8),
     textStrong: toHexSafe(0.96, tint * 0.3),
     text: toHexSafe(0.85, tint * 0.3),
     textMuted: toHexSafe(Math.max(0.65, DARK_TEXT_LIGHTNESS_FLOOR), tint * 0.3),
