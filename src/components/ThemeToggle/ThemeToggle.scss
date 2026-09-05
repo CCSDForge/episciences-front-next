@@ -1,4 +1,5 @@
 @use '@/styles/mixins';
+@use '@/styles/breakpoints';
 
 .themeToggle {
   display: flex;
@@ -41,5 +42,14 @@
   &-text {
     min-width: 40px;
     text-align: left;
+
+    @media (max-width: breakpoints.$xsm) {
+      display: none;
+    }
+  }
+
+  @media (max-width: breakpoints.$xsm) {
+    gap: 0;
+    padding: 8px 4px;
   }
 }
