@@ -1,61 +1,212 @@
 @use 'variables' as *;
 
 /**
- * ACCESSIBLE COLOR SYSTEM
+ * ACCESSIBLE COLOR SYSTEM — light & dark
  *
- * This project uses automatic contrast adjustment to ensure WCAG 2.2 compliance
- * across 45+ journals with different theme colors.
+ * This project derives, from each journal's single brand color, a family of
+ * WCAG-compliant variants for both a light and a dark scheme (OKLCH engine in
+ * src/utils/colorContrast.ts + src/utils/oklch.ts).
  *
- * The following variables are generated dynamically per journal by src/config/theme.ts:
+ * THREE LAYERS (see docs/ACCESSIBLE_COLOR_SYSTEM.md for the full contract):
  *
- * PRIMARY COLORS (Multi-tenant - set per journal):
- * --primary                    Original journal color (use for backgrounds)
- * --primary-text               Text on white background (WCAG AA 4.5:1)
- * --primary-text-aaa           High contrast text (WCAG AAA 7:1)
- * --primary-text-large         Large text ≥18pt (WCAG AA 3:1)
- * --primary-text-on-gray       Text on gray backgrounds (WCAG AA 4.5:1)
- * --primary-text-on-dark       Text on dark backgrounds (WCAG AA 4.5:1)
- * --primary-border             Borders and UI components (WCAG AA 3:1)
- * --accent-border               Decorative brand-color accent borders/stripes (NOT contrast-adjusted, alias of --primary)
+ * L0 — --brand: raw journal hex, never consumed by CSS, never contrast-adjusted.
  *
- * SEMANTIC COLORS (Auto-generated from primary):
- * --link-color                 Links (WCAG AA 4.5:1)
- * --link-hover-color           Link hover/focus (WCAG AAA 7:1)
- * --heading-color              Headings (WCAG AA 4.5:1)
- * --button-text-on-primary-bg  Text on primary background (auto black/white)
+ * L1 — literal pairs, PER JOURNAL, injected by JournalLayout's <style> tag:
+ *   --primary-light / --primary-dark, --primary-text-light / -dark, etc.
+ *   Plain color literals only — no var(), no function — so they're trivially
+ *   validated server-side (see safeColor in JournalLayout).
  *
- * FOCUS INDICATORS (Auto-generated from primary):
- * --focus-color                Focus outline on white/light backgrounds (WCAG AA 3:1)
- * --focus-color-on-primary     Focus outline on primary background (always white)
- * --focus-color-on-dark        Focus outline on dark backgrounds (always white)
+ *   Defaults for every pair are ALSO declared below (achromatic #000000
+ *   journal) so routes with no injected <style> (/, error pages) never hit an
+ *   unresolved var() inside a light-dark() call — that would make the whole
+ *   custom property invalid-at-computed-value-time, not just this token.
  *
- * USAGE GUIDELINES:
- * ✅ DO:    color: var(--primary-text);           // Text on white
- * ✅ DO:    color: var(--primary-text-large);     // Large headings (≥18pt)
- * ✅ DO:    color: var(--link-color);             // Links
- * ✅ DO:    background-color: var(--primary);     // Backgrounds
- * ❌ DON'T: color: var(--primary);                // Direct use for text (may fail WCAG)
+ * L2 — semantic tokens, resolved here via light-dark(), which re-evaluates on
+ *   its own whenever the effective scheme changes — no per-theme duplication
+ *   needed at the call site, ever: components only ever read L2 tokens.
  *
- * @see docs/accessible_color_system.md for full documentation
+ * SCHEME PILOT: `color-scheme` on :root (see below) decides which branch of
+ * every light-dark() resolves. Default follows the OS; `[data-theme]` (set by
+ * ThemeToggle/the bootstrap script) pins a literal scheme.
+ *
+ * USAGE:
+ * ✅ DO:    color: var(--primary-text);   background: var(--surface);
+ * ❌ DON'T: color: var(--primary);        // may fail contrast — it's a raw/background token
+ * ❌ DON'T: @property a token as <color> — light-dark() resolves at computed-value
+ *           time; registering inherits:true freezes a branch and breaks color-scheme
+ *           islands (see docs/ACCESSIBLE_COLOR_SYSTEM.md).
  */
 
 :root {
-  // Static colors (same across all journals)
-  --white: #{$white};
-  --black: #{$black};
-  --black-shadow: #{$black-shadow};
-  --grey: #{$grey};
-  --grey-light: #{$grey-light};
-  --grey-dark: #{$grey-dark};
-  --grey-darker: #{$grey-darker};
-  --blue-navy: #{$blue-navy};
-  --blue-navy-dark: #{$blue-navy-dark};
+  color-scheme: light dark;
+}
+:root[data-theme='light'] {
+  color-scheme: only light;
+}
+:root[data-theme='dark'] {
+  color-scheme: only dark;
+}
+
+// ---------------------------------------------------------------------------
+// L1 defaults — overridden per journal by JournalLayout's injected <style>.
+// Values below match an achromatic (#000000) journal, i.e. what a route with
+// no journal <style> effectively renders as today.
+// ---------------------------------------------------------------------------
+:root {
+  // Scheme-invariant brand tokens — see JournalLayout for why these don't get a
+  // -light/-dark pair. Consumed only by the header banner (.header-journal-title,
+  // .header-reduced-journal-blank/-dropdown).
+  --brand: #000000;
+  --text-on-brand: #ffffff;
+  --focus-color-on-brand: #ffffff;
+
+  // Journal-brand-derived pairs
+  --primary-light: #000000;
+  --primary-dark: #808080;
+  --primary-text-light: #000000;
+  --primary-text-dark: #a4a4a4;
+  --primary-border-light: #000000;
+  --primary-border-dark: #808080;
+  --button-text-on-primary-bg-light: #ffffff;
+  --button-text-on-primary-bg-dark: #000000;
+  --focus-color-light: #000000;
+  --focus-color-dark: #808080;
+  --focus-color-on-primary-light: #ffffff;
+  --focus-color-on-primary-dark: #000000;
+  --focus-color-on-dark-dark: #808080;
+
+  // Surfaces & text — dark side is brand-hue-tinted per journal; light side is
+  // fixed (same values as the pre-dark-mode $white/$black/$grey* constants).
+  --surface-light: #{$white};
+  --surface-dark: #191919;
+  --surface-2-light: #f5f5f5;
+  --surface-2-dark: #222222;
+  --surface-raised-light: #{$white};
+  --surface-raised-dark: #2c2c2c;
+  --text-strong-light: #{$black};
+  --text-strong-dark: #f2f2f2;
+  --text-light: #{$grey-dark};
+  --text-dark: #cecece;
+  --text-muted-light: #{$grey};
+  --text-muted-dark: #a4a4a4;
+  --border-light: #{$grey-light};
+  --border-dark: #808080;
+
+  // Not journal-dependent — never overridden per journal.
+  --focus-color-on-dark-light: #ffffff;
+
+  // Fixed (non-journal-dependent) pairs behind the light-dark() L2 tokens below —
+  // declared here, not inline, so the @supports fallback loop can re-derive them too.
+  --shadow-light: #{$black-shadow};
+  --shadow-dark: #00000073;
+  --overlay-scrim-light: rgba(0, 0, 0, 0.35);
+  --overlay-scrim-dark: oklch(0.1 0 0 / 55%);
+  --blue-navy-light: #{$blue-navy};
+  --blue-navy-dark: #5276d4;
+}
+
+// ---------------------------------------------------------------------------
+// L2 — semantic tokens. Single source of the light/dark *policy*.
+// ---------------------------------------------------------------------------
+:root {
+  --primary: light-dark(var(--primary-light), var(--primary-dark));
+  --primary-text: light-dark(var(--primary-text-light), var(--primary-text-dark));
+  --primary-border: light-dark(var(--primary-border-light), var(--primary-border-dark));
+  --button-text-on-primary-bg: light-dark(
+    var(--button-text-on-primary-bg-light),
+    var(--button-text-on-primary-bg-dark)
+  );
+  --focus-color: light-dark(var(--focus-color-light), var(--focus-color-dark));
+  --focus-color-on-primary: light-dark(
+    var(--focus-color-on-primary-light),
+    var(--focus-color-on-primary-dark)
+  );
+  --focus-color-on-dark: light-dark(
+    var(--focus-color-on-dark-light),
+    var(--focus-color-on-dark-dark)
+  );
+
+  --surface: light-dark(var(--surface-light), var(--surface-dark));
+  --surface-2: light-dark(var(--surface-2-light), var(--surface-2-dark));
+  --surface-raised: light-dark(var(--surface-raised-light), var(--surface-raised-dark));
+  --text-strong: light-dark(var(--text-strong-light), var(--text-strong-dark));
+  --text: light-dark(var(--text-light), var(--text-dark));
+  --text-muted: light-dark(var(--text-muted-light), var(--text-muted-dark));
+  --border: light-dark(var(--border-light), var(--border-dark));
+  --shadow: light-dark(var(--shadow-light), var(--shadow-dark));
+  --overlay-scrim: light-dark(var(--overlay-scrim-light), var(--overlay-scrim-dark));
+
+  // heading-color always equalled primary-text's formula — pure alias, no own pair.
+  --heading-color: var(--primary-text);
 
   // Decorative accent borders/stripes (card banners, callout borders): always the
-  // raw brand color, never contrast-adjusted. Single point to change if that
-  // decision changes later — see docs/ACCESSIBLE_COLOR_SYSTEM.md.
+  // resolved brand color, never separately contrast-adjusted.
   --accent-border: var(--primary);
 
-  // Dynamic colors are set by applyThemeVariables() in src/config/theme.ts
-  // They are generated per journal based on NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR
+  // Static brand-independent color. Needs its own light-dark() pair like everything
+  // else derived from a fixed literal: the raw navy is ~1.08:1 against the default
+  // dark surface — effectively invisible — so a lightened, more saturated blue
+  // stands in for dark mode (AA 4.5:1 against the default anthracite surface).
+  --blue-navy: light-dark(var(--blue-navy-light), var(--blue-navy-dark));
+
+  // --- Legacy names: aliased, not removed (see docs/ACCESSIBLE_COLOR_SYSTEM.md) ---
+  // Kept so the ~250 existing var(--white|--black|--grey*) call sites keep working
+  // unchanged while they get migrated file-by-file to the semantic names above.
+  --white: var(--surface);
+  --black: var(--text-strong);
+  --grey: var(--text-muted);
+  --grey-light: var(--border);
+  --grey-dark: var(--text);
+  --grey-darker: var(--text-strong);
+  --grey-lighter: var(--surface-2);
+  --pure-white: #fff;
+  --pure-black: #000;
+  --black-shadow: var(--shadow);
+
+  // --- Previously used but never declared (fell back to a hardcoded literal,
+  // which was a guaranteed light-mode flash under a dark scheme) ---
+  --primary-background: var(--surface-2);
+  --text-color: var(--text-strong);
+  --text-primary: var(--text-strong);
+  --text-secondary: var(--text-muted);
+
+  // Scheme-invariant badge/chip colors: unlike --white/--black/--grey above,
+  // decorative chips (language badges, linked-publication tags) aren't meant to
+  // invert with the scheme — they're a fixed gray chip with white text, same as
+  // before dark mode existed. Never reference the legacy aliases here.
+  --badge-bg: #{$grey};
+  --badge-text: #{$white};
+}
+
+// ---------------------------------------------------------------------------
+// Fallback for engines without light-dark() support (@csstools/postcss-light-dark-function
+// leaves it untouched at build time — verified against the project's postcss-preset-env
+// config). Re-emits the same cascade manually from the very pairs declared above,
+// written once via this loop.
+// ---------------------------------------------------------------------------
+$theme-tokens: 'primary', 'primary-text', 'primary-border', 'button-text-on-primary-bg',
+  'focus-color', 'focus-color-on-primary', 'focus-color-on-dark', 'surface', 'surface-2',
+  'surface-raised', 'text-strong', 'text', 'text-muted', 'border', 'shadow', 'overlay-scrim',
+  'blue-navy';
+
+@supports not (color: light-dark(#fff, #000)) {
+  :root {
+    @each $token in $theme-tokens {
+      --#{$token}: var(--#{$token}-light);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      @each $token in $theme-tokens {
+        --#{$token}: var(--#{$token}-dark);
+      }
+    }
+  }
+
+  :root[data-theme='dark'] {
+    @each $token in $theme-tokens {
+      --#{$token}: var(--#{$token}-dark);
+    }
+  }
 }

@@ -2,314 +2,203 @@
 
 ## Overview
 
-Episciences hosts 45+ journals, each with custom theme colors. To ensure WCAG 2.2 compliance across all journals, we automatically generate accessible variants of each journal's primary color.
+Episciences hosts 64+ journals, each with a single custom brand color. From that one
+color we derive, server-side, a full family of WCAG-compliant variants — for **both**
+a light and a dark scheme — using a zero-dependency OKLCH engine
+(`src/utils/oklch.ts` + `src/utils/colorContrast.ts`).
 
-## The Problem
+This document describes the current architecture. It replaces the pre-dark-mode
+version — `src/config/theme.ts` (client-side `applyThemeVariables`) no longer exists;
+everything is computed server-side in `src/app/sites/[journalId]/layout.tsx`.
 
-When a journal uses a light primary color (e.g., `#87CEEB` sky blue):
+## Three layers of tokens
 
-- **OK**: Using it for backgrounds, banners, large UI areas
-- **FAIL**: Using it for text on white background → poor contrast
+**L0 — brand fact.** `--brand`: the raw journal hex. Never contrast-adjusted, never
+consumed directly by component CSS.
 
-**Example:**
+**L1 — literal pairs, per journal.** Injected by `JournalLayout`'s `<style>` tag as
+plain color literals (hex or `oklch()`), one `-light` and one `-dark` per token —
+e.g. `--primary-light: #04005f; --primary-dark: #b7b8ff;`. No `var()`, no function:
+this keeps the injected block trivially validated (see `safeColor` below) and
+independent of the surrounding cascade order.
 
-```scss
-/* BAD - May fail WCAG if primary is light */
-.article-title {
-  color: var(--primary); /* Light blue on white = 1.8:1 ratio (FAIL) */
-}
-```
-
-## The Solution
-
-We automatically generate WCAG-compliant variants:
-
-```scss
-/* GOOD - Automatically adjusted to meet WCAG AA 4.5:1 */
-.article-title {
-  color: var(--primary-text); /* Darkened to #0066A8 = 4.7:1 ratio (PASS) */
-}
-```
-
-## Available CSS Variables
-
-| Variable                      | WCAG Level | Ratio    | Use Case                                         |
-| ----------------------------- | ---------- | -------- | ------------------------------------------------ |
-| `--primary`                   | N/A        | Original | Backgrounds, large areas                         |
-| `--primary-text`              | AA         | 4.5:1    | Normal text on white                             |
-| `--primary-text-aaa`          | AAA        | 7:1      | High contrast mode                               |
-| `--primary-text-large`        | AA         | 3:1      | Large text (>=18pt/>=14pt bold)                  |
-| `--primary-text-on-gray`      | AA         | 4.5:1    | Text on light gray (#f5f5f5)                     |
-| `--primary-text-on-dark`      | AA         | 4.5:1    | Text on dark backgrounds                         |
-| `--primary-border`            | AA         | 3:1      | Borders, icons, UI components                    |
-| `--accent-border`             | N/A        | Original | Decorative accent borders/stripes (card banners, callout borders) — alias of `--primary`, not contrast-adjusted |
-| `--link-color`                | AA         | 4.5:1    | Links                                            |
-| `--link-hover-color`          | AAA        | 7:1      | Link hover/focus states                          |
-| `--heading-color`             | AA         | 4.5:1    | Headings                                         |
-| `--button-text-on-primary-bg` | Auto       | Auto     | Text on primary background (auto black or white) |
-| `--focus-color`               | AA         | 3:1      | Focus indicators                                 |
-
-## Usage Guide
-
-### DO: Use semantic variables for text
+**L2 — semantic tokens**, resolved once in `src/styles/theme.scss` via
+[`light-dark()`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark):
 
 ```scss
-.article-title {
-  color: var(--primary-text); /* Normal text */
-}
-
-.hero-heading {
-  font-size: 36px;
-  color: var(--primary-text-large); /* Large text can use lighter color */
-}
-
-a {
-  color: var(--link-color);
-
-  &:hover {
-    color: var(--link-hover-color);
-  }
-}
-
-h1,
-h2,
-h3 {
-  color: var(--heading-color);
-}
+--primary: light-dark(var(--primary-light), var(--primary-dark));
 ```
 
-### DON'T: Use --primary for text on light backgrounds
+`light-dark()` re-evaluates on its own whenever the effective scheme changes — no
+per-theme duplication at the call site. Components only ever read L2 tokens.
+
+`theme.scss` also declares a **default pair for every token** (matching an
+achromatic `#000000` journal), so a route with no injected `<style>` (`/`, error
+pages) never resolves an unset `var()` inside a `light-dark()` call — that would
+make the whole custom property invalid, not just that token.
+
+## Which scheme is active
 
 ```scss
-/* BAD - Will fail WCAG if primary is light */
-.article-title {
-  color: var(--primary);
-}
-
-/* GOOD - Use accessible variant instead */
-.article-title {
-  color: var(--primary-text);
-}
+:root                     { color-scheme: light dark; }  /* follows the OS */
+:root[data-theme='light'] { color-scheme: only light; }
+:root[data-theme='dark']  { color-scheme: only dark; }
 ```
 
-### DO: Use --primary for backgrounds
+`ThemeToggle` (`src/components/ThemeToggle/`) is a 2-state control: **follow the
+system** ⇄ **pinned to a literal scheme**. A pin is stored in `localStorage`
+(`episciences:color-scheme`) and applied before first paint by an inline bootstrap
+script (`src/config/theme-bootstrap.ts`, injected in `src/app/layout.tsx`) — no
+cookie, so the root layout stays fully static and ISR/SSG is untouched.
 
-```scss
-.header {
-  background-color: var(--primary); /* OK for backgrounds */
-  color: var(--button-text-on-primary-bg); /* Auto black/white text */
-}
+## Available CSS variables
 
-.badge {
-  background-color: var(--primary);
-  color: var(--button-text-on-primary-bg);
-}
+| Variable                       | Light target        | Dark target (raised, see below) | Use case                            |
+| ------------------------------- | -------------------- | -------------------------------- | ------------------------------------ |
+| `--primary`                     | Original brand color | ≥4.5:1 on `--surface`            | Backgrounds, large areas             |
+| `--primary-text`                | AA 4.5:1 on white     | AAA-ish 7:1 on `--surface`        | Normal text                          |
+| `--primary-border`              | AA 3:1 on white       | 4.5:1 on `--surface`             | Borders, icons, UI components        |
+| `--button-text-on-primary-bg`   | Auto black/white on `--primary` | same, recomputed per scheme | Text on a `--primary` background |
+| `--focus-color`                 | AA 3:1 on white       | 4.5:1 on `--surface`             | Focus indicators                     |
+| `--focus-color-on-primary`      | Auto on `--primary`   | same, recomputed per scheme      | Focus ring on a `--primary` bg       |
+| `--focus-color-on-dark`         | `#ffffff` (fixed)      | same as `--focus-color`          | Focus ring on an explicit `.on-dark-surface` |
+| `--accent-border`                | = `--primary`          | = `--primary`                    | Decorative stripes — never contrast-adjusted on its own |
+| `--surface` / `--surface-2` / `--surface-raised` | white / #f5f5f5 / white | brand-hue-tinted anthracite | Page/card/popover backgrounds |
+| `--text-strong` / `--text` / `--text-muted` | near-black / #4e4e5f / #757575 | brand-hue-tinted light grays | Text hierarchy |
+| `--border`                      | #717193               | brand-hue-tinted                  | Hairlines, dividers                  |
+| `--shadow` / `--overlay-scrim`  | subtle black           | subtle black at higher alpha / dark oklch | box-shadow, modal scrims |
 
-.button-primary {
-  background-color: var(--primary);
-  color: var(--button-text-on-primary-bg);
-  border: 2px solid var(--primary-border);
+Legacy names (`--white`, `--black`, `--grey*`, `--pure-white`, `--pure-black`,
+`--black-shadow`) are kept as **aliases** onto the semantic tokens above — see
+"Legacy aliases" below. New code should use the semantic names directly.
 
-  &:focus-visible {
-    outline: 3px solid var(--focus-color);
-    outline-offset: 2px;
-  }
-}
-```
+## Why dark-mode targets are higher than WCAG's minimum
 
-### Text on colored backgrounds
+WCAG 2.x's contrast formula underestimates *perceived* contrast on dark surfaces.
+`src/utils/colorContrast.ts` compensates with an internal policy, on top of (never
+instead of) the WCAG minimum:
 
-```scss
-// Text on light gray background
-.sidebar {
-  background-color: #f5f5f5;
+1. **Raised targets** in dark schemes — e.g. normal text targets 7:1, not 4.5:1.
+2. **A perceptual lightness floor** (`0.72` OKLCH `L` for text, `0.60` for UI/borders)
+   applied after the contrast search, so a technically-compliant-but-low-`L` color
+   never reads as muddy on anthracite.
+3. **Chroma damping** (`× 0.9`, capped at `0.16`) — a very saturated color halates on
+   a dark background for many readers.
 
-  .sidebar-link {
-    color: var(--primary-text-on-gray); /* Adjusted for gray background */
-  }
-}
+We claim **WCAG 2.2 AA plus this internal policy** — not APCA, and no APCA
+conformance is claimed.
 
-// Text on dark background
-.dark-section {
-  background-color: #333333;
+## Dark surfaces are brand-hue-tinted, never pure black
 
-  .dark-title {
-    color: var(--primary-text-on-dark); /* Adjusted for dark background */
-  }
-}
-```
+`generateDarkSurfaces()` derives `--surface`/`--surface-2`/`--surface-raised` from
+the journal's brand hue at a few percent of OKLCH chroma (capped at `0.012`) — an
+anthracite that subtly reads as "this journal's dark mode", not a generic gray. An
+achromatic brand (`chroma < 0.01`, including the `#000000` default) degrades to a
+perfectly neutral gray.
 
-## How It Works
+## The OKLCH engine (`src/utils/oklch.ts`)
 
-1. **Journal configuration** provides the primary color (e.g., `#87CEEB`)
-2. **Client-side generation** calculates accessible variants:
-   ```typescript
-   const variants = generateAccessibleColorVariants('#87CEEB');
-   // {
-   //   primary: '#87CEEB',
-   //   primaryTextOnWhite: '#0066A8', // Darkened to meet 4.5:1
-   //   primaryTextOnWhiteAAA: '#004D7A', // Darkened to meet 7:1
-   //   ...
-   // }
-   ```
-3. **CSS variables applied** automatically when each journal loads
-4. **Components use semantic variables** instead of raw `--primary`
+Pure math, zero npm dependency: `parseHex` / `toHex`, `rgbToOklch` / `oklchToRgb`,
+and `oklchToSrgbClamped` (gamut mapping by descending-chroma bisection at fixed
+`L`/`h`, preserving hue to <0.5°, unlike a per-channel clamp).
+
+`ensureContrast(color, background, targetRatio)` searches OKLCH lightness by
+bisection (fixed hue/chroma, gamut-mapped at every probe) between the original
+color and whichever lightness extreme (`0` or `1`) increases contrast against
+`background`:
+
+- Already compliant → returns the input **unchanged, byte-for-byte**. Most light-mode
+  journals see zero diff from this migration.
+- Otherwise converges to the lightness **closest to the original** that clears the
+  target — minimal perceptual deviation from the brand color.
+- **Never silently under-delivers**: if even the extreme lightness can't reach the
+  target, it's returned anyway (the maximum achievable contrast) with a
+  `logger.warn` — not a value that quietly falls short.
+
+## `@property` and `light-dark()` don't mix for tokens
+
+`light-dark()` resolves at *computed-value time*. Registering a token via
+`@property --surface { syntax: '<color>'; inherits: true; ... }` freezes it to
+whichever branch was active when it computed — an island with a local
+`color-scheme: only light` inside a globally dark page would then inherit the
+**light** value and render (e.g.) black text on black. The codebase has no
+`@property` today; a guard-rail test
+(`src/styles/__tests__/theme-guardrails.test.ts`) fails the build if one appears on
+a color token. The only legitimate use of `@property` for a color is as an
+**animation target on a specific element** (interpolation requires it) — never a
+shared token.
+
+## Legacy aliases — migrate, don't invert
+
+`--white`, `--black`, `--grey`, `--grey-light`, `--grey-dark`, `--grey-lighter`,
+`--black-shadow` are aliased onto the new semantic tokens in `theme.scss` (e.g.
+`--white: var(--surface);`). This is deliberate: `--white` meant "surface" at most
+call sites but a literal white at a few (`focusOnPrimary`, selected bullets) — a
+token that's sometimes literal and sometimes semantic can't be inverted safely in
+one pass. `--pure-white` / `--pure-black` exist for the genuinely-literal cases.
+
+Migrate call sites to the semantic name file-by-file as you touch them; there is no
+deadline to remove the aliases.
+
+## Cross-origin islands: `color-scheme: only light`
+
+Two categories of content assume a white page and can't be made theme-aware:
+
+- **Journal logos** (`public/logos/*.svg`, 75 files): polychrome SVGs designed for a
+  white box. `filter: invert()` would wreck the non-black fills. `.header-journal-logo`,
+  `.header-reduced-journal-logo` and `.footer-journal-logo` instead force
+  `color-scheme: only light` + `background: var(--pure-white)` on the logo's own box
+  — works for all 75 logos with zero per-journal work.
+- **Cross-origin iframes** (`PDFProxyIframe`, `ExternalEmbedViewer`): the embedded
+  document doesn't inherit the host's `color-scheme` anyway (Safari ignores it
+  across origins), so the iframe element itself is pinned `only light`.
+
+Any element with a local `color-scheme` override must re-declare `color` and
+`accent-color` explicitly, even to the same value — inheritance doesn't cross a
+`color-scheme` boundary the way you'd expect.
 
 ## Testing
 
-Run contrast tests:
-
 ```bash
-npm test -- colorContrast.test.ts
+npx vitest run src/utils/__tests__/oklch.test.ts
+npx vitest run src/utils/__tests__/colorContrast.test.ts
+npx vitest run src/utils/__tests__/reference-palette.test.ts   # all real journal brand colors
+npx vitest run src/styles/__tests__/theme-guardrails.test.ts   # @property + undeclared var() traps
 ```
 
-Manual testing with real journal colors:
+`reference-palette.test.ts` runs every real journal brand color (committed in
+`src/utils/__tests__/fixtures/journal-brand-colors.ts`, since `.env.local.*` is
+gitignored) through both schemes and asserts the targets above are met — this is
+the actual regression net for a 64-tenant color system, not the handful of
+hand-picked colors in `colorContrast.test.ts`.
 
-```bash
-npm run dev
-# Visit different journals and verify text contrast
-```
-
-## Tools
-
-- **WebAIM Contrast Checker**: https://webaim.org/resources/contrastchecker/
-- **Chrome DevTools**: Lighthouse → Accessibility Audit
-- **axe DevTools**: Browser extension for automated testing
-- **WCAG Color Contrast Checker**: https://colourcontrast.cc/
-
-## WCAG 2.2 Requirements
-
-| Text Type                          | WCAG AA | WCAG AAA |
-| ---------------------------------- | ------- | -------- |
-| Normal text (<18pt)                | 4.5:1   | 7:1      |
-| Large text (>=18pt or >=14pt bold) | 3:1     | 4.5:1    |
-| UI components (borders, icons)     | 3:1     | N/A      |
-
-Our system automatically meets WCAG AA for all text types across all journals.
-
-## Migrating Existing Components
-
-### Example: Article Details
-
-**BEFORE** (uses primary directly - may fail WCAG):
-
-```scss
-.articleDetails-content-article-section-title-text {
-  color: var(--primary); // May fail if primary is light
-}
-```
-
-**AFTER** (uses accessible variant):
-
-```scss
-.articleDetails-content-article-section-title-text {
-  color: var(--primary-text); // Automatically adjusted for WCAG AA
-  font-size: 16px; // < 18pt = normal text
-
-  // For large headings (>=18pt or >=14pt bold)
-  &.large-heading {
-    font-size: 24px;
-    color: var(--primary-text-large); // Can use relaxed 3:1 ratio
-  }
-}
-```
-
-### Migration Checklist
-
-For each SCSS file:
-
-1. **Search**: `color: var(--primary)` on text elements
-2. **Identify context**:
-   - Normal text? → `var(--primary-text)`
-   - Large text (>=18pt/>=14pt bold)? → `var(--primary-text-large)`
-   - Link? → `var(--link-color)` + `var(--link-hover-color)` on hover
-   - Heading? → `var(--heading-color)`
-   - Background? → `var(--primary)` (OK, no change)
-3. **Replace** with the appropriate variable
-4. **Test** with multiple journals (light and dark colors)
-
-### Search Script
-
-To find all problematic usages:
-
-```bash
-# Find all var(--primary) usages for color:
-grep -r "color: var(--primary)" src/styles/
-
-# Exclude correct usages (background-color, border-color)
-grep -r "color: var(--primary)" src/styles/ | grep -v "background-color" | grep -v "border-color"
-```
-
-## Debug in Dev
-
-The system logs generated colors in console during development:
-
-```javascript
-[Theme] Accessible colors generated: {
-  original: '#87CEEB',
-  variants: {
-    text: '#0066A8',       // For normal text
-    textAAA: '#004D7A',    // For high contrast
-    largeText: '#4DB8E8',  // For large text
-    border: '#5DBFE8',     // For borders/UI
-    onPrimaryBg: '#000000' // Black or white on primary background
-  }
-}
-```
+Not testable in vitest (happy-dom doesn't implement `light-dark()`/`color-scheme`
+resolution): FOUC-on-load, `@supports not (color: light-dark(...))`, and
+`prefers-contrast`/`forced-colors` rendering — verify those with real Chrome
+(chrome-devtools MCP's `emulate` + a screenshot) when touching this area.
 
 ## FAQ
 
-### Q: Why not just use the primary color everywhere?
+**Why not just use `--primary` for text everywhere?** A light brand color on white
+can be under 2:1 contrast — invisible to low-vision users. Use `--primary-text`.
 
-**A:** A light primary color (#87CEEB) on white has a ratio of 1.8:1, which fails WCAG AA (minimum 4.5:1). Users with low vision won't be able to read the text.
+**Does dark mode change my component's light-mode appearance?** It shouldn't — every
+token's light branch is either byte-identical to its pre-dark-mode value or a
+one-line alias to something that is. If you see a light-mode diff while touching
+this system, that's a bug, not an intentional tradeoff.
 
-### Q: Does this change the appearance of my pages?
-
-**A:** Yes, if you were using a light color for text. Text will be darker (more readable) but will remain in the same color family. Backgrounds and large areas keep the original color.
-
-### Q: What if I really want to use the light color?
-
-**A:** Use it on dark backgrounds or for non-text elements (backgrounds, large areas). For text on white, always use `var(--primary-text)`.
-
-### Q: Does the system work with dark colors?
-
-**A:** Yes! If the primary color is already dark (#003366), `var(--primary-text)` will return the original color (already compliant). The system is smart.
-
-### Q: Can I disable this system for a journal?
-
-**A:** Not recommended (WCAG violation), but technically possible by manually defining all CSS variables in the journal's .env. However, you lose the accessibility guarantee.
-
-## Multi-Tenant Support
-
-The system automatically adapts to each journal:
-
-```
-Journal A: Primary #87CEEB (light)
-  → --primary-text: #0066A8 (darkened for contrast)
-
-Journal B: Primary #003366 (dark)
-  → --primary-text: #003366 (already OK, unchanged)
-
-Journal C: Primary #FF6B6B (light red)
-  → --primary-text: #C30000 (dark red for contrast)
-```
-
-**Result**: All journals meet WCAG AA, regardless of their original primary color.
-
-## Real Journal Examples
-
-| Journal   | Primary | Primary-Text | Ratio | WCAG |
-| --------- | ------- | ------------ | ----- | ---- |
-| DMTCS     | #B21316 | #B21316      | 5.2:1 | AA   |
-| Journal A | #87CEEB | #0066A8      | 4.6:1 | AA   |
-| Journal B | #FFB6C1 | #C30045      | 4.5:1 | AA   |
+**Can a journal opt out of dark mode?** No — the toggle and the `prefers-color-scheme`
+default apply uniformly. A journal can only affect its own brand-derived tokens
+(via `NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR`), not the scheme mechanism itself.
 
 ## References
 
-- [WCAG 2.2 - Success Criterion 1.4.3 Contrast (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
-- [WCAG 2.2 - Success Criterion 1.4.6 Contrast (Enhanced)](https://www.w3.org/WAI/WCAG22/Understanding/contrast-enhanced.html)
-- [WebAIM: Contrast and Color Accessibility](https://webaim.org/articles/contrast/)
+- [WCAG 2.2 — Success Criterion 1.4.3 Contrast (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
+- [WCAG 2.2 — Success Criterion 1.4.11 Non-text Contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)
+- [MDN — `light-dark()`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark)
+- [Björn Ottosson — Oklab](https://bottosson.github.io/posts/oklab/)
 
 ---
 
-**Note**: This system is mandatory for all new components. Existing components should be migrated progressively.
+**Note**: This system is mandatory for all new components. Existing raw-color
+components should be migrated progressively (see "Legacy aliases" above).

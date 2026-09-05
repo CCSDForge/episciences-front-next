@@ -13,7 +13,6 @@ import newsReducer from './news/news.slice';
 import searchReducer from './search/search.slice';
 import sectionReducer from './section/section.slice';
 import statReducer from './stat/stat.slice';
-import themeReducer from './theme/theme.slice';
 import volumeReducer from './volume/volume.slice';
 import { aboutApi } from './about/about.query';
 import { articleApi } from './article/article.query';
@@ -43,7 +42,6 @@ const createRootReducer = combineReducers({
   searchReducer,
   sectionReducer,
   statReducer,
-  themeReducer,
   volumeReducer,
   // RTK Query's
   [aboutApi.reducerPath]: aboutApi.reducer,

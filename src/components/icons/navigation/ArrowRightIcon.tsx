@@ -70,5 +70,5 @@ export const ArrowRightRedIcon = (props: Omit<ArrowRightIconProps, 'color'>) => 
 );
 
 export const ArrowRightBlackIcon = (props: Omit<ArrowRightIconProps, 'color'>) => (
-  <ArrowRightIcon {...props} color="#000000" />
+  <ArrowRightIcon {...props} color="currentColor" />
 );

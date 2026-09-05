@@ -185,11 +185,11 @@ describe('Icon Components', () => {
   });
 
   describe('Color variants', () => {
-    it('CaretDownBlackIcon uses black color', () => {
+    it('CaretDownBlackIcon follows the ambient text color (dark-mode safe)', () => {
       const { container } = render(<CaretDownBlackIcon />);
 
       const path = container.querySelector('path');
-      expect(path).toHaveAttribute('stroke', '#000000');
+      expect(path).toHaveAttribute('stroke', 'currentColor');
     });
 
     it('CaretDownWhiteIcon uses white color', () => {
@@ -397,7 +397,7 @@ describe('Icon Components', () => {
       expect(red.container.querySelector('path')).toHaveAttribute('fill', '#C1002A');
 
       const black = render(<QuoteBlackIcon ariaLabel="Quote" />);
-      expect(black.container.querySelector('path')).toHaveAttribute('fill', '#000000');
+      expect(black.container.querySelector('path')).toHaveAttribute('fill', 'currentColor');
     });
   });
 
@@ -440,7 +440,7 @@ describe('Icon Components', () => {
       );
       expect(render(<ArrowRightBlackIcon />).container.querySelector('path')).toHaveAttribute(
         'stroke',
-        '#000000'
+        'currentColor'
       );
     });
   });
@@ -552,7 +552,7 @@ describe('Icon Components', () => {
       );
       expect(render(<FileBlackIcon />).container.querySelector('path')).toHaveAttribute(
         'fill',
-        '#000000'
+        'currentColor'
       );
     });
   });
@@ -574,7 +574,7 @@ describe('Icon Components', () => {
       );
       expect(render(<ListBlackIcon />).container.querySelector('rect')).toHaveAttribute(
         'fill',
-        '#000000'
+        'currentColor'
       );
     });
   });
@@ -596,7 +596,7 @@ describe('Icon Components', () => {
       );
       expect(render(<TileBlackIcon />).container.querySelector('rect')).toHaveAttribute(
         'fill',
-        '#000000'
+        'currentColor'
       );
     });
   });

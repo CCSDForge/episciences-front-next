@@ -144,6 +144,14 @@
       "signIn": "Connexion",
       "newWindow": "(nouvelle fenêtre)"
     },
+    "themeToggle": {
+      "label": "Thème",
+      "light": "Clair",
+      "dark": "Sombre",
+      "switchToDark": "Passer au thème sombre",
+      "switchToLight": "Passer au thème clair",
+      "followSystem": "Suivre le système"
+    },
     "footer": {
       "links": {
         "notice": "Notice de la revue",

@@ -48,7 +48,7 @@ const createNoopStorage = () => {
 const persistConfig = {
   key: 'root',
   storage: isClient ? storage : createNoopStorage(),
-  whitelist: ['journalReducer', 'i18nReducer', 'themeReducer'], // Only persist these reducers
+  whitelist: ['journalReducer', 'i18nReducer'], // Only persist these reducers
 };
 
 // Create store with conditional persistence

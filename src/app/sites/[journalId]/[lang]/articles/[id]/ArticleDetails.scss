@@ -216,8 +216,8 @@
 
               &-badge {
                 width: fit-content;
-                color: var(--white);
-                background: var(--grey);
+                color: var(--badge-text);
+                background: var(--badge-bg);
                 padding: 4px 8px 4px 8px;
                 border-radius: 4px;
                 font-size: 12px;
@@ -401,8 +401,8 @@
             margin-bottom: 12px;
             font-size: 12px;
             font-weight: 600;
-            background: var(--grey);
-            color: var(--white);
+            background: var(--badge-bg);
+            color: var(--badge-text);
             border-radius: 4px;
           }
 

@@ -52,5 +52,5 @@ export const TileRedIcon = (props: Omit<TileIconProps, 'color'>) => (
 );
 
 export const TileBlackIcon = (props: Omit<TileIconProps, 'color'>) => (
-  <TileIcon {...props} color="#000000" />
+  <TileIcon {...props} color="currentColor" />
 );
