@@ -54,7 +54,7 @@
     margin: 0;
     margin-top: 4px;
     min-width: 200px;
-    background: var(--surface-raised);
+    background: var(--surface-2);
     border: 1px solid var(--border);
     box-shadow: 0px 4px 12px var(--shadow);
     border-radius: 4px;
@@ -67,7 +67,7 @@
     &-item {
       width: 100%;
       text-align: left;
-      background: var(--surface-raised);
+      background: var(--surface-2);
       border: none;
       padding: 14px 20px;
       cursor: pointer;
@@ -83,7 +83,7 @@
       }
 
       &:hover {
-        background-color: var(--surface-2);
+        background-color: var(--surface-raised);
         color: var(--text);
       }
 
@@ -94,7 +94,7 @@
       }
 
       &[aria-current='true'] {
-        background-color: color-mix(in oklab, var(--primary, #0066cc) 15%, var(--surface-raised));
+        background-color: color-mix(in oklab, var(--primary, #0066cc) 15%, var(--surface-2));
         color: var(--primary, #0066cc);
         font-weight: 600;
       }
