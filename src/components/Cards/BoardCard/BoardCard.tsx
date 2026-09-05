@@ -275,9 +275,9 @@ export default function BoardCard({
       </div>
       {(member.affiliations?.length ?? 0) > 0 && (
         <div className="boardCard-affiliations">
-          {member.affiliations.map(affiliation => (
+          {member.affiliations.map((affiliation, index) => (
             <div
-              key={`${affiliation.rorId ?? ''}-${affiliation.label}`}
+              key={`${affiliation.rorId ?? ''}-${affiliation.label}-${index}`}
               className="boardCard-affiliation-item"
             >
               <AffiliationWithRor affiliation={affiliation} />
