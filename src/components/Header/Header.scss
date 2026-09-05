@@ -1,4 +1,5 @@
 @use '@/styles/breakpoints.scss';
+@use '@/styles/mixins';
 .header {
   height: 285px;
   width: 100%;
@@ -35,10 +36,7 @@
       // Light island: journal logos are polychrome SVGs designed for a white box —
       // filter: invert() would wreck their colors, so the box itself stays light
       // regardless of the active scheme (see docs/ACCESSIBLE_COLOR_SYSTEM.md §Logos).
-      color-scheme: only light;
-      background: var(--pure-white);
-      color: var(--pure-black);
-      accent-color: auto;
+      @include mixins.light-island;
       // border-box: padding must not change this box's outer footprint (would be a
       // light-mode layout regression too, box-sizing here is content-box by default).
       box-sizing: border-box;
@@ -157,10 +155,7 @@
       // Light island: the Episciences wordmark SVG is drawn in dark navy/teal for a
       // white background ("fond-clair" in the source file) — invisible on a dark
       // surface. Same rationale as .header-journal-logo below.
-      color-scheme: only light;
-      background: var(--pure-white);
-      color: var(--pure-black);
-      accent-color: auto;
+      @include mixins.light-island;
       box-sizing: border-box;
       padding: 4px;
       border-radius: 4px;
@@ -312,10 +307,7 @@
       border: 1px solid var(--primary);
       border-left: none;
       // Light island — see .header-reduced-journal-logo above for the rationale.
-      color-scheme: only light;
-      background: var(--pure-white);
-      color: var(--pure-black);
-      accent-color: auto;
+      @include mixins.light-island;
       box-sizing: border-box;
       padding: 4px;
       border-radius: 4px;

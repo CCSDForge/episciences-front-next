@@ -142,7 +142,8 @@
       "light": "Light",
       "dark": "Dark",
       "switchToDark": "Switch to dark theme",
-      "switchToLight": "Switch to light theme"
+      "switchToLight": "Switch to light theme",
+      "followSystem": "Follow system"
     },
     "footer": {
       "links": {

@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
   parseHex,
+  parseOklch,
+  parseColor,
   toHex,
+  compositeOver,
   rgbToOklch,
   oklchToRgb,
   oklchToSrgbClamped,
@@ -93,6 +96,67 @@ describe('oklch', () => {
   describe('toHex', () => {
     it('rounds and clamps channels', () => {
       expect(toHex({ r: -5, g: 128.6, b: 300 })).toBe('#0081ff');
+    });
+
+    it('omits the alpha byte when opaque', () => {
+      expect(toHex({ r: 0, g: 0, b: 0, a: 1 })).toBe('#000000');
+    });
+
+    it('appends the alpha byte when translucent', () => {
+      expect(toHex({ r: 0, g: 0, b: 0, a: 0.5 })).toBe('#00000080');
+    });
+  });
+
+  describe('compositeOver', () => {
+    it('returns the foreground unchanged when fully opaque', () => {
+      expect(compositeOver({ r: 10, g: 20, b: 30, a: 1 }, { r: 255, g: 255, b: 255 })).toEqual({
+        r: 10,
+        g: 20,
+        b: 30,
+      });
+    });
+
+    it('returns the background unchanged when fully transparent', () => {
+      expect(compositeOver({ r: 10, g: 20, b: 30, a: 0 }, { r: 255, g: 255, b: 255 })).toEqual({
+        r: 255,
+        g: 255,
+        b: 255,
+      });
+    });
+
+    it('linearly blends at partial alpha', () => {
+      const result = compositeOver({ r: 0, g: 0, b: 0, a: 0.5 }, { r: 255, g: 255, b: 255 });
+      expect(result.r).toBeCloseTo(127.5, 1);
+    });
+  });
+
+  describe('parseOklch', () => {
+    it('parses raw L/C/H with no alpha', () => {
+      const rgb = parseOklch('oklch(1 0 0)');
+      expect(rgb).toEqual(oklchToSrgbClamped({ l: 1, c: 0, h: 0 }));
+    });
+
+    it('parses a percentage lightness and an alpha channel', () => {
+      const rgb = parseOklch('oklch(50% 0.1 250 / 50%)');
+      expect(rgb?.a).toBeCloseTo(0.5, 5);
+    });
+
+    it('returns null for a non-oklch string', () => {
+      expect(parseOklch('#ffffff')).toBeNull();
+    });
+  });
+
+  describe('parseColor', () => {
+    it('falls back to parseHex for hex input', () => {
+      expect(parseColor('#ff0000')).toEqual({ r: 255, g: 0, b: 0 });
+    });
+
+    it('falls back to parseOklch for oklch() input', () => {
+      expect(parseColor('oklch(1 0 0)')).toEqual(oklchToSrgbClamped({ l: 1, c: 0, h: 0 }));
+    });
+
+    it('returns null when neither parser matches', () => {
+      expect(parseColor('not-a-color')).toBeNull();
     });
   });
 

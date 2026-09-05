@@ -19,9 +19,15 @@ export default function ThemeToggle(): React.JSX.Element {
   const { pinned, resolvedScheme, toggle } = useColorScheme();
 
   const willSwitchToDark = resolvedScheme === 'light';
-  const actionLabel = willSwitchToDark
-    ? t('components.themeToggle.switchToDark')
-    : t('components.themeToggle.switchToLight');
+  // Pinned: a click always unpins and reverts to the system preference — it does
+  // NOT necessarily flip the visible scheme (a no-op when the system already
+  // matches the pin) — so the label must say "follow system", never "switch to X".
+  const actionLabel =
+    pinned !== null
+      ? t('components.themeToggle.followSystem')
+      : willSwitchToDark
+        ? t('components.themeToggle.switchToDark')
+        : t('components.themeToggle.switchToLight');
   const statusLabel =
     resolvedScheme === 'dark'
       ? t('components.themeToggle.dark')

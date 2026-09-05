@@ -24,6 +24,10 @@ const HEX6 = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
 const HEX4 = /^#?([0-9a-f])([0-9a-f])([0-9a-f])([0-9a-f])$/i;
 const HEX3 = /^#?([0-9a-f])([0-9a-f])([0-9a-f])$/i;
 
+/** Mirrors the OKLCH_COLOR validator in JournalLayout's safeColor — kept in sync manually. */
+const OKLCH_FN =
+  /^oklch\(\s*([\d.]+)(%)?\s+([\d.]+)\s+([\d.]+)(?:deg)?\s*(?:\/\s*([\d.]+)(%)?\s*)?\)$/i;
+
 /** Parses `#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`, with or without the leading `#`. */
 export function parseHex(hex: string): Rgb | null {
   const v = hex.trim();
@@ -69,10 +73,43 @@ export function parseHex(hex: string): Rgb | null {
   return null;
 }
 
+/** Parses `oklch(L C H)` / `oklch(L C H / A)`, L and A accepting either a raw 0-1 or a `%`. */
+export function parseOklch(value: string): Rgb | null {
+  const m = OKLCH_FN.exec(value.trim());
+  if (!m) return null;
+
+  const l = m[2] === '%' ? Number(m[1]) / 100 : Number(m[1]);
+  const c = Number(m[3]);
+  const h = Number(m[4]);
+  const a = m[5] === undefined ? undefined : m[6] === '%' ? Number(m[5]) / 100 : Number(m[5]);
+
+  const rgb = oklchToSrgbClamped({ l, c, h });
+  return a === undefined ? rgb : { ...rgb, a };
+}
+
+/** Parses any color string this codebase's WCAG pipeline accepts: hex (incl. `oklch()`. */
+export function parseColor(value: string): Rgb | null {
+  return parseHex(value) ?? parseOklch(value);
+}
+
+/** Emits `#rrggbb`, or `#rrggbbaa` when `rgb.a` carries a non-opaque alpha. */
 export function toHex(rgb: Rgb): string {
   const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
   const channel = (n: number) => clamp(n).toString(16).padStart(2, '0');
-  return `#${channel(rgb.r)}${channel(rgb.g)}${channel(rgb.b)}`;
+  const base = `#${channel(rgb.r)}${channel(rgb.g)}${channel(rgb.b)}`;
+  if (rgb.a === undefined || rgb.a >= 1) return base;
+  return `${base}${channel(rgb.a * 255)}`;
+}
+
+/** Alpha-composites `fg` over an assumed-opaque `bg` (Porter-Duff "over", ignoring bg.a). */
+export function compositeOver(fg: Rgb, bg: Rgb): Rgb {
+  const alpha = fg.a ?? 1;
+  if (alpha >= 1) return { r: fg.r, g: fg.g, b: fg.b };
+  return {
+    r: fg.r * alpha + bg.r * (1 - alpha),
+    g: fg.g * alpha + bg.g * (1 - alpha),
+    b: fg.b * alpha + bg.b * (1 - alpha),
+  };
 }
 
 /** sRGB transfer function (EOTF), shared with getLuminance so both stay in sync. */

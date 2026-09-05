@@ -1,8 +1,7 @@
 'use client';
 
 import { useCallback, useSyncExternalStore } from 'react';
-
-const STORAGE_KEY = 'episciences:color-scheme';
+import { THEME_STORAGE_KEY as STORAGE_KEY } from '@/config/theme-storage-key';
 
 export type PinnedScheme = 'light' | 'dark' | null;
 

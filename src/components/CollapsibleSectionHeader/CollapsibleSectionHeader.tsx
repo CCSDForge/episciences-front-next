@@ -3,6 +3,7 @@
 import { ElementType, ReactNode } from 'react';
 import { CaretUpBlackIcon, CaretDownBlackIcon } from '@/components/icons';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import './CollapsibleSectionHeader.scss';
 
 export interface CollapsibleSectionHeaderProps {
   /** Class(es) for the clickable trigger element. Pass the full string, including any conditional modifier. */
@@ -60,11 +61,21 @@ export default function CollapsibleSectionHeader({
       <HeadingTag id={headingId} className={headingClassName}>
         {title}
       </HeadingTag>
-      {isOpen ? (
-        <CaretUpBlackIcon size={caretSize} className={caretClassName} ariaLabel={collapseLabel} />
-      ) : (
-        <CaretDownBlackIcon size={caretSize} className={caretClassName} ariaLabel={expandLabel} />
-      )}
+      <span className="collapsibleSectionHeader-caret">
+        {isOpen ? (
+          <CaretUpBlackIcon
+            size={caretSize}
+            className={caretClassName}
+            ariaLabel={collapseLabel}
+          />
+        ) : (
+          <CaretDownBlackIcon
+            size={caretSize}
+            className={caretClassName}
+            ariaLabel={expandLabel}
+          />
+        )}
+      </span>
     </div>
   );
 }

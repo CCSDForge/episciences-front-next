@@ -149,7 +149,8 @@
       "light": "Clair",
       "dark": "Sombre",
       "switchToDark": "Passer au thème sombre",
-      "switchToLight": "Passer au thème clair"
+      "switchToLight": "Passer au thème clair",
+      "followSystem": "Suivre le système"
     },
     "footer": {
       "links": {

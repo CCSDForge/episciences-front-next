@@ -102,8 +102,12 @@
       &-download {
         display: flex;
         gap: 4px;
-        color: var(--primary-text);
         font-size: 13px;
+
+        // See Swiper.scss for the same currentColor/when-dark rationale.
+        @include mixins.when-dark {
+          color: var(--primary-text);
+        }
 
         &-text {
           @media (max-width: breakpoints.$sm) {

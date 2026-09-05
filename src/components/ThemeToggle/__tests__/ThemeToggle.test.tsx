@@ -12,6 +12,7 @@ vi.mock('react-i18next', () => ({
         'components.themeToggle.dark': 'Dark',
         'components.themeToggle.switchToDark': 'Switch to dark theme',
         'components.themeToggle.switchToLight': 'Switch to light theme',
+        'components.themeToggle.followSystem': 'Follow system',
       };
       return map[key] ?? key;
     },
@@ -73,7 +74,11 @@ describe('ThemeToggle', () => {
 
     fireEvent.click(screen.getByRole('button'));
 
-    expect(screen.getByRole('button', { name: 'Switch to light theme' })).toBeInTheDocument();
+    // Once pinned, a click always unpins and reverts to the system preference —
+    // it does not necessarily switch to the opposite scheme (a no-op when the
+    // system already matches the pin) — so the label must say "follow system",
+    // never claim a specific switch.
+    expect(screen.getByRole('button', { name: 'Follow system' })).toBeInTheDocument();
   });
 
   it('has no accessibility violations', async () => {

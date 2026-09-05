@@ -7,12 +7,13 @@
 
 import { logger } from '@/lib/logger';
 import {
-  parseHex,
+  parseColor,
   toHex,
   rgbToOklch,
   oklchToSrgbClamped,
   withLightness,
   srgbToLinear,
+  compositeOver,
   type Rgb,
   type Oklch,
 } from './oklch';
@@ -52,13 +53,20 @@ function getLuminance(rgb: Rgb): number {
  * @returns Contrast ratio (1 to 21)
  */
 export function getContrastRatio(color1: string, color2: string): number {
-  const rgb1 = parseHex(color1);
-  const rgb2 = parseHex(color2);
+  const rgb1 = parseColor(color1);
+  const rgb2 = parseColor(color2);
 
   if (!rgb1 || !rgb2) return 1;
 
-  const lum1 = getLuminance(rgb1);
-  const lum2 = getLuminance(rgb2);
+  // Alpha isn't a WCAG concept — composite over an assumed-opaque white page
+  // background first so a translucent color contributes its *effective* color,
+  // not the fully-opaque one `getLuminance` would otherwise assume.
+  const white: Rgb = { r: 255, g: 255, b: 255 };
+  const bg = compositeOver(rgb2, white);
+  const fg = compositeOver(rgb1, bg);
+
+  const lum1 = getLuminance(fg);
+  const lum2 = getLuminance(bg);
 
   const lighter = Math.max(lum1, lum2);
   const darker = Math.min(lum1, lum2);
@@ -79,10 +87,10 @@ export function ensureContrast(
   background: string = '#ffffff',
   targetRatio: number = 4.5
 ): string {
-  const rgb = parseHex(color);
+  const rgb = parseColor(color);
   if (!rgb) return color;
 
-  const bgRgb = parseHex(background);
+  const bgRgb = parseColor(background);
   if (!bgRgb) return color;
 
   const bgHex = toHex(bgRgb);
@@ -91,16 +99,21 @@ export function ensureContrast(
   if (initialRatio >= targetRatio) return color;
 
   const original = rgbToOklch(rgb);
-  const bgIsLight = getLuminance(bgRgb) > 0.5;
-  // Moving toward this extremity is the direction that increases contrast against `background`.
-  const extremityL = bgIsLight ? 0 : 1;
 
   const contrastAtL = (l: number): number => {
     const candidate = oklchToSrgbClamped(withLightness(original, l));
     return getContrastRatio(toHex(candidate), bgHex);
   };
 
-  const extremityRatio = contrastAtL(extremityL);
+  // Luminance-threshold heuristics (e.g. "background luminance > 0.5 ⇒ go dark")
+  // pick the wrong extremity for a wide mid-range of background luminances,
+  // because relative luminance isn't linear in perceived lightness — a background
+  // can read as "dark" by the >0.5 rule while black (L=0) still contrasts far
+  // better against it than white (L=1). Compare both extremities directly instead.
+  const contrastAtBlack = contrastAtL(0);
+  const contrastAtWhite = contrastAtL(1);
+  const extremityL = contrastAtBlack >= contrastAtWhite ? 0 : 1;
+  const extremityRatio = Math.max(contrastAtBlack, contrastAtWhite);
   if (extremityRatio < targetRatio) {
     log.warn('Unable to reach target contrast ratio even at the lightness extremity', {
       color,
@@ -186,7 +199,7 @@ function applyDarkPolicy(c: Oklch, floor: number): Oklch {
  * degrades to a perfectly neutral gray.
  */
 export function generateDarkSurfaces(brandColor: string) {
-  const rgb = parseHex(brandColor) ?? { r: 0, g: 0, b: 0 };
+  const rgb = parseColor(brandColor) ?? { r: 0, g: 0, b: 0 };
   const brand = rgbToOklch(rgb);
   const tint = brand.c < 0.01 ? 0 : Math.min(0.012, brand.c * 0.1);
   const h = brand.h;
@@ -236,12 +249,12 @@ export function generateSchemePalette(
 
   const targets = TARGETS[scheme];
   const surface = opts.surface ?? generateDarkSurfaces(color).surface;
-  const rgb = parseHex(color);
+  const rgb = parseColor(color);
   const brand = rgb ? rgbToOklch(rgb) : { l: 0, c: 0, h: 0 };
 
   const policedContrast = (targetRatio: number, floor: number): string => {
     const adjustedHex = ensureContrast(color, surface, targetRatio);
-    const adjustedRgb = parseHex(adjustedHex);
+    const adjustedRgb = parseColor(adjustedHex);
     if (!adjustedRgb) return adjustedHex;
     const adjustedOklch = rgbToOklch(adjustedRgb);
     const policed = applyDarkPolicy(withLightness(brand, Math.max(adjustedOklch.l, floor)), floor);

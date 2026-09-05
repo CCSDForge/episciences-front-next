@@ -94,6 +94,15 @@
 
   // Not journal-dependent — never overridden per journal.
   --focus-color-on-dark-light: #ffffff;
+
+  // Fixed (non-journal-dependent) pairs behind the light-dark() L2 tokens below —
+  // declared here, not inline, so the @supports fallback loop can re-derive them too.
+  --shadow-light: #{$black-shadow};
+  --shadow-dark: #00000073;
+  --overlay-scrim-light: rgba(0, 0, 0, 0.35);
+  --overlay-scrim-dark: oklch(0.1 0 0 / 55%);
+  --blue-navy-light: #{$blue-navy};
+  --blue-navy-dark: #5276d4;
 }
 
 // ---------------------------------------------------------------------------
@@ -124,8 +133,8 @@
   --text: light-dark(var(--text-light), var(--text-dark));
   --text-muted: light-dark(var(--text-muted-light), var(--text-muted-dark));
   --border: light-dark(var(--border-light), var(--border-dark));
-  --shadow: light-dark(#{$black-shadow}, #00000073);
-  --overlay-scrim: light-dark(rgba(0, 0, 0, 0.35), oklch(0.1 0 0 / 55%));
+  --shadow: light-dark(var(--shadow-light), var(--shadow-dark));
+  --overlay-scrim: light-dark(var(--overlay-scrim-light), var(--overlay-scrim-dark));
 
   // heading-color always equalled primary-text's formula — pure alias, no own pair.
   --heading-color: var(--primary-text);
@@ -138,7 +147,7 @@
   // else derived from a fixed literal: the raw navy is ~1.08:1 against the default
   // dark surface — effectively invisible — so a lightened, more saturated blue
   // stands in for dark mode (AA 4.5:1 against the default anthracite surface).
-  --blue-navy: light-dark(#{$blue-navy}, #5276d4);
+  --blue-navy: light-dark(var(--blue-navy-light), var(--blue-navy-dark));
 
   // --- Legacy names: aliased, not removed (see docs/ACCESSIBLE_COLOR_SYSTEM.md) ---
   // Kept so the ~250 existing var(--white|--black|--grey*) call sites keep working
@@ -160,6 +169,13 @@
   --text-color: var(--text-strong);
   --text-primary: var(--text-strong);
   --text-secondary: var(--text-muted);
+
+  // Scheme-invariant badge/chip colors: unlike --white/--black/--grey above,
+  // decorative chips (language badges, linked-publication tags) aren't meant to
+  // invert with the scheme — they're a fixed gray chip with white text, same as
+  // before dark mode existed. Never reference the legacy aliases here.
+  --badge-bg: #{$grey};
+  --badge-text: #{$white};
 }
 
 // ---------------------------------------------------------------------------
@@ -170,7 +186,8 @@
 // ---------------------------------------------------------------------------
 $theme-tokens: 'primary', 'primary-text', 'primary-border', 'button-text-on-primary-bg',
   'focus-color', 'focus-color-on-primary', 'focus-color-on-dark', 'surface', 'surface-2',
-  'surface-raised', 'text-strong', 'text', 'text-muted', 'border';
+  'surface-raised', 'text-strong', 'text', 'text-muted', 'border', 'shadow', 'overlay-scrim',
+  'blue-navy';
 
 @supports not (color: light-dark(#fff, #000)) {
   :root {

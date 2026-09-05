@@ -11,8 +11,10 @@
  * Must stay try/catch-wrapped: localStorage access throws in Safari private
  * browsing and when third-party storage is blocked.
  */
+import { THEME_STORAGE_KEY } from './theme-storage-key';
+
 export const THEME_BOOTSTRAP = `(()=>{try{
-var p=localStorage.getItem('episciences:color-scheme');
+var p=localStorage.getItem('${THEME_STORAGE_KEY}');
 if(p==='light'||p==='dark'){
   document.documentElement.dataset.theme=p;
   var m=document.querySelector('meta[name="color-scheme"]');

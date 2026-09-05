@@ -65,4 +65,35 @@
 @mixin elevated-card {
   background: light-dark(transparent, var(--surface-2));
   border-color: light-dark(var(--grey), rgba(255, 255, 255, 0.12));
+
+  // Fallback for engines without light-dark() support — see theme.scss's own
+  // @supports block for the same rationale; duplicated here because this mixin's
+  // values aren't backed by a --token pair that loop can re-derive.
+  @supports not (color: light-dark(#fff, #000)) {
+    background: transparent;
+    border-color: var(--grey);
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light']) & {
+        background: var(--surface-2);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+    }
+
+    :root[data-theme='dark'] & {
+      background: var(--surface-2);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+  }
+}
+
+/// A box that must always render in the light scheme regardless of the active
+/// theme — polychrome logos drawn for a white background would be wrecked by
+/// filter: invert(), so the box itself opts out of dark mode entirely.
+/// See docs/ACCESSIBLE_COLOR_SYSTEM.md §Logos.
+@mixin light-island {
+  color-scheme: only light;
+  background: var(--pure-white);
+  color: var(--pure-black);
+  accent-color: auto;
 }
