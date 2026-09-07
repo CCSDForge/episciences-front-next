@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import '@/utils/fetchInterceptor';
 import { defaultLanguage } from '@/utils/language-utils';
 import { THEME_BOOTSTRAP } from '@/config/theme-bootstrap';
+import { InlineScript } from '@/components/InlineScript/InlineScript';
 import '@/styles/index.scss';
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: { readonly children: React.Reac
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
         <meta name="color-scheme" content="light dark" suppressHydrationWarning />
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
+        <InlineScript html={THEME_BOOTSTRAP} />
       </head>
       <body>
         {/* The JournalLayout at /sites/[journalId]/layout.tsx will provide ClientProviders */}
