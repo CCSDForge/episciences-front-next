@@ -66,7 +66,7 @@
           display: flex;
           justify-content: space-between;
           align-items: center;
-          border-bottom: 1px solid var(--grey-light);
+          border-bottom: 1px solid var(--primary-border);
           padding-bottom: 8px;
           margin-bottom: 8px;
 
@@ -74,8 +74,12 @@
             display: none;
           }
 
+          // CaretUpIcon/CaretDownIcon paint via currentColor — pin them to the
+          // semantic "strong text" token so they stay legible in both schemes
+          // instead of inheriting the muted --grey-dark cascading from above.
           &-caret {
             cursor: pointer;
+            color: var(--text-strong);
 
             @media (max-width: breakpoints.$xsm) {
               align-self: flex-end;
