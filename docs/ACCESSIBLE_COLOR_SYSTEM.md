@@ -11,6 +11,52 @@ This document describes the current architecture. It replaces the pre-dark-mode
 version — `src/config/theme.ts` (client-side `applyThemeVariables`) no longer exists;
 everything is computed server-side in [`src/app/sites/[journalId]/layout.tsx`](file:///home/tournoy/WebstormProjects/episciences-front-next/src/app/sites/[journalId]/layout.tsx).
 
+## Plain-Language Explanation: How It Works & Why
+
+If you are not a frontend specialist or color scientist, here is the intuitive picture behind this system.
+
+### 1. The challenge: 60+ journals, each with a single color
+Episciences hosts dozens of independent scientific journals. Each has its own visual identity, defined by **a single brand color**: deep navy for one, burgundy for another, golden yellow or emerald green for others.
+- On a traditional white web page, writing text in pale yellow or orange is **illegible**.
+- In **dark mode** (dark gray/anthracite background), a dark navy or deep burgundy text becomes **completely invisible**.
+- Asking every journal editorial board to manually design and maintain 15 different color swatches for both day and night would be error-prone and unsustainable.
+
+### 2. The solution: An automated, accessible "color factory"
+Instead of manual palettes, the system uses an intelligent mathematical engine running on the server:
+- **The journal provides just one color** (its raw brand color).
+- **The engine automatically generates the full wardrobe**: text colors, button states, focus outlines, borders, and card backgrounds, for **both light and dark themes**.
+- **100% legibility is mathematically guaranteed**: Before rendering, the engine calculates the contrast ratio against the background. If a color falls short of international accessibility standards (WCAG 2.2 AA), it automatically adjusts the brightness until it is perfectly readable.
+
+### 3. How Light Mode works (Daytime)
+- The page background is crisp white or light pearl gray.
+- If the journal's color is naturally dark (e.g. deep blue), the system keeps it untouched.
+- If the color is too bright or pale (e.g. golden yellow), the algorithm **darkens it just enough** to make it crisp and comfortable to read, while retaining its original color hue.
+
+### 4. How Dark Mode works (Nighttime)
+Dark mode is not simply "pitch black with white text", which causes eye fatigue and harsh visual vibration:
+- **No pitch-black void**: Backgrounds never use pure `#000000`. Instead, they use a soft, modern **anthracite dark gray subtly tinted** with a small touch of the journal's brand hue. Every journal gets its own harmonious dark ambiance.
+- **Brightened, but not neon**: On dark surfaces, the brand color is automatically lightened so it pops nicely. To prevent glowing "neon halos" that strain the eyes, the system dampens color saturation.
+- **Stricter contrast rules**: The human eye has a harder time discerning contrast on dark surfaces than on white paper. The algorithm is deliberately tuned with higher contrast thresholds for dark mode (targeting 7:1 for text instead of the usual 4.5:1 minimum).
+
+### 5. Why the OKLCH engine?
+In conventional digital color systems (sRGB), brightening a color distorts its appearance: orange quickly turns into muddy brown or beige, and blue shifts towards purple.
+Episciences uses **OKLCH**, a modern color model engineered to match **human visual perception**:
+- It cleanly separates **perceived lightness** from the **color hue**.
+- This enables the algorithm to increase brightness for dark mode **without ever altering the journal's true brand identity**.
+
+### 6. "Light Islands" for journal logos
+Many academic logos were created years ago for white paper or white headers, often featuring black lettering or intricate dark shapes:
+- Inverting them like a photo negative (`filter: invert()`) would distort emblems and corrupt colored elements.
+- Placing them directly on an anthracite background would make black parts vanish.
+- **The solution**: The system automatically houses these logos inside a discreet, clean **"light island"** (a small white box with subtle padding and rounded corners). The original logo remains 100% intact and legible with zero manual graphic work required from the journal.
+
+### 7. The user experience (Sun / Moon toggle)
+- **Follows your device by default**: If your computer or phone is set to dark mode, the journal automatically loads in dark mode. If set to light mode, it loads in light mode.
+- **Instant manual override**: Clicking the Sun/Moon button allows any reader to pin their personal preference, saved instantly in the browser without cookies or tracking.
+- **Zero flash of white (FOUC)**: A tiny script runs in a fraction of a millisecond before the page starts painting, eliminating jarring white flashes when opening a link at night.
+
+---
+
 ## Three layers of tokens
 
 **L0 — brand facts & scheme-invariant brand tokens.**
