@@ -15,11 +15,85 @@
     border-radius: 3px;
   }
 
+  // Not animated: animating scrollbar-color flickers under WebKit.
   &:hover {
-    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+    scrollbar-color: var(--border) transparent;
   }
 
   &:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.15);
+    background-color: var(--border);
   }
+}
+
+/// Applies @content when the dark scheme is active — system-followed or pinned.
+/// Use for anything light-dark() can't express: icons, logos, filters, non-color values.
+@mixin when-dark {
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      @content;
+    }
+  }
+
+  :root[data-theme='dark'] & {
+    @content;
+  }
+}
+
+/// Applies @content when the light scheme is active — system-followed or pinned.
+@mixin when-light {
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) & {
+      @content;
+    }
+  }
+
+  :root[data-theme='light'] & {
+    @content;
+  }
+}
+
+/// GitHub-style card elevation: in light mode the card stays flush with the page
+/// (unchanged — border-only separation, as today); in dark mode it lifts one step
+/// off the page background (--surface-2) with a soft, low-opacity hairline instead
+/// of the stronger --grey used for the light-mode line. A translucent white
+/// overlay (rather than --border, which is tuned for functional UI needing real
+/// contrast — focus rings, form controls) stays proportionally soft regardless of
+/// the brand hue tinting the surface underneath: this edge is purely decorative,
+/// not a WCAG 1.4.11 non-text-contrast case. Apply alongside an existing
+/// `border: 1px solid;` / `border-bottom: 4px solid var(--accent-border);`
+/// declaration — this mixin only sets background and border-color.
+@mixin elevated-card {
+  background: light-dark(transparent, var(--surface-2));
+  border-color: light-dark(var(--grey), rgba(255, 255, 255, 0.12));
+
+  // Fallback for engines without light-dark() support — see theme.scss's own
+  // @supports block for the same rationale; duplicated here because this mixin's
+  // values aren't backed by a --token pair that loop can re-derive.
+  @supports not (color: light-dark(#fff, #000)) {
+    background: transparent;
+    border-color: var(--grey);
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light']) & {
+        background: var(--surface-2);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+    }
+
+    :root[data-theme='dark'] & {
+      background: var(--surface-2);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+  }
+}
+
+/// A box that must always render in the light scheme regardless of the active
+/// theme — polychrome logos drawn for a white background would be wrecked by
+/// filter: invert(), so the box itself opts out of dark mode entirely.
+/// See docs/ACCESSIBLE_COLOR_SYSTEM.md §Logos.
+@mixin light-island {
+  color-scheme: only light;
+  background: var(--pure-white);
+  color: var(--pure-black);
+  accent-color: auto;
 }

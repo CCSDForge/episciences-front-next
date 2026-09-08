@@ -2,9 +2,25 @@
   display: flex;
   gap: 40px;
   min-width: 420px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 3px 6px light-dark(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6));
   border-top: 2px solid var(--accent-border);
   padding: 24px;
+
+  // Fallback for engines without light-dark() support — see theme.scss's own
+  // @supports block for the same rationale.
+  @supports not (color: light-dark(#fff, #000)) {
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light']) & {
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.6);
+      }
+    }
+
+    :root[data-theme='dark'] & {
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.6);
+    }
+  }
 
   &-typesSection-title,
   &-yearsSection-title {

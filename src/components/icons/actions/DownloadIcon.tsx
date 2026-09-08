@@ -55,5 +55,5 @@ export const DownloadBlueIcon = (props: Omit<DownloadIconProps, 'color'>) => (
 );
 
 export const DownloadBlackIcon = (props: Omit<DownloadIconProps, 'color'>) => (
-  <DownloadIcon {...props} color="#000000" />
+  <DownloadIcon {...props} color="currentColor" />
 );

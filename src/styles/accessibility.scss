@@ -77,8 +77,8 @@
  *
  * WCAG: Supports 2.4.7 Focus Visible (Level AA), 2.4.13 Focus Appearance (Level AAA - WCAG 2.2)
  *
- * @see src/config/theme.ts for --focus-color generation
- * @see docs/accessible_color_system.md for color system documentation
+ * @see src/utils/colorContrast.ts for --focus-color generation
+ * @see docs/ACCESSIBLE_COLOR_SYSTEM.md for color system documentation
  */
 
 /**
@@ -197,11 +197,14 @@ input[type='radio']:focus-visible {
 /**
  * Focus on Dark Backgrounds
  *
- * Enhanced focus visibility on dark backgrounds (footer, dark sections)
+ * Enhanced focus visibility for elements deliberately painted dark regardless
+ * of the active scheme (footer, dark sections). `.on-dark-surface` is an
+ * explicit opt-in: a bare `[class*='dark']` attribute selector would also
+ * match any future `.dark-*` class name, which is not the intent here.
  */
 .dark-bg,
 .footer,
-[class*='dark'] {
+.on-dark-surface {
   *:focus-visible,
   &:focus-visible {
     outline-color: var(--focus-color-on-dark, #ffffff);
@@ -210,15 +213,15 @@ input[type='radio']:focus-visible {
 }
 
 /**
- * High Contrast Mode
+ * High Contrast Mode (`prefers-contrast: more`)
  *
- * Ensures content remains visible in Windows High Contrast Mode.
- * Enhances focus indicators for users with vision impairments.
+ * `prefers-contrast: high` is not a valid media-feature value — it never matched
+ * in any shipping browser. `more` is the correct WCAG/CSS Media Queries 5 value.
  *
  * WCAG: Supports 1.4.11 Non-text Contrast (Level AA - WCAG 2.1)
  */
-@media (prefers-contrast: high) {
-  // Stronger focus indicators in high contrast mode
+@media (prefers-contrast: more) {
+  // Stronger focus indicators
   *:focus-visible {
     outline-width: 3px !important;
     outline-style: solid !important;
@@ -238,4 +241,43 @@ input[type='radio']:focus-visible {
   a:focus-visible {
     outline-width: 4px !important;
   }
+
+  :root {
+    --surface-light: #ffffff;
+    --surface-dark: #0a0a0c;
+  }
 }
+
+/**
+ * Forced Colors Mode (Windows High Contrast)
+ *
+ * `color-scheme` and `light-dark()` are ignored under forced-colors: the UA
+ * substitutes its own system palette for authored colors — so this block uses
+ * CSS system color keywords instead of any theme token.
+ *
+ * WCAG: Supports 1.4.11 Non-text Contrast (Level AA)
+ */
+@media (forced-colors: active) {
+  *:focus-visible {
+    outline-color: Highlight;
+  }
+
+  // Cards that only rely on a shadow for definition need a real border once
+  // forced-colors flattens shadows away.
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    border: 1px solid transparent; // Becomes visible in forced-colors mode
+  }
+}
+
+/**
+ * Reduced Motion — the scheme toggle itself
+ *
+ * Deliberately absent: no `transition` on color properties for :root/body.
+ * Animating a scheme switch competes with reduced-motion AND regresses INP
+ * (every themed element repaints across the transition). scrollbar-color must
+ * never be transitioned either — it flickers under WebKit.
+ */

@@ -38,6 +38,21 @@ describe('colorContrast utils', () => {
       const ratio = getContrastRatio('000000', 'ffffff');
       expect(ratio).toBeCloseTo(21, 0);
     });
+
+    it('treats a fully transparent color as contributing no contrast of its own', () => {
+      // A fully transparent foreground reads as the (opaque white) page background —
+      // ratio ~1, not the 21 a naive opaque read of #000000 would produce.
+      const ratio = getContrastRatio('#00000000', '#ffffff');
+      expect(ratio).toBeCloseTo(1, 1);
+    });
+
+    it('composites a semi-transparent color over its background before measuring', () => {
+      // #00000080 (50% black) over white ≈ mid-gray — well below the 21:1 an
+      // alpha-blind read of the raw #000000 channels would report.
+      const ratio = getContrastRatio('#00000080', '#ffffff');
+      expect(ratio).toBeGreaterThan(1);
+      expect(ratio).toBeLessThan(10);
+    });
   });
 
   describe('ensureContrast', () => {
@@ -83,6 +98,21 @@ describe('colorContrast utils', () => {
       const result = ensureContrast('#666666', '#ffffff', 7);
       const ratio = getContrastRatio(result, '#ffffff');
       expect(ratio).toBeGreaterThanOrEqual(7);
+    });
+
+    it('picks the extremity that actually maximizes contrast, not the one a luminance>0.5 heuristic would', () => {
+      // Background #aaaaaa has relative luminance ~0.40 (< 0.5) despite reading as
+      // a light gray — a ">0.5 ⇒ go dark" heuristic picks white here (ratio ~2.3,
+      // below target), when black actually reaches ~9:1.
+      const result = ensureContrast('#999999', '#aaaaaa', 4.5);
+      const ratio = getContrastRatio(result, '#aaaaaa');
+      expect(ratio).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it('accepts an oklch() color string, matching JournalLayout.safeColor', () => {
+      const result = ensureContrast('oklch(0.9 0.05 250)', '#ffffff', 4.5);
+      const ratio = getContrastRatio(result, '#ffffff');
+      expect(ratio).toBeGreaterThanOrEqual(4.5);
     });
   });
 

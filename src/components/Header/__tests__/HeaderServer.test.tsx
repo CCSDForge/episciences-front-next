@@ -26,6 +26,10 @@ vi.mock('@/components/Header/LanguageDropdownWrapper', () => ({
   default: () => <div data-testid="language-dropdown" />,
 }));
 
+vi.mock('@/components/Header/ThemeToggleWrapper', () => ({
+  default: () => <div data-testid="theme-toggle" />,
+}));
+
 vi.mock('@/components/Header/MobileBurgerMenu', () => ({
   default: () => <div data-testid="mobile-burger-menu" />,
 }));

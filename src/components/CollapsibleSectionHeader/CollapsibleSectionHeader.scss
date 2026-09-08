@@ -1,0 +1,8 @@
+// CaretUpBlackIcon/CaretDownBlackIcon paint via currentColor — pin them to the
+// semantic "strong text" token so they stay legible in both schemes instead of
+// inheriting whatever ambient (muted) text color happens to cascade down.
+.collapsibleSectionHeader-caret {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--text-strong);
+}

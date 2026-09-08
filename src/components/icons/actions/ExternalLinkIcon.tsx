@@ -52,7 +52,7 @@ export const ExternalLinkBlueIcon = (props: Omit<ExternalLinkIconProps, 'color'>
 );
 
 export const ExternalLinkBlackIcon = (props: Omit<ExternalLinkIconProps, 'color'>) => (
-  <ExternalLinkIcon {...props} color="#000000" />
+  <ExternalLinkIcon {...props} color="currentColor" />
 );
 
 export const ExternalLinkWhiteIcon = (props: Omit<ExternalLinkIconProps, 'color'>) => (

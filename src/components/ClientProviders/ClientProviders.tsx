@@ -12,7 +12,6 @@ import i18n from '@/config/i18n';
 import { mathJaxConfig, mathJaxSrc } from '@/config/mathjax';
 import { JournalInitializer } from '@/components/JournalInitializer/JournalInitializer';
 import { LastVolumeInitializer } from '@/components/LastVolumeInitializer/LastVolumeInitializer';
-import ThemeStyleSwitch from '@/components/ThemeStyleSwitch/ThemeStyleSwitch';
 import { setLanguage } from '@/store/features/i18n/i18n.slice';
 import {
   setCurrentJournal,
@@ -91,7 +90,6 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
     <Provider store={store}>
       <I18nextProvider i18n={i18nInstance}>
         <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={3}>
-          {isClient && <ThemeStyleSwitch />}
           {/* JournalInitializer is no longer needed if we have initialJournal */}
           {isClient && !initialJournal && <JournalInitializer journalId={journalId} />}
           {isClient && initialVolume && <LastVolumeInitializer initialVolume={initialVolume} />}

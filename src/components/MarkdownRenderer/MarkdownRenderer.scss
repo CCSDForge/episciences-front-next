@@ -53,11 +53,11 @@ strong {
   tbody {
     tr {
       &:nth-child(even) {
-        background-color: rgba(0, 0, 0, 0.03);
+        background-color: light-dark(rgba(0, 0, 0, 0.03), rgba(255, 255, 255, 0.05));
       }
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.06);
+        background-color: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.09));
       }
     }
   }

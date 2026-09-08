@@ -132,6 +132,12 @@ export type { UserCircleIconProps } from './ui/UserCircleIcon';
 export { default as TranslateIcon } from './ui/TranslateIcon';
 export type { TranslateIconProps } from './ui/TranslateIcon';
 
+// Sun / Moon Icons (theme toggle)
+export { default as SunIcon } from './ui/SunIcon';
+export type { SunIconProps } from './ui/SunIcon';
+export { default as MoonIcon } from './ui/MoonIcon';
+export type { MoonIconProps } from './ui/MoonIcon';
+
 // ============================================================
 // SOCIAL ICONS
 // ============================================================

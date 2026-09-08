@@ -70,15 +70,31 @@
 .skeleton-text {
   background: linear-gradient(
     90deg,
-    rgba(240, 240, 240, 1) 0%,
-    rgba(250, 250, 250, 1) 50%,
-    rgba(240, 240, 240, 1) 100%
+    light-dark(#f0f0f0, #202020) 0%,
+    light-dark(#fafafa, #2a2a2a) 50%,
+    light-dark(#f0f0f0, #202020) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 4px;
   height: 1em;
   margin: 0.5em 0;
+
+  // Fallback for engines without light-dark() support — see theme.scss's own
+  // @supports block for the same rationale.
+  @supports not (color: light-dark(#fff, #000)) {
+    background: linear-gradient(90deg, #f0f0f0 0%, #fafafa 50%, #f0f0f0 100%);
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light']) & {
+        background: linear-gradient(90deg, #202020 0%, #2a2a2a 50%, #202020 100%);
+      }
+    }
+
+    :root[data-theme='dark'] & {
+      background: linear-gradient(90deg, #202020 0%, #2a2a2a 50%, #202020 100%);
+    }
+  }
 
   &.wide {
     width: 100%;

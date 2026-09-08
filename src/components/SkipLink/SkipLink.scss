@@ -29,7 +29,7 @@
     outline-offset: 2px;
   }
 
-  @media (prefers-contrast: high) {
+  @media (prefers-contrast: more) {
     &:focus,
     &:focus-visible {
       outline-width: 4px;

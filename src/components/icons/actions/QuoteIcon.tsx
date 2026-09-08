@@ -51,5 +51,5 @@ export const QuoteRedIcon = (props: Omit<QuoteIconProps, 'color'>) => (
 );
 
 export const QuoteBlackIcon = (props: Omit<QuoteIconProps, 'color'>) => (
-  <QuoteIcon {...props} color="#000000" />
+  <QuoteIcon {...props} color="currentColor" />
 );

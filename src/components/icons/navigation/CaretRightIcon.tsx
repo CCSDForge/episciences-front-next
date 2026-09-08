@@ -69,7 +69,7 @@ export const CaretRightBlueIcon = (props: Omit<CaretRightIconProps, 'color'>) =>
 );
 
 export const CaretRightBlackIcon = (props: Omit<CaretRightIconProps, 'color'>) => (
-  <CaretRightIcon {...props} color="#000000" />
+  <CaretRightIcon {...props} color="currentColor" />
 );
 
 export const CaretRightWhiteIcon = (props: Omit<CaretRightIconProps, 'color'>) => (
