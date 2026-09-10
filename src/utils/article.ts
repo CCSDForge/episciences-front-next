@@ -14,6 +14,7 @@ import {
 import { TFunction } from 'i18next';
 import { toastSuccess } from './toast';
 import { logger } from '@/lib/logger';
+import he from 'he';
 
 const log = logger.child({ service: 'article-utils' });
 
@@ -134,6 +135,30 @@ function buildMinimalArticle(extendedArticle: ExtendedRawArticle, title: string)
 type AbstractValue = NonNullable<RawArticleContent['abstract']>['value'];
 type AbstractArray = Extract<AbstractValue, unknown[]>;
 
+/**
+ * Decode HTML entities in text coming from external APIs. Some upstream
+ * sources double-encode content (e.g. "&amp;lt;" instead of "<"), which
+ * breaks MathJax parsing (a literal "&" outside a LaTeX alignment
+ * environment triggers a "Misplaced &" error). Decoding repeatedly until
+ * the output stabilizes resolves any encoding depth.
+ */
+export function decodeAbstractText(text: string): string {
+  let decoded = text;
+  for (let i = 0; i < 5; i++) {
+    const next = he.decode(decoded);
+    if (next === decoded) break;
+    decoded = next;
+  }
+  return decoded;
+}
+
+function decodeAbstractValue(value: string | IArticleAbstracts): string | IArticleAbstracts {
+  if (typeof value === 'string') return decodeAbstractText(value);
+  return Object.fromEntries(
+    Object.entries(value).map(([lang, text]) => [lang, decodeAbstractText(text)])
+  ) as IArticleAbstracts;
+}
+
 /** Build an abstract from a multilingual/plain array of abstract entries. */
 function extractAbstractFromArray(values: AbstractArray): string | IArticleAbstracts {
   const join = (): string =>
@@ -163,10 +188,10 @@ function extractAbstractFromArray(values: AbstractArray): string | IArticleAbstr
 /** Extract the abstract as a plain string or a multilingual object. */
 function extractAbstract(articleContent: RawArticleContent): string | IArticleAbstracts {
   const value = articleContent.abstract?.value;
-  if (typeof value === 'string') return value;
-  if (Array.isArray(value)) return extractAbstractFromArray(value);
+  if (typeof value === 'string') return decodeAbstractText(value);
+  if (Array.isArray(value)) return decodeAbstractValue(extractAbstractFromArray(value));
   if (typeof (value as { value?: unknown })?.value === 'string') {
-    return (value as { value: string }).value;
+    return decodeAbstractText((value as { value: string }).value);
   }
   return '';
 }
