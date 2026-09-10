@@ -72,7 +72,7 @@ export default function CollapsibleInstitutions({
     return (
       <>
         {institutions.map((institution, index) => (
-          <div key={institution.rorId || institution.name}>
+          <div key={`${institution.rorId || institution.name}-${index}`}>
             ({index + 1}) {institution.name}
             {institution.rorId && (
               <Link
