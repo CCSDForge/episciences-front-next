@@ -179,6 +179,13 @@ describe('pdf-cache', () => {
       expect(entry).toBeNull();
     });
 
+    it('returns null when enabled but paths cannot be resolved (invalid EPI_ENV)', async () => {
+      process.env.EPI_ENV = 'INVALID ENV!!';
+      const { readCacheEntry, getCacheKey } = await import('../pdf-cache');
+      const entry = await readCacheEntry(getCacheKey('https://zenodo.org/a.pdf'));
+      expect(entry).toBeNull();
+    });
+
     it('returns null on a cold miss (nothing on disk)', async () => {
       const { readCacheEntry, getCacheKey } = await import('../pdf-cache');
       const entry = await readCacheEntry(getCacheKey('https://zenodo.org/a.pdf'));
@@ -249,6 +256,36 @@ describe('pdf-cache', () => {
 
       const entry = await readCacheEntry(key);
       expect(entry).toBeNull();
+    });
+  });
+
+  describe('deleteCacheEntry', () => {
+    it('removes both the sidecar and the pdf', async () => {
+      const { readCacheEntry, deleteCacheEntry, getCacheKey } = await import('../pdf-cache');
+      const key = getCacheKey('https://zenodo.org/a.pdf');
+      await seedEntry(cacheRootDir(), key, Buffer.from('content'));
+      expect(await readCacheEntry(key)).not.toBeNull();
+
+      await deleteCacheEntry(key);
+
+      expect(await readCacheEntry(key)).toBeNull();
+      const paths = path.join(cacheRootDir(), key.slice(0, 2));
+      await expect(fsp.readdir(paths)).resolves.toEqual([]);
+    });
+
+    it('is idempotent — deleting a nonexistent entry never throws', async () => {
+      const { deleteCacheEntry, getCacheKey } = await import('../pdf-cache');
+      await expect(
+        deleteCacheEntry(getCacheKey('https://zenodo.org/never-written.pdf'))
+      ).resolves.toBeUndefined();
+    });
+
+    it('is a no-op when paths cannot be resolved (invalid EPI_ENV)', async () => {
+      delete process.env.EPI_ENV;
+      const { deleteCacheEntry, getCacheKey } = await import('../pdf-cache');
+      await expect(
+        deleteCacheEntry(getCacheKey('https://zenodo.org/a.pdf'))
+      ).resolves.toBeUndefined();
     });
   });
 
