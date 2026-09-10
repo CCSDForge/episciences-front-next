@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getLicenseLabelInfo, getCitations, CITATION_TEMPLATE } from '../article';
+import { getLicenseLabelInfo, getCitations, CITATION_TEMPLATE, decodeAbstractText } from '../article';
 
 describe('getLicenseLabelInfo', () => {
   describe('Creative Commons licenses', () => {
@@ -192,5 +192,22 @@ describe('getCitations', () => {
   it('should handle malformed CSL input gracefully without throwing', async () => {
     const result = await getCitations('{ malformed json');
     expect(result).toEqual([]);
+  });
+});
+
+describe('decodeAbstractText', () => {
+  it('should leave plain text unchanged', () => {
+    expect(decodeAbstractText('below 1 if tau_i < 10 years')).toBe('below 1 if tau_i < 10 years');
+  });
+
+  it('should decode a single level of HTML entity encoding', () => {
+    expect(decodeAbstractText('tau_i &lt; 10')).toBe('tau_i < 10');
+  });
+
+  it('should decode double-encoded entities from upstream APIs (Misplaced & MathJax bug)', () => {
+    // Real-world case from article 17576: "&amp;lt;" instead of "<"
+    expect(decodeAbstractText('below 1 if $\\tau_i&amp;lt;10$ years')).toBe(
+      'below 1 if $\\tau_i<10$ years'
+    );
   });
 });
