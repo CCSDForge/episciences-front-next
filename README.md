@@ -223,6 +223,7 @@ Additional documentation is available in the `docs/` folder:
 - [ISR Strategy](docs/ISR_STRATEGY.md) - ISR configuration by page type
 - [Revalidation Guide](docs/REVALIDATION_GUIDE.md) - On-demand revalidation API & webhooks
 - [Valkey Cache Strategy](docs/VALKEY_CACHE_STRATEGY.md) - Distributed cache design and circuit breaker
+- [PDF Cache Strategy](docs/PDF_CACHE_STRATEGY.md) - NFS disk cache for the PDF proxy, single-writer worker, rollout phases
 
 ### Backend Integration & Revalidation Specs
 
