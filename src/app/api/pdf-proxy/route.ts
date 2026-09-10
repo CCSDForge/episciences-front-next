@@ -152,6 +152,17 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // fetch() follows redirects by default, and a whitelisted domain that
+    // redirects (compromise, misconfiguration, a mirror) would otherwise send
+    // this proxy to an arbitrary host — including an internal one. Re-validate
+    // the domain against the final URL, not just the one the client requested.
+    if (!isAllowedPdfDomain(response.url || pdfUrl)) {
+      logger.warn(
+        `[PDF Proxy] Blocked redirect to non-whitelisted host: ${sanitizeForLog(response.url)}`
+      );
+      return new NextResponse('Upstream redirect not allowed', { status: 502 });
+    }
+
     // Validate Content-Type from upstream (see isPdfContentType for why)
     const upstreamContentType = response.headers.get('Content-Type') ?? '';
     if (!isPdfContentType(upstreamContentType)) {

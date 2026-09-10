@@ -126,6 +126,30 @@ describe('GET /api/pdf-proxy', () => {
       expect(res.status).toBe(200);
     });
 
+    it('blocks a response whose final URL (after redirects) is not whitelisted', async () => {
+      const response = new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/pdf' },
+      });
+      Object.defineProperty(response, 'url', { value: 'https://evil.com/file.pdf' });
+      global.fetch = vi.fn().mockResolvedValue(response);
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(502);
+    });
+
+    it('allows a response whose final URL redirected to another whitelisted host', async () => {
+      const response = new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/pdf' },
+      });
+      Object.defineProperty(response, 'url', { value: 'https://data.zenodo.org/file.pdf' });
+      global.fetch = vi.fn().mockResolvedValue(response);
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(200);
+    });
+
     it('forces Content-Type: application/pdf in the response regardless of upstream value', async () => {
       global.fetch = vi.fn().mockResolvedValue(
         new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
