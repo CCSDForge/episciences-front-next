@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import type { PdfCacheEntry } from '@/lib/pdf-cache';
 
 vi.mock('@/utils/validation', () => ({
   sanitizeIp: vi.fn((raw: string | null) => {
@@ -14,6 +15,27 @@ vi.mock('@/utils/validation', () => ({
   sanitizeForLog: vi.fn((value: string | null | undefined) => String(value ?? '').slice(0, 200)),
 }));
 
+// Cache disabled by default in every test unless a test overrides these
+// mocks — this is what lets the whole pre-existing suite above prove the
+// PDF_CACHE_ENABLED=false path is byte-for-byte the original behavior.
+vi.mock('@/lib/pdf-cache', () => ({
+  isCacheEnabled: vi.fn(() => false),
+  getCacheMode: vi.fn(() => 'fallback'),
+  getCacheKey: vi.fn((url: string) => `key-for-${url}`),
+  getCacheMaxAgeSeconds: vi.fn(() => 15552000),
+  readCacheEntry: vi.fn(async () => null),
+  isEntryStale: vi.fn(() => false),
+  enqueuePopulateJob: vi.fn(async () => {}),
+}));
+
+import {
+  isCacheEnabled,
+  getCacheMode,
+  readCacheEntry,
+  isEntryStale,
+  enqueuePopulateJob,
+} from '@/lib/pdf-cache';
+
 // Helper to build a pdf-proxy GET request
 function makeRequest(url: string | null, ip = '1.2.3.4'): NextRequest {
   const searchParams = url ? `?url=${encodeURIComponent(url)}` : '';
@@ -21,6 +43,30 @@ function makeRequest(url: string | null, ip = '1.2.3.4'): NextRequest {
     method: 'GET',
     headers: { 'x-forwarded-for': ip },
   });
+}
+
+function fakeCacheEntry(content: string, ageSeconds = 0): PdfCacheEntry {
+  const bytes = new TextEncoder().encode(content);
+  return {
+    sidecar: {
+      schemaVersion: 1,
+      sourceUrl: 'https://zenodo.org/file.pdf',
+      key: 'key-for-https://zenodo.org/file.pdf',
+      fetchedAt: new Date(Date.now() - ageSeconds * 1000).toISOString(),
+      byteLength: bytes.length,
+      upstreamContentType: 'application/pdf',
+      httpStatus: 200,
+      host: 'zenodo.org',
+    },
+    byteLength: bytes.length,
+    ageSeconds,
+    stream: new ReadableStream({
+      start(controller) {
+        controller.enqueue(bytes);
+        controller.close();
+      },
+    }),
+  };
 }
 
 describe('GET /api/pdf-proxy', () => {
@@ -34,6 +80,15 @@ describe('GET /api/pdf-proxy', () => {
         headers: { 'Content-Type': 'application/pdf' },
       })
     );
+    // Cache disabled by default; individual tests below opt back in.
+    // mockReset (not just mockReturnValue) so each test starts from a clean
+    // call history too — vi.restoreAllMocks() in afterEach does not clear
+    // call counts for plain vi.fn() mocks the way it does for vi.spyOn spies.
+    vi.mocked(isCacheEnabled).mockReset().mockReturnValue(false);
+    vi.mocked(getCacheMode).mockReset().mockReturnValue('fallback');
+    vi.mocked(readCacheEntry).mockReset().mockResolvedValue(null);
+    vi.mocked(isEntryStale).mockReset().mockReturnValue(false);
+    vi.mocked(enqueuePopulateJob).mockReset().mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -121,6 +176,30 @@ describe('GET /api/pdf-proxy', () => {
     });
 
     it('returns 200 when upstream returns application/pdf', async () => {
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(200);
+    });
+
+    it('blocks a response whose final URL (after redirects) is not whitelisted', async () => {
+      const response = new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/pdf' },
+      });
+      Object.defineProperty(response, 'url', { value: 'https://evil.com/file.pdf' });
+      global.fetch = vi.fn().mockResolvedValue(response);
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(502);
+    });
+
+    it('allows a response whose final URL redirected to another whitelisted host', async () => {
+      const response = new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/pdf' },
+      });
+      Object.defineProperty(response, 'url', { value: 'https://data.zenodo.org/file.pdf' });
+      global.fetch = vi.fn().mockResolvedValue(response);
       const { GET } = await import('../route');
       const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
       expect(res.status).toBe(200);
@@ -284,6 +363,157 @@ describe('GET /api/pdf-proxy', () => {
       expect(blockedRes.status).toBe(429);
       const text = await blockedRes.text();
       expect(text).toBe('Too many requests');
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Disk cache (PDF_CACHE_ENABLED) — src/lib/pdf-cache is mocked above, so
+  // these only test the route's wiring: which cache calls happen in which
+  // mode, and that they never change the response when disabled (already
+  // covered, implicitly, by every test above this block).
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('disk cache', () => {
+    it('marks the response X-Pdf-Cache: OFF when the cache is disabled', async () => {
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.0.1'));
+      expect(res.status).toBe(200);
+      expect(res.headers.get('X-Pdf-Cache')).toBe('OFF');
+      expect(readCacheEntry).not.toHaveBeenCalled();
+    });
+
+    describe('mode=systematic', () => {
+      beforeEach(() => {
+        vi.mocked(isCacheEnabled).mockReturnValue(true);
+        vi.mocked(getCacheMode).mockReturnValue('systematic');
+      });
+
+      it('serves a fresh hit straight from the cache, without ever calling fetch()', async () => {
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-fresh'));
+        vi.mocked(isEntryStale).mockReturnValue(false);
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.0.2'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('HIT');
+        expect(await res.text()).toBe('%PDF-fresh');
+        expect(global.fetch).not.toHaveBeenCalled();
+        expect(enqueuePopulateJob).not.toHaveBeenCalled();
+      });
+
+      it('serves a stale hit and enqueues a refresh', async () => {
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-stale', 999_999));
+        vi.mocked(isEntryStale).mockReturnValue(true);
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.0.3'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('STALE');
+        expect(global.fetch).not.toHaveBeenCalled();
+        expect(enqueuePopulateJob).toHaveBeenCalledWith(
+          'https://zenodo.org/file.pdf',
+          expect.any(String),
+          'refresh'
+        );
+      });
+
+      it('falls through to upstream on a cold miss and enqueues a populate job', async () => {
+        vi.mocked(readCacheEntry).mockResolvedValue(null);
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.0.4'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('MISS');
+        expect(global.fetch).toHaveBeenCalled();
+        expect(enqueuePopulateJob).toHaveBeenCalledWith(
+          'https://zenodo.org/file.pdf',
+          expect.any(String),
+          'populate'
+        );
+      });
+    });
+
+    describe('mode=fallback', () => {
+      beforeEach(() => {
+        vi.mocked(isCacheEnabled).mockReturnValue(true);
+        vi.mocked(getCacheMode).mockReturnValue('fallback');
+      });
+
+      it('serves upstream directly on success, without consulting the cache first', async () => {
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.1.1'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('MISS');
+        expect(readCacheEntry).not.toHaveBeenCalled();
+        expect(enqueuePopulateJob).toHaveBeenCalledWith(
+          'https://zenodo.org/file.pdf',
+          expect.any(String),
+          'populate'
+        );
+      });
+
+      it('serves the cached copy when upstream returns a non-ok status', async () => {
+        global.fetch = vi.fn().mockResolvedValue(new Response('Service Unavailable', { status: 503 }));
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-cached-copy'));
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.1.2'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('FALLBACK');
+        expect(await res.text()).toBe('%PDF-cached-copy');
+      });
+
+      it('serves the cached copy when upstream throws (network error)', async () => {
+        global.fetch = vi.fn().mockRejectedValue(new Error('Connection reset by peer'));
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-cached-copy'));
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.1.3'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('FALLBACK');
+      });
+
+      it('serves the cached copy on an upstream timeout (AbortError)', async () => {
+        const abortError = new Error('The user aborted a request.');
+        abortError.name = 'AbortError';
+        global.fetch = vi.fn().mockRejectedValue(abortError);
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-cached-copy'));
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.1.4'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('FALLBACK');
+      });
+
+      it('falls back to the original error when upstream fails and the cache also misses', async () => {
+        global.fetch = vi.fn().mockResolvedValue(new Response('Service Unavailable', { status: 503 }));
+        vi.mocked(readCacheEntry).mockResolvedValue(null);
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.1.5'));
+
+        expect(res.status).toBe(503);
+        expect(res.headers.get('X-Pdf-Cache')).toBeNull();
+      });
+
+      it('serves the cached copy when the upstream content-type is wrong', async () => {
+        global.fetch = vi.fn().mockResolvedValue(
+          new Response('<html>captcha</html>', { status: 200, headers: { 'Content-Type': 'text/html' } })
+        );
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-cached-copy'));
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.1.6'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('FALLBACK');
+      });
     });
   });
 });
