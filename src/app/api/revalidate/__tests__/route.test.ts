@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { getCacheKey, deleteCacheEntry } from '@/lib/pdf-cache';
 
 // Mock next/cache
 vi.mock('next/cache', () => ({
@@ -19,6 +20,13 @@ vi.mock('@/utils/validation', () => ({
     return /^[\d.:a-fA-F]+$/.test(first) ? first : 'unknown';
   }),
   sanitizeForLog: vi.fn((value: string | null | undefined) => String(value ?? '').slice(0, 200)),
+}));
+
+// Mock the pdf-cache module — real domain validation (@/utils/pdf) is left
+// unmocked on purpose, so these tests exercise the real allowlist.
+vi.mock('@/lib/pdf-cache', () => ({
+  getCacheKey: vi.fn((url: string) => `key-for-${url}`),
+  deleteCacheEntry: vi.fn(async () => {}),
 }));
 
 // Helper to create a NextRequest for the revalidate endpoint
@@ -205,6 +213,66 @@ describe('POST /api/revalidate', () => {
       expect(res1.status).toBe(200);
       expect(res2.status).toBe(200);
       delete process.env.REVALIDATE_RATE_LIMIT;
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PDF cache invalidation (pdfUrl) — delete-only
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('pdfUrl invalidation', () => {
+    beforeEach(() => {
+      vi.mocked(getCacheKey).mockReset().mockImplementation((url: string) => `key-for-${url}`);
+      vi.mocked(deleteCacheEntry).mockReset().mockResolvedValue(undefined);
+    });
+
+    it('accepts a pdfUrl-only request and deletes the recomputed cache key', async () => {
+      const { POST } = await import('../route');
+      const url = 'https://zenodo.org/record/1/file.pdf';
+      const res = await POST(makeRequest({ pdfUrl: url }, SECRET));
+
+      expect(res.status).toBe(200);
+      expect(getCacheKey).toHaveBeenCalledWith(url);
+      expect(deleteCacheEntry).toHaveBeenCalledWith(`key-for-${url}`);
+      const body = await res.json();
+      expect(body.pdfUrl).toBe(url);
+    });
+
+    it('rejects a pdfUrl on a non-whitelisted domain and never deletes anything', async () => {
+      const { POST } = await import('../route');
+      const res = await POST(makeRequest({ pdfUrl: 'https://evil.com/file.pdf' }, SECRET));
+
+      expect(res.status).toBe(400);
+      expect(deleteCacheEntry).not.toHaveBeenCalled();
+    });
+
+    it('never trusts a client-supplied key — only the recomputed sha256(pdfUrl) is used', async () => {
+      const { POST } = await import('../route');
+      const url = 'https://zenodo.org/record/1/file.pdf';
+      await POST(makeRequest({ pdfUrl: url, key: 'attacker-supplied-key' }, SECRET));
+
+      expect(deleteCacheEntry).toHaveBeenCalledWith(`key-for-${url}`);
+      expect(deleteCacheEntry).not.toHaveBeenCalledWith('attacker-supplied-key');
+    });
+
+    it('combines pdfUrl with a tag revalidation in the same request', async () => {
+      const { revalidateTag } = await import('next/cache');
+      const { POST } = await import('../route');
+      const url = 'https://zenodo.org/record/1/file.pdf';
+      const res = await POST(makeRequest({ pdfUrl: url, tag: 'article-42' }, SECRET));
+
+      expect(res.status).toBe(200);
+      expect(deleteCacheEntry).toHaveBeenCalledWith(`key-for-${url}`);
+      expect(revalidateTag).toHaveBeenCalledWith('article-42', { expire: 0 });
+    });
+
+    it('is idempotent — deleteCacheEntry resolving with nothing on disk still returns 200', async () => {
+      // deleteCacheEntry never throws on ENOENT (see src/lib/pdf-cache.ts) —
+      // the mock's default resolved-undefined behavior models that.
+      const { POST } = await import('../route');
+      const res = await POST(
+        makeRequest({ pdfUrl: 'https://arxiv.org/pdf/1234' }, SECRET)
+      );
+      expect(res.status).toBe(200);
     });
   });
 

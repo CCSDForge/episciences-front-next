@@ -220,6 +220,29 @@ export function isEntryStale(entry: PdfCacheEntry, maxAgeSeconds = getCacheMaxAg
   return entry.ageSeconds > maxAgeSeconds;
 }
 
+/**
+ * Deletes a cache entry — sidecar first, then pdf, the same ordering the
+ * worker's retention sweep uses, so a reader never observes a sidecar
+ * pointing at an already-deleted pdf.
+ *
+ * This is the one deliberate exception to "app instances never write to the
+ * NFS cache": POST /api/revalidate uses it for an editor-triggered,
+ * already-authenticated PDF invalidation (a corrected article file). It is
+ * delete-only — nothing here ever creates or modifies an entry — so it
+ * cannot race the worker: at worst, a delete right before a populate lands
+ * is a self-healing miss on the next request.
+ *
+ * Never throws; a missing file is treated as already deleted (idempotent).
+ */
+export async function deleteCacheEntry(key: string): Promise<void> {
+  const paths = getCachePaths(key);
+  if (!paths) {
+    return;
+  }
+  await fsp.unlink(paths.jsonPath).catch(() => {});
+  await fsp.unlink(paths.pdfPath).catch(() => {});
+}
+
 // ---------------------------------------------------------------------------
 // Enqueue (write delegated entirely to the worker)
 // ---------------------------------------------------------------------------
