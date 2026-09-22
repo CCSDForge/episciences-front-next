@@ -282,7 +282,7 @@ describe('volume service', () => {
         expect.stringContaining('testjournal'),
         expect.objectContaining({
           method: 'GET',
-          headers: { Accept: 'application/json' },
+          headers: { Accept: 'application/ld+json' },
         })
       );
       expect(result.data).toHaveLength(1);
