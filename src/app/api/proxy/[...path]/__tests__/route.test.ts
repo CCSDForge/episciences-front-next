@@ -185,13 +185,16 @@ describe('GET /api/proxy/[...path]', () => {
           headers: { 'x-forwarded-for': clientIp },
         });
 
-      for (let i = 0; i < 60; i++) {
+      for (let i = 0; i < 600; i++) {
         const res = await GET(req(ip), context);
         expect(res.status).toBe(200);
       }
 
       const blockedRes = await GET(req(ip), context);
       expect(blockedRes.status).toBe(429);
+      const retryAfter = Number(blockedRes.headers.get('Retry-After'));
+      expect(retryAfter).toBeGreaterThan(0);
+      expect(retryAfter).toBeLessThanOrEqual(60);
     });
   });
 });
@@ -273,7 +276,7 @@ describe('POST /api/proxy/[...path]', () => {
           body: JSON.stringify({}),
         });
 
-      for (let i = 0; i < 60; i++) {
+      for (let i = 0; i < 600; i++) {
         const res = await POST(req(), context);
         expect(res.status).toBe(201);
       }
