@@ -19,43 +19,31 @@ interface IArticleCardsProps {
   readonly itemsPerPage?: number;
 }
 
-/**
- * Every card is rendered and only those of the current page are shown: the prerendered (ISR)
- * HTML thus keeps a link to every article for crawlers and no-JS clients, and paging does not
- * re-render cards. The wrapper carries `hidden` because the card's own `display: flex`
- * would override it.
- */
 function ArticleCards({
   articles,
   language,
   t,
   className,
-  startIndex,
-  itemsPerPage,
-}: Omit<IArticleCardsProps, 'itemsPerPage'> & {
-  readonly startIndex: number;
-  readonly itemsPerPage: number;
-}): React.JSX.Element {
+}: Omit<IArticleCardsProps, 'itemsPerPage'>): React.JSX.Element {
   return (
     <div className={className}>
-      {articles.map((article, index) => (
-        <div key={article.id} hidden={index < startIndex || index >= startIndex + itemsPerPage}>
-          <VolumeArticleCard language={language} t={t} article={article} />
-        </div>
+      {articles.map(article => (
+        <VolumeArticleCard key={article.id} language={language} t={t} article={article} />
       ))}
     </div>
   );
 }
 
 /**
- * Rendered without navigation hooks. Used as the Suspense fallback so the prerendered (ISR)
- * HTML contains the articles, showing the first page, instead of a loader.
+ * First page rendered without navigation hooks. Used as the Suspense fallback so the
+ * prerendered (ISR) HTML still contains the first articles instead of a loader.
  */
 function ArticleCardsFirstPage({
+  articles,
   itemsPerPage = ARTICLES_PER_PAGE,
   ...rest
 }: IArticleCardsProps): React.JSX.Element {
-  return <ArticleCards {...rest} startIndex={0} itemsPerPage={itemsPerPage} />;
+  return <ArticleCards articles={articles.slice(0, itemsPerPage)} {...rest} />;
 }
 
 function UrlPaginatedArticleList({
@@ -75,6 +63,7 @@ function UrlPaginatedArticleList({
   const currentPage = Number.isNaN(parsedPage) ? 1 : Math.min(Math.max(1, parsedPage), totalPages);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
+  const pageArticles = articles.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePageClick = useCallback(
     (selectedItem: { selected: number }): void => {
@@ -93,14 +82,7 @@ function UrlPaginatedArticleList({
   return (
     <>
       <LiveRegion message={announcement} />
-      <ArticleCards
-        articles={articles}
-        language={language}
-        t={t}
-        className={className}
-        startIndex={startIndex}
-        itemsPerPage={itemsPerPage}
-      />
+      <ArticleCards articles={pageArticles} language={language} t={t} className={className} />
       <Pagination
         currentPage={currentPage}
         itemsPerPage={itemsPerPage}
@@ -113,7 +95,7 @@ function UrlPaginatedArticleList({
 
 /**
  * Client-side paginated list of article cards. The full list is already fetched
- * server-side, so pages are ranges of it; the current page lives in `?page=`.
+ * server-side, so pages are slices of it; the current page lives in `?page=`.
  * The Suspense boundary required by `useSearchParams` is owned here so callers
  * don't need to know how the page state is stored.
  */

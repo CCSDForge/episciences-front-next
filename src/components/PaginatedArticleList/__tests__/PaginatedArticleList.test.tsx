@@ -46,10 +46,6 @@ const t = ((key: string, options?: { page?: number }) =>
 const makeArticles = (count: number): IArticle[] =>
   Array.from({ length: count }, (_, i) => ({ id: i + 1, title: `Article ${i + 1}` }) as IArticle);
 
-/** Cards of the current page: the others stay in the DOM but inside a `hidden` wrapper. */
-const visibleCards = (): HTMLElement[] =>
-  screen.getAllByTestId('article-card').filter(card => !card.closest('[hidden]'));
-
 const renderList = (count: number) =>
   render(
     <PaginatedArticleList articles={makeArticles(count)} language="en" t={t} className="cards" />
@@ -70,7 +66,7 @@ describe('PaginatedArticleList', () => {
 
   it('renders the first page by default', () => {
     renderList(45);
-    const cards = visibleCards();
+    const cards = screen.getAllByTestId('article-card');
     expect(cards).toHaveLength(20);
     expect(cards[0]).toHaveTextContent('Article 1');
     expect(screen.getByTestId('pagination')).toHaveAttribute('data-current', '1');
@@ -79,7 +75,7 @@ describe('PaginatedArticleList', () => {
   it('renders the page given by ?page=', () => {
     vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams('page=3') as never);
     renderList(45);
-    const cards = visibleCards();
+    const cards = screen.getAllByTestId('article-card');
     expect(cards).toHaveLength(5);
     expect(cards[0]).toHaveTextContent('Article 41');
   });
@@ -92,15 +88,7 @@ describe('PaginatedArticleList', () => {
     vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams(`page=${page}`) as never);
     renderList(45);
     expect(screen.getByTestId('pagination')).toHaveAttribute('data-current', String(expected));
-    expect(visibleCards()[0]).toHaveTextContent(firstTitle);
-  });
-
-  it('keeps every article in the DOM so that crawlers see all of them', () => {
-    vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams('page=2') as never);
-    renderList(45);
-    expect(screen.getAllByTestId('article-card')).toHaveLength(45);
-    expect(screen.getByText('Article 1').closest('[hidden]')).toBeInTheDocument();
-    expect(screen.getByText('Article 21').closest('[hidden]')).not.toBeInTheDocument();
+    expect(screen.getAllByTestId('article-card')[0]).toHaveTextContent(firstTitle);
   });
 
   it('pushes the new page to the URL, keeping other params, and scrolls to top', () => {
