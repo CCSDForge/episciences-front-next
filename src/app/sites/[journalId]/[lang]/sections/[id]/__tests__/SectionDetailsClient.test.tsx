@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import SectionDetailsClient from '../SectionDetailsClient';
 import { ISection } from '@/types/section';
@@ -13,8 +13,10 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+const pushMock = vi.fn();
+
 vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(() => ({ push: vi.fn() })),
+  useRouter: vi.fn(() => ({ push: pushMock })),
   useParams: vi.fn(() => ({ journalId: 'journal' })),
   usePathname: vi.fn(() => '/sections/1'),
   useSearchParams: vi.fn(() => new URLSearchParams()),
@@ -163,7 +165,8 @@ describe('SectionDetailsClient', () => {
       />
     );
 
-    expect(screen.getAllByText(/Alice, Bob/).length).toBeGreaterThan(0);
+    const committee = document.querySelector('.sectionDetails-content-results-content-committee');
+    expect(committee).toHaveTextContent('common.editorsLabel Alice, Bob');
   });
 
   it('does not render committee info when committee is absent', () => {
@@ -251,5 +254,127 @@ describe('SectionDetailsClient', () => {
 
     expect(screen.getByText('Article 2')).toBeInTheDocument();
     expect(screen.queryByText('Article 1')).not.toBeInTheDocument();
+  });
+
+  describe('document type / year filters', () => {
+    const datedArticles = [
+      { ...makeArticle(1), publicationDate: '2024-05-01', tag: 'article' },
+      { ...makeArticle(2), publicationDate: '2023-05-01', tag: 'article' },
+      { ...makeArticle(3), publicationDate: '2023-09-01', tag: 'article' },
+    ] as IArticle[];
+
+    const renderWithArticles = (list: IArticle[]) =>
+      render(
+        <SectionDetailsClient
+          section={mockSection}
+          articles={list}
+          sectionId="1"
+          sectionTitle="Ma section"
+          sectionDescription=""
+        />
+      );
+
+    it('does not render filters when they cannot narrow the list', () => {
+      renderWithArticles([makeArticle(1), makeArticle(2)]);
+      expect(screen.queryByText('common.filters.years')).not.toBeInTheDocument();
+      expect(screen.queryByText('common.filters.filter')).not.toBeInTheDocument();
+    });
+
+    it('renders the years filter, newest first, and hides the single-choice type filter', () => {
+      renderWithArticles(datedArticles);
+      expect(screen.getByText('common.filters.years')).toBeInTheDocument();
+      expect(screen.queryByText('common.filters.documentTypes')).not.toBeInTheDocument();
+      const labels = screen.getAllByRole('button', { name: /^20\d\d$/ }).map(b => b.textContent);
+      expect(labels).toEqual(['2024', '2023']);
+    });
+
+    it('filters the list by year, shows a tag and resets to page 1', () => {
+      pushMock.mockClear();
+      renderWithArticles(datedArticles);
+
+      fireEvent.click(screen.getByRole('button', { name: '2023' }));
+
+      expect(screen.queryByText('Article 1')).not.toBeInTheDocument();
+      expect(screen.getByText('Article 2')).toBeInTheDocument();
+      expect(screen.getByText('Article 3')).toBeInTheDocument();
+      expect(screen.getByText('common.filters.clearAll')).toBeInTheDocument();
+      expect(pushMock).toHaveBeenCalledWith('/sections/1', { scroll: false });
+    });
+
+    it('clears all filters', () => {
+      renderWithArticles(datedArticles);
+
+      fireEvent.click(screen.getByRole('button', { name: '2024' }));
+      expect(screen.queryByText('Article 2')).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByText('common.filters.clearAll'));
+      expect(screen.getByText('Article 1')).toBeInTheDocument();
+      expect(screen.getByText('Article 2')).toBeInTheDocument();
+      expect(screen.queryByText('common.filters.clearAll')).not.toBeInTheDocument();
+    });
+  });
+
+  it('lists articles from the most recent to the oldest', () => {
+    const list = [
+      { ...makeArticle(1), publicationDate: '2019-01-01' },
+      { ...makeArticle(2), publicationDate: '2024-06-01' },
+      { ...makeArticle(3), publicationDate: '2021-03-15' },
+    ] as IArticle[];
+
+    render(
+      <SectionDetailsClient
+        section={mockSection}
+        articles={list}
+        sectionId="1"
+        sectionTitle="Ma section"
+        sectionDescription=""
+      />
+    );
+
+    const titles = screen.getAllByText(/^Article \d$/).map(el => el.textContent);
+    expect(titles).toEqual(['Article 2', 'Article 3', 'Article 1']);
+  });
+
+  describe('committee ORCID links', () => {
+    const sectionWithCommittee = {
+      ...mockSection,
+      committee: [
+        { uuid: 'a', screenName: 'Corina Cirstea', orcid: '0000-0003-3165-5678' },
+        { uuid: 'b', screenName: 'Henning Fernau', orcid: '' },
+        { uuid: 'c', screenName: 'Val Tannen', orcid: null },
+      ],
+    } as unknown as ISection;
+
+    const renderCommittee = () =>
+      render(
+        <SectionDetailsClient
+          section={sectionWithCommittee}
+          articles={[]}
+          sectionId="1"
+          sectionTitle="Ma section"
+          sectionDescription=""
+        />
+      );
+
+    it('renders an accessible ORCID link (opening in a new window) for members with an ORCID', () => {
+      renderCommittee();
+
+      // Desktop and mobile committee blocks are both rendered (CSS picks one)
+      const links = screen.getAllByRole('link', {
+        name: 'common.orcidOf components.header.newWindow',
+      });
+      expect(links).toHaveLength(2);
+      links.forEach(link => {
+        expect(link).toHaveAttribute('href', 'https://orcid.org/0000-0003-3165-5678');
+        expect(link).toHaveAttribute('target', '_blank');
+        expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+      });
+    });
+
+    it('renders members without ORCID as plain names', () => {
+      renderCommittee();
+      expect(screen.getAllByText('Henning Fernau')[0].closest('a')).toBeNull();
+      expect(screen.getAllByText('Val Tannen')[0].closest('a')).toBeNull();
+    });
   });
 });

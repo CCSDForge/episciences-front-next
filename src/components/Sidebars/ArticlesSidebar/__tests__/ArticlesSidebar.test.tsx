@@ -260,16 +260,18 @@ describe('ArticlesSidebar', () => {
   });
 
   describe('Empty states', () => {
-    it('handles empty types array', () => {
+    it('hides the types section when there is no type to choose', () => {
       const { container } = render(<ArticlesSidebar {...defaultProps} types={[]} />);
 
-      expect(container.querySelector('.articlesSidebar-typesSection-types')).toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-typesSection')).not.toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-yearsSection')).toBeInTheDocument();
     });
 
-    it('handles empty years array', () => {
+    it('hides the years section when there is no year to choose', () => {
       const { container } = render(<ArticlesSidebar {...defaultProps} years={[]} />);
 
-      expect(container.querySelector('.articlesSidebar-yearsSection-years')).toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-yearsSection')).not.toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-typesSection')).toBeInTheDocument();
     });
   });
 
