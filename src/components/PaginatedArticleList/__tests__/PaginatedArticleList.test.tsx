@@ -25,14 +25,18 @@ vi.mock('@/components/Pagination/Pagination', () => ({
     totalItems,
     itemsPerPage,
     onPageChange,
+    hrefBuilder,
   }: {
     currentPage: number;
     totalItems: number;
     itemsPerPage: number;
     onPageChange: (item: { selected: number }) => void;
+    hrefBuilder?: (page: number) => string;
   }) =>
     Math.ceil(totalItems / itemsPerPage) > 1 ? (
       <div data-testid="pagination" data-current={currentPage}>
+        <a href={hrefBuilder?.(1)}>link to page 1</a>
+        <a href={hrefBuilder?.(2)}>link to page 2</a>
         <button type="button" onClick={() => onPageChange({ selected: 1 })}>
           go to page 2
         </button>
@@ -98,6 +102,16 @@ describe('PaginatedArticleList', () => {
     expect(push).toHaveBeenCalledWith('/en/volumes/669?foo=bar&page=2', { scroll: false });
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
     expect(screen.getByText('common.pagination.pageLoaded:2')).toBeInTheDocument();
+  });
+
+  it('links each page, page 1 being the URL without ?page=, keeping other params', () => {
+    vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams('foo=bar&page=3') as never);
+    renderList(45);
+    expect(screen.getByText('link to page 1')).toHaveAttribute('href', '/en/volumes/669?foo=bar');
+    expect(screen.getByText('link to page 2')).toHaveAttribute(
+      'href',
+      '/en/volumes/669?foo=bar&page=2'
+    );
   });
 
   it('applies the container class name', () => {

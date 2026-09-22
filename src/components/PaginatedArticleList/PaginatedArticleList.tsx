@@ -34,16 +34,43 @@ function ArticleCards({
   );
 }
 
+/** URL of a list page (1-based); page 1 is the bare URL, which is also the canonical one. */
+function buildPageHref(pathname: string, search: string, page: number): string {
+  const params = new URLSearchParams(search);
+  if (page > 1) {
+    params.set('page', page.toString());
+  } else {
+    params.delete('page');
+  }
+  const query = params.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
+
+const noop = (): void => {};
+
 /**
- * First page rendered without navigation hooks. Used as the Suspense fallback so the
- * prerendered (ISR) HTML still contains the first articles instead of a loader.
+ * First page rendered without `useSearchParams`. Used as the Suspense fallback so the
+ * prerendered (ISR) HTML contains the first articles and real pagination links, which work
+ * even before hydration, instead of a loader.
  */
 function ArticleCardsFirstPage({
   articles,
   itemsPerPage = ARTICLES_PER_PAGE,
   ...rest
 }: IArticleCardsProps): React.JSX.Element {
-  return <ArticleCards articles={articles.slice(0, itemsPerPage)} {...rest} />;
+  const pathname = usePathname() ?? '';
+  return (
+    <>
+      <ArticleCards articles={articles.slice(0, itemsPerPage)} {...rest} />
+      <Pagination
+        currentPage={1}
+        itemsPerPage={itemsPerPage}
+        totalItems={articles.length}
+        onPageChange={noop}
+        hrefBuilder={page => buildPageHref(pathname, '', page)}
+      />
+    </>
+  );
 }
 
 function UrlPaginatedArticleList({
@@ -65,18 +92,21 @@ function UrlPaginatedArticleList({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const pageArticles = articles.slice(startIndex, startIndex + itemsPerPage);
 
+  const pageHref = useCallback(
+    (page: number): string => buildPageHref(pathname ?? '', searchParams?.toString() ?? '', page),
+    [pathname, searchParams]
+  );
+
   const handlePageClick = useCallback(
     (selectedItem: { selected: number }): void => {
       const newPage = selectedItem.selected + 1;
-      const params = new URLSearchParams(searchParams?.toString());
-      params.set('page', newPage.toString());
       if (pathname) {
-        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+        router.push(pageHref(newPage), { scroll: false });
       }
       setAnnouncement(t('common.pagination.pageLoaded', { page: newPage }));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    [pathname, router, searchParams, t]
+    [pathname, router, pageHref, t]
   );
 
   return (
@@ -88,6 +118,7 @@ function UrlPaginatedArticleList({
         itemsPerPage={itemsPerPage}
         totalItems={articles.length}
         onPageChange={handlePageClick}
+        hrefBuilder={pageHref}
       />
     </>
   );
