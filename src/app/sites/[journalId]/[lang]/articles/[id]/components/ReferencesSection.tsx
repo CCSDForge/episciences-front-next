@@ -17,7 +17,7 @@ export default function ReferencesSection({
     <ol className="articleDetails-content-article-section-content-references">
       {references.map((reference, index) => (
         <li
-          key={reference.doi || reference.citation || index}
+          key={`${reference.doi || reference.citation || 'ref'}-${index}`}
           className="articleDetails-content-article-section-content-references-reference"
         >
           <p>{reference.citation}</p>
