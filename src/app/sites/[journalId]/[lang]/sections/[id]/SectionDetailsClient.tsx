@@ -93,13 +93,18 @@ export default function SectionDetailsClient({
   // The hook returns a facet empty when it offers a single choice.
   const hasFilters = types.length > 0 || years.length > 0;
 
-  /** Any filter change goes back to page 1 (drops `?page=`). */
+  /**
+   * Any filter change goes back to page 1 by dropping `?page=`. The URL is only touched when
+   * a page is set, and replaced rather than pushed: filters are not history entries. It is
+   * read at event time instead of through `useSearchParams`, which would make this whole
+   * component client-rendered on the prerendered page.
+   */
   const withFirstPage =
     <A extends unknown[]>(action: (...args: A) => void) =>
     (...args: A): void => {
       action(...args);
-      if (pathname) {
-        router.push(pathname, { scroll: false });
+      if (pathname && new URLSearchParams(globalThis.location.search).has('page')) {
+        router.replace(pathname, { scroll: false });
       }
     };
 
@@ -156,7 +161,7 @@ export default function SectionDetailsClient({
               language={language}
               t={t}
               section={section}
-              articles={displayedArticles}
+              articles={filteredArticles}
               currentJournal={currentJournal}
               sectionId={sectionId}
             >
@@ -182,9 +187,9 @@ export default function SectionDetailsClient({
 
               <div className="sectionDetails-content-results-content-mobileCount">
                 {renderSectionCommittee(true)}
-                {displayedArticles.length > 1
-                  ? `${displayedArticles.length} ${t('common.articles')}`
-                  : `${displayedArticles.length} ${t('common.article')}`}
+                {filteredArticles.length > 1
+                  ? `${filteredArticles.length} ${t('common.articles')}`
+                  : `${filteredArticles.length} ${t('common.article')}`}
                 {hasFilters && (
                   <button
                     type="button"

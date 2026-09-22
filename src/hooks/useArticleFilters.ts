@@ -27,6 +27,12 @@ export function getPublicationYear(publicationDate?: string): number | undefined
   return Number.isNaN(year) ? undefined : year;
 }
 
+function without<T>(source: ReadonlySet<T>, value: T): Set<T> {
+  const next = new Set(source);
+  next.delete(value);
+  return next;
+}
+
 function toggle<T>(source: ReadonlySet<T>, value: T): Set<T> {
   const next = new Set(source);
   if (next.has(value)) {
@@ -102,9 +108,9 @@ export function useArticleFilters(articles: IArticle[]) {
     },
     removeFilter: (type: ArticleFilterKind, value: string | number): void => {
       if (type === 'type') {
-        setCheckedTypes(prev => toggle(prev, String(value)));
+        setCheckedTypes(prev => without(prev, String(value)));
       } else {
-        setCheckedYears(prev => toggle(prev, Number(value)));
+        setCheckedYears(prev => without(prev, Number(value)));
       }
     },
     clearFilters: (): void => {
