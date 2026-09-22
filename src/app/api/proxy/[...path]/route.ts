@@ -14,11 +14,42 @@ import { logger } from '@/lib/logger';
  * The rvcode parameter determines which API endpoint to use.
  */
 
-// Simple in-memory rate limiter: 60 req/min per IP
+// Simple in-memory rate limiter, keyed per client IP.
+//
+// This is NOT an abuse deterrent: CORS is enforced by browsers only, so any
+// non-browser client can already call the upstream API directly, unlimited,
+// bypassing this proxy entirely (the upstream currently has no rate limit of
+// its own). Throttling this route therefore only ever affects traffic that
+// chooses to go through us — in practice, our own legitimate visitors.
+//
+// Its only real purpose is a self-protection circuit breaker: the article/
+// search list pages enrich each item with an individual `GET /papers/{id}`
+// call (see article.query.ts / search.query.ts onQueryStarted), all routed
+// through this proxy, so a single page of 20 results already bursts ~20
+// requests. The limit below is set high enough to never trip under normal
+// browsing (even several page/filter changes a minute, or several visitors
+// behind a shared NAT), while still catching a genuine runaway — a retry
+// loop bug, for example — before it hammers the shared upstream database
+// that backs all 45+ journals. Real abuse prevention belongs on the upstream
+// API itself (rate limiting, auth), which we control and can configure
+// independently. See tmp/SPEC_BATCH_PAPERS_ENDPOINT.md for the actual fix to
+// the N+1 pattern driving this traffic.
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 60;
+const RATE_LIMIT = 600;
 const RATE_WINDOW = 60000; // 1 minute
 const UPSTREAM_TIMEOUT = 15000; // 15 seconds — a slow backend must not pin connections open
+
+function tooManyRequests(ip: string): NextResponse {
+  const record = rateLimitMap.get(ip);
+  const retryAfterSeconds = record
+    ? Math.max(1, Math.ceil((record.resetAt - Date.now()) / 1000))
+    : Math.ceil(RATE_WINDOW / 1000);
+
+  return NextResponse.json(
+    { error: 'Too many requests' },
+    { status: 429, headers: { 'Retry-After': String(retryAfterSeconds) } }
+  );
+}
 
 // Cleanup expired entries every 5 minutes to prevent memory leak
 setInterval(
@@ -54,7 +85,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
   const clientIp = getClientIp(request.headers);
 
   if (!checkRateLimit(clientIp)) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    return tooManyRequests(clientIp);
   }
 
   const params = await context.params;
@@ -122,7 +153,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
   const clientIp = getClientIp(request.headers);
 
   if (!checkRateLimit(clientIp)) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    return tooManyRequests(clientIp);
   }
 
   const params = await context.params;
