@@ -79,6 +79,61 @@ describe('article.query - fetchArticles', () => {
     await new Promise(resolve => setTimeout(resolve, 0));
   });
 
+  it('drops articles whose enrichment fetch fails instead of injecting a malformed entry', async () => {
+    delete process.env.NEXT_PUBLIC_STATIC_BUILD;
+
+    global.fetch = vi.fn().mockImplementation((input: string | Request) => {
+      const url = typeof input === 'string' ? input : input.url;
+      if (url.includes('/papers/1?')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ paperid: 1, title: 'Full article' }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          })
+        );
+      }
+      if (url.includes('/papers/2?')) {
+        // Simulates the proxy's rate limiter or an upstream timeout.
+        return Promise.resolve(
+          new Response(JSON.stringify({ error: 'Too many requests' }), {
+            status: 429,
+            headers: { 'content-type': 'application/json' },
+          })
+        );
+      }
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            'hydra:member': [{ paperid: 1 }, { paperid: 2 }],
+            'hydra:totalItems': 2,
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } }
+        )
+      );
+    }) as unknown as typeof fetch;
+
+    const store = buildStore();
+
+    await store.dispatch(
+      articleApi.endpoints.fetchArticles.initiate({
+        rvcode: 'epijinfo',
+        page: 1,
+        itemsPerPage: 10,
+      })
+    );
+
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    const state = store.getState() as unknown as {
+      [articleApi.reducerPath]: {
+        queries: Record<string, { data?: { data: Array<{ paperid?: number }> } }>;
+      };
+    };
+    const cachedQuery = Object.values(state[articleApi.reducerPath].queries)[0];
+    expect(cachedQuery?.data?.data).toHaveLength(1);
+    expect(cachedQuery?.data?.data?.[0]?.paperid).toBe(1);
+  });
+
   it('skips the client-side enrichment during static builds', async () => {
     process.env.NEXT_PUBLIC_STATIC_BUILD = 'true';
     const fetchMock = vi.fn().mockResolvedValue(
