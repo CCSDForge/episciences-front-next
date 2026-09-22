@@ -5,6 +5,7 @@ import { formatArticle, METADATA_TYPE } from '@/utils/article';
 import { PaginatedResponseWithRange, Range } from '@/utils/pagination';
 import { createBaseQueryWithLdJsonAccept } from '../../utils';
 import { API_URL } from '@/config/api';
+import { logger } from '@/lib/logger';
 
 export const articleApi = createApi({
   baseQuery: createBaseQueryWithLdJsonAccept,
@@ -73,11 +74,13 @@ export const articleApi = createApi({
         }
 
         const { data: articles } = await queryFulfilled;
-        const fullArticles: IArticle[] = await Promise.all(
+        const results = await Promise.allSettled(
           articles.data.map(async (article: IArticle) => {
-            const rawArticle: RawArticle = await (
-              await fetch(`${API_URL}/papers/${article?.id}?rvcode=${rvcode}`)
-            ).json();
+            const response = await fetch(`${API_URL}/papers/${article?.id}?rvcode=${rvcode}`);
+            if (!response.ok) {
+              throw new Error(`Article ${article?.id} fetch failed: HTTP ${response.status}`);
+            }
+            const rawArticle: RawArticle = await response.json();
             const formattedArticle = formatArticle(rawArticle);
             if (!formattedArticle) {
               throw new Error(`Article ${article?.id} not found`);
@@ -86,12 +89,25 @@ export const articleApi = createApi({
           })
         );
 
+        // Drop articles whose enrichment fetch failed (e.g. rate-limited or timed out)
+        // instead of feeding a malformed response into formatArticle, which would
+        // otherwise silently produce a fake minimal article with a colliding id.
+        const fullArticles = results
+          .filter((result): result is PromiseFulfilledResult<IArticle> => {
+            if (result.status === 'rejected') {
+              logger.warn('[fetchArticles] Article enrichment failed:', result.reason?.message);
+              return false;
+            }
+            return true;
+          })
+          .map(result => result.value);
+
         dispatch(
           articleApi.util.updateQueryData(
             'fetchArticles',
             { rvcode, page, itemsPerPage, types, years, onlyAccepted },
             draftedData => {
-              Object.assign(draftedData.data, fullArticles);
+              draftedData.data = fullArticles;
             }
           )
         );
