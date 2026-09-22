@@ -489,9 +489,9 @@ export default function ArticlesClient({
             <Loader />
           ) : (
             <div className="articles-content-results-cards">
-              {enhancedArticles.map(article => (
+              {enhancedArticles.map((article, index) => (
                 <ArticleCard
-                  key={article?.id}
+                  key={`${article?.id ?? 'unknown'}-${index}`}
                   language={language}
                   rvcode={rvcode}
                   t={t}

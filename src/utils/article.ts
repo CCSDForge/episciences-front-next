@@ -118,7 +118,7 @@ function toArray<T>(value: T | T[] | undefined | null): T[] {
  */
 function buildMinimalArticle(extendedArticle: ExtendedRawArticle, title: string): IArticle {
   return {
-    id: Number(extendedArticle.paperid),
+    id: Number(extendedArticle.paperid) || extendedArticle.docid || 0,
     title: title || 'Article sans titre',
     authors: [],
     publicationDate: '',
@@ -444,7 +444,15 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       extendedArticle.document?.journal?.journal_article?.titles?.title || 'Titre non disponible';
 
     // Guard against payloads missing a usable id/title: return a minimal article.
-    if (!title || !id) return buildMinimalArticle(extendedArticle, title);
+    if (!title || !id) {
+      log.warn('formatArticle: falling back to minimal article (missing id/title)', {
+        apiId: extendedArticle['@id'],
+        paperid: extendedArticle.paperid,
+        docid: extendedArticle.docid,
+        hasTitle: !!title,
+      });
+      return buildMinimalArticle(extendedArticle, title);
+    }
 
     const articleDB = extendedArticle.document?.database;
     const articleContent =
