@@ -86,11 +86,13 @@ describe('useArticleFilters', () => {
     const { result } = renderHook(() => useArticleFilters(articles));
 
     act(() => {
-      result.current.applyTypes(result.current.types.map(t => ({ ...t, isChecked: true })));
-      result.current.applyYears([
-        { year: 2021, isChecked: true },
-        { year: 2024, isChecked: false },
-      ]);
+      result.current.applySelection({
+        types: result.current.types.map(t => ({ ...t, isChecked: true })),
+        years: [
+          { year: 2021, isChecked: true },
+          { year: 2024, isChecked: false },
+        ],
+      });
     });
     expect(ids(result.current.filteredArticles)).toEqual([]);
     expect(result.current.years.find(y => y.year === 2021)?.isChecked).toBe(true);

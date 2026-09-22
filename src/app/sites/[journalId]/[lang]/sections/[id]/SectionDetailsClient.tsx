@@ -13,7 +13,10 @@ import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import PaginatedArticleList from '@/components/PaginatedArticleList/PaginatedArticleList';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import Tag from '@/components/Tag/Tag';
-import ArticlesSidebar from '@/components/Sidebars/ArticlesSidebar/ArticlesSidebar';
+import ArticlesSidebar, {
+  ArticlesSidebarTypes,
+  ArticlesSidebarYears,
+} from '@/components/Sidebars/ArticlesSidebar/ArticlesSidebar';
 import { FilterIcon } from '@/components/icons';
 import CommitteeMembers from '@/components/CommitteeMembers/CommitteeMembers';
 import SectionDetailsSidebar from '@/components/Sidebars/SectionDetailsSidebar/SectionDetailsSidebar';
@@ -82,8 +85,7 @@ export default function SectionDetailsClient({
     taggedFilters,
     toggleType,
     toggleYear,
-    applyTypes,
-    applyYears,
+    applySelection,
     removeFilter,
     clearFilters,
   } = useArticleFilters(displayedArticles);
@@ -105,8 +107,7 @@ export default function SectionDetailsClient({
   const onCheckYear = withFirstPage(toggleYear);
   const onRemoveFilter = withFirstPage(removeFilter);
   const onClearFilters = withFirstPage(clearFilters);
-  // The mobile modal applies types then years back to back: resetting the page once is enough.
-  const onApplyMobileYears = withFirstPage(applyYears);
+  const onApplyMobileFilters = withFirstPage(applySelection);
 
   const renderSectionCommittee = (isMobile: boolean): React.JSX.Element | null => {
     const className = isMobile
@@ -160,13 +161,14 @@ export default function SectionDetailsClient({
               sectionId={sectionId}
             >
               {hasFilters && (
-                <ArticlesSidebar
-                  t={t}
-                  types={types}
-                  onCheckTypeCallback={onCheckType}
-                  years={years}
-                  onCheckYearCallback={onCheckYear}
-                />
+                <ArticlesSidebar>
+                  {types.length > 0 && (
+                    <ArticlesSidebarTypes t={t} types={types} onCheckTypeCallback={onCheckType} />
+                  )}
+                  {years.length > 0 && (
+                    <ArticlesSidebarYears t={t} years={years} onCheckYearCallback={onCheckYear} />
+                  )}
+                </ArticlesSidebar>
               )}
             </SectionDetailsSidebar>
             <div className="sectionDetails-content-results-content">
@@ -199,9 +201,8 @@ export default function SectionDetailsClient({
                   <ArticlesMobileModal
                     t={t}
                     initialTypes={types}
-                    onUpdateTypesCallback={applyTypes}
                     initialYears={years}
-                    onUpdateYearsCallback={onApplyMobileYears}
+                    onApplyFiltersCallback={onApplyMobileFilters}
                     onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
                   />
                 )}

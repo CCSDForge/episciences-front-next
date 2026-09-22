@@ -41,8 +41,13 @@ vi.mock('@/components/MathJax/MathJax', () => ({
 vi.mock('next/dynamic', () => ({
   default: () => (props: any) => (
     <div data-testid="articles-mobile-modal">
-      <button onClick={() => props.onUpdateTypesCallback(props.initialTypes)}>apply-types</button>
-      <button onClick={() => props.onUpdateYearsCallback(props.initialYears)}>apply-years</button>
+      <button
+        onClick={() =>
+          props.onApplyFiltersCallback({ types: props.initialTypes, years: props.initialYears })
+        }
+      >
+        apply-filters
+      </button>
       <button onClick={() => props.onCloseCallback()}>close-modal</button>
     </div>
   ),
@@ -118,6 +123,20 @@ describe('ArticlesClient', () => {
 
     fireEvent.click(screen.getByText('close-modal'));
     expect(screen.queryByTestId('articles-mobile-modal')).not.toBeInTheDocument();
+  });
+
+  it('goes back to page 1 when the mobile modal applies its filters', () => {
+    const mockPush = vi.fn();
+    vi.mocked(useRouter).mockReturnValue({ push: mockPush } as any);
+
+    render(<ArticlesClient initialArticles={initialArticles as any} lang="fr" />);
+
+    fireEvent.click(
+      document.querySelector('.articles-title-count-filtersMobile-tile') as HTMLElement
+    );
+    fireEvent.click(screen.getByText('apply-filters'));
+
+    expect(mockPush).toHaveBeenCalledWith('/articles');
   });
 
   it('paginates and pushes the new page to the URL', () => {

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { IArticle } from '@/types/article';
 import { articleTypes } from '@/utils/article';
 import {
+  IArticleFiltersSelection,
   IArticleTypeSelection,
   IArticleYearSelection,
 } from '@/components/Sidebars/ArticlesSidebar/ArticlesSidebar';
@@ -94,11 +95,11 @@ export function useArticleFilters(articles: IArticle[]) {
     taggedFilters,
     toggleType: (value: string): void => setCheckedTypes(prev => toggle(prev, value)),
     toggleYear: (year: number): void => setCheckedYears(prev => toggle(prev, year)),
-    /** Replaces a whole selection, e.g. when the mobile modal applies its filters. */
-    applyTypes: (selection: IArticleTypeSelection[]): void =>
-      setCheckedTypes(new Set(selection.filter(type => type.isChecked).map(type => type.value))),
-    applyYears: (selection: IArticleYearSelection[]): void =>
-      setCheckedYears(new Set(selection.filter(year => year.isChecked).map(year => year.year))),
+    /** Replaces the whole selection, e.g. when the mobile modal applies its filters. */
+    applySelection: ({ types, years }: IArticleFiltersSelection): void => {
+      setCheckedTypes(new Set(types.filter(type => type.isChecked).map(type => type.value)));
+      setCheckedYears(new Set(years.filter(year => year.isChecked).map(year => year.year)));
+    },
     removeFilter: (type: ArticleFilterKind, value: string | number): void => {
       if (type === 'type') {
         setCheckedTypes(prev => toggle(prev, String(value)));
