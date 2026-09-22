@@ -330,9 +330,9 @@ export default function ArticlesAcceptedClient({
           ) : (
             <div className="articlesAccepted-content-results-cards">
               {articlesToRender.length > 0 ? (
-                articlesToRender.map(article => (
+                articlesToRender.map((article, index) => (
                   <ArticleAcceptedCard
-                    key={article?.id}
+                    key={`${article?.id ?? 'unknown'}-${index}`}
                     language={language}
                     t={t}
                     article={article as IArticleAcceptedCard}
