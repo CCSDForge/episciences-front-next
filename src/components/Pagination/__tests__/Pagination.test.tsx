@@ -44,6 +44,32 @@ describe('Pagination', () => {
     onPageChange: vi.fn(),
   };
 
+  describe('Links', () => {
+    it('renders real page links when hrefBuilder is given, still handling clicks', async () => {
+      const user = userEvent.setup();
+      const onPageChange = vi.fn();
+      render(
+        <Pagination
+          {...defaultProps}
+          onPageChange={onPageChange}
+          hrefBuilder={page => `/list?page=${page}`}
+        />
+      );
+
+      const page2 = screen.getByLabelText('Page 2');
+      expect(page2).toHaveAttribute('href', '/list?page=2');
+      expect(page2).not.toHaveAttribute('role');
+
+      await user.click(page2);
+      expect(onPageChange).toHaveBeenCalledWith({ selected: 1 });
+    });
+
+    it('renders no href without hrefBuilder', () => {
+      render(<Pagination {...defaultProps} />);
+      expect(screen.getByLabelText('Page 2')).not.toHaveAttribute('href');
+    });
+  });
+
   describe('Basic rendering', () => {
     it('renders pagination when there are multiple pages', () => {
       const { container } = render(<Pagination {...defaultProps} />);
