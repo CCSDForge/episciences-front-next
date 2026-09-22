@@ -14,9 +14,10 @@ vi.mock('react-i18next', () => ({
 }));
 
 const pushMock = vi.fn();
+const replaceMock = vi.fn();
 
 vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(() => ({ push: pushMock })),
+  useRouter: vi.fn(() => ({ push: pushMock, replace: replaceMock })),
   useParams: vi.fn(() => ({ journalId: 'journal' })),
   usePathname: vi.fn(() => '/sections/1'),
   useSearchParams: vi.fn(() => new URLSearchParams()),
@@ -288,8 +289,9 @@ describe('SectionDetailsClient', () => {
       expect(labels).toEqual(['2024', '2023']);
     });
 
-    it('filters the list by year, shows a tag and resets to page 1', () => {
+    it('filters the list by year and shows a tag, without touching the URL on page 1', () => {
       pushMock.mockClear();
+      replaceMock.mockClear();
       renderWithArticles(datedArticles);
 
       fireEvent.click(screen.getByRole('button', { name: '2023' }));
@@ -298,7 +300,31 @@ describe('SectionDetailsClient', () => {
       expect(screen.getByText('Article 2')).toBeInTheDocument();
       expect(screen.getByText('Article 3')).toBeInTheDocument();
       expect(screen.getByText('common.filters.clearAll')).toBeInTheDocument();
-      expect(pushMock).toHaveBeenCalledWith('/sections/1', { scroll: false });
+      expect(pushMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
+    it('drops ?page= by replacing the URL (no history entry) when a filter changes', () => {
+      replaceMock.mockClear();
+      globalThis.history.replaceState(null, '', '/sections/1?page=2');
+      try {
+        renderWithArticles(datedArticles);
+        fireEvent.click(screen.getByRole('button', { name: '2023' }));
+        expect(replaceMock).toHaveBeenCalledWith('/sections/1', { scroll: false });
+        expect(pushMock).not.toHaveBeenCalled();
+      } finally {
+        globalThis.history.replaceState(null, '', '/');
+      }
+    });
+
+    it('counts the articles matching the filters', () => {
+      renderWithArticles(datedArticles);
+      expect(screen.getAllByText('3 common.articles').length).toBeGreaterThan(0);
+
+      fireEvent.click(screen.getByRole('button', { name: '2024' }));
+
+      expect(screen.queryByText('3 common.articles')).not.toBeInTheDocument();
+      expect(screen.getAllByText('1 common.article').length).toBe(2);
     });
 
     it('clears all filters', () => {

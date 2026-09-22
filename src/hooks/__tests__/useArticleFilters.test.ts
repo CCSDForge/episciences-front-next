@@ -82,6 +82,16 @@ describe('useArticleFilters', () => {
     expect(result.current.filteredArticles).toHaveLength(4);
   });
 
+  it('removing a filter that is not selected leaves it unselected', () => {
+    const { result } = renderHook(() => useArticleFilters(articles));
+
+    act(() => result.current.toggleYear(2024));
+    act(() => result.current.removeFilter('year', 2024));
+    act(() => result.current.removeFilter('year', 2024));
+
+    expect(result.current.taggedFilters).toEqual([]);
+  });
+
   it('applies whole selections coming from the mobile modal', () => {
     const { result } = renderHook(() => useArticleFilters(articles));
 
