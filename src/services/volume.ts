@@ -140,7 +140,9 @@ export async function fetchVolumes(params: FetchVolumesParams): Promise<FetchVol
     const response = await fetch(`${apiUrl}/volumes?${searchParams.toString()}&rvcode=${rvcode}`, {
       method: 'GET',
       headers: {
-        Accept: 'application/json',
+        // The plain JSON serialization is a bare array: it omits each volume's `committee`
+        // and the hydra totals/range read below.
+        Accept: 'application/ld+json',
       },
       next: { revalidate: CACHE_TTL.volumes, tags: ['volumes', `volumes-${rvcode}`] },
     });
