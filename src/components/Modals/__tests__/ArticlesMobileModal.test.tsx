@@ -104,12 +104,11 @@ const defaultProps = {
     { labelPath: 'document.type.article', value: 'article', isChecked: false },
     { labelPath: 'document.type.review', value: 'review', isChecked: false },
   ],
-  onUpdateTypesCallback: vi.fn(),
   initialYears: [
     { year: 2024, isChecked: false },
     { year: 2023, isChecked: false },
   ],
-  onUpdateYearsCallback: vi.fn(),
+  onApplyFiltersCallback: vi.fn(),
   onCloseCallback: vi.fn(),
 };
 
@@ -270,17 +269,27 @@ describe('ArticlesMobileModal', () => {
       expect(checkboxes[0]).toBeInTheDocument();
     });
 
-    it('calls onUpdateTypesCallback when applying filters', async () => {
+    it('calls onApplyFiltersCallback once with the whole selection', async () => {
       const user = userEvent.setup();
-      const onUpdateTypes = vi.fn();
+      const onApply = vi.fn();
 
-      renderWithStore(
-        <ArticlesMobileModal {...defaultProps} onUpdateTypesCallback={onUpdateTypes} />
-      );
+      renderWithStore(<ArticlesMobileModal {...defaultProps} onApplyFiltersCallback={onApply} />);
 
+      await user.click(screen.getByRole('button', { name: /^Review$/ }));
+      await user.click(screen.getByRole('button', { name: /^2023$/ }));
       await user.click(screen.getByRole('button', { name: /apply filters/i }));
 
-      expect(onUpdateTypes).toHaveBeenCalled();
+      expect(onApply).toHaveBeenCalledOnce();
+      expect(onApply).toHaveBeenCalledWith({
+        types: [
+          { labelPath: 'document.type.article', value: 'article', isChecked: false },
+          { labelPath: 'document.type.review', value: 'review', isChecked: true },
+        ],
+        years: [
+          { year: 2024, isChecked: false },
+          { year: 2023, isChecked: true },
+        ],
+      });
     });
   });
 
