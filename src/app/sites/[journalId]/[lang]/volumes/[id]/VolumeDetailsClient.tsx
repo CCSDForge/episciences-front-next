@@ -431,7 +431,7 @@ export default function VolumeDetailsClient({
                 language={language}
                 t={t}
                 volume={volume}
-                articles={articles as IArticle[]}
+                articles={validArticles}
                 currentJournal={currentJournal}
                 relatedVolumes={relatedVolumesData}
                 journalId={journalId}
@@ -465,9 +465,9 @@ export default function VolumeDetailsClient({
                   )}
                 {renderVolumeDescription()}
                 <div className="volumeDetails-content-results-content-mobileCount">
-                  {articles.length > 1
-                    ? `${articles.length} ${t('common.articles')}`
-                    : `${articles.length} ${t('common.article')}`}
+                  {validArticles.length > 1
+                    ? `${validArticles.length} ${t('common.articles')}`
+                    : `${validArticles.length} ${t('common.article')}`}
                 </div>
                 {getEdito()?.content?.[language] && (
                   <div className="volumeDetails-content-results-content-edito">

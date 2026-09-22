@@ -85,8 +85,10 @@ function UrlPaginatedArticleList({
   const [announcement, setAnnouncement] = useState('');
 
   const totalPages = Math.max(1, Math.ceil(articles.length / itemsPerPage));
-  const parsedPage = Number.parseInt(searchParams?.get('page') ?? '1', 10);
-  const currentPage = Number.isNaN(parsedPage) ? 1 : Math.min(Math.max(1, parsedPage), totalPages);
+  // Only a plain decimal is a page number: `parseInt` would read `2abc` as 2.
+  const pageParam = searchParams?.get('page') ?? '';
+  const parsedPage = /^\d+$/.test(pageParam) ? Number(pageParam) : 1;
+  const currentPage = Math.min(Math.max(1, parsedPage), totalPages);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const pageArticles = articles.slice(startIndex, startIndex + itemsPerPage);

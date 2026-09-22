@@ -87,6 +87,8 @@ describe('PaginatedArticleList', () => {
 
   it.each([
     ['abc', 1, 'Article 1'],
+    ['2abc', 1, 'Article 1'],
+    ['-2', 1, 'Article 1'],
     ['0', 1, 'Article 1'],
     ['99', 3, 'Article 41'],
   ])('clamps invalid page "%s" to page %i', (page, expected, firstTitle) => {

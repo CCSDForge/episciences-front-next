@@ -24,8 +24,8 @@ export interface IArticleTaggedFilter {
  * so server and client agree whatever their time zone (no hydration mismatch).
  */
 export function getPublicationYear(publicationDate?: string): number | undefined {
-  const year = Number.parseInt(publicationDate?.slice(0, 4) ?? '', 10);
-  return Number.isNaN(year) ? undefined : year;
+  const year = /^(\d{4})/.exec(publicationDate ?? '')?.[1];
+  return year === undefined ? undefined : Number(year);
 }
 
 /**
