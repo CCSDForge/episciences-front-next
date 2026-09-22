@@ -41,6 +41,17 @@ describe('CommitteeMembers', () => {
     );
   });
 
+  it('renders no link for an ORCID that is not an orcid.org iD', () => {
+    render(
+      <CommitteeMembers
+        members={[{ uuid: 'x', screenName: 'Mallory', orcid: 'https://attacker.example' }]}
+        t={t}
+      />
+    );
+    expect(screen.getByText('Mallory')).toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
   it('renders no link for empty or null ORCIDs', () => {
     render(<CommitteeMembers members={members} t={t} />);
     expect(screen.getAllByRole('link')).toHaveLength(2);
@@ -54,6 +65,7 @@ describe('CommitteeMembers', () => {
         <CommitteeMembers members={members} t={t} />
       </p>
     );
-    await checkA11y(container);
+    const results = await checkA11y(container);
+    expect(results).toHaveNoViolations();
   });
 });
