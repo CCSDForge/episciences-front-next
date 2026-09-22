@@ -2,7 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TFunction } from 'i18next';
 import { useSearchParams } from 'next/navigation';
-import PaginatedArticleList, { ARTICLES_PER_PAGE } from '../PaginatedArticleList';
+import PaginatedArticleList from '../PaginatedArticleList';
+import { ARTICLES_PER_PAGE } from '@/utils/pagination';
 import { IArticle } from '@/types/article';
 
 const push = vi.fn();

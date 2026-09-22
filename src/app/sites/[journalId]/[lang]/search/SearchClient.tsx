@@ -28,6 +28,7 @@ import Pagination from '@/components/Pagination/Pagination';
 import Tag from '@/components/Tag/Tag';
 import '../articles/Articles.scss';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { toggleInSet } from '@/utils/set';
 import { logger } from '@/lib/logger';
 
 // Lazy load mobile modal
@@ -129,17 +130,6 @@ function buildInitAuthors(
     count: a.count,
     isChecked: checkedValues.has(a.value),
   }));
-}
-
-/** Adds `value` when absent, removes it otherwise, always returning a new Set. */
-function toggleInSet<T>(source: ReadonlySet<T>, value: T): Set<T> {
-  const next = new Set(source);
-  if (next.has(value)) {
-    next.delete(value);
-  } else {
-    next.add(value);
-  }
-  return next;
 }
 
 function checkedValuesOf<T, K>(items: T[], isChecked: (item: T) => boolean, key: (item: T) => K) {

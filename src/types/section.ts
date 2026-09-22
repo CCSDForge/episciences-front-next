@@ -10,7 +10,7 @@ export interface ISection {
   rvid?: number;
   title?: Record<AvailableLanguage, string>;
   description?: Record<AvailableLanguage, string>;
-  committee?: ISectionCommitteeMember[];
+  committee?: ICommitteeMember[];
   articles: PartialSectionArticle[];
 }
 
@@ -20,5 +20,3 @@ export type RawSection = ISection & {
   descriptions?: Record<AvailableLanguage, string>;
   papers: PartialSectionArticle[];
 };
-
-export type ISectionCommitteeMember = ICommitteeMember;

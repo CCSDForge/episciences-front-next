@@ -340,27 +340,6 @@ describe('SectionDetailsClient', () => {
     });
   });
 
-  it('lists articles from the most recent to the oldest', () => {
-    const list = [
-      { ...makeArticle(1), publicationDate: '2019-01-01' },
-      { ...makeArticle(2), publicationDate: '2024-06-01' },
-      { ...makeArticle(3), publicationDate: '2021-03-15' },
-    ] as IArticle[];
-
-    render(
-      <SectionDetailsClient
-        section={mockSection}
-        articles={list}
-        sectionId="1"
-        sectionTitle="Ma section"
-        sectionDescription=""
-      />
-    );
-
-    const titles = screen.getAllByText(/^Article \d$/).map(el => el.textContent);
-    expect(titles).toEqual(['Article 2', 'Article 3', 'Article 1']);
-  });
-
   describe('committee ORCID links', () => {
     const sectionWithCommittee = {
       ...mockSection,

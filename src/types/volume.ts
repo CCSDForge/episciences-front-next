@@ -10,7 +10,7 @@ export interface IVolume {
   description?: Record<AvailableLanguage, string>;
   year?: number;
   types?: string[];
-  committee?: IVolumeCommitteeMember[];
+  committee?: ICommitteeMember[];
   articles: PartialVolumeArticle[];
   downloadLink: string;
   metadatas?: IVolumeMetadata[];
@@ -29,8 +29,6 @@ export type RawVolume = IVolume & {
   metadata?: RawVolumeMetadata[];
   settings_proceeding?: IVolumeSettingsProceeding[];
 };
-
-type IVolumeCommitteeMember = ICommitteeMember;
 
 export interface IVolumeMetadata {
   title?: Record<AvailableLanguage, string>;

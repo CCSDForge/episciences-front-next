@@ -8,8 +8,7 @@ import { IArticle } from '@/types/article';
 import VolumeArticleCard from '@/components/Cards/VolumeArticleCard/VolumeArticleCard';
 import Pagination from '@/components/Pagination/Pagination';
 import LiveRegion from '@/components/LiveRegion/LiveRegion';
-
-export const ARTICLES_PER_PAGE = 20;
+import { ARTICLES_PER_PAGE } from '@/utils/pagination';
 
 interface IArticleCardsProps {
   readonly articles: IArticle[];
