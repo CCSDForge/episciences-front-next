@@ -1,0 +1,22 @@
+.committeeMembers-member {
+  // Keep a name and its ORCID icon on the same line
+  white-space: nowrap;
+
+  &-orcid {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    // 24×24px minimum target (WCAG 2.5.8)
+    min-width: 24px;
+    min-height: 24px;
+    // The 16px icon is centred in the 24px target: pull the following comma back
+    margin-right: -4px;
+    vertical-align: middle;
+    border-radius: 4px;
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-color, #0078d4);
+      outline-offset: 2px;
+    }
+  }
+}

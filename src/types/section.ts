@@ -1,5 +1,6 @@
 import { AvailableLanguage } from '@/utils/i18n';
 import { PartialSectionArticle as ImportedPartialSectionArticle } from '@/types/article';
+import { ICommitteeMember } from '@/types/committee';
 
 // Re-export for external use
 export type PartialSectionArticle = ImportedPartialSectionArticle;
@@ -20,7 +21,4 @@ export type RawSection = ISection & {
   papers: PartialSectionArticle[];
 };
 
-interface ISectionCommitteeMember {
-  uuid: string;
-  screenName: string;
-}
+export type ISectionCommitteeMember = ICommitteeMember;

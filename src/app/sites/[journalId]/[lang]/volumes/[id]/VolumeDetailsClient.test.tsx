@@ -17,6 +17,7 @@ vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({ push: vi.fn() })),
   useParams: vi.fn(() => ({})),
   usePathname: vi.fn(() => '/volumes/1'),
+  useSearchParams: vi.fn(() => new URLSearchParams()),
 }));
 
 vi.mock('next/image', () => ({
@@ -106,13 +107,21 @@ describe('VolumeDetailsClient', () => {
       <VolumeDetailsClient
         initialVolume={{
           ...baseVolume,
-          committee: [{ screenName: 'Jane Doe' } as never, { screenName: 'John Smith' } as never],
+          committee: [
+            { uuid: '1', screenName: 'Jane Doe', orcid: '0000-0002-2933-2522' },
+            { uuid: '2', screenName: 'John Smith', orcid: null },
+          ],
         }}
         lang="fr"
       />
     );
 
-    expect(screen.getAllByText(/Jane Doe, John Smith/).length).toBeGreaterThan(0);
+    const committee = document.querySelector('.volumeDetails-content-results-content-committee');
+    expect(committee).toHaveTextContent('Jane Doe, John Smith');
+    const orcidLinks = committee!.querySelectorAll('a');
+    expect(orcidLinks).toHaveLength(1);
+    expect(orcidLinks[0]).toHaveAttribute('href', 'https://orcid.org/0000-0002-2933-2522');
+    expect(orcidLinks[0]).toHaveAttribute('target', '_blank');
   });
 
   it('renders the volume description as markdown', () => {

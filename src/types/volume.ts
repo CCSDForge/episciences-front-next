@@ -1,5 +1,6 @@
 import { AvailableLanguage } from '@/utils/i18n';
 import { PartialVolumeArticle } from './article';
+import { ICommitteeMember } from './committee';
 
 export interface IVolume {
   id: number;
@@ -29,10 +30,7 @@ export type RawVolume = IVolume & {
   settings_proceeding?: IVolumeSettingsProceeding[];
 };
 
-interface IVolumeCommitteeMember {
-  uuid: string;
-  screenName: string;
-}
+type IVolumeCommitteeMember = ICommitteeMember;
 
 export interface IVolumeMetadata {
   title?: Record<AvailableLanguage, string>;
