@@ -14,7 +14,7 @@ import {
 import { TFunction } from 'i18next';
 import { toastSuccess } from './toast';
 import { logger } from '@/lib/logger';
-import he from 'he';
+import { decodeHtmlEntities } from './html-entities';
 
 const log = logger.child({ service: 'article-utils' });
 
@@ -136,20 +136,13 @@ type AbstractValue = NonNullable<RawArticleContent['abstract']>['value'];
 type AbstractArray = Extract<AbstractValue, unknown[]>;
 
 /**
- * Decode HTML entities in text coming from external APIs. Some upstream
- * sources double-encode content (e.g. "&amp;lt;" instead of "<"), which
- * breaks MathJax parsing (a literal "&" outside a LaTeX alignment
- * environment triggers a "Misplaced &" error). Decoding repeatedly until
- * the output stabilizes resolves any encoding depth.
+ * Decode HTML entities in abstract text. Some upstream sources double-encode
+ * content (e.g. "&amp;lt;" instead of "<"), which breaks MathJax parsing (a
+ * literal "&" outside a LaTeX alignment environment triggers a "Misplaced &"
+ * error).
  */
 export function decodeAbstractText(text: string): string {
-  let decoded = text;
-  for (let i = 0; i < 5; i++) {
-    const next = he.decode(decoded);
-    if (next === decoded) break;
-    decoded = next;
-  }
-  return decoded;
+  return decodeHtmlEntities(text);
 }
 
 function decodeAbstractValue(value: string | IArticleAbstracts): string | IArticleAbstracts {
