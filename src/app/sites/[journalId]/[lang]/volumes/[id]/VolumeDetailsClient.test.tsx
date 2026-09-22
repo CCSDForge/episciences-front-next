@@ -158,6 +158,19 @@ describe('VolumeDetailsClient', () => {
     expect(screen.getByText('Contenu edito')).toBeInTheDocument();
   });
 
+  it('does not count articles that failed to load', () => {
+    render(
+      <VolumeDetailsClient
+        initialVolume={baseVolume}
+        initialArticles={[{ id: 1, authors: [] } as never, undefined as never]}
+        lang="fr"
+      />
+    );
+
+    expect(screen.getAllByText('1 common.article').length).toBeGreaterThan(0);
+    expect(screen.queryByText('2 common.articles')).not.toBeInTheDocument();
+  });
+
   it('renders the singular and plural article counts', () => {
     render(
       <VolumeDetailsClient

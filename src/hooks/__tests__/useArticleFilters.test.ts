@@ -25,6 +25,7 @@ describe('getPublicationYear', () => {
     expect(getPublicationYear(undefined)).toBeUndefined();
     expect(getPublicationYear('')).toBeUndefined();
     expect(getPublicationYear('n/a')).toBeUndefined();
+    expect(getPublicationYear('202x-01-01')).toBeUndefined();
   });
 });
 

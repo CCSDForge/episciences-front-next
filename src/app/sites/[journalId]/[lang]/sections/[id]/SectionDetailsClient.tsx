@@ -90,17 +90,20 @@ export default function SectionDetailsClient({
   const hasFilters = types.length > 0 || years.length > 0;
 
   /**
-   * Any filter change goes back to page 1 by dropping `?page=`. The URL is only touched when
-   * a page is set, and replaced rather than pushed: filters are not history entries. It is
-   * read at event time instead of through `useSearchParams`, which would make this whole
-   * component client-rendered on the prerendered page.
+   * Any filter change goes back to page 1 by dropping `?page=` (other parameters are kept).
+   * The URL is only touched when a page is set, and replaced rather than pushed: filters are
+   * not history entries. It is read at event time instead of through `useSearchParams`,
+   * which would make this whole component client-rendered on the prerendered page.
    */
   const withFirstPage =
     <A extends unknown[]>(action: (...args: A) => void) =>
     (...args: A): void => {
       action(...args);
-      if (pathname && new URLSearchParams(globalThis.location.search).has('page')) {
-        router.replace(pathname, { scroll: false });
+      const params = new URLSearchParams(globalThis.location.search);
+      if (pathname && params.has('page')) {
+        params.delete('page');
+        const query = params.toString();
+        router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
       }
     };
 

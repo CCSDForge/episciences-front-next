@@ -304,13 +304,13 @@ describe('SectionDetailsClient', () => {
       expect(replaceMock).not.toHaveBeenCalled();
     });
 
-    it('drops ?page= by replacing the URL (no history entry) when a filter changes', () => {
+    it('drops only ?page=, replacing the URL (no history entry), when a filter changes', () => {
       replaceMock.mockClear();
-      globalThis.history.replaceState(null, '', '/sections/1?page=2');
+      globalThis.history.replaceState(null, '', '/sections/1?page=2&ref=home');
       try {
         renderWithArticles(datedArticles);
         fireEvent.click(screen.getByRole('button', { name: '2023' }));
-        expect(replaceMock).toHaveBeenCalledWith('/sections/1', { scroll: false });
+        expect(replaceMock).toHaveBeenCalledWith('/sections/1?ref=home', { scroll: false });
         expect(pushMock).not.toHaveBeenCalled();
       } finally {
         globalThis.history.replaceState(null, '', '/');
