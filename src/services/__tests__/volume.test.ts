@@ -460,6 +460,36 @@ describe('volume service', () => {
         expect.any(Object)
       );
     });
+
+    it('requests JSON-LD (the plain JSON serialization omits the committee) and keeps it', async () => {
+      const committee = [
+        { uuid: 'a', screenName: 'Jakub Kozik', orcid: '0000-0002-1362-7780' },
+        { uuid: 'b', screenName: 'Hadas Shachnai', orcid: '' },
+      ];
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            '@context': '/api/contexts/Volume',
+            vid: 1083,
+            vol_num: '28',
+            titles: {},
+            descriptions: {},
+            vol_year: 2026,
+            vol_type: ['special_issue'],
+            papers: [],
+            committee,
+          }),
+      });
+
+      const result = await fetchVolume('dmtcs', 1083, 'en');
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/volumes/1083'),
+        expect.objectContaining({ headers: { Accept: 'application/ld+json' } })
+      );
+      expect(result?.committee).toEqual(committee);
+    });
   });
 
   describe('VOLUME_TYPE enum', () => {
