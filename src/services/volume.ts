@@ -8,6 +8,7 @@ import {
 import { AvailableLanguage } from '@/utils/i18n';
 import { Range } from '@/utils/pagination';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { decodeHtmlEntitiesRecord } from '@/utils/html-entities';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'volume' });
@@ -58,7 +59,7 @@ export const formatVolume = (
 export const formatVolumeMetadata = (metadata: RawVolumeMetadata): IVolumeMetadata => {
   return {
     ...metadata,
-    title: metadata.titles,
+    title: decodeHtmlEntitiesRecord(metadata.titles),
     content: metadata.content,
     file: metadata.file,
     createdAt: metadata.date_creation,
