@@ -56,10 +56,12 @@ interface VolumeDetailsClientProps {
 
 const MAX_MOBILE_DESCRIPTION_LENGTH = 200;
 const RELATED_VOLUMES = 20;
+// Stable default: a fresh `[]` on every render would defeat the `validArticles` memo.
+const NO_ARTICLES: FetchedArticle[] = [];
 
 export default function VolumeDetailsClient({
   initialVolume,
-  initialArticles = [],
+  initialArticles = NO_ARTICLES,
   lang,
   journalId,
   breadcrumbLabels,

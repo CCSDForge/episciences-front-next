@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import { AvailableLanguage } from '@/utils/i18n';
@@ -27,6 +27,9 @@ const ArticlesMobileModal = dynamic(
   () => import('@/components/Modals/ArticlesMobileModal/ArticlesMobileModal'),
   { ssr: false, loading: () => null }
 );
+
+// Stable fallback: a fresh `[]` on every render would defeat the filter memos.
+const NO_ARTICLES: IArticle[] = [];
 
 interface SectionDetailsClientProps {
   readonly section: ISection;
@@ -64,16 +67,9 @@ export default function SectionDetailsClient({
   const language = (lang as AvailableLanguage) || reduxLanguage;
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
 
-  // The server component is the single source of truth for the article list, so it is used
-  // directly rather than mirrored into local state. Shown newest first; ISO-like date
-  // strings compare lexicographically, which stays deterministic across server and client.
-  const displayedArticles = useMemo(
-    () =>
-      [...(articles ?? [])].sort((a, b) =>
-        (b.publicationDate ?? '').localeCompare(a.publicationDate ?? '')
-      ),
-    [articles]
-  );
+  // The server component is the single source of truth for the article list (already
+  // sorted newest first), so it is used directly rather than mirrored into local state.
+  const displayedArticles = articles ?? NO_ARTICLES;
 
   const router = useRouter();
   const pathname = usePathname();

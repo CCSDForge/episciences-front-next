@@ -35,6 +35,8 @@ import LiveRegion from '@/components/LiveRegion/LiveRegion';
 import './Articles.scss';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { ARTICLES_PER_PAGE } from '@/utils/pagination';
+import { removeFromSet, toggleInSet } from '@/utils/set';
 
 type ArticleTypeFilter = 'type' | 'year';
 
@@ -70,23 +72,6 @@ interface ArticlesClientProps {
   };
 }
 
-/** Adds `value` when absent, removes it otherwise, always returning a new Set. */
-function toggleInSet<T>(source: ReadonlySet<T>, value: T): Set<T> {
-  const next = new Set(source);
-  if (next.has(value)) {
-    next.delete(value);
-  } else {
-    next.add(value);
-  }
-  return next;
-}
-
-function removeFromSet<T>(source: ReadonlySet<T>, value: T): Set<T> {
-  const next = new Set(source);
-  next.delete(value);
-  return next;
-}
-
 export default function ArticlesClient({
   initialArticles,
   lang,
@@ -104,8 +89,6 @@ export default function ArticlesClient({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const ARTICLES_PER_PAGE = 20;
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;

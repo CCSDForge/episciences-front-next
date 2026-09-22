@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { IArticle } from '@/types/article';
 import { articleTypes } from '@/utils/article';
+import { removeFromSet, toggleInSet } from '@/utils/set';
 import {
   IArticleFiltersSelection,
   IArticleTypeSelection,
@@ -25,22 +26,6 @@ export interface IArticleTaggedFilter {
 export function getPublicationYear(publicationDate?: string): number | undefined {
   const year = Number.parseInt(publicationDate?.slice(0, 4) ?? '', 10);
   return Number.isNaN(year) ? undefined : year;
-}
-
-function without<T>(source: ReadonlySet<T>, value: T): Set<T> {
-  const next = new Set(source);
-  next.delete(value);
-  return next;
-}
-
-function toggle<T>(source: ReadonlySet<T>, value: T): Set<T> {
-  const next = new Set(source);
-  if (next.has(value)) {
-    next.delete(value);
-  } else {
-    next.add(value);
-  }
-  return next;
 }
 
 /**
@@ -99,8 +84,8 @@ export function useArticleFilters(articles: IArticle[]) {
     years,
     filteredArticles,
     taggedFilters,
-    toggleType: (value: string): void => setCheckedTypes(prev => toggle(prev, value)),
-    toggleYear: (year: number): void => setCheckedYears(prev => toggle(prev, year)),
+    toggleType: (value: string): void => setCheckedTypes(prev => toggleInSet(prev, value)),
+    toggleYear: (year: number): void => setCheckedYears(prev => toggleInSet(prev, year)),
     /** Replaces the whole selection, e.g. when the mobile modal applies its filters. */
     applySelection: ({ types, years }: IArticleFiltersSelection): void => {
       setCheckedTypes(new Set(types.filter(type => type.isChecked).map(type => type.value)));
@@ -108,9 +93,9 @@ export function useArticleFilters(articles: IArticle[]) {
     },
     removeFilter: (type: ArticleFilterKind, value: string | number): void => {
       if (type === 'type') {
-        setCheckedTypes(prev => without(prev, String(value)));
+        setCheckedTypes(prev => removeFromSet(prev, String(value)));
       } else {
-        setCheckedYears(prev => without(prev, Number(value)));
+        setCheckedYears(prev => removeFromSet(prev, Number(value)));
       }
     },
     clearFilters: (): void => {
