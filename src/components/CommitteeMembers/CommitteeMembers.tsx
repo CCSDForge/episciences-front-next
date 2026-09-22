@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { TFunction } from 'i18next';
 import { OrcidIcon } from '@/components/icons';
-import { buildOrcidUrl } from '@/config/external-urls';
+import { buildOrcidUrl, parseOrcidId } from '@/config/external-urls';
 import { ICommitteeMember } from '@/types/committee';
 import './CommitteeMembers.scss';
 
@@ -21,7 +21,8 @@ export default function CommitteeMembers({
   return (
     <>
       {members.map((member, index) => {
-        const orcid = member.orcid?.trim();
+        // Only a valid iD gets a link, which can then only point to orcid.org.
+        const orcid = parseOrcidId(member.orcid);
         return (
           <Fragment key={member.uuid ?? member.screenName}>
             {index > 0 && ', '}
