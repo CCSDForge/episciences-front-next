@@ -21,6 +21,29 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1.2.1] - 2026-09-23
+
+### Added
+
+- **Process-Wide Concurrency Limiter**: Added `createConcurrencyLimiter` utility (`src/utils/concurrency.ts`) to cap concurrent asynchronous tasks (set to 24 parallel requests), shared across section and search article enrichment calls to prevent socket exhaustion during large concurrent renders.
+- **MathJax Readiness Provider**: Added `MathJaxProvider` / `MathJaxReadyProvider` with `MathJaxReadyContext` to subscribe once to the MathJax CDN initialization promise and expose readiness state to components via React 19's `use()`.
+
+### Changed
+
+- **Prettier Exclusion for Generated Journal Configs**: Excluded `journals-generated.ts` and `journals-languages-generated.ts` from Prettier formatting via `.prettierignore` to eliminate recurrent formatting-only diffs produced on build/dev runs.
+- **Accepted Articles Card Subcomponent**: Extracted `ArticlesAcceptedCards` from `ArticlesAcceptedClient` to eliminate nested ternary operators and streamline card list rendering.
+
+### Fixed
+
+- **Section Article Fetching Concurrency & Resilience**: Capped parallel requests in `fetchSectionArticles` to 24 concurrent requests with per-article failure isolation via `safeFetchData`, logging warnings and dropping failed items instead of rejecting `Promise.all` and crashing pages for large sections (e.g. 1000+ papers).
+- **MathJax Unmount Race Condition & Typesetting Errors**: Prevented unhandled `"Typesetting failed: Cannot read properties of null"` errors caused by elements unmounting while the MathJax CDN script was still loading. BetterMathJax mounting is now deferred until MathJax has fully started up, and re-typesetting occurs only when non-dynamic children change.
+- **Flash of Empty State on Accepted Articles**: Moved article enrichment directly inside the RTK Query `queryFn` (`fetchArticles`), ensuring the cache only exposes fully-enriched articles (with titles) and keeping `isFetching` true until completion. Prevented false "no accepted articles" message and loader flickering on `/articles-accepted` by skipping redundant client fetches when server data is already hydrated.
+- **Section Articles Return Type**: Fixed return type of `fetchSectionArticles` to `Promise<IArticle[]>`, removing unsafe type assertions and redundant null filters.
+
+### Removed
+
+- **Obsolete MathJax Hook and Container**: Removed unused `useMathjaxRefresh` hook and legacy `ProviderContainer` component.
+
 ## [v1.2.0] - 2026-09-23
 
 ### Added
