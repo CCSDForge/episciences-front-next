@@ -23,7 +23,7 @@ describe('article.query - fetchArticles', () => {
     process.env.NEXT_PUBLIC_STATIC_BUILD = originalEnv;
   });
 
-  it('builds the query URL with types/years/onlyAccepted and enriches results via onQueryStarted', async () => {
+  it('builds the query URL with types/years/onlyAccepted and returns enriched articles', async () => {
     delete process.env.NEXT_PUBLIC_STATIC_BUILD;
     const requestedUrls: string[] = [];
 
@@ -75,8 +75,9 @@ describe('article.query - fetchArticles', () => {
       types: ['article'],
       years: [2024],
     });
-
-    await new Promise(resolve => setTimeout(resolve, 0));
+    // The resolved result already holds the full article: partial list entries never
+    // reach the cache, so consumers cannot observe an intermediate title-less list.
+    expect(result.data?.data).toEqual([{ paperid: 1, title: 'Full article', formatted: true }]);
   });
 
   it('drops articles whose enrichment fetch fails instead of injecting a malformed entry', async () => {

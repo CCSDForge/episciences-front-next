@@ -4,6 +4,7 @@ import { FilterIcon } from '@/components/icons';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import dynamic from 'next/dynamic';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
@@ -75,6 +76,38 @@ interface ArticlesAcceptedClientProps {
   };
 }
 
+function ArticlesAcceptedCards({
+  articles,
+  language,
+  t,
+  onToggleAbstract,
+}: {
+  readonly articles: EnhancedArticleAccepted[];
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly onToggleAbstract: (articleId?: number) => void;
+}): React.JSX.Element {
+  return (
+    <div className="articlesAccepted-content-results-cards">
+      {articles.length > 0 ? (
+        articles.map((article, index) => (
+          <ArticleAcceptedCard
+            key={`${article?.id ?? 'unknown'}-${index}`}
+            language={language}
+            t={t}
+            article={article as IArticleAcceptedCard}
+            toggleAbstractCallback={(): void => onToggleAbstract(article?.id)}
+          />
+        ))
+      ) : (
+        <div className="articlesAccepted-content-results-empty">
+          {t('pages.articlesAccepted.noResults')}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ArticlesAcceptedClient({
   initialArticles,
   initialRange,
@@ -112,7 +145,17 @@ export default function ArticlesAcceptedClient({
     [checkedTypes]
   );
 
-  const { data: articlesAccepted, isFetching: isFetchingArticlesAccepted } = useFetchArticlesQuery(
+  // The server already rendered the default query (first page, no filter): don't refetch it.
+  // An empty server payload may be a fetch fallback, so that case is still fetched.
+  const isDefaultQuery = currentPage === 1 && selectedTypes.length === 0;
+  const hasInitialArticles = (initialArticles?.data?.length ?? 0) > 0;
+  const shouldSkipFetch = !rvcode || isStaticBuild || (isDefaultQuery && hasInitialArticles);
+
+  const {
+    data: articlesAccepted,
+    currentData: currentArticlesAccepted,
+    isFetching: isFetchingArticlesAccepted,
+  } = useFetchArticlesQuery(
     {
       rvcode: rvcode!,
       page: currentPage,
@@ -121,8 +164,8 @@ export default function ArticlesAcceptedClient({
       types: selectedTypes,
     },
     {
-      skip: !rvcode || isStaticBuild,
-      refetchOnMountOrArgChange: !isStaticBuild,
+      skip: shouldSkipFetch,
+      refetchOnMountOrArgChange: false,
     }
   );
 
@@ -188,14 +231,21 @@ export default function ArticlesAcceptedClient({
     });
   };
 
-  // Utiliser les données initiales si elles sont disponibles
-  const displayArticlesAccepted = articlesAccepted || initialArticles;
+  // Only the current query's result is shown: `data` may still hold the previous query's.
+  // While the default query is refetched (empty server payload), the server render stays up.
+  const displayArticlesAccepted = shouldSkipFetch
+    ? initialArticles
+    : (currentArticlesAccepted ?? (isDefaultQuery ? initialArticles : undefined));
+  const showLoader =
+    isHydrated &&
+    isFetchingArticlesAccepted &&
+    currentArticlesAccepted === undefined &&
+    !isDefaultQuery;
 
   // The article list is a projection of whichever payload is current, with the abstract
   // toggles applied on top — no mirroring into state.
   const articlesToRender = useMemo<EnhancedArticleAccepted[]>(() => {
-    const source = isStaticBuild ? initialArticles : displayArticlesAccepted;
-    const data = Array.isArray(source?.data) ? source.data : [];
+    const data = Array.isArray(displayArticlesAccepted?.data) ? displayArticlesAccepted.data : [];
 
     return data
       .filter((article: any) => article?.title)
@@ -203,7 +253,7 @@ export default function ArticlesAcceptedClient({
         ...article,
         openedAbstract: openedAbstractIds.has(article.id),
       }));
-  }, [isStaticBuild, initialArticles, displayArticlesAccepted, openedAbstractIds]);
+  }, [displayArticlesAccepted, openedAbstractIds]);
 
   const toggleAllAbstracts = (): void => {
     const isShown = !showAllAbstracts;
@@ -325,26 +375,15 @@ export default function ArticlesAcceptedClient({
       <div className="articlesAccepted-content">
         <div className="articlesAccepted-content-results">
           <ArticlesAcceptedSidebar t={t} types={types} onCheckTypeCallback={onCheckType} />
-          {isFetchingArticlesAccepted && isHydrated ? (
+          {showLoader ? (
             <Loader />
           ) : (
-            <div className="articlesAccepted-content-results-cards">
-              {articlesToRender.length > 0 ? (
-                articlesToRender.map((article, index) => (
-                  <ArticleAcceptedCard
-                    key={`${article?.id ?? 'unknown'}-${index}`}
-                    language={language}
-                    t={t}
-                    article={article as IArticleAcceptedCard}
-                    toggleAbstractCallback={(): void => toggleAbstract(article?.id)}
-                  />
-                ))
-              ) : (
-                <div className="articlesAccepted-content-results-empty">
-                  {t('pages.articlesAccepted.noResults')}
-                </div>
-              )}
-            </div>
+            <ArticlesAcceptedCards
+              articles={articlesToRender}
+              language={language}
+              t={t}
+              onToggleAbstract={toggleAbstract}
+            />
           )}
         </div>
         <Pagination

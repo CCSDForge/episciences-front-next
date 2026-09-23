@@ -83,9 +83,10 @@ describe('ArticlesAcceptedClient', () => {
     expect(screen.getByText('Article 2')).toBeInTheDocument();
   });
 
-  it('shows the loader while fetching (once hydrated)', async () => {
+  it('keeps the server-rendered cards while the default query refetches on mount', async () => {
     vi.mocked(useFetchArticlesQuery).mockReturnValue({
       data: undefined,
+      currentData: undefined,
       isFetching: true,
     } as any);
 
@@ -96,6 +97,95 @@ describe('ArticlesAcceptedClient', () => {
         lang="fr"
       />
     );
+
+    await waitFor(() => expect(screen.getByText('Article 1')).toBeInTheDocument());
+    expect(container.querySelector('.loader')).not.toBeInTheDocument();
+  });
+
+  it('does not refetch the default query the server already rendered', () => {
+    render(
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
+    );
+
+    expect(vi.mocked(useFetchArticlesQuery)).toHaveBeenLastCalledWith(
+      expect.objectContaining({ page: 1, types: [] }),
+      expect.objectContaining({ skip: true })
+    );
+  });
+
+  it('refetches an empty server payload but keeps the server render instead of a loader', async () => {
+    vi.mocked(useFetchArticlesQuery).mockReturnValue({
+      data: undefined,
+      currentData: undefined,
+      isFetching: true,
+    } as any);
+
+    const { container } = render(
+      <ArticlesAcceptedClient
+        initialArticles={{ data: [], totalItems: 0 }}
+        initialRange={initialRange}
+        lang="fr"
+      />
+    );
+
+    expect(vi.mocked(useFetchArticlesQuery)).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({ skip: false })
+    );
+    await waitFor(() =>
+      expect(screen.getByText('pages.articlesAccepted.noResults')).toBeInTheDocument()
+    );
+    expect(container.querySelector('.loader')).not.toBeInTheDocument();
+  });
+
+  it("shows the server articles, not the previous query's data, once filters are cleared", () => {
+    const filteredArticles = [{ ...mockArticles[0], id: 3, title: 'Filtered article' }];
+    render(
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
+    );
+
+    vi.mocked(useFetchArticlesQuery).mockReturnValue({
+      data: { data: filteredArticles, totalItems: 1 },
+      currentData: { data: filteredArticles, totalItems: 1 },
+      isFetching: false,
+    } as any);
+    fireEvent.click(document.querySelector('input[type="checkbox"]') as HTMLInputElement);
+    expect(screen.getByText('Filtered article')).toBeInTheDocument();
+
+    vi.mocked(useFetchArticlesQuery).mockReturnValue({
+      data: { data: filteredArticles, totalItems: 1 },
+      currentData: undefined,
+      isFetching: false,
+    } as any);
+    fireEvent.click(screen.getByText('common.filters.clearAll'));
+
+    expect(screen.getByText('Article 1')).toBeInTheDocument();
+    expect(screen.queryByText('Filtered article')).not.toBeInTheDocument();
+  });
+
+  it('shows the loader while fetching after a filter change', async () => {
+    const { container } = render(
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
+    );
+
+    vi.mocked(useFetchArticlesQuery).mockReturnValue({
+      data: { data: mockArticles, totalItems: 2 },
+      currentData: undefined,
+      isFetching: true,
+    } as any);
+    fireEvent.click(document.querySelector('input[type="checkbox"]') as HTMLInputElement);
 
     await waitFor(() => expect(container.querySelector('.loader')).toBeInTheDocument());
   });

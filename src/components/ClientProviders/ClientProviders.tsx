@@ -4,12 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { Provider } from 'react-redux';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
-import { MathJaxContext } from 'better-react-mathjax';
 
 import store from '@/store';
 import i18next from 'i18next';
 import i18n from '@/config/i18n';
-import { mathJaxConfig, mathJaxSrc } from '@/config/mathjax';
+import { MathJaxProvider } from '@/components/MathJax/MathJaxProvider';
 import { JournalInitializer } from '@/components/JournalInitializer/JournalInitializer';
 import { LastVolumeInitializer } from '@/components/LastVolumeInitializer/LastVolumeInitializer';
 import ThemeStyleSwitch from '@/components/ThemeStyleSwitch/ThemeStyleSwitch';
@@ -90,13 +89,13 @@ const ClientProviders: React.FC<ClientProvidersProps> = ({
   return (
     <Provider store={store}>
       <I18nextProvider i18n={i18nInstance}>
-        <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={3}>
+        <MathJaxProvider>
           {isClient && <ThemeStyleSwitch />}
           {/* JournalInitializer is no longer needed if we have initialJournal */}
           {isClient && !initialJournal && <JournalInitializer journalId={journalId} />}
           {isClient && initialVolume && <LastVolumeInitializer initialVolume={initialVolume} />}
           {children}
-        </MathJaxContext>
+        </MathJaxProvider>
       </I18nextProvider>
     </Provider>
   );
