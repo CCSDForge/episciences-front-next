@@ -83,9 +83,10 @@ describe('ArticlesAcceptedClient', () => {
     expect(screen.getByText('Article 2')).toBeInTheDocument();
   });
 
-  it('shows the loader while fetching (once hydrated)', async () => {
+  it('keeps the server-rendered cards while the default query refetches on mount', async () => {
     vi.mocked(useFetchArticlesQuery).mockReturnValue({
       data: undefined,
+      currentData: undefined,
       isFetching: true,
     } as any);
 
@@ -96,6 +97,40 @@ describe('ArticlesAcceptedClient', () => {
         lang="fr"
       />
     );
+
+    await waitFor(() => expect(screen.getByText('Article 1')).toBeInTheDocument());
+    expect(container.querySelector('.loader')).not.toBeInTheDocument();
+  });
+
+  it('shows the loader while fetching a page with no data yet (once hydrated)', async () => {
+    vi.mocked(useFetchArticlesQuery).mockReturnValue({
+      data: undefined,
+      currentData: undefined,
+      isFetching: true,
+    } as any);
+
+    const { container } = render(
+      <ArticlesAcceptedClient initialArticles={null as any} initialRange={initialRange} lang="fr" />
+    );
+
+    await waitFor(() => expect(container.querySelector('.loader')).toBeInTheDocument());
+  });
+
+  it('shows the loader while fetching after a filter change', async () => {
+    const { container } = render(
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
+    );
+
+    vi.mocked(useFetchArticlesQuery).mockReturnValue({
+      data: { data: mockArticles, totalItems: 2 },
+      currentData: undefined,
+      isFetching: true,
+    } as any);
+    fireEvent.click(document.querySelector('input[type="checkbox"]') as HTMLInputElement);
 
     await waitFor(() => expect(container.querySelector('.loader')).toBeInTheDocument());
   });
