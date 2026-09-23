@@ -196,10 +196,12 @@ export default function ArticlesAcceptedClient({
   const displayArticlesAccepted = articlesAccepted || initialArticles;
 
   // The server payload matches the default query (first page, no filter), so the refetch
-  // on mount must not swap the already-rendered cards for the loader.
+  // on mount must not swap the already-rendered cards for the loader. An empty server
+  // payload may be a fetch fallback, so it does not count: the loader beats a false "no results".
   const isDefaultQuery = currentPage === 1 && selectedTypes.length === 0;
+  const hasInitialArticles = (initialArticles?.data?.length ?? 0) > 0;
   const hasDataForCurrentQuery =
-    currentArticlesAccepted !== undefined || (isDefaultQuery && Boolean(initialArticles));
+    currentArticlesAccepted !== undefined || (isDefaultQuery && hasInitialArticles);
   const showLoader = isHydrated && isFetchingArticlesAccepted && !hasDataForCurrentQuery;
 
   // The article list is a projection of whichever payload is current, with the abstract

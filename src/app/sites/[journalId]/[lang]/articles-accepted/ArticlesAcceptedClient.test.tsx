@@ -116,6 +116,25 @@ describe('ArticlesAcceptedClient', () => {
     await waitFor(() => expect(container.querySelector('.loader')).toBeInTheDocument());
   });
 
+  it('shows the loader instead of "no results" when the server payload is empty', async () => {
+    vi.mocked(useFetchArticlesQuery).mockReturnValue({
+      data: undefined,
+      currentData: undefined,
+      isFetching: true,
+    } as any);
+
+    const { container } = render(
+      <ArticlesAcceptedClient
+        initialArticles={{ data: [], totalItems: 0 }}
+        initialRange={initialRange}
+        lang="fr"
+      />
+    );
+
+    await waitFor(() => expect(container.querySelector('.loader')).toBeInTheDocument());
+    expect(screen.queryByText('pages.articlesAccepted.noResults')).not.toBeInTheDocument();
+  });
+
   it('shows the loader while fetching after a filter change', async () => {
     const { container } = render(
       <ArticlesAcceptedClient
