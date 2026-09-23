@@ -145,6 +145,12 @@ export default function ArticlesAcceptedClient({
     [checkedTypes]
   );
 
+  // The server already rendered the default query (first page, no filter): don't refetch it.
+  // An empty server payload may be a fetch fallback, so that case is still fetched.
+  const isDefaultQuery = currentPage === 1 && selectedTypes.length === 0;
+  const hasInitialArticles = (initialArticles?.data?.length ?? 0) > 0;
+  const shouldSkipFetch = !rvcode || isStaticBuild || (isDefaultQuery && hasInitialArticles);
+
   const {
     data: articlesAccepted,
     currentData: currentArticlesAccepted,
@@ -158,8 +164,8 @@ export default function ArticlesAcceptedClient({
       types: selectedTypes,
     },
     {
-      skip: !rvcode || isStaticBuild,
-      refetchOnMountOrArgChange: !isStaticBuild,
+      skip: shouldSkipFetch,
+      refetchOnMountOrArgChange: false,
     }
   );
 
@@ -225,23 +231,21 @@ export default function ArticlesAcceptedClient({
     });
   };
 
-  // Utiliser les données initiales si elles sont disponibles
-  const displayArticlesAccepted = articlesAccepted || initialArticles;
-
-  // The server payload matches the default query (first page, no filter), so the refetch
-  // on mount must not swap the already-rendered cards for the loader. An empty server
-  // payload may be a fetch fallback, so it does not count: the loader beats a false "no results".
-  const isDefaultQuery = currentPage === 1 && selectedTypes.length === 0;
-  const hasInitialArticles = (initialArticles?.data?.length ?? 0) > 0;
-  const hasDataForCurrentQuery =
-    currentArticlesAccepted !== undefined || (isDefaultQuery && hasInitialArticles);
-  const showLoader = isHydrated && isFetchingArticlesAccepted && !hasDataForCurrentQuery;
+  // Only the current query's result is shown: `data` may still hold the previous query's.
+  // While the default query is refetched (empty server payload), the server render stays up.
+  const displayArticlesAccepted = shouldSkipFetch
+    ? initialArticles
+    : (currentArticlesAccepted ?? (isDefaultQuery ? initialArticles : undefined));
+  const showLoader =
+    isHydrated &&
+    isFetchingArticlesAccepted &&
+    currentArticlesAccepted === undefined &&
+    !isDefaultQuery;
 
   // The article list is a projection of whichever payload is current, with the abstract
   // toggles applied on top — no mirroring into state.
   const articlesToRender = useMemo<EnhancedArticleAccepted[]>(() => {
-    const source = isStaticBuild ? initialArticles : displayArticlesAccepted;
-    const data = Array.isArray(source?.data) ? source.data : [];
+    const data = Array.isArray(displayArticlesAccepted?.data) ? displayArticlesAccepted.data : [];
 
     return data
       .filter((article: any) => article?.title)
@@ -249,7 +253,7 @@ export default function ArticlesAcceptedClient({
         ...article,
         openedAbstract: openedAbstractIds.has(article.id),
       }));
-  }, [isStaticBuild, initialArticles, displayArticlesAccepted, openedAbstractIds]);
+  }, [displayArticlesAccepted, openedAbstractIds]);
 
   const toggleAllAbstracts = (): void => {
     const isShown = !showAllAbstracts;

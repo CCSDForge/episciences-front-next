@@ -71,10 +71,16 @@ function formatArticlesPage(
   };
 }
 
-async function enrichArticles(articles: IArticle[], rvcode: string): Promise<IArticle[]> {
+async function enrichArticles(
+  articles: IArticle[],
+  rvcode: string,
+  signal: AbortSignal
+): Promise<IArticle[]> {
   const results = await Promise.allSettled(
     articles.map(async (article: IArticle) => {
-      const response = await fetch(`${API_URL}/papers/${article?.id}?rvcode=${rvcode}`);
+      const response = await fetch(`${API_URL}/papers/${article?.id}?rvcode=${rvcode}`, {
+        signal,
+      });
       if (!response.ok) {
         throw new Error(`Article ${article?.id} fetch failed: HTTP ${response.status}`);
       }
@@ -93,6 +99,7 @@ async function enrichArticles(articles: IArticle[], rvcode: string): Promise<IAr
   return results
     .filter((result): result is PromiseFulfilledResult<IArticle> => {
       if (result.status === 'rejected') {
+        if (signal.aborted) return false;
         logger.warn('[fetchArticles] Article enrichment failed:', result.reason?.message);
         return false;
       }
@@ -111,7 +118,7 @@ export const articleApi = createApi({
       // is enriched before the result reaches the cache. Doing it inside the query keeps
       // isFetching true until the list is complete, instead of briefly exposing partial
       // articles that consumers filter out (which rendered the "no results" state).
-      queryFn: async (args, _api, _extraOptions, baseQuery) => {
+      queryFn: async (args, api, _extraOptions, baseQuery) => {
         const listResult = await baseQuery(buildArticlesUrl(args));
         if (listResult.error) {
           return { error: listResult.error };
@@ -125,7 +132,10 @@ export const articleApi = createApi({
           return { data: page };
         }
 
-        return { data: { ...page, data: await enrichArticles(page.data, args.rvcode) } };
+        // Passing the query's signal lets an aborted query cancel its enrichment requests too.
+        return {
+          data: { ...page, data: await enrichArticles(page.data, args.rvcode, api.signal) },
+        };
       },
     }),
     fetchArticle: build.query<IArticle, { paperid: string }>({
