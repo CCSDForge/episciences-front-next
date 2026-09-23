@@ -10,10 +10,10 @@ const log = logger.child({ service: 'mathjax-provider' });
 /**
  * True once the MathJax script is loaded and started up.
  *
- * Defaults to true so that a MathJax component rendered outside of MathJaxProvider
- * (no MathJax script at all) falls back to BetterMathJax immediately.
+ * Defaults to false: outside of MathJaxProvider there is no MathJax script to wait for,
+ * and BetterMathJax would throw without a MathJaxContext, so components keep plain text.
  */
-export const MathJaxReadyContext = createContext(true);
+export const MathJaxReadyContext = createContext(false);
 
 /**
  * Tracks MathJax startup once for the whole tree.
@@ -38,9 +38,8 @@ export function MathJaxReadyProvider({ children }: { children: React.ReactNode }
       .then(() => {
         if (!cancelled) setReady(true);
       })
-      .catch((err: Error) => {
-        log.warn('[MathJax] Failed to load:', err?.message);
-      });
+      // Load failures are logged by MathJaxProvider's onError; components stay on plain text.
+      .catch(() => {});
 
     return () => {
       cancelled = true;
@@ -51,11 +50,20 @@ export function MathJaxReadyProvider({ children }: { children: React.ReactNode }
 }
 
 /**
+ * The script's `error` event is passed as is, not an Error.
+ * Without onError, better-react-mathjax rethrows it as an unhandled rejection.
+ */
+function handleLoadError(error: unknown): void {
+  const reason = error instanceof Error ? error.message : `could not download ${mathJaxSrc}`;
+  log.warn('[MathJax] Failed to load:', reason);
+}
+
+/**
  * Loads MathJax and exposes its readiness to every MathJax component below.
  */
 export function MathJaxProvider({ children }: { children: React.ReactNode }) {
   return (
-    <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={3}>
+    <MathJaxContext config={mathJaxConfig} src={mathJaxSrc} version={3} onError={handleLoadError}>
       <MathJaxReadyProvider>{children}</MathJaxReadyProvider>
     </MathJaxContext>
   );

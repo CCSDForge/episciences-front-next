@@ -102,21 +102,22 @@ describe('ArticlesAcceptedClient', () => {
     expect(container.querySelector('.loader')).not.toBeInTheDocument();
   });
 
-  it('shows the loader while fetching a page with no data yet (once hydrated)', async () => {
-    vi.mocked(useFetchArticlesQuery).mockReturnValue({
-      data: undefined,
-      currentData: undefined,
-      isFetching: true,
-    } as any);
-
-    const { container } = render(
-      <ArticlesAcceptedClient initialArticles={null as any} initialRange={initialRange} lang="fr" />
+  it('does not refetch the default query the server already rendered', () => {
+    render(
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
     );
 
-    await waitFor(() => expect(container.querySelector('.loader')).toBeInTheDocument());
+    expect(vi.mocked(useFetchArticlesQuery)).toHaveBeenLastCalledWith(
+      expect.objectContaining({ page: 1, types: [] }),
+      expect.objectContaining({ skip: true })
+    );
   });
 
-  it('shows the loader instead of "no results" when the server payload is empty', async () => {
+  it('refetches an empty server payload but keeps the server render instead of a loader', async () => {
     vi.mocked(useFetchArticlesQuery).mockReturnValue({
       data: undefined,
       currentData: undefined,
@@ -131,8 +132,43 @@ describe('ArticlesAcceptedClient', () => {
       />
     );
 
-    await waitFor(() => expect(container.querySelector('.loader')).toBeInTheDocument());
-    expect(screen.queryByText('pages.articlesAccepted.noResults')).not.toBeInTheDocument();
+    expect(vi.mocked(useFetchArticlesQuery)).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({ skip: false })
+    );
+    await waitFor(() =>
+      expect(screen.getByText('pages.articlesAccepted.noResults')).toBeInTheDocument()
+    );
+    expect(container.querySelector('.loader')).not.toBeInTheDocument();
+  });
+
+  it("shows the server articles, not the previous query's data, once filters are cleared", () => {
+    const filteredArticles = [{ ...mockArticles[0], id: 3, title: 'Filtered article' }];
+    render(
+      <ArticlesAcceptedClient
+        initialArticles={initialArticles}
+        initialRange={initialRange}
+        lang="fr"
+      />
+    );
+
+    vi.mocked(useFetchArticlesQuery).mockReturnValue({
+      data: { data: filteredArticles, totalItems: 1 },
+      currentData: { data: filteredArticles, totalItems: 1 },
+      isFetching: false,
+    } as any);
+    fireEvent.click(document.querySelector('input[type="checkbox"]') as HTMLInputElement);
+    expect(screen.getByText('Filtered article')).toBeInTheDocument();
+
+    vi.mocked(useFetchArticlesQuery).mockReturnValue({
+      data: { data: filteredArticles, totalItems: 1 },
+      currentData: undefined,
+      isFetching: false,
+    } as any);
+    fireEvent.click(screen.getByText('common.filters.clearAll'));
+
+    expect(screen.getByText('Article 1')).toBeInTheDocument();
+    expect(screen.queryByText('Filtered article')).not.toBeInTheDocument();
   });
 
   it('shows the loader while fetching after a filter change', async () => {
