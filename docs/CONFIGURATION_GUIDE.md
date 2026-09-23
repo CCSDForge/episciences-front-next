@@ -50,6 +50,9 @@ These variables are **identical for all journals** in a given environment. They 
 | `VALKEY_SENTINEL_USERNAME` / `VALKEY_SENTINEL_PASSWORD` | Sentinel ACL credentials                      |
 | `VALKEY_KEY_PREFIX`                                     | Cache key prefix                              |
 | `VALKEY_CIRCUIT_BREAKER_*`                              | Circuit breaker tuning                        |
+| `PDF_CACHE_ENABLED` / `PDF_CACHE_MODE`                  | NFS disk cache for `/api/pdf-proxy` — see [docs/PDF_CACHE_STRATEGY.md](PDF_CACHE_STRATEGY.md) |
+| `EPI_ENV`                                               | `prod`/`preprod`/... — required by the PDF cache and read by Nginx's template |
+| `PDF_CACHE_*`                                            | Full reference in [docs/PDF_CACHE_STRATEGY.md §8](PDF_CACHE_STRATEGY.md#8-environment-variables) |
 
 **Where to set them — one file per environment:**
 
