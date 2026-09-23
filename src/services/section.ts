@@ -1,12 +1,14 @@
 import { ISection } from '@/types/section';
+import { IArticle } from '@/types/article';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'section' });
-import { formatArticle } from '@/utils/article';
+import { formatArticle, FetchedArticle } from '@/utils/article';
 import { API_URL, API_PATHS } from '@/config/api';
 import { getJournalApiUrl } from '@/utils/env-loader';
 import { safeFetchData } from '@/utils/api-error-handler';
 import { CACHE_TTL } from '@/utils/cache-ttl';
+import { createConcurrencyLimiter } from '@/utils/concurrency';
 
 interface FetchSectionParams {
   sid: string;
@@ -103,53 +105,48 @@ export async function fetchSections({
 }
 
 // Sections can hold 1000+ papers: cap parallel requests to avoid socket exhaustion
-// (24 is where throughput plateaus against the API: ~8s for 1058 papers vs ~22s at 8)
-const SECTION_ARTICLES_CONCURRENCY = 24;
+// (24 is where throughput plateaus against the API: ~8s for 1058 papers vs ~22s at 8).
+// The limiter is module-level so the cap is shared by all section pages rendered
+// concurrently in this process (e.g. during a build), not applied per call.
+export const SECTION_ARTICLES_CONCURRENCY = 24;
+const limitArticleFetch = createConcurrencyLimiter(SECTION_ARTICLES_CONCURRENCY);
 
-export async function fetchSectionArticles(paperIds: string[], rvcode?: string, sid?: string) {
+export async function fetchSectionArticles(
+  paperIds: string[],
+  rvcode?: string,
+  sid?: string
+): Promise<IArticle[]> {
   const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
 
-  const fetchOne = async (docid: string) => {
-    const tags = [
-      'articles',
-      rvcode && `articles-${rvcode}`,
-      `article-${docid}`,
-      sid && `section-articles-${sid}`,
-      sid && rvcode && `section-articles-${sid}-${rvcode}`,
-    ].filter(Boolean) as string[];
+  // One failing article must not break the whole section page: fall back to null
+  const fetchOne = (docid: string) =>
+    safeFetchData<FetchedArticle | null>(
+      async () => {
+        const tags = [
+          'articles',
+          rvcode && `articles-${rvcode}`,
+          `article-${docid}`,
+          sid && `section-articles-${sid}`,
+          sid && rvcode && `section-articles-${sid}-${rvcode}`,
+        ].filter(Boolean) as string[];
 
-    try {
-      const response = await fetch(`${apiRoot}${API_PATHS.papers}${docid}`, {
-        next: {
-          revalidate: CACHE_TTL.articles,
-          tags,
-        },
-      });
+        const response = await fetch(`${apiRoot}${API_PATHS.papers}${docid}`, {
+          next: {
+            revalidate: CACHE_TTL.articles,
+            tags,
+          },
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-      if (!response.ok) {
-        return null;
-      }
+        return formatArticle(await response.json());
+      },
+      null,
+      `fetchSectionArticles(article ${docid}, section ${sid ?? '?'})`
+    );
 
-      const article = await response.json();
-      return formatArticle(article);
-    } catch (error) {
-      // One failing article must not break the whole section page
-      log.warn(`Failed to fetch article ${docid} for section ${sid ?? '?'}`, error);
-      return null;
-    }
-  };
-
-  const articles: Awaited<ReturnType<typeof fetchOne>>[] = new Array(paperIds.length);
-  let next = 0;
-  const worker = async () => {
-    while (next < paperIds.length) {
-      const index = next++;
-      articles[index] = await fetchOne(paperIds[index]);
-    }
-  };
-  await Promise.all(
-    Array.from({ length: Math.min(SECTION_ARTICLES_CONCURRENCY, paperIds.length) }, worker)
+  const articles = await Promise.all(
+    paperIds.map(docid => limitArticleFetch(() => fetchOne(docid)))
   );
 
-  return articles.filter(Boolean);
+  return articles.filter((article): article is IArticle => Boolean(article));
 }
