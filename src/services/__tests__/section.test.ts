@@ -129,5 +129,42 @@ describe('section service', () => {
 
       expect(result).toHaveLength(1);
     });
+
+    it('should skip articles whose fetch throws instead of rejecting', async () => {
+      mockFetch
+        .mockResolvedValueOnce(createMockResponse({ paperid: '1', title: 'Article 1' }))
+        .mockRejectedValueOnce(new TypeError('fetch failed'))
+        .mockResolvedValueOnce(createMockResponse({ paperid: '3', title: 'Article 3' }));
+
+      const result = await fetchSectionArticles(['1', '2', '3'], 'myjournal', '42');
+
+      expect(result).toEqual([
+        { id: '1', title: 'Article 1' },
+        { id: '3', title: 'Article 3' },
+      ]);
+    });
+
+    it('should cap concurrent requests and preserve input order', async () => {
+      let inFlight = 0;
+      let maxInFlight = 0;
+      mockFetch.mockImplementation(async (url: string) => {
+        inFlight++;
+        maxInFlight = Math.max(maxInFlight, inFlight);
+        await new Promise(resolve => setTimeout(resolve, 1));
+        inFlight--;
+        return createMockResponse({ paperid: url.split('/').pop() });
+      });
+
+      const ids = Array.from({ length: 60 }, (_, i) => String(i));
+      const result = await fetchSectionArticles(ids, 'myjournal');
+
+      expect(maxInFlight).toBeLessThanOrEqual(24);
+      expect(result.map(a => (a as { id: string }).id)).toEqual(ids);
+    });
+
+    it('should return an empty array for no paper IDs', async () => {
+      expect(await fetchSectionArticles([], 'myjournal')).toEqual([]);
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
   });
 });
