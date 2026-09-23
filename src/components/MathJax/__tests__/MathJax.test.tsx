@@ -3,7 +3,12 @@ import { renderToString } from 'react-dom/server';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import MathJax from '../MathJax';
 
+const { MockMathJaxBaseContext } = vi.hoisted(() => ({
+  MockMathJaxBaseContext: require('react').createContext(undefined),
+}));
+
 vi.mock('better-react-mathjax', () => ({
+  MathJaxBaseContext: MockMathJaxBaseContext,
   MathJax: ({ children, dynamic, ...props }: any) => (
     <div data-testid="better-mathjax" data-dynamic={String(dynamic)} {...props}>
       {children}
@@ -156,6 +161,104 @@ describe('MathJax', () => {
       });
 
       expect(typesetPromise).not.toHaveBeenCalled();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // MathJax loading — BetterMathJax must not mount before MathJax starts up
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('waiting for MathJax startup', () => {
+    // Fresh module per test: the "started up" flag is shared across instances.
+    const loadFreshMathJax = async () => {
+      vi.resetModules();
+      return (await import('../MathJax')).default;
+    };
+
+    const createDeferredContext = () => {
+      let resolveStartup!: () => void;
+      const startupPromise = new Promise<void>(resolve => {
+        resolveStartup = resolve;
+      });
+      const value = {
+        version: 3,
+        promise: Promise.resolve({ startup: { promise: startupPromise } }),
+      };
+      return { value, resolveStartup };
+    };
+
+    it('keeps plain children until MathJax has started up', async () => {
+      const FreshMathJax = await loadFreshMathJax();
+      const { value, resolveStartup } = createDeferredContext();
+
+      render(
+        <MockMathJaxBaseContext.Provider value={value}>
+          <FreshMathJax>formula</FreshMathJax>
+        </MockMathJaxBaseContext.Provider>
+      );
+
+      await act(async () => {});
+      expect(screen.queryByTestId('better-mathjax')).not.toBeInTheDocument();
+      expect(screen.getByText('formula')).toBeInTheDocument();
+
+      await act(async () => {
+        resolveStartup();
+      });
+      expect(screen.getByTestId('better-mathjax')).toHaveTextContent('formula');
+    });
+
+    it('renders BetterMathJax immediately for instances mounted after startup', async () => {
+      const FreshMathJax = await loadFreshMathJax();
+      const { value, resolveStartup } = createDeferredContext();
+
+      const first = render(
+        <MockMathJaxBaseContext.Provider value={value}>
+          <FreshMathJax>first</FreshMathJax>
+        </MockMathJaxBaseContext.Provider>
+      );
+      await act(async () => {
+        resolveStartup();
+      });
+      first.unmount();
+
+      render(
+        <MockMathJaxBaseContext.Provider value={value}>
+          <FreshMathJax>second</FreshMathJax>
+        </MockMathJaxBaseContext.Provider>
+      );
+      expect(screen.getByTestId('better-mathjax')).toHaveTextContent('second');
+    });
+
+    it('does not update state when unmounted before MathJax starts up', async () => {
+      const FreshMathJax = await loadFreshMathJax();
+      const { value, resolveStartup } = createDeferredContext();
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const { unmount } = render(
+        <MockMathJaxBaseContext.Provider value={value}>
+          <FreshMathJax>formula</FreshMathJax>
+        </MockMathJaxBaseContext.Provider>
+      );
+      unmount();
+
+      await act(async () => {
+        resolveStartup();
+      });
+      expect(consoleError).not.toHaveBeenCalled();
+    });
+
+    it('stays on plain children when MathJax fails to load', async () => {
+      const FreshMathJax = await loadFreshMathJax();
+      const value = { version: 3, promise: Promise.reject(new Error('network')) };
+
+      render(
+        <MockMathJaxBaseContext.Provider value={value}>
+          <FreshMathJax>formula</FreshMathJax>
+        </MockMathJaxBaseContext.Provider>
+      );
+
+      await act(async () => {});
+      expect(screen.queryByTestId('better-mathjax')).not.toBeInTheDocument();
+      expect(screen.getByText('formula')).toBeInTheDocument();
     });
   });
 });
