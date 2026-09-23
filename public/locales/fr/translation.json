@@ -1,5 +1,9 @@
 {
   "common": {
+    "orcidOf": "ORCID iD de {{name}}",
+    "pagination": {
+      "pageLoaded": "Page {{page}} chargée"
+    },
     "article": "article",
     "articles": "articles",
     "document": "document",
@@ -15,6 +19,7 @@
     "member": "membre",
     "members": "membres",
     "editors": "Rédacteurs/Rédactrices",
+    "editorsLabel": "Rédacteurs/Rédactrices\u00a0:",
     "about": "À propos",
     "resultsFor": "résultats pour",
     "resultFor": "résultat pour",
@@ -57,6 +62,7 @@
       "dv": "Divehi"
     },
     "volumeCommittee": "Comité éditorial",
+    "volumeCommitteeLabel": "Comité éditorial\u00a0:",
     "volumeCard": {
       "volume": "Volume",
       "specialIssue": "Volume spécial",
@@ -70,6 +76,7 @@
       "filter": "Filtrer",
       "editFilters": "Éditer les filtres",
       "clearAll": "Effacer tous les filtres",
+      "noMatchingArticles": "Aucun article ne correspond aux filtres sélectionnés.",
       "applyFilters": "Appliquer les filtres",
       "years": "Années",
       "documentTypes": "Types de document",

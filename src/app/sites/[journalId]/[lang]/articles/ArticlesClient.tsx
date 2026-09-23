@@ -23,6 +23,9 @@ const ArticlesMobileModal = dynamic(
 );
 
 import ArticlesSidebar, {
+  ArticlesSidebarTypes,
+  ArticlesSidebarYears,
+  IArticleFiltersSelection,
   IArticleTypeSelection,
   IArticleYearSelection,
 } from '@/components/Sidebars/ArticlesSidebar/ArticlesSidebar';
@@ -32,6 +35,8 @@ import LiveRegion from '@/components/LiveRegion/LiveRegion';
 import './Articles.scss';
 import PageTitle from '@/components/PageTitle/PageTitle';
 import { handleKeyboardClick } from '@/utils/keyboard';
+import { ARTICLES_PER_PAGE } from '@/utils/pagination';
+import { removeFromSet, toggleInSet } from '@/utils/set';
 
 type ArticleTypeFilter = 'type' | 'year';
 
@@ -67,23 +72,6 @@ interface ArticlesClientProps {
   };
 }
 
-/** Adds `value` when absent, removes it otherwise, always returning a new Set. */
-function toggleInSet<T>(source: ReadonlySet<T>, value: T): Set<T> {
-  const next = new Set(source);
-  if (next.has(value)) {
-    next.delete(value);
-  } else {
-    next.add(value);
-  }
-  return next;
-}
-
-function removeFromSet<T>(source: ReadonlySet<T>, value: T): Set<T> {
-  const next = new Set(source);
-  next.delete(value);
-  return next;
-}
-
 export default function ArticlesClient({
   initialArticles,
   lang,
@@ -101,8 +89,6 @@ export default function ArticlesClient({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const ARTICLES_PER_PAGE = 20;
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
@@ -309,12 +295,12 @@ export default function ArticlesClient({
     resetToFirstPage();
   };
 
-  /** Replaces a whole selection, e.g. when the mobile modal applies its filters. */
-  const updateTypes = (updated: IArticleTypeSelection[]): void =>
-    setCheckedTypes(new Set(updated.filter(t => t.isChecked).map(t => t.value)));
-
-  const updateYears = (updated: IArticleYearSelection[]): void =>
-    setCheckedYears(new Set(updated.filter(y => y.isChecked).map(y => y.year)));
+  /** Replaces the whole selection, e.g. when the mobile modal applies its filters. */
+  const applyFilters = ({ types, years }: IArticleFiltersSelection): void => {
+    setCheckedTypes(new Set(types.filter(t => t.isChecked).map(t => t.value)));
+    setCheckedYears(new Set(years.filter(y => y.isChecked).map(y => y.year)));
+    resetToFirstPage();
+  };
 
   const onCloseTaggedFilter = (type: ArticleTypeFilter, value: string | number): void => {
     if (type === 'type') {
@@ -424,9 +410,8 @@ export default function ArticlesClient({
               <ArticlesMobileModal
                 t={t}
                 initialTypes={types}
-                onUpdateTypesCallback={updateTypes}
                 initialYears={years}
-                onUpdateYearsCallback={updateYears}
+                onApplyFiltersCallback={applyFilters}
                 onCloseCallback={(): void => setOpenedFiltersMobileModal(false)}
               />
             )}
@@ -478,13 +463,14 @@ export default function ArticlesClient({
 
       <div className="articles-content">
         <div className="articles-content-results">
-          <ArticlesSidebar
-            t={t}
-            types={types}
-            onCheckTypeCallback={onCheckType}
-            years={years}
-            onCheckYearCallback={onCheckYear}
-          />
+          <ArticlesSidebar>
+            {types.length > 0 && (
+              <ArticlesSidebarTypes t={t} types={types} onCheckTypeCallback={onCheckType} />
+            )}
+            {years.length > 0 && (
+              <ArticlesSidebarYears t={t} years={years} onCheckYearCallback={onCheckYear} />
+            )}
+          </ArticlesSidebar>
           {isMounted && isFetchingArticles && enhancedArticles.length === 0 ? (
             <Loader />
           ) : (

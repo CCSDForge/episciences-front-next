@@ -15,6 +15,8 @@ interface ISectionDetailsSidebarProps {
   readonly articles?: IArticle[];
   readonly currentJournal?: IJournal;
   readonly sectionId: string;
+  /** Extra sidebar content rendered below the section info (e.g. filters). */
+  readonly children?: React.ReactNode;
 }
 
 export default function SectionDetailsSidebar({
@@ -24,6 +26,7 @@ export default function SectionDetailsSidebar({
   articles = [],
   currentJournal,
   sectionId,
+  children,
 }: ISectionDetailsSidebarProps): React.JSX.Element {
   return (
     <div className="sectionDetailsSidebar">
@@ -35,6 +38,7 @@ export default function SectionDetailsSidebar({
             : `${articles.length} ${t('common.article')}`}
         </div>
       </div>
+      {children}
     </div>
   );
 }

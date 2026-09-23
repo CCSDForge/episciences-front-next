@@ -24,6 +24,10 @@
  * --heading-color              Headings (WCAG AA 4.5:1)
  * --button-text-on-primary-bg  Text on primary background (auto black/white)
  *
+ * TEXT COLORS (static, same across all journals):
+ * --text-color                 Default body text (--grey-dark, ~8:1 on white, WCAG AAA)
+ * --text-color-secondary       Secondary/muted text (--grey, ~4.6:1 on white, WCAG AA)
+ *
  * FOCUS INDICATORS (Auto-generated from primary):
  * --focus-color                Focus outline on white/light backgrounds (WCAG AA 3:1)
  * --focus-color-on-primary     Focus outline on primary background (always white)
@@ -50,6 +54,10 @@
   --grey-darker: #{$grey-darker};
   --blue-navy: #{$blue-navy};
   --blue-navy-dark: #{$blue-navy-dark};
+
+  // Semantic text colors
+  --text-color: var(--grey-dark);
+  --text-color-secondary: var(--grey);
 
   // Decorative accent borders/stripes (card banners, callout borders): always the
   // raw brand color, never contrast-adjusted. Single point to change if that
