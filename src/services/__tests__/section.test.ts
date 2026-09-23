@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fetchSection, fetchSections, fetchSectionArticles } from '../section';
+import {
+  fetchSection,
+  fetchSections,
+  fetchSectionArticles,
+  SECTION_ARTICLES_CONCURRENCY,
+} from '../section';
 
 vi.mock('@/config/api', () => ({
   API_URL: 'https://api.default.test',
@@ -158,8 +163,28 @@ describe('section service', () => {
       const ids = Array.from({ length: 60 }, (_, i) => String(i));
       const result = await fetchSectionArticles(ids, 'myjournal');
 
-      expect(maxInFlight).toBeLessThanOrEqual(24);
-      expect(result.map(a => (a as { id: string }).id)).toEqual(ids);
+      expect(maxInFlight).toBe(SECTION_ARTICLES_CONCURRENCY);
+      expect(result.map(a => String(a.id))).toEqual(ids);
+    });
+
+    it('should share the concurrency cap across simultaneous calls', async () => {
+      let inFlight = 0;
+      let maxInFlight = 0;
+      mockFetch.mockImplementation(async (url: string) => {
+        inFlight++;
+        maxInFlight = Math.max(maxInFlight, inFlight);
+        await new Promise(resolve => setTimeout(resolve, 1));
+        inFlight--;
+        return createMockResponse({ paperid: url.split('/').pop() });
+      });
+
+      const ids = Array.from({ length: 40 }, (_, i) => String(i));
+      await Promise.all([
+        fetchSectionArticles(ids, 'journal-a', '1'),
+        fetchSectionArticles(ids, 'journal-b', '2'),
+      ]);
+
+      expect(maxInFlight).toBe(SECTION_ARTICLES_CONCURRENCY);
     });
 
     it('should return an empty array for no paper IDs', async () => {
