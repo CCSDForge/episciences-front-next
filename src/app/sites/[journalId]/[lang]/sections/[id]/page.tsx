@@ -147,10 +147,10 @@ export default async function SectionDetailsPage(props: {
         journalId,
         params.id
       );
-      // Filter out null values; newest first (ISO-like date strings compare lexicographically)
-      articles = fetchedArticles
-        .filter((article): article is IArticle => article !== null)
-        .sort((a, b) => (b.publicationDate ?? '').localeCompare(a.publicationDate ?? ''));
+      // Newest first (ISO-like date strings compare lexicographically)
+      articles = fetchedArticles.sort((a, b) =>
+        (b.publicationDate ?? '').localeCompare(a.publicationDate ?? '')
+      );
     }
   }
 

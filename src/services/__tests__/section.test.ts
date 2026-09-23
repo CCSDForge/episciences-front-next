@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fetchSection, fetchSections, fetchSectionArticles } from '../section';
+import {
+  fetchSection,
+  fetchSections,
+  fetchSectionArticles,
+  SECTION_ARTICLES_CONCURRENCY,
+} from '../section';
 
 vi.mock('@/config/api', () => ({
   API_URL: 'https://api.default.test',
@@ -128,6 +133,63 @@ describe('section service', () => {
       const result = await fetchSectionArticles(['1', '2'], 'myjournal');
 
       expect(result).toHaveLength(1);
+    });
+
+    it('should skip articles whose fetch throws instead of rejecting', async () => {
+      mockFetch
+        .mockResolvedValueOnce(createMockResponse({ paperid: '1', title: 'Article 1' }))
+        .mockRejectedValueOnce(new TypeError('fetch failed'))
+        .mockResolvedValueOnce(createMockResponse({ paperid: '3', title: 'Article 3' }));
+
+      const result = await fetchSectionArticles(['1', '2', '3'], 'myjournal', '42');
+
+      expect(result).toEqual([
+        { id: '1', title: 'Article 1' },
+        { id: '3', title: 'Article 3' },
+      ]);
+    });
+
+    it('should cap concurrent requests and preserve input order', async () => {
+      let inFlight = 0;
+      let maxInFlight = 0;
+      mockFetch.mockImplementation(async (url: string) => {
+        inFlight++;
+        maxInFlight = Math.max(maxInFlight, inFlight);
+        await new Promise(resolve => setTimeout(resolve, 1));
+        inFlight--;
+        return createMockResponse({ paperid: url.split('/').pop() });
+      });
+
+      const ids = Array.from({ length: 60 }, (_, i) => String(i));
+      const result = await fetchSectionArticles(ids, 'myjournal');
+
+      expect(maxInFlight).toBe(SECTION_ARTICLES_CONCURRENCY);
+      expect(result.map(a => String(a.id))).toEqual(ids);
+    });
+
+    it('should share the concurrency cap across simultaneous calls', async () => {
+      let inFlight = 0;
+      let maxInFlight = 0;
+      mockFetch.mockImplementation(async (url: string) => {
+        inFlight++;
+        maxInFlight = Math.max(maxInFlight, inFlight);
+        await new Promise(resolve => setTimeout(resolve, 1));
+        inFlight--;
+        return createMockResponse({ paperid: url.split('/').pop() });
+      });
+
+      const ids = Array.from({ length: 40 }, (_, i) => String(i));
+      await Promise.all([
+        fetchSectionArticles(ids, 'journal-a', '1'),
+        fetchSectionArticles(ids, 'journal-b', '2'),
+      ]);
+
+      expect(maxInFlight).toBe(SECTION_ARTICLES_CONCURRENCY);
+    });
+
+    it('should return an empty array for no paper IDs', async () => {
+      expect(await fetchSectionArticles([], 'myjournal')).toEqual([]);
+      expect(mockFetch).not.toHaveBeenCalled();
     });
   });
 });

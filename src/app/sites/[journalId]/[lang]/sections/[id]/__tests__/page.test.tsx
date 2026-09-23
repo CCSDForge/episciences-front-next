@@ -191,15 +191,13 @@ describe('SectionDetailsPage', () => {
       expect(JSON.stringify(jsx)).toContain('"sectionTitle":"Section 42"');
     });
 
-    it('fetches the articles referenced by the section and filters out nulls', async () => {
+    it('fetches the articles referenced by the section', async () => {
       vi.mocked(fetchSection).mockResolvedValue(
         makeSection({ rvid: 1, articles: [{ paperid: 10 }, { paperid: 11 }] }) as never
       );
       vi.mocked(getJournalByCode).mockResolvedValue({ id: 1 } as never);
-      vi.mocked(fetchSectionArticles).mockResolvedValue([
-        { id: 10, title: 'Article 10' },
-        null,
-      ] as never);
+      // fetchSectionArticles already drops failed articles (see section service tests)
+      vi.mocked(fetchSectionArticles).mockResolvedValue([{ id: 10, title: 'Article 10' }] as never);
 
       const { default: SectionDetailsPage } = await import('../page');
       const jsx = await SectionDetailsPage(makeProps());
