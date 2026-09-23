@@ -4,6 +4,7 @@ import { FilterIcon } from '@/components/icons';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useIsHydrated } from '@/hooks/useIsHydrated';
 import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import dynamic from 'next/dynamic';
 import PageTitle from '@/components/PageTitle/PageTitle';
 
@@ -73,6 +74,38 @@ interface ArticlesAcceptedClientProps {
     content: string;
     articlesAccepted: string;
   };
+}
+
+function ArticlesAcceptedCards({
+  articles,
+  language,
+  t,
+  onToggleAbstract,
+}: {
+  readonly articles: EnhancedArticleAccepted[];
+  readonly language: AvailableLanguage;
+  readonly t: TFunction<'translation', undefined>;
+  readonly onToggleAbstract: (articleId?: number) => void;
+}): React.JSX.Element {
+  return (
+    <div className="articlesAccepted-content-results-cards">
+      {articles.length > 0 ? (
+        articles.map((article, index) => (
+          <ArticleAcceptedCard
+            key={`${article?.id ?? 'unknown'}-${index}`}
+            language={language}
+            t={t}
+            article={article as IArticleAcceptedCard}
+            toggleAbstractCallback={(): void => onToggleAbstract(article?.id)}
+          />
+        ))
+      ) : (
+        <div className="articlesAccepted-content-results-empty">
+          {t('pages.articlesAccepted.noResults')}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function ArticlesAcceptedClient({
@@ -341,23 +374,12 @@ export default function ArticlesAcceptedClient({
           {showLoader ? (
             <Loader />
           ) : (
-            <div className="articlesAccepted-content-results-cards">
-              {articlesToRender.length > 0 ? (
-                articlesToRender.map((article, index) => (
-                  <ArticleAcceptedCard
-                    key={`${article?.id ?? 'unknown'}-${index}`}
-                    language={language}
-                    t={t}
-                    article={article as IArticleAcceptedCard}
-                    toggleAbstractCallback={(): void => toggleAbstract(article?.id)}
-                  />
-                ))
-              ) : (
-                <div className="articlesAccepted-content-results-empty">
-                  {t('pages.articlesAccepted.noResults')}
-                </div>
-              )}
-            </div>
+            <ArticlesAcceptedCards
+              articles={articlesToRender}
+              language={language}
+              t={t}
+              onToggleAbstract={toggleAbstract}
+            />
           )}
         </div>
         <Pagination
