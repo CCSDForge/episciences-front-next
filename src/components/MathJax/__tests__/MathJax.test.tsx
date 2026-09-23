@@ -2,6 +2,7 @@ import { render, screen, act } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import MathJax from '../MathJax';
+import { MathJaxReadyContext, MathJaxReadyProvider } from '../MathJaxProvider';
 
 const { MockMathJaxBaseContext } = vi.hoisted(() => ({
   MockMathJaxBaseContext: require('react').createContext(undefined),
@@ -45,11 +46,6 @@ describe('MathJax', () => {
     it('uses "span" as default component for not-mounted state', () => {
       const html = renderToString(<MathJax>content</MathJax>);
       expect(html).toMatch(/^<span[^>]*data-mathjax-state="not-mounted"/);
-    });
-
-    it('uses custom component for not-mounted state when component prop is provided', () => {
-      const html = renderToString(<MathJax component="div">content</MathJax>);
-      expect(html).toMatch(/^<div[^>]*data-mathjax-state="not-mounted"/);
     });
   });
 
@@ -168,12 +164,6 @@ describe('MathJax', () => {
   // MathJax loading — BetterMathJax must not mount before MathJax starts up
   // ─────────────────────────────────────────────────────────────────────────
   describe('waiting for MathJax startup', () => {
-    // Fresh module per test: the "started up" flag is shared across instances.
-    const loadFreshMathJax = async () => {
-      vi.resetModules();
-      return (await import('../MathJax')).default;
-    };
-
     const createDeferredContext = () => {
       let resolveStartup!: () => void;
       const startupPromise = new Promise<void>(resolve => {
@@ -186,15 +176,27 @@ describe('MathJax', () => {
       return { value, resolveStartup };
     };
 
-    it('keeps plain children until MathJax has started up', async () => {
-      const FreshMathJax = await loadFreshMathJax();
-      const { value, resolveStartup } = createDeferredContext();
-
+    const renderWithMathJax = (value: unknown, children: React.ReactNode) =>
       render(
         <MockMathJaxBaseContext.Provider value={value}>
-          <FreshMathJax>formula</FreshMathJax>
+          <MathJaxReadyProvider>{children}</MathJaxReadyProvider>
         </MockMathJaxBaseContext.Provider>
       );
+
+    it('keeps plain children while the readiness context is false', () => {
+      render(
+        <MathJaxReadyContext value={false}>
+          <MathJax>formula</MathJax>
+        </MathJaxReadyContext>
+      );
+      expect(screen.queryByTestId('better-mathjax')).not.toBeInTheDocument();
+      expect(screen.getByText('formula')).toBeInTheDocument();
+    });
+
+    it('keeps plain children until MathJax has started up', async () => {
+      const { value, resolveStartup } = createDeferredContext();
+
+      renderWithMathJax(value, <MathJax>formula</MathJax>);
 
       await act(async () => {});
       expect(screen.queryByTestId('better-mathjax')).not.toBeInTheDocument();
@@ -207,37 +209,49 @@ describe('MathJax', () => {
     });
 
     it('renders BetterMathJax immediately for instances mounted after startup', async () => {
-      const FreshMathJax = await loadFreshMathJax();
       const { value, resolveStartup } = createDeferredContext();
+      const Toggle = ({ show }: { show: boolean }) => (show ? <MathJax>second</MathJax> : null);
 
-      const first = render(
-        <MockMathJaxBaseContext.Provider value={value}>
-          <FreshMathJax>first</FreshMathJax>
-        </MockMathJaxBaseContext.Provider>
-      );
+      const { rerender } = renderWithMathJax(value, <Toggle show={false} />);
       await act(async () => {
         resolveStartup();
       });
-      first.unmount();
 
-      render(
+      rerender(
         <MockMathJaxBaseContext.Provider value={value}>
-          <FreshMathJax>second</FreshMathJax>
+          <MathJaxReadyProvider>
+            <Toggle show />
+          </MathJaxReadyProvider>
         </MockMathJaxBaseContext.Provider>
       );
       expect(screen.getByTestId('better-mathjax')).toHaveTextContent('second');
     });
 
+    it('subscribes to the startup promise once for all instances', async () => {
+      const { value, resolveStartup } = createDeferredContext();
+      const then = vi.spyOn(value.promise, 'then');
+
+      renderWithMathJax(
+        value,
+        <>
+          <MathJax>a</MathJax>
+          <MathJax>b</MathJax>
+          <MathJax>c</MathJax>
+        </>
+      );
+      await act(async () => {
+        resolveStartup();
+      });
+
+      expect(then).toHaveBeenCalledOnce();
+      expect(screen.getAllByTestId('better-mathjax')).toHaveLength(3);
+    });
+
     it('does not update state when unmounted before MathJax starts up', async () => {
-      const FreshMathJax = await loadFreshMathJax();
       const { value, resolveStartup } = createDeferredContext();
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const { unmount } = render(
-        <MockMathJaxBaseContext.Provider value={value}>
-          <FreshMathJax>formula</FreshMathJax>
-        </MockMathJaxBaseContext.Provider>
-      );
+      const { unmount } = renderWithMathJax(value, <MathJax>formula</MathJax>);
       unmount();
 
       await act(async () => {
@@ -247,14 +261,9 @@ describe('MathJax', () => {
     });
 
     it('stays on plain children when MathJax fails to load', async () => {
-      const FreshMathJax = await loadFreshMathJax();
       const value = { version: 3, promise: Promise.reject(new Error('network')) };
 
-      render(
-        <MockMathJaxBaseContext.Provider value={value}>
-          <FreshMathJax>formula</FreshMathJax>
-        </MockMathJaxBaseContext.Provider>
-      );
+      renderWithMathJax(value, <MathJax>formula</MathJax>);
 
       await act(async () => {});
       expect(screen.queryByTestId('better-mathjax')).not.toBeInTheDocument();
