@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import ClassificationsSection from '../ClassificationsSection';
 import ReferencesSection from '../ReferencesSection';
 import PreviewSection from '../PreviewSection';
@@ -76,7 +76,7 @@ describe('ReferencesSection', () => {
     render(<ReferencesSection references={[duplicate, { ...duplicate }]} />);
 
     expect(screen.getAllByText('Same ref')).toHaveLength(2);
-    const keyWarnings = errorSpy.mock.calls.filter((args) => args.join(' ').includes('same key'));
+    const keyWarnings = errorSpy.mock.calls.filter(args => args.join(' ').includes('same key'));
     expect(keyWarnings).toHaveLength(0);
     errorSpy.mockRestore();
   });
