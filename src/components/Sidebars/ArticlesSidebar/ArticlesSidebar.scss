@@ -7,16 +7,18 @@
     display: none;
   }
 
-  &-typesSection-title,
-  &-yearsSection-title {
-    font-weight: bold;
-    border-bottom: 1px solid var(--grey-light);
-    padding-bottom: 8px;
-  }
+  &-section {
+    &-title {
+      font-weight: bold;
+      border-bottom: 1px solid var(--grey-light);
+      padding-bottom: 8px;
+    }
 
-  &-typesSection {
-    &-types {
+    &-body {
       padding: 20px 0px 20px 0px;
+    }
+
+    &-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -36,35 +38,17 @@
     }
   }
 
-  &-yearsSection {
-    &-years {
-      max-height: 180px;
-      padding: 20px 0px 20px 0px;
-      border-bottom: 1px solid var(--grey-light);
+  // Years can be numerous: the list scrolls within a fixed height.
+  &-section-years &-section-body {
+    max-height: 180px;
+    border-bottom: 1px solid var(--grey-light);
+  }
 
-      &-list {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        max-height: 180px;
-        overflow-y: scroll;
-        margin-bottom: 10px;
-        color: var(--grey);
-        cursor: pointer;
-
-        &-choice {
-          display: flex;
-          gap: 18px;
-
-          &-label {
-            cursor: pointer;
-
-            &-checked {
-              color: var(--black);
-            }
-          }
-        }
-      }
-    }
+  &-section-years &-section-list {
+    max-height: 180px;
+    overflow-y: scroll;
+    margin-bottom: 10px;
+    color: var(--grey);
+    cursor: pointer;
   }
 }

@@ -28,8 +28,15 @@
 
       &-content {
         width: 100%;
+        min-width: 0;
         display: flex;
         flex-direction: column;
+        // Same gutter as /articles between the filters sidebar and the list
+        padding-left: 60px;
+
+        @media (max-width: breakpoints.$sm) {
+          padding-left: 0;
+        }
 
         &-title {
           color: var(--primary-text);
@@ -53,10 +60,12 @@
           }
         }
 
+        // Description and editors share one type scale: only the label stands out
         &-committee {
           color: var(--grey-dark);
-          margin-bottom: 16px;
-          font-size: 20px;
+          margin: 0 0 24px;
+          font-size: 16px;
+          line-height: 1.6;
 
           @media (max-width: breakpoints.$xsm) {
             display: none;
@@ -67,17 +76,22 @@
 
             @media (max-width: breakpoints.$xsm) {
               display: block;
-              font-size: 16px;
               margin-bottom: 8px;
             }
           }
 
           &-note {
-            margin-right: 5px;
+            font-weight: 600;
+            color: var(--black);
           }
         }
 
         &-mobileCount {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
           color: var(--grey);
           margin-bottom: 20px;
           font-size: 14px;
@@ -85,6 +99,49 @@
           @media (min-width: breakpoints.$sm) {
             display: none;
           }
+
+          > .sectionDetails-content-results-content-committee-mobile {
+            flex-basis: 100%;
+          }
+
+          &-filters {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0 0 4px;
+            border: 0;
+            border-bottom: 1px solid var(--primary-border);
+            background: none;
+            color: var(--primary-text);
+            font: inherit;
+            font-weight: bold;
+            cursor: pointer;
+          }
+        }
+
+        &-filters {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-bottom: 20px;
+
+          &-clear {
+            height: 32px;
+            padding: 0;
+            border: 0;
+            background: none;
+            font: inherit;
+            font-size: 14px;
+            color: var(--primary-text);
+            text-decoration: underline;
+            cursor: pointer;
+          }
+        }
+
+        &-noMatch {
+          color: var(--grey-dark);
+          margin: 0 0 20px;
         }
 
         &-cards {
@@ -106,11 +163,11 @@
 
       h3 {
         margin-bottom: 1rem;
-        color: var(--text-primary);
+        color: var(--text-color);
       }
 
       p {
-        color: var(--text-secondary);
+        color: var(--text-color-secondary);
         line-height: 1.6;
       }
     }

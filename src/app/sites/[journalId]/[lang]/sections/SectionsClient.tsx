@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AvailableLanguage } from '@/utils/i18n';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -8,18 +8,13 @@ import PageTitle from '@/components/PageTitle/PageTitle';
 
 import { useAppSelector } from '@/hooks/store';
 import { ISection } from '@/types/section';
+import { fetchSections } from '@/services/section';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
 import SectionCard from '@/components/Cards/SectionCard/SectionCard';
 import SectionsSidebar from '@/components/Sidebars/SectionsSidebar/SectionsSidebar';
 import Pagination from '@/components/Pagination/Pagination';
 import './Sections.scss';
-
-interface SectionsData {
-  data: ISection[];
-  totalItems: number;
-  articlesCount: number;
-}
 
 interface SectionsClientProps {
   readonly initialSections: {
@@ -58,28 +53,50 @@ export default function SectionsClient({
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
+  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   // The query string is the source of truth for the current page — no local mirror state.
   const pageFromUrl = searchParams?.get('page');
   const parsedPage = pageFromUrl ? Math.max(1, Number.parseInt(pageFromUrl, 10)) : initialPage;
   const currentPage = Number.isNaN(parsedPage) ? initialPage : parsedPage;
 
-  const sections = initialSections;
-  const [isLoading] = useState(false);
+  const [sectionsData, setSectionsData] = useState(initialSections);
 
-  // Pagination côté client
-  const sectionsData = useMemo(() => {
-    if (!initialSections?.data) return initialSections;
+  // Identifies the page the currently displayed sections belong to. Comparing it against the
+  // page the URL asks for derives the loading flag during render, so the fetch effect below
+  // never has to call setState synchronously.
+  const requestKey = `${rvcode ?? ''}|${currentPage}`;
+  const [loadedKey, setLoadedKey] = useState<string | null>(
+    currentPage === initialPage ? requestKey : null
+  );
+  const isLoading = !!rvcode && loadedKey !== requestKey;
 
-    const startIndex = (currentPage - 1) * SECTIONS_PER_PAGE;
-    const endIndex = startIndex + SECTIONS_PER_PAGE;
+  useEffect(() => {
+    if (!rvcode) return;
+    if (currentPage === initialPage && loadedKey === requestKey) return;
 
-    return {
-      ...initialSections,
-      data: initialSections.data.slice(startIndex, endIndex),
-      totalItems: initialSections.totalItems,
+    let cancelled = false;
+
+    fetchSections({
+      rvcode,
+      page: currentPage,
+      itemsPerPage: SECTIONS_PER_PAGE,
+    })
+      .then(data => {
+        if (cancelled) return;
+        setSectionsData(data);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadedKey(requestKey);
+      });
+
+    return () => {
+      cancelled = true;
     };
-  }, [initialSections, currentPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestKey]);
+
+  const sections = sectionsData;
 
   // Memoize handlePageClick to prevent Pagination re-renders
   const handlePageClick = useCallback(

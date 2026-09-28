@@ -8,6 +8,7 @@ import { Suspense } from 'react';
 import Loader from '@/components/Loader/Loader';
 import { generateSeoAlternates } from '@/utils/seo';
 import { logger } from '@/lib/logger';
+import { ARTICLES_PER_PAGE } from '@/utils/pagination';
 import JsonLd from '@/components/Meta/JsonLd';
 import { generateCollectionPageJsonLd } from '@/utils/schema';
 
@@ -65,8 +66,6 @@ export default async function ArticlesPage(props: {
   const page = Number.isNaN(parsedPage) ? 1 : Math.max(1, parsedPage);
 
   const translationsPromise = getServerTranslations(lang);
-
-  const ARTICLES_PER_PAGE = 20; // Default page size for SSR
 
   // Only the data fetching is wrapped: rendering happens outside the try/catch so that no
   // JSX tree sits inside an error handler. On failure the page degrades to an empty list.

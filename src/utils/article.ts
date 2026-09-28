@@ -14,6 +14,7 @@ import {
 import { TFunction } from 'i18next';
 import { toastSuccess } from './toast';
 import { logger } from '@/lib/logger';
+import { decodeHtmlEntities } from './html-entities';
 
 const log = logger.child({ service: 'article-utils' });
 
@@ -117,7 +118,7 @@ function toArray<T>(value: T | T[] | undefined | null): T[] {
  */
 function buildMinimalArticle(extendedArticle: ExtendedRawArticle, title: string): IArticle {
   return {
-    id: Number(extendedArticle.paperid),
+    id: Number(extendedArticle.paperid) || extendedArticle.docid || 0,
     title: title || 'Article sans titre',
     authors: [],
     publicationDate: '',
@@ -133,6 +134,23 @@ function buildMinimalArticle(extendedArticle: ExtendedRawArticle, title: string)
 
 type AbstractValue = NonNullable<RawArticleContent['abstract']>['value'];
 type AbstractArray = Extract<AbstractValue, unknown[]>;
+
+/**
+ * Decode HTML entities in abstract text. Some upstream sources double-encode
+ * content (e.g. "&amp;lt;" instead of "<"), which breaks MathJax parsing (a
+ * literal "&" outside a LaTeX alignment environment triggers a "Misplaced &"
+ * error).
+ */
+export function decodeAbstractText(text: string): string {
+  return decodeHtmlEntities(text);
+}
+
+function decodeAbstractValue(value: string | IArticleAbstracts): string | IArticleAbstracts {
+  if (typeof value === 'string') return decodeAbstractText(value);
+  return Object.fromEntries(
+    Object.entries(value).map(([lang, text]) => [lang, decodeAbstractText(text)])
+  ) as IArticleAbstracts;
+}
 
 /** Build an abstract from a multilingual/plain array of abstract entries. */
 function extractAbstractFromArray(values: AbstractArray): string | IArticleAbstracts {
@@ -163,10 +181,10 @@ function extractAbstractFromArray(values: AbstractArray): string | IArticleAbstr
 /** Extract the abstract as a plain string or a multilingual object. */
 function extractAbstract(articleContent: RawArticleContent): string | IArticleAbstracts {
   const value = articleContent.abstract?.value;
-  if (typeof value === 'string') return value;
-  if (Array.isArray(value)) return extractAbstractFromArray(value);
+  if (typeof value === 'string') return decodeAbstractText(value);
+  if (Array.isArray(value)) return decodeAbstractValue(extractAbstractFromArray(value));
   if (typeof (value as { value?: unknown })?.value === 'string') {
-    return (value as { value: string }).value;
+    return decodeAbstractText((value as { value: string }).value);
   }
   return '';
 }
@@ -419,7 +437,15 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       extendedArticle.document?.journal?.journal_article?.titles?.title || 'Titre non disponible';
 
     // Guard against payloads missing a usable id/title: return a minimal article.
-    if (!title || !id) return buildMinimalArticle(extendedArticle, title);
+    if (!title || !id) {
+      log.warn('formatArticle: falling back to minimal article (missing id/title)', {
+        apiId: extendedArticle['@id'],
+        paperid: extendedArticle.paperid,
+        docid: extendedArticle.docid,
+        hasTitle: !!title,
+      });
+      return buildMinimalArticle(extendedArticle, title);
+    }
 
     const articleDB = extendedArticle.document?.database;
     const articleContent =

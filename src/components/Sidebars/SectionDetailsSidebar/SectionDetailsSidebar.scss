@@ -35,4 +35,10 @@
       }
     }
   }
+
+  // Filters reuse ArticlesSidebar, whose negative offset only fits the /articles header.
+  .articlesSidebar {
+    margin-top: 0;
+    min-width: 0;
+  }
 }

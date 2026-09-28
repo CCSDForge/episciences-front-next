@@ -9,3 +9,5 @@ package-lock.json
 .idea
 .vscode
 !/docs/
+src/config/journals-generated.ts
+src/config/journals-languages-generated.ts

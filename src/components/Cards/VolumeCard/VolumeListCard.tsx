@@ -10,6 +10,7 @@ import {
   CaretUpBlackIcon,
   CaretDownBlackIcon,
 } from '@/components/icons';
+import CommitteeMembers from '@/components/CommitteeMembers/CommitteeMembers';
 import './VolumeCard.scss';
 
 import { PATHS } from '@/config/paths';
@@ -83,7 +84,7 @@ function VolumeListCard({ language, t, volume }: IVolumeListCardProps): React.JS
         )}
         {volume.committee && volume.committee.length > 0 && (
           <div className="volumeCard-content-committee">
-            {volume.committee.map(member => member.screenName).join(', ')}
+            <CommitteeMembers members={volume.committee} t={t} />
           </div>
         )}
         {volume.description?.[language] && (

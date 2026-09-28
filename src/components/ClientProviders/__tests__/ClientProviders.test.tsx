@@ -40,6 +40,7 @@ vi.mock('better-react-mathjax', () => ({
   MathJaxContext: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mathjax-provider">{children}</div>
   ),
+  MathJaxBaseContext: require('react').createContext(undefined),
 }));
 
 // Mock Redux store

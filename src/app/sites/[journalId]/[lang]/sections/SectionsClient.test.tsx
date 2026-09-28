@@ -1,8 +1,13 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SectionsClient from './SectionsClient';
 import { ISection } from '@/types/section';
+import { fetchSections } from '@/services/section';
+
+vi.mock('@/services/section', () => ({
+  fetchSections: vi.fn(),
+}));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -42,6 +47,10 @@ const initialSections = {
 };
 
 describe('SectionsClient', () => {
+  beforeEach(() => {
+    vi.mocked(fetchSections).mockClear();
+  });
+
   it('renders the provided sections', () => {
     render(<SectionsClient initialSections={initialSections} initialPage={1} lang="fr" />);
 
@@ -128,27 +137,35 @@ describe('SectionsClient', () => {
     expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
   });
 
-  it('reads the initial page from the URL search params', () => {
+  it('fetches the requested page from the API when the URL page differs from the initial page', async () => {
     vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams('page=3') as any);
 
-    const manySections = Array.from({ length: 25 }, (_, i) => ({
-      id: i + 1,
-      title: { fr: `Section ${i + 1}`, en: `Section ${i + 1}` },
-      articles: [],
-    })) as unknown as ISection[];
+    const page3Sections = [
+      { id: 21, title: { fr: 'Section 21', en: 'Section 21' }, articles: [] },
+    ] as unknown as ISection[];
+    vi.mocked(fetchSections).mockResolvedValue({
+      data: page3Sections,
+      totalItems: 25,
+      articlesCount: 0,
+    });
 
     render(
-      <SectionsClient
-        initialSections={{ data: manySections, totalItems: 25 }}
-        initialPage={1}
-        lang="fr"
-      />
+      <SectionsClient initialSections={initialSections} initialPage={1} lang="fr" />
     );
 
-    // Page 3 → sections 21-25 (0-indexed slice 20-30)
-    expect(screen.getByText(/Section 21/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(fetchSections).toHaveBeenCalledWith({ rvcode: 'journal', page: 3, itemsPerPage: 10 });
+    });
+
+    expect(await screen.findByText(/Section 21/)).toBeInTheDocument();
     expect(screen.queryByText(/Section 1$/)).not.toBeInTheDocument();
 
     vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as any);
+  });
+
+  it('does not refetch when the URL page matches the initial page', () => {
+    render(<SectionsClient initialSections={initialSections} initialPage={1} lang="fr" />);
+
+    expect(fetchSections).not.toHaveBeenCalled();
   });
 });

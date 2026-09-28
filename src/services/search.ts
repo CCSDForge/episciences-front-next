@@ -7,6 +7,11 @@ import { SearchRange } from '@/utils/pagination';
 import { formatSearchRange } from '@/utils/search';
 import { ISearchResult } from '@/types/search';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { createConcurrencyLimiter } from '@/utils/concurrency';
+
+// Cap parallel article fetches shared by all searches (large itemsPerPage values fan out widely)
+const SEARCH_ARTICLES_CONCURRENCY = 10;
+const limitArticleFetch = createConcurrencyLimiter(SEARCH_ARTICLES_CONCURRENCY);
 
 interface SearchParams {
   terms: string;
@@ -109,7 +114,7 @@ export async function fetchSearchResults({
     const range = formatSearchRange(data['hydra:range']);
 
     // Récupérer les articles complets pour chaque résultat de recherche
-    const fullResultsPromises = searchResults.map(async searchResult => {
+    const fetchFullArticle = async (searchResult: ISearchResult) => {
       const articleId = searchResult.docid;
       try {
         const apiRoot = rvcode ? getJournalApiUrl(rvcode) : API_URL;
@@ -126,12 +131,16 @@ export async function fetchSearchResults({
         const rawArticle = await response.json();
         return formatArticle(rawArticle);
       } catch (error) {
-        log.warn(`Error fetching article ${articleId}`, error);
+        log.warn(`Error fetching article ${articleId}`, {
+          error: error instanceof Error ? error.message : String(error),
+        });
         return null;
       }
-    });
+    };
 
-    const results = await Promise.all(fullResultsPromises);
+    const results = await Promise.all(
+      searchResults.map(searchResult => limitArticleFetch(() => fetchFullArticle(searchResult)))
+    );
     const fullResults = results.filter((item): item is FetchedArticle => item !== null);
 
     return {

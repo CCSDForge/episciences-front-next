@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import ClassificationsSection from '../ClassificationsSection';
 import ReferencesSection from '../ReferencesSection';
 import PreviewSection from '../PreviewSection';
@@ -67,6 +67,18 @@ describe('ReferencesSection', () => {
     expect(screen.getByText('No DOI reference')).toBeInTheDocument();
     const doiLink = screen.getByRole('link', { name: /10.1234\/abc/ });
     expect(doiLink).toHaveAttribute('href', 'https://doi.org/10.1234/abc');
+  });
+
+  it('renders duplicate references without React key warnings', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const duplicate = { citation: 'Same ref', doi: '10.12795/RICL.2026.i29.02' };
+
+    render(<ReferencesSection references={[duplicate, { ...duplicate }]} />);
+
+    expect(screen.getAllByText('Same ref')).toHaveLength(2);
+    const keyWarnings = errorSpy.mock.calls.filter(args => args.join(' ').includes('same key'));
+    expect(keyWarnings).toHaveLength(0);
+    errorSpy.mockRestore();
   });
 });
 

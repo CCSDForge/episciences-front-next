@@ -1,5 +1,9 @@
 {
   "common": {
+    "orcidOf": "ORCID iD of {{name}}",
+    "pagination": {
+      "pageLoaded": "Page {{page}} loaded"
+    },
     "article": "article",
     "articles": "articles",
     "document": "document",
@@ -15,6 +19,7 @@
     "member": "member",
     "members": "members",
     "editors": "Editors",
+    "editorsLabel": "Editors:",
     "about": "About",
     "resultsFor": "results for",
     "resultFor": "result for",
@@ -57,6 +62,7 @@
       "dv": "Dhivehi"
     },
     "volumeCommittee": "Volume committee",
+    "volumeCommitteeLabel": "Volume committee:",
     "volumeCard": {
       "volume": "Volume",
       "specialIssue": "Special issue",
@@ -70,6 +76,7 @@
       "filter": "Filter",
       "editFilters": "Edit filters",
       "clearAll": "Clear all filters",
+      "noMatchingArticles": "No articles match the selected filters.",
       "applyFilters": "Apply filters",
       "years": "Years",
       "documentTypes": "Types of document",

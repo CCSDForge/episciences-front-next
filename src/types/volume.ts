@@ -1,5 +1,6 @@
 import { AvailableLanguage } from '@/utils/i18n';
 import { PartialVolumeArticle } from './article';
+import { ICommitteeMember } from './committee';
 
 export interface IVolume {
   id: number;
@@ -9,7 +10,7 @@ export interface IVolume {
   description?: Record<AvailableLanguage, string>;
   year?: number;
   types?: string[];
-  committee?: IVolumeCommitteeMember[];
+  committee?: ICommitteeMember[];
   articles: PartialVolumeArticle[];
   downloadLink: string;
   metadatas?: IVolumeMetadata[];
@@ -28,11 +29,6 @@ export type RawVolume = IVolume & {
   metadata?: RawVolumeMetadata[];
   settings_proceeding?: IVolumeSettingsProceeding[];
 };
-
-interface IVolumeCommitteeMember {
-  uuid: string;
-  screenName: string;
-}
 
 export interface IVolumeMetadata {
   title?: Record<AvailableLanguage, string>;

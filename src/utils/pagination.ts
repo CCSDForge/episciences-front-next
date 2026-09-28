@@ -2,6 +2,9 @@ import { AvailableLanguage } from './i18n';
 
 export const DEFAULT_ITEMS_PER_PAGE = 30;
 
+/** Page size of article lists (/articles, sections, volumes). */
+export const ARTICLES_PER_PAGE = 20;
+
 export interface PaginatedResponse<T> {
   'hydra:member': T[];
   'hydra:totalItems': number;

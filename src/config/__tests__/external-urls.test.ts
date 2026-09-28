@@ -143,4 +143,30 @@ describe('external-urls', () => {
       expect(buildOrcidUrl('0000-0001-2345-6789')).toBe('https://orcid.org/0000-0001-2345-6789');
     });
   });
+
+  describe('parseOrcidId', () => {
+    it.each([
+      ['0000-0002-3053-3946', '0000-0002-3053-3946'],
+      [' 0000-0002-1694-233x ', '0000-0002-1694-233X'],
+      ['https://orcid.org/0000-0002-3053-3946', '0000-0002-3053-3946'],
+      ['http://www.orcid.org/0000-0002-3053-3946/', '0000-0002-3053-3946'],
+    ])('extracts the iD from %j', async (value, expected) => {
+      const { parseOrcidId } = await loadModule();
+      expect(parseOrcidId(value)).toBe(expected);
+    });
+
+    it.each([
+      [undefined],
+      [null],
+      [''],
+      ['https://attacker.example'],
+      ['https://attacker.example/0000-0002-3053-3946'],
+      ['https://orcid.org.attacker.example/0000-0002-3053-3946'],
+      ['javascript:alert(1)'],
+      ['0000-0002-3053'],
+    ])('rejects %j', async value => {
+      const { parseOrcidId } = await loadModule();
+      expect(parseOrcidId(value)).toBeNull();
+    });
+  });
 });

@@ -43,6 +43,10 @@ jobs:
       - name: Run linter
         run: npm run lint -- --quiet
 
+      # Type-check the whole project: Vitest runs tests without checking types
+      - name: Run type check
+        run: npm run typecheck
+
       # Run tests in CI mode (single run, no watch)
       - name: Run tests
         run: npm run test:run

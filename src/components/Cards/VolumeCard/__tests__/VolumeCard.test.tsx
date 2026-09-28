@@ -41,6 +41,7 @@ vi.mock('@/components/icons', () => ({
   DownloadBlackIcon: () => <span data-testid="download-icon" />,
   CaretUpBlackIcon: () => <span data-testid="caret-up-icon" />,
   CaretDownBlackIcon: () => <span data-testid="caret-down-icon" />,
+  OrcidIcon: ({ ariaLabel }: { ariaLabel?: string }) => <img alt={ariaLabel} />,
 }));
 
 // Mock MathJax
@@ -193,12 +194,19 @@ describe('VolumeListCard', () => {
     const volumeWithCommittee: IVolume = {
       ...baseVolume,
       committee: [
-        { uuid: '1', screenName: 'Alice Martin' },
+        { uuid: '1', screenName: 'Alice Martin', orcid: '0000-0002-2933-2522' },
         { uuid: '2', screenName: 'Bob Smith' },
       ],
     };
-    render(<VolumeListCard language="en" t={mockT as any} volume={volumeWithCommittee} />);
-    expect(screen.getByText('Alice Martin, Bob Smith')).toBeInTheDocument();
+    const { container } = render(
+      <VolumeListCard language="en" t={mockT as any} volume={volumeWithCommittee} />
+    );
+    expect(container.querySelector('.volumeCard-content-committee')).toHaveTextContent(
+      'Alice Martin, Bob Smith'
+    );
+    const orcidLinks = container.querySelectorAll('.volumeCard-content-committee a');
+    expect(orcidLinks).toHaveLength(1);
+    expect(orcidLinks[0]).toHaveAttribute('href', 'https://orcid.org/0000-0002-2933-2522');
   });
 
   it('should have no a11y violations', async () => {

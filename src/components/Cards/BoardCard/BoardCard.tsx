@@ -17,7 +17,7 @@ import './BoardCard.scss';
 
 import { IBoardMember, IBoardMemberAffiliation } from '@/types/board';
 import { AvailableLanguage } from '@/utils/i18n';
-import { defaultBoardRole, getBoardRoles } from '@/services/board';
+import { defaultBoardRole, getBoardRoles, sortBoardRoles } from '@/services/board';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import { ORCID_URL } from '@/config/external-urls';
 
@@ -137,8 +137,8 @@ export default function BoardCard({
 }: IBoardCardProps): React.JSX.Element {
   const displayRoles = (roles: string[]) => {
     if (rolesLabels) {
-      return roles
-        .map(role => rolesLabels[role] || role)
+      return sortBoardRoles(roles)
+        .map(role => (Object.hasOwn(rolesLabels, role) && rolesLabels[role]) || role)
         .filter(Boolean)
         .join(', ');
     }

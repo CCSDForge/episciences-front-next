@@ -1,42 +1,43 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { use, useEffect, useRef } from 'react';
 import { MathJax as BetterMathJax } from 'better-react-mathjax';
 import { logger } from '@/lib/logger';
 import { useIsHydrated } from '@/hooks/useIsHydrated';
+import { MathJaxReadyContext } from './MathJaxProvider';
 
 const log = logger.child({ service: 'mathjax-component' });
 
-interface MathJaxProps {
+interface MathJaxProps extends React.ComponentPropsWithoutRef<'span'> {
   children: React.ReactNode;
   dynamic?: boolean;
-  component?: React.ElementType;
-  className?: string;
-  style?: React.CSSProperties;
-  [key: string]: any;
 }
 
 /**
  * A wrapper around better-react-mathjax's MathJax component to avoid hydration mismatches.
  * It renders plain children on the server and initial client render,
- * then switches to the MathJax component once mounted.
+ * then switches to the MathJax component once mounted and MathJax has started up.
  */
-const MathJax: React.FC<MathJaxProps> = ({
-  children,
-  dynamic = false,
-  component: Component = 'span',
-  ...props
-}) => {
-  const mounted = useIsHydrated();
+const MathJax: React.FC<MathJaxProps> = ({ children, dynamic = false, ...props }) => {
+  const hydrated = useIsHydrated();
+  const mathJaxReady = use(MathJaxReadyContext);
+  const mounted = hydrated && mathJaxReady;
   const containerRef = useRef<HTMLSpanElement>(null);
 
-  // Force MathJax typesetting after mount and when children change
+  // BetterMathJax typesets on its first render, and on every change when dynamic.
+  // Re-typeset here only when the children of a non-dynamic instance change afterwards.
+  const typesetDone = useRef(false);
   useEffect(() => {
-    if (mounted && containerRef.current) {
+    if (!mounted || dynamic) return;
+    if (!typesetDone.current) {
+      typesetDone.current = true;
+      return;
+    }
+    if (containerRef.current) {
       // Small delay to ensure BetterMathJax has rendered
       const timer = setTimeout(() => {
-        if (window?.MathJax?.typesetPromise) {
-          window.MathJax.typesetPromise([containerRef.current!]).catch((err: Error) => {
+        if (window?.MathJax?.typesetPromise && containerRef.current) {
+          window.MathJax.typesetPromise([containerRef.current]).catch((err: Error) => {
             // Ignore "no elements to typeset" errors
             if (!err.message?.includes('no elements')) {
               log.warn('[MathJax] Typeset error:', err.message);
@@ -46,13 +47,19 @@ const MathJax: React.FC<MathJaxProps> = ({
       }, 50);
       return () => clearTimeout(timer);
     }
-  }, [mounted, children]);
+  }, [mounted, dynamic, children]);
 
   if (!mounted) {
     return (
-      <Component data-mathjax-state="not-mounted" {...props} suppressHydrationWarning>
+      // Same block display as BetterMathJax, so the swap does not shift the layout
+      <span
+        data-mathjax-state="not-mounted"
+        {...props}
+        style={{ display: 'block', ...props.style }}
+        suppressHydrationWarning
+      >
         {children}
-      </Component>
+      </span>
     );
   }
 

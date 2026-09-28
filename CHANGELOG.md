@@ -21,6 +21,62 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1.2.1] - 2026-09-23
+
+### Added
+
+- **Process-Wide Concurrency Limiter**: Added `createConcurrencyLimiter` utility (`src/utils/concurrency.ts`) to cap concurrent asynchronous tasks (set to 24 parallel requests), shared across section and search article enrichment calls to prevent socket exhaustion during large concurrent renders.
+- **MathJax Readiness Provider**: Added `MathJaxProvider` / `MathJaxReadyProvider` with `MathJaxReadyContext` to subscribe once to the MathJax CDN initialization promise and expose readiness state to components via React 19's `use()`.
+
+### Changed
+
+- **Prettier Exclusion for Generated Journal Configs**: Excluded `journals-generated.ts` and `journals-languages-generated.ts` from Prettier formatting via `.prettierignore` to eliminate recurrent formatting-only diffs produced on build/dev runs.
+- **Accepted Articles Card Subcomponent**: Extracted `ArticlesAcceptedCards` from `ArticlesAcceptedClient` to eliminate nested ternary operators and streamline card list rendering.
+
+### Fixed
+
+- **Section Article Fetching Concurrency & Resilience**: Capped parallel requests in `fetchSectionArticles` to 24 concurrent requests with per-article failure isolation via `safeFetchData`, logging warnings and dropping failed items instead of rejecting `Promise.all` and crashing pages for large sections (e.g. 1000+ papers).
+- **MathJax Unmount Race Condition & Typesetting Errors**: Prevented unhandled `"Typesetting failed: Cannot read properties of null"` errors caused by elements unmounting while the MathJax CDN script was still loading. BetterMathJax mounting is now deferred until MathJax has fully started up, and re-typesetting occurs only when non-dynamic children change.
+- **Flash of Empty State on Accepted Articles**: Moved article enrichment directly inside the RTK Query `queryFn` (`fetchArticles`), ensuring the cache only exposes fully-enriched articles (with titles) and keeping `isFetching` true until completion. Prevented false "no accepted articles" message and loader flickering on `/articles-accepted` by skipping redundant client fetches when server data is already hydrated.
+- **Section Articles Return Type**: Fixed return type of `fetchSectionArticles` to `Promise<IArticle[]>`, removing unsafe type assertions and redundant null filters.
+
+### Removed
+
+- **Obsolete MathJax Hook and Container**: Removed unused `useMathjaxRefresh` hook and legacy `ProviderContainer` component.
+
+## [v1.2.0] - 2026-09-23
+
+### Added
+
+- **Pagination and Filtering for Sections and Volumes**: Paginated article lists client-side on section and volume detail pages (20 articles per page, `?page=` in URL) with Suspense fallback prerendering. Added document type and publication year filter facets (desktop sidebar and mobile modal, active filter tags, "clear all") for sections via the new `useArticleFilters` hook.
+- **Accessible Committee Members with ORCID Links**: Added shared `CommitteeMembers` component rendering accessible ORCID links per member (visible focus indicators, 24px touch targets, explicit accessible name with external window indication) across section details, volume details, and volume list cards.
+- **Crawler-Friendly Pagination Links**: Updated `Pagination` component to accept an optional `hrefBuilder` callback, rendering pagination controls as genuine `<a href>` links that crawlers can follow and users can open in new tabs, while retaining SPA client navigation via `onPageChange`.
+- **CI TypeScript Validation**: Added a `typecheck` npm script (`tsc --noEmit`) and configured a dedicated GitHub Actions CI workflow step to validate TypeScript types automatically.
+
+### Changed
+
+- **Composable Filter Facets Architecture**: Extracted `FilterChoiceList` component shared between sidebar and mobile modals. Converted `ArticlesSidebar` into a composable container (`ArticlesSidebarTypes`, `ArticlesSidebarYears`), unified filter callback propagation with `applySelection`, and added explicit `aria-label` attributes to filter checkboxes.
+- **Shared Helpers and Server-Side Section Sorting**: Centralized `ARTICLES_PER_PAGE` in `src/utils/pagination.ts` and set operations (`toggleInSet`, `removeFromSet`) in `src/utils/set.ts`. Pre-sorted section articles newest-first server-side once instead of on every client mount. Consolidated `ISectionCommitteeMember` and `IVolumeCommitteeMember` into a single `ICommitteeMember` interface.
+- **Proxy Rate-Limit Recalibration & Circuit Breaker**: Raised internal CORS proxy rate limit from 60 to 600 req/min to safely support client-side article enrichment fanning out (~20 requests per page load), and added `Retry-After` HTTP headers on 429 status responses.
+- **Harmonized Section and Volume Presentation**: Standardized typography and layout for descriptions and committees across sections and volumes. Added localized strings for `common.pagination.pageLoaded` and new UI elements across English, French, and Spanish.
+
+### Fixed
+
+- **Article List Page, Year, and Count Handling**: Tightened `?page=` URL parameter parsing to reject non-decimal values (e.g. `2abc` or `-2` falling back to page 1), enforced 4-digit requirement for publication year extraction, ensured section filter updates preserve non-page query parameters, and excluded failed article fetches from volume article counts.
+- **Section Filter History and Tag Removal**: Replaced browser history state instead of pushing duplicate history entries when filters change, updated sidebar and mobile counts to reflect active filter results, and corrected filter tag removal to delete the tag rather than toggling it.
+- **Volume JSON-LD Content Negotiation**: Requested `application/ld+json` in `fetchVolume` and `fetchVolumes` so the upstream API returns `committee` data, hydra totals, and published article counts.
+- **Double-Encoded HTML Entities**: Applied iterative HTML entity decoding via `decodeHtmlEntities()` to volume metadata titles and article abstracts, resolving double-encoded entities (e.g. `&amp;quot;` in ARIA labels) and preventing MathJax "Misplaced &" LaTeX parsing errors.
+- **Resilient Client-Side Article Enrichment**: Checked `response.ok` and utilized `Promise.allSettled` in article and search query enrichment, excluding failed items instead of injecting malformed minimal articles.
+- **Sections Pagination Data Fetching**: Fixed client-side sections pagination to fetch the requested page from the API when navigating instead of slicing a truncated initial 10-item array.
+- **Duplicate React Keys**: Resolved duplicate React keys across bibliography references (`value-index`), board member affiliations (`aff-index`), institution lists (`rorId-index`), and fallback article lists (`id-index`).
+- **Semantic CSS Text Variables**: Defined missing `--text-color` and `--text-color-secondary` semantic variables in `theme.scss` for section and volume headings.
+- **Test Suite TypeScript Imports**: Added missing `vi` import from `vitest` in `smallSections.test.tsx` to fix TypeScript compilation.
+
+### Security
+
+- **ORCID URL Validation (CWE-601)**: Restricted ORCID links in `CommitteeMembers` and `CitedBySection` strictly to valid ORCID iDs or `orcid.org` URLs via `parseOrcidId()`, preventing arbitrary open redirect vulnerabilities.
+- **Dependency Vulnerability Remediation**: Upgraded Next.js to 16.3.4 (resolving critical RCE and Sharp image processing advisories), bumped Vitest suite (`vitest`, `@vitest/ui`, `@vitest/coverage-v8`) to 4.1.11, and pinned `js-yaml` and `svgo` transitive dependencies.
+
 ## [v1.1.0] - 2026-09-03
 
 ### Added

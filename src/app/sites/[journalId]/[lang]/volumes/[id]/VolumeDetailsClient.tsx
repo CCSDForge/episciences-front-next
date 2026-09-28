@@ -20,9 +20,10 @@ import { formatDate } from '@/utils/date';
 import { VOLUME_TYPE } from '@/utils/volume';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Loader from '@/components/Loader/Loader';
-import VolumeArticleCard from '@/components/Cards/VolumeArticleCard/VolumeArticleCard';
+import PaginatedArticleList from '@/components/PaginatedArticleList/PaginatedArticleList';
 import VolumeDetailsSidebar from '@/components/Sidebars/VolumeDetailsSidebar/VolumeDetailsSidebar';
 import PageTitle from '@/components/PageTitle/PageTitle';
+import CommitteeMembers from '@/components/CommitteeMembers/CommitteeMembers';
 import { handleKeyboardClick } from '@/utils/keyboard';
 import {
   DownloadBlackIcon,
@@ -55,10 +56,12 @@ interface VolumeDetailsClientProps {
 
 const MAX_MOBILE_DESCRIPTION_LENGTH = 200;
 const RELATED_VOLUMES = 20;
+// Stable default: a fresh `[]` on every render would defeat the `validArticles` memo.
+const NO_ARTICLES: FetchedArticle[] = [];
 
 export default function VolumeDetailsClient({
   initialVolume,
-  initialArticles = [],
+  initialArticles = NO_ARTICLES,
   lang,
   journalId,
   breadcrumbLabels,
@@ -77,6 +80,10 @@ export default function VolumeDetailsClient({
   const [volume] = useState(initialVolume);
   // The server component owns the article list — used directly rather than mirrored in state.
   const articles: FetchedArticle[] = initialArticles;
+  const validArticles = useMemo(
+    () => articles.filter((article): article is IArticle => Boolean(article)),
+    [articles]
+  );
   const [showFullMobileDescription, setShowFullMobileDescription] = useState(false);
   const [openedRelatedVolumesMobileModal, setOpenedRelatedVolumesMobileModal] = useState(false);
 
@@ -254,14 +261,16 @@ export default function VolumeDetailsClient({
 
     if (volume?.committee && volume.committee.length > 0) {
       return (
-        <div className={className}>
+        <p className={className}>
           {!volume?.types?.includes(VOLUME_TYPE.PROCEEDINGS) && (
-            <span className="volumeDetails-content-results-content-committee-note">
-              {t('common.volumeCommittee')} :
-            </span>
+            <>
+              <span className="volumeDetails-content-results-content-committee-note">
+                {t('common.volumeCommitteeLabel')}
+              </span>{' '}
+            </>
           )}
-          {volume?.committee.map(member => member.screenName).join(', ')}
-        </div>
+          <CommitteeMembers members={volume.committee} t={t} />
+        </p>
       );
     }
 
@@ -422,7 +431,7 @@ export default function VolumeDetailsClient({
                 language={language}
                 t={t}
                 volume={volume}
-                articles={articles as IArticle[]}
+                articles={validArticles}
                 currentJournal={currentJournal}
                 relatedVolumes={relatedVolumesData}
                 journalId={journalId}
@@ -456,9 +465,9 @@ export default function VolumeDetailsClient({
                   )}
                 {renderVolumeDescription()}
                 <div className="volumeDetails-content-results-content-mobileCount">
-                  {articles.length > 1
-                    ? `${articles.length} ${t('common.articles')}`
-                    : `${articles.length} ${t('common.article')}`}
+                  {validArticles.length > 1
+                    ? `${validArticles.length} ${t('common.articles')}`
+                    : `${validArticles.length} ${t('common.article')}`}
                 </div>
                 {getEdito()?.content?.[language] && (
                   <div className="volumeDetails-content-results-content-edito">
@@ -503,18 +512,12 @@ export default function VolumeDetailsClient({
                     </div>
                   </div>
                 )}
-                <div className="volumeDetails-content-results-content-cards">
-                  {articles
-                    ?.filter(article => article)
-                    .map(article => (
-                      <VolumeArticleCard
-                        key={(article as IArticle).id}
-                        language={language}
-                        t={t}
-                        article={article as IArticle}
-                      />
-                    ))}
-                </div>
+                <PaginatedArticleList
+                  articles={validArticles}
+                  language={language}
+                  t={t}
+                  className="volumeDetails-content-results-content-cards"
+                />
               </div>
             </div>
           </div>

@@ -2,9 +2,8 @@
 
 import { TFunction } from 'i18next';
 
-import Checkbox from '@/components/Checkbox/Checkbox';
+import FilterChoiceList, { IFilterChoice } from '@/components/FilterChoiceList/FilterChoiceList';
 import './ArticlesSidebar.scss';
-import { handleKeyboardClick } from '@/utils/keyboard';
 
 export interface IArticleTypeSelection {
   labelPath: string;
@@ -17,75 +16,89 @@ export interface IArticleYearSelection {
   isChecked: boolean;
 }
 
-interface IArticlesSidebarProps {
-  readonly t: TFunction<'translation', undefined>;
-  readonly types: IArticleTypeSelection[];
-  readonly onCheckTypeCallback: (value: string) => void;
-  readonly years: IArticleYearSelection[];
-  readonly onCheckYearCallback: (year: number) => void;
+/** Whole filter selection, as applied at once by the mobile modal. */
+export interface IArticleFiltersSelection {
+  types: IArticleTypeSelection[];
+  years: IArticleYearSelection[];
 }
 
+/**
+ * Sidebar container: callers compose the facets they need, e.g.
+ * `<ArticlesSidebar><ArticlesSidebarTypes …/><ArticlesSidebarYears …/></ArticlesSidebar>`.
+ */
 export default function ArticlesSidebar({
+  children,
+}: {
+  readonly children: React.ReactNode;
+}): React.JSX.Element {
+  return <div className="articlesSidebar">{children}</div>;
+}
+
+interface ISidebarFacetProps<V extends string | number> {
+  readonly modifier: string;
+  readonly title: string;
+  readonly choices: IFilterChoice<V>[];
+  readonly onToggle: (value: V) => void;
+}
+
+function SidebarFacet<V extends string | number>({
+  modifier,
+  title,
+  choices,
+  onToggle,
+}: ISidebarFacetProps<V>): React.JSX.Element {
+  return (
+    <div className={`articlesSidebar-section ${modifier}`}>
+      <div className="articlesSidebar-section-title">{title}</div>
+      <div className="articlesSidebar-section-body">
+        <FilterChoiceList
+          base="articlesSidebar-section-list"
+          choices={choices}
+          onToggle={onToggle}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function ArticlesSidebarTypes({
   t,
   types,
   onCheckTypeCallback,
+}: {
+  readonly t: TFunction<'translation', undefined>;
+  readonly types: IArticleTypeSelection[];
+  readonly onCheckTypeCallback: (value: string) => void;
+}): React.JSX.Element {
+  return (
+    <SidebarFacet
+      modifier="articlesSidebar-section-types"
+      title={t('common.filters.documentTypes')}
+      choices={types.map(type => ({
+        value: type.value,
+        label: t(type.labelPath),
+        isChecked: type.isChecked,
+      }))}
+      onToggle={onCheckTypeCallback}
+    />
+  );
+}
+
+export function ArticlesSidebarYears({
+  t,
   years,
   onCheckYearCallback,
-}: IArticlesSidebarProps): React.JSX.Element {
+}: {
+  readonly t: TFunction<'translation', undefined>;
+  readonly years: IArticleYearSelection[];
+  readonly onCheckYearCallback: (year: number) => void;
+}): React.JSX.Element {
   return (
-    <div className="articlesSidebar">
-      <div className="articlesSidebar-typesSection">
-        <div className="articlesSidebar-typesSection-title">
-          {t('common.filters.documentTypes')}
-        </div>
-        <div className="articlesSidebar-typesSection-types">
-          {types.map(type => (
-            <div key={type.value} className="articlesSidebar-typesSection-types-choice">
-              <div className="articlesSidebar-typesSection-types-choice-checkbox">
-                <Checkbox
-                  checked={type.isChecked}
-                  onChangeCallback={(): void => onCheckTypeCallback(type.value)}
-                />
-              </div>
-              <span
-                className={`articlesSidebar-typesSection-types-choice-label ${type.isChecked && 'articlesSidebar-typesSection-types-choice-label-checked'}`}
-                role="button"
-                tabIndex={0}
-                onClick={(): void => onCheckTypeCallback(type.value)}
-                onKeyDown={e => handleKeyboardClick(e, (): void => onCheckTypeCallback(type.value))}
-              >
-                {t(type.labelPath)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="articlesSidebar-yearsSection">
-        <div className="articlesSidebar-yearsSection-title">{t('common.filters.years')}</div>
-        <div className="articlesSidebar-yearsSection-years">
-          <div className="articlesSidebar-yearsSection-years-list">
-            {years.map(y => (
-              <div key={y.year} className="articlesSidebar-yearsSection-years-list-choice">
-                <div className="articlesSidebar-yearsSection-years-list-choice-checkbox">
-                  <Checkbox
-                    checked={y.isChecked}
-                    onChangeCallback={(): void => onCheckYearCallback(y.year)}
-                  />
-                </div>
-                <span
-                  className={`articlesSidebar-yearsSection-years-list-choice-label ${y.isChecked && 'articlesSidebar-yearsSection-years-list-choice-label-checked'}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={(): void => onCheckYearCallback(y.year)}
-                  onKeyDown={e => handleKeyboardClick(e, (): void => onCheckYearCallback(y.year))}
-                >
-                  {y.year}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+    <SidebarFacet
+      modifier="articlesSidebar-section-years"
+      title={t('common.filters.years')}
+      choices={years.map(y => ({ value: y.year, label: String(y.year), isChecked: y.isChecked }))}
+      onToggle={onCheckYearCallback}
+    />
   );
 }

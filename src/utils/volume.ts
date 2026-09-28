@@ -6,11 +6,12 @@ import {
   RawVolumeMetadata,
 } from '@/types/volume';
 import { AvailableLanguage } from './i18n';
+import { decodeHtmlEntitiesRecord } from './html-entities';
 
 export function formatVolumeMetadata(metadata: RawVolumeMetadata): IVolumeMetadata {
   return {
     file: metadata.file,
-    title: metadata.title,
+    title: decodeHtmlEntitiesRecord(metadata.title),
     content: metadata.content,
     createdAt: metadata.date_creation,
     updatedAt: metadata.date_updated,
