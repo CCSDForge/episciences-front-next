@@ -110,10 +110,16 @@ export function ensureContrast(
   // because relative luminance isn't linear in perceived lightness — a background
   // can read as "dark" by the >0.5 rule while black (L=0) still contrasts far
   // better against it than white (L=1). Compare both extremities directly instead.
+  // When both extremities can reach the target, keep the color on its own side of
+  // the background (a dark color stays dark) instead of crossing the background's
+  // lightness — only fall back to the better extremity when the natural one can't.
   const contrastAtBlack = contrastAtL(0);
   const contrastAtWhite = contrastAtL(1);
-  const extremityL = contrastAtBlack >= contrastAtWhite ? 0 : 1;
-  const extremityRatio = Math.max(contrastAtBlack, contrastAtWhite);
+  const naturalL = original.l >= rgbToOklch(bgRgb).l ? 1 : 0;
+  const naturalRatio = naturalL === 1 ? contrastAtWhite : contrastAtBlack;
+  const bestL = contrastAtBlack >= contrastAtWhite ? 0 : 1;
+  const extremityL = naturalRatio >= targetRatio ? naturalL : bestL;
+  const extremityRatio = extremityL === 0 ? contrastAtBlack : contrastAtWhite;
   if (extremityRatio < targetRatio) {
     log.warn('Unable to reach target contrast ratio even at the lightness extremity', {
       color,

@@ -62,6 +62,19 @@ describe('colorContrast utils', () => {
       expect(result).toBe('#000000');
     });
 
+    it('keeps a dark color dark on a mid-luminance background when black suffices', () => {
+      // White offers the higher max ratio here, but black already clears 3:1 —
+      // the result must not cross the background's lightness.
+      for (const [color, bg, target] of [
+        ['#202040', '#3a6ea5', 3],
+        ['#303030', '#757575', 4.5],
+      ] as const) {
+        const result = ensureContrast(color, bg, target);
+        expect(getContrastRatio(result, bg)).toBeGreaterThanOrEqual(target);
+        expect(getContrastRatio(result, '#000000')).toBeLessThan(getContrastRatio(bg, '#000000'));
+      }
+    });
+
     it('darkens color on light background to meet target', () => {
       // A very light color that does not meet WCAG AA on white
       const result = ensureContrast('#ffcc00', '#ffffff', 4.5);
