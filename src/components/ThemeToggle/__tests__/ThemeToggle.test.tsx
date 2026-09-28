@@ -10,14 +10,15 @@ vi.mock('react-i18next', () => ({
         'components.themeToggle.label': 'Theme',
         'components.themeToggle.light': 'Light',
         'components.themeToggle.dark': 'Dark',
-        'components.themeToggle.switchToDark': 'Switch to dark theme',
-        'components.themeToggle.switchToLight': 'Switch to light theme',
-        'components.themeToggle.followSystem': 'Follow system',
+        'components.themeToggle.system': 'System',
+        'components.themeToggle.selectTheme': 'Choose theme',
       };
       return map[key] ?? key;
     },
   }),
 }));
+
+const STORAGE_KEY = 'episciences:color-scheme';
 
 function stubMatchMedia(prefersDark: boolean) {
   window.matchMedia = vi.fn().mockReturnValue({
@@ -29,61 +30,122 @@ function stubMatchMedia(prefersDark: boolean) {
   });
 }
 
+function getTrigger(): HTMLElement {
+  return screen.getByRole('button', { name: /^Theme/ });
+}
+
 describe('ThemeToggle', () => {
   beforeEach(() => {
     localStorage.clear();
-    stubMatchMedia(false);
+    document.documentElement.removeAttribute('data-theme');
+    stubMatchMedia(true);
   });
 
-  it('is a native button with aria-pressed reflecting the pinned state', () => {
+  it('shows the light default, even on a dark OS', () => {
     render(<ThemeToggle />);
-    const button = screen.getByRole('button');
 
-    expect(button).toHaveAttribute('aria-pressed', 'false');
+    expect(getTrigger()).toHaveAccessibleName('Theme: Light');
+    expect(getTrigger()).toHaveTextContent('Light');
   });
 
-  it('shows the current scheme as visible text', () => {
+  it('reflects a stored preference', () => {
+    localStorage.setItem(STORAGE_KEY, 'system');
     render(<ThemeToggle />);
-    expect(screen.getByText('Light')).toBeInTheDocument();
+
+    expect(getTrigger()).toHaveAccessibleName('Theme: System');
   });
 
-  it('toggles the pinned scheme on click and updates aria-pressed', () => {
+  it('opens a menu with the three choices, the current one checked', () => {
     render(<ThemeToggle />);
-    const button = screen.getByRole('button');
+    const trigger = getTrigger();
 
-    fireEvent.click(button);
+    expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
-    expect(button).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText('Dark')).toBeInTheDocument();
-    expect(localStorage.getItem('episciences:color-scheme')).toBe('dark');
+    fireEvent.click(trigger);
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    const items = screen.getAllByRole('menuitemradio');
+    expect(items.map(i => i.textContent)).toEqual(['Light', 'Dark', 'System']);
+    expect(items[0]).toHaveAttribute('aria-checked', 'true');
+    expect(items[1]).toHaveAttribute('aria-checked', 'false');
   });
 
-  it('toggles via keyboard activation (native button semantics)', () => {
+  it.each([
+    ['Dark', 'dark', 'dark'],
+    ['System', 'system', 'system'],
+  ])('selecting "%s" stores it and sets data-theme', (label, stored, theme) => {
     render(<ThemeToggle />);
-    const button = screen.getByRole('button');
-    button.focus();
+    fireEvent.click(getTrigger());
+    fireEvent.click(screen.getByRole('menuitemradio', { name: label }));
 
-    fireEvent.click(button); // native <button> activates on Enter/Space -> click
-
-    expect(localStorage.getItem('episciences:color-scheme')).toBe('dark');
+    expect(localStorage.getItem(STORAGE_KEY)).toBe(stored);
+    expect(document.documentElement.dataset.theme).toBe(theme);
+    expect(screen.getByRole('menu', { hidden: true })).not.toBeVisible();
+    expect(getTrigger()).toHaveFocus();
   });
 
-  it('describes the action, not just the current state, in its accessible name', () => {
+  it('selecting "Light" clears the stored preference and data-theme', () => {
+    localStorage.setItem(STORAGE_KEY, 'dark');
+    document.documentElement.dataset.theme = 'dark';
     render(<ThemeToggle />);
-    expect(screen.getByRole('button', { name: 'Switch to dark theme' })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(getTrigger());
+    fireEvent.click(screen.getByRole('menuitemradio', { name: 'Light' }));
 
-    // Once pinned, a click always unpins and reverts to the system preference —
-    // it does not necessarily switch to the opposite scheme (a no-op when the
-    // system already matches the pin) — so the label must say "follow system",
-    // never claim a specific switch.
-    expect(screen.getByRole('button', { name: 'Follow system' })).toBeInTheDocument();
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+    expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
   });
 
-  it('has no accessibility violations', async () => {
+  it('supports keyboard navigation: open on current item, arrows wrap, Escape closes', () => {
+    localStorage.setItem(STORAGE_KEY, 'dark');
+    render(<ThemeToggle />);
+    const trigger = getTrigger();
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    const items = screen.getAllByRole('menuitemradio');
+    expect(items[1]).toHaveFocus();
+
+    fireEvent.keyDown(items[1], { key: 'ArrowDown' });
+    expect(items[2]).toHaveFocus();
+    fireEvent.keyDown(items[2], { key: 'ArrowDown' });
+    expect(items[0]).toHaveFocus();
+    fireEvent.keyDown(items[0], { key: 'ArrowUp' });
+    expect(items[2]).toHaveFocus();
+    fireEvent.keyDown(items[2], { key: 'Home' });
+    expect(items[0]).toHaveFocus();
+    fireEvent.keyDown(items[0], { key: 'End' });
+    expect(items[2]).toHaveFocus();
+
+    fireEvent.keyDown(items[2], { key: 'Escape' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).toHaveFocus();
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('dark');
+  });
+
+  it('selects with Enter from the keyboard', () => {
+    render(<ThemeToggle />);
+    fireEvent.keyDown(getTrigger(), { key: 'Enter' });
+    const items = screen.getAllByRole('menuitemradio');
+    fireEvent.keyDown(items[0], { key: 'End' });
+    fireEvent.keyDown(items[2], { key: 'Enter' });
+
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('system');
+  });
+
+  it('closes when clicking outside', () => {
+    render(<ThemeToggle />);
+    fireEvent.click(getTrigger());
+    fireEvent.mouseDown(document.body);
+
+    expect(getTrigger()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('has no accessibility violations, closed or open', async () => {
     const { container } = render(<ThemeToggle />);
-    const results = await checkA11y(container);
-    expect(results).toHaveNoViolations();
+    expect(await checkA11y(container)).toHaveNoViolations();
+
+    fireEvent.click(getTrigger());
+    expect(await checkA11y(container)).toHaveNoViolations();
   });
 });

@@ -7,11 +7,7 @@ import { THEME_BOOTSTRAP } from '../theme-bootstrap';
  * src/app/layout.tsx, not a re-implementation of it.
  */
 function runBootstrap(stubs: { localStorage: Storage; documentElement: any; querySelector: any }) {
-  const fn = new Function(
-    'localStorage',
-    'document',
-    `${THEME_BOOTSTRAP}\nreturn;`
-  );
+  const fn = new Function('localStorage', 'document', `${THEME_BOOTSTRAP}\nreturn;`);
   fn(stubs.localStorage, {
     documentElement: stubs.documentElement,
     querySelector: stubs.querySelector,
@@ -39,9 +35,9 @@ function makeStorage(initial: Record<string, string> = {}): Storage {
 }
 
 describe('THEME_BOOTSTRAP', () => {
-  it('pins data-theme and updates the color-scheme meta when a scheme is stored', () => {
+  it('sets data-theme="dark" and a "dark" color-scheme meta for a stored dark preference', () => {
     const documentElement = { dataset: {} as Record<string, string> };
-    const meta = { content: 'light dark' };
+    const meta = { content: 'light' };
     const querySelector = vi.fn().mockReturnValue(meta);
 
     runBootstrap({
@@ -54,7 +50,21 @@ describe('THEME_BOOTSTRAP', () => {
     expect(meta.content).toBe('dark');
   });
 
-  it('does nothing when no scheme is stored (follows the system)', () => {
+  it('sets data-theme="system" and a "light dark" meta for a stored system preference', () => {
+    const documentElement = { dataset: {} as Record<string, string> };
+    const meta = { content: 'light' };
+
+    runBootstrap({
+      localStorage: makeStorage({ 'episciences:color-scheme': 'system' }),
+      documentElement,
+      querySelector: vi.fn().mockReturnValue(meta),
+    });
+
+    expect(documentElement.dataset.theme).toBe('system');
+    expect(meta.content).toBe('light dark');
+  });
+
+  it('leaves the light default untouched when nothing is stored', () => {
     const documentElement = { dataset: {} as Record<string, string> };
     const querySelector = vi.fn();
 
@@ -68,11 +78,11 @@ describe('THEME_BOOTSTRAP', () => {
     expect(querySelector).not.toHaveBeenCalled();
   });
 
-  it('does nothing for a stored value that is neither "light" nor "dark"', () => {
+  it.each(['light', 'sepia'])('leaves the light default untouched for "%s"', value => {
     const documentElement = { dataset: {} as Record<string, string> };
 
     runBootstrap({
-      localStorage: makeStorage({ 'episciences:color-scheme': 'sepia' }),
+      localStorage: makeStorage({ 'episciences:color-scheme': value }),
       documentElement,
       querySelector: vi.fn(),
     });
@@ -99,11 +109,11 @@ describe('THEME_BOOTSTRAP', () => {
 
     expect(() =>
       runBootstrap({
-        localStorage: makeStorage({ 'episciences:color-scheme': 'light' }),
+        localStorage: makeStorage({ 'episciences:color-scheme': 'dark' }),
         documentElement,
         querySelector: () => null,
       })
     ).not.toThrow();
-    expect(documentElement.dataset.theme).toBe('light');
+    expect(documentElement.dataset.theme).toBe('dark');
   });
 });

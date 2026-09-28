@@ -1,8 +1,11 @@
 /**
  * Inline, blocking bootstrap script injected in the document <head> (see
- * src/app/layout.tsx). Pins document.documentElement.dataset.theme from
- * localStorage synchronously, before the stylesheet paints anything — so a
- * pinned scheme never flashes the system default.
+ * src/app/layout.tsx). Applies the stored theme preference to
+ * document.documentElement.dataset.theme synchronously, before the stylesheet
+ * paints anything — so a "dark" or "system" choice never flashes the light default.
+ *
+ * Nothing stored (or an unknown value) means the light default: no attribute is
+ * set and the server-rendered `<meta name="color-scheme" content="light">` stays.
  *
  * Kept in its own module (rather than a template literal inline in the layout)
  * so it can be unit-tested via `new Function(...)` against a stubbed
@@ -15,8 +18,8 @@ import { THEME_STORAGE_KEY } from './theme-storage-key';
 
 export const THEME_BOOTSTRAP = `(()=>{try{
 var p=localStorage.getItem('${THEME_STORAGE_KEY}');
-if(p==='light'||p==='dark'){
+if(p==='dark'||p==='system'){
   document.documentElement.dataset.theme=p;
   var m=document.querySelector('meta[name="color-scheme"]');
-  if(m)m.content=p;
+  if(m)m.content=p==='system'?'light dark':'dark';
 }}catch(e){}})();`;

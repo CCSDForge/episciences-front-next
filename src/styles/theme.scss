@@ -26,8 +26,9 @@
  *   needed at the call site, ever: components only ever read L2 tokens.
  *
  * SCHEME PILOT: `color-scheme` on :root (see below) decides which branch of
- * every light-dark() resolves. Default follows the OS; `[data-theme]` (set by
- * ThemeToggle/the bootstrap script) pins a literal scheme.
+ * every light-dark() resolves. Default is light; `[data-theme='dark']` pins dark
+ * and `[data-theme='system']` follows the OS (both set by ThemeToggle / the
+ * bootstrap script from the stored preference).
  *
  * USAGE:
  * ✅ DO:    color: var(--primary-text);   background: var(--surface);
@@ -37,11 +38,13 @@
  *           islands (see docs/ACCESSIBLE_COLOR_SYSTEM.md).
  */
 
+// Light by default; `data-theme` (set by the bootstrap script / ThemeToggle from
+// the stored preference) opts into dark or into following the OS.
 :root {
-  color-scheme: light dark;
-}
-:root[data-theme='light'] {
   color-scheme: only light;
+}
+:root[data-theme='system'] {
+  color-scheme: light dark;
 }
 :root[data-theme='dark'] {
   color-scheme: only dark;
@@ -198,7 +201,7 @@ $theme-tokens: 'primary', 'primary-text', 'primary-border', 'button-text-on-prim
   }
 
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) {
+    :root[data-theme='system'] {
       @each $token in $theme-tokens {
         --#{$token}: var(--#{$token}-dark);
       }

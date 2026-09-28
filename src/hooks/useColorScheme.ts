@@ -3,77 +3,91 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import { THEME_STORAGE_KEY as STORAGE_KEY } from '@/config/theme-storage-key';
 
-export type PinnedScheme = 'light' | 'dark' | null;
+export type ThemePreference = 'light' | 'dark' | 'system';
 
-function readPinned(): PinnedScheme {
+export const THEME_PREFERENCES: readonly ThemePreference[] = ['light', 'dark', 'system'];
+
+const DEFAULT_PREFERENCE: ThemePreference = 'light';
+
+function readPreference(): ThemePreference {
   try {
     const value = localStorage.getItem(STORAGE_KEY);
-    return value === 'light' || value === 'dark' ? value : null;
+    return value === 'dark' || value === 'system' ? value : DEFAULT_PREFERENCE;
   } catch {
     // localStorage throws in Safari private browsing / blocked storage.
-    return null;
+    return DEFAULT_PREFERENCE;
+  }
+}
+
+/**
+ * Applies a preference to the document, mirroring the inline bootstrap script
+ * (src/config/theme-bootstrap.ts): no attribute for the light default,
+ * `data-theme="dark"|"system"` otherwise.
+ */
+function applyToDocument(preference: ThemePreference): void {
+  const root = document.documentElement;
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]');
+
+  if (preference === 'light') {
+    root.removeAttribute('data-theme');
+  } else {
+    root.dataset.theme = preference;
+  }
+  if (meta) {
+    meta.content = preference === 'system' ? 'light dark' : preference;
   }
 }
 
 function subscribe(onStoreChange: () => void): () => void {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
   // Storage events fire cross-tab (not in the tab that made the change — that tab
-  // calls onStoreChange itself via toggle()), keeping every open tab in sync.
-  window.addEventListener('storage', onStoreChange);
-  mediaQuery.addEventListener('change', onStoreChange);
-
-  return () => {
-    window.removeEventListener('storage', onStoreChange);
-    mediaQuery.removeEventListener('change', onStoreChange);
+  // dispatches one itself in setPreference()), keeping every open tab in sync.
+  const handleStorage = (event: StorageEvent): void => {
+    if (event.key !== null && event.key !== STORAGE_KEY) return;
+    // Another tab changed the preference: its document was updated, not ours.
+    applyToDocument(readPreference());
+    onStoreChange();
   };
+  window.addEventListener('storage', handleStorage);
+  return () => window.removeEventListener('storage', handleStorage);
 }
 
-function getServerSnapshot(): PinnedScheme {
-  return null;
+function subscribeToSystem(onChange: () => void): () => void {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  mediaQuery.addEventListener('change', onChange);
+  return () => mediaQuery.removeEventListener('change', onChange);
 }
 
 /**
- * The 2-state color scheme toggle: "follows the system" (pinned === null) or
- * "pinned" to a literal scheme. A pin survives a later OS-level scheme change —
- * see tmp/PLAN_DARK_MODE.md §2 "Le cycle à 2 états".
+ * The 3-way theme preference: light (default), dark, or follow the system.
+ * `resolvedScheme` is the scheme actually displayed.
  */
 export function useColorScheme() {
-  const pinned = useSyncExternalStore(subscribe, readPinned, getServerSnapshot);
+  const preference = useSyncExternalStore(subscribe, readPreference, () => DEFAULT_PREFERENCE);
 
   const systemPrefersDark = useSyncExternalStore(
-    onChange => {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      mediaQuery.addEventListener('change', onChange);
-      return () => mediaQuery.removeEventListener('change', onChange);
-    },
+    subscribeToSystem,
     () => window.matchMedia('(prefers-color-scheme: dark)').matches,
     () => false
   );
 
-  const resolvedScheme: 'light' | 'dark' = pinned ?? (systemPrefersDark ? 'dark' : 'light');
+  const systemScheme = systemPrefersDark ? 'dark' : 'light';
+  const resolvedScheme: 'light' | 'dark' = preference === 'system' ? systemScheme : preference;
 
-  const toggle = useCallback(() => {
-    const current = readPinned();
+  const setPreference = useCallback((next: ThemePreference) => {
     try {
-      if (current) {
+      if (next === DEFAULT_PREFERENCE) {
         localStorage.removeItem(STORAGE_KEY);
-        document.documentElement.removeAttribute('data-theme');
       } else {
-        // Store a literal scheme, never "the opposite of the system" — a later OS
-        // change must leave a pin exactly where the user left it.
-        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const next: 'light' | 'dark' = sysDark ? 'light' : 'dark';
         localStorage.setItem(STORAGE_KEY, next);
-        document.documentElement.dataset.theme = next;
       }
     } catch {
-      // Storage blocked (Safari private browsing): the toggle becomes a no-op —
-      // there is nowhere durable to remember the pin.
+      // Storage blocked (Safari private browsing): the choice still applies to
+      // this page, it just won't survive a reload.
     }
+    applyToDocument(next);
     // Same-tab: storage events don't fire in the tab that made the change.
     window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
   }, []);
 
-  return { pinned, resolvedScheme, toggle };
+  return { preference, resolvedScheme, setPreference };
 }

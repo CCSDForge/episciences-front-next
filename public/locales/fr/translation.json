@@ -155,9 +155,8 @@
       "label": "Thème",
       "light": "Clair",
       "dark": "Sombre",
-      "switchToDark": "Passer au thème sombre",
-      "switchToLight": "Passer au thème clair",
-      "followSystem": "Suivre le système"
+      "system": "Système",
+      "selectTheme": "Choisir le thème"
     },
     "footer": {
       "links": {

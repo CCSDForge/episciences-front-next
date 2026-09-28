@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { readonly children: React.Reac
         <base href="/" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-        <meta name="color-scheme" content="light dark" suppressHydrationWarning />
+        <meta name="color-scheme" content="light" suppressHydrationWarning />
         <InlineScript html={THEME_BOOTSTRAP} />
       </head>
       <body>

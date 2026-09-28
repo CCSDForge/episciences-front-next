@@ -148,9 +148,8 @@
       "label": "Tema",
       "light": "Claro",
       "dark": "Oscuro",
-      "switchToDark": "Cambiar a tema oscuro",
-      "switchToLight": "Cambiar a tema claro",
-      "followSystem": "Seguir el sistema"
+      "system": "Sistema",
+      "selectTheme": "Elegir el tema"
     },
     "footer": {
       "links": {

@@ -50,9 +50,9 @@ Many academic logos were created years ago for white paper or white headers, oft
 - Placing them directly on an anthracite background would make black parts vanish.
 - **The solution**: The system automatically houses these logos inside a discreet, clean **"light island"** (a small white box with subtle padding and rounded corners). The original logo remains 100% intact and legible with zero manual graphic work required from the journal.
 
-### 7. The user experience (Sun / Moon toggle)
-- **Follows your device by default**: If your computer or phone is set to dark mode, the journal automatically loads in dark mode. If set to light mode, it loads in light mode.
-- **Instant manual override**: Clicking the Sun/Moon button allows any reader to pin their personal preference, saved instantly in the browser without cookies or tracking.
+### 7. The user experience (Light / Dark / System selector)
+- **Light by default**: Every journal opens in light mode, whatever the device setting.
+- **Three choices**: The theme menu in the header lets any reader pick **Light**, **Dark**, or **System** (follow the computer or phone setting, including its automatic day/night switch). The choice is saved instantly in the browser without cookies or tracking.
 - **Zero flash of white (FOUC)**: A tiny script runs in a fraction of a millisecond before the page starts painting, eliminating jarring white flashes when opening a link at night.
 
 ---
@@ -89,14 +89,14 @@ make the whole custom property invalid, not just that token.
 ## Which scheme is active
 
 ```scss
-:root                     { color-scheme: light dark; }  /* follows the OS */
-:root[data-theme='light'] { color-scheme: only light; }
-:root[data-theme='dark']  { color-scheme: only dark; }
+:root                      { color-scheme: only light; }  /* default */
+:root[data-theme='system'] { color-scheme: light dark; }  /* follows the OS */
+:root[data-theme='dark']   { color-scheme: only dark; }
 ```
 
-[`ThemeToggle`](file:///home/tournoy/WebstormProjects/episciences-front-next/src/components/ThemeToggle/ThemeToggle.tsx) (`src/components/ThemeToggle/`) is a 2-state control: **follow the
-system** ⇄ **pinned to a literal scheme**. A pin is stored in `localStorage`
-([`THEME_STORAGE_KEY`](file:///home/tournoy/WebstormProjects/episciences-front-next/src/config/theme-storage-key.ts) = `'episciences:color-scheme'`) and applied before first paint by an inline blocking bootstrap
+[`ThemeToggle`](file:///home/tournoy/WebstormProjects/episciences-front-next/src/components/ThemeToggle/ThemeToggle.tsx) (`src/components/ThemeToggle/`) is a menu button with three
+`menuitemradio` choices: **Light** (default), **Dark**, **System**. A non-default choice is stored in `localStorage`
+([`THEME_STORAGE_KEY`](file:///home/tournoy/WebstormProjects/episciences-front-next/src/config/theme-storage-key.ts) = `'episciences:color-scheme'`, value `'dark'` or `'system'`; choosing Light removes the key) and applied before first paint by an inline blocking bootstrap
 script ([`src/config/theme-bootstrap.ts`](file:///home/tournoy/WebstormProjects/episciences-front-next/src/config/theme-bootstrap.ts), injected in [`src/app/layout.tsx`](file:///home/tournoy/WebstormProjects/episciences-front-next/src/app/layout.tsx)) — no
 cookie, so the root layout stays fully static and ISR/SSG is untouched.
 
@@ -237,7 +237,7 @@ Several SCSS mixins in [`src/styles/_mixins.scss`](file:///home/tournoy/Webstorm
   }
 
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) {
+    :root[data-theme='system'] {
       @each $token in $theme-tokens {
         --#{$token}: var(--#{$token}-dark);
       }
@@ -344,7 +344,7 @@ npx vitest run src/styles/__tests__/theme-guardrails.test.ts
 # Bootstrap script unit tests (localStorage, Safari private browsing fallback)
 npx vitest run src/config/__tests__/theme-bootstrap.test.ts
 
-# Theme toggle UI & accessibility tests (axe-core a11y, aria-pressed)
+# Theme selector UI & accessibility tests (axe-core a11y, menu keyboard navigation)
 npx vitest run src/components/ThemeToggle/__tests__/ThemeToggle.test.tsx
 ```
 
@@ -368,8 +368,8 @@ token's light branch is either byte-identical to its pre-dark-mode value or a
 one-line alias to something that is. If you see a light-mode diff while touching
 this system, that's a bug, not an intentional tradeoff.
 
-**Can a journal opt out of dark mode?** No — the toggle and the `prefers-color-scheme`
-default apply uniformly. A journal can only affect its own brand-derived tokens
+**Can a journal opt out of dark mode?** No — the light default and the theme selector
+apply uniformly. A journal can only affect its own brand-derived tokens
 (via `NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR` or `NEXT_PUBLIC_JOURNAL_PRIMARY_TEXT_COLOR`), not the scheme mechanism itself.
 
 ## References
