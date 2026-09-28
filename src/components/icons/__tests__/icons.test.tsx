@@ -658,9 +658,18 @@ describe('Icon Components', () => {
       expect(svg).toHaveAttribute('aria-label', 'ROR logo');
     });
 
-    it('applies custom size and color', () => {
-      const { container } = render(<RorIcon size={82} color="#123456" ariaLabel="ROR" />);
+    it('applies custom size', () => {
+      const { container } = render(<RorIcon size={82} ariaLabel="ROR" />);
       expect(container.querySelector('svg')).toHaveAttribute('width', '82');
+    });
+
+    it('keeps the official brand colors instead of inheriting currentColor', () => {
+      const { container } = render(<RorIcon />);
+      const fills = Array.from(container.querySelectorAll<SVGElement>('rect, path')).map(
+        el => el.style.fill
+      );
+      expect(fills).not.toContain('currentcolor');
+      expect(fills).toContain('rgb(32,40,38)');
     });
   });
 
