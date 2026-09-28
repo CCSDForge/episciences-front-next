@@ -95,15 +95,15 @@ export const getRolePriority = (role: string): number => {
  * Sort roles in a canonical order so labels are consistent across members,
  * regardless of the order returned by the API:
  * member roles first (by ROLE_PRIORITIES), then board types (by boardTypes order),
- * then unknown values (original order preserved).
+ * then unknown values (original order preserved). Duplicates are removed.
  */
 export const sortBoardRoles = (roles: string[]): string[] => {
   const rank = (role: string): number => {
-    if (role in ROLE_PRIORITIES) return ROLE_PRIORITIES[role];
+    if (Object.hasOwn(ROLE_PRIORITIES, role)) return ROLE_PRIORITIES[role];
     const typeIndex = boardTypes.indexOf(role as BOARD_TYPE);
     return typeIndex === -1 ? 2000 : 1000 + typeIndex;
   };
-  return [...roles].sort((a, b) => rank(a) - rank(b));
+  return [...new Set(roles)].sort((a, b) => rank(a) - rank(b));
 };
 
 export const defaultBoardRole = (t: (key: string) => string) => {
@@ -138,8 +138,8 @@ export const getBoardRoles = (t: (key: string) => string, roles: string[]): stri
   };
 
   return sortBoardRoles(roles)
+    .filter(role => Object.hasOwn(labels, role))
     .map(role => labels[role])
-    .filter(Boolean)
     .join(', ');
 };
 

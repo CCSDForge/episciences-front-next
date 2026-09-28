@@ -378,6 +378,20 @@ describe('BoardCard', () => {
       expect(screen.getByText('Chief editor, Editorial board')).toBeInTheDocument();
     });
 
+    it('falls back to the raw role for inherited Object.prototype keys', () => {
+      render(
+        <BoardCard
+          language="en"
+          t={mockT as any}
+          member={{ ...baseMember, roles: ['chief-editor', 'toString'] }}
+          state="default"
+          onToggle={vi.fn()}
+          rolesLabels={{ 'chief-editor': 'Chief editor' }}
+        />
+      );
+      expect(screen.getByText('Chief editor, toString')).toBeInTheDocument();
+    });
+
     it('uses rolesLabels["member"] as default role when no roles', () => {
       const rolesLabels = { member: 'Board Member' };
       render(

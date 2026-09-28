@@ -151,6 +151,22 @@ describe('board service', () => {
     });
   });
 
+  describe('getBoardRoles edge cases', () => {
+    const t = (key: string) => (key === 'pages.boards.roles.chiefEditor' ? 'Chief Editor' : key);
+
+    it('displays a duplicated role only once', () => {
+      expect(getBoardRoles(t, [BOARD_ROLE.CHIEF_EDITOR, BOARD_ROLE.CHIEF_EDITOR])).toBe(
+        'Chief Editor'
+      );
+    });
+
+    it('ignores inherited Object.prototype keys', () => {
+      expect(getBoardRoles(t, ['toString', 'constructor', BOARD_ROLE.CHIEF_EDITOR])).toBe(
+        'Chief Editor'
+      );
+    });
+  });
+
   describe('sortBoardRoles', () => {
     it('sorts member roles by priority, then board types, then unknown values', () => {
       expect(
@@ -167,6 +183,23 @@ describe('board service', () => {
         BOARD_TYPE.EDITORIAL_BOARD,
         BOARD_TYPE.TECHNICAL_BOARD,
         'unknown',
+      ]);
+    });
+
+    it('removes duplicate roles', () => {
+      expect(
+        sortBoardRoles([
+          BOARD_ROLE.CHIEF_EDITOR,
+          BOARD_TYPE.EDITORIAL_BOARD,
+          BOARD_ROLE.CHIEF_EDITOR,
+        ])
+      ).toEqual([BOARD_ROLE.CHIEF_EDITOR, BOARD_TYPE.EDITORIAL_BOARD]);
+    });
+
+    it('treats inherited Object.prototype keys as unknown roles', () => {
+      expect(sortBoardRoles(['toString', BOARD_ROLE.CHIEF_EDITOR])).toEqual([
+        BOARD_ROLE.CHIEF_EDITOR,
+        'toString',
       ]);
     });
 
