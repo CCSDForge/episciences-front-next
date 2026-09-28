@@ -138,7 +138,7 @@ export default function BoardCard({
   const displayRoles = (roles: string[]) => {
     if (rolesLabels) {
       return sortBoardRoles(roles)
-        .map(role => rolesLabels[role] || role)
+        .map(role => (Object.hasOwn(rolesLabels, role) && rolesLabels[role]) || role)
         .filter(Boolean)
         .join(', ');
     }
