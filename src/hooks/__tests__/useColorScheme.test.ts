@@ -103,6 +103,26 @@ describe('useColorScheme', () => {
     expect(result.current.preference).toBe('light');
   });
 
+  it('keeps reporting the chosen preference when localStorage is blocked', () => {
+    stubMatchMedia(false);
+    const blocked = () => {
+      throw new DOMException('blocked', 'SecurityError');
+    };
+    vi.stubGlobal('localStorage', { getItem: blocked, setItem: blocked, removeItem: blocked });
+    try {
+      const { result } = renderHook(() => useColorScheme());
+
+      act(() => result.current.setPreference('dark'));
+      expect(document.documentElement.dataset.theme).toBe('dark');
+      expect(result.current.preference).toBe('dark');
+
+      act(() => result.current.setPreference('light'));
+      expect(result.current.preference).toBe('light');
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('applies a preference changed in another tab to this document', () => {
     stubMatchMedia(false);
     const { result } = renderHook(() => useColorScheme());

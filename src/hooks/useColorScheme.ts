@@ -9,13 +9,17 @@ export const THEME_PREFERENCES: readonly ThemePreference[] = ['light', 'dark', '
 
 const DEFAULT_PREFERENCE: ThemePreference = 'light';
 
+// In-memory fallback for when localStorage is unavailable, so the menu keeps
+// reflecting the preference applied to the page (it just won't survive a reload).
+let memoryPreference: ThemePreference = DEFAULT_PREFERENCE;
+
 function readPreference(): ThemePreference {
   try {
     const value = localStorage.getItem(STORAGE_KEY);
     return value === 'dark' || value === 'system' ? value : DEFAULT_PREFERENCE;
   } catch {
     // localStorage throws in Safari private browsing / blocked storage.
-    return DEFAULT_PREFERENCE;
+    return memoryPreference;
   }
 }
 
@@ -74,6 +78,7 @@ export function useColorScheme() {
   const resolvedScheme: 'light' | 'dark' = preference === 'system' ? systemScheme : preference;
 
   const setPreference = useCallback((next: ThemePreference) => {
+    memoryPreference = next;
     try {
       if (next === DEFAULT_PREFERENCE) {
         localStorage.removeItem(STORAGE_KEY);
