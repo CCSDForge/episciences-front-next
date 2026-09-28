@@ -4,6 +4,7 @@ declare module '@citation-js/core';
 interface MathJax {
   typesetPromise?: (elements?: HTMLElement[]) => Promise<void>;
   typeset?: (elements?: HTMLElement[]) => void;
+  typesetClear?: (elements?: HTMLElement[]) => void;
   startup?: {
     promise?: Promise<void>;
   };

@@ -10,21 +10,24 @@ const { MockMathJaxBaseContext } = vi.hoisted(() => ({
 
 vi.mock('better-react-mathjax', () => ({
   MathJaxBaseContext: MockMathJaxBaseContext,
-  MathJax: ({ children, dynamic, ...props }: any) => (
-    <div data-testid="better-mathjax" data-dynamic={String(dynamic)} {...props}>
-      {children}
-    </div>
-  ),
 }));
 
-// MathJax components only switch to BetterMathJax once MathJax has started up.
+// MathJax components only typeset once MathJax has started up.
 const renderReady = (ui: React.ReactElement) =>
   render(<MathJaxReadyContext value={true}>{ui}</MathJaxReadyContext>);
+
+const mountedSpan = () => document.querySelector('[data-mathjax-state="mounted"]');
+const mountedSpans = () => document.querySelectorAll('[data-mathjax-state="mounted"]');
+
+// Typesetting runs on a promise queue: let it drain.
+const flushTypesetting = () =>
+  act(async () => {
+    await new Promise(resolve => setTimeout(resolve, 0));
+  });
 
 describe('MathJax', () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    vi.useRealTimers();
     delete (window as any).MathJax;
   });
 
@@ -37,9 +40,9 @@ describe('MathJax', () => {
       expect(html).toContain('data-mathjax-state="not-mounted"');
     });
 
-    it('does not render BetterMathJax during SSR', () => {
+    it('does not render the mounted state during SSR', () => {
       const html = renderToString(<MathJax>formula</MathJax>);
-      expect(html).not.toContain('data-testid="better-mathjax"');
+      expect(html).not.toContain('data-mathjax-state="mounted"');
     });
 
     it('renders children in the not-mounted container', () => {
@@ -47,14 +50,14 @@ describe('MathJax', () => {
       expect(html).toContain('E = mc²');
     });
 
-    it('renders the not-mounted span as a block, like BetterMathJax', () => {
+    it('renders the not-mounted span as a block', () => {
       const html = renderToString(<MathJax>content</MathJax>);
       expect(html).toContain('display:block');
     });
 
     it('keeps plain children outside of MathJaxProvider', () => {
       render(<MathJax>formula</MathJax>);
-      expect(screen.queryByTestId('better-mathjax')).not.toBeInTheDocument();
+      expect(mountedSpan()).not.toBeInTheDocument();
       expect(screen.getByText('formula')).toBeInTheDocument();
     });
 
@@ -78,143 +81,136 @@ describe('MathJax', () => {
       expect(document.querySelector('[data-mathjax-state="not-mounted"]')).not.toBeInTheDocument();
     });
 
-    it('renders BetterMathJax after mount', () => {
+    it('renders children in the mounted container', () => {
       renderReady(<MathJax>E = mc²</MathJax>);
-      expect(screen.getByTestId('better-mathjax')).toBeInTheDocument();
+      expect(mountedSpan()).toHaveTextContent('E = mc²');
     });
 
-    it('passes children to BetterMathJax', () => {
-      renderReady(<MathJax>E = mc²</MathJax>);
-      expect(screen.getByTestId('better-mathjax')).toHaveTextContent('E = mc²');
-    });
-
-    it('passes dynamic=false by default', () => {
-      renderReady(<MathJax>formula</MathJax>);
-      expect(screen.getByTestId('better-mathjax')).toHaveAttribute('data-dynamic', 'false');
-    });
-
-    it('passes dynamic=true when prop is true', () => {
-      renderReady(<MathJax dynamic={true}>formula</MathJax>);
-      expect(screen.getByTestId('better-mathjax')).toHaveAttribute('data-dynamic', 'true');
-    });
-
-    it('passes className to BetterMathJax', () => {
+    it('passes className to the container', () => {
       renderReady(<MathJax className="my-class">formula</MathJax>);
-      expect(screen.getByTestId('better-mathjax')).toHaveClass('my-class');
+      expect(mountedSpan()).toHaveClass('my-class');
     });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Timer behaviour (MathJax typesetting)
+  // Typesetting
   // ─────────────────────────────────────────────────────────────────────────
-  describe('MathJax typesetting timer', () => {
-    it('leaves the first typesetting to BetterMathJax', async () => {
-      vi.useFakeTimers();
+  describe('typesetting', () => {
+    const installMathJax = () => {
+      const typesetClear = vi.fn();
       const typesetPromise = vi.fn().mockResolvedValue(undefined);
-      (window as any).MathJax = { typesetPromise };
+      (window as any).MathJax = { typesetClear, typesetPromise };
+      return { typesetClear, typesetPromise };
+    };
+
+    const readyTree = (ui: React.ReactElement) => (
+      <MathJaxReadyContext value={true}>{ui}</MathJaxReadyContext>
+    );
+
+    it('typesets the container once MathJax is ready', async () => {
+      const { typesetClear, typesetPromise } = installMathJax();
 
       renderReady(<MathJax>formula</MathJax>);
+      await flushTypesetting();
 
-      await act(async () => {
-        vi.advanceTimersByTime(100);
-      });
+      expect(typesetClear).toHaveBeenCalledWith([mountedSpan()]);
+      expect(typesetPromise).toHaveBeenCalledOnce();
+      expect(typesetPromise).toHaveBeenCalledWith([mountedSpan()]);
+    });
+
+    it('does not typeset before MathJax is ready', async () => {
+      const { typesetPromise } = installMathJax();
+
+      render(<MathJax>formula</MathJax>);
+      await flushTypesetting();
 
       expect(typesetPromise).not.toHaveBeenCalled();
     });
 
-    it('re-typesets 50ms after the children of a non-dynamic instance change', async () => {
-      vi.useFakeTimers();
-      const typesetPromise = vi.fn().mockResolvedValue(undefined);
-      (window as any).MathJax = { typesetPromise };
+    it('re-typesets when the children change', async () => {
+      const { typesetPromise } = installMathJax();
 
       const { rerender } = renderReady(<MathJax>formula</MathJax>);
-      rerender(
-        <MathJaxReadyContext value={true}>
-          <MathJax>other formula</MathJax>
-        </MathJaxReadyContext>
-      );
-      expect(typesetPromise).not.toHaveBeenCalled();
+      await flushTypesetting();
+      rerender(readyTree(<MathJax>other formula</MathJax>));
+      await flushTypesetting();
 
-      await act(async () => {
-        vi.advanceTimersByTime(50);
-      });
+      expect(typesetPromise).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not re-typeset a non-dynamic instance whose children are unchanged', async () => {
+      const { typesetPromise } = installMathJax();
+
+      const { rerender } = renderReady(<MathJax>formula</MathJax>);
+      await flushTypesetting();
+      rerender(readyTree(<MathJax>formula</MathJax>));
+      await flushTypesetting();
 
       expect(typesetPromise).toHaveBeenCalledOnce();
     });
 
-    it('leaves re-typesetting of dynamic instances to BetterMathJax', async () => {
-      vi.useFakeTimers();
-      const typesetPromise = vi.fn().mockResolvedValue(undefined);
-      (window as any).MathJax = { typesetPromise };
+    it('re-typesets a dynamic instance on every render', async () => {
+      const { typesetPromise } = installMathJax();
 
       const { rerender } = renderReady(<MathJax dynamic>formula</MathJax>);
-      rerender(
-        <MathJaxReadyContext value={true}>
-          <MathJax dynamic>other formula</MathJax>
-        </MathJaxReadyContext>
-      );
+      await flushTypesetting();
+      rerender(readyTree(<MathJax dynamic>formula</MathJax>));
+      await flushTypesetting();
 
-      await act(async () => {
-        vi.advanceTimersByTime(100);
-      });
-
-      expect(typesetPromise).not.toHaveBeenCalled();
+      expect(typesetPromise).toHaveBeenCalledTimes(2);
     });
 
-    it('does not call typesetPromise before 50ms', async () => {
-      vi.useFakeTimers();
-      const typesetPromise = vi.fn().mockResolvedValue(undefined);
-      (window as any).MathJax = { typesetPromise };
-
-      renderReady(<MathJax>formula</MathJax>);
-
-      await act(async () => {
-        vi.advanceTimersByTime(49);
-      });
-
-      expect(typesetPromise).not.toHaveBeenCalled();
-    });
-
-    it('does not throw when window.MathJax is undefined', async () => {
-      vi.useFakeTimers();
-      delete (window as any).MathJax;
-
-      expect(() => renderReady(<MathJax>formula</MathJax>)).not.toThrow();
-
-      await act(async () => {
-        vi.advanceTimersByTime(50);
-      });
-    });
-
-    it('does not throw when window.MathJax.typesetPromise is missing', async () => {
-      vi.useFakeTimers();
-      (window as any).MathJax = {};
-
-      expect(() => renderReady(<MathJax>formula</MathJax>)).not.toThrow();
-
-      await act(async () => {
-        vi.advanceTimersByTime(50);
-      });
-    });
-
-    it('cleans up timer on unmount — typesetPromise is not called', async () => {
-      vi.useFakeTimers();
-      const typesetPromise = vi.fn().mockResolvedValue(undefined);
-      (window as any).MathJax = { typesetPromise };
+    it('skips an element unmounted before its turn instead of passing null to MathJax', async () => {
+      const { typesetClear, typesetPromise } = installMathJax();
 
       const { unmount } = renderReady(<MathJax>formula</MathJax>);
       unmount();
+      await flushTypesetting();
 
-      await act(async () => {
-        vi.advanceTimersByTime(100);
-      });
-
+      expect(typesetClear).not.toHaveBeenCalled();
       expect(typesetPromise).not.toHaveBeenCalled();
+    });
+
+    it('waits for the previous typesetting to finish before starting the next', async () => {
+      const { typesetPromise } = installMathJax();
+      let finishFirst!: () => void;
+      typesetPromise.mockImplementationOnce(
+        () => new Promise<void>(resolve => (finishFirst = resolve))
+      );
+
+      renderReady(
+        <>
+          <MathJax>a</MathJax>
+          <MathJax>b</MathJax>
+        </>
+      );
+      await flushTypesetting();
+      expect(typesetPromise).toHaveBeenCalledOnce();
+
+      finishFirst();
+      await flushTypesetting();
+      expect(typesetPromise).toHaveBeenCalledTimes(2);
+    });
+
+    it('logs a typesetting failure instead of rejecting', async () => {
+      const { typesetPromise } = installMathJax();
+      typesetPromise.mockRejectedValueOnce(new Error('bad TeX'));
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      renderReady(<MathJax>a</MathJax>);
+      await flushTypesetting();
+
+      expect(warn).toHaveBeenCalled();
+    });
+
+    it('does not throw when window.MathJax is undefined', async () => {
+      expect(() => renderReady(<MathJax>formula</MathJax>)).not.toThrow();
+      await flushTypesetting();
     });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // MathJax loading — BetterMathJax must not mount before MathJax starts up
+  // MathJax loading — no typesetting before MathJax starts up
   // ─────────────────────────────────────────────────────────────────────────
   describe('waiting for MathJax startup', () => {
     const createDeferredContext = () => {
@@ -242,7 +238,7 @@ describe('MathJax', () => {
           <MathJax>formula</MathJax>
         </MathJaxReadyContext>
       );
-      expect(screen.queryByTestId('better-mathjax')).not.toBeInTheDocument();
+      expect(mountedSpan()).not.toBeInTheDocument();
       expect(screen.getByText('formula')).toBeInTheDocument();
     });
 
@@ -252,13 +248,13 @@ describe('MathJax', () => {
       renderWithMathJax(value, <MathJax>formula</MathJax>);
 
       await act(async () => {});
-      expect(screen.queryByTestId('better-mathjax')).not.toBeInTheDocument();
+      expect(mountedSpan()).not.toBeInTheDocument();
       expect(screen.getByText('formula')).toBeInTheDocument();
 
       await act(async () => {
         resolveStartup();
       });
-      expect(screen.getByTestId('better-mathjax')).toHaveTextContent('formula');
+      expect(mountedSpan()).toHaveTextContent('formula');
     });
 
     it('renders BetterMathJax immediately for instances mounted after startup', async () => {
@@ -277,7 +273,7 @@ describe('MathJax', () => {
           </MathJaxReadyProvider>
         </MockMathJaxBaseContext.Provider>
       );
-      expect(screen.getByTestId('better-mathjax')).toHaveTextContent('second');
+      expect(mountedSpan()).toHaveTextContent('second');
     });
 
     it('subscribes to the startup promise once for all instances', async () => {
@@ -297,7 +293,7 @@ describe('MathJax', () => {
       });
 
       expect(then).toHaveBeenCalledOnce();
-      expect(screen.getAllByTestId('better-mathjax')).toHaveLength(3);
+      expect(mountedSpans()).toHaveLength(3);
     });
 
     it('does not update state when unmounted before MathJax starts up', async () => {
@@ -319,7 +315,7 @@ describe('MathJax', () => {
       renderWithMathJax(value, <MathJax>formula</MathJax>);
 
       await act(async () => {});
-      expect(screen.queryByTestId('better-mathjax')).not.toBeInTheDocument();
+      expect(mountedSpan()).not.toBeInTheDocument();
       expect(screen.getByText('formula')).toBeInTheDocument();
     });
   });
