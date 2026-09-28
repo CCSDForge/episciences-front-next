@@ -91,6 +91,21 @@ export const getRolePriority = (role: string): number => {
   return ROLE_PRIORITIES[role] || 999;
 };
 
+/**
+ * Sort roles in a canonical order so labels are consistent across members,
+ * regardless of the order returned by the API:
+ * member roles first (by ROLE_PRIORITIES), then board types (by boardTypes order),
+ * then unknown values (original order preserved).
+ */
+export const sortBoardRoles = (roles: string[]): string[] => {
+  const rank = (role: string): number => {
+    if (role in ROLE_PRIORITIES) return ROLE_PRIORITIES[role];
+    const typeIndex = boardTypes.indexOf(role as BOARD_TYPE);
+    return typeIndex === -1 ? 2000 : 1000 + typeIndex;
+  };
+  return [...roles].sort((a, b) => rank(a) - rank(b));
+};
+
 export const defaultBoardRole = (t: (key: string) => string) => {
   return {
     key: BOARD_ROLE.MEMBER,
@@ -99,38 +114,32 @@ export const defaultBoardRole = (t: (key: string) => string) => {
 };
 
 export const getBoardRoles = (t: (key: string) => string, roles: string[]): string => {
-  const rolesWithLabels = [
+  const labels: Record<string, string> = {
     // Board types
-    { key: BOARD_TYPE.INTRODUCTION_BOARD, label: t('pages.boards.types.introductionBoard') },
-    { key: BOARD_TYPE.TECHNICAL_BOARD, label: t('pages.boards.types.technicalBoard') },
-    { key: BOARD_TYPE.EDITORIAL_BOARD, label: t('pages.boards.types.editorialBoard') },
-    {
-      key: BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD,
-      label: t('pages.boards.types.scientificAdvisoryBoard'),
-    },
-    { key: BOARD_TYPE.REVIEWERS_BOARD, label: t('pages.boards.types.reviewersBoard') },
-    { key: BOARD_TYPE.FORMER_MEMBERS, label: t('pages.boards.types.formerMember') },
-    {
-      key: BOARD_TYPE.OPERATING_CHARTER_BOARD,
-      label: t('pages.boards.types.operatingCharterBoard'),
-    },
+    [BOARD_TYPE.INTRODUCTION_BOARD]: t('pages.boards.types.introductionBoard'),
+    [BOARD_TYPE.TECHNICAL_BOARD]: t('pages.boards.types.technicalBoard'),
+    [BOARD_TYPE.EDITORIAL_BOARD]: t('pages.boards.types.editorialBoard'),
+    [BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD]: t('pages.boards.types.scientificAdvisoryBoard'),
+    [BOARD_TYPE.REVIEWERS_BOARD]: t('pages.boards.types.reviewersBoard'),
+    [BOARD_TYPE.FORMER_MEMBERS]: t('pages.boards.types.formerMember'),
+    [BOARD_TYPE.OPERATING_CHARTER_BOARD]: t('pages.boards.types.operatingCharterBoard'),
 
     // Member roles
-    { key: BOARD_ROLE.CHIEF_EDITOR, label: t('pages.boards.roles.chiefEditor') },
-    { key: BOARD_ROLE.MANAGING_EDITOR, label: t('pages.boards.roles.managingEditor') },
-    { key: BOARD_ROLE.EDITOR, label: t('pages.boards.roles.editor') },
-    { key: BOARD_ROLE.HANDLING_EDITOR, label: t('pages.boards.roles.handlingEditor') },
-    { key: BOARD_ROLE.GUEST_EDITOR, label: t('pages.boards.roles.guestEditor') },
-    { key: BOARD_ROLE.COPYEDITOR, label: t('pages.boards.roles.copyeditor') },
-    { key: BOARD_ROLE.SECRETARY, label: t('pages.boards.roles.secretary') },
-    { key: BOARD_ROLE.ADVISORY_BOARD, label: t('pages.boards.roles.advisoryBoard') },
-    { key: BOARD_ROLE.MEMBER, label: t('pages.boards.roles.member') },
-    { key: BOARD_ROLE.FORMER_MEMBER, label: t('pages.boards.roles.formerMember') },
-  ];
+    [BOARD_ROLE.CHIEF_EDITOR]: t('pages.boards.roles.chiefEditor'),
+    [BOARD_ROLE.MANAGING_EDITOR]: t('pages.boards.roles.managingEditor'),
+    [BOARD_ROLE.EDITOR]: t('pages.boards.roles.editor'),
+    [BOARD_ROLE.HANDLING_EDITOR]: t('pages.boards.roles.handlingEditor'),
+    [BOARD_ROLE.GUEST_EDITOR]: t('pages.boards.roles.guestEditor'),
+    [BOARD_ROLE.COPYEDITOR]: t('pages.boards.roles.copyeditor'),
+    [BOARD_ROLE.SECRETARY]: t('pages.boards.roles.secretary'),
+    [BOARD_ROLE.ADVISORY_BOARD]: t('pages.boards.roles.advisoryBoard'),
+    [BOARD_ROLE.MEMBER]: t('pages.boards.roles.member'),
+    [BOARD_ROLE.FORMER_MEMBER]: t('pages.boards.roles.formerMember'),
+  };
 
-  return rolesWithLabels
-    .filter(roleWithLabel => roles.includes(roleWithLabel.key))
-    .map(roleWithLabel => roleWithLabel.label)
+  return sortBoardRoles(roles)
+    .map(role => labels[role])
+    .filter(Boolean)
     .join(', ');
 };
 
