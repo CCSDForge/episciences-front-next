@@ -42,6 +42,9 @@ export default async function JournalLayout(props: JournalLayoutProps) {
   const textOnPrimaryDark = primaryTextOverride
     ? ensureContrast(primaryTextOverride, dark.primary, 4.5)
     : contrastingText(dark.primary, 4.5);
+  // WCAG 1.4.11: focus rings need 3:1 against the primary background they sit on;
+  // a fixed white ring disappears on light brand colors (yellow, pastel, cream).
+  const focusOnPrimaryLight = contrastingText(light.primary, 3);
   const focusOnPrimaryDark = contrastingText(dark.primary, 3);
 
   const c = (value: string, fallback: string) => safeColor(value, fallback);
@@ -54,7 +57,7 @@ export default async function JournalLayout(props: JournalLayoutProps) {
     // background they're computed against never changes.
     `--brand:${c(light.primary, '#000000')}`,
     `--text-on-brand:${c(textOnPrimaryLight, '#ffffff')}`,
-    `--focus-color-on-brand:${c(light.focusOnPrimary, '#ffffff')}`,
+    `--focus-color-on-brand:${c(focusOnPrimaryLight, '#ffffff')}`,
     `--primary-light:${c(light.primary, '#000000')}`,
     `--primary-dark:${c(dark.primary, '#808080')}`,
     `--primary-text-light:${c(light.primaryTextOnWhite, '#000000')}`,
@@ -65,7 +68,7 @@ export default async function JournalLayout(props: JournalLayoutProps) {
     `--button-text-on-primary-bg-dark:${c(textOnPrimaryDark, '#000000')}`,
     `--focus-color-light:${c(light.focusOnWhite, '#000000')}`,
     `--focus-color-dark:${c(dark.focusOnDark, '#808080')}`,
-    `--focus-color-on-primary-light:${c(light.focusOnPrimary, '#ffffff')}`,
+    `--focus-color-on-primary-light:${c(focusOnPrimaryLight, '#ffffff')}`,
     `--focus-color-on-primary-dark:${c(focusOnPrimaryDark, '#000000')}`,
     `--focus-color-on-dark-dark:${c(dark.focusOnDark, '#808080')}`,
     `--surface-dark:${c(surfaces.surface, '#191919')}`,

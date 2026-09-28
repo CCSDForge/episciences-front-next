@@ -2,6 +2,7 @@ import { render } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import JournalLayout, { safeColor } from '../layout';
 import { loadJournalConfig } from '@/utils/env-loader';
+import { getContrastRatio } from '@/utils/colorContrast';
 
 vi.mock('@/utils/env-loader', () => ({
   loadJournalConfig: vi.fn(),
@@ -111,6 +112,23 @@ describe('JournalLayout', () => {
     // --brand is scheme-invariant: the header banner keeps the literal journal
     // color in both themes (no -light/-dark pair, unlike --primary).
     expect(cssText).toContain('--brand:#336699');
+  });
+
+  it('picks a focus ring that clears 3:1 on a light brand color', async () => {
+    // White on #fbe62c is ~1.28:1 — the ring must switch to a dark color instead.
+    mockConfig({ NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR: '#fbe62c' });
+
+    const jsx = await JournalLayout({
+      params: Promise.resolve({ journalId: 'journal' }),
+      children: <div>content</div>,
+    });
+    const cssText = getStyleText(render(jsx).container);
+
+    for (const token of ['focus-color-on-brand', 'focus-color-on-primary-light']) {
+      const value = new RegExp(`--${token}:(#[0-9a-f]{6})`, 'i').exec(cssText)?.[1];
+      expect(value).toBeDefined();
+      expect(getContrastRatio(value!, '#fbe62c')).toBeGreaterThanOrEqual(3);
+    }
   });
 
   // Security-relevant: a malicious override must never reach the emitted <style>,
