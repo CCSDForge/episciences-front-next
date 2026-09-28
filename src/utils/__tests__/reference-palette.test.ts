@@ -4,6 +4,7 @@ import {
   generateAccessibleColorVariants,
   generateJournalPalettes,
 } from '../colorContrast';
+import { parseHex, rgbToOklch } from '../oklch';
 import { legacyEnsureContrast } from './fixtures/colorContrast.legacy';
 import { JOURNAL_BRAND_COLORS } from './fixtures/journal-brand-colors';
 
@@ -83,8 +84,9 @@ describe('reference palette — dark scheme meets raised internal targets', () =
 
     // Perceptual floor: dark-scheme text should never read as muddy even once WCAG
     // is satisfied via a lower-lightness saturated color.
-    const rgb = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(dark.primaryTextOnDark);
+    const rgb = parseHex(dark.primaryTextOnDark);
     expect(rgb).not.toBeNull();
+    expect(rgbToOklch(rgb!).l).toBeGreaterThanOrEqual(TEXT_LIGHTNESS_FLOOR - 0.005);
   });
 
   it('an achromatic brand (#000000) yields a perfectly neutral dark surface', () => {
