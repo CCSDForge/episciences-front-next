@@ -11,19 +11,13 @@ const log = logger.child({ service: 'mathjax-provider' });
  * True once the MathJax script is loaded and started up.
  *
  * Defaults to false: outside of MathJaxProvider there is no MathJax script to wait for,
- * and BetterMathJax would throw without a MathJaxContext, so components keep plain text.
+ * so components keep plain text.
  */
 export const MathJaxReadyContext = createContext(false);
 
 /**
- * Tracks MathJax startup once for the whole tree.
- *
- * better-react-mathjax chains `typesetClear([ref.current])` on the MathJax loading promise
- * and rethrows any failure. If the element unmounts while the script is still loading
- * (e.g. a list swapped for a loader during a client refetch), `ref.current` is null and
- * MathJax crashes with an unhandled "Typesetting failed: Cannot read properties of null
- * (reading 'contains')". MathJax components wait for this readiness before mounting
- * BetterMathJax, which closes that window.
+ * Tracks MathJax startup once for the whole tree, so that MathJax components only
+ * typeset once the script is loaded and started up.
  */
 export function MathJaxReadyProvider({ children }: { children: React.ReactNode }) {
   const base = use(MathJaxBaseContext);

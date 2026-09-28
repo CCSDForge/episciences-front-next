@@ -4,6 +4,7 @@
 export const journals: string[] = [
   "arcs",
   "arcs-preprod",
+  "arima",
   "arima-preprod",
   "asrm-preprod",
   "cm",

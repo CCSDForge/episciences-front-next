@@ -144,6 +144,13 @@
       "signIn": "Sign in",
       "newWindow": "(new window)"
     },
+    "themeToggle": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "selectTheme": "Choose theme"
+    },
     "footer": {
       "links": {
         "notice": "Journal's leaflet",

@@ -85,7 +85,7 @@ export const CaretUpBlueIcon = (props: Omit<CaretUpIconProps, 'color'>) => (
 );
 
 export const CaretUpBlackIcon = (props: Omit<CaretUpIconProps, 'color'>) => (
-  <CaretUpIcon {...props} color="#000000" />
+  <CaretUpIcon {...props} color="currentColor" />
 );
 
 export const CaretUpWhiteIcon = (props: Omit<CaretUpIconProps, 'color'>) => (

@@ -79,5 +79,5 @@ export const CloseRedIcon = (props: Omit<CloseIconProps, 'color'>) => (
 );
 
 export const CloseBlackIcon = (props: Omit<CloseIconProps, 'color'>) => (
-  <CloseIcon {...props} color="#000000" />
+  <CloseIcon {...props} color="currentColor" />
 );

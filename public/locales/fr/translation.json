@@ -151,6 +151,13 @@
       "signIn": "Connexion",
       "newWindow": "(nouvelle fenêtre)"
     },
+    "themeToggle": {
+      "label": "Thème",
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système",
+      "selectTheme": "Choisir le thème"
+    },
     "footer": {
       "links": {
         "notice": "Notice de la revue",

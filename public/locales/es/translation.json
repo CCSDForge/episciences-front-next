@@ -144,6 +144,13 @@
       "signIn": "Iniciar sesión",
       "newWindow": "(nueva ventana)"
     },
+    "themeToggle": {
+      "label": "Tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema",
+      "selectTheme": "Elegir el tema"
+    },
     "footer": {
       "links": {
         "notice": "Ficha de la revista",

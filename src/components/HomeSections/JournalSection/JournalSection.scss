@@ -1,7 +1,9 @@
 @use '@/styles/breakpoints.scss';
+@use '@/styles/mixins';
 .journalSection {
   padding: 12px 24px 12px 24px;
-  border: 1px solid var(--grey);
+  border: 1px solid;
+  @include mixins.elevated-card;
   border-bottom: 4px solid var(--accent-border);
 
   ul {

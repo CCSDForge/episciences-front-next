@@ -1,0 +1,138 @@
+@use '@/styles/breakpoints';
+
+.themeToggle {
+  position: relative;
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 500;
+  // Text is hidden on small screens (icon only) through this variable, so the
+  // breakpoint doesn't have to out-specify the :root selectors below.
+  --themeToggle-text-display: inline;
+
+  @media (max-width: breakpoints.$xsm) {
+    --themeToggle-text-display: none;
+  }
+
+  &-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-color, #0066cc);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    @media (max-width: breakpoints.$xsm) {
+      gap: 4px;
+      padding: 8px 4px;
+    }
+  }
+
+  // Icon and text mirror the stored preference, driven by the data-theme
+  // attribute the bootstrap script sets before first paint (no attribute =
+  // light default). All variants are rendered; only the matching one shows.
+  &-icon,
+  &-text {
+    display: none;
+  }
+
+  &-icon {
+    flex-shrink: 0;
+    line-height: 0;
+  }
+
+  &-text {
+    min-width: 40px;
+    text-align: left;
+  }
+
+  @each $pref, $selector
+    in (
+      light: ":root:not([data-theme='dark']):not([data-theme='system'])",
+      dark: ":root[data-theme='dark']",
+      system: ":root[data-theme='system']"
+    )
+  {
+    #{$selector} &-icon-#{$pref} {
+      display: block;
+    }
+
+    #{$selector} &-text-#{$pref} {
+      display: var(--themeToggle-text-display);
+    }
+  }
+
+  &-caret {
+    width: 12px;
+    flex-shrink: 0;
+  }
+
+  &-menu {
+    position: absolute;
+    right: 0;
+    display: none;
+    z-index: 3;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 4px;
+    min-width: 180px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    box-shadow: 0px 4px 12px var(--shadow);
+    border-radius: 4px;
+    overflow: hidden;
+
+    &-displayed {
+      display: block;
+    }
+
+    &-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      text-align: left;
+      background: var(--surface-2);
+      border: none;
+      padding: 14px 20px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 16px;
+      font-family: inherit;
+      transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border);
+      }
+
+      &:hover {
+        background-color: var(--surface-raised);
+        color: var(--text);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--focus-color, #0066cc);
+        outline-offset: -2px;
+        z-index: 1;
+      }
+
+      &[aria-checked='true'] {
+        color: var(--primary-text);
+        font-weight: 600;
+      }
+    }
+  }
+}

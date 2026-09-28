@@ -1,4 +1,5 @@
 @use '@/styles/breakpoints.scss';
+@use '@/styles/mixins';
 
 $footer-mobile: 768px;
 
@@ -18,7 +19,7 @@ $footer-mobile: 768px;
     align-items: center;
     padding: 25px 80px 25px 25px;
     border-bottom: 2px solid var(--accent-border);
-    box-shadow: 0px 0px 6px var(--black-shadow);
+    box-shadow: 0px 0px 6px var(--shadow);
 
     @media (max-width: $footer-mobile) {
       padding: 20px 16px;
@@ -28,6 +29,12 @@ $footer-mobile: 768px;
     &-logo {
       margin-right: 25px;
       flex-shrink: 0;
+      // Light island — journal logos are polychrome SVGs designed for a white box;
+      // see .header-journal-logo in Header.scss for the full rationale.
+      @include mixins.light-island;
+      box-sizing: border-box;
+      padding: 4px;
+      border-radius: 4px;
 
       img {
         max-width: 160px;
@@ -91,6 +98,13 @@ $footer-mobile: 768px;
     &-logo {
       margin-right: 25px;
       flex-shrink: 0;
+      // Light island: the Episciences mark is drawn in dark navy/teal for a white
+      // background — invisible on a dark surface. Same rationale as the journal
+      // logo boxes above.
+      @include mixins.light-island;
+      box-sizing: border-box;
+      padding: 4px;
+      border-radius: 4px;
 
       img {
         max-width: 200px;

@@ -77,10 +77,6 @@ vi.mock('@/components/LastVolumeInitializer/LastVolumeInitializer', () => ({
   LastVolumeInitializer: () => <div data-testid="last-volume-initializer" />,
 }));
 
-vi.mock('@/components/ThemeStyleSwitch/ThemeStyleSwitch', () => ({
-  default: () => <div data-testid="theme-style-switch" />,
-}));
-
 // Mock Redux slice actions
 vi.mock('@/store/features/i18n/i18n.slice', () => ({
   setLanguage: vi.fn(lang => ({ type: 'i18n/setLanguage', payload: lang })),
@@ -232,18 +228,6 @@ describe('ClientProviders', () => {
   });
 
   describe('Client-side initialization', () => {
-    it('renders ThemeStyleSwitch after mount', async () => {
-      render(
-        <ClientProviders>
-          <div>Content</div>
-        </ClientProviders>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('theme-style-switch')).toBeInTheDocument();
-      });
-    });
-
     it('renders JournalInitializer when no initialJournal provided', async () => {
       render(
         <ClientProviders journalId="test">
@@ -272,7 +256,7 @@ describe('ClientProviders', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('theme-style-switch')).toBeInTheDocument();
+        expect(screen.getByText('Content')).toBeInTheDocument();
       });
 
       expect(screen.queryByTestId('journal-initializer')).not.toBeInTheDocument();

@@ -1,11 +1,13 @@
 @use '@/styles/breakpoints.scss';
+@use '@/styles/mixins';
 
 .swiperBoardCard {
   min-height: 216px;
   display: flex;
   flex-direction: column;
   padding: 30px 30px 20px 30px;
-  border: 1px solid var(--grey);
+  border: 1px solid;
+  @include mixins.elevated-card;
   border-bottom: 4px solid var(--accent-border);
 
   @media (max-width: breakpoints.$sm) {

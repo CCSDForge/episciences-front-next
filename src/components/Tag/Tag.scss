@@ -20,6 +20,10 @@
     // Button reset
     background: none;
     border: none;
+    // CloseBlackIcon paints via currentColor — pin it to the semantic "strong
+    // text" token so it stays legible in both schemes instead of inheriting
+    // whatever ambient (muted) text color happens to cascade down.
+    color: var(--text-strong);
 
     // Visual icon size (12px SVG inside)
     width: 12px;

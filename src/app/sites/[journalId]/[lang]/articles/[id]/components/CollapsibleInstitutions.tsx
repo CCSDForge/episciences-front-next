@@ -1,6 +1,6 @@
 'use client';
 
-import { OrcidIcon, RorIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components/icons';
+import { OrcidIcon, RorIcon, CaretUpIcon, CaretDownIcon } from '@/components/icons';
 import { useState } from 'react';
 import { Link } from '@/components/Link/Link';
 import { IInstitution } from '@/types/article';
@@ -104,14 +104,14 @@ export default function CollapsibleInstitutions({
           >
             <div>{renderAuthors()}</div>
             {openedInstitutions ? (
-              <CaretUpGreyIcon
+              <CaretUpIcon
                 size={16}
                 className="articleDetails-content-article-authors-withInstitutions-caret"
                 ariaLabel="Collapse institutions"
                 onClick={(): void => setOpenedInstitutions(!openedInstitutions)}
               />
             ) : (
-              <CaretDownGreyIcon
+              <CaretDownIcon
                 size={16}
                 className="articleDetails-content-article-authors-withInstitutions-caret"
                 ariaLabel="Expand institutions"
