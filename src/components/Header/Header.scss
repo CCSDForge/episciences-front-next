@@ -450,6 +450,14 @@
             box-shadow: 0px 3px 6px var(--grey);
             font-size: 18px;
 
+            // Dark mode only: same surface and hairline as elevated cards, and a
+            // dark shadow instead of the --grey one that reads as a pale glow.
+            @include mixins.when-dark {
+              background: var(--surface-2);
+              border-color: rgba(255, 255, 255, 0.12);
+              box-shadow: 0px 3px 6px var(--shadow);
+            }
+
             &-large {
               min-width: 170px;
 
@@ -706,6 +714,14 @@
           border: 1px solid var(--grey-light);
           box-shadow: 0px 3px 6px var(--grey);
           font-size: 16px;
+
+          // Dark mode only: aligned with the elevated-card surface (see the
+          // reduced header's dropdown links above).
+          @include mixins.when-dark {
+            background: var(--surface-2);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0px 3px 6px var(--shadow);
+          }
 
           &-section {
             display: flex;

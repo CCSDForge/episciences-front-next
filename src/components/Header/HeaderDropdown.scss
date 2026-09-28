@@ -1,4 +1,5 @@
 @use '@/styles/breakpoints.scss';
+@use '@/styles/mixins';
 
 .header-dropdown {
   position: relative;
@@ -43,6 +44,13 @@
     font-size: 18px;
     z-index: 10;
     border-radius: 4px;
+
+    // Dark mode only: match the elevated-card hairline instead of the light
+    // --grey-light border, and drop the --grey shadow that reads as a pale glow.
+    @include mixins.when-dark {
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0px 3px 6px var(--shadow);
+    }
 
     &-item {
       color: var(--grey);
