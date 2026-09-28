@@ -43,7 +43,8 @@ vi.mock('@/components/icons', () => ({
 }));
 
 // Mock board service
-vi.mock('@/services/board', () => ({
+vi.mock('@/services/board', async importOriginal => ({
+  sortBoardRoles: (await importOriginal<typeof import('@/services/board')>()).sortBoardRoles,
   defaultBoardRole: () => ({ label: 'Member' }),
   getBoardRoles: (_t: any, roles: string[]) => roles.join(', '),
 }));
@@ -345,6 +346,50 @@ describe('BoardCard', () => {
         />
       );
       expect(screen.getByText('Editor-in-Chief')).toBeInTheDocument();
+    });
+
+    it('orders roles canonically regardless of API order (issue #104)', () => {
+      const rolesLabels = {
+        'chief-editor': 'Chief editor',
+        'editorial-board': 'Editorial board',
+      };
+      const { rerender } = render(
+        <BoardCard
+          language="en"
+          t={mockT as any}
+          member={{ ...baseMember, roles: ['editorial-board', 'chief-editor'] }}
+          state="default"
+          onToggle={vi.fn()}
+          rolesLabels={rolesLabels}
+        />
+      );
+      expect(screen.getByText('Chief editor, Editorial board')).toBeInTheDocument();
+
+      rerender(
+        <BoardCard
+          language="en"
+          t={mockT as any}
+          member={{ ...baseMember, roles: ['chief-editor', 'editorial-board'] }}
+          state="default"
+          onToggle={vi.fn()}
+          rolesLabels={rolesLabels}
+        />
+      );
+      expect(screen.getByText('Chief editor, Editorial board')).toBeInTheDocument();
+    });
+
+    it('falls back to the raw role for inherited Object.prototype keys', () => {
+      render(
+        <BoardCard
+          language="en"
+          t={mockT as any}
+          member={{ ...baseMember, roles: ['chief-editor', 'toString'] }}
+          state="default"
+          onToggle={vi.fn()}
+          rolesLabels={{ 'chief-editor': 'Chief editor' }}
+        />
+      );
+      expect(screen.getByText('Chief editor, toString')).toBeInTheDocument();
     });
 
     it('uses rolesLabels["member"] as default role when no roles', () => {
