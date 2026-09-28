@@ -4,6 +4,7 @@
 export const journalLanguages: Record<string, { default: string; accepted: string[] }> = {
   'arcs': { default: 'fr', accepted: ["en","fr"] },
   'arcs-preprod': { default: 'fr', accepted: ["en","fr"] },
+  'arima': { default: 'en', accepted: ["en","fr"] },
   'arima-preprod': { default: 'en', accepted: ["en","fr"] },
   'asrm-preprod': { default: 'fr', accepted: ["fr"] },
   'cm': { default: 'en', accepted: ["en"] },
