@@ -16,9 +16,11 @@ const PREFERENCE_ICONS: Record<ThemePreference, typeof SunIcon> = {
 /**
  * Theme selector: light (default), dark, or follow the system.
  *
- * The button icon paints with zero JS (CSS keyed on the `data-theme` attribute
- * the bootstrap script sets before first paint) — only the text label waits for
- * hydration, since the stored preference is unknown on the server.
+ * The button icon and text label paint with zero JS: all three variants are
+ * rendered and CSS keyed on the `data-theme` attribute (set by the bootstrap
+ * script before first paint) shows the matching one — so there is no
+ * "Theme" → "Light" swap on hydration. Only the aria-label waits for hydration,
+ * since the stored preference is unknown on the server.
  */
 export default function ThemeToggle(): React.JSX.Element {
   const { t } = useTranslation();
@@ -130,11 +132,8 @@ export default function ThemeToggle(): React.JSX.Element {
     }
   };
 
-  const currentLabel = isHydrated
-    ? t(`components.themeToggle.${preference}`)
-    : t('components.themeToggle.label');
   const buttonLabel = isHydrated
-    ? `${t('components.themeToggle.label')}: ${currentLabel}`
+    ? `${t('components.themeToggle.label')}: ${t(`components.themeToggle.${preference}`)}`
     : t('components.themeToggle.label');
 
   return (
@@ -157,7 +156,11 @@ export default function ThemeToggle(): React.JSX.Element {
             </span>
           );
         })}
-        <span className="themeToggle-text">{currentLabel}</span>
+        {THEME_PREFERENCES.map(pref => (
+          <span key={pref} className={`themeToggle-text themeToggle-text-${pref}`}>
+            {t(`components.themeToggle.${pref}`)}
+          </span>
+        ))}
         {showMenu ? (
           <CaretUpIcon size={14} className="themeToggle-caret" />
         ) : (

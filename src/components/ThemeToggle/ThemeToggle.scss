@@ -5,6 +5,13 @@
   display: inline-block;
   font-size: 15px;
   font-weight: 500;
+  // Text is hidden on small screens (icon only) through this variable, so the
+  // breakpoint doesn't have to out-specify the :root selectors below.
+  --themeToggle-text-display: inline;
+
+  @media (max-width: breakpoints.$xsm) {
+    --themeToggle-text-display: none;
+  }
 
   &-button {
     display: flex;
@@ -31,38 +38,37 @@
     }
   }
 
-  // Icon mirrors the stored preference, driven by the data-theme attribute the
-  // bootstrap script sets before first paint (no attribute = light default).
-  &-icon {
+  // Icon and text mirror the stored preference, driven by the data-theme
+  // attribute the bootstrap script sets before first paint (no attribute =
+  // light default). All variants are rendered; only the matching one shows.
+  &-icon,
+  &-text {
     display: none;
+  }
+
+  &-icon {
     flex-shrink: 0;
     line-height: 0;
-
-    &-light {
-      :root:not([data-theme='dark']):not([data-theme='system']) & {
-        display: block;
-      }
-    }
-
-    &-dark {
-      :root[data-theme='dark'] & {
-        display: block;
-      }
-    }
-
-    &-system {
-      :root[data-theme='system'] & {
-        display: block;
-      }
-    }
   }
 
   &-text {
     min-width: 40px;
     text-align: left;
+  }
 
-    @media (max-width: breakpoints.$xsm) {
-      display: none;
+  @each $pref, $selector
+    in (
+      light: ":root:not([data-theme='dark']):not([data-theme='system'])",
+      dark: ":root[data-theme='dark']",
+      system: ":root[data-theme='system']"
+    )
+  {
+    #{$selector} &-icon-#{$pref} {
+      display: block;
+    }
+
+    #{$selector} &-text-#{$pref} {
+      display: var(--themeToggle-text-display);
     }
   }
 

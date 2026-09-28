@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { checkA11y } from '@/test-utils/axe-helper';
 import ThemeToggle from '../ThemeToggle';
@@ -46,6 +47,19 @@ describe('ThemeToggle', () => {
 
     expect(getTrigger()).toHaveAccessibleName('Theme: Light');
     expect(getTrigger()).toHaveTextContent('Light');
+  });
+
+  it('server-renders every label so CSS can show the stored one before hydration', () => {
+    const html = renderToString(<ThemeToggle />);
+
+    expect(html).not.toMatch(/themeToggle-text[^"]*">Theme</);
+    for (const [pref, label] of [
+      ['light', 'Light'],
+      ['dark', 'Dark'],
+      ['system', 'System'],
+    ]) {
+      expect(html).toContain(`themeToggle-text themeToggle-text-${pref}">${label}</span>`);
+    }
   });
 
   it('reflects a stored preference', () => {
