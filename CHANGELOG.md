@@ -21,6 +21,8 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1.2.2] - 2026-09-29
+
 ### Fixed
 
 - **Editorial Board Member Roles Ordering & Deduplication**: Sorted board member roles in canonical order (member roles by priority, followed by board types, then unknown roles) regardless of the order returned by the upstream API. Roles are also deduplicated and protected against inherited `Object.prototype` keys using `Object.hasOwn` in role lookups and ranking (Fixes #104, PR #105).
