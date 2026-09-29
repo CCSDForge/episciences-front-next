@@ -1,0 +1,101 @@
+name: "Bug report 🐛"
+description: "Signaler une erreur ou un comportement inattendu sur episciences-front-next"
+title: "[Bug Report]: "
+labels:
+  - "bug"
+  - "new"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Merci de ne divulguer aucune information personnelle** (noms d'auteurs, relecteurs, adresses e-mail, etc.).  
+        *Veuillez contacter le support directement si vous devez communiquer des données nominatives.*
+
+  - type: input
+    id: journal
+    attributes:
+      label: "Revue concernée (Code RV ou URL)"
+      description: "Précisez la ou les revues affectées par le problème."
+      placeholder: "ex. arima, jdmdh, https://arima.episciences.org/... ou 'Toutes les revues'"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: "Environnement"
+      description: "Dans quel environnement avez-vous rencontré le problème ?"
+      options:
+        - "Production (https://*.episciences.org)"
+        - "Préproduction (https://*-preprod.episciences.org)"
+        - "Développement local"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: language
+    attributes:
+      label: "Langue(s) active(s) lors du bug"
+      options:
+        - label: "Français (fr)"
+        - label: "Anglais (en)"
+        - label: "Espagnol (es)"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description du bug"
+      description: "Description claire et concise de l'anomalie constatée."
+      placeholder: "Que s'est-il passé ?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Étapes pour reproduire le comportement"
+      description: "Indiquez pas à pas comment reproduire le bogue."
+      placeholder: |
+        1. Aller sur '...'
+        2. Cliquer sur '....'
+        3. Constater l'erreur
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Comportement attendu"
+      description: "Ce qui aurait dû se produire à la place."
+      placeholder: "Description du comportement attendu..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "Captures d'écran ou enregistrements"
+      description: "Glissez-déposez des captures d'écran ou des vidéos explicatives (veillez à anonymiser les données personnelles)."
+      placeholder: "Glissez-déposez vos captures d'écran ici..."
+
+  - type: input
+    id: system_info
+    attributes:
+      label: "Navigateur, Système d'exploitation et Appareil"
+      description: "Précisez votre configuration (OS, navigateur, version, appareil)."
+      placeholder: "ex. Chrome 128 sous macOS / Firefox sous Linux / Safari sur iPhone"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Traces console / requêtes réseau (si applicable)"
+      description: "Messages d'erreurs visibles dans les outils développeur du navigateur (erreurs SSR, hydratation, requêtes API en échec...)."
+      render: text
+      placeholder: "Collez les logs ou messages d'erreur ici..."
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Contexte additionnel"
+      description: "Toute information contextuelle utile (ex. utilisateur anonyme, rédacteur connecté, relecteur...)."
