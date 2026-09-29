@@ -1,0 +1,61 @@
+name: "Feature request 💡"
+description: "Proposer une idée ou une amélioration pour episciences-front-next"
+title: "[Feature request]: "
+labels:
+  - "enhancement"
+  - "new"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Merci de ne divulguer aucune information personnelle** (noms d'auteurs, relecteurs, adresses e-mail, etc.).
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: "Périmètre de la demande"
+      description: "À quel ensemble cette fonctionnalité s'applique-t-elle ?"
+      options:
+        - "Toutes les revues / Plateforme globale"
+        - "Revue(s) spécifique(s)"
+    validations:
+      required: true
+
+  - type: input
+    id: journals_specified
+    attributes:
+      label: "Revues concernées (si spécifique)"
+      description: "Si la demande ne concerne qu'une ou plusieurs revues, précisez leurs identifiants (code RV)."
+      placeholder: "ex. arima, jdmdh..."
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problème ou besoin constaté"
+      description: "Description claire et concise du problème ou de la limitation actuelle."
+      placeholder: "Je rencontre une difficulté lorsque... / Il manque actuellement..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Solution ou fonctionnalité souhaitée"
+      description: "Décrivez ce que vous aimeriez voir implémenté."
+      placeholder: "L'application devrait permettre de..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Solutions alternatives envisagées"
+      description: "Avez-vous considéré d'autres solutions, approches ou contournements ?"
+      placeholder: "J'ai également pensé à..."
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Contexte additionnel, maquettes ou captures d'écran"
+      description: "Ajoutez toute information, maquette ou capture d'écran complémentaire."
