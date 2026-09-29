@@ -21,6 +21,8 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1.2.3] - 2026-09-29
+
 ### Fixed
 
 - **Journal Images in Markdown Pages**: Images referenced by root-relative paths (e.g. `/arima/resources/logo.jpg`) failed with "The requested resource isn't a valid image" in production, because nginx serves them while the `next/image` optimizer fetched them from the Next server itself. They are now resolved to the absolute journal URL and optimized as any other image. The journal code is read from the `/<journal>/resources/` path, then from `NEXT_PUBLIC_JOURNAL_RVCODE`, then from the store.
