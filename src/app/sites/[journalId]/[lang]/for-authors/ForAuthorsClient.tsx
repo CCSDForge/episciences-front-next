@@ -9,11 +9,11 @@ import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/Coll
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/hooks/store';
+import MarkdownImage from '@/components/MarkdownImage/MarkdownImage';
 import {
   generateIdFromText,
   unifiedProcessor,
   serializeMarkdown,
-  getMarkdownImageURL,
   getNodeText,
 } from '@/utils/markdown';
 import ForAuthorsSidebar, {
@@ -260,7 +260,6 @@ export default function ForAuthorsClient({
 
   const reduxLanguage = useAppSelector(state => state.i18nReducer.language);
   const language = (lang as AvailableLanguage) || reduxLanguage;
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   const lastUpdated = useMemo(() => {
     const dates = [editorialWorkflowPage?.date_updated, prepareSubmissionPage?.date_updated].filter(
@@ -377,6 +376,7 @@ export default function ForAuthorsClient({
     a: renderMarkdownLink,
     h2: renderMarkdownH2,
     h3: renderMarkdownH3,
+    img: MarkdownImage,
   };
 
   return (
@@ -408,12 +408,7 @@ export default function ForAuthorsClient({
                 <div
                   className={`forAuthors-content-body-section ${!section.opened && 'forAuthors-content-body-section-hidden'}`}
                 >
-                  <MarkdownRenderer
-                    urlTransform={uri =>
-                      uri.includes('/public/') ? getMarkdownImageURL(uri, rvcode!) : uri
-                    }
-                    components={markdownComponents}
-                  >
+                  <MarkdownRenderer components={markdownComponents}>
                     {section.value}
                   </MarkdownRenderer>
                   <div className="forAuthors-content-body-section-cards">

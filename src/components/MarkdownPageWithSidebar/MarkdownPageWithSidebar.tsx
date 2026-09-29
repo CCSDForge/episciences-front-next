@@ -1,19 +1,17 @@
 'use client';
 
-import Image from 'next/image';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/CollapsibleSectionHeader';
+import MarkdownImage from '@/components/MarkdownImage/MarkdownImage';
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import type { ExtraProps } from 'react-markdown';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppSelector } from '@/hooks/store';
 import {
   generateIdFromText,
   unifiedProcessor,
   serializeMarkdown,
-  getMarkdownImageURL,
   getNodeText,
 } from '@/utils/markdown';
 import AboutSidebar, { IAboutHeader } from '@/components/Sidebars/AboutSidebar/AboutSidebar';
@@ -66,7 +64,6 @@ export default function MarkdownPageWithSidebar({
   className = 'markdown-page',
 }: MarkdownPageWithSidebarProps): React.JSX.Element {
   const { t } = useTranslation();
-  const rvcode = useAppSelector(state => state.journalReducer.currentJournal?.code);
 
   // Only the user's collapse choices live in state; the sections themselves are parsed
   // from `content` during render so they are available on the very first (server) pass.
@@ -190,35 +187,6 @@ export default function MarkdownPageWithSidebar({
     [content, parseSidebarHeaders, closedHeaderIds]
   );
 
-  const renderMarkdownImage = useCallback(
-    ({ src, alt }: ComponentProps<'img'> & ExtraProps) => {
-      const rawSrc = typeof src === 'string' ? src : '';
-      // Only rewrite journal-relative paths - an already-absolute URL
-      // (e.g. an external logo) must not be prefixed with the journal host.
-      // Root-relative paths (e.g. /arima/resources/x.jpg) are served by nginx,
-      // not by Next: the image optimizer would fetch them from itself and fail
-      // with "isn't a valid image", so they need an absolute journal URL.
-      // The build-time env var is preferred: the store can still be empty on
-      // first render.
-      const journalCode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || rvcode || '';
-      const isJournalRelative =
-        rawSrc.includes('/public/') ||
-        (journalCode !== '' && rawSrc.startsWith('/') && !rawSrc.startsWith('//'));
-      const resolvedSrc = isJournalRelative ? getMarkdownImageURL(rawSrc, journalCode) : rawSrc;
-      return (
-        <Image
-          src={resolvedSrc}
-          alt={alt || ''}
-          width={0}
-          height={0}
-          sizes="100vw"
-          style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
-        />
-      );
-    },
-    [rvcode]
-  );
-
   const renderMarkdownLink = useCallback(
     ({ href, children }: ComponentProps<'a'> & ExtraProps) => (
       <a
@@ -323,7 +291,7 @@ export default function MarkdownPageWithSidebar({
                     >
                       <MarkdownRenderer
                         components={{
-                          img: renderMarkdownImage,
+                          img: MarkdownImage,
                           a: renderMarkdownLink,
                           h1: renderEmptyHeading,
                           h2: renderEmptyHeading,
