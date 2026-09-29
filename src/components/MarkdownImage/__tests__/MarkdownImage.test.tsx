@@ -48,6 +48,13 @@ describe('MarkdownImage', () => {
     );
   });
 
+  it('takes the journal code from a /<journal>/resources/ path when env and store are empty', () => {
+    vi.stubEnv('NEXT_PUBLIC_JOURNAL_RVCODE', '');
+    expect(renderSrc('/arima-preprod/resources/LogoASDS_5cm.jpg')).toBe(
+      'https://arima-preprod.episciences.org/arima-preprod/resources/LogoASDS_5cm.jpg'
+    );
+  });
+
   it('leaves root-relative paths untouched when no journal code is known', () => {
     vi.stubEnv('NEXT_PUBLIC_JOURNAL_RVCODE', '');
     expect(renderSrc('/x/resources/a.jpg')).toBe('/x/resources/a.jpg');
