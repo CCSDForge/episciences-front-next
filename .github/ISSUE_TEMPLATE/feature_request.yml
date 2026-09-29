@@ -1,48 +1,64 @@
-name: "Feature request 💡"
-description: "Proposer une idée ou une amélioration pour episciences-front-next"
-title: "[Feature request]: "
-labels:
-  - "enhancement"
-  - "new"
+name: "Demande d'évolution 💡"
+description: 'Proposer une nouvelle fonctionnalité ou une amélioration pour episciences-front-next'
+title: '[Feature]: '
+labels: ['enhancement']
 
 body:
   - type: markdown
     attributes:
       value: |
-        **Merci de ne divulguer aucune information personnelle** (noms d'auteurs, relecteurs, adresses e-mail, etc.).
+        ### Merci pour votre proposition !
+        > [!TIP]
+        > Décrivez en priorité le **besoin utilisateur** ou le problème rencontré avant d'aborder la solution technique envisagée.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Type d'évolution"
+      description: "Dans quelle catégorie s'inscrit votre demande ?"
+      options:
+        - 'Nouvelle fonctionnalité'
+        - "Amélioration d'une fonctionnalité existante"
+        - 'Expérience utilisateur & Design (UI/UX)'
+        - 'Accessibilité numérique (a11y / WCAG)'
+        - 'Internationalisation / Traduction (i18n)'
+        - 'Performance et temps de chargement'
+        - 'Autre'
+    validations:
+      required: true
 
   - type: dropdown
     id: scope
     attributes:
-      label: "Périmètre de la demande"
-      description: "À quel ensemble cette fonctionnalité s'applique-t-elle ?"
+      label: 'Périmètre de la demande'
+      description: "À quel niveau s'applique cette proposition ?"
       options:
-        - "Toutes les revues / Plateforme globale"
-        - "Revue(s) spécifique(s)"
+        - 'Toutes les revues / Plateforme globale'
+        - 'Revue(s) spécifique(s)'
     validations:
       required: true
 
   - type: input
     id: journals_specified
     attributes:
-      label: "Revues concernées (si spécifique)"
-      description: "Si la demande ne concerne qu'une ou plusieurs revues, précisez leurs identifiants (code RV)."
-      placeholder: "ex. arima, jdmdh..."
+      label: 'Revue(s) concernée(s) (si spécifique)'
+      description: "Précisez le code RV ou l'URL de la ou des revues ciblées."
+      placeholder: 'ex. arima, jdmdh...'
 
   - type: textarea
     id: problem
     attributes:
-      label: "Problème ou besoin constaté"
-      description: "Description claire et concise du problème ou de la limitation actuelle."
-      placeholder: "Je rencontre une difficulté lorsque... / Il manque actuellement..."
+      label: 'Besoin ou problème constaté'
+      description: 'Quel problème ou limitation actuelle motive cette proposition ?'
+      placeholder: 'En tant que lecteur/auteur/éditeur, je rencontre une difficulté lorsque... / Il manque actuellement...'
     validations:
       required: true
 
   - type: textarea
     id: solution
     attributes:
-      label: "Solution ou fonctionnalité souhaitée"
-      description: "Décrivez ce que vous aimeriez voir implémenté."
+      label: 'Solution ou comportement souhaité'
+      description: 'Décrivez la solution idéale telle que vous la visualisez.'
       placeholder: "L'application devrait permettre de..."
     validations:
       required: true
@@ -50,12 +66,23 @@ body:
   - type: textarea
     id: alternatives
     attributes:
-      label: "Solutions alternatives envisagées"
-      description: "Avez-vous considéré d'autres solutions, approches ou contournements ?"
-      placeholder: "J'ai également pensé à..."
+      label: 'Solutions alternatives envisagées'
+      description: "Avez-vous pensé à d'autres alternatives ou solutions de contournement ?"
+      placeholder: "J'ai également envisagé de..."
 
   - type: textarea
-    id: additional_context
+    id: context_media
     attributes:
-      label: "Contexte additionnel, maquettes ou captures d'écran"
-      description: "Ajoutez toute information, maquette ou capture d'écran complémentaire."
+      label: "Maquettes ou captures d'écran"
+      description: "Glissez-déposez des esquisses, exemples ou captures d'écran pour illustrer la proposition."
+      placeholder: 'Glissez-déposez vos fichiers ici...'
+
+  - type: checkboxes
+    id: validation
+    attributes:
+      label: 'Vérifications préalables'
+      options:
+        - label: "J'ai vérifié qu'une proposition similaire n'a pas déjà été soumise."
+          required: true
+        - label: 'Ma demande ne contient aucune donnée personnelle ou confidentielle.'
+          required: true
