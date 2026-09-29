@@ -114,6 +114,22 @@ describe('ForAuthorsClient', () => {
       expect(screen.getByText('Verify citations.')).toBeInTheDocument();
     });
 
+    it('renders images inside numbered cards through next/image', () => {
+      const page: ForAuthorsPage = {
+        ...prepareSubmissionPage,
+        content: {
+          en: '### Logo\n\n![ASDS](https://x.episciences.org/x/resources/logo.jpg)',
+          fr: '',
+        },
+      };
+      const { container } = render(
+        <ForAuthorsClient editorialWorkflowPage={null} prepareSubmissionPage={page} lang="en" />
+      );
+
+      // next/image marks its output with data-nimg; a plain <img> would not have it.
+      expect(container.querySelector('img[alt="ASDS"]')).toHaveAttribute('data-nimg');
+    });
+
     it('does not crash and keeps cards grouped under their own H2 when numbered content has multiple H2 sections', () => {
       // Regression for 5c2f2e1: leftover card content used to leak across an H2
       // boundary and crash on the next (empty) cards array.

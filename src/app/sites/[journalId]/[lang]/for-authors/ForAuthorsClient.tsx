@@ -250,6 +250,9 @@ interface ForAuthorsClientProps {
   };
 }
 
+// Module-level so the reference stays stable across renders.
+const CARD_MARKDOWN_COMPONENTS: Components = { img: MarkdownImage };
+
 export default function ForAuthorsClient({
   editorialWorkflowPage,
   prepareSubmissionPage,
@@ -427,7 +430,9 @@ export default function ForAuthorsClient({
                           >
                             {card.title}
                           </h3>
-                          <MarkdownRenderer>{card.content}</MarkdownRenderer>
+                          <MarkdownRenderer components={CARD_MARKDOWN_COMPONENTS}>
+                            {card.content}
+                          </MarkdownRenderer>
                         </div>
                       </div>
                     ))}
