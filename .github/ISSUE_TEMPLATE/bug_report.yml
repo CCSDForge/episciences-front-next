@@ -1,101 +1,133 @@
-name: "Bug report 🐛"
-description: "Signaler une erreur ou un comportement inattendu sur episciences-front-next"
-title: "[Bug Report]: "
-labels:
-  - "bug"
-  - "new"
+name: 'Rapport de bug 🐛'
+description: 'Signaler un dysfonctionnement ou un comportement inattendu sur episciences-front-next'
+title: '[Bug]: '
+labels: ['bug']
 
 body:
   - type: markdown
     attributes:
       value: |
-        **Merci de ne divulguer aucune information personnelle** (noms d'auteurs, relecteurs, adresses e-mail, etc.).  
-        *Veuillez contacter le support directement si vous devez communiquer des données nominatives.*
+        ### Merci de prendre le temps de signaler ce problème !
+        > [!CAUTION]
+        > **Protection des données personnelles (RGPD) & Confidentialité**  
+        > Ne divulguez aucune information personnelle ou sensible (noms d'auteurs/relecteurs de manuscrits non publiés, adresses e-mail privées, jetons d'accès, etc.).  
+        > Pour toute demande nécessitant des données nominatives, contactez directement le [Support Episciences](https://www.episciences.org/contact-2/).
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: 'Module ou page concernée'
+      description: "Quelle partie de l'application est impactée ?"
+      options:
+        - "Page d'accueil de la revue"
+        - "Consultation d'article / Métadonnées / Lecteur PDF"
+        - 'Volumes et Numéros spéciaux'
+        - 'Rubriques / Sections'
+        - 'Actualités'
+        - 'Pages éditoriales & Crédits (À propos, etc.)'
+        - 'Navigation globale / En-tête / Pied de page'
+        - 'Recherche / Filtres'
+        - 'Thème / Style / Affichage mobile'
+        - 'Autre'
+    validations:
+      required: true
 
   - type: input
     id: journal
     attributes:
-      label: "Revue concernée (Code RV ou URL)"
-      description: "Précisez la ou les revues affectées par le problème."
-      placeholder: "ex. arima, jdmdh, https://arima.episciences.org/... ou 'Toutes les revues'"
+      label: 'Revue(s) concernée(s)'
+      description: 'Identifiant court (code RV), URL ou mentionner si le problème touche toutes les revues.'
+      placeholder: "ex. arima, jdmdh, https://arima.episciences.org/... ou 'Toutes'"
     validations:
       required: true
 
   - type: dropdown
     id: environment
     attributes:
-      label: "Environnement"
-      description: "Dans quel environnement avez-vous rencontré le problème ?"
+      label: 'Environnement'
+      description: 'Sur quel environnement le problème a-t-il été constaté ?'
       options:
-        - "Production (https://*.episciences.org)"
-        - "Préproduction (https://*-preprod.episciences.org)"
-        - "Développement local"
+        - 'Production (https://*.episciences.org)'
+        - 'Préproduction (https://*-preprod.episciences.org)'
+        - 'Développement local (localhost)'
+        - 'Autre'
     validations:
       required: true
 
   - type: checkboxes
     id: language
     attributes:
-      label: "Langue(s) active(s) lors du bug"
+      label: 'Langue(s) active(s)'
+      description: "Langue(s) de l'interface lors de la survenue du problème."
       options:
-        - label: "Français (fr)"
-        - label: "Anglais (en)"
-        - label: "Espagnol (es)"
+        - label: 'Français (fr)'
+        - label: 'Anglais (en)'
+        - label: 'Espagnol (es)'
 
   - type: textarea
     id: description
     attributes:
-      label: "Description du bug"
-      description: "Description claire et concise de l'anomalie constatée."
-      placeholder: "Que s'est-il passé ?"
+      label: 'Description du bug'
+      description: 'Expliquez clairement ce qui ne fonctionne pas.'
+      placeholder: 'Décrivez précisément le problème rencontré...'
     validations:
       required: true
 
   - type: textarea
     id: reproduction
     attributes:
-      label: "Étapes pour reproduire le comportement"
-      description: "Indiquez pas à pas comment reproduire le bogue."
+      label: 'Étapes de reproduction'
+      description: 'Indiquez les étapes pas à pas pour reproduire le comportement.'
       placeholder: |
-        1. Aller sur '...'
-        2. Cliquer sur '....'
-        3. Constater l'erreur
+        1. Se rendre sur la page '...'
+        2. Cliquer sur '...'
+        3. Constater l'erreur ou l'affichage anormal
     validations:
       required: true
 
   - type: textarea
     id: expected
     attributes:
-      label: "Comportement attendu"
-      description: "Ce qui aurait dû se produire à la place."
-      placeholder: "Description du comportement attendu..."
+      label: 'Comportement attendu'
+      description: 'Décrivez ce qui aurait dû se produire normalement.'
+      placeholder: "Le contenu devrait s'afficher correctement sans erreur..."
     validations:
       required: true
 
   - type: textarea
     id: screenshots
     attributes:
-      label: "Captures d'écran ou enregistrements"
-      description: "Glissez-déposez des captures d'écran ou des vidéos explicatives (veillez à anonymiser les données personnelles)."
-      placeholder: "Glissez-déposez vos captures d'écran ici..."
+      label: "Captures d'écran ou vidéos"
+      description: "Glissez-déposez ici des captures d'écran ou enregistrements (anonymisés)."
+      placeholder: 'Glissez-déposez vos fichiers ici...'
 
   - type: input
     id: system_info
     attributes:
-      label: "Navigateur, Système d'exploitation et Appareil"
-      description: "Précisez votre configuration (OS, navigateur, version, appareil)."
-      placeholder: "ex. Chrome 128 sous macOS / Firefox sous Linux / Safari sur iPhone"
+      label: 'Système et Navigateur'
+      description: "Précisez votre OS, navigateur, version et type d'appareil (ordinateur, smartphone, etc.)."
+      placeholder: 'ex. Chrome 129 sous macOS / Firefox 130 sous Linux / Safari sous iOS 18'
 
   - type: textarea
     id: logs
     attributes:
-      label: "Traces console / requêtes réseau (si applicable)"
-      description: "Messages d'erreurs visibles dans les outils développeur du navigateur (erreurs SSR, hydratation, requêtes API en échec...)."
-      render: text
-      placeholder: "Collez les logs ou messages d'erreur ici..."
+      label: 'Traces console ou requêtes réseau (si applicable)'
+      description: "Messages d'erreurs visibles dans les outils développeur (F12)."
+      render: shell
+      placeholder: 'Collez ici les erreurs console ou traces de pile...'
 
   - type: textarea
     id: additional_context
     attributes:
-      label: "Contexte additionnel"
-      description: "Toute information contextuelle utile (ex. utilisateur anonyme, rédacteur connecté, relecteur...)."
+      label: 'Contexte additionnel'
+      description: 'Toute autre information utile (rôle utilisateur, permissions, etc.).'
+
+  - type: checkboxes
+    id: validation
+    attributes:
+      label: 'Vérifications préalables'
+      options:
+        - label: "J'ai vérifié qu'un rapport similaire n'existe pas déjà parmi les issues ouvertes ou fermées."
+          required: true
+        - label: "J'ai vérifié qu'aucune information personnelle ou confidentielle n'est présente dans les captures ou les logs."
+          required: true

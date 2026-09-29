@@ -1,11 +1,11 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: Documentation Episciences 💻
+  - name: Documentation Episciences 📚
     url: https://doc.episciences.org/
-    about: Consultez la documentation officielle d'Episciences
-  - name: Foire Aux Questions (FAQ) 📃
+    about: Consultez la documentation officielle de la plateforme Episciences
+  - name: Foire Aux Questions (FAQ) ❓
     url: https://doc.episciences.org/faq/
-    about: Questions fréquentes concernant la plateforme Episciences
-  - name: Support Episciences 💬
+    about: Réponses aux questions fréquentes des utilisateurs et équipes éditoriales
+  - name: Support Utilisateurs & Éditeurs 💬
     url: https://www.episciences.org/contact-2/
     about: Besoin d'assistance ou question spécifique ? Contactez l'équipe Episciences
