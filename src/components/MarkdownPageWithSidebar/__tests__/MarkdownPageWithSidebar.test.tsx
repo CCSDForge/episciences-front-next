@@ -317,6 +317,27 @@ Content for section 2
       });
     });
 
+    it('prefers NEXT_PUBLIC_JOURNAL_RVCODE over the store when resolving the host', async () => {
+      vi.stubEnv('NEXT_PUBLIC_JOURNAL_RVCODE', 'arima-preprod');
+      try {
+        const { container } = render(
+          <MarkdownPageWithSidebar
+            content={'## Section 1\n\n![alt text](/arima-preprod/resources/a.jpg)'}
+            title="Test Page"
+            breadcrumbLabels={mockBreadcrumbLabels}
+          />
+        );
+
+        await waitFor(() => {
+          expect(container.querySelector('img')?.getAttribute('src')).toBe(
+            'https://arima-preprod.episciences.org/arima-preprod/resources/a.jpg'
+          );
+        });
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+
     it('leaves an already-absolute external image URL untouched', async () => {
       const { container } = render(
         <MarkdownPageWithSidebar

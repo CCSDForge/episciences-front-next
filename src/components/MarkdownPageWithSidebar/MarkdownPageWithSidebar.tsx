@@ -197,13 +197,14 @@ export default function MarkdownPageWithSidebar({
       // (e.g. an external logo) must not be prefixed with the journal host.
       // Root-relative paths (e.g. /arima/resources/x.jpg) are served by nginx,
       // not by Next: the image optimizer would fetch them from itself and fail
-      // with "isn't a valid image", so they must go through the journal host.
+      // with "isn't a valid image", so they need an absolute journal URL.
+      // The build-time env var is preferred: the store can still be empty on
+      // first render.
+      const journalCode = process.env.NEXT_PUBLIC_JOURNAL_RVCODE || rvcode || '';
       const isJournalRelative =
         rawSrc.includes('/public/') ||
-        (rawSrc.startsWith('/') && !rawSrc.startsWith('//'));
-      const resolvedSrc = isJournalRelative
-        ? getMarkdownImageURL(rawSrc, rvcode || '')
-        : rawSrc;
+        (journalCode !== '' && rawSrc.startsWith('/') && !rawSrc.startsWith('//'));
+      const resolvedSrc = isJournalRelative ? getMarkdownImageURL(rawSrc, journalCode) : rawSrc;
       return (
         <Image
           src={resolvedSrc}
