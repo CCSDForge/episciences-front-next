@@ -195,7 +195,13 @@ export default function MarkdownPageWithSidebar({
       const rawSrc = typeof src === 'string' ? src : '';
       // Only rewrite journal-relative paths - an already-absolute URL
       // (e.g. an external logo) must not be prefixed with the journal host.
-      const resolvedSrc = rawSrc.includes('/public/')
+      // Root-relative paths (e.g. /arima/resources/x.jpg) are served by nginx,
+      // not by Next: the image optimizer would fetch them from itself and fail
+      // with "isn't a valid image", so they must go through the journal host.
+      const isJournalRelative =
+        rawSrc.includes('/public/') ||
+        (rawSrc.startsWith('/') && !rawSrc.startsWith('//'));
+      const resolvedSrc = isJournalRelative
         ? getMarkdownImageURL(rawSrc, rvcode || '')
         : rawSrc;
       return (

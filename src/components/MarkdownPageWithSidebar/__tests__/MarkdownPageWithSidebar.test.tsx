@@ -300,6 +300,23 @@ Content for section 2
       });
     });
 
+    it('resolves root-relative "/<journal>/resources/" paths against the journal host', async () => {
+      const { container } = render(
+        <MarkdownPageWithSidebar
+          content={'## Section 1\n\n![alt text](/journal-code/resources/asds.jpg)'}
+          title="Test Page"
+          breadcrumbLabels={mockBreadcrumbLabels}
+        />
+      );
+
+      await waitFor(() => {
+        const img = container.querySelector('img');
+        expect(img?.getAttribute('src')).toBe(
+          'https://journal-code.episciences.org/journal-code/resources/asds.jpg'
+        );
+      });
+    });
+
     it('leaves an already-absolute external image URL untouched', async () => {
       const { container } = render(
         <MarkdownPageWithSidebar
