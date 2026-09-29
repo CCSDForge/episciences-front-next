@@ -21,6 +21,12 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1.2.4] - 2026-09-29
+
+### Fixed
+
+- **Header Journal Titles Wrapping**: Wrapped long journal titles and subtitles using a fluid font size with balanced wrapping (clamped to 3 lines on desktop, 2 on mobile) and allowed up to two lines in the reduced header instead of truncating them with ellipsis, while keeping the header height fixed.
+
 ## [v1.2.3] - 2026-09-29
 
 ### Fixed
