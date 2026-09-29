@@ -71,6 +71,23 @@ These variables differ per journal. They are loaded at runtime from `external-as
 | **API URL**       | `NEXT_PUBLIC_API_ROOT_ENDPOINT`     | Restart Node.js  | Runtime   |
 | **Colors**        | `NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR` | Restart Node.js  | Runtime   |
 | **Feature flags** | `NEXT_PUBLIC_..._RENDER`            | Restart Node.js  | Runtime   |
+| **Boards order**  | `NEXT_PUBLIC_JOURNAL_BOARDS_ORDER`  | Restart Node.js  | Runtime   |
+
+#### Boards display order
+
+`NEXT_PUBLIC_JOURNAL_BOARDS_ORDER` sets the order of the boards on the `/boards` page and of the board groups in the homepage members carousel. It is a comma-separated list of board types:
+
+`introduction-board`, `scientific-advisory-board`, `editorial-board`, `technical-board`, `reviewers-board`, `former-members`, `operating-charter-board`
+
+```env
+# Editorial board first, then the technical board, then the other boards in default order
+NEXT_PUBLIC_JOURNAL_BOARDS_ORDER=editorial-board,technical-board
+```
+
+- Board types not listed follow the listed ones, in the default order.
+- Unknown values are ignored (a warning is logged); duplicates are removed.
+- Empty or absent: the default order applies — `/boards`: introduction, scientific advisory, editorial, technical, reviewers, former members, operating charter; homepage carousel: editorial, scientific advisory, technical.
+- The carousel only shows editorial, scientific advisory and technical board members. Within the editorial board group, the chief editor always comes first; members are then sorted by last name and first name.
 
 Use `.env.example` as the template for journal files. It intentionally omits infrastructure variables.
 
