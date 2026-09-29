@@ -14,6 +14,14 @@ vi.mock('@/hooks/store', () => ({
   useAppSelector: () => undefined,
 }));
 
+// The real next/image validates the src hostname against next.config.js, which is
+// unrelated to what is tested here; keep only its `data-nimg` marker.
+vi.mock('next/image', () => ({
+  default: ({ src, alt }: { src: string; alt: string }) => (
+    <img src={src} alt={alt} data-nimg="1" />
+  ),
+}));
+
 vi.mock('next/navigation', () => ({
   usePathname: () => '/test/en/for-authors',
 }));
