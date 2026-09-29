@@ -21,6 +21,14 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+### Fixed
+
+- **Editorial Board Member Roles Ordering & Deduplication**: Sorted board member roles in canonical order (member roles by priority, followed by board types, then unknown roles) regardless of the order returned by the upstream API. Roles are also deduplicated and protected against inherited `Object.prototype` keys using `Object.hasOwn` in role lookups and ranking (Fixes #104, PR #105).
+
+### Security
+
+- **Undici Denial of Service Patch**: Upgraded `undici` to `7.30.0` to resolve moderate vulnerability [GHSA-3wwx-pv8p-q78v](https://github.com/advisories/GHSA-3wwx-pv8p-q78v) (DoS via unhandled error in WebSocket permessage-deflate decompression).
+
 ## [v1.2.1] - 2026-09-23
 
 ### Added
