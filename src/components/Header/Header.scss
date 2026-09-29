@@ -69,8 +69,13 @@
 
       span {
         overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        line-height: 1.15;
+        text-align: end;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow-wrap: anywhere;
       }
 
       @media (max-width: breakpoints.$sm) {
@@ -310,7 +315,9 @@
 
     &-title {
       width: 100%;
-      padding-right: 80px;
+      min-width: 0;
+      padding: 8px 80px 8px 24px;
+      overflow: hidden;
       background: var(--primary);
       color: var(--button-text-on-primary-bg);
       display: flex;
@@ -321,31 +328,42 @@
 
       @media (max-width: breakpoints.$xsm),
         (max-width: breakpoints.$sm) and (orientation: landscape) {
-        padding: 0px 16px 0px 16px;
+        padding: 8px 16px;
         text-align: end;
       }
 
       &-main {
-        font-size: 42px;
+        // Fluid size: shrinks on narrower viewports, long titles wrap instead of being cut
+        font-size: clamp(26px, 3.4vw, 42px);
         font-weight: bold;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        line-height: 1.15;
+        text-align: end;
+        text-wrap: balance;
+        overflow-wrap: anywhere;
         max-width: 100%;
+        // Safety net: header height is fixed (page content is offset by it)
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        overflow: hidden;
 
         @media (max-width: breakpoints.$xsm),
           (max-width: breakpoints.$sm) and (orientation: landscape) {
           font-size: 14px;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
         }
       }
     }
 
     &-subtitle {
-      font-size: 30px;
+      font-size: clamp(18px, 2.4vw, 30px);
       font-weight: 400;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      line-height: 1.2;
+      text-align: end;
+      text-wrap: balance;
+      overflow-wrap: anywhere;
       max-width: 100%;
 
       @media (max-width: breakpoints.$xsm),
