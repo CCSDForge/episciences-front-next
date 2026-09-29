@@ -5,7 +5,7 @@ import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/Coll
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
 import { IBoardMember } from '@/types/board';
-import { IBoardPage } from '@/services/board';
+import { BOARD_TYPE, IBoardPage } from '@/services/board';
 import { getBoardsPerTitle } from '@/utils/board-transforms';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
@@ -33,6 +33,7 @@ interface BoardsClientProps {
   };
   readonly rolesLabels?: Record<string, string>;
   readonly tableOfContentsLabel?: string;
+  readonly boardsOrder?: BOARD_TYPE[] | null;
 }
 
 export default function BoardsClient({
@@ -43,6 +44,7 @@ export default function BoardsClient({
   membersCountLabels,
   rolesLabels,
   tableOfContentsLabel,
+  boardsOrder,
 }: BoardsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
@@ -75,8 +77,8 @@ export default function BoardsClient({
   const boardsPerTitle = useMemo(() => {
     if (!initialMembers?.length) return [];
 
-    return getBoardsPerTitle(initialPages || [], initialMembers, currentLang);
-  }, [initialPages, initialMembers, currentLang]);
+    return getBoardsPerTitle(initialPages || [], initialMembers, currentLang, boardsOrder);
+  }, [initialPages, initialMembers, currentLang, boardsOrder]);
 
   const getPagesLabels = (): string[] => {
     if (!boardsPerTitle.length) return [];

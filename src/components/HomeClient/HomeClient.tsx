@@ -14,6 +14,7 @@ import {
 } from '@/config/homepage';
 import { PATHS } from '@/config/paths';
 import { filterAndSortMembersForCarousel } from '@/utils/board-transforms';
+import { getBoardsOrder } from '@/config/boards';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { IVolume } from '@/types/volume';
 import { INews } from '@/types/news';
@@ -148,7 +149,9 @@ function HomeClientInner({
 
     const membersConfig = getBlockRendering(HOMEPAGE_BLOCK.MEMBERS_CAROUSEL);
     const carouselMembers =
-      members && Array.isArray(members) ? filterAndSortMembersForCarousel(members) : [];
+      members && Array.isArray(members)
+        ? filterAndSortMembersForCarousel(members, getBoardsOrder(journalConfig))
+        : [];
     const shouldRenderMembers = membersConfig?.render && carouselMembers.length > 0;
 
     const statsConfig = getBlockRendering(HOMEPAGE_BLOCK.STATS);

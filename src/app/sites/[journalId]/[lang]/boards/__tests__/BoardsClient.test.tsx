@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import BoardsClient from '../BoardsClient';
 import { IBoardMember } from '@/types/board';
-import { IBoardPage } from '@/services/board';
+import { BOARD_TYPE, IBoardPage } from '@/services/board';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -126,6 +126,47 @@ describe('BoardsClient', () => {
       expect(within(content).getByText('Editorial Board')).toBeInTheDocument();
       expect(screen.getByTestId('board-card-1')).toBeInTheDocument();
       expect(screen.getByTestId('board-card-2')).toBeInTheDocument();
+    });
+  });
+
+  describe('configured boards order', () => {
+    const pages = [
+      makePage('scientific-advisory-board', 'Scientific Advisory Board'),
+      makePage('editorial-board', 'Editorial Board'),
+    ];
+    const members = [
+      makeMember({ id: 1, roles: ['editorial-board'] }),
+      makeMember({ id: 2, roles: ['scientific-advisory-board'] }),
+    ];
+
+    const getGroupsText = (container: HTMLElement): string =>
+      (container.querySelector('.boards-content-groups') as HTMLElement).textContent ?? '';
+
+    it('renders boards in the default order when no order is configured', () => {
+      const { container } = render(
+        <BoardsClient initialPages={pages} initialMembers={members} rolesLabels={rolesLabels} />
+      );
+      const text = getGroupsText(container);
+
+      expect(text.indexOf('Scientific Advisory Board')).toBeLessThan(
+        text.indexOf('Editorial Board')
+      );
+    });
+
+    it('renders boards in the configured order', () => {
+      const { container } = render(
+        <BoardsClient
+          initialPages={pages}
+          initialMembers={members}
+          rolesLabels={rolesLabels}
+          boardsOrder={[BOARD_TYPE.EDITORIAL_BOARD]}
+        />
+      );
+      const text = getGroupsText(container);
+
+      expect(text.indexOf('Editorial Board')).toBeLessThan(
+        text.indexOf('Scientific Advisory Board')
+      );
     });
   });
 

@@ -3,6 +3,8 @@ import { Metadata } from 'next';
 import { fetchBoardMembers, fetchBoardPages } from '@/services/board';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { getFilteredJournals } from '@/utils/journal-filter';
+import { getPublicJournalConfig } from '@/utils/env-loader';
+import { getBoardsOrder } from '@/config/boards';
 import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 
@@ -110,6 +112,8 @@ export default async function BoardsPage(props: {
 
   const tableOfContentsLabel = t('pages.boards.tableOfContents', translations);
 
+  const boardsOrder = getBoardsOrder(getPublicJournalConfig(journalId));
+
   return (
     <>
       <JsonLd
@@ -125,6 +129,7 @@ export default async function BoardsPage(props: {
         membersCountLabels={membersCountLabels}
         rolesLabels={rolesLabels}
         tableOfContentsLabel={tableOfContentsLabel}
+        boardsOrder={boardsOrder}
       />
     </>
   );
