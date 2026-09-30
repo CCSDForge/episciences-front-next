@@ -1,0 +1,54 @@
+[Unit]
+Description=Episciences PDF Cache Worker
+Documentation=https://github.com/episciences/episciences-front-next
+After=network.target network-online.target
+Wants=network-online.target
+# The cache lives on the shared NFS mount — starting before it's mounted
+# would make the worker write into an empty directory on the root
+# filesystem instead (ProtectSystem=strict masks it as read-only anyway,
+# but this avoids racing the mount at boot).
+RequiresMountsFor=/data/epi
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+
+WorkingDirectory=/var/www/episciences-front-next/current
+
+# Load environment variables from a secure file (not world-readable)
+# Create with: install -m 0640 -o root -g www-data /dev/null /etc/episciences/worker.env
+# Then populate: VALKEY_SENTINEL_HOSTS, EPI_ENV, PDF_CACHE_*, etc.
+# (can be the same file as revalidate-worker.service's, since both workers
+# read from the same EnvironmentFile without conflict)
+EnvironmentFile=/etc/episciences/worker.env
+
+ExecStart=/usr/bin/node scripts/pdf-cache-worker.mjs
+
+# Restart on failure
+Restart=always
+RestartSec=5
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+UMask=0027
+ReadWritePaths=/var/www/episciences-front-next
+# ProtectSystem=strict makes the rest of the filesystem read-only — this is
+# the one path the worker actually needs to write to. Adjust to match
+# PDF_CACHE_BASE_DIR/EPI_ENV/PDF_CACHE_ROOT if they're overridden in
+# worker.env away from their defaults (/data/epi/<env>/pdf-cache).
+ReadWritePaths=/data/epi
+
+# Resource limits
+LimitNOFILE=65536
+
+# Logging — journal with identifier for easy filtering:
+# journalctl -u episciences-pdf-cache-worker -f
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=episciences-pdf-cache-worker
+
+[Install]
+WantedBy=multi-user.target

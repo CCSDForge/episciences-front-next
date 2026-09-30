@@ -1,0 +1,10 @@
+{
+  "$comment": "Single source of truth for domains the PDF proxy (src/app/api/pdf-proxy/route.ts) and the pdf-cache worker (scripts/pdf-cache-worker.mjs) are allowed to fetch from. Both src/utils/pdf.ts and scripts/lib/allowed-pdf-domains.mjs read this file — keep them duplicating only the *check logic*, never the list itself.",
+  "domains": [
+    "zenodo.org",
+    "arxiv.org",
+    "hal.archives-ouvertes.fr",
+    "hal.science",
+    "archive.softwareheritage.org"
+  ]
+}

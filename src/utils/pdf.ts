@@ -1,10 +1,9 @@
-export const ALLOWED_PDF_DOMAINS = [
-  'zenodo.org',
-  'arxiv.org',
-  'hal.archives-ouvertes.fr',
-  'hal.science',
-  'archive.softwareheritage.org',
-];
+import allowedPdfDomainsConfig from '@/config/allowed-pdf-domains.json';
+
+// Single source of truth is src/config/allowed-pdf-domains.json — also read
+// independently by scripts/lib/allowed-pdf-domains.mjs (the pdf-cache worker
+// runs outside the Next.js build and cannot import from src/utils).
+export const ALLOWED_PDF_DOMAINS: string[] = allowedPdfDomainsConfig.domains;
 
 export function isAllowedPdfDomain(url: string): boolean {
   try {
