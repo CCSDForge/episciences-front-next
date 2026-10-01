@@ -50,10 +50,15 @@ export async function fetchArticles({
     articleIds.forEach(id => params.append('id[]', id));
   }
 
+  const tags = ['articles', `articles-${rvcode}`];
+  if (onlyAccepted) {
+    tags.push('articles-accepted', `articles-accepted-${rvcode}`);
+  }
+
   try {
     const apiRoot = getJournalApiUrl(rvcode);
     const response = await fetchWithRetry(`${apiRoot}${API_PATHS.papers}?${params}`, {
-      next: { revalidate: CACHE_TTL.articles, tags: ['articles', `articles-${rvcode}`] },
+      next: { revalidate: CACHE_TTL.articles, tags },
     });
 
     const data = await response.json();

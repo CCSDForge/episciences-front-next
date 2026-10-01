@@ -4,11 +4,30 @@ import { fetchArticles } from '@/services/article';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { generateSeoAlternates } from '@/utils/seo';
 
+import { getFilteredJournals } from '@/utils/journal-filter';
+import { acceptedLanguages } from '@/utils/language-utils';
+
 import dynamic from 'next/dynamic';
-import { connection } from 'next/server';
 import { logger } from '@/lib/logger';
 
 const ArticlesAcceptedClient = dynamic(() => import('./ArticlesAcceptedClient'));
+
+// Controlled by CACHE_TTL.articles in fetchArticles (configurable via CACHE_TTL_ARTICLES)
+export const revalidate = false;
+
+// Pre-generate accepted articles page for all journals at build time
+export async function generateStaticParams() {
+  const journals = getFilteredJournals();
+  const params: { journalId: string; lang: string }[] = [];
+
+  for (const journalId of journals) {
+    for (const lang of acceptedLanguages) {
+      params.push({ journalId, lang });
+    }
+  }
+
+  return params;
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ journalId: string; lang: string }>;
@@ -26,8 +45,6 @@ export async function generateMetadata(props: {
 export default async function ArticlesAcceptedPage(props: {
   readonly params: Promise<{ lang: string; journalId: string }>;
 }) {
-  await connection();
-
   const params = await props.params;
   const { lang, journalId } = params;
 

@@ -203,6 +203,26 @@ describe('article service', () => {
       expect(url).toContain('id%5B%5D=7');
     });
 
+    it('adds the articles-accepted tags only when onlyAccepted is set', async () => {
+      mockFetchWithRetry.mockResolvedValue({
+        json: async () => ({ 'hydra:member': [], 'hydra:totalItems': 0 }),
+      });
+
+      await fetchArticles({ rvcode: 'epijinfo', page: 1, itemsPerPage: 10 });
+      expect(mockFetchWithRetry.mock.calls[0][1].next.tags).toEqual([
+        'articles',
+        'articles-epijinfo',
+      ]);
+
+      await fetchArticles({ rvcode: 'epijinfo', page: 1, itemsPerPage: 10, onlyAccepted: true });
+      expect(mockFetchWithRetry.mock.calls[1][1].next.tags).toEqual([
+        'articles',
+        'articles-epijinfo',
+        'articles-accepted',
+        'articles-accepted-epijinfo',
+      ]);
+    });
+
     it('returns an empty result and logs on failure', async () => {
       mockFetchWithRetry.mockRejectedValue(new Error('boom'));
 
