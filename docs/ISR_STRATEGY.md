@@ -67,18 +67,21 @@ file at build time (`fs.readFileSync`), not `fetch()`. It has no Data Cache entr
 
 **File:** `export const revalidate = 86400` (24 hours)
 
-| Page         | Route                               |
-| ------------ | ----------------------------------- |
-| Home         | `/sites/[journalId]/[lang]`         |
-| Volumes list | `/sites/[journalId]/[lang]/volumes` |
+| Page          | Route                                |
+| ------------- | ------------------------------------ |
+| Home          | `/sites/[journalId]/[lang]`          |
+| Volumes list  | `/sites/[journalId]/[lang]/volumes`  |
+| Sections list | `/sites/[journalId]/[lang]/sections` |
+| Boards        | `/sites/[journalId]/[lang]/boards`   |
 
 ### Frequently Updated Pages (Hourly ISR)
 
 **File:** `export const revalidate = 3600` (1 hour)
 
-| Page | Route                            |
-| ---- | -------------------------------- |
-| News | `/sites/[journalId]/[lang]/news` |
+| Page       | Route                                 |
+| ---------- | ------------------------------------- |
+| News       | `/sites/[journalId]/[lang]/news`       |
+| Statistics | `/sites/[journalId]/[lang]/statistics` |
 
 ### Articles Pages (Configurable ISR + On-Demand)
 
@@ -101,6 +104,16 @@ Published content is effectively immutable; on-demand revalidation handles corre
 | -------------- | ----------------------------------------- |
 | Volume detail  | `/sites/[journalId]/[lang]/volumes/[id]`  |
 | Section detail | `/sites/[journalId]/[lang]/sections/[id]` |
+
+### Dynamic Request Pages (No Static Route Cache)
+
+Pages that depend on URL query parameters (`searchParams`) call `await connection()` and are dynamically evaluated per request without full-route static caching:
+
+| Page              | Route                                           | Reason                                  |
+| ----------------- | ----------------------------------------------- | --------------------------------------- |
+| Search            | `/sites/[journalId]/[lang]/search`              | Dynamic query parameters (`q`, `terms`) |
+| Authors directory | `/sites/[journalId]/[lang]/authors`             | Dynamic filtering (`search`, `letter`)  |
+| Articles accepted | `/sites/[journalId]/[lang]/articles-accepted`   | Real-time queue (`await connection()`)  |
 
 ---
 

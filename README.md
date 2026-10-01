@@ -232,6 +232,7 @@ Additional documentation is available in the `docs/` folder:
 ### Configuration & Development
 
 - [Configuration Guide](docs/CONFIGURATION_GUIDE.md) - Dynamic runtime configuration
+- [Public URLs & Indexing](docs/PUBLIC_URLS.md) - Comprehensive catalog of public URLs, multi-tenant routing, and search engine / FAIR indexing status
 - [Local Testing Guide](docs/LOCAL_TESTING_GUIDE.md) - Local development with Nginx, subdomains, and journal config
 - [Coding Standards](docs/CODING_STANDARDS.md) - Code conventions and best practices
 - [Accessible Color System](docs/ACCESSIBLE_COLOR_SYSTEM.md) - WCAG-compliant color generation
