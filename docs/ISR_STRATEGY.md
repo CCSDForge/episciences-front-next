@@ -78,8 +78,8 @@ file at build time (`fs.readFileSync`), not `fetch()`. It has no Data Cache entr
 
 **File:** `export const revalidate = 3600` (1 hour)
 
-| Page       | Route                                 |
-| ---------- | ------------------------------------- |
+| Page       | Route                                  |
+| ---------- | -------------------------------------- |
 | News       | `/sites/[journalId]/[lang]/news`       |
 | Statistics | `/sites/[journalId]/[lang]/statistics` |
 
@@ -89,10 +89,13 @@ file at build time (`fs.readFileSync`), not `fetch()`. It has no Data Cache entr
 
 Articles pages (detail and list) inherit their revalidation TTL from `CACHE_TTL.articles` defined on `fetchArticle` / `fetchArticles`. On-demand revalidation (`revalidateTag`) provides instant updates.
 
-| Page           | Route                                     |
-| -------------- | ----------------------------------------- |
-| Article detail | `/sites/[journalId]/[lang]/articles/[id]` |
-| Articles list  | `/sites/[journalId]/[lang]/articles`      |
+| Page              | Route                                         |
+| ----------------- | --------------------------------------------- |
+| Article detail    | `/sites/[journalId]/[lang]/articles/[id]`     |
+| Articles list     | `/sites/[journalId]/[lang]/articles`          |
+| Articles accepted | `/sites/[journalId]/[lang]/articles-accepted` |
+
+The accepted list is fetched via `fetchArticles({ onlyAccepted: true })`, which adds the `articles-accepted` and `articles-accepted-{rvcode}` tags on top of the usual `articles` / `articles-{rvcode}` ones.
 
 ### Detail Pages (Weekly ISR + On-Demand)
 
@@ -109,11 +112,10 @@ Published content is effectively immutable; on-demand revalidation handles corre
 
 Pages that depend on URL query parameters (`searchParams`) call `await connection()` and are dynamically evaluated per request without full-route static caching:
 
-| Page              | Route                                           | Reason                                  |
-| ----------------- | ----------------------------------------------- | --------------------------------------- |
-| Search            | `/sites/[journalId]/[lang]/search`              | Dynamic query parameters (`q`, `terms`) |
-| Authors directory | `/sites/[journalId]/[lang]/authors`             | Dynamic filtering (`search`, `letter`)  |
-| Articles accepted | `/sites/[journalId]/[lang]/articles-accepted`   | Real-time queue (`await connection()`)  |
+| Page              | Route                               | Reason                                  |
+| ----------------- | ----------------------------------- | --------------------------------------- |
+| Search            | `/sites/[journalId]/[lang]/search`  | Dynamic query parameters (`q`, `terms`) |
+| Authors directory | `/sites/[journalId]/[lang]/authors` | Dynamic filtering (`search`, `letter`)  |
 
 ---
 
