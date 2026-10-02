@@ -4,7 +4,7 @@ import {
   filterAndSortMembersForCarousel,
   transformBoardMember,
 } from '../board-transforms';
-import { IBoardPage, IBoardMember } from '@/services/board';
+import { IBoardPage, IBoardMember, BOARD_TYPE } from '@/services/board';
 
 describe('getBoardsPerTitle', () => {
   const mockPages: IBoardPage[] = [
@@ -248,6 +248,72 @@ describe('getBoardsPerTitle', () => {
     const result = getBoardsPerTitle([formerMembersPage], [formerMember], 'en');
     expect(result[0].members).toContainEqual(expect.objectContaining({ firstname: 'Henry' }));
   });
+
+  describe('with a configured boards order', () => {
+    const technicalPage: IBoardPage = {
+      id: 5,
+      page_code: 'technical-board',
+      title: { en: 'Technical Board', fr: 'Comité technique' },
+      content: { en: '', fr: '' },
+      rvcode: 'test',
+    };
+
+    it('keeps the default order when no order is configured', () => {
+      const result = getBoardsPerTitle([technicalPage, ...mockPages], mockMembers, 'en', null);
+      expect(result.map(b => b.page_code)).toEqual([
+        'scientific-advisory-board',
+        'editorial-board',
+        'technical-board',
+      ]);
+    });
+
+    it('follows the configured order', () => {
+      const result = getBoardsPerTitle([technicalPage, ...mockPages], mockMembers, 'en', [
+        BOARD_TYPE.EDITORIAL_BOARD,
+        BOARD_TYPE.TECHNICAL_BOARD,
+        BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD,
+      ]);
+      expect(result.map(b => b.page_code)).toEqual([
+        'editorial-board',
+        'technical-board',
+        'scientific-advisory-board',
+      ]);
+    });
+
+    it('places unlisted boards after the configured ones, in default order', () => {
+      const result = getBoardsPerTitle([technicalPage, ...mockPages], mockMembers, 'en', [
+        BOARD_TYPE.TECHNICAL_BOARD,
+      ]);
+      expect(result.map(b => b.page_code)).toEqual([
+        'technical-board',
+        'scientific-advisory-board',
+        'editorial-board',
+      ]);
+    });
+
+    it('applies the configured order to boards without a CMS page', () => {
+      const members: IBoardMember[] = [
+        {
+          id: 20,
+          firstname: 'Tina',
+          lastname: 'Tech',
+          roles: ['technical-board'],
+          affiliations: [],
+          assignedSections: [],
+        },
+      ];
+      const result = getBoardsPerTitle(mockPages, [...mockMembers, ...members], 'en', [
+        BOARD_TYPE.TECHNICAL_BOARD,
+        BOARD_TYPE.EDITORIAL_BOARD,
+      ]);
+      expect(result.map(b => b.page_code)).toEqual([
+        'technical-board',
+        'editorial-board',
+        'scientific-advisory-board',
+      ]);
+      expect(result[0].title).toBe('');
+    });
+  });
 });
 
 describe('filterAndSortMembersForCarousel', () => {
@@ -370,6 +436,72 @@ describe('filterAndSortMembersForCarousel', () => {
     ];
     const result = filterAndSortMembersForCarousel(members);
     expect(result.map(m => m.id)).toEqual([3, 5, 2, 4, 1, 7, 6]);
+  });
+
+  describe('with a configured boards order', () => {
+    it('orders board groups according to the configuration', () => {
+      const members = [
+        make(1, 'Alice', 'Aaa', ['editorial-board']),
+        make(2, 'Bob', 'Bbb', ['scientific-advisory-board']),
+        make(3, 'Carol', 'Ccc', ['technical-board']),
+      ];
+      const result = filterAndSortMembersForCarousel(members, [
+        BOARD_TYPE.TECHNICAL_BOARD,
+        BOARD_TYPE.EDITORIAL_BOARD,
+        BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD,
+      ]);
+      expect(result.map(m => m.id)).toEqual([3, 1, 2]);
+    });
+
+    it('completes a partial order with the default carousel order', () => {
+      const members = [
+        make(1, 'Alice', 'Aaa', ['editorial-board']),
+        make(2, 'Bob', 'Bbb', ['scientific-advisory-board']),
+        make(3, 'Carol', 'Ccc', ['technical-board']),
+      ];
+      const result = filterAndSortMembersForCarousel(members, [BOARD_TYPE.TECHNICAL_BOARD]);
+      expect(result.map(m => m.id)).toEqual([3, 1, 2]);
+    });
+
+    it('ignores configured boards that are not shown in the carousel', () => {
+      const members = [
+        make(1, 'Alice', 'Aaa', ['editorial-board']),
+        make(2, 'Bob', 'Bbb', ['scientific-advisory-board', 'reviewers-board']),
+        make(3, 'Dan', 'Ddd', ['reviewers-board']),
+      ];
+      const result = filterAndSortMembersForCarousel(members, [
+        BOARD_TYPE.REVIEWERS_BOARD,
+        BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD,
+      ]);
+      expect(result.map(m => m.id)).toEqual([2, 1]);
+    });
+
+    it('keeps the editorial chief-editor first within the editorial board group', () => {
+      const members = [
+        make(1, 'Alice', 'Aaa', ['editorial-board']),
+        make(2, 'Zoe', 'Zzz', ['editorial-board', 'chief-editor']),
+        make(3, 'Carol', 'Ccc', ['technical-board']),
+      ];
+      const result = filterAndSortMembersForCarousel(members, [
+        BOARD_TYPE.TECHNICAL_BOARD,
+        BOARD_TYPE.EDITORIAL_BOARD,
+      ]);
+      expect(result.map(m => m.id)).toEqual([3, 2, 1]);
+    });
+
+    it('ranks a member in several boards by their first board in the configured order', () => {
+      const members = [
+        make(1, 'Alice', 'Aaa', ['technical-board']),
+        make(2, 'Zoe', 'Zzz', ['editorial-board', 'chief-editor', 'technical-board']),
+        make(3, 'Bob', 'Bbb', ['editorial-board']),
+      ];
+      const result = filterAndSortMembersForCarousel(members, [
+        BOARD_TYPE.TECHNICAL_BOARD,
+        BOARD_TYPE.EDITORIAL_BOARD,
+      ]);
+      // Zoe is ranked in the technical board group, where chief-editor gives no precedence
+      expect(result.map(m => m.id)).toEqual([1, 2, 3]);
+    });
   });
 });
 

@@ -54,7 +54,12 @@ vi.mock('@/components/HomeSections/IssuesSection/IssuesSection', () => ({
 
 vi.mock('@/components/Swiper/Swiper', () => ({
   default: ({ id, type, cards }: any) => (
-    <div data-testid={`swiper-${type}`} id={id} data-count={cards?.length} />
+    <div
+      data-testid={`swiper-${type}`}
+      id={id}
+      data-count={cards?.length}
+      data-ids={cards?.map((card: any) => card.id).join(',')}
+    />
   ),
 }));
 
@@ -282,6 +287,36 @@ describe('HomeClient', () => {
       process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_MEMBERS_CAROUSEL_RENDER = 'false';
       render(<HomeClient {...defaultProps} />);
       expect(screen.queryByTestId('swiper-board')).not.toBeInTheDocument();
+    });
+    describe('carousel order', () => {
+      const members = [
+        { ...mockMember, id: 1, lastname: 'Aaa', roles: ['editorial-board'] },
+        { ...mockMember, id: 2, lastname: 'Bbb', roles: ['scientific-advisory-board'] },
+        { ...mockMember, id: 3, lastname: 'Ccc', roles: ['technical-board'] },
+      ];
+      const homeData = { ...fullHomeData, members };
+
+      afterEach(() => {
+        delete process.env.NEXT_PUBLIC_JOURNAL_BOARDS_ORDER;
+      });
+
+      it('uses the default board order when NEXT_PUBLIC_JOURNAL_BOARDS_ORDER is not set', () => {
+        render(<HomeClient {...defaultProps} homeData={homeData} />);
+        expect(screen.getByTestId('swiper-board')).toHaveAttribute('data-ids', '1,2,3');
+      });
+
+      it('follows NEXT_PUBLIC_JOURNAL_BOARDS_ORDER from the journal config', () => {
+        render(
+          <HomeClient
+            {...defaultProps}
+            homeData={homeData}
+            journalConfig={{
+              NEXT_PUBLIC_JOURNAL_BOARDS_ORDER: 'technical-board,scientific-advisory-board',
+            }}
+          />
+        );
+        expect(screen.getByTestId('swiper-board')).toHaveAttribute('data-ids', '3,2,1');
+      });
     });
   });
 
