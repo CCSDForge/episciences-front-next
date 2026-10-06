@@ -21,6 +21,27 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1.2.5] - 2026-10-06
+
+### Added
+
+- **Journal MSCS**: Added `mscs` to generated journal and language configurations.
+- **GitHub Issue Forms**: Added structured issue templates for bug reports, feature requests, and documentation improvements with improved UX and validation.
+- **Public URLs Documentation**: Added specification and route documentation in `docs/PUBLIC_URLS.md`.
+
+### Fixed
+
+- **Statistics Journal-Specific Configuration & Empty Sections**: Applied per-journal configuration (`external-assets/.env.local.<journal>`) to the statistics page by passing public journal settings to `StatisticsClient` and `PieChart` (honoring custom `RENDER`/`ORDER` flags and chart colors), and hid sections when all contained blocks are disabled (PR #141).
+- **Next.js Dependency Update**: Upgraded `next` from `16.3.4` to `16.3.8` (PR #139).
+
+### Security
+
+- **Dependency Vulnerability Remediation**: Resolved security vulnerabilities across `sharp`, `source-map-js`, `brace-expansion`, and `postcss-selector-parser` via `npm audit fix` (PR #142).
+
+### Removed
+
+- **Unused Tracking Pixel**: Removed unused `public/tracking-pixel.gif`.
+
 ## [v1.2.4] - 2026-09-29
 
 ### Fixed
