@@ -28,7 +28,7 @@ export default function NotFound() {
   const tr = translations[lang] ?? translations['fr'];
 
   return (
-    <div className="not-found">
+    <main className="not-found">
       <p className="not-found-code" aria-hidden="true">
         404
       </p>
@@ -37,6 +37,6 @@ export default function NotFound() {
       <Link href="/" lang={lang} className="not-found-link">
         {tr.backHome}
       </Link>
-    </div>
+    </main>
   );
 }
