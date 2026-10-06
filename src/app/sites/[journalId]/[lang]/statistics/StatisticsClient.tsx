@@ -132,6 +132,7 @@ interface StatisticValueDisplayProps {
   t: TFunction<'translation', undefined>;
   i18nExists: (key: string) => boolean;
   statisticTitle: string | undefined;
+  journalConfig?: Record<string, string>;
 }
 
 const StatisticValueDisplay = ({
@@ -140,9 +141,16 @@ const StatisticValueDisplay = ({
   t,
   i18nExists,
   statisticTitle,
+  journalConfig,
 }: StatisticValueDisplayProps): React.JSX.Element => {
   if (statistic.value && isIStatValueDetails(statistic.value)) {
-    return <PieChart t={t} data={getFormattedStatsAsPieChart(statistic.value)} />;
+    return (
+      <PieChart
+        t={t}
+        data={getFormattedStatsAsPieChart(statistic.value)}
+        journalConfig={journalConfig}
+      />
+    );
   }
 
   const value = statistic.value;
@@ -181,12 +189,14 @@ interface StatisticsClientProps {
     home: string;
     statistics: string;
   };
+  journalConfig?: Record<string, string>;
 }
 
 export default function StatisticsClient({
   initialStats,
   lang,
   breadcrumbLabels,
+  journalConfig,
 }: StatisticsClientProps = {}): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
@@ -329,7 +339,7 @@ export default function StatisticsClient({
   };
 
   const getBlockRendering = (statName: string) =>
-    statisticsBlocksConfiguration().find(config => config.key === statName);
+    statisticsBlocksConfiguration(journalConfig).find(config => config.key === statName);
 
   const breadcrumbItems = [
     {
@@ -368,6 +378,9 @@ export default function StatisticsClient({
                   return (configA?.order ?? 0) - (configB?.order ?? 0);
                 });
 
+                // Hide the whole section (title included) when no block is left to display
+                if (filteredStatistics.length === 0) return null;
+
                 return (
                   <div
                     key={statisticPerLabel.labelKey}
@@ -399,6 +412,7 @@ export default function StatisticsClient({
                                 t={t}
                                 i18nExists={key => i18n.exists(key)}
                                 statisticTitle={getStatisticTitle(statistic)}
+                                journalConfig={journalConfig}
                               />
                             </div>
                             {!isLast && (
