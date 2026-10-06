@@ -46,6 +46,7 @@ export const journalLanguages: Record<string, { default: string; accepted: strin
   'lmcs-preprod': { default: 'en', accepted: ["en"] },
   'mbj': { default: 'en', accepted: ["en"] },
   'mbj-preprod': { default: 'en', accepted: ["en"] },
+  'mscs': { default: 'en', accepted: ["en"] },
   'mscs-preprod': { default: 'en', accepted: ["en"] },
   'mss': { default: 'fr', accepted: ["en","fr","es"] },
   'mss-preprod': { default: 'fr', accepted: ["en","fr"] },

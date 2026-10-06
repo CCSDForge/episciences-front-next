@@ -46,6 +46,7 @@ export const journals: string[] = [
   "lmcs-preprod",
   "mbj",
   "mbj-preprod",
+  "mscs",
   "mscs-preprod",
   "mss",
   "mss-preprod",
