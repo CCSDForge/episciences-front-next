@@ -21,6 +21,12 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1.2.6] - 2026-10-07
+
+### Fixed
+
+- **Journal 404 Page Layout**: Render `<main>` wrapper so the journal 404 page properly clears the fixed header offset (PR #143).
+
 ## [v1.2.5] - 2026-10-06
 
 ### Added
