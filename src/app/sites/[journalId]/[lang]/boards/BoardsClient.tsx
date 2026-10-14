@@ -105,9 +105,10 @@ export default function BoardsClient({
     setOpenGroups(prev => (prev.has(index) ? prev : new Set(prev).add(index)));
     // Wait for the group content to be rendered before scrolling
     requestAnimationFrame(() => {
+      const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       document
         .getElementById(getGroupAnchorId(boardPerTitle.page_code))
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        ?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
     });
   };
 
