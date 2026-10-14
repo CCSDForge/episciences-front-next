@@ -35,6 +35,8 @@ interface BoardsClientProps {
   readonly tableOfContentsLabel?: string;
 }
 
+const getGroupAnchorId = (pageCode: string): string => `board-${pageCode}`;
+
 export default function BoardsClient({
   initialPages,
   initialMembers,
@@ -96,6 +98,20 @@ export default function BoardsClient({
     });
   };
 
+  // Sidebar entries open the group (never close it) and scroll to it
+  const handleSidebarGroupClick = (index: number): void => {
+    const boardPerTitle = boardsPerTitle[index];
+    if (!boardPerTitle) return;
+    setOpenGroups(prev => (prev.has(index) ? prev : new Set(prev).add(index)));
+    // Wait for the group content to be rendered before scrolling
+    requestAnimationFrame(() => {
+      const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      document
+        .getElementById(getGroupAnchorId(boardPerTitle.page_code))
+        ?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+  };
+
   const handleMemberToggle = (memberKey: string): void => {
     setExpandedMemberKey(prev => (prev === memberKey ? null : memberKey));
   };
@@ -137,12 +153,16 @@ export default function BoardsClient({
           t={t}
           groups={getPagesLabels()}
           openGroups={openGroups}
-          onSetActiveGroupCallback={handleGroupToggle}
+          onSetActiveGroupCallback={handleSidebarGroupClick}
           tableOfContentsLabel={tableOfContentsLabel}
         />
         <div className="boards-content-groups">
           {boardsPerTitle.map((boardPerTitle, groupIndex) => (
-            <div key={boardPerTitle.page_code} className="boards-content-groups-group">
+            <div
+              key={boardPerTitle.page_code}
+              id={getGroupAnchorId(boardPerTitle.page_code)}
+              className="boards-content-groups-group"
+            >
               <CollapsibleSectionHeader
                 triggerClassName="boards-content-groups-group-title"
                 caretClassName="boards-content-groups-group-caret"

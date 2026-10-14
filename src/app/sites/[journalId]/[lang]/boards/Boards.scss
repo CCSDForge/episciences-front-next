@@ -47,6 +47,7 @@
 
       &-group {
         margin-bottom: 45px;
+        scroll-margin-top: 120px;
 
         @media (max-width: breakpoints.$sm) {
           margin-bottom: 15px;
