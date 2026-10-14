@@ -492,15 +492,43 @@ describe('filterAndSortMembersForCarousel', () => {
     it('ranks a member in several boards by their first board in the configured order', () => {
       const members = [
         make(1, 'Alice', 'Aaa', ['technical-board']),
-        make(2, 'Zoe', 'Zzz', ['editorial-board', 'chief-editor', 'technical-board']),
+        make(2, 'Zoe', 'Zzz', ['editorial-board', 'technical-board']),
         make(3, 'Bob', 'Bbb', ['editorial-board']),
       ];
       const result = filterAndSortMembersForCarousel(members, [
         BOARD_TYPE.TECHNICAL_BOARD,
         BOARD_TYPE.EDITORIAL_BOARD,
       ]);
-      // Zoe is ranked in the technical board group, where chief-editor gives no precedence
       expect(result.map(m => m.id)).toEqual([1, 2, 3]);
+    });
+
+    it('keeps the chief editor at the head of the editorial group even if they belong to an earlier board', () => {
+      const members = [
+        make(1, 'Alice', 'Aaa', ['technical-board']),
+        make(2, 'Zoe', 'Bzz', ['editorial-board', 'chief-editor', 'technical-board']),
+        make(3, 'Bob', 'Bbb', ['editorial-board']),
+        make(4, 'Carl', 'Ccc', ['technical-board']),
+      ];
+      const result = filterAndSortMembersForCarousel(members, [
+        BOARD_TYPE.TECHNICAL_BOARD,
+        BOARD_TYPE.EDITORIAL_BOARD,
+      ]);
+      expect(result.map(m => m.id)).toEqual([1, 4, 2, 3]);
+    });
+
+    it('groups members with the same role rules as the boards page', () => {
+      const members = [
+        make(1, 'Alice', 'Aaa', ['technical-board']),
+        make(2, 'Bob', 'Bbb', ['advisory-board']),
+        make(3, 'Carl', 'Ccc', ['managing-editor']),
+        make(4, 'Dan', 'Ddd', ['editorial-boards']),
+      ];
+      const result = filterAndSortMembersForCarousel(members, [
+        BOARD_TYPE.TECHNICAL_BOARD,
+        BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD,
+        BOARD_TYPE.EDITORIAL_BOARD,
+      ]);
+      expect(result.map(m => m.id)).toEqual([1, 2, 3, 4]);
     });
   });
 });

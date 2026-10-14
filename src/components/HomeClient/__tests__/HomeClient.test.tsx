@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import HomeClient from '../HomeClient';
+import { BOARD_TYPE } from '@/services/board';
 
 // --- Mocks ---
 
@@ -296,23 +297,17 @@ describe('HomeClient', () => {
       ];
       const homeData = { ...fullHomeData, members };
 
-      afterEach(() => {
-        delete process.env.NEXT_PUBLIC_JOURNAL_BOARDS_ORDER;
-      });
-
-      it('uses the default board order when NEXT_PUBLIC_JOURNAL_BOARDS_ORDER is not set', () => {
+      it('uses the default board order when no boardsOrder is given', () => {
         render(<HomeClient {...defaultProps} homeData={homeData} />);
         expect(screen.getByTestId('swiper-board')).toHaveAttribute('data-ids', '1,2,3');
       });
 
-      it('follows NEXT_PUBLIC_JOURNAL_BOARDS_ORDER from the journal config', () => {
+      it('follows the boardsOrder prop', () => {
         render(
           <HomeClient
             {...defaultProps}
             homeData={homeData}
-            journalConfig={{
-              NEXT_PUBLIC_JOURNAL_BOARDS_ORDER: 'technical-board,scientific-advisory-board',
-            }}
+            boardsOrder={[BOARD_TYPE.TECHNICAL_BOARD, BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD]}
           />
         );
         expect(screen.getByTestId('swiper-board')).toHaveAttribute('data-ids', '3,2,1');
