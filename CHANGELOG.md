@@ -21,6 +21,35 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+### Added
+
+- **Configurable Editorial Board Order**: Added `NEXT_PUBLIC_JOURNAL_BOARDS_ORDER` configuration parameter (comma-separated list of board types) allowing journals to customize the display order of board types on the `/boards` page and member groups in the homepage carousel (PR #137, Refs #130).
+- **GitHub Issue Forms & Templates**: Added interactive GitHub issue forms and a documentation request template (`.github/ISSUE_TEMPLATE/`) to streamline bug reporting and feature requests.
+- **Journal Support**: Added `mscs` to generated journal configurations.
+- **Public URLs Specification**: Added `docs/PUBLIC_URLS.md` specifying canonical public URL routes, aliases, and redirect rules.
+
+### Changed
+
+- **Journal Title and Subtitle Wrapping**: Enhanced header typography with fluid font sizing and balanced multi-line wrapping (up to 3 lines on desktop, 2 on mobile) to support long journal titles and subtitles without visual truncation.
+- **Accepted Articles Incremental Static Regeneration (ISR)**: Switched `/articles-accepted` from dynamic server-rendering (`await connection()`) to ISR (`revalidate` + `generateStaticParams`) with on-demand tag invalidation (`articles-accepted`, `articles-accepted-{rvcode}`).
+- **Shared Markdown Image Component**: Extracted a journal-aware `MarkdownImage` component and reused it across `for-authors` pages to optimize markdown images inside numbered cards.
+- **Boards Sidebar Navigation & Accessibility**:
+  - Shifted keyboard focus to the targeted board group heading following sidebar jump navigation (PR #145).
+  - Respected user preference for `prefers-reduced-motion` during animated scrolling to board groups (PR #145).
+  - Updated localized labels for "former members" across English, French, and Spanish (`common.boards.formerMembers`).
+- **Inline Script Client Rendering**: Converted `InlineScript` to a Client Component to eliminate SSR warnings regarding executable script tags.
+
+### Fixed
+
+- **Statistics Journal Configuration**: Passed journal-specific configuration (`.env.local.<journal>`) from the server page component down to client statistics and pie chart components, ensuring block visibility/ordering flags and custom palette colors are respected. Completely hid empty statistics sections when all their nested blocks are disabled (PR #140).
+- **Markdown Root-Relative Image Resolution**: Corrected root-relative image path rewriting (e.g. `/<journal>/resources/...`) in Markdown pages by deriving the journal code directly from the path or environment and resolving against the journal host instead of the Next.js origin.
+- **Journal 404 Page Layout**: Wrapped the journal 404 (`not-found`) page content inside a `<main>` landmark with proper top margin offset under the fixed header.
+- **Board Carousel Grouping & Sorting**: Aligned homepage members carousel grouping with `memberMatchesBoardType`, resolved boards order server-side to prevent hydration mismatches, prioritized chief editor positioning, and precalculated member ranks.
+
+### Security
+
+- **Dependency Vulnerability Remediation**: Resolved vulnerabilities via `npm audit fix` for `sharp`, `source-map-js`, `brace-expansion`, and `postcss-selector-parser`, and bumped `next` to `16.3.8`.
+
 ## [v1.2.2] - 2026-09-29
 
 ### Fixed
