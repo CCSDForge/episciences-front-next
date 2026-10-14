@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import BoardsClient from '../BoardsClient';
 import { IBoardMember } from '@/types/board';
 import { IBoardPage } from '@/services/board';
@@ -244,15 +244,18 @@ describe('BoardsClient', () => {
   });
 
   describe('sidebar navigation', () => {
-    afterEach(() => {
-      vi.restoreAllMocks();
-    });
+    // jsdom implements neither scrollIntoView nor matchMedia
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    const scrollIntoView = vi.fn();
 
-    it('opens the clicked group and scrolls to it, keeping it open on second click', async () => {
-      const user = userEvent.setup();
-      // jsdom does not implement scrollIntoView
-      Element.prototype.scrollIntoView ??= () => {};
-      const scrollIntoView = vi.spyOn(Element.prototype, 'scrollIntoView');
+    const stubReducedMotion = (reduce: boolean): void => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn((query: string) => ({ matches: reduce, media: query }))
+      );
+    };
+
+    const renderTwoGroups = () => {
       const members = [
         makeMember({ id: 1, roles: ['editorial-board'] }),
         makeMember({ id: 2, roles: ['scientific-advisory-board'] }),
@@ -267,22 +270,60 @@ describe('BoardsClient', () => {
           rolesLabels={rolesLabels}
         />
       );
-
       const sidebar = container.querySelector('.boardsSidebar') as HTMLElement;
       const target = container.querySelector('#board-editorial-board') as HTMLElement;
       const header = target.querySelector('.boards-content-groups-group-title') as HTMLElement;
+      return { sidebar, target, header };
+    };
+
+    beforeEach(() => {
+      Element.prototype.scrollIntoView = scrollIntoView;
+    });
+
+    afterEach(() => {
+      Element.prototype.scrollIntoView = originalScrollIntoView;
+      scrollIntoView.mockReset();
+      vi.unstubAllGlobals();
+    });
+
+    it('opens the clicked group and scrolls to it, keeping it open on second click', async () => {
+      const user = userEvent.setup();
+      stubReducedMotion(false);
+      const { sidebar, target, header } = renderTwoGroups();
       expect(header).toHaveAttribute('aria-expanded', 'false');
 
       await user.click(within(sidebar).getByText('Editorial Board'));
       expect(header).toHaveAttribute('aria-expanded', 'true');
       await vi.waitFor(() => expect(scrollIntoView).toHaveBeenCalled());
       expect(scrollIntoView.mock.contexts[0]).toBe(target);
+      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
 
       // Clicking again keeps the group open and scrolls to it again
       scrollIntoView.mockClear();
       await user.click(within(sidebar).getByText('Editorial Board'));
       expect(header).toHaveAttribute('aria-expanded', 'true');
       await vi.waitFor(() => expect(scrollIntoView).toHaveBeenCalled());
+    });
+
+    it('scrolls instantly when the user prefers reduced motion', async () => {
+      const user = userEvent.setup();
+      stubReducedMotion(true);
+      const { sidebar } = renderTwoGroups();
+
+      await user.click(within(sidebar).getByText('Editorial Board'));
+      await vi.waitFor(() =>
+        expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' })
+      );
+    });
+
+    it('moves keyboard focus to the targeted group header', async () => {
+      const user = userEvent.setup();
+      stubReducedMotion(false);
+      const { sidebar, header } = renderTwoGroups();
+
+      within(sidebar).getByText('Editorial Board').focus();
+      await user.keyboard('{Enter}');
+      await vi.waitFor(() => expect(header).toHaveFocus());
     });
   });
 

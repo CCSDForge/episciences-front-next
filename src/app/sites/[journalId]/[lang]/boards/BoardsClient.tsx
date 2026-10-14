@@ -105,10 +105,14 @@ export default function BoardsClient({
     setOpenGroups(prev => (prev.has(index) ? prev : new Set(prev).add(index)));
     // Wait for the group content to be rendered before scrolling
     requestAnimationFrame(() => {
+      const group = document.getElementById(getGroupAnchorId(boardPerTitle.page_code));
+      if (!group) return;
       const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      document
-        .getElementById(getGroupAnchorId(boardPerTitle.page_code))
-        ?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+      group.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+      // Move keyboard focus to the group header so the next Tab continues inside the group
+      group
+        .querySelector<HTMLElement>('.boards-content-groups-group-title')
+        ?.focus({ preventScroll: true });
     });
   };
 
