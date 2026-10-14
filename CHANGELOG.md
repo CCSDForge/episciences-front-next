@@ -41,6 +41,8 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Fixed
 
+- **Search Bar Focus Layout**: Resolved a display gap between the search input and submit button when focused by removing the flex gap on `.header-postheader-search-form`, spacing the back button with right margin, and nesting the clear button inside the input container.
+
 - **Statistics Journal Configuration**: Passed journal-specific configuration (`.env.local.<journal>`) from the server page component down to client statistics and pie chart components, ensuring block visibility/ordering flags and custom palette colors are respected. Completely hid empty statistics sections when all their nested blocks are disabled (PR #140).
 - **Markdown Root-Relative Image Resolution**: Corrected root-relative image path rewriting (e.g. `/<journal>/resources/...`) in Markdown pages by deriving the journal code directly from the path or environment and resolving against the journal host instead of the Next.js origin.
 - **Journal 404 Page Layout**: Wrapped the journal 404 (`not-found`) page content inside a `<main>` landmark with proper top margin offset under the fixed header.

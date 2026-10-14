@@ -161,18 +161,17 @@ export default function SearchBar({
             onFocus={handleFocus}
             aria-label={t('components.header.search.placeholder')}
           />
+          {isFocused && searchValue && (
+            <button
+              type="button"
+              className="header-postheader-search-clear"
+              onClick={() => setSearchValue('')}
+              aria-label={t('components.header.search.clearLabel')}
+            >
+              <CloseBlackIcon size={16} ariaLabel={t('components.header.search.clearAlt')} />
+            </button>
+          )}
         </div>
-
-        {isFocused && searchValue && (
-          <button
-            type="button"
-            className="header-postheader-search-clear"
-            onClick={() => setSearchValue('')}
-            aria-label={t('components.header.search.clearLabel')}
-          >
-            <CloseBlackIcon size={16} ariaLabel={t('components.header.search.clearAlt')} />
-          </button>
-        )}
 
         <div className="header-postheader-search-submit">
           {isFocused ? (
