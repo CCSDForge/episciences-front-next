@@ -1,0 +1,57 @@
+name: 'Documentation 📖'
+description: 'Signaler un manque, une erreur ou proposer une amélioration de la documentation'
+title: '[Docs]: '
+labels: ['documentation']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Merci de contribuer à la documentation d'Episciences !
+        > [!TIP]
+        > Une documentation claire et à jour aide toute la communauté et les équipes éditoriales.
+
+  - type: dropdown
+    id: doc_target
+    attributes:
+      label: 'Support de documentation concerné'
+      description: 'Où se situe la documentation à modifier ou enrichir ?'
+      options:
+        - 'Documentation officielle (https://doc.episciences.org/)'
+        - 'Documentation du code / README / docs du dépôt'
+        - 'FAQ Episciences'
+        - 'Autre'
+    validations:
+      required: true
+
+  - type: input
+    id: doc_url
+    attributes:
+      label: 'Lien ou fichier de documentation concerné'
+      description: 'URL de la page web ou chemin du fichier Markdown dans le dépôt.'
+      placeholder: 'ex. https://doc.episciences.org/... ou docs/CONFIGURATION_GUIDE.md'
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 'Problème ou opportunité constatée'
+      description: "Qu'est-ce qui est obsolète, incorrect, incomplet ou manquant ?"
+      placeholder: "La section X n'explique pas comment configurer..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: "Suggestion d'amélioration ou nouveau contenu"
+      description: 'Proposez le texte révisé ou les points clés à ajouter.'
+      placeholder: 'Il faudrait remplacer le paragraphe par...'
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 'Contribution'
+      options:
+        - label: 'Je souhaite soumettre une Pull Request pour intégrer cette modification.'

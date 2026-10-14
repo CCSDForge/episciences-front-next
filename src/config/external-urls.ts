@@ -6,6 +6,18 @@ export const buildDoiUrl = (doi: string): string =>
 
 export const buildOrcidUrl = (orcid: string): string =>
   orcid.startsWith('http') ? orcid : `${ORCID_URL}/${orcid}`;
+
+const ORCID_ID_PATTERN =
+  /^(?:https?:\/\/(?:www\.)?orcid\.org\/)?(\d{4}-\d{4}-\d{4}-\d{3}[\dX])\/?$/i;
+
+/**
+ * Extracts the ORCID iD from a bare iD or an orcid.org URL, or returns null for anything
+ * else, so that a link built from untrusted data can only point to orcid.org.
+ */
+export const parseOrcidId = (value?: string | null): string | null => {
+  const match = ORCID_ID_PATTERN.exec(value?.trim() ?? '');
+  return match ? match[1].toUpperCase() : null;
+};
 export const ARXIV_URL = process.env.NEXT_PUBLIC_ARXIV_HOMEPAGE || 'https://arxiv.org';
 export const HAL_URL = process.env.NEXT_PUBLIC_HAL_HOMEPAGE || 'https://hal.science';
 export const SOFTWARE_HERITAGE_URL =

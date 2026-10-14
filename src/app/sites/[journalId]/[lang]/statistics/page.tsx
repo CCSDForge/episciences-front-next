@@ -7,6 +7,7 @@ import { acceptedLanguages } from '@/utils/language-utils';
 import { generateSeoAlternates } from '@/utils/seo';
 import type { IStatResponse } from '@/types/stat';
 import './Statistics.scss';
+import { getPublicJournalConfig } from '@/utils/env-loader';
 import { logger } from '@/lib/logger';
 import JsonLd from '@/components/Meta/JsonLd';
 import { generateWebPageJsonLd } from '@/utils/schema';
@@ -89,6 +90,8 @@ export default async function StatisticsPage(props: Props) {
     statistics: t('pages.statistics.title', translations),
   };
 
+  const journalConfig = getPublicJournalConfig(journalId);
+
   return (
     <>
       <JsonLd
@@ -100,6 +103,7 @@ export default async function StatisticsPage(props: Props) {
         initialStats={initialStats}
         lang={lang}
         breadcrumbLabels={breadcrumbLabels}
+        journalConfig={journalConfig}
       />
     </>
   );

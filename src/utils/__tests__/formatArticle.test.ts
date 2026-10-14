@@ -66,12 +66,18 @@ describe('formatArticle', () => {
       });
     });
 
-    it('takes the minimal path when paperid is not numeric (NaN id)', () => {
+    it('takes the minimal path when paperid is not numeric, falling back to 0 without a docid', () => {
       const raw = makeRaw({ paperid: 'abc' as unknown as number });
       const result = formatArticle(raw);
-      expect(Number.isNaN(result?.id)).toBe(true);
+      expect(result?.id).toBe(0);
       expect(result?.authors).toEqual([]);
       expect(result?.metrics).toEqual({ views: 0, downloads: 0 });
+    });
+
+    it('falls back to docid when paperid is not numeric, avoiding duplicate NaN ids', () => {
+      const raw = { ...makeRaw({ paperid: 'abc' as unknown as number }), docid: 42 };
+      const result = formatArticle(raw);
+      expect(result?.id).toBe(42);
     });
 
     it('returns undefined when neither journal_article nor conference_paper exists', () => {

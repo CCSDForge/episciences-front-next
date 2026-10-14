@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import HomeClient from '../HomeClient';
+import { BOARD_TYPE } from '@/services/board';
 
 // --- Mocks ---
 
@@ -54,7 +55,12 @@ vi.mock('@/components/HomeSections/IssuesSection/IssuesSection', () => ({
 
 vi.mock('@/components/Swiper/Swiper', () => ({
   default: ({ id, type, cards }: any) => (
-    <div data-testid={`swiper-${type}`} id={id} data-count={cards?.length} />
+    <div
+      data-testid={`swiper-${type}`}
+      id={id}
+      data-count={cards?.length}
+      data-ids={cards?.map((card: any) => card.id).join(',')}
+    />
   ),
 }));
 
@@ -282,6 +288,30 @@ describe('HomeClient', () => {
       process.env.NEXT_PUBLIC_JOURNAL_HOMEPAGE_MEMBERS_CAROUSEL_RENDER = 'false';
       render(<HomeClient {...defaultProps} />);
       expect(screen.queryByTestId('swiper-board')).not.toBeInTheDocument();
+    });
+    describe('carousel order', () => {
+      const members = [
+        { ...mockMember, id: 1, lastname: 'Aaa', roles: ['editorial-board'] },
+        { ...mockMember, id: 2, lastname: 'Bbb', roles: ['scientific-advisory-board'] },
+        { ...mockMember, id: 3, lastname: 'Ccc', roles: ['technical-board'] },
+      ];
+      const homeData = { ...fullHomeData, members };
+
+      it('uses the default board order when no boardsOrder is given', () => {
+        render(<HomeClient {...defaultProps} homeData={homeData} />);
+        expect(screen.getByTestId('swiper-board')).toHaveAttribute('data-ids', '1,2,3');
+      });
+
+      it('follows the boardsOrder prop', () => {
+        render(
+          <HomeClient
+            {...defaultProps}
+            homeData={homeData}
+            boardsOrder={[BOARD_TYPE.TECHNICAL_BOARD, BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD]}
+          />
+        );
+        expect(screen.getByTestId('swiper-board')).toHaveAttribute('data-ids', '3,2,1');
+      });
     });
   });
 

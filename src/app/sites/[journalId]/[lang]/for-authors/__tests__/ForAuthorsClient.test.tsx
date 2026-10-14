@@ -14,6 +14,14 @@ vi.mock('@/hooks/store', () => ({
   useAppSelector: () => undefined,
 }));
 
+// The real next/image validates the src hostname against next.config.js, which is
+// unrelated to what is tested here; keep only its `data-nimg` marker.
+vi.mock('next/image', () => ({
+  default: ({ src, alt }: { src: string; alt: string }) => (
+    <img src={src} alt={alt} data-nimg="1" />
+  ),
+}));
+
 vi.mock('next/navigation', () => ({
   usePathname: () => '/test/en/for-authors',
 }));
@@ -112,6 +120,22 @@ describe('ForAuthorsClient', () => {
       expect(card2).toBeInTheDocument();
       expect(screen.getByText('Use LaTeX.')).toBeInTheDocument();
       expect(screen.getByText('Verify citations.')).toBeInTheDocument();
+    });
+
+    it('renders images inside numbered cards through next/image', () => {
+      const page: ForAuthorsPage = {
+        ...prepareSubmissionPage,
+        content: {
+          en: '### Logo\n\n![ASDS](https://x.episciences.org/x/resources/logo.jpg)',
+          fr: '',
+        },
+      };
+      const { container } = render(
+        <ForAuthorsClient editorialWorkflowPage={null} prepareSubmissionPage={page} lang="en" />
+      );
+
+      // next/image marks its output with data-nimg; a plain <img> would not have it.
+      expect(container.querySelector('img[alt="ASDS"]')).toHaveAttribute('data-nimg');
     });
 
     it('does not crash and keeps cards grouped under their own H2 when numbered content has multiple H2 sections', () => {

@@ -20,6 +20,12 @@ interface IPaginationProps {
   totalItems?: number;
 
   onPageChange: (selectedItem: { selected: number }) => void;
+
+  /**
+   * Builds the URL of a page (1-based) so that the controls are real links, which crawlers
+   * can follow and a middle-click can open. Clicks are still handled by `onPageChange`.
+   */
+  hrefBuilder?: (page: number) => string;
 }
 
 const Pagination = memo(function Pagination({
@@ -27,6 +33,7 @@ const Pagination = memo(function Pagination({
   itemsPerPage,
   totalItems,
   onPageChange,
+  hrefBuilder,
 }: IPaginationProps): React.JSX.Element {
   const { t } = useTranslation();
   const perPage = itemsPerPage ?? DEFAULT_ITEMS_PER_PAGE;
@@ -50,6 +57,7 @@ const Pagination = memo(function Pagination({
       pageCount={pageCount}
       forcePage={forcePage}
       onPageChange={onPageChange}
+      hrefBuilder={hrefBuilder}
       className="pagination"
       pageClassName="pagination-page"
       previousClassName="pagination-previous"

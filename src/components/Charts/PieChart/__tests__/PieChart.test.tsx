@@ -112,6 +112,24 @@ describe('PieChart', () => {
       expect(cells[1]).toHaveAttribute('data-fill', '#00FF00');
     });
 
+    it('prefers journalConfig colors over process.env', () => {
+      process.env.NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_0 = '#FF0000';
+
+      render(
+        <PieChart
+          t={mockT as any}
+          data={pieData}
+          journalConfig={{
+            NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_0: '#8f281e',
+            NEXT_PUBLIC_JOURNAL_STATISTICS_COLORS_1: '#d45041',
+          }}
+        />
+      );
+      const cells = screen.getAllByTestId('recharts-cell');
+      expect(cells[0]).toHaveAttribute('data-fill', '#8f281e');
+      expect(cells[1]).toHaveAttribute('data-fill', '#d45041');
+    });
+
     it('cycles colors when data exceeds number of defined colors', () => {
       const extraData: IStatValueDetailsAsPieChart[] = [...pieData, { status: 'extra', count: 5 }];
       render(<PieChart t={mockT as any} data={extraData} />);

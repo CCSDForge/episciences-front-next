@@ -53,5 +53,5 @@ export const ListRedIcon = (props: Omit<ListIconProps, 'color'>) => (
 );
 
 export const ListBlackIcon = (props: Omit<ListIconProps, 'color'>) => (
-  <ListIcon {...props} color="#000000" />
+  <ListIcon {...props} color="currentColor" />
 );

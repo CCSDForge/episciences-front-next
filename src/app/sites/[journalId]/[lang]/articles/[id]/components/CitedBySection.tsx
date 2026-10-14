@@ -5,7 +5,7 @@ import { Fragment, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@/components/Link/Link';
 import { IArticleCitedBy } from '@/types/article';
-import { buildOrcidUrl, buildDoiUrl } from '@/config/external-urls';
+import { buildOrcidUrl, buildDoiUrl, parseOrcidId } from '@/config/external-urls';
 
 interface CitedBySectionProps {
   readonly citedBy: IArticleCitedBy[];
@@ -39,22 +39,26 @@ export default function CitedBySection({ citedBy }: CitedBySectionProps): React.
                 <p className="articleDetails-content-article-section-content-citedBy-row-citations-citation-authors">
                   {t('pages.articleDetails.citedBySection.authors')} :{' '}
                   {citation.authors
-                    .map<ReactNode>(author => (
-                      <Fragment key={author.orcid || author.fullname}>
-                        <span>{author.fullname}</span>
-                        {author.orcid && (
-                          <Link
-                            href={buildOrcidUrl(author.orcid)}
-                            title={author.orcid}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {' '}
-                            <OrcidIcon size={16} ariaLabel="ORCID" />
-                          </Link>
-                        )}
-                      </Fragment>
-                    ))
+                    .map<ReactNode>(author => {
+                      // Citation data is external: only a valid iD gets an orcid.org link.
+                      const orcid = parseOrcidId(author.orcid);
+                      return (
+                        <Fragment key={author.orcid || author.fullname}>
+                          <span>{author.fullname}</span>
+                          {orcid && (
+                            <Link
+                              href={buildOrcidUrl(orcid)}
+                              title={orcid}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {' '}
+                              <OrcidIcon size={16} ariaLabel="ORCID" />
+                            </Link>
+                          )}
+                        </Fragment>
+                      );
+                    })
                     .reduce<ReactNode[]>(
                       (prev, curr) => (prev.length === 0 ? [curr] : [...prev, ', ', curr]),
                       []

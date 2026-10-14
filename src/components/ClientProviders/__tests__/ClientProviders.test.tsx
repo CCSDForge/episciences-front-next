@@ -40,6 +40,7 @@ vi.mock('better-react-mathjax', () => ({
   MathJaxContext: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mathjax-provider">{children}</div>
   ),
+  MathJaxBaseContext: require('react').createContext(undefined),
 }));
 
 // Mock Redux store
@@ -74,10 +75,6 @@ vi.mock('@/components/JournalInitializer/JournalInitializer', () => ({
 
 vi.mock('@/components/LastVolumeInitializer/LastVolumeInitializer', () => ({
   LastVolumeInitializer: () => <div data-testid="last-volume-initializer" />,
-}));
-
-vi.mock('@/components/ThemeStyleSwitch/ThemeStyleSwitch', () => ({
-  default: () => <div data-testid="theme-style-switch" />,
 }));
 
 // Mock Redux slice actions
@@ -231,18 +228,6 @@ describe('ClientProviders', () => {
   });
 
   describe('Client-side initialization', () => {
-    it('renders ThemeStyleSwitch after mount', async () => {
-      render(
-        <ClientProviders>
-          <div>Content</div>
-        </ClientProviders>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('theme-style-switch')).toBeInTheDocument();
-      });
-    });
-
     it('renders JournalInitializer when no initialJournal provided', async () => {
       render(
         <ClientProviders journalId="test">
@@ -271,7 +256,7 @@ describe('ClientProviders', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('theme-style-switch')).toBeInTheDocument();
+        expect(screen.getByText('Content')).toBeInTheDocument();
       });
 
       expect(screen.queryByTestId('journal-initializer')).not.toBeInTheDocument();

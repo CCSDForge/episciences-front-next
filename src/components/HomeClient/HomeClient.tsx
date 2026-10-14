@@ -14,6 +14,7 @@ import {
 } from '@/config/homepage';
 import { PATHS } from '@/config/paths';
 import { filterAndSortMembersForCarousel } from '@/utils/board-transforms';
+import type { BOARD_TYPE } from '@/services/board';
 import { VOLUME_TYPE } from '@/utils/volume';
 import { IVolume } from '@/types/volume';
 import { INews } from '@/types/news';
@@ -31,6 +32,7 @@ interface HomeClientProps {
   readonly language: string;
   readonly journalId?: string;
   readonly journalConfig?: Record<string, string>;
+  readonly boardsOrder?: BOARD_TYPE[] | null;
 }
 
 // Internal component that uses Redux
@@ -39,6 +41,7 @@ function HomeClientInner({
   language,
   journalId,
   journalConfig,
+  boardsOrder,
 }: HomeClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
   const currentJournal = useAppSelector(state => state.journalReducer.currentJournal);
@@ -148,7 +151,9 @@ function HomeClientInner({
 
     const membersConfig = getBlockRendering(HOMEPAGE_BLOCK.MEMBERS_CAROUSEL);
     const carouselMembers =
-      members && Array.isArray(members) ? filterAndSortMembersForCarousel(members) : [];
+      members && Array.isArray(members)
+        ? filterAndSortMembersForCarousel(members, boardsOrder)
+        : [];
     const shouldRenderMembers = membersConfig?.render && carouselMembers.length > 0;
 
     const statsConfig = getBlockRendering(HOMEPAGE_BLOCK.STATS);
@@ -191,6 +196,7 @@ function HomeClientInner({
     issues,
     acceptedArticles,
     journalConfig,
+    boardsOrder,
   ]);
 
   return (

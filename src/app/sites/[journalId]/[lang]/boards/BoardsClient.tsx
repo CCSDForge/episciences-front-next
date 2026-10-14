@@ -5,7 +5,7 @@ import CollapsibleSectionHeader from '@/components/CollapsibleSectionHeader/Coll
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
 import { IBoardMember } from '@/types/board';
-import { IBoardPage } from '@/services/board';
+import { BOARD_TYPE, IBoardPage } from '@/services/board';
 import { getBoardsPerTitle } from '@/utils/board-transforms';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import BoardCard from '@/components/Cards/BoardCard/BoardCard';
@@ -33,7 +33,10 @@ interface BoardsClientProps {
   };
   readonly rolesLabels?: Record<string, string>;
   readonly tableOfContentsLabel?: string;
+  readonly boardsOrder?: BOARD_TYPE[] | null;
 }
+
+const getGroupAnchorId = (pageCode: string): string => `board-${pageCode}`;
 
 export default function BoardsClient({
   initialPages,
@@ -43,6 +46,7 @@ export default function BoardsClient({
   membersCountLabels,
   rolesLabels,
   tableOfContentsLabel,
+  boardsOrder,
 }: BoardsClientProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
 
@@ -75,8 +79,8 @@ export default function BoardsClient({
   const boardsPerTitle = useMemo(() => {
     if (!initialMembers?.length) return [];
 
-    return getBoardsPerTitle(initialPages || [], initialMembers, currentLang);
-  }, [initialPages, initialMembers, currentLang]);
+    return getBoardsPerTitle(initialPages || [], initialMembers, currentLang, boardsOrder);
+  }, [initialPages, initialMembers, currentLang, boardsOrder]);
 
   const getPagesLabels = (): string[] => {
     if (!boardsPerTitle.length) return [];
@@ -93,6 +97,24 @@ export default function BoardsClient({
         next.add(index);
       }
       return next;
+    });
+  };
+
+  // Sidebar entries open the group (never close it) and scroll to it
+  const handleSidebarGroupClick = (index: number): void => {
+    const boardPerTitle = boardsPerTitle[index];
+    if (!boardPerTitle) return;
+    setOpenGroups(prev => (prev.has(index) ? prev : new Set(prev).add(index)));
+    // Wait for the group content to be rendered before scrolling
+    requestAnimationFrame(() => {
+      const group = document.getElementById(getGroupAnchorId(boardPerTitle.page_code));
+      if (!group) return;
+      const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      group.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+      // Move keyboard focus to the group header so the next Tab continues inside the group
+      group
+        .querySelector<HTMLElement>('.boards-content-groups-group-title')
+        ?.focus({ preventScroll: true });
     });
   };
 
@@ -137,12 +159,16 @@ export default function BoardsClient({
           t={t}
           groups={getPagesLabels()}
           openGroups={openGroups}
-          onSetActiveGroupCallback={handleGroupToggle}
+          onSetActiveGroupCallback={handleSidebarGroupClick}
           tableOfContentsLabel={tableOfContentsLabel}
         />
         <div className="boards-content-groups">
           {boardsPerTitle.map((boardPerTitle, groupIndex) => (
-            <div key={boardPerTitle.page_code} className="boards-content-groups-group">
+            <div
+              key={boardPerTitle.page_code}
+              id={getGroupAnchorId(boardPerTitle.page_code)}
+              className="boards-content-groups-group"
+            >
               <CollapsibleSectionHeader
                 triggerClassName="boards-content-groups-group-title"
                 caretClassName="boards-content-groups-group-caret"

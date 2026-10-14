@@ -1,11 +1,12 @@
 @use '@/styles/breakpoints.scss';
+@use '@/styles/mixins';
 .header {
   height: 285px;
   width: 100%;
-  background: var(--white);
+  background: var(--surface);
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 2px 4px var(--black-shadow);
+  box-shadow: 0px 2px 4px var(--shadow);
   position: fixed;
   top: 0;
   z-index: 2;
@@ -32,6 +33,15 @@
       align-items: center;
       justify-content: center;
       border-bottom: 1px solid var(--primary);
+      // Light island: journal logos are polychrome SVGs designed for a white box —
+      // filter: invert() would wreck their colors, so the box itself stays light
+      // regardless of the active scheme (see docs/ACCESSIBLE_COLOR_SYSTEM.md §Logos).
+      @include mixins.light-island;
+      // border-box: padding must not change this box's outer footprint (would be a
+      // light-mode layout regression too, box-sizing here is content-box by default).
+      box-sizing: border-box;
+      padding: 4px;
+      border-radius: 4px;
 
       a {
         display: flex;
@@ -57,8 +67,10 @@
     &-blank {
       min-width: 0;
       flex: 1;
-      background: var(--primary);
-      color: var(--button-text-on-primary-bg);
+      // --brand (not --primary): the banner keeps the literal journal color in
+      // both themes — see theme.scss's "Scheme-invariant brand tokens".
+      background: var(--brand);
+      color: var(--text-on-brand);
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -69,8 +81,13 @@
 
       span {
         overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        line-height: 1.15;
+        text-align: end;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow-wrap: anywhere;
       }
 
       @media (max-width: breakpoints.$sm) {
@@ -90,9 +107,9 @@
       align-items: center;
       justify-content: flex-end;
       padding-right: 20px;
-      background: var(--primary);
-      color: var(--button-text-on-primary-bg);
-      border-bottom: 1px solid var(--primary);
+      background: var(--brand);
+      color: var(--text-on-brand);
+      border-bottom: 1px solid var(--brand);
 
       @media (max-width: breakpoints.$xsm) {
         min-width: unset;
@@ -140,9 +157,24 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      // Light island: the Episciences wordmark SVG is drawn in dark navy/teal for a
+      // white background ("fond-clair" in the source file) — invisible on a dark
+      // surface. Same rationale as .header-journal-logo below.
+      @include mixins.light-island;
+      box-sizing: border-box;
+      padding: 4px;
+      border-radius: 4px;
 
       a {
         height: 100%;
+      }
+
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
       }
     }
 
@@ -245,18 +277,19 @@
     }
   }
 
-  // Sign-in inside reduced header (on primary background)
+  // Sign-in / theme toggle inside reduced header (on the --brand banner)
   &-reduced-journal-dropdown {
-    .header-signin {
-      color: var(--button-text-on-primary-bg);
+    .header-signin,
+    .themeToggle {
+      color: var(--text-on-brand);
 
       &:focus-visible {
-        outline-color: var(--focus-color-on-primary, #ffffff);
+        outline-color: var(--focus-color-on-brand, #ffffff);
       }
     }
 
     .header-signin-separator {
-      color: var(--button-text-on-primary-bg);
+      color: var(--text-on-brand);
     }
   }
 
@@ -278,6 +311,11 @@
       justify-content: center;
       border: 1px solid var(--primary);
       border-left: none;
+      // Light island — see .header-reduced-journal-logo above for the rationale.
+      @include mixins.light-island;
+      box-sizing: border-box;
+      padding: 4px;
+      border-radius: 4px;
 
       a {
         display: flex;
@@ -310,9 +348,13 @@
 
     &-title {
       width: 100%;
-      padding-right: 80px;
-      background: var(--primary);
-      color: var(--button-text-on-primary-bg);
+      min-width: 0;
+      padding: 8px 80px 8px 24px;
+      overflow: hidden;
+      // --brand (not --primary): the banner keeps the literal journal color in
+      // both themes — see theme.scss's "Scheme-invariant brand tokens".
+      background: var(--brand);
+      color: var(--text-on-brand);
       display: flex;
       flex-direction: column;
       align-items: flex-end;
@@ -321,31 +363,42 @@
 
       @media (max-width: breakpoints.$xsm),
         (max-width: breakpoints.$sm) and (orientation: landscape) {
-        padding: 0px 16px 0px 16px;
+        padding: 8px 16px;
         text-align: end;
       }
 
       &-main {
-        font-size: 42px;
+        // Fluid size: shrinks on narrower viewports, long titles wrap instead of being cut
+        font-size: clamp(26px, 3.4vw, 42px);
         font-weight: bold;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        line-height: 1.15;
+        text-align: end;
+        text-wrap: balance;
+        overflow-wrap: anywhere;
         max-width: 100%;
+        // Safety net: header height is fixed (page content is offset by it)
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        overflow: hidden;
 
         @media (max-width: breakpoints.$xsm),
           (max-width: breakpoints.$sm) and (orientation: landscape) {
           font-size: 14px;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
         }
       }
     }
 
     &-subtitle {
-      font-size: 30px;
+      font-size: clamp(18px, 2.4vw, 30px);
       font-weight: 400;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      line-height: 1.2;
+      text-align: end;
+      text-wrap: balance;
+      overflow-wrap: anywhere;
       max-width: 100%;
 
       @media (max-width: breakpoints.$xsm),
@@ -409,11 +462,19 @@
             min-width: 100px;
             gap: 10px;
             padding: 7px 25px 10px 9px;
-            background: var(--white);
+            background: var(--surface-raised);
             color: var(--grey);
             border: 1px solid var(--grey-light);
             box-shadow: 0px 3px 6px var(--grey);
             font-size: 18px;
+
+            // Dark mode only: same surface and hairline as elevated cards, and a
+            // dark shadow instead of the --grey one that reads as a pale glow.
+            @include mixins.when-dark {
+              background: var(--surface-2);
+              border-color: rgba(255, 255, 255, 0.12);
+              box-shadow: 0px 3px 6px var(--shadow);
+            }
 
             &-large {
               min-width: 170px;
@@ -513,7 +574,7 @@
         height: 100%;
         border: 0;
         border-right: none;
-        background: var(--white);
+        background: var(--surface);
         padding: 0 10px;
         min-width: 200px;
 
@@ -666,11 +727,19 @@
           min-width: 162px;
           gap: 10px;
           padding: 7px 25px 10px 9px;
-          background: var(--white);
+          background: var(--surface-raised);
           color: var(--grey);
           border: 1px solid var(--grey-light);
           box-shadow: 0px 3px 6px var(--grey);
           font-size: 16px;
+
+          // Dark mode only: aligned with the elevated-card surface (see the
+          // reduced header's dropdown links above).
+          @include mixins.when-dark {
+            background: var(--surface-2);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0px 3px 6px var(--shadow);
+          }
 
           &-section {
             display: flex;

@@ -8,6 +8,7 @@ import {
 import { AvailableLanguage } from '@/utils/i18n';
 import { Range } from '@/utils/pagination';
 import { getJournalApiUrl } from '@/utils/env-loader';
+import { decodeHtmlEntitiesRecord } from '@/utils/html-entities';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'volume' });
@@ -58,7 +59,7 @@ export const formatVolume = (
 export const formatVolumeMetadata = (metadata: RawVolumeMetadata): IVolumeMetadata => {
   return {
     ...metadata,
-    title: metadata.titles,
+    title: decodeHtmlEntitiesRecord(metadata.titles),
     content: metadata.content,
     file: metadata.file,
     createdAt: metadata.date_creation,
@@ -139,7 +140,9 @@ export async function fetchVolumes(params: FetchVolumesParams): Promise<FetchVol
     const response = await fetch(`${apiUrl}/volumes?${searchParams.toString()}&rvcode=${rvcode}`, {
       method: 'GET',
       headers: {
-        Accept: 'application/json',
+        // The plain JSON serialization is a bare array: it omits each volume's `committee`
+        // and the hydra totals/range read below.
+        Accept: 'application/ld+json',
       },
       next: { revalidate: CACHE_TTL.volumes, tags: ['volumes', `volumes-${rvcode}`] },
     });
@@ -197,7 +200,8 @@ export async function fetchVolume(
     const response = await fetch(`${apiUrl}/volumes/${vid}?language=${language}&rvcode=${rvcode}`, {
       method: 'GET',
       headers: {
-        Accept: 'application/json',
+        // The plain JSON serialization omits `committee`; JSON-LD includes it (as for sections).
+        Accept: 'application/ld+json',
       },
       next: {
         revalidate: CACHE_TTL.volumes,

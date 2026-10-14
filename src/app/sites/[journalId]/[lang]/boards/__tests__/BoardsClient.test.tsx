@@ -1,9 +1,9 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import BoardsClient from '../BoardsClient';
 import { IBoardMember } from '@/types/board';
-import { IBoardPage } from '@/services/board';
+import { BOARD_TYPE, IBoardPage } from '@/services/board';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -129,6 +129,47 @@ describe('BoardsClient', () => {
     });
   });
 
+  describe('configured boards order', () => {
+    const pages = [
+      makePage('scientific-advisory-board', 'Scientific Advisory Board'),
+      makePage('editorial-board', 'Editorial Board'),
+    ];
+    const members = [
+      makeMember({ id: 1, roles: ['editorial-board'] }),
+      makeMember({ id: 2, roles: ['scientific-advisory-board'] }),
+    ];
+
+    const getGroupsText = (container: HTMLElement): string =>
+      (container.querySelector('.boards-content-groups') as HTMLElement).textContent ?? '';
+
+    it('renders boards in the default order when no order is configured', () => {
+      const { container } = render(
+        <BoardsClient initialPages={pages} initialMembers={members} rolesLabels={rolesLabels} />
+      );
+      const text = getGroupsText(container);
+
+      expect(text.indexOf('Scientific Advisory Board')).toBeLessThan(
+        text.indexOf('Editorial Board')
+      );
+    });
+
+    it('renders boards in the configured order', () => {
+      const { container } = render(
+        <BoardsClient
+          initialPages={pages}
+          initialMembers={members}
+          rolesLabels={rolesLabels}
+          boardsOrder={[BOARD_TYPE.EDITORIAL_BOARD]}
+        />
+      );
+      const text = getGroupsText(container);
+
+      expect(text.indexOf('Editorial Board')).toBeLessThan(
+        text.indexOf('Scientific Advisory Board')
+      );
+    });
+  });
+
   describe('group toggle', () => {
     it('toggles a group open/closed on click and updates aria-expanded', async () => {
       const user = userEvent.setup();
@@ -240,6 +281,90 @@ describe('BoardsClient', () => {
 
       await user.click(card);
       expect(card).toHaveAttribute('data-state', 'default');
+    });
+  });
+
+  describe('sidebar navigation', () => {
+    // jsdom implements neither scrollIntoView nor matchMedia
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    const scrollIntoView = vi.fn();
+
+    const stubReducedMotion = (reduce: boolean): void => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn((query: string) => ({ matches: reduce, media: query }))
+      );
+    };
+
+    const renderTwoGroups = () => {
+      const members = [
+        makeMember({ id: 1, roles: ['editorial-board'] }),
+        makeMember({ id: 2, roles: ['scientific-advisory-board'] }),
+      ];
+      const { container } = render(
+        <BoardsClient
+          initialPages={[
+            makePage('scientific-advisory-board', 'Scientific Advisory Board'),
+            makePage('editorial-board', 'Editorial Board'),
+          ]}
+          initialMembers={members}
+          rolesLabels={rolesLabels}
+        />
+      );
+      const sidebar = container.querySelector('.boardsSidebar') as HTMLElement;
+      const target = container.querySelector('#board-editorial-board') as HTMLElement;
+      const header = target.querySelector('.boards-content-groups-group-title') as HTMLElement;
+      return { sidebar, target, header };
+    };
+
+    beforeEach(() => {
+      Element.prototype.scrollIntoView = scrollIntoView;
+    });
+
+    afterEach(() => {
+      Element.prototype.scrollIntoView = originalScrollIntoView;
+      scrollIntoView.mockReset();
+      vi.unstubAllGlobals();
+    });
+
+    it('opens the clicked group and scrolls to it, keeping it open on second click', async () => {
+      const user = userEvent.setup();
+      stubReducedMotion(false);
+      const { sidebar, target, header } = renderTwoGroups();
+      expect(header).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(within(sidebar).getByText('Editorial Board'));
+      expect(header).toHaveAttribute('aria-expanded', 'true');
+      await vi.waitFor(() => expect(scrollIntoView).toHaveBeenCalled());
+      expect(scrollIntoView.mock.contexts[0]).toBe(target);
+      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+
+      // Clicking again keeps the group open and scrolls to it again
+      scrollIntoView.mockClear();
+      await user.click(within(sidebar).getByText('Editorial Board'));
+      expect(header).toHaveAttribute('aria-expanded', 'true');
+      await vi.waitFor(() => expect(scrollIntoView).toHaveBeenCalled());
+    });
+
+    it('scrolls instantly when the user prefers reduced motion', async () => {
+      const user = userEvent.setup();
+      stubReducedMotion(true);
+      const { sidebar } = renderTwoGroups();
+
+      await user.click(within(sidebar).getByText('Editorial Board'));
+      await vi.waitFor(() =>
+        expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' })
+      );
+    });
+
+    it('moves keyboard focus to the targeted group header', async () => {
+      const user = userEvent.setup();
+      stubReducedMotion(false);
+      const { sidebar, header } = renderTwoGroups();
+
+      within(sidebar).getByText('Editorial Board').focus();
+      await user.keyboard('{Enter}');
+      await vi.waitFor(() => expect(header).toHaveFocus());
     });
   });
 

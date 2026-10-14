@@ -83,4 +83,58 @@ describe('search.query - end to end', () => {
 
     expect(store.getState().searchReducer.results.totalItems).toBe(1);
   });
+
+  it('drops search results whose enrichment fetch fails instead of injecting a malformed entry', async () => {
+    global.fetch = vi.fn().mockImplementation((input: string | Request) => {
+      const requestUrl = typeof input === 'string' ? input : input.url;
+      if (requestUrl.includes('/papers/1?')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ '@id': '/api/papers/1', docid: '1' }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          })
+        );
+      }
+      if (requestUrl.includes('/papers/2?')) {
+        // Simulates the proxy's rate limiter or an upstream timeout.
+        return Promise.resolve(
+          new Response(JSON.stringify({ error: 'Too many requests' }), {
+            status: 429,
+            headers: { 'content-type': 'application/json' },
+          })
+        );
+      }
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            'hydra:totalItems': 2,
+            'hydra:member': [{ docid: '1' }, { docid: '2' }],
+            'hydra:range': { year: {}, type: {} },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } }
+        )
+      );
+    }) as unknown as typeof fetch;
+
+    const store = buildStore();
+
+    await store.dispatch(
+      searchApi.endpoints.fetchSearchResults.initiate({
+        terms: 'graph',
+        rvcode: 'epijinfo',
+        page: 1,
+        itemsPerPage: 10,
+      })
+    );
+
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    const state = store.getState() as unknown as {
+      [searchApi.reducerPath]: {
+        queries: Record<string, { data?: { data: Array<{ docid?: string }> } }>;
+      };
+    };
+    const cachedQuery = Object.values(state[searchApi.reducerPath].queries)[0];
+    expect(cachedQuery?.data?.data).toHaveLength(1);
+  });
 });

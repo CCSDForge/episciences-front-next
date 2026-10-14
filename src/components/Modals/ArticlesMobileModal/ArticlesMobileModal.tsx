@@ -4,12 +4,16 @@ import { CloseBlackIcon, CaretUpGreyIcon, CaretDownGreyIcon } from '@/components
 import { useState, useCallback, useMemo } from 'react';
 import { TFunction } from 'i18next';
 import Button from '@/components/Button/Button';
-import Checkbox from '@/components/Checkbox/Checkbox';
+import FilterChoiceList, { IFilterChoice } from '@/components/FilterChoiceList/FilterChoiceList';
 import Tag from '@/components/Tag/Tag';
 import LiveRegion from '@/components/LiveRegion/LiveRegion';
+import {
+  IArticleFiltersSelection,
+  IArticleTypeSelection,
+  IArticleYearSelection,
+} from '@/components/Sidebars/ArticlesSidebar/ArticlesSidebar';
 import { FocusTrap } from 'focus-trap-react';
 import './ArticlesMobileModal.scss';
-import { handleKeyboardClick } from '@/utils/keyboard';
 import { useMobileModal } from '@/hooks/useMobileModal';
 import { useFilterSections } from '@/hooks/useFilterSections';
 
@@ -20,17 +24,6 @@ enum FILTERS_SECTION {
 
 type ArticlesTypeFilter = 'type' | 'year';
 
-interface IArticlesTypeSelection {
-  labelPath: string;
-  value: string;
-  isChecked: boolean;
-}
-
-interface IArticlesYearSelection {
-  year: number;
-  isChecked: boolean;
-}
-
 interface IArticlesFilter {
   type: ArticlesTypeFilter;
   value: string | number;
@@ -40,23 +33,67 @@ interface IArticlesFilter {
 
 interface IArticlesMobileModalProps {
   t: TFunction<'translation', undefined>;
-  initialTypes: IArticlesTypeSelection[];
-  onUpdateTypesCallback: (types: IArticlesTypeSelection[]) => void;
-  initialYears: IArticlesYearSelection[];
-  onUpdateYearsCallback: (years: IArticlesYearSelection[]) => void;
+  initialTypes: IArticleTypeSelection[];
+  initialYears: IArticleYearSelection[];
+  /** Called once with the whole selection when the filters are applied. */
+  onApplyFiltersCallback: (selection: IArticleFiltersSelection) => void;
   onCloseCallback: () => void;
+}
+
+interface IModalFacetProps<V extends string | number> {
+  /** BEM block of the facet, e.g. `articlesMobileModal-filters-types`. */
+  readonly base: string;
+  readonly listId: string;
+  readonly title: string;
+  readonly isOpened: boolean;
+  readonly onToggleOpened: () => void;
+  readonly choices: IFilterChoice<V>[];
+  readonly onToggle: (value: V) => void;
+}
+
+/** Collapsible facet: a title button expanding a list of checkbox choices. */
+function ModalFacet<V extends string | number>({
+  base,
+  listId,
+  title,
+  isOpened,
+  onToggleOpened,
+  choices,
+  onToggle,
+}: IModalFacetProps<V>): React.JSX.Element {
+  const CaretIcon = isOpened ? CaretUpGreyIcon : CaretDownGreyIcon;
+  return (
+    <div className={base}>
+      <button
+        type="button"
+        className={`${base}-title`}
+        onClick={onToggleOpened}
+        aria-expanded={isOpened}
+        aria-controls={listId}
+      >
+        <span className={`${base}-title-text`}>{title}</span>
+        <CaretIcon size={16} className={`${base}-title-caret`} />
+      </button>
+      <FilterChoiceList
+        id={listId}
+        base={`${base}-list`}
+        className={isOpened ? `${base}-list ${base}-list-opened` : `${base}-list`}
+        choices={choices}
+        onToggle={onToggle}
+      />
+    </div>
+  );
 }
 
 export default function ArticlesMobileModal({
   t,
   initialTypes,
-  onUpdateTypesCallback,
   initialYears,
-  onUpdateYearsCallback,
+  onApplyFiltersCallback,
   onCloseCallback,
 }: Readonly<IArticlesMobileModalProps>): React.JSX.Element {
-  const [types, setTypes] = useState<IArticlesTypeSelection[]>(initialTypes);
-  const [years, setYears] = useState<IArticlesYearSelection[]>(initialYears);
+  const [types, setTypes] = useState<IArticleTypeSelection[]>(initialTypes);
+  const [years, setYears] = useState<IArticleYearSelection[]>(initialYears);
   const [announcement, setAnnouncement] = useState('');
 
   const clearTaggedFilters = useCallback((): void => {
@@ -104,8 +141,7 @@ export default function ArticlesMobileModal({
   };
 
   const onApplyFilters = (): void => {
-    onUpdateTypesCallback(types);
-    onUpdateYearsCallback(years);
+    onApplyFiltersCallback({ types, years });
 
     const filterCount = taggedFilters.length;
     if (filterCount > 0) {
@@ -161,104 +197,36 @@ export default function ArticlesMobileModal({
           </div>
         )}
         <div className="articlesMobileModal-filters">
-          <div className="articlesMobileModal-filters-types">
-            <button
-              type="button"
-              className="articlesMobileModal-filters-types-title"
-              onClick={(): void => toggleSection(FILTERS_SECTION.TYPE)}
-              aria-expanded={isOpenedSection(FILTERS_SECTION.TYPE)}
-              aria-controls="filter-section-type"
-            >
-              <span className="articlesMobileModal-filters-types-title-text">
-                {t('common.filters.documentTypes')}
-              </span>
-              {isOpenedSection(FILTERS_SECTION.TYPE) ? (
-                <CaretUpGreyIcon
-                  size={16}
-                  className="articlesMobileModal-filters-types-title-caret"
-                />
-              ) : (
-                <CaretDownGreyIcon
-                  size={16}
-                  className="articlesMobileModal-filters-types-title-caret"
-                />
-              )}
-            </button>
-            <div
-              id="filter-section-type"
-              className={`articlesMobileModal-filters-types-list ${isOpenedSection(FILTERS_SECTION.TYPE) && 'articlesMobileModal-filters-types-list-opened'}`}
-            >
-              {types.map(type => (
-                <div key={type.value} className="articlesMobileModal-filters-types-list-choice">
-                  <div className="articlesMobileModal-filters-types-list-choice-checkbox">
-                    <Checkbox
-                      checked={type.isChecked}
-                      onChangeCallback={(): void => onCheckType(type.value)}
-                      ariaLabel={t(type.labelPath)}
-                    />
-                  </div>
-                  <span
-                    className={`articlesMobileModal-filters-types-list-choice-label ${type.isChecked && 'articlesMobileModal-filters-types-list-choice-label-checked'}`}
-                    role="button"
-                    tabIndex={0}
-                    onClick={(): void => onCheckType(type.value)}
-                    onKeyDown={e => handleKeyboardClick(e, (): void => onCheckType(type.value))}
-                  >
-                    {t(type.labelPath)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="articlesMobileModal-filters-years">
-            <button
-              type="button"
-              className="articlesMobileModal-filters-years-title"
-              onClick={(): void => toggleSection(FILTERS_SECTION.YEAR)}
-              aria-expanded={isOpenedSection(FILTERS_SECTION.YEAR)}
-              aria-controls="filter-section-year"
-            >
-              <span className="articlesMobileModal-filters-years-title-text">
-                {t('common.filters.years')}
-              </span>
-              {isOpenedSection(FILTERS_SECTION.YEAR) ? (
-                <CaretUpGreyIcon
-                  size={16}
-                  className="articlesMobileModal-filters-years-title-caret"
-                />
-              ) : (
-                <CaretDownGreyIcon
-                  size={16}
-                  className="articlesMobileModal-filters-years-title-caret"
-                />
-              )}
-            </button>
-            <div
-              id="filter-section-year"
-              className={`articlesMobileModal-filters-years-list ${isOpenedSection(FILTERS_SECTION.YEAR) && 'articlesMobileModal-filters-years-list-opened'}`}
-            >
-              {years.map(y => (
-                <div key={y.year} className="articlesMobileModal-filters-years-list-choice">
-                  <div className="articlesMobileModal-filters-years-list-choice-checkbox">
-                    <Checkbox
-                      checked={y.isChecked}
-                      onChangeCallback={(): void => onCheckYear(y.year)}
-                      ariaLabel={String(y.year)}
-                    />
-                  </div>
-                  <span
-                    className={`articlesMobileModal-filters-years-list-choice-label ${y.isChecked && 'articlesMobileModal-filters-years-list-choice-label-checked'}`}
-                    role="button"
-                    tabIndex={0}
-                    onClick={(): void => onCheckYear(y.year)}
-                    onKeyDown={e => handleKeyboardClick(e, (): void => onCheckYear(y.year))}
-                  >
-                    {y.year}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {types.length > 0 && (
+            <ModalFacet
+              base="articlesMobileModal-filters-types"
+              listId="filter-section-type"
+              title={t('common.filters.documentTypes')}
+              isOpened={isOpenedSection(FILTERS_SECTION.TYPE)}
+              onToggleOpened={(): void => toggleSection(FILTERS_SECTION.TYPE)}
+              choices={types.map(type => ({
+                value: type.value,
+                label: t(type.labelPath),
+                isChecked: type.isChecked,
+              }))}
+              onToggle={onCheckType}
+            />
+          )}
+          {years.length > 0 && (
+            <ModalFacet
+              base="articlesMobileModal-filters-years"
+              listId="filter-section-year"
+              title={t('common.filters.years')}
+              isOpened={isOpenedSection(FILTERS_SECTION.YEAR)}
+              onToggleOpened={(): void => toggleSection(FILTERS_SECTION.YEAR)}
+              choices={years.map(y => ({
+                value: y.year,
+                label: String(y.year),
+                isChecked: y.isChecked,
+              }))}
+              onToggle={onCheckYear}
+            />
+          )}
         </div>
         <div className="articlesMobileModal-submit">
           <Button

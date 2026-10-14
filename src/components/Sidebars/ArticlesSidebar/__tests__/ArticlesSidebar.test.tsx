@@ -2,7 +2,12 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { checkA11y } from '@/test-utils/axe-helper';
-import ArticlesSidebar, { IArticleTypeSelection, IArticleYearSelection } from '../ArticlesSidebar';
+import ArticlesSidebar, {
+  ArticlesSidebarTypes,
+  ArticlesSidebarYears,
+  IArticleTypeSelection,
+  IArticleYearSelection,
+} from '../ArticlesSidebar';
 
 // Mock the Checkbox component
 vi.mock('@/components/Checkbox/Checkbox', () => ({
@@ -57,31 +62,53 @@ describe('ArticlesSidebar', () => {
     onCheckYearCallback: vi.fn(),
   };
 
+  /** Composes the sidebar the way the pages do: each facet only when it has choices. */
+  function Sidebar(props: typeof defaultProps): React.JSX.Element {
+    return (
+      <ArticlesSidebar>
+        {props.types.length > 0 && (
+          <ArticlesSidebarTypes
+            t={props.t}
+            types={props.types}
+            onCheckTypeCallback={props.onCheckTypeCallback}
+          />
+        )}
+        {props.years.length > 0 && (
+          <ArticlesSidebarYears
+            t={props.t}
+            years={props.years}
+            onCheckYearCallback={props.onCheckYearCallback}
+          />
+        )}
+      </ArticlesSidebar>
+    );
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('Basic rendering', () => {
     it('renders sidebar container', () => {
-      const { container } = render(<ArticlesSidebar {...defaultProps} />);
+      const { container } = render(<Sidebar {...defaultProps} />);
 
       expect(container.querySelector('.articlesSidebar')).toBeInTheDocument();
     });
 
     it('renders document types section', () => {
-      render(<ArticlesSidebar {...defaultProps} />);
+      render(<Sidebar {...defaultProps} />);
 
       expect(screen.getByText('Document Types')).toBeInTheDocument();
     });
 
     it('renders years section', () => {
-      render(<ArticlesSidebar {...defaultProps} />);
+      render(<Sidebar {...defaultProps} />);
 
       expect(screen.getByText('Years')).toBeInTheDocument();
     });
 
     it('renders all type options', () => {
-      render(<ArticlesSidebar {...defaultProps} />);
+      render(<Sidebar {...defaultProps} />);
 
       expect(screen.getByText('Article')).toBeInTheDocument();
       expect(screen.getByText('Review')).toBeInTheDocument();
@@ -89,7 +116,7 @@ describe('ArticlesSidebar', () => {
     });
 
     it('renders all year options', () => {
-      render(<ArticlesSidebar {...defaultProps} />);
+      render(<Sidebar {...defaultProps} />);
 
       expect(screen.getByText('2024')).toBeInTheDocument();
       expect(screen.getByText('2023')).toBeInTheDocument();
@@ -102,7 +129,7 @@ describe('ArticlesSidebar', () => {
       const user = userEvent.setup();
       const handleCheckType = vi.fn();
 
-      render(<ArticlesSidebar {...defaultProps} onCheckTypeCallback={handleCheckType} />);
+      render(<Sidebar {...defaultProps} onCheckTypeCallback={handleCheckType} />);
 
       const checkboxes = screen.getAllByTestId('checkbox');
       await user.click(checkboxes[0]); // Click first type checkbox
@@ -114,7 +141,7 @@ describe('ArticlesSidebar', () => {
       const user = userEvent.setup();
       const handleCheckType = vi.fn();
 
-      render(<ArticlesSidebar {...defaultProps} onCheckTypeCallback={handleCheckType} />);
+      render(<Sidebar {...defaultProps} onCheckTypeCallback={handleCheckType} />);
 
       await user.click(screen.getByText('Article'));
 
@@ -122,11 +149,11 @@ describe('ArticlesSidebar', () => {
     });
 
     it('applies checked style to selected type labels', () => {
-      const { container } = render(<ArticlesSidebar {...defaultProps} />);
+      const { container } = render(<Sidebar {...defaultProps} />);
 
       // Review is checked, so it should have the checked class
       const checkedLabels = container.querySelectorAll(
-        '.articlesSidebar-typesSection-types-choice-label-checked'
+        '.articlesSidebar-section-types .articlesSidebar-section-list-choice-label-checked'
       );
       expect(checkedLabels.length).toBe(1);
     });
@@ -137,7 +164,7 @@ describe('ArticlesSidebar', () => {
       const user = userEvent.setup();
       const handleCheckYear = vi.fn();
 
-      render(<ArticlesSidebar {...defaultProps} onCheckYearCallback={handleCheckYear} />);
+      render(<Sidebar {...defaultProps} onCheckYearCallback={handleCheckYear} />);
 
       // Year checkboxes are after type checkboxes
       const checkboxes = screen.getAllByTestId('checkbox');
@@ -151,7 +178,7 @@ describe('ArticlesSidebar', () => {
       const user = userEvent.setup();
       const handleCheckYear = vi.fn();
 
-      render(<ArticlesSidebar {...defaultProps} onCheckYearCallback={handleCheckYear} />);
+      render(<Sidebar {...defaultProps} onCheckYearCallback={handleCheckYear} />);
 
       await user.click(screen.getByText('2023'));
 
@@ -159,11 +186,11 @@ describe('ArticlesSidebar', () => {
     });
 
     it('applies checked style to selected year labels', () => {
-      const { container } = render(<ArticlesSidebar {...defaultProps} />);
+      const { container } = render(<Sidebar {...defaultProps} />);
 
       // 2024 is checked, so it should have the checked class
       const checkedLabels = container.querySelectorAll(
-        '.articlesSidebar-yearsSection-years-list-choice-label-checked'
+        '.articlesSidebar-section-years .articlesSidebar-section-list-choice-label-checked'
       );
       expect(checkedLabels.length).toBe(1);
     });
@@ -171,28 +198,28 @@ describe('ArticlesSidebar', () => {
 
   describe('Keyboard accessibility', () => {
     it('type labels have role="button"', () => {
-      render(<ArticlesSidebar {...defaultProps} />);
+      render(<Sidebar {...defaultProps} />);
 
       const articleLabel = screen.getByText('Article');
       expect(articleLabel).toHaveAttribute('role', 'button');
     });
 
     it('type labels have tabIndex="0"', () => {
-      render(<ArticlesSidebar {...defaultProps} />);
+      render(<Sidebar {...defaultProps} />);
 
       const articleLabel = screen.getByText('Article');
       expect(articleLabel).toHaveAttribute('tabindex', '0');
     });
 
     it('year labels have role="button"', () => {
-      render(<ArticlesSidebar {...defaultProps} />);
+      render(<Sidebar {...defaultProps} />);
 
       const yearLabel = screen.getByText('2024');
       expect(yearLabel).toHaveAttribute('role', 'button');
     });
 
     it('year labels have tabIndex="0"', () => {
-      render(<ArticlesSidebar {...defaultProps} />);
+      render(<Sidebar {...defaultProps} />);
 
       const yearLabel = screen.getByText('2024');
       expect(yearLabel).toHaveAttribute('tabindex', '0');
@@ -202,7 +229,7 @@ describe('ArticlesSidebar', () => {
       const user = userEvent.setup();
       const handleCheckType = vi.fn();
 
-      render(<ArticlesSidebar {...defaultProps} onCheckTypeCallback={handleCheckType} />);
+      render(<Sidebar {...defaultProps} onCheckTypeCallback={handleCheckType} />);
 
       const articleLabel = screen.getByText('Article');
       articleLabel.focus();
@@ -215,7 +242,7 @@ describe('ArticlesSidebar', () => {
       const user = userEvent.setup();
       const handleCheckType = vi.fn();
 
-      render(<ArticlesSidebar {...defaultProps} onCheckTypeCallback={handleCheckType} />);
+      render(<Sidebar {...defaultProps} onCheckTypeCallback={handleCheckType} />);
 
       const articleLabel = screen.getByText('Article');
       articleLabel.focus();
@@ -228,7 +255,7 @@ describe('ArticlesSidebar', () => {
       const user = userEvent.setup();
       const handleCheckYear = vi.fn();
 
-      render(<ArticlesSidebar {...defaultProps} onCheckYearCallback={handleCheckYear} />);
+      render(<Sidebar {...defaultProps} onCheckYearCallback={handleCheckYear} />);
 
       const yearLabel = screen.getByText('2023');
       yearLabel.focus();
@@ -239,37 +266,43 @@ describe('ArticlesSidebar', () => {
   });
 
   describe('CSS classes for layout', () => {
-    it('applies typesSection class', () => {
-      const { container } = render(<ArticlesSidebar {...defaultProps} />);
+    it('applies the types facet class', () => {
+      const { container } = render(<Sidebar {...defaultProps} />);
 
-      expect(container.querySelector('.articlesSidebar-typesSection')).toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-section-types')).toBeInTheDocument();
     });
 
-    it('applies yearsSection class', () => {
-      const { container } = render(<ArticlesSidebar {...defaultProps} />);
+    it('applies the years facet class', () => {
+      const { container } = render(<Sidebar {...defaultProps} />);
 
-      expect(container.querySelector('.articlesSidebar-yearsSection')).toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-section-years')).toBeInTheDocument();
     });
 
     it('applies title class for sections', () => {
-      const { container } = render(<ArticlesSidebar {...defaultProps} />);
+      const { container } = render(<Sidebar {...defaultProps} />);
 
-      expect(container.querySelector('.articlesSidebar-typesSection-title')).toBeInTheDocument();
-      expect(container.querySelector('.articlesSidebar-yearsSection-title')).toBeInTheDocument();
+      expect(
+        container.querySelector('.articlesSidebar-section-types .articlesSidebar-section-title')
+      ).toBeInTheDocument();
+      expect(
+        container.querySelector('.articlesSidebar-section-years .articlesSidebar-section-title')
+      ).toBeInTheDocument();
     });
   });
 
   describe('Empty states', () => {
-    it('handles empty types array', () => {
-      const { container } = render(<ArticlesSidebar {...defaultProps} types={[]} />);
+    it('hides the types section when there is no type to choose', () => {
+      const { container } = render(<Sidebar {...defaultProps} types={[]} />);
 
-      expect(container.querySelector('.articlesSidebar-typesSection-types')).toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-section-types')).not.toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-section-years')).toBeInTheDocument();
     });
 
-    it('handles empty years array', () => {
-      const { container } = render(<ArticlesSidebar {...defaultProps} years={[]} />);
+    it('hides the years section when there is no year to choose', () => {
+      const { container } = render(<Sidebar {...defaultProps} years={[]} />);
 
-      expect(container.querySelector('.articlesSidebar-yearsSection-years')).toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-section-years')).not.toBeInTheDocument();
+      expect(container.querySelector('.articlesSidebar-section-types')).toBeInTheDocument();
     });
   });
 
@@ -277,7 +310,7 @@ describe('ArticlesSidebar', () => {
     // Note: This test verifies that checkboxes should have accessible labels
     // The current implementation may need to add ariaLabel to Checkbox components
     it('checkboxes should have accessible labels', () => {
-      render(<ArticlesSidebar {...defaultProps} />);
+      render(<Sidebar {...defaultProps} />);
 
       const checkboxes = screen.getAllByTestId('checkbox');
 
@@ -301,7 +334,7 @@ describe('ArticlesSidebar', () => {
     };
 
     it('should have no critical accessibility violations', async () => {
-      const { container } = render(<ArticlesSidebar {...defaultProps} />);
+      const { container } = render(<Sidebar {...defaultProps} />);
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();
@@ -309,7 +342,7 @@ describe('ArticlesSidebar', () => {
 
     it('should have no violations with all types checked', async () => {
       const allCheckedTypes = defaultTypes.map(t => ({ ...t, isChecked: true }));
-      const { container } = render(<ArticlesSidebar {...defaultProps} types={allCheckedTypes} />);
+      const { container } = render(<Sidebar {...defaultProps} types={allCheckedTypes} />);
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();
@@ -317,7 +350,7 @@ describe('ArticlesSidebar', () => {
 
     it('should have no violations with all years checked', async () => {
       const allCheckedYears = defaultYears.map(y => ({ ...y, isChecked: true }));
-      const { container } = render(<ArticlesSidebar {...defaultProps} years={allCheckedYears} />);
+      const { container } = render(<Sidebar {...defaultProps} years={allCheckedYears} />);
 
       const results = await checkA11y(container, axeOptions);
       expect(results).toHaveNoViolations();

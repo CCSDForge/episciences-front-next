@@ -75,6 +75,36 @@ describe('StatisticsClient', () => {
     expect(screen.getByText('75')).toBeInTheDocument();
   });
 
+  it('honors journalConfig RENDER flags', () => {
+    render(
+      <StatisticsClient
+        initialStats={statsData as any}
+        lang="fr"
+        journalConfig={{ NEXT_PUBLIC_JOURNAL_STATISTICS_ACCEPTANCE_RATE_RENDER: 'false' }}
+      />
+    );
+
+    expect(screen.getByText('42')).toBeInTheDocument();
+    expect(screen.queryByText('75')).not.toBeInTheDocument();
+  });
+
+  it('hides a section whose blocks are all disabled', () => {
+    render(
+      <StatisticsClient
+        initialStats={statsData as any}
+        lang="fr"
+        journalConfig={{
+          NEXT_PUBLIC_JOURNAL_STATISTICS_ACCEPTANCE_RATE_RENDER: 'false',
+          NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_RENDER: 'false',
+          NEXT_PUBLIC_JOURNAL_STATISTICS_NB_SUBMISSIONS_DETAILS_RENDER: 'false',
+        }}
+      />
+    );
+
+    expect(screen.queryByText('pages.statistics.labels.glance')).not.toBeInTheDocument();
+    expect(screen.getByText('pages.statistics.labels.evaluationPublication')).toBeInTheDocument();
+  });
+
   it('shows a loader while updating', () => {
     vi.mocked(useClientSideFetch).mockReturnValue({
       data: null,

@@ -42,10 +42,10 @@ make build && make up # Test with Nginx (production-like)
 | Content Type                | Revalidate                         | On-demand |
 | --------------------------- | ---------------------------------- | --------- |
 | Static (about, credits)     | `false`                            | Yes       |
-| Dynamic (home, volumes)     | `86400` (24h)                      | Yes       |
-| News                        | `3600` (1h)                        | Yes       |
-| Articles (detail, list)     | `false` (via `CACHE_TTL_ARTICLES`) | Yes       |
-| Details (volumes, sections) | `604800` (7d)                      | Yes       |
+| Dynamic (home, volumes, boards, sections) | `86400` (24h)                      | Yes       |
+| News, stats                               | `3600` (1h)                        | Yes       |
+| Articles (detail, list)                   | `false` (via `CACHE_TTL_ARTICLES`) | Yes       |
+| Details (volumes, sections)               | `604800` (7d)                      | Yes       |
 
 Layouts MUST NOT define `revalidate`. See `docs/ISR_STRATEGY.md`.
 

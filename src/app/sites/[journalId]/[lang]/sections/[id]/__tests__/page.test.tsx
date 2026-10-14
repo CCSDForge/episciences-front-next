@@ -191,15 +191,13 @@ describe('SectionDetailsPage', () => {
       expect(JSON.stringify(jsx)).toContain('"sectionTitle":"Section 42"');
     });
 
-    it('fetches the articles referenced by the section and filters out nulls', async () => {
+    it('fetches the articles referenced by the section', async () => {
       vi.mocked(fetchSection).mockResolvedValue(
         makeSection({ rvid: 1, articles: [{ paperid: 10 }, { paperid: 11 }] }) as never
       );
       vi.mocked(getJournalByCode).mockResolvedValue({ id: 1 } as never);
-      vi.mocked(fetchSectionArticles).mockResolvedValue([
-        { id: 10, title: 'Article 10' },
-        null,
-      ] as never);
+      // fetchSectionArticles already drops failed articles (see section service tests)
+      vi.mocked(fetchSectionArticles).mockResolvedValue([{ id: 10, title: 'Article 10' }] as never);
 
       const { default: SectionDetailsPage } = await import('../page');
       const jsx = await SectionDetailsPage(makeProps());
@@ -207,6 +205,29 @@ describe('SectionDetailsPage', () => {
       expect(fetchSectionArticles).toHaveBeenCalledWith(['10', '11'], 'epijinfo', '42');
       const str = JSON.stringify(jsx);
       expect(str).toContain('Article 10');
+    });
+
+    it('passes the articles sorted from the most recent to the oldest', async () => {
+      vi.mocked(fetchSection).mockResolvedValue(
+        makeSection({
+          rvid: 1,
+          articles: [{ paperid: 1 }, { paperid: 2 }, { paperid: 3 }],
+        }) as never
+      );
+      vi.mocked(getJournalByCode).mockResolvedValue({ id: 1 } as never);
+      vi.mocked(fetchSectionArticles).mockResolvedValue([
+        { id: 1, publicationDate: '2019-01-01' },
+        { id: 2, publicationDate: '2024-06-01' },
+        { id: 3 },
+        { id: 4, publicationDate: '2021-03-15' },
+      ] as never);
+
+      const { default: SectionDetailsPage } = await import('../page');
+      const jsx = (await SectionDetailsPage(makeProps())) as React.ReactElement<{
+        articles: { id: number }[];
+      }>;
+
+      expect(jsx.props.articles.map(article => article.id)).toEqual([2, 4, 1, 3]);
     });
 
     it('skips article fetching entirely when the section has no articles', async () => {

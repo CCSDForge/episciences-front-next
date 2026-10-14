@@ -150,4 +150,30 @@ describe('CitedBySection', () => {
     const doiLink = screen.getByRole('link', { name: /10\.1234\/cited/ });
     expect(doiLink).toHaveAttribute('href', 'https://doi.org/10.1234/cited');
   });
+
+  it('links valid ORCID iDs to orcid.org only', () => {
+    const citedBy: IArticleCitedBy[] = [
+      {
+        source: 'Crossref',
+        citations: [
+          {
+            title: 'Citing paper',
+            sourceTitle: 'Some Journal',
+            authors: [
+              { fullname: 'Alice', orcid: 'https://orcid.org/0000-0002-3053-3946' },
+              { fullname: 'Mallory', orcid: 'https://attacker.example' },
+            ],
+            reference: { volume: '3', year: '2023', page: '42' },
+            doi: '10.1234/cited',
+          },
+        ],
+      },
+    ];
+
+    render(<CitedBySection citedBy={citedBy} />);
+
+    const orcidLinks = screen.getAllByRole('link', { name: 'ORCID' });
+    expect(orcidLinks).toHaveLength(1);
+    expect(orcidLinks[0]).toHaveAttribute('href', 'https://orcid.org/0000-0002-3053-3946');
+  });
 });

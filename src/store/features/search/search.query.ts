@@ -1,12 +1,13 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { RawArticle } from '@/types/article';
+import { IArticle, RawArticle } from '@/types/article';
 import { FetchedArticle, formatArticle } from '@/utils/article';
 import { PaginatedResponseWithSearchRange, SearchRange } from '@/utils/pagination';
 import { formatSearchRange } from '@/utils/search';
 import { createBaseQueryWithLdJsonAccept } from '@/store/utils';
 import { ISearchResult } from '@/types/search';
 import { API_URL } from '@/config/api';
+import { logger } from '@/lib/logger';
 
 export const searchApi = createApi({
   baseQuery: createBaseQueryWithLdJsonAccept,
@@ -77,21 +78,40 @@ export const searchApi = createApi({
         { queryFulfilled, dispatch }
       ) {
         const { data: searchResults } = await queryFulfilled;
-        const fullResults: FetchedArticle[] = await Promise.all(
+        const results = await Promise.allSettled(
           searchResults.data.map(async (searchResult: FetchedArticle) => {
-            const rawArticle: RawArticle = await (
-              await fetch(`${API_URL}/papers/${searchResult?.id}?rvcode=${rvcode}`)
-            ).json();
-            return formatArticle(rawArticle);
+            const response = await fetch(`${API_URL}/papers/${searchResult?.id}?rvcode=${rvcode}`);
+            if (!response.ok) {
+              throw new Error(`Article ${searchResult?.id} fetch failed: HTTP ${response.status}`);
+            }
+            const rawArticle: RawArticle = await response.json();
+            const formattedArticle = formatArticle(rawArticle);
+            if (!formattedArticle) {
+              throw new Error(`Article ${searchResult?.id} not found`);
+            }
+            return formattedArticle;
           })
         );
+
+        // Drop results whose enrichment fetch failed (e.g. rate-limited or timed out)
+        // instead of feeding a malformed response into formatArticle, which would
+        // otherwise silently produce a fake minimal article with a colliding id.
+        const fullResults = results
+          .filter((result): result is PromiseFulfilledResult<IArticle> => {
+            if (result.status === 'rejected') {
+              logger.warn('[fetchSearchResults] Article enrichment failed:', result.reason?.message);
+              return false;
+            }
+            return true;
+          })
+          .map(result => result.value);
 
         dispatch(
           searchApi.util.updateQueryData(
             'fetchSearchResults',
             { terms, rvcode, page, itemsPerPage, types, years, volumes, sections, authors },
             draftedData => {
-              Object.assign(draftedData.data, fullResults);
+              draftedData.data = fullResults;
             }
           )
         );
