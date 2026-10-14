@@ -7,6 +7,7 @@ import { getFilteredJournals } from '@/utils/journal-filter';
 import dynamicImport from 'next/dynamic';
 import { generateSeoAlternates } from '@/utils/seo';
 import { getPublicJournalConfig } from '@/utils/env-loader';
+import { getBoardsOrder } from '@/config/boards';
 import JsonLd from '@/components/Meta/JsonLd';
 import { generateHomepageJsonLd } from '@/utils/schema';
 import '@/styles/pages/Home.scss';
@@ -68,6 +69,7 @@ export default async function HomePage(props: {
   ]);
 
   const journalConfig = getPublicJournalConfig(rvcode);
+  const boardsOrder = getBoardsOrder(journalConfig);
 
   return (
     <>
@@ -77,6 +79,7 @@ export default async function HomePage(props: {
         language={language}
         journalId={rvcode}
         journalConfig={journalConfig}
+        boardsOrder={boardsOrder}
       />
     </>
   );

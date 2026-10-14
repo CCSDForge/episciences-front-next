@@ -18,6 +18,7 @@ import {
 import { AvailableLanguage } from '@/utils/i18n';
 import { getLocalizedContent } from '@/utils/content-fallback';
 import { TWITTER_URL } from '@/config/external-urls';
+import { resolveBoardOrder } from '@/config/boards';
 
 /**
  * Raw board member data structure from the API
@@ -132,53 +133,66 @@ export function transformBoardMembers(rawMembers: RawBoardMember[]): IBoardMembe
 }
 
 /**
- * Compute the carousel display priority for a board member.
- * 1 = editorial-board + chief-editor (highest)
- * 2 = editorial-board only
- * 3 = scientific-advisory-board only
- * 4 = technical-board only
- * 5 = fallback
+ * Board types shown in the homepage carousel, in their default display order.
+ * A function rather than a constant: services/board imports this module, so
+ * BOARD_TYPE may not be initialized yet when this module is evaluated.
  */
-function getCarouselMemberPriority(member: IBoardMember): number {
-  const isEditorialBoard = member.roles.includes(BOARD_TYPE.EDITORIAL_BOARD);
-  const isScientificAdvisoryBoard = member.roles.includes(BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD);
-  const isTechnicalBoard = member.roles.includes(BOARD_TYPE.TECHNICAL_BOARD);
-  const isChiefEditor = member.roles.includes(BOARD_ROLE.CHIEF_EDITOR);
-
-  if (isEditorialBoard && isChiefEditor) return 1;
-  if (isEditorialBoard) return 2;
-  if (isScientificAdvisoryBoard) return 3;
-  if (isTechnicalBoard) return 4;
-  return 5;
-}
+const getCarouselBoardTypes = (): readonly BOARD_TYPE[] => [
+  BOARD_TYPE.EDITORIAL_BOARD,
+  BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD,
+  BOARD_TYPE.TECHNICAL_BOARD,
+];
 
 /**
  * Filter and sort board members for the homepage carousel.
  *
- * Includes editorial-board, scientific-advisory-board, and technical-board members.
+ * Includes editorial-board, scientific-advisory-board, and technical-board members,
+ * matched with the same rules as the boards page (see memberMatchesBoardType).
  * Sort order:
- *   Tier 1 — board priority (chief-editor of editorial board first)
- *   Tier 2 — lastname then firstname (French locale, accent/case insensitive)
+ *   Tier 1 - board type, following `boardsOrder` when configured (a member in several
+ *            boards is ranked by their first board in that order; an editorial-board
+ *            chief editor is always ranked in the editorial board)
+ *   Tier 2 - chief editor first within the editorial board
+ *   Tier 3 - lastname then firstname (French locale, accent/case insensitive)
+ *
+ * @param members - Board members to filter and sort
+ * @param boardsOrder - Configured board order (NEXT_PUBLIC_JOURNAL_BOARDS_ORDER), or null for the default
  */
-export function filterAndSortMembersForCarousel(members: IBoardMember[]): IBoardMember[] {
+export function filterAndSortMembersForCarousel(
+  members: IBoardMember[],
+  boardsOrder?: readonly BOARD_TYPE[] | null
+): IBoardMember[] {
   const collator = new Intl.Collator('fr', { sensitivity: 'base' });
+  const carouselBoardTypes = getCarouselBoardTypes();
+  const order = resolveBoardOrder(boardsOrder, carouselBoardTypes).filter(type =>
+    carouselBoardTypes.includes(type)
+  );
+  const editorialRank = order.indexOf(BOARD_TYPE.EDITORIAL_BOARD);
 
   return members
-    .filter(
-      member =>
-        member.roles.includes(BOARD_TYPE.EDITORIAL_BOARD) ||
-        member.roles.includes(BOARD_TYPE.SCIENTIFIC_ADVISORY_BOARD) ||
-        member.roles.includes(BOARD_TYPE.TECHNICAL_BOARD)
-    )
+    .map(member => {
+      const isChiefEditor =
+        member.roles.includes(BOARD_ROLE.CHIEF_EDITOR) &&
+        memberMatchesBoardType(member, BOARD_TYPE.EDITORIAL_BOARD);
+      const boardRank = isChiefEditor
+        ? editorialRank
+        : order.findIndex(type => memberMatchesBoardType(member, type));
+      return { member, boardRank, chiefEditorRank: isChiefEditor ? 0 : 1 };
+    })
+    .filter(({ boardRank }) => boardRank !== -1)
     .sort((a, b) => {
-      const priorityDiff = getCarouselMemberPriority(a) - getCarouselMemberPriority(b);
-      if (priorityDiff !== 0) return priorityDiff;
+      const boardDiff = a.boardRank - b.boardRank;
+      if (boardDiff !== 0) return boardDiff;
 
-      const lastNameCompare = collator.compare(a.lastname, b.lastname);
+      const chiefEditorDiff = a.chiefEditorRank - b.chiefEditorRank;
+      if (chiefEditorDiff !== 0) return chiefEditorDiff;
+
+      const lastNameCompare = collator.compare(a.member.lastname, b.member.lastname);
       if (lastNameCompare !== 0) return lastNameCompare;
 
-      return collator.compare(a.firstname, b.firstname);
-    });
+      return collator.compare(a.member.firstname, b.member.firstname);
+    })
+    .map(({ member }) => member);
 }
 
 /**
@@ -234,12 +248,14 @@ function memberMatchesBoardType(member: IBoardMember, pageCode: string): boolean
  * @param pages - Board pages fetched from API
  * @param members - Board members fetched from API
  * @param lang - Current language for title/description extraction
+ * @param boardsOrder - Configured board order (NEXT_PUBLIC_JOURNAL_BOARDS_ORDER), or null for the default
  * @returns Array of boards with their members
  */
 export function getBoardsPerTitle(
   pages: IBoardPage[],
   members: IBoardMember[],
-  lang: AvailableLanguage
+  lang: AvailableLanguage,
+  boardsOrder?: readonly BOARD_TYPE[] | null
 ): IBoardPerTitle[] {
   if ((!pages || pages.length === 0) && (!members || members.length === 0)) return [];
 
@@ -262,20 +278,16 @@ export function getBoardsPerTitle(
     ...syntheticCodes.map(page_code => ({ page_code })),
   ];
 
-  // Sort according to predefined boardTypes order to ensure consistency across journals:
-  // 1. Introduction board
-  // 2. Scientific Advisory Board
-  // 3. Editorial Board
-  // 4. Technical Board
-  // 5. Reviewers Board
-  // 6. Former members
-  // 7. Operating charter
+  // Sort according to the journal's configured order, completed by the default
+  // boardTypes order (introduction, scientific advisory, editorial, technical,
+  // reviewers, former members, operating charter).
+  const order = resolveBoardOrder(boardsOrder, boardTypes);
   const sortedSources = [...sources].sort((a, b) => {
-    const aIndex = boardTypes.indexOf(a.page_code as BOARD_TYPE);
-    const bIndex = boardTypes.indexOf(b.page_code as BOARD_TYPE);
-    // If a type is not found in boardTypes, put it at the end
-    const finalAIndex = aIndex === -1 ? 999 : aIndex;
-    const finalBIndex = bIndex === -1 ? 999 : bIndex;
+    const aIndex = order.indexOf(a.page_code as BOARD_TYPE);
+    const bIndex = order.indexOf(b.page_code as BOARD_TYPE);
+    // Unknown page codes go last
+    const finalAIndex = aIndex === -1 ? order.length : aIndex;
+    const finalBIndex = bIndex === -1 ? order.length : bIndex;
     return finalAIndex - finalBIndex;
   });
 
