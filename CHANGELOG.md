@@ -21,6 +21,10 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+### Fixed
+
+- **Committee Members Key**: The volume and section committees are keyed by name and position instead of `uuid`, which the API no longer returns; removed `uuid` from the committee member types.
+
 ## [v1.2.6] - 2026-10-07
 
 ### Fixed

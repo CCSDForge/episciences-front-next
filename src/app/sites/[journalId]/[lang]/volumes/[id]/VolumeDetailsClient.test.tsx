@@ -108,8 +108,8 @@ describe('VolumeDetailsClient', () => {
         initialVolume={{
           ...baseVolume,
           committee: [
-            { uuid: '1', screenName: 'Jane Doe', orcid: '0000-0002-2933-2522' },
-            { uuid: '2', screenName: 'John Smith', orcid: null },
+            { screenName: 'Jane Doe', orcid: '0000-0002-2933-2522' },
+            { screenName: 'John Smith', orcid: null },
           ],
         }}
         lang="fr"
