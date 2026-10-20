@@ -10,6 +10,12 @@ describe('isAllowedPdfDomain', () => {
     expect(isAllowedPdfDomain('https://export.arxiv.org/pdf/1234')).toBe(true);
   });
 
+  it('allows the WACREN Baobab repository', () => {
+    expect(
+      isAllowedPdfDomain('https://baobab.wacren.net/api/records/pqn9b-gfx30/files/file.pdf/content')
+    ).toBe(true);
+  });
+
   it('rejects a non-whitelisted domain', () => {
     expect(isAllowedPdfDomain('https://evil.com/file.pdf')).toBe(false);
   });

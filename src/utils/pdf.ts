@@ -4,6 +4,7 @@ export const ALLOWED_PDF_DOMAINS = [
   'hal.archives-ouvertes.fr',
   'hal.science',
   'archive.softwareheritage.org',
+  'baobab.wacren.net',
 ];
 
 export function isAllowedPdfDomain(url: string): boolean {
