@@ -104,7 +104,7 @@ type WorkRelation = {
   unstructured_citation?: string;
 };
 /** A license reference entry as found in `program.license_ref`. */
-type LicenseRefEntry = { value: string; '@applies_to'?: string };
+type LicenseRefEntry = { value: string; name?: string; '@applies_to'?: string };
 
 /** Normalize a value that the API returns either as a single object or an array. */
 function toArray<T>(value: T | T[] | undefined | null): T[] {
@@ -322,25 +322,30 @@ function extractFundings(articleContent: RawArticleContent): string[] {
   return assertion?.value ? [assertion.value] : [];
 }
 
-/** Pick the license URL from a license_ref, preferring the "vor" (version of record) entry. */
-function extractLicenseValue(
+/** Pick the license entry from a license_ref, preferring the "vor" (version of record) entry. */
+function pickLicenseEntry(
   licenseRef: LicenseRefEntry | LicenseRefEntry[] | undefined
-): string | undefined {
-  if (!licenseRef) return undefined;
-  if (Array.isArray(licenseRef)) {
-    const vor = licenseRef.find(l => l['@applies_to'] === 'vor');
-    return (vor || licenseRef[0])?.value;
-  }
-  return licenseRef.value;
+): LicenseRefEntry | undefined {
+  if (!Array.isArray(licenseRef)) return licenseRef;
+  return licenseRef.find(l => l['@applies_to'] === 'vor') || licenseRef[0];
 }
 
-/** Extract the article license URL from the program block. */
-function extractLicense(articleContent: RawArticleContent): string | undefined {
+/** Find the license_ref of the program block (handles object/array program). */
+function findLicenseRef(
+  articleContent: RawArticleContent
+): LicenseRefEntry | LicenseRefEntry[] | undefined {
   const program = articleContent.program;
-  if (Array.isArray(program)) {
-    return extractLicenseValue(program.find(p => p.license_ref)?.license_ref);
-  }
-  return extractLicenseValue(program?.license_ref);
+  if (Array.isArray(program)) return program.find(p => p.license_ref)?.license_ref;
+  return program?.license_ref;
+}
+
+/** Extract the article license URL and its human-readable name from the program block. */
+function extractLicense(articleContent: RawArticleContent): { url?: string; name?: string } {
+  const licenseRef = findLicenseRef(articleContent);
+  const entry = pickLicenseEntry(licenseRef);
+  // The name may only be set on some entries (typically "vor"): fall back to any named entry
+  const name = entry?.name || toArray(licenseRef).find(l => l.name)?.name;
+  return { url: entry?.value, name: name?.trim() || undefined };
 }
 
 /** Find a program entry that carries keywords (handles object/array program). */
@@ -454,6 +459,8 @@ export function formatArticle(article: RawArticle): FetchedArticle {
 
     if (!articleContent) return undefined;
 
+    const license = extractLicense(articleContent);
+
     return {
       id,
       journalCode: articleDB?.current?.journal?.code,
@@ -480,7 +487,8 @@ export function formatArticle(article: RawArticle): FetchedArticle {
       citedBy: extractCitedBy(articleDB),
       relatedItems: extractRelatedItems(articleContent),
       fundings: extractFundings(articleContent),
-      license: extractLicense(articleContent),
+      license: license.url,
+      licenseName: license.name,
       metrics: extractMetrics(articleDB),
     };
   } catch (error) {

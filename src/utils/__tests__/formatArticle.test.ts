@@ -397,6 +397,43 @@ describe('formatArticle', () => {
     it('is undefined when no license_ref exists', () => {
       expect(formatArticle(makeRaw({}))?.license).toBeUndefined();
     });
+
+    it('exposes the license name of the "vor" entry', () => {
+      const program = [
+        {
+          license_ref: [
+            { value: 'https://spdx.org/licenses/CC-BY-4.0.html', '@applies_to': 'am' },
+            {
+              name: 'Creative Commons Attribution 4.0 International',
+              value: 'https://spdx.org/licenses/CC-BY-4.0.html',
+              '@applies_to': 'vor',
+            },
+          ],
+        },
+      ];
+      const article = formatArticle(makeRaw({ content: { program } }));
+      expect(article?.license).toBe('https://spdx.org/licenses/CC-BY-4.0.html');
+      expect(article?.licenseName).toBe('Creative Commons Attribution 4.0 International');
+    });
+
+    it('falls back to any named entry when the selected entry has no name', () => {
+      const program = [
+        {
+          license_ref: [
+            { value: 'https://cc/first' },
+            { name: 'Some License', value: 'https://cc/other', '@applies_to': 'tdm' },
+          ],
+        },
+      ];
+      const article = formatArticle(makeRaw({ content: { program } }));
+      expect(article?.license).toBe('https://cc/first');
+      expect(article?.licenseName).toBe('Some License');
+    });
+
+    it('leaves licenseName undefined when no entry has a name', () => {
+      const program = { license_ref: { value: 'https://cc/solo' } };
+      expect(formatArticle(makeRaw({ content: { program } }))?.licenseName).toBeUndefined();
+    });
   });
 
   describe('keywords', () => {
