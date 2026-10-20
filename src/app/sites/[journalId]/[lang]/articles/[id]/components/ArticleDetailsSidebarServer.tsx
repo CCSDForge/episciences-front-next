@@ -128,7 +128,7 @@ export default function ArticleDetailsSidebarServer({
     if (!article?.license) return null;
 
     const info = getLicenseLabelInfo(article.license);
-    let label = article.license;
+    let label = article.licenseName || article.license;
     if (info) {
       let obj: any = translations;
       for (const k of info.parent.split('.')) {

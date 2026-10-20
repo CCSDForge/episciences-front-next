@@ -38,6 +38,8 @@ export interface IArticle {
   relatedItems?: IArticleRelatedItem[];
   fundings?: string[];
   license?: string;
+  /** Human-readable license name provided by the API (e.g. "Creative Commons Attribution 4.0 International"). */
+  licenseName?: string;
   classifications?: IClassificationItem[];
   metrics?: {
     views: number;
@@ -276,10 +278,12 @@ interface IRawArticleContent {
         license_ref?:
           | {
               value: string;
+              name?: string;
               '@applies_to'?: string;
             }
           | {
               value: string;
+              name?: string;
               '@applies_to'?: string;
             }[];
         related_item?:
@@ -328,10 +332,12 @@ interface IRawArticleContent {
         license_ref?:
           | {
               value: string;
+              name?: string;
               '@applies_to'?: string;
             }
           | {
               value: string;
+              name?: string;
               '@applies_to'?: string;
             }[];
         related_item?:

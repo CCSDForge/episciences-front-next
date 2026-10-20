@@ -187,7 +187,7 @@ export default function ArticleDetailsSidebar({
     if (!article?.license) return null;
 
     const info = getLicenseLabelInfo(article.license);
-    let label = article.license;
+    let label = article.licenseName || article.license;
     if (info) {
       const obj = t(info.parent, { returnObjects: true }) as Record<string, string> | string;
       if (typeof obj === 'object' && obj !== null && info.key in obj) {

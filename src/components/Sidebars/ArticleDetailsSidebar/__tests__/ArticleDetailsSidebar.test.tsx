@@ -452,6 +452,18 @@ describe('ArticleDetailsSidebar', () => {
       expect(licenseEl?.tagName).toBe('A');
     });
 
+    it('uses the API license name as link label for unknown license URLs', () => {
+      const article = {
+        ...baseArticle,
+        license: 'https://spdx.org/licenses/CC-BY-4.0.html',
+        licenseName: 'Creative Commons Attribution 4.0 International',
+      };
+      render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
+      const link = screen.getByText('Creative Commons Attribution 4.0 International');
+      expect(link.tagName).toBe('A');
+      expect(link).toHaveAttribute('href', 'https://spdx.org/licenses/CC-BY-4.0.html');
+    });
+
     it('renders license as text when it does not start with http', () => {
       const article = { ...baseArticle, license: 'CC-BY 4.0' };
       render(<ArticleDetailsSidebar {...defaultProps} article={article} />);
