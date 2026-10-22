@@ -39,8 +39,8 @@ vi.mock('@/components/MathJax/MathJax', () => ({
 }));
 
 const mockAuthors = [
-  { id: '1', name: 'Jane Doe', count: 2 },
-  { id: '2', name: 'John Smith', count: 1 },
+  { name: 'Jane Doe', count: 2 },
+  { name: 'John Smith', count: 1 },
 ];
 
 const initialAuthorsData = { items: mockAuthors, totalItems: 2 };

@@ -21,6 +21,10 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+### Removed
+
+- **Author `id` Field**: Removed the unused `id` field from the author type and its transformer; the API only provides a random, non-stable `@id` for author facets.
+
 ### Fixed
 
 - **Committee Members Key**: The volume and section committees are keyed by name and position instead of `uuid`, which the API no longer returns; removed `uuid` from the committee member types.
