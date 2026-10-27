@@ -216,6 +216,11 @@ const ALL_SHARDS = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart
  * seen exactly once, which a flat/sharded store without a separate size
  * index cannot otherwise guarantee cheaply.
  *
+ * Retention by age is off unless `retentionDays` > 0: published PDFs almost
+ * never change, and an entry whose upstream became unavailable keeps an old
+ * fetchedAt, so deleting by age would remove exactly the copy the fallback
+ * mode exists to serve.
+ *
  * Orphans (a pdf without its sidecar, or a sidecar without its pdf) are only
  * removed once older than `tmpOrphanMaxAgeMs`: a pdf renamed into place a
  * moment before its sidecar is a write in progress, not an orphan, and
@@ -230,12 +235,13 @@ export async function sweepShardBatch(cursor, options, env = process.env) {
   if (!root) return { nextCursor: cursor, removed, visited, cycleCompleted: false };
 
   const {
-    retentionDays = 365,
+    retentionDays = 0,
     shardsPerBatch = 8,
     tmpOrphanMaxAgeMs = 60 * 60 * 1000, // 1h
   } = options ?? {};
 
-  const retentionCutoffMs = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+  const retentionCutoffMs =
+    retentionDays > 0 ? Date.now() - retentionDays * 24 * 60 * 60 * 1000 : Number.NEGATIVE_INFINITY;
   const now = Date.now();
 
   // Re-checks the counterpart right before deleting: the directory listing

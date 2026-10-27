@@ -231,7 +231,7 @@ Split into two testable library modules plus a thin entrypoint, unlike
     fooled by an upstream error page served with a misleading header (already
     a known arXiv/Zenodo behavior, documented in the route itself); the magic
     bytes can't be, and this is what stops a captcha/rate-limit page from
-    poisoning the cache for up to `PDF_CACHE_RETENTION_DAYS`;
+    poisoning the cache (an entry is kept until invalidated, see §6);
   - if the upstream declared a `Content-Length`, the actual bytes written
     must match it exactly — a connection cut mid-download must not produce a
     truncated file that later gets served as valid;
@@ -289,11 +289,17 @@ Published PDFs are quasi-immutable, so there is no proactive eviction on
 write. All of the following happens **inside the same worker process** — no
 separate systemd timer, so there is never a second writer:
 
-- **Retention**: entries older than `PDF_CACHE_RETENTION_DAYS` (by
-  `fetchedAt`, not last-access — tracking last access would mean the *read*
-  path writing to NFS on every hit, exactly what this design avoids) are
-  deleted. Stale-while-revalidate already refreshes `fetchedAt` for entries
-  still being read, so this only reaps genuinely cold entries.
+- **Retention: off by default** (`PDF_CACHE_RETENTION_DAYS=0`). Published
+  PDFs almost never change, a corrected PDF is handled by the explicit
+  invalidation (§7), and age is a bad signal here: `fetchedAt` only moves on
+  a successful fetch (or `304`), so an entry whose upstream has been down or
+  returning errors for a long time keeps an old `fetchedAt`. Deleting by age
+  would remove exactly the copy `fallback` mode exists to serve. Set a
+  positive number of days to opt in (by `fetchedAt`, not last access:
+  tracking last access would mean the *read* path writing to NFS on every
+  hit, which this design avoids). The only real source of growth is dead
+  entries (a PDF whose URL changed is never requested again under its old
+  key); the disk-space guard below and the optional size cap bound it.
 - **Incremental sweep**: processes a handful of shards
   (`SHARDS_PER_BATCH = 8`, out of 256) per tick, spread evenly across
   `PDF_CACHE_SWEEP_INTERVAL_HOURS`, rather than a single full-tree `readdir`
@@ -312,7 +318,8 @@ separate systemd timer, so there is never a second writer:
   correctly with a true oldest-first eviction, down to 90% of the cap. A
   flat/sharded store with no separate size index couldn't otherwise do this
   cheaply outside of a full cycle.
-- **Escape hatch**: `PDF_CACHE_SWEEP_ENABLED=false` disables all of the above,
+- **Escape hatch**: `PDF_CACHE_SWEEP_ENABLED=false` disables all of the above
+  (including the orphan cleanup, which is the part worth keeping),
   for operators who'd rather manage retention with an external
   `find -mtime +N -delete` (the flat/sharded layout is well suited to that).
 
@@ -367,7 +374,7 @@ before this feature), not something introduced here.
 | `PDF_CACHE_READ_TIMEOUT_MS` | `2000` | app | Per-operation timeout on cache reads (sidecar read, open, fstat). On timeout the request is a miss and cache reads are skipped for 30s. |
 | `PDF_CACHE_ENQUEUE_TTL_SECONDS` | `3600` | app | TTL of the Valkey dedup lock before (re-)publishing a populate job. |
 | `PDF_CACHE_CHANNEL` | `pdf-cache-populate` | app + worker | Valkey pub/sub channel, distinct from `revalidate-cache`. |
-| `PDF_CACHE_RETENTION_DAYS` | `365` | worker | By `fetchedAt`. |
+| `PDF_CACHE_RETENTION_DAYS` | `0` (off) | worker | Delete entries older than this many days, by `fetchedAt`. `0` = never. Off by default on purpose, see §6. |
 | `PDF_CACHE_SWEEP_ENABLED` | `true` | worker | Set `false` to manage retention externally instead. |
 | `PDF_CACHE_SWEEP_INTERVAL_HOURS` | `24` | worker | Time to sweep the whole 256-shard tree once. |
 | `PDF_CACHE_MAX_BYTES` | `104857600` (100MB) | worker | Per-file cap. |
@@ -428,7 +435,6 @@ sudo tee -a /etc/episciences/worker.env <<EOF
 EPI_ENV=prod
 PDF_CACHE_ENABLED=true
 PDF_CACHE_MODE=fallback
-PDF_CACHE_RETENTION_DAYS=365
 PDF_CACHE_MAX_BYTES=104857600
 EOF
 

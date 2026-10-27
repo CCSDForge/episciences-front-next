@@ -37,7 +37,7 @@
  *   PDF_CACHE_MAX_AGE_SECONDS   - a 'populate' for an entry younger than this is skipped (default: 15552000, 180d)
  *   PDF_CACHE_WORKER_CONCURRENCY— max jobs in flight at once (default: 4)
  *   PDF_CACHE_QUEUE_MAX         — bounded in-memory queue, extra jobs dropped (default: 500)
- *   PDF_CACHE_RETENTION_DAYS    — delete entries older than this, by fetchedAt (default: 365)
+ *   PDF_CACHE_RETENTION_DAYS    - delete entries older than this, by fetchedAt; 0 = never (default: 0)
  *   PDF_CACHE_SWEEP_ENABLED     — periodic retention/orphan sweep (default: true)
  *   PDF_CACHE_SWEEP_INTERVAL_HOURS — time to sweep the whole tree once (default: 24)
  */
@@ -73,7 +73,8 @@ const FETCH_TIMEOUT_MS = Number(process.env.PDF_CACHE_FETCH_TIMEOUT_MS) || 20000
 const MAX_BYTES = Number(process.env.PDF_CACHE_MAX_BYTES) || 104857600;
 const MAX_TOTAL_BYTES = Number(process.env.PDF_CACHE_MAX_TOTAL_BYTES) || 0;
 const MIN_FREE_PERCENT = Number(process.env.PDF_CACHE_MIN_FREE_PERCENT) || 10;
-const RETENTION_DAYS = Number(process.env.PDF_CACHE_RETENTION_DAYS) || 365;
+// 0 must stay 0 (retention off), so no `|| default` here.
+const RETENTION_DAYS = Math.max(0, Number(process.env.PDF_CACHE_RETENTION_DAYS ?? 0) || 0);
 const MAX_AGE_SECONDS = Number(process.env.PDF_CACHE_MAX_AGE_SECONDS) || 15552000;
 const SWEEP_ENABLED = process.env.PDF_CACHE_SWEEP_ENABLED !== 'false';
 const SWEEP_INTERVAL_HOURS = Number(process.env.PDF_CACHE_SWEEP_INTERVAL_HOURS) || 24;
@@ -429,6 +430,9 @@ console.log('[PdfCacheWorker] Starting Episciences PDF Cache Worker...');
 console.log(`[PdfCacheWorker] Channel: ${CHANNEL}`);
 console.log(`[PdfCacheWorker] Cache root: ${getCacheRootDir() || '(unresolved)'}`);
 console.log(`[PdfCacheWorker] Concurrency: ${CONCURRENCY}, queue max: ${QUEUE_MAX}`);
+console.log(
+  `[PdfCacheWorker] Retention: ${RETENTION_DAYS > 0 ? `${RETENTION_DAYS} days` : 'off'}, size cap: ${MAX_TOTAL_BYTES > 0 ? `${MAX_TOTAL_BYTES} bytes` : 'off'}`
+);
 console.log(`[PdfCacheWorker] Sentinels: ${sentinels.map(s => `${s.host}:${s.port}`).join(', ')}`);
 
 startSweepLoop();

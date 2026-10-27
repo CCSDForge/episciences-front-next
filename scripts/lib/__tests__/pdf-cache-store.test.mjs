@@ -194,6 +194,23 @@ describe('pdf-cache-store', () => {
       await expect(fsp.access(paths.jsonPath)).rejects.toThrow();
     });
 
+    it('keeps an old entry when retention is off (the default)', async () => {
+      const stream = Readable.from([Buffer.from('%PDF-1.4 old')]);
+      await writeEntryAtomic(KEY_A, stream, { sourceUrl: 'u', upstreamContentType: 'application/pdf', httpStatus: 200, host: 'h' }, env);
+      const paths = getCachePaths(KEY_A, env);
+      const sidecar = JSON.parse(await fsp.readFile(paths.jsonPath, 'utf8'));
+      sidecar.fetchedAt = new Date(Date.now() - 10 * 365 * 24 * 60 * 60 * 1000).toISOString();
+      await fsp.writeFile(paths.jsonPath, JSON.stringify(sidecar));
+
+      const shardIndex = parseInt(KEY_A.slice(0, 2), 16);
+      for (const options of [{ shardsPerBatch: 1 }, { retentionDays: 0, shardsPerBatch: 1 }]) {
+        const { removed, visited } = await sweepShardBatch(shardIndex, options, env);
+        expect(removed.retention).toBe(0);
+        expect(visited).toHaveLength(1);
+      }
+      await expect(fsp.access(paths.pdfPath)).resolves.toBeUndefined();
+    });
+
     it('keeps a fresh entry and reports it as visited', async () => {
       const stream = Readable.from([Buffer.from('%PDF-1.4 fresh')]);
       await writeEntryAtomic(KEY_A, stream, { sourceUrl: 'u', upstreamContentType: 'application/pdf', httpStatus: 200, host: 'h' }, env);

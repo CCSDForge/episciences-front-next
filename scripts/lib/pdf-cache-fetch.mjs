@@ -135,7 +135,7 @@ export function buildConditionalHeaders(existingSidecar) {
  * - the first bytes must be the PDF magic number (`%PDF-`) — the route's
  *   Content-Type check can be spoofed by an upstream error page served with
  *   a misleading header; this can't, and it prevents poisoning the cache
- *   with a captcha page for up to PDF_CACHE_RETENTION_DAYS.
+ *   with a captcha page that would otherwise be served until invalidated.
  * - the total size never exceeds `maxBytes`.
  * - if the upstream declared a Content-Length, the final size must match it
  *   exactly — a connection cut mid-download must not produce a truncated
