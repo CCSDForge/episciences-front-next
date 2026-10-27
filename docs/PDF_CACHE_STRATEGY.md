@@ -167,6 +167,17 @@ what the [rollout](#10-production-rollout) decision between `fallback` and
   host, wrong content-type, timeout, network error) does the route consult
   the cache — with **no freshness check**, because an old cached copy beats a
   hard error — and serve it with `X-Pdf-Cache: FALLBACK`.
+
+  Two upstream timeouts apply in every mode, cache enabled or not:
+  - **10 seconds for the response headers** (all redirect hops included).
+    When it expires, the cached copy is served if there is one, otherwise a
+    `504`.
+  - **10 seconds of inactivity while streaming the body**: the time allowed
+    between two chunks from upstream, not a total duration, so a large PDF on
+    a slow but steady link is not cut. The timer only runs while waiting for
+    upstream, never while waiting for a slow client. The response has already
+    started at that point, so no fallback is possible: the stream is aborted
+    (the client sees an interrupted download) instead of hanging forever.
 - **`systematic`**: the cache is consulted **first**. A fresh hit is streamed
   straight from disk (`HIT`). A stale hit (`fetchedAt` older than
   `PDF_CACHE_MAX_AGE_SECONDS`) is still served immediately

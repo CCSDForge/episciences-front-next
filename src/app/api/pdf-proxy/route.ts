@@ -114,6 +114,16 @@ function isAbortError(error: unknown): boolean {
 
 const MAX_REDIRECTS = 5;
 
+// Time allowed for upstream response headers (all redirect hops included).
+// A cached fallback copy, when there is one, is served once it expires.
+const UPSTREAM_HEADERS_TIMEOUT_MS = 10_000;
+
+// Longest wait for the next chunk of an upstream body already being
+// streamed. An idle timeout rather than a total one, so a large PDF on a slow
+// but steady link is not cut. The response has started by then, so no
+// fallback is possible: the stream is aborted instead of hanging forever.
+const UPSTREAM_BODY_IDLE_TIMEOUT_MS = 10_000;
+
 class UpstreamRedirectError extends Error {
   constructor(message: string) {
     super(message);
@@ -124,6 +134,40 @@ class UpstreamRedirectError extends Error {
 // Releases the upstream socket of a response we are not going to stream.
 function discardBody(response: Response): void {
   response.body?.cancel().catch(() => {});
+}
+
+/**
+ * Re-streams `body`, calling `onIdle` when a read from upstream takes longer
+ * than `idleMs`. The timer only runs while a chunk is being awaited from
+ * upstream, never while waiting for the client to consume one, so a slow
+ * reader is not mistaken for a stalled upstream.
+ */
+function withIdleTimeout(
+  body: ReadableStream<Uint8Array>,
+  idleMs: number,
+  onIdle: () => void
+): ReadableStream<Uint8Array> {
+  const reader = body.getReader();
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      const timer = setTimeout(onIdle, idleMs);
+      try {
+        const { done, value } = await reader.read();
+        if (done) {
+          controller.close();
+        } else {
+          controller.enqueue(value);
+        }
+      } catch (error) {
+        controller.error(error);
+      } finally {
+        clearTimeout(timer);
+      }
+    },
+    cancel(reason) {
+      return reader.cancel(reason);
+    },
+  });
 }
 
 /**
@@ -283,7 +327,7 @@ export async function GET(request: NextRequest) {
   try {
     // Fetch PDF with timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds
+    const timeoutId = setTimeout(() => controller.abort(), UPSTREAM_HEADERS_TIMEOUT_MS);
 
     const response = await fetchPdfUpstream(pdfUrl, controller.signal);
 
@@ -328,8 +372,15 @@ export async function GET(request: NextRequest) {
 
     enqueue('populate');
 
-    // Stream the PDF without buffering in memory
-    return new NextResponse(response.body, {
+    // Stream the PDF without buffering in memory. Aborting the fetch errors
+    // the upstream body, which ends the client response.
+    const body = response.body
+      ? withIdleTimeout(response.body, UPSTREAM_BODY_IDLE_TIMEOUT_MS, () => {
+          logger.warn(`[PDF Proxy] Upstream body stalled, aborting: ${sanitizeForLog(pdfUrl)}`);
+          controller.abort();
+        })
+      : null;
+    return new NextResponse(body, {
       status: 200,
       headers,
     });

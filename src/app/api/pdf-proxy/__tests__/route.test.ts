@@ -104,13 +104,9 @@ describe('GET /api/pdf-proxy', () => {
   beforeEach(() => {
     vi.resetModules();
     delete process.env.NEXT_PUBLIC_EPISCIENCES_ALLOWED_ORIGIN;
-    // Stub global fetch so the route can proxy a "PDF"
-    global.fetch = vi.fn().mockResolvedValue(
-      new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
-        status: 200,
-        headers: { 'Content-Type': 'application/pdf' },
-      })
-    );
+    // Stub global fetch so the route can proxy a "PDF". A fresh Response per
+    // call, like a real fetch(): a body can only be read once.
+    global.fetch = vi.fn().mockImplementation(async () => pdfResponse());
     // Cache disabled by default; individual tests below opt back in.
     // mockReset (not just mockReturnValue) so each test starts from a clean
     // call history too — vi.restoreAllMocks() in afterEach does not clear
@@ -434,6 +430,122 @@ describe('GET /api/pdf-proxy', () => {
       expect(res.status).toBe(504);
       const text = await res.text();
       expect(text).toBe('Request timeout');
+    });
+
+    describe('real timers (fake clock)', () => {
+      function abortError(): Error {
+        const error = new Error('This operation was aborted');
+        error.name = 'AbortError';
+        return error;
+      }
+
+      // Like undici: a pending fetch, or the body read in progress, rejects
+      // with an AbortError when the request signal is aborted.
+      function onAbort(init: RequestInit | undefined, fn: () => void): void {
+        init?.signal?.addEventListener('abort', fn);
+      }
+
+      beforeEach(() => {
+        vi.useFakeTimers();
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it('gives up waiting for upstream headers after 10 seconds', async () => {
+        global.fetch = vi.fn(
+          (_url: RequestInfo | URL, init?: RequestInit) =>
+            new Promise<Response>((_resolve, reject) => onAbort(init, () => reject(abortError())))
+        );
+        const { GET } = await import('../route');
+        let settled = false;
+        const pending = GET(makeRequest('https://zenodo.org/file.pdf', '10.0.3.1')).finally(() => {
+          settled = true;
+        });
+
+        await vi.advanceTimersByTimeAsync(9_999);
+        expect(settled).toBe(false);
+
+        await vi.advanceTimersByTimeAsync(1);
+        const res = await pending;
+        expect(res.status).toBe(504);
+      });
+
+      it('serves the cached copy once the 10 second header timeout expires (fallback mode)', async () => {
+        vi.mocked(isCacheEnabled).mockReturnValue(true);
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-cached-copy'));
+        global.fetch = vi.fn(
+          (_url: RequestInfo | URL, init?: RequestInit) =>
+            new Promise<Response>((_resolve, reject) => onAbort(init, () => reject(abortError())))
+        );
+        const { GET } = await import('../route');
+        const pending = GET(makeRequest('https://zenodo.org/file.pdf', '10.0.3.2'));
+
+        await vi.advanceTimersByTimeAsync(10_000);
+        const res = await pending;
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('FALLBACK');
+      });
+
+      it('aborts a body that stalls for 10 seconds mid-stream', async () => {
+        let signal: AbortSignal | undefined;
+        global.fetch = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+          signal = init?.signal ?? undefined;
+          const body = new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.enqueue(new TextEncoder().encode('%PDF-'));
+            },
+            pull(controller) {
+              // Upstream sends nothing more until the request is aborted.
+              return new Promise<void>(() => onAbort(init, () => controller.error(abortError())));
+            },
+          });
+          return new Response(body, { status: 200, headers: { 'Content-Type': 'application/pdf' } });
+        });
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.3.3'));
+        const reader = res.body!.getReader();
+
+        expect(new TextDecoder().decode((await reader.read()).value)).toBe('%PDF-');
+
+        const next = reader.read();
+        const outcome = next.then(
+          () => 'resolved',
+          (error: Error) => error.name
+        );
+        await vi.advanceTimersByTimeAsync(9_999);
+        expect(signal?.aborted).toBe(false);
+        await vi.advanceTimersByTimeAsync(1);
+        expect(signal?.aborted).toBe(true);
+        expect(await outcome).toBe('AbortError');
+      });
+
+      it('does not abort when the client, not upstream, is slow to read', async () => {
+        let signal: AbortSignal | undefined;
+        global.fetch = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+          signal = init?.signal ?? undefined;
+          return new Response(
+            new ReadableStream<Uint8Array>({
+              start(controller) {
+                controller.enqueue(new TextEncoder().encode('%PDF-'));
+                controller.enqueue(new TextEncoder().encode('rest'));
+                controller.close();
+              },
+            }),
+            { status: 200, headers: { 'Content-Type': 'application/pdf' } }
+          );
+        });
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://zenodo.org/file.pdf', '10.0.3.4'));
+        const reader = res.body!.getReader();
+
+        await reader.read();
+        await vi.advanceTimersByTimeAsync(60_000);
+        expect(signal?.aborted).toBe(false);
+        expect(new TextDecoder().decode((await reader.read()).value)).toBe('rest');
+        expect((await reader.read()).done).toBe(true);
+      });
     });
 
     it('returns 500 on unexpected network or parsing error', async () => {
