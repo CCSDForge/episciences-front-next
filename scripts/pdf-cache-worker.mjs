@@ -33,7 +33,9 @@
  *   PDF_CACHE_MAX_BYTES         — per-file size cap (default: 104857600, 100MB)
  *   PDF_CACHE_MAX_TOTAL_BYTES   — cache-wide size cap, 0 = unlimited (default: 0)
  *   PDF_CACHE_MIN_FREE_PERCENT  — refuse writes below this free-space % (default: 10)
- *   PDF_CACHE_FETCH_TIMEOUT_MS  — upstream fetch timeout (default: 20000)
+ *   PDF_CACHE_FETCH_TIMEOUT_MS  - wait for the upstream response headers (default: 20000)
+ *   PDF_CACHE_BODY_IDLE_TIMEOUT_MS - longest wait between two body chunks (default: 20000)
+ *   PDF_CACHE_FETCH_MAX_DURATION_MS - cap on a whole download (default: 600000, 10 min)
  *   PDF_CACHE_MAX_AGE_SECONDS   - a 'populate' for an entry younger than this is skipped (default: 15552000, 180d)
  *   PDF_CACHE_WORKER_CONCURRENCY— max jobs in flight at once (default: 4)
  *   PDF_CACHE_QUEUE_MAX         — bounded in-memory queue, extra jobs dropped (default: 500)
@@ -70,6 +72,8 @@ const MAX_RETRIES = 10;
 const CONCURRENCY = Number(process.env.PDF_CACHE_WORKER_CONCURRENCY) || 4;
 const QUEUE_MAX = Number(process.env.PDF_CACHE_QUEUE_MAX) || 500;
 const FETCH_TIMEOUT_MS = Number(process.env.PDF_CACHE_FETCH_TIMEOUT_MS) || 20000;
+const BODY_IDLE_TIMEOUT_MS = Number(process.env.PDF_CACHE_BODY_IDLE_TIMEOUT_MS) || 20000;
+const FETCH_MAX_DURATION_MS = Number(process.env.PDF_CACHE_FETCH_MAX_DURATION_MS) || 600000;
 const MAX_BYTES = Number(process.env.PDF_CACHE_MAX_BYTES) || 104857600;
 const MAX_TOTAL_BYTES = Number(process.env.PDF_CACHE_MAX_TOTAL_BYTES) || 0;
 const MIN_FREE_PERCENT = Number(process.env.PDF_CACHE_MIN_FREE_PERCENT) || 10;
@@ -226,7 +230,12 @@ async function processJob(job) {
 
   let result;
   try {
-    result = await fetchUpstream(url, { timeoutMs: FETCH_TIMEOUT_MS, conditionalHeaders });
+    result = await fetchUpstream(url, {
+      timeoutMs: FETCH_TIMEOUT_MS,
+      bodyIdleTimeoutMs: BODY_IDLE_TIMEOUT_MS,
+      maxDurationMs: FETCH_MAX_DURATION_MS,
+      conditionalHeaders,
+    });
   } catch (err) {
     const code = err instanceof PdfValidationError ? err.code : 'FETCH_ERROR';
     console.warn(`[PdfCacheWorker] Fetch failed for ${url} (${code}): ${err.message}`);

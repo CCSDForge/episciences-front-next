@@ -46,6 +46,54 @@ function parseExpectedBytes(headers) {
 }
 
 /**
+ * Re-streams `body` with two limits, both reported as a PdfValidationError
+ * (so the write is aborted and the temp file removed):
+ * - `idleMs`: longest wait for the next chunk. The timer only runs while a
+ *   chunk is awaited from upstream, never while the consumer (the NFS write)
+ *   applies backpressure, so a slow disk is not mistaken for a stalled
+ *   upstream.
+ * - `deadline`: absolute end time of the whole download, so an upstream
+ *   trickling a byte just under every `idleMs` cannot hold a worker slot
+ *   forever.
+ * `onTimeout` aborts the underlying fetch to release its socket.
+ */
+function withBodyTimeouts(body, { idleMs, deadline, onTimeout }) {
+  const reader = body.getReader();
+  return new ReadableStream({
+    async pull(controller) {
+      const remainingMs = deadline - Date.now();
+      const idleFirst = idleMs <= remainingMs;
+      const timer = setTimeout(
+        () => {
+          const error = idleFirst
+            ? new PdfValidationError(`Upstream body stalled for ${idleMs}ms`, 'BODY_STALLED')
+            : new PdfValidationError('Upstream download exceeded its maximum duration', 'TIMEOUT');
+          controller.error(error);
+          onTimeout(error);
+        },
+        Math.max(0, Math.min(idleMs, remainingMs))
+      );
+      try {
+        const { done, value } = await reader.read();
+        if (done) {
+          controller.close();
+        } else {
+          controller.enqueue(value);
+        }
+      } catch (error) {
+        // No-op if a timeout already errored the stream.
+        controller.error(error);
+      } finally {
+        clearTimeout(timer);
+      }
+    },
+    cancel(reason) {
+      return reader.cancel(reason);
+    },
+  });
+}
+
+/**
  * Re-fetches a URL for the cache, independently re-validating the domain of
  * the URL and of every redirect hop BEFORE requesting it (redirect: 'manual'
  * - with the default 'follow', a whitelisted host redirecting to an internal
@@ -55,15 +103,53 @@ function parseExpectedBytes(headers) {
  *
  * Accept-Encoding: identity so that Content-Length describes the bytes we
  * actually receive (fetch() transparently decodes gzip/br otherwise).
+ *
+ * Timeouts: `timeoutMs` for the response headers (all redirect hops
+ * included), then `bodyIdleTimeoutMs` between two body chunks, and
+ * `maxDurationMs` for the whole download. A single timeout over the whole
+ * download would make any PDF slower than it to fetch impossible to cache.
  */
 export async function fetchUpstream(url, options = {}) {
-  const { timeoutMs = 20000, conditionalHeaders = {} } = options;
+  const {
+    timeoutMs = 20000,
+    bodyIdleTimeoutMs = 20000,
+    maxDurationMs = 600000,
+    conditionalHeaders = {},
+  } = options;
+  const deadline = Date.now() + maxDurationMs;
 
   if (!isAllowedPdfDomain(url)) {
     throw new PdfValidationError(`Domain not allowed: ${url}`, 'DOMAIN_NOT_ALLOWED');
   }
 
-  const signal = AbortSignal.timeout(timeoutMs);
+  const abortController = new AbortController();
+  const { signal } = abortController;
+  const headersTimer = setTimeout(
+    () =>
+      abortController.abort(
+        new PdfValidationError(`No upstream response within ${timeoutMs}ms`, 'TIMEOUT')
+      ),
+    timeoutMs
+  );
+  let result;
+  try {
+    result = await fetchValidatedResponse(url, signal, conditionalHeaders);
+  } finally {
+    clearTimeout(headersTimer);
+  }
+  if (result.notModified) return result;
+
+  return {
+    ...result,
+    body: withBodyTimeouts(result.body, {
+      idleMs: bodyIdleTimeoutMs,
+      deadline,
+      onTimeout: error => abortController.abort(error),
+    }),
+  };
+}
+
+async function fetchValidatedResponse(url, signal, conditionalHeaders) {
   let currentUrl = url;
   let response;
   for (let hop = 0; ; hop++) {

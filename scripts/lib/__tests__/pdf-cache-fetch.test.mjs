@@ -157,6 +157,123 @@ describe('pdf-cache-fetch', () => {
     });
   });
 
+  describe('fetchUpstream timeouts (fake clock)', () => {
+    const encode = text => new TextEncoder().encode(text);
+
+    // Like undici: a pending fetch rejects with signal.reason on abort.
+    function hangingFetch() {
+      return vi.fn(
+        (_url, init) =>
+          new Promise((_resolve, reject) => {
+            init.signal.addEventListener('abort', () => reject(init.signal.reason));
+          })
+      );
+    }
+
+    // A PDF body that sends '%PDF-' first, then whatever `pull` does.
+    function streamingFetch(pull) {
+      const calls = { signal: undefined };
+      const fn = vi.fn(async (_url, init) => {
+        calls.signal = init.signal;
+        const body = new ReadableStream({
+          start(controller) {
+            controller.enqueue(encode('%PDF-'));
+          },
+          pull: controller => pull(controller, init.signal),
+        });
+        return new Response(body, { status: 200, headers: { 'Content-Type': 'application/pdf' } });
+      });
+      return { fn, calls };
+    }
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('rejects with TIMEOUT when no response headers arrive in time', async () => {
+      global.fetch = hangingFetch();
+      const pending = fetchUpstream('https://zenodo.org/a.pdf', { timeoutMs: 1000 });
+      const outcome = pending.catch(error => error);
+
+      await vi.advanceTimersByTimeAsync(1000);
+      const error = await outcome;
+      expect(error).toBeInstanceOf(PdfValidationError);
+      expect(error.code).toBe('TIMEOUT');
+    });
+
+    it('does not apply the header timeout to the body', async () => {
+      const { fn, calls } = streamingFetch(controller => {
+        controller.enqueue(encode('rest'));
+        controller.close();
+      });
+      global.fetch = fn;
+      const result = await fetchUpstream('https://zenodo.org/a.pdf', { timeoutMs: 1000 });
+
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(calls.signal.aborted).toBe(false);
+      await expect(collect(createValidatingStream(result.body))).resolves.toEqual(Buffer.from('%PDF-rest'));
+    });
+
+    it('fails with BODY_STALLED and aborts the fetch when the body stops for bodyIdleTimeoutMs', async () => {
+      const { fn, calls } = streamingFetch(
+        (controller, signal) =>
+          new Promise(() => signal.addEventListener('abort', () => controller.error(signal.reason)))
+      );
+      global.fetch = fn;
+      const result = await fetchUpstream('https://zenodo.org/a.pdf', { bodyIdleTimeoutMs: 2000 });
+      const outcome = collect(createValidatingStream(result.body)).catch(error => error);
+
+      await vi.advanceTimersByTimeAsync(1999);
+      expect(calls.signal.aborted).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      const error = await outcome;
+      expect(error.code).toBe('BODY_STALLED');
+      expect(calls.signal.aborted).toBe(true);
+    });
+
+    it('does not count the time the consumer takes to read as idle time', async () => {
+      const { fn, calls } = streamingFetch(controller => {
+        controller.enqueue(encode('rest'));
+        controller.close();
+      });
+      global.fetch = fn;
+      const result = await fetchUpstream('https://zenodo.org/a.pdf', { bodyIdleTimeoutMs: 2000 });
+      const reader = result.body.getReader();
+
+      await reader.read();
+      await vi.advanceTimersByTimeAsync(60_000); // slow NFS write, say
+      expect(calls.signal.aborted).toBe(false);
+      expect(new TextDecoder().decode((await reader.read()).value)).toBe('rest');
+    });
+
+    it('fails with TIMEOUT once maxDurationMs is reached, even if chunks keep trickling in', async () => {
+      const { fn, calls } = streamingFetch(
+        controller =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              controller.enqueue(encode('x'));
+              resolve();
+            }, 1500);
+          })
+      );
+      global.fetch = fn;
+      const result = await fetchUpstream('https://zenodo.org/a.pdf', {
+        bodyIdleTimeoutMs: 2000,
+        maxDurationMs: 5000,
+      });
+      const outcome = collect(createValidatingStream(result.body)).catch(error => error);
+
+      await vi.advanceTimersByTimeAsync(5000);
+      const error = await outcome;
+      expect(error.code).toBe('TIMEOUT');
+      expect(calls.signal.aborted).toBe(true);
+    });
+  });
+
   describe('buildConditionalHeaders', () => {
     it('returns an empty object with no existing sidecar', () => {
       expect(buildConditionalHeaders(null)).toEqual({});

@@ -401,7 +401,9 @@ before this feature), not something introduced here.
 | `PDF_CACHE_MAX_BYTES` | `104857600` (100MB) | worker | Per-file cap. |
 | `PDF_CACHE_MAX_TOTAL_BYTES` | `0` (unlimited) | worker | Cache-wide cap, enforced once per full sweep cycle. |
 | `PDF_CACHE_MIN_FREE_PERCENT` | `10` | worker | Refuse new writes below this free space % on the cache filesystem. |
-| `PDF_CACHE_FETCH_TIMEOUT_MS` | `20000` | worker | Upstream fetch timeout. |
+| `PDF_CACHE_FETCH_TIMEOUT_MS` | `20000` | worker | Wait for the upstream response headers (all redirect hops). |
+| `PDF_CACHE_BODY_IDLE_TIMEOUT_MS` | `20000` | worker | Longest wait between two body chunks. Only runs while waiting for upstream, not while the NFS write applies backpressure. |
+| `PDF_CACHE_FETCH_MAX_DURATION_MS` | `600000` (10 min) | worker | Cap on a whole download, so an upstream trickling data cannot hold a worker slot forever. |
 | `PDF_CACHE_WORKER_CONCURRENCY` | `4` | worker | Max jobs in flight at once. |
 | `PDF_CACHE_QUEUE_MAX` | `500` | worker | Bounded in-memory queue; extra jobs are dropped (logged), not buffered. |
 
