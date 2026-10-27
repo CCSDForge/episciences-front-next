@@ -407,8 +407,9 @@ informational only.
   for the worker only, so keep `PDF_CACHE_*` and `EPI_ENV` out of it: an old
   value left there silently wins. At startup the worker logs which env files
   it loaded.
-- **A change applies after a restart**: of the app (done by the deploy) and of
-  the worker (not done by the deploy, see §10).
+- **A change applies after a restart** of the app and of the worker. The
+  deploy does both (see §10); a change made by hand on a server needs a
+  manual restart of both.
 
 | Variable | Default | Used by | Notes |
 |---|---|---|---|
@@ -495,10 +496,14 @@ sudo systemctl enable episciences-pdf-cache-worker
 sudo systemctl start episciences-pdf-cache-worker
 ```
 
-**Restart the worker after every deploy and every `.env.local` change**:
-`sudo systemctl restart episciences-pdf-cache-worker`. The deploy's rolling
-restart only restarts the app: until then, the worker keeps running the
-previous release's code with the previous settings.
+**Restarts**: the last play of `deployment/ansible/deploy.yml` runs
+`systemctl try-restart episciences-pdf-cache-worker` on every host, after the
+app's rolling restart. It only acts where the unit is installed and running,
+so the worker always runs the deployed release's code and `.env.local`; a
+stopped worker stays stopped. It needs a sudoers rule on the worker host, see
+[deployment/ansible/SETUP.md](../deployment/ansible/SETUP.md#pdf-cache-worker-host-sudoers-rule).
+After a change made by hand on a server, restart it yourself:
+`sudo systemctl restart episciences-pdf-cache-worker`.
 
 Only **one host per environment** should run this worker — pick the same
 designated host that already runs `revalidate-worker.service`, or a
@@ -565,7 +570,7 @@ request still succeeds with `X-Pdf-Cache: FALLBACK`.
 | `X-Pdf-Cache` always `OFF` | `PDF_CACHE_ENABLED` isn't `true` on the app instance actually serving the request. |
 | Cache never populates, no worker errors | `VALKEY_ENABLED` is off, or the worker sees other Valkey or `PDF_CACHE_CHANNEL` values than the app because of an override in `/etc/episciences/worker.env` (§8). Check for the one-time "PDF_CACHE_ENABLED=true but no Valkey client" warning in the app logs. |
 | Worker logs `EPI_ENV env var is required...` and exits | `EPI_ENV` missing or doesn't match `^[a-z0-9-]{2,20}$` in the `.env.local` of the release the worker runs from. The `Env files loaded from ...` line logged at startup shows what it read. |
-| Worker still uses old settings or old code | It was not restarted after the deploy or the `.env.local` change (§10). |
+| Worker still uses old settings or old code | It was not restarted: the last play of the deploy failed on the worker host (missing sudoers rule, see §10), or `.env.local` was edited by hand without a restart. |
 | Worker logs `Free space below N%...` | Expected behavior of the disk-space guard (§5) — the cache stops growing; the NFS mount needs attention or `PDF_CACHE_MIN_FREE_PERCENT` needs revisiting, not the worker. |
 | A file just written by the worker isn't visible yet from another VM | NFS attribute cache lag (§9) — not a bug, wait a few seconds. |
 
