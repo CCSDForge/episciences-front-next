@@ -34,6 +34,7 @@
  *   PDF_CACHE_MAX_TOTAL_BYTES   — cache-wide size cap, 0 = unlimited (default: 0)
  *   PDF_CACHE_MIN_FREE_PERCENT  — refuse writes below this free-space % (default: 10)
  *   PDF_CACHE_FETCH_TIMEOUT_MS  — upstream fetch timeout (default: 20000)
+ *   PDF_CACHE_MAX_AGE_SECONDS   - a 'populate' for an entry younger than this is skipped (default: 15552000, 180d)
  *   PDF_CACHE_WORKER_CONCURRENCY— max jobs in flight at once (default: 4)
  *   PDF_CACHE_QUEUE_MAX         — bounded in-memory queue, extra jobs dropped (default: 500)
  *   PDF_CACHE_RETENTION_DAYS    — delete entries older than this, by fetchedAt (default: 365)
@@ -60,6 +61,7 @@ import {
   createValidatingStream,
   PdfValidationError,
 } from './lib/pdf-cache-fetch.mjs';
+import { parsePopulateMessage, shouldSkipPopulate } from './lib/pdf-cache-job.mjs';
 
 const { Redis } = pkg;
 
@@ -72,6 +74,7 @@ const MAX_BYTES = Number(process.env.PDF_CACHE_MAX_BYTES) || 104857600;
 const MAX_TOTAL_BYTES = Number(process.env.PDF_CACHE_MAX_TOTAL_BYTES) || 0;
 const MIN_FREE_PERCENT = Number(process.env.PDF_CACHE_MIN_FREE_PERCENT) || 10;
 const RETENTION_DAYS = Number(process.env.PDF_CACHE_RETENTION_DAYS) || 365;
+const MAX_AGE_SECONDS = Number(process.env.PDF_CACHE_MAX_AGE_SECONDS) || 15552000;
 const SWEEP_ENABLED = process.env.PDF_CACHE_SWEEP_ENABLED !== 'false';
 const SWEEP_INTERVAL_HOURS = Number(process.env.PDF_CACHE_SWEEP_INTERVAL_HOURS) || 24;
 const SHARDS_PER_BATCH = 8;
@@ -215,6 +218,9 @@ async function processJob(job) {
   }
 
   const existingSidecar = await readSidecarIfExists(key);
+  if (shouldSkipPopulate(job, existingSidecar, MAX_AGE_SECONDS)) {
+    return;
+  }
   const conditionalHeaders = buildConditionalHeaders(existingSidecar);
 
   let result;
@@ -277,9 +283,9 @@ async function runSweepOnce() {
   sweepCursor = nextCursor;
   cycleVisited.push(...visited);
 
-  if (removed.retention || removed.orphanTmp || removed.orphanPdf) {
+  if (removed.retention || removed.orphanTmp || removed.orphanPdf || removed.orphanSidecar) {
     console.log(
-      `[PdfCacheWorker] Sweep: removed ${removed.retention} expired, ${removed.orphanTmp} orphan tmp, ${removed.orphanPdf} orphan pdf`
+      `[PdfCacheWorker] Sweep: removed ${removed.retention} expired, ${removed.orphanTmp} orphan tmp, ${removed.orphanPdf} orphan pdf, ${removed.orphanSidecar} orphan sidecar`
     );
   }
 
@@ -352,20 +358,13 @@ async function start() {
     subscriber.on('message', (channel, message) => {
       if (channel !== CHANNEL) return;
 
-      let payload;
-      try {
-        payload = JSON.parse(message);
-      } catch {
-        console.error('[PdfCacheWorker] Invalid JSON message:', message);
+      const job = parsePopulateMessage(message);
+      if (!job) {
+        console.warn('[PdfCacheWorker] Ignoring malformed message:', String(message).slice(0, 200));
         return;
       }
 
-      if (!payload.url || !payload.key) {
-        console.warn('[PdfCacheWorker] Message missing "url" or "key":', message);
-        return;
-      }
-
-      enqueue(payload);
+      enqueue(job);
     });
 
     subscriber.on('end', () => {

@@ -96,33 +96,47 @@ function resolveAuthorization(headerToken: string, journalId?: string): boolean 
   return !!globalSecret && verifyToken(headerToken, globalSecret);
 }
 
-async function performPdfCacheInvalidation(pdfUrl: string): Promise<NextResponse | null> {
-  if (!isAllowedPdfDomain(pdfUrl)) {
-    log.warn(`[Revalidate API] Invalid pdfUrl domain: ${sanitizeForLog(pdfUrl)}`);
-    return NextResponse.json({ message: 'Invalid pdfUrl domain' }, { status: 400 });
+/**
+ * Validates every field of the request before any side effect runs, so a
+ * request is either applied entirely or rejected without having deleted a
+ * PDF cache entry first.
+ */
+function validateRevalidationRequest(
+  tag: unknown,
+  path: unknown,
+  journalId: string | undefined,
+  pdfUrl: unknown
+): NextResponse | null {
+  if (!tag && !path && !pdfUrl) {
+    return NextResponse.json({ message: 'Missing tag, path, or pdfUrl' }, { status: 400 });
   }
-  const key = getCacheKey(pdfUrl);
-  await deleteCacheEntry(key);
-  log.info(`[Revalidate API] Invalidated pdf cache entry for: ${sanitizeForLog(pdfUrl)}`);
+  if (pdfUrl !== undefined && (typeof pdfUrl !== 'string' || !isAllowedPdfDomain(pdfUrl))) {
+    log.warn(`[Revalidate API] Invalid pdfUrl: ${sanitizeForLog(String(pdfUrl))}`);
+    return NextResponse.json({ message: 'Invalid pdfUrl' }, { status: 400 });
+  }
+  // A tag takes precedence over a path (see performRevalidation).
+  if (!tag && path && (typeof path !== 'string' || !isValidRevalidatePath(path, journalId))) {
+    log.warn(`[Revalidate API] Invalid path format: ${sanitizeForLog(String(path))}`);
+    return NextResponse.json({ message: 'Invalid path format' }, { status: 400 });
+  }
   return null;
 }
 
-function performRevalidation(tag?: string, path?: string, journalId?: string): NextResponse | null {
+async function performPdfCacheInvalidation(pdfUrl: string): Promise<void> {
+  await deleteCacheEntry(getCacheKey(pdfUrl));
+  log.info(`[Revalidate API] Invalidated pdf cache entry for: ${sanitizeForLog(pdfUrl)}`);
+}
+
+function performRevalidation(tag?: string, path?: string): void {
   if (tag) {
     log.info(`[Revalidate API] Revalidating tag: ${sanitizeForLog(tag)}`);
     revalidateTag(tag, { expire: 0 });
-    return null;
+    return;
   }
   if (path) {
-    if (!isValidRevalidatePath(path, journalId)) {
-      log.warn(`[Revalidate API] Invalid path format: ${sanitizeForLog(path)}`);
-      return NextResponse.json({ message: 'Invalid path format' }, { status: 400 });
-    }
     log.info(`[Revalidate API] Revalidating path: ${sanitizeForLog(path)}`);
     revalidatePath(path);
-    return null;
   }
-  return NextResponse.json({ message: 'Missing tag or path' }, { status: 400 });
 }
 
 export async function POST(request: NextRequest) {
@@ -157,19 +171,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Invalid secret' }, { status: 401 });
     }
 
-    if (!tag && !path && !pdfUrl) {
-      return NextResponse.json({ message: 'Missing tag, path, or pdfUrl' }, { status: 400 });
-    }
+    const validationError = validateRevalidationRequest(tag, path, journalId, pdfUrl);
+    if (validationError) return validationError;
 
     if (pdfUrl) {
-      const pdfErrorResponse = await performPdfCacheInvalidation(pdfUrl);
-      if (pdfErrorResponse) return pdfErrorResponse;
+      await performPdfCacheInvalidation(pdfUrl);
     }
 
-    if (tag || path) {
-      const errorResponse = performRevalidation(tag, path, journalId);
-      if (errorResponse) return errorResponse;
-    }
+    performRevalidation(tag, path);
 
     return NextResponse.json({
       revalidated: true,

@@ -7,10 +7,11 @@
  * cache, not the route that published the message.
  */
 
-import { Readable, Transform } from 'node:stream';
+import { Readable, Transform, pipeline } from 'node:stream';
 import { isAllowedPdfDomain } from './allowed-pdf-domains.mjs';
 
 const PDF_MAGIC = Buffer.from('%PDF-');
+const MAX_REDIRECTS = 5;
 
 export class PdfValidationError extends Error {
   constructor(message, code) {
@@ -26,11 +27,34 @@ function isPdfContentType(contentType) {
   return contentType.includes('pdf') || contentType.includes('octet-stream');
 }
 
+// Releases the upstream socket of a response we are not going to consume.
+function discardBody(response) {
+  response.body?.cancel().catch(() => {});
+}
+
 /**
- * Re-fetches a URL for the cache, independently re-validating the domain
- * (before AND after following redirects), the content-type, and — via the
- * transform returned by createValidatingStream() — the PDF magic bytes and
- * declared size.
+ * A Content-Length we can hold the body to: absent when the body was
+ * content-decoded by fetch() (the header then gives the compressed size), or
+ * when the header is not a plain non-negative integer.
+ */
+function parseExpectedBytes(headers) {
+  if (headers.get('content-encoding')) return undefined;
+  const raw = headers.get('content-length');
+  if (raw == null || !/^\d+$/.test(raw.trim())) return undefined;
+  const value = Number(raw);
+  return Number.isSafeInteger(value) ? value : undefined;
+}
+
+/**
+ * Re-fetches a URL for the cache, independently re-validating the domain of
+ * the URL and of every redirect hop BEFORE requesting it (redirect: 'manual'
+ * - with the default 'follow', a whitelisted host redirecting to an internal
+ * address would already have made the worker request it), the content-type,
+ * and — via the transform returned by createValidatingStream() — the PDF
+ * magic bytes and declared size.
+ *
+ * Accept-Encoding: identity so that Content-Length describes the bytes we
+ * actually receive (fetch() transparently decodes gzip/br otherwise).
  */
 export async function fetchUpstream(url, options = {}) {
   const { timeoutMs = 20000, conditionalHeaders = {} } = options;
@@ -39,46 +63,63 @@ export async function fetchUpstream(url, options = {}) {
     throw new PdfValidationError(`Domain not allowed: ${url}`, 'DOMAIN_NOT_ALLOWED');
   }
 
-  const response = await fetch(url, {
-    signal: AbortSignal.timeout(timeoutMs),
-    headers: {
-      'User-Agent': 'Episciences-PDF-Cache-Worker/1.0',
-      ...conditionalHeaders,
-    },
-  });
+  const signal = AbortSignal.timeout(timeoutMs);
+  let currentUrl = url;
+  let response;
+  for (let hop = 0; ; hop++) {
+    response = await fetch(currentUrl, {
+      signal,
+      redirect: 'manual',
+      headers: {
+        'User-Agent': 'Episciences-PDF-Cache-Worker/1.0',
+        'Accept-Encoding': 'identity',
+        ...conditionalHeaders,
+      },
+    });
+
+    const isRedirect = response.status >= 300 && response.status < 400 && response.status !== 304;
+    if (!isRedirect) break;
+
+    const location = response.headers.get('location');
+    discardBody(response);
+    if (!location) {
+      throw new PdfValidationError(`Redirect without Location from ${currentUrl}`, 'REDIRECT_NOT_ALLOWED');
+    }
+    const nextUrl = new URL(location, currentUrl).href;
+    if (!isAllowedPdfDomain(nextUrl)) {
+      throw new PdfValidationError(`Redirect to non-whitelisted host: ${nextUrl}`, 'REDIRECT_NOT_ALLOWED');
+    }
+    if (hop >= MAX_REDIRECTS) {
+      throw new PdfValidationError(`Too many redirects (> ${MAX_REDIRECTS}) for ${url}`, 'REDIRECT_NOT_ALLOWED');
+    }
+    currentUrl = nextUrl;
+  }
 
   if (response.status === 304) {
+    discardBody(response);
     return { notModified: true };
   }
 
   if (!response.ok) {
+    discardBody(response);
     throw new PdfValidationError(`Upstream returned HTTP ${response.status}`, 'BAD_STATUS');
-  }
-
-  // fetch() follows redirects by default — a whitelisted domain that
-  // redirects elsewhere (compromise, misconfiguration, a mirror) must not be
-  // allowed to make the worker fetch (and cache) an arbitrary host.
-  const finalUrl = response.url || url;
-  if (!isAllowedPdfDomain(finalUrl)) {
-    throw new PdfValidationError(`Redirect to non-whitelisted host: ${finalUrl}`, 'REDIRECT_NOT_ALLOWED');
   }
 
   const contentType = response.headers.get('content-type') ?? '';
   if (!isPdfContentType(contentType)) {
+    discardBody(response);
     throw new PdfValidationError(`Unexpected upstream content-type: ${contentType}`, 'BAD_CONTENT_TYPE');
   }
-
-  const contentLengthHeader = response.headers.get('content-length');
 
   return {
     notModified: false,
     body: response.body,
-    finalUrl,
+    finalUrl: currentUrl,
     contentType,
     httpStatus: response.status,
     etag: response.headers.get('etag') ?? undefined,
     lastModified: response.headers.get('last-modified') ?? undefined,
-    expectedBytes: contentLengthHeader ? Number(contentLengthHeader) : undefined,
+    expectedBytes: parseExpectedBytes(response.headers),
   };
 }
 
@@ -102,7 +143,9 @@ export function buildConditionalHeaders(existingSidecar) {
  *
  * Any violation destroys the stream with a PdfValidationError, which
  * propagates through stream/promises pipeline() and aborts the write before
- * the temp file is ever renamed into its final path.
+ * the temp file is ever renamed into its final path. pipeline() (unlike
+ * .pipe()) also destroys the upstream source on that error, so a rejected
+ * body never keeps its socket open until the fetch timeout.
  */
 export function createValidatingStream(webStream, { maxBytes, expectedBytes } = {}) {
   const nodeReadable = Readable.fromWeb(webStream);
@@ -160,6 +203,7 @@ export function createValidatingStream(webStream, { maxBytes, expectedBytes } = 
     },
   });
 
-  nodeReadable.on('error', err => guard.destroy(err));
-  return nodeReadable.pipe(guard);
+  // Errors are surfaced to the consumer through `guard` itself, which
+  // pipeline() destroys with the same error.
+  return pipeline(nodeReadable, guard, () => {});
 }

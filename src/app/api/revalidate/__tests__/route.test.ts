@@ -265,6 +265,31 @@ describe('POST /api/revalidate', () => {
       expect(revalidateTag).toHaveBeenCalledWith('article-42', { expire: 0 });
     });
 
+    it.each([
+      ['an array', ['https://arxiv.org/x']],
+      ['a number', 42],
+      ['an object', { href: 'https://arxiv.org/x' }],
+    ])('rejects a pdfUrl that is %s with a 400, not a 500', async (_label, pdfUrl) => {
+      const { POST } = await import('../route');
+      const res = await POST(makeRequest({ pdfUrl }, SECRET));
+
+      expect(res.status).toBe(400);
+      expect(deleteCacheEntry).not.toHaveBeenCalled();
+    });
+
+    it('validates the path before deleting anything: a rejected request has no side effect', async () => {
+      const { revalidatePath } = await import('next/cache');
+      vi.mocked(revalidatePath).mockClear();
+      const { POST } = await import('../route');
+      const res = await POST(
+        makeRequest({ pdfUrl: 'https://zenodo.org/record/1/file.pdf', path: '../../etc' }, SECRET)
+      );
+
+      expect(res.status).toBe(400);
+      expect(deleteCacheEntry).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
+
     it('is idempotent — deleteCacheEntry resolving with nothing on disk still returns 200', async () => {
       // deleteCacheEntry never throws on ENOENT (see src/lib/pdf-cache.ts) —
       // the mock's default resolved-undefined behavior models that.

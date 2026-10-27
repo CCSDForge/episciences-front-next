@@ -75,14 +75,22 @@ export function getCachePaths(key, env = process.env) {
 // ---------------------------------------------------------------------------
 
 /**
- * @returns {object|null} the existing sidecar, or null if absent/corrupt.
+ * Returns the sidecar of a complete entry only: a sidecar whose pdf is
+ * missing or has another size is reported as absent. Otherwise the worker
+ * would send If-None-Match/If-Modified-Since for a file it no longer has, get
+ * a 304, refresh fetchedAt, and never re-download it.
+ *
+ * @returns {object|null} the existing sidecar, or null if absent/corrupt/incomplete.
  */
 export async function readSidecarIfExists(key, env = process.env) {
   const paths = getCachePaths(key, env);
   if (!paths) return null;
   try {
     const raw = await fsp.readFile(paths.jsonPath, 'utf8');
-    return JSON.parse(raw);
+    const sidecar = JSON.parse(raw);
+    if (!sidecar || typeof sidecar !== 'object') return null;
+    const { size } = await fsp.stat(paths.pdfPath);
+    return size === sidecar.byteLength ? sidecar : null;
   } catch {
     return null;
   }
@@ -191,7 +199,7 @@ export async function hasEnoughFreeSpace(rootDir, minFreePercent = 10) {
 }
 
 // ---------------------------------------------------------------------------
-// Sweep: retention, orphaned tmp files, pdf-without-sidecar
+// Sweep: retention, orphaned tmp files, pdf-without-sidecar, sidecar-without-pdf
 // ---------------------------------------------------------------------------
 
 const ALL_SHARDS = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(2, '0'));
@@ -208,11 +216,16 @@ const ALL_SHARDS = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart
  * seen exactly once, which a flat/sharded store without a separate size
  * index cannot otherwise guarantee cheaply.
  *
- * @returns {{ nextCursor: number, removed: { retention: number, orphanTmp: number, orphanPdf: number }, visited: Array<{ pdfPath: string, jsonPath: string, size: number, fetchedAtMs: number }>, cycleCompleted: boolean }}
+ * Orphans (a pdf without its sidecar, or a sidecar without its pdf) are only
+ * removed once older than `tmpOrphanMaxAgeMs`: a pdf renamed into place a
+ * moment before its sidecar is a write in progress, not an orphan, and
+ * deleting it would turn the entry into a sidecar pointing at nothing.
+ *
+ * @returns {{ nextCursor: number, removed: { retention: number, orphanTmp: number, orphanPdf: number, orphanSidecar: number }, visited: Array<{ pdfPath: string, jsonPath: string, size: number, fetchedAtMs: number }>, cycleCompleted: boolean }}
  */
 export async function sweepShardBatch(cursor, options, env = process.env) {
   const root = getCacheRootDir(env);
-  const removed = { retention: 0, orphanTmp: 0, orphanPdf: 0 };
+  const removed = { retention: 0, orphanTmp: 0, orphanPdf: 0, orphanSidecar: 0 };
   const visited = [];
   if (!root) return { nextCursor: cursor, removed, visited, cycleCompleted: false };
 
@@ -224,6 +237,20 @@ export async function sweepShardBatch(cursor, options, env = process.env) {
 
   const retentionCutoffMs = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
   const now = Date.now();
+
+  // Re-checks the counterpart right before deleting: the directory listing
+  // may predate a write that has completed since.
+  async function removeIfOrphan(fullPath, counterpartPath) {
+    const stat = await fsp.stat(fullPath).catch(() => null);
+    if (!stat || now - stat.mtimeMs <= tmpOrphanMaxAgeMs) return false;
+    const counterpartExists = await fsp.access(counterpartPath).then(
+      () => true,
+      () => false
+    );
+    if (counterpartExists) return false;
+    await fsp.unlink(fullPath).catch(() => {});
+    return true;
+  }
 
   for (let i = 0; i < shardsPerBatch; i++) {
     const shard = ALL_SHARDS[(cursor + i) % ALL_SHARDS.length];
@@ -251,17 +278,27 @@ export async function sweepShardBatch(cursor, options, env = process.env) {
         continue;
       }
 
+      if (entry.name.endsWith('.json')) {
+        const key = entry.name.slice(0, -5);
+        // Pdf deleted from under its sidecar (an invalidation or eviction
+        // interleaved with a write): the sidecar alone is useless.
+        if (!names.has(`${key}.pdf`) && (await removeIfOrphan(fullPath, path.join(dir, `${key}.pdf`)))) {
+          removed.orphanSidecar++;
+        }
+        continue;
+      }
+
       if (entry.name.endsWith('.pdf')) {
         const key = entry.name.slice(0, -4);
-        const hasSidecar = names.has(`${key}.json`);
-        if (!hasSidecar) {
+        const sidecarPath = path.join(dir, `${key}.json`);
+        if (!names.has(`${key}.json`)) {
           // Crash between the pdf rename and the sidecar rename — orphan.
-          await fsp.unlink(fullPath).catch(() => {});
-          removed.orphanPdf++;
+          if (await removeIfOrphan(fullPath, sidecarPath)) {
+            removed.orphanPdf++;
+          }
           continue;
         }
 
-        const sidecarPath = path.join(dir, `${key}.json`);
         const sidecar = await fsp
           .readFile(sidecarPath, 'utf8')
           .then(JSON.parse)

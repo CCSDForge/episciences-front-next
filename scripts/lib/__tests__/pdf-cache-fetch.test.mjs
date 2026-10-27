@@ -16,6 +16,10 @@ function pdfResponse(body, init = {}) {
   });
 }
 
+function redirectResponse(location, status = 302) {
+  return new Response(null, { status, headers: location ? { Location: location } : {} });
+}
+
 async function collect(nodeStream) {
   const chunks = [];
   for await (const chunk of nodeStream) {
@@ -50,11 +54,77 @@ describe('pdf-cache-fetch', () => {
       await expect(fetchUpstream('https://zenodo.org/a.pdf')).rejects.toThrow(/HTTP 500/);
     });
 
-    it('rejects when the final URL (after redirects) is not whitelisted', async () => {
+    it('rejects a redirect to a non-whitelisted host without ever requesting it', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce(redirectResponse('http://169.254.169.254/latest/meta-data/'));
+      await expect(fetchUpstream('https://zenodo.org/a.pdf')).rejects.toMatchObject({
+        code: 'REDIRECT_NOT_ALLOWED',
+      });
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch.mock.calls[0][1].redirect).toBe('manual');
+    });
+
+    it('follows whitelisted redirects, resolving relative locations, and reports the final URL', async () => {
+      global.fetch = vi
+        .fn()
+        .mockResolvedValueOnce(redirectResponse('https://data.zenodo.org/x'))
+        .mockResolvedValueOnce(redirectResponse('/a.pdf', 307))
+        .mockResolvedValueOnce(pdfResponse(new Uint8Array([0x25, 0x50, 0x44, 0x46])));
+      const result = await fetchUpstream('https://zenodo.org/a.pdf');
+      expect(result.finalUrl).toBe('https://data.zenodo.org/a.pdf');
+      expect(global.fetch.mock.calls.map(call => call[0])).toEqual([
+        'https://zenodo.org/a.pdf',
+        'https://data.zenodo.org/x',
+        'https://data.zenodo.org/a.pdf',
+      ]);
+    });
+
+    it('gives up after too many redirects', async () => {
+      global.fetch = vi.fn().mockImplementation(async () => redirectResponse('https://zenodo.org/loop'));
+      await expect(fetchUpstream('https://zenodo.org/a.pdf')).rejects.toThrow(/Too many redirects/);
+      expect(global.fetch).toHaveBeenCalledTimes(6);
+    });
+
+    it('rejects a redirect without a Location header', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce(redirectResponse(null));
+      await expect(fetchUpstream('https://zenodo.org/a.pdf')).rejects.toThrow(/without Location/);
+    });
+
+    it('asks upstream for an unencoded body', async () => {
+      global.fetch = vi.fn().mockResolvedValue(new Response(null, { status: 304 }));
+      await fetchUpstream('https://zenodo.org/a.pdf');
+      expect(global.fetch.mock.calls[0][1].headers['Accept-Encoding']).toBe('identity');
+    });
+
+    it('ignores Content-Length when the body is content-encoded', async () => {
+      global.fetch = vi.fn().mockResolvedValue(
+        pdfResponse(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+          headers: { 'Content-Length': '2', 'Content-Encoding': 'gzip' },
+        })
+      );
+      const result = await fetchUpstream('https://zenodo.org/a.pdf');
+      expect(result.expectedBytes).toBeUndefined();
+    });
+
+    it.each(['abc', '-1', '1.5', ''])('ignores a malformed Content-Length %j', async value => {
       const response = pdfResponse(new Uint8Array([0x25, 0x50, 0x44, 0x46]));
-      Object.defineProperty(response, 'url', { value: 'https://evil.com/a.pdf' });
+      // Response normalizes Content-Length itself, so stub the header read.
+      const realGet = response.headers.get.bind(response.headers);
+      vi.spyOn(response.headers, 'get').mockImplementation(name =>
+        name.toLowerCase() === 'content-length' ? value : realGet(name)
+      );
       global.fetch = vi.fn().mockResolvedValue(response);
-      await expect(fetchUpstream('https://zenodo.org/a.pdf')).rejects.toThrow(/Redirect/);
+      const result = await fetchUpstream('https://zenodo.org/a.pdf');
+      expect(result.expectedBytes).toBeUndefined();
+    });
+
+    it('cancels the upstream body when rejecting it', async () => {
+      const cancel = vi.fn();
+      const body = new ReadableStream({ pull() {}, cancel });
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue(new Response(body, { status: 200, headers: { 'Content-Type': 'text/html' } }));
+      await expect(fetchUpstream('https://zenodo.org/a.pdf')).rejects.toThrow(/content-type/);
+      expect(cancel).toHaveBeenCalled();
     });
 
     it('rejects a non-pdf content-type', async () => {
@@ -143,6 +213,19 @@ describe('pdf-cache-fetch', () => {
       const body = Buffer.from('%PDF-1.4 exact');
       const validated = createValidatingStream(webStreamFrom([body]), { expectedBytes: body.length });
       await expect(collect(validated)).resolves.toEqual(body);
+    });
+
+    it('destroys the upstream source when validation fails', async () => {
+      const cancel = vi.fn();
+      const source = new ReadableStream({
+        pull(controller) {
+          controller.enqueue(Buffer.from('<html>captcha page</html>'));
+        },
+        cancel,
+      });
+      const validated = createValidatingStream(source);
+      await expect(collect(validated)).rejects.toThrow(/magic bytes/);
+      await vi.waitFor(() => expect(cancel).toHaveBeenCalled());
     });
 
     it('validates magic bytes split across multiple small chunks', async () => {

@@ -14,9 +14,10 @@ import {
   type PdfCacheEnqueueReason,
 } from '@/lib/pdf-cache';
 
-// The cache read path uses fs and the Valkey client — Node.js runtime only.
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+// No route segment config on purpose: `runtime` already defaults to 'nodejs'
+// (required by the fs/Valkey cache read path), GET handlers are dynamic by
+// default since Next.js 15, and `dynamic` is rejected once cacheComponents is
+// enabled.
 
 // Rate limiting: 30 requests per minute per IP
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -111,21 +112,60 @@ function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === 'AbortError';
 }
 
-/**
- * Schedules `task` to run after the response is sent, via next/server's
- * after() when a live request scope is available (always the case when
- * serving real traffic). after() throws outside a request scope — e.g. a
- * unit test invoking this route's GET() directly without Next's own request
- * machinery — in which case we fall back to firing it immediately;
- * enqueuePopulateJob() already never throws and never affects the response
- * either way.
- */
-function scheduleAfterResponse(task: () => Promise<void>): void {
-  try {
-    after(task);
-  } catch {
-    task().catch(() => {});
+const MAX_REDIRECTS = 5;
+
+class UpstreamRedirectError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UpstreamRedirectError';
   }
+}
+
+// Releases the upstream socket of a response we are not going to stream.
+function discardBody(response: Response): void {
+  response.body?.cancel().catch(() => {});
+}
+
+/**
+ * Fetches `url`, following redirects manually so that every hop is checked
+ * against the allowlist BEFORE a request is sent to it. With the default
+ * redirect: 'follow', a whitelisted host answering 302 to an internal address
+ * would make this proxy issue that internal request (blind SSRF) before any
+ * check on response.url could run.
+ *
+ * Accept-Encoding: identity keeps the upstream Content-Length meaningful:
+ * fetch() transparently decompresses gzip/br bodies, which would otherwise
+ * make the forwarded Content-Length smaller than the streamed body.
+ */
+async function fetchPdfUpstream(url: string, signal: AbortSignal): Promise<Response> {
+  let currentUrl = url;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    const response = await fetch(currentUrl, {
+      // lgtm[js/ssrf] - every hop validated by isAllowedPdfDomain()
+      signal,
+      redirect: 'manual',
+      headers: {
+        'User-Agent': 'Episciences-PDF-Proxy/1.0',
+        'Accept-Encoding': 'identity',
+      },
+    });
+
+    if (response.status < 300 || response.status >= 400 || response.status === 304) {
+      return response;
+    }
+
+    const location = response.headers.get('Location');
+    discardBody(response);
+    if (!location) {
+      throw new UpstreamRedirectError(`Redirect without Location from ${currentUrl}`);
+    }
+    const nextUrl = new URL(location, currentUrl).href;
+    if (!isAllowedPdfDomain(nextUrl)) {
+      throw new UpstreamRedirectError(`Redirect to non-whitelisted host: ${nextUrl}`);
+    }
+    currentUrl = nextUrl;
+  }
+  throw new UpstreamRedirectError(`Too many redirects (> ${MAX_REDIRECTS}) for ${url}`);
 }
 
 function cacheEntryResponse(
@@ -198,7 +238,8 @@ export async function GET(request: NextRequest) {
   const enqueue = (reason: PdfCacheEnqueueReason): void => {
     if (!cacheEnabled || !cacheKey) return;
     const key = cacheKey;
-    scheduleAfterResponse(() => enqueuePopulateJob(pdfUrl, key, reason));
+    // Runs once the response has been sent; enqueuePopulateJob() never throws.
+    after(() => enqueuePopulateJob(pdfUrl, key, reason));
   };
 
   // "fallback" mode only ever consults the cache after an upstream failure
@@ -238,17 +279,12 @@ export async function GET(request: NextRequest) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds
 
-    const response = await fetch(pdfUrl, {
-      // lgtm[js/ssrf] — domain validated by isAllowedPdfDomain()
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Episciences-PDF-Proxy/1.0',
-      },
-    });
+    const response = await fetchPdfUpstream(pdfUrl, controller.signal);
 
     clearTimeout(timeoutId);
 
     if (!response.ok) {
+      discardBody(response);
       logger.error(
         `[PDF Proxy] Failed to fetch PDF: ${sanitizeForLog(response.statusText)} (${sanitizeForLog(pdfUrl)})`
       );
@@ -259,32 +295,24 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // fetch() follows redirects by default, and a whitelisted domain that
-    // redirects (compromise, misconfiguration, a mirror) would otherwise send
-    // this proxy to an arbitrary host — including an internal one. Re-validate
-    // the domain against the final URL, not just the one the client requested.
-    if (!isAllowedPdfDomain(response.url || pdfUrl)) {
-      logger.warn(
-        `[PDF Proxy] Blocked redirect to non-whitelisted host: ${sanitizeForLog(response.url)}`
-      );
-      const fallback = await tryServeCachedFallback();
-      if (fallback) return fallback;
-      return new NextResponse('Upstream redirect not allowed', { status: 502 });
-    }
-
     // Validate Content-Type from upstream (see isPdfContentType for why)
     const upstreamContentType = response.headers.get('Content-Type') ?? '';
     if (!isPdfContentType(upstreamContentType)) {
       logger.warn(
         `[PDF Proxy] Upstream returned unexpected Content-Type "${upstreamContentType}" for: ${sanitizeForLog(pdfUrl)}`
       );
+      discardBody(response);
       const fallback = await tryServeCachedFallback();
       if (fallback) return fallback;
       return new NextResponse('Upstream did not return a PDF', { status: 502 });
     }
 
-    // Stream response with controlled Content-Disposition
-    const contentLength = response.headers.get('Content-Length');
+    // Stream response with controlled Content-Disposition. An upstream that
+    // ignored Accept-Encoding: identity gets decoded by fetch(), so its
+    // Content-Length no longer describes the body we stream: drop it.
+    const contentLength = response.headers.get('Content-Encoding')
+      ? null
+      : response.headers.get('Content-Length');
     const cacheStatus = cacheEnabled ? 'MISS' : 'OFF';
     const headers = buildPdfResponseHeaders(contentDisposition, allowedOrigin, contentLength, cacheStatus);
 
@@ -300,6 +328,13 @@ export async function GET(request: NextRequest) {
       headers,
     });
   } catch (error) {
+    if (error instanceof UpstreamRedirectError) {
+      logger.warn(`[PDF Proxy] Blocked upstream redirect: ${sanitizeForLog(error.message)}`);
+      const fallback = await tryServeCachedFallback();
+      if (fallback) return fallback;
+      return new NextResponse('Upstream redirect not allowed', { status: 502 });
+    }
+
     if (isAbortError(error)) {
       logger.error(`[PDF Proxy] Request timeout for: ${sanitizeForLog(pdfUrl)}`);
       const fallback = await tryServeCachedFallback();

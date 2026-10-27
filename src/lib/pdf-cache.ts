@@ -10,8 +10,9 @@
  * function to a no-op / null before any fs or Valkey call is made.
  */
 
-import { createReadStream, promises as fsp } from 'node:fs';
+import { promises as fsp } from 'node:fs';
 import { createHash } from 'node:crypto';
+import type { FileHandle } from 'node:fs/promises';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { logger } from '@/lib/logger';
@@ -43,7 +44,7 @@ export interface PdfCacheSidecar {
 
 export interface PdfCacheEntry {
   sidecar: PdfCacheSidecar;
-  /** Authoritative size, from fstat — not from the sidecar. */
+  /** Authoritative size, from fstat on the open file handle, not from the sidecar. */
   byteLength: number;
   ageSeconds: number;
   stream: ReadableStream<Uint8Array>;
@@ -82,6 +83,15 @@ function getEnqueueTtlSeconds(): number {
 
 function getChannel(): string {
   return process.env.PDF_CACHE_CHANNEL || 'pdf-cache-populate';
+}
+
+function getReadTimeoutMs(): number {
+  const parsed = Number(process.env.PDF_CACHE_READ_TIMEOUT_MS);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 2000;
+}
+
+function getEnqueueLockKey(key: string): string {
+  return `pdfcache:enq:${key}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -156,13 +166,80 @@ export function getCachePaths(key: string): PdfCachePaths | null {
 // Read
 // ---------------------------------------------------------------------------
 
+// After a read timeout, cache reads are skipped for this long: on a hung NFS
+// mount each blocked fs call pins one of libuv's (4 by default) threadpool
+// threads, so retrying on every request would starve DNS, crypto and every
+// other route of this process. The timeout only stops waiting, it cannot
+// unblock the call, so the mount must still be `soft` (see
+// docs/PDF_CACHE_STRATEGY.md §9).
+const READ_BREAKER_COOLDOWN_MS = 30_000;
+let readsDisabledUntil = 0;
+
+class CacheReadTimeoutError extends Error {
+  constructor(operation: string) {
+    super(`PDF cache ${operation} timed out`);
+    this.name = 'CacheReadTimeoutError';
+  }
+}
+
+/**
+ * Races `operation` against the read timeout. `onLateResult` receives the
+ * value if it resolves after the timeout fired (used to close a file handle
+ * that would otherwise leak).
+ */
+async function withReadTimeout<T>(
+  operation: Promise<T>,
+  label: string,
+  onLateResult?: (value: T) => void
+): Promise<T> {
+  let timedOut = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      timedOut = true;
+      reject(new CacheReadTimeoutError(label));
+    }, getReadTimeoutMs());
+  });
+  operation.then(
+    value => {
+      if (timedOut) onLateResult?.(value);
+    },
+    () => {}
+  );
+  try {
+    return await Promise.race([operation, timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function tripReadBreaker(error: unknown): void {
+  if (error instanceof CacheReadTimeoutError) {
+    readsDisabledUntil = Date.now() + READ_BREAKER_COOLDOWN_MS;
+    log.warn('PDF cache read timed out, skipping cache reads for a while', {
+      error: error.message,
+      cooldownMs: READ_BREAKER_COOLDOWN_MS,
+    });
+  }
+}
+
+function closeQuietly(handle: FileHandle): void {
+  handle.close().catch(() => {});
+}
+
 /**
  * Reads one cache entry. Returns null on any miss condition — including any
- * fs error (ENOENT, ESTALE, EACCES, EIO…) — never throws, so a cache read
- * failure always degrades to "treat as a miss" for the caller.
+ * fs error (ENOENT, ESTALE, EACCES, EIO…) or a read slower than
+ * PDF_CACHE_READ_TIMEOUT_MS — never throws, so a cache read failure always
+ * degrades to "treat as a miss" for the caller.
+ *
+ * The pdf is opened once and both its size and its stream come from that
+ * same file handle: a worker refresh renaming a new file into place between
+ * a path-based stat() and a lazy open would otherwise announce one size and
+ * stream another file.
  */
 export async function readCacheEntry(key: string): Promise<PdfCacheEntry | null> {
-  if (!isCacheEnabled()) {
+  if (!isCacheEnabled() || Date.now() < readsDisabledUntil) {
     return null;
   }
 
@@ -173,11 +250,12 @@ export async function readCacheEntry(key: string): Promise<PdfCacheEntry | null>
 
   let sidecar: PdfCacheSidecar;
   try {
-    const raw = await fsp.readFile(paths.jsonPath, 'utf8');
+    const raw = await withReadTimeout(fsp.readFile(paths.jsonPath, 'utf8'), 'sidecar read');
     sidecar = JSON.parse(raw);
-  } catch {
+  } catch (error) {
     // Missing/corrupt sidecar — including a fresh write not yet visible from
     // this instance (NFS attribute cache) — is a plain miss.
+    tripReadBreaker(error);
     return null;
   }
 
@@ -187,25 +265,37 @@ export async function readCacheEntry(key: string): Promise<PdfCacheEntry | null>
     return null;
   }
 
-  let stat;
+  let handle: FileHandle;
   try {
-    stat = await fsp.stat(paths.pdfPath);
-  } catch {
+    handle = await withReadTimeout(fsp.open(paths.pdfPath, 'r'), 'pdf open', closeQuietly);
+  } catch (error) {
     // Sidecar present but pdf missing (race with a sweep, or crash between
     // the two renames on write) — miss, self-heals on next populate.
+    tripReadBreaker(error);
     return null;
   }
 
-  if (stat.size !== sidecar.byteLength) {
+  let size: number;
+  try {
+    ({ size } = await withReadTimeout(handle.stat(), 'pdf fstat'));
+  } catch (error) {
+    tripReadBreaker(error);
+    closeQuietly(handle);
+    return null;
+  }
+
+  if (size !== sidecar.byteLength) {
     log.warn('Cache entry size mismatch, treating as miss', {
       key,
       sidecarByteLength: sidecar.byteLength,
-      fstatSize: stat.size,
+      fstatSize: size,
     });
+    closeQuietly(handle);
     return null;
   }
 
-  const nodeStream = createReadStream(paths.pdfPath);
+  // autoClose (the default) closes the handle on end, error or cancel.
+  const nodeStream = handle.createReadStream();
   const stream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
 
   const fetchedAtMs = Date.parse(sidecar.fetchedAt);
@@ -213,7 +303,7 @@ export async function readCacheEntry(key: string): Promise<PdfCacheEntry | null>
     ? Math.max(0, (Date.now() - fetchedAtMs) / 1000)
     : Number.POSITIVE_INFINITY;
 
-  return { sidecar, byteLength: stat.size, ageSeconds, stream };
+  return { sidecar, byteLength: size, ageSeconds, stream };
 }
 
 export function isEntryStale(entry: PdfCacheEntry, maxAgeSeconds = getCacheMaxAgeSeconds()): boolean {
@@ -232,6 +322,10 @@ export function isEntryStale(entry: PdfCacheEntry, maxAgeSeconds = getCacheMaxAg
  * cannot race the worker: at worst, a delete right before a populate lands
  * is a self-healing miss on the next request.
  *
+ * Also releases the Valkey dedup lock for this key, so the next request
+ * re-enqueues a populate right away instead of serving live fetches until
+ * PDF_CACHE_ENQUEUE_TTL_SECONDS expires.
+ *
  * Never throws; a missing file is treated as already deleted (idempotent).
  */
 export async function deleteCacheEntry(key: string): Promise<void> {
@@ -241,6 +335,12 @@ export async function deleteCacheEntry(key: string): Promise<void> {
   }
   await fsp.unlink(paths.jsonPath).catch(() => {});
   await fsp.unlink(paths.pdfPath).catch(() => {});
+
+  try {
+    await getValkeyClient()?.del(getEnqueueLockKey(key));
+  } catch (error) {
+    log.warn('Failed to release enqueue lock', { key, error: (error as Error)?.message });
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -279,7 +379,7 @@ export async function enqueuePopulateJob(
       return;
     }
 
-    const lockKey = `pdfcache:enq:${key}`;
+    const lockKey = getEnqueueLockKey(key);
     const ttl = getEnqueueTtlSeconds();
     const acquired = await client.set(lockKey, '1', 'EX', ttl, 'NX');
     if (acquired !== 'OK') {

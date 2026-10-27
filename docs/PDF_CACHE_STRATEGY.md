@@ -211,11 +211,20 @@ Split into two testable library modules plus a thin entrypoint, unlike
   independently of the message that requested it (a pub/sub message is not
   authenticated, so this is the real security boundary, not the publishing
   route):
-  - domain allowlist re-checked (shared JSON config, see below) — both before
-    the fetch and **again against the final URL after any redirect**, since
-    `fetch()` follows redirects by default and a whitelisted domain that
-    redirects (compromise, misconfiguration, a mirror) must not be able to
-    send the worker to an arbitrary host;
+  - domain allowlist re-checked (shared JSON config, see below) on the
+    requested URL and on **every redirect hop, before that hop is requested**:
+    redirects are followed manually (`redirect: 'manual'`, at most 5 hops,
+    `https` only), because with the default `redirect: 'follow'` a whitelisted
+    domain redirecting to an internal address would already have made the
+    request by the time `response.url` could be checked. The route applies the
+    same rule to its own upstream fetch;
+  - `Accept-Encoding: identity` is sent so that `Content-Length` describes the
+    bytes actually received (`fetch()` decodes gzip/br transparently). A
+    `Content-Length` that is missing, malformed, or sent with a
+    `Content-Encoding` is ignored rather than enforced;
+  - a rejected body (bad status, content-type, magic bytes, size) is
+    cancelled at once, so it does not keep its upstream socket open until the
+    fetch timeout;
   - HTTP status and `Content-Type` validated the same way the route does;
   - the body must start with the PDF magic bytes (`%PDF-`) — checked as the
     stream flows, without buffering. The route's `Content-Type` check can be
@@ -227,11 +236,17 @@ Split into two testable library modules plus a thin entrypoint, unlike
     must match it exactly — a connection cut mid-download must not produce a
     truncated file that later gets served as valid;
   - conditional revalidation (`If-None-Match` / `If-Modified-Since`) is sent
-    when a sidecar with an `etag`/`lastModified` already exists — a `304` just
+    when a **complete** entry (sidecar plus a `.pdf` of the recorded size)
+    with an `etag`/`lastModified` already exists — a `304` just
     refreshes `fetchedAt` on the existing sidecar, so refreshing a
     still-current PDF costs one empty round trip instead of a full
     re-download. On PDFs this is the common case: published articles are
     quasi-immutable.
+  - a `populate` job for an entry younger than `PDF_CACHE_MAX_AGE_SECONDS`
+    is skipped without any upstream request. In `fallback` mode the route
+    publishes `populate` after every successful live fetch (it never reads the
+    cache there), so without this check a popular PDF would be re-downloaded
+    each time the enqueue lock expires. `refresh` jobs always proceed.
 - **`scripts/lib/pdf-cache-store.mjs`** — the actual disk I/O:
   - tmp+rename atomic write, temp file in the *same* directory as the final
     path (`{final}.tmp-{pid}-{uuid}`), so the rename is atomic on the same
@@ -284,8 +299,13 @@ separate systemd timer, so there is never a second writer:
   `PDF_CACHE_SWEEP_INTERVAL_HOURS`, rather than a single full-tree `readdir`
   that could take minutes on NFS and starve the job queue.
 - **Orphan cleanup**: `.tmp-*` files older than an hour (crash mid-write),
-  and a `.pdf` with no matching `.json` (crash between the two renames) are
-  removed opportunistically during the same sweep.
+  a `.pdf` with no matching `.json` (crash between the two renames), and a
+  `.json` with no matching `.pdf` (an invalidation or eviction interleaved
+  with a write) are removed opportunistically during the same sweep. Orphan
+  `.pdf`/`.json` files get the same one-hour grace period as `.tmp-*` files,
+  and their counterpart is re-checked right before deletion: a `.pdf` renamed
+  into place a moment before its sidecar is a write in progress, not an
+  orphan.
 - **Global size cap**: once a full sweep cycle (all 256 shards) completes,
   every surviving entry has been seen exactly once in that cycle — which is
   what lets `PDF_CACHE_MAX_TOTAL_BYTES` (default `0` = unlimited) be enforced
@@ -314,8 +334,12 @@ curl -X POST https://your-journal.episciences.org/api/revalidate \
 ```
 
 The route recomputes `sha256(pdfUrl)` itself and never trusts a client-
-supplied key. It deletes the sidecar then the `.pdf` (same ordering as the
-sweep) and returns. This is the **one deliberate exception** to "app
+supplied key. Every field of the request (`pdfUrl` must be a string on an
+allowed domain, `path` must be valid) is validated **before** anything is
+deleted, so a rejected request has no side effect. It then deletes the
+sidecar then the `.pdf` (same ordering as the sweep), releases the Valkey
+dedup lock for that key (so the next request re-enqueues a populate at once
+instead of waiting for `PDF_CACHE_ENQUEUE_TTL_SECONDS`), and returns. This is the **one deliberate exception** to "app
 instances never write to the NFS cache" — and it's narrow: delete-only,
 already authenticated, and impossible to race the worker in a harmful way (a
 delete racing a populate is, at worst, a self-healing miss on the next
@@ -339,7 +363,8 @@ before this feature), not something introduced here.
 | `EPI_ENV` | *(required)* | app + worker | `prod` / `preprod` / ...; `^[a-z0-9-]{2,20}$`. Missing/invalid ⇒ cache disables itself (app) / worker refuses to start. |
 | `PDF_CACHE_BASE_DIR` | `/data/epi` | app + worker | Root prefix, mirrors Nginx's `$epi_data_root`. Override only for local/CI. |
 | `PDF_CACHE_ROOT` | `pdf-cache` | app + worker | Subdirectory **name** under `${PDF_CACHE_BASE_DIR}/${EPI_ENV}/` — not a path. |
-| `PDF_CACHE_MAX_AGE_SECONDS` | `15552000` (180d) | app | Staleness threshold in `systematic` mode. |
+| `PDF_CACHE_MAX_AGE_SECONDS` | `15552000` (180d) | app + worker | Staleness threshold in `systematic` mode (app); a `populate` job for an entry younger than this is skipped (worker). |
+| `PDF_CACHE_READ_TIMEOUT_MS` | `2000` | app | Per-operation timeout on cache reads (sidecar read, open, fstat). On timeout the request is a miss and cache reads are skipped for 30s. |
 | `PDF_CACHE_ENQUEUE_TTL_SECONDS` | `3600` | app | TTL of the Valkey dedup lock before (re-)publishing a populate job. |
 | `PDF_CACHE_CHANNEL` | `pdf-cache-populate` | app + worker | Valkey pub/sub channel, distinct from `revalidate-cache`. |
 | `PDF_CACHE_RETENTION_DAYS` | `365` | worker | By `fetchedAt`. |
@@ -363,12 +388,12 @@ channel on the existing cluster.
 |---|---|
 | `PDF_CACHE_ENABLED=true` but `VALKEY_ENABLED` isn't | **Deployment precondition, not a silent degradation** — logged once at first enqueue attempt. Valkey is the *only* channel between the reader (route) and the writer (worker); without it, the cache can never be populated and every request behaves as a permanent miss, falling back to the live fetch — reads are never broken, the cache just never fills. |
 | Valkey down (transient) | Enqueue fails silently (caught); the `SET NX` also fails, so nothing gets published either. Response is never affected. |
-| NFS unreachable for reads (route) | Every fs error is treated as a miss; falls back to the live fetch. |
+| NFS unreachable for reads (route) | Every fs error is treated as a miss; falls back to the live fetch. A read slower than `PDF_CACHE_READ_TIMEOUT_MS` is also a miss, and cache reads are then skipped for 30s. |
 | NFS unreachable for writes (worker) | Job lost, logged; retried naturally on the next request for that URL once the dedup lock (§4) expires. |
 | NFS filling up | The free-space guard (§5) stops new writes; reads are unaffected. |
 | Worker down | Pub/sub has no replay — messages published while it's down are lost, accepted as such (no persistent queue). Real traffic re-enqueues naturally once the worker is back; the user-facing path never depended on the worker being up. |
 | A cache entry gets poisoned (HTML page cached as a PDF) | Prevented by the magic-byte check (§5); if it ever happens anyway, the manual invalidation in §7 is the fix. |
-| NFS mount hangs (not erroring, just unresponsive) | A blocking `open()`/`stat()` call has no built-in timeout here — mount the cache path with `soft,timeo=…,retrans=…`, or accept the risk explicitly; this is a documented gap, not a handled case. |
+| NFS mount hangs (not erroring, just unresponsive) | The route stops waiting after `PDF_CACHE_READ_TIMEOUT_MS` and skips cache reads for 30s, so requests keep being served live. That only bounds the damage: the blocked fs call itself still holds one of libuv's threadpool threads (4 by default, shared with DNS and crypto) until the kernel gives up. **Mount the cache path `soft`** (e.g. `soft,timeo=50,retrans=2`) on every host that reads it, so that call fails instead of hanging forever. With the default `hard` mount a long NFS outage can still freeze the process. |
 | Cross-VM visibility lag | NFS attribute caching (`acregmax`, typically 30–60s) can make a file the worker just wrote briefly invisible from another VM. This is just an extra miss, not a bug — don't conclude "the cache doesn't work" from one immediate cross-VM check during testing, and don't mount `noac` to "fix" it. |
 
 ## 10. Production rollout
@@ -429,7 +454,8 @@ Before enabling in an environment, confirm the designated worker host has
 write access to `${PDF_CACHE_BASE_DIR}/${EPI_ENV}/${PDF_CACHE_ROOT}` on the
 NFS mount, and that `systemd`'s `RequiresMountsFor=/data/epi` in
 `pdf-cache-worker.service` matches where NFS is actually mounted on that host
-(adjust the unit file if the mount point differs).
+(adjust the unit file if the mount point differs). On every app host, check
+that the mount is `soft` with a short `timeo` (see §9, "NFS mount hangs").
 
 ## 11. Verification & troubleshooting
 

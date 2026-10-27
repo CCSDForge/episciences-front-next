@@ -15,6 +15,37 @@ vi.mock('@/utils/validation', () => ({
   sanitizeForLog: vi.fn((value: string | null | undefined) => String(value ?? '').slice(0, 200)),
 }));
 
+// next/server's after() throws outside a real request scope: capture its
+// callbacks instead, so tests can assert that cache work is deferred until
+// after the response, then run it explicitly.
+const { afterCallbacks } = vi.hoisted(() => ({ afterCallbacks: [] as Array<() => unknown> }));
+vi.mock('next/server', async importOriginal => {
+  const actual = await importOriginal<typeof import('next/server')>();
+  return {
+    ...actual,
+    after: vi.fn((task: () => unknown) => {
+      afterCallbacks.push(task);
+    }),
+  };
+});
+
+async function runAfterCallbacks(): Promise<void> {
+  while (afterCallbacks.length > 0) {
+    await afterCallbacks.shift()!();
+  }
+}
+
+function redirectResponse(location: string, status = 302): Response {
+  return new Response(null, { status, headers: { Location: location } });
+}
+
+function pdfResponse(headers: Record<string, string> = {}): Response {
+  return new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+    status: 200,
+    headers: { 'Content-Type': 'application/pdf', ...headers },
+  });
+}
+
 // Cache disabled by default in every test unless a test overrides these
 // mocks — this is what lets the whole pre-existing suite above prove the
 // PDF_CACHE_ENABLED=false path is byte-for-byte the original behavior.
@@ -89,6 +120,7 @@ describe('GET /api/pdf-proxy', () => {
     vi.mocked(readCacheEntry).mockReset().mockResolvedValue(null);
     vi.mocked(isEntryStale).mockReset().mockReturnValue(false);
     vi.mocked(enqueuePopulateJob).mockReset().mockResolvedValue(undefined);
+    afterCallbacks.length = 0;
   });
 
   afterEach(() => {
@@ -181,28 +213,99 @@ describe('GET /api/pdf-proxy', () => {
       expect(res.status).toBe(200);
     });
 
-    it('blocks a response whose final URL (after redirects) is not whitelisted', async () => {
-      const response = new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
-        status: 200,
-        headers: { 'Content-Type': 'application/pdf' },
-      });
-      Object.defineProperty(response, 'url', { value: 'https://evil.com/file.pdf' });
-      global.fetch = vi.fn().mockResolvedValue(response);
+    it('blocks a redirect to a non-whitelisted host without ever requesting it', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce(redirectResponse('http://169.254.169.254/latest/meta-data/'));
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(502);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(vi.mocked(global.fetch).mock.calls[0][1]).toMatchObject({ redirect: 'manual' });
+    });
+
+    it('blocks a redirect that downgrades a whitelisted host to http', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce(redirectResponse('http://zenodo.org/file.pdf'));
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(502);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not leak the status of a blocked redirect target to the client', async () => {
+      global.fetch = vi
+        .fn()
+        .mockResolvedValueOnce(redirectResponse('https://internal.example/admin'))
+        .mockResolvedValueOnce(new Response('Not Found', { status: 404, statusText: 'Not Found' }));
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(502);
+      expect(await res.text()).toBe('Upstream redirect not allowed');
+    });
+
+    it('follows a redirect to another whitelisted host, resolving relative locations', async () => {
+      global.fetch = vi
+        .fn()
+        .mockResolvedValueOnce(redirectResponse('https://data.zenodo.org/files/x'))
+        .mockResolvedValueOnce(redirectResponse('/file.pdf', 301))
+        .mockResolvedValueOnce(pdfResponse());
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(200);
+      expect(vi.mocked(global.fetch).mock.calls.map(call => call[0])).toEqual([
+        'https://zenodo.org/record/123/files/paper.pdf',
+        'https://data.zenodo.org/files/x',
+        'https://data.zenodo.org/file.pdf',
+      ]);
+    });
+
+    it('gives up after too many redirects', async () => {
+      global.fetch = vi.fn().mockImplementation(async () => redirectResponse('https://zenodo.org/loop'));
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      expect(res.status).toBe(502);
+      expect(global.fetch).toHaveBeenCalledTimes(6);
+    });
+
+    it('rejects a redirect without a Location header', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce(new Response(null, { status: 302 }));
       const { GET } = await import('../route');
       const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
       expect(res.status).toBe(502);
     });
 
-    it('allows a response whose final URL redirected to another whitelisted host', async () => {
-      const response = new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
-        status: 200,
-        headers: { 'Content-Type': 'application/pdf' },
-      });
-      Object.defineProperty(response, 'url', { value: 'https://data.zenodo.org/file.pdf' });
-      global.fetch = vi.fn().mockResolvedValue(response);
+    it('asks upstream for an unencoded body', async () => {
       const { GET } = await import('../route');
-      const res = await GET(makeRequest('https://zenodo.org/record/123/files/paper.pdf'));
+      await GET(makeRequest('https://zenodo.org/file.pdf'));
+      const init = vi.mocked(global.fetch).mock.calls[0][1] as RequestInit;
+      expect((init.headers as Record<string, string>)['Accept-Encoding']).toBe('identity');
+    });
+
+    it('forwards Content-Length for an unencoded body', async () => {
+      global.fetch = vi.fn().mockResolvedValue(pdfResponse({ 'Content-Length': '4' }));
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/file.pdf'));
+      expect(res.headers.get('Content-Length')).toBe('4');
+    });
+
+    it('drops Content-Length when the upstream body was content-encoded anyway', async () => {
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue(pdfResponse({ 'Content-Length': '2', 'Content-Encoding': 'gzip' }));
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/file.pdf'));
       expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Length')).toBeNull();
+    });
+
+    it('cancels the upstream body when rejecting a non-PDF response', async () => {
+      const cancel = vi.fn();
+      const body = new ReadableStream({ pull() {}, cancel });
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue(new Response(body, { status: 200, headers: { 'Content-Type': 'text/html' } }));
+      const { GET } = await import('../route');
+      const res = await GET(makeRequest('https://zenodo.org/file.pdf'));
+      expect(res.status).toBe(502);
+      expect(cancel).toHaveBeenCalled();
     });
 
     it('forces Content-Type: application/pdf in the response regardless of upstream value', async () => {
@@ -411,6 +514,9 @@ describe('GET /api/pdf-proxy', () => {
         expect(res.status).toBe(200);
         expect(res.headers.get('X-Pdf-Cache')).toBe('STALE');
         expect(global.fetch).not.toHaveBeenCalled();
+        // Deferred to after the response, not run inline.
+        expect(enqueuePopulateJob).not.toHaveBeenCalled();
+        await runAfterCallbacks();
         expect(enqueuePopulateJob).toHaveBeenCalledWith(
           'https://zenodo.org/file.pdf',
           expect.any(String),
@@ -427,6 +533,7 @@ describe('GET /api/pdf-proxy', () => {
         expect(res.status).toBe(200);
         expect(res.headers.get('X-Pdf-Cache')).toBe('MISS');
         expect(global.fetch).toHaveBeenCalled();
+        await runAfterCallbacks();
         expect(enqueuePopulateJob).toHaveBeenCalledWith(
           'https://zenodo.org/file.pdf',
           expect.any(String),
@@ -448,6 +555,8 @@ describe('GET /api/pdf-proxy', () => {
         expect(res.status).toBe(200);
         expect(res.headers.get('X-Pdf-Cache')).toBe('MISS');
         expect(readCacheEntry).not.toHaveBeenCalled();
+        expect(enqueuePopulateJob).not.toHaveBeenCalled();
+        await runAfterCallbacks();
         expect(enqueuePopulateJob).toHaveBeenCalledWith(
           'https://zenodo.org/file.pdf',
           expect.any(String),

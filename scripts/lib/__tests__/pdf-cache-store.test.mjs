@@ -140,6 +140,27 @@ describe('pdf-cache-store', () => {
       const sidecar = await readSidecarIfExists(KEY_A, env);
       expect(sidecar.sourceUrl).toBe('u');
     });
+
+    it('returns null for a sidecar whose pdf is missing', async () => {
+      const stream = Readable.from([Buffer.from('%PDF-1.4 x')]);
+      await writeEntryAtomic(KEY_A, stream, { sourceUrl: 'u', upstreamContentType: 'application/pdf', httpStatus: 200, host: 'h' }, env);
+      await fsp.unlink(getCachePaths(KEY_A, env).pdfPath);
+      expect(await readSidecarIfExists(KEY_A, env)).toBeNull();
+    });
+
+    it('returns null for a sidecar whose pdf has another size', async () => {
+      const stream = Readable.from([Buffer.from('%PDF-1.4 x')]);
+      await writeEntryAtomic(KEY_A, stream, { sourceUrl: 'u', upstreamContentType: 'application/pdf', httpStatus: 200, host: 'h' }, env);
+      await fsp.writeFile(getCachePaths(KEY_A, env).pdfPath, '%PDF-1.4 a different length');
+      expect(await readSidecarIfExists(KEY_A, env)).toBeNull();
+    });
+
+    it('returns null for a sidecar that is valid JSON but not an object', async () => {
+      const paths = getCachePaths(KEY_A, env);
+      await fsp.mkdir(paths.dir, { recursive: true });
+      await fsp.writeFile(paths.jsonPath, 'null');
+      expect(await readSidecarIfExists(KEY_A, env)).toBeNull();
+    });
   });
 
   describe('hasEnoughFreeSpace', () => {
@@ -185,16 +206,52 @@ describe('pdf-cache-store', () => {
       expect(visited[0].size).toBe(Buffer.from('%PDF-1.4 fresh').length);
     });
 
-    it('removes an orphaned pdf with no sidecar', async () => {
+    async function backdate(filePath, ageMs = 2 * 60 * 60 * 1000) {
+      const oldTime = new Date(Date.now() - ageMs);
+      await fsp.utimes(filePath, oldTime, oldTime);
+    }
+
+    it('removes an orphaned pdf with no sidecar once past the grace period', async () => {
       const paths = getCachePaths(KEY_A, env);
       await fsp.mkdir(paths.dir, { recursive: true });
       await fsp.writeFile(paths.pdfPath, Buffer.from('orphan'));
+      await backdate(paths.pdfPath);
 
       const shardIndex = parseInt(KEY_A.slice(0, 2), 16);
       const { removed } = await sweepShardBatch(shardIndex, { shardsPerBatch: 1 }, env);
 
       expect(removed.orphanPdf).toBe(1);
       await expect(fsp.access(paths.pdfPath)).rejects.toThrow();
+    });
+
+    it('keeps a pdf just renamed into place whose sidecar is not written yet', async () => {
+      const paths = getCachePaths(KEY_A, env);
+      await fsp.mkdir(paths.dir, { recursive: true });
+      await fsp.writeFile(paths.pdfPath, Buffer.from('%PDF-1.4 in progress'));
+
+      const shardIndex = parseInt(KEY_A.slice(0, 2), 16);
+      const { removed } = await sweepShardBatch(shardIndex, { shardsPerBatch: 1 }, env);
+
+      expect(removed.orphanPdf).toBe(0);
+      await expect(fsp.access(paths.pdfPath)).resolves.toBeUndefined();
+    });
+
+    it('removes an orphaned sidecar with no pdf once past the grace period, keeps a fresh one', async () => {
+      const pathsA = getCachePaths(KEY_A, env);
+      const pathsB = getCachePaths(KEY_B, env);
+      await fsp.mkdir(pathsA.dir, { recursive: true });
+      await fsp.mkdir(pathsB.dir, { recursive: true });
+      await fsp.writeFile(pathsA.jsonPath, '{}');
+      await fsp.writeFile(pathsB.jsonPath, '{}');
+      await backdate(pathsA.jsonPath);
+
+      const a = await sweepShardBatch(parseInt(KEY_A.slice(0, 2), 16), { shardsPerBatch: 1 }, env);
+      const b = await sweepShardBatch(parseInt(KEY_B.slice(0, 2), 16), { shardsPerBatch: 1 }, env);
+
+      expect(a.removed.orphanSidecar).toBe(1);
+      expect(b.removed.orphanSidecar).toBe(0);
+      await expect(fsp.access(pathsA.jsonPath)).rejects.toThrow();
+      await expect(fsp.access(pathsB.jsonPath)).resolves.toBeUndefined();
     });
 
     it('removes a stale .tmp- file past the orphan age, keeps a fresh one', async () => {

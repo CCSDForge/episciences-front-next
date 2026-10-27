@@ -83,6 +83,8 @@ describe('pdf-cache', () => {
     delete process.env.PDF_CACHE_MAX_AGE_SECONDS;
     delete process.env.PDF_CACHE_ENQUEUE_TTL_SECONDS;
     delete process.env.PDF_CACHE_CHANNEL;
+    delete process.env.PDF_CACHE_READ_TIMEOUT_MS;
+    vi.restoreAllMocks();
     await fsp.rm(tmpRoot, { recursive: true, force: true });
   });
 
@@ -259,7 +261,87 @@ describe('pdf-cache', () => {
     });
   });
 
+  describe('readCacheEntry: consistency and hung-mount protection', () => {
+    it('streams the file it measured, even if the worker renames a new one into place meanwhile', async () => {
+      const { readCacheEntry, getCacheKey } = await import('../pdf-cache');
+      const key = getCacheKey('https://zenodo.org/a.pdf');
+      await seedEntry(cacheRootDir(), key, Buffer.from('%PDF-old'));
+
+      const entry = await readCacheEntry(key);
+      expect(entry).not.toBeNull();
+
+      // Same atomic replace the worker performs (tmp file + rename).
+      const dir = path.join(cacheRootDir(), key.slice(0, 2));
+      const tmp = path.join(dir, '.tmp-replace');
+      await fsp.writeFile(tmp, '%PDF-new-and-much-longer');
+      await fsp.rename(tmp, path.join(dir, `${key}.pdf`));
+
+      const bytes = await readAllBytes(entry!.stream);
+      expect(bytes.toString()).toBe('%PDF-old');
+      expect(bytes.length).toBe(entry!.byteLength);
+    });
+
+    it('treats a hung sidecar read as a miss, then skips reads during the cooldown', async () => {
+      process.env.PDF_CACHE_READ_TIMEOUT_MS = '20';
+      const { readCacheEntry, getCacheKey } = await import('../pdf-cache');
+      const key = getCacheKey('https://zenodo.org/a.pdf');
+      await seedEntry(cacheRootDir(), key, Buffer.from('%PDF-x'));
+
+      const readFile = vi.spyOn(fsp, 'readFile').mockImplementation(() => new Promise(() => {}));
+      expect(await readCacheEntry(key)).toBeNull();
+      expect(readFile).toHaveBeenCalledTimes(1);
+
+      // Within the cooldown: no fs call at all.
+      readFile.mockRestore();
+      const readFileAgain = vi.spyOn(fsp, 'readFile');
+      expect(await readCacheEntry(key)).toBeNull();
+      expect(readFileAgain).not.toHaveBeenCalled();
+
+      // After the cooldown: reads resume.
+      const realNow = Date.now();
+      vi.spyOn(Date, 'now').mockReturnValue(realNow + 31_000);
+      expect(await readCacheEntry(key)).not.toBeNull();
+    });
+
+    it('closes a file handle that is only opened after the timeout fired', async () => {
+      process.env.PDF_CACHE_READ_TIMEOUT_MS = '10';
+      const { readCacheEntry, getCacheKey } = await import('../pdf-cache');
+      const key = getCacheKey('https://zenodo.org/a.pdf');
+      await seedEntry(cacheRootDir(), key, Buffer.from('%PDF-x'));
+
+      const close = vi.fn().mockResolvedValue(undefined);
+      vi.spyOn(fsp, 'open').mockImplementation(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => resolve({ close } as never), 40);
+          })
+      );
+
+      expect(await readCacheEntry(key)).toBeNull();
+      await vi.waitFor(() => expect(close).toHaveBeenCalled());
+    });
+  });
+
   describe('deleteCacheEntry', () => {
+    it('releases the Valkey enqueue lock so the next request re-populates immediately', async () => {
+      const del = vi.fn().mockResolvedValue(1);
+      vi.mocked(getValkeyClient).mockReturnValue({ del } as never);
+      const { deleteCacheEntry, getCacheKey } = await import('../pdf-cache');
+      const key = getCacheKey('https://zenodo.org/a.pdf');
+
+      await deleteCacheEntry(key);
+
+      expect(del).toHaveBeenCalledWith(`pdfcache:enq:${key}`);
+    });
+
+    it('never throws when releasing the lock fails', async () => {
+      vi.mocked(getValkeyClient).mockReturnValue({
+        del: vi.fn().mockRejectedValue(new Error('Valkey down')),
+      } as never);
+      const { deleteCacheEntry, getCacheKey } = await import('../pdf-cache');
+      await expect(deleteCacheEntry(getCacheKey('https://zenodo.org/a.pdf'))).resolves.toBeUndefined();
+    });
+
     it('removes both the sidecar and the pdf', async () => {
       const { readCacheEntry, deleteCacheEntry, getCacheKey } = await import('../pdf-cache');
       const key = getCacheKey('https://zenodo.org/a.pdf');
