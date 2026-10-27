@@ -16,12 +16,14 @@ Group=www-data
 
 WorkingDirectory=/var/www/episciences-front-next/current
 
-# Load environment variables from a secure file (not world-readable)
-# Create with: install -m 0640 -o root -g www-data /dev/null /etc/episciences/worker.env
-# Then populate: VALKEY_SENTINEL_HOSTS, EPI_ENV, PDF_CACHE_*, etc.
-# (can be the same file as revalidate-worker.service's, since both workers
-# read from the same EnvironmentFile without conflict)
-EnvironmentFile=/etc/episciences/worker.env
+# Configuration comes from the app's own .env.local in WorkingDirectory
+# (deployed by Ansible), loaded by the worker itself with @next/env, like
+# Next.js: one place for every setting, shared with the app.
+# This file is optional ("-" prefix) and only for overrides: any variable set
+# here wins over .env.local, for this worker only. Keep PDF_CACHE_* and
+# EPI_ENV out of it, or they will silently diverge from the app. It can be
+# the same file as revalidate-worker.service's.
+EnvironmentFile=-/etc/episciences/worker.env
 
 ExecStart=/usr/bin/node scripts/pdf-cache-worker.mjs
 
@@ -37,8 +39,8 @@ UMask=0027
 ReadWritePaths=/var/www/episciences-front-next
 # ProtectSystem=strict makes the rest of the filesystem read-only — this is
 # the one path the worker actually needs to write to. Adjust to match
-# PDF_CACHE_BASE_DIR/EPI_ENV/PDF_CACHE_ROOT if they're overridden in
-# worker.env away from their defaults (/data/epi/<env>/pdf-cache).
+# PDF_CACHE_BASE_DIR if it is set away from its default (/data/epi) in
+# .env.local.
 ReadWritePaths=/data/epi
 
 # Resource limits

@@ -19,6 +19,12 @@
  * Message format (JSON), published by src/lib/pdf-cache.ts:
  *   { "url": "https://zenodo.org/...", "key": "<sha256 hex>", "reason": "populate" | "refresh" }
  *
+ * Configuration: read from the app's .env* files (in practice the .env.local
+ * deployed by Ansible), loaded with @next/env exactly like Next.js does, so
+ * the app and the worker always share the same values. Variables already set
+ * in the process environment (the optional /etc/episciences/worker.env of
+ * pdf-cache-worker.service) take precedence. See scripts/lib/load-app-env.mjs.
+ *
  * Environment variables:
  *   VALKEY_SENTINEL_HOSTS       — comma-separated "host:port" pairs (required)
  *   VALKEY_MASTER_NAME          — sentinel master group name (default: mymaster)
@@ -45,6 +51,7 @@
  */
 
 import pkg from 'ioredis';
+import { loadAppEnv } from './lib/load-app-env.mjs';
 import { createHash } from 'node:crypto';
 import { isAllowedPdfDomain } from './lib/allowed-pdf-domains.mjs';
 import {
@@ -66,6 +73,10 @@ import {
 import { parsePopulateMessage, shouldSkipPopulate } from './lib/pdf-cache-job.mjs';
 
 const { Redis } = pkg;
+
+// Before any process.env read below. The imported modules only read the
+// environment lazily, inside functions.
+const loadedEnvFiles = loadAppEnv();
 
 const CHANNEL = process.env.PDF_CACHE_CHANNEL || 'pdf-cache-populate';
 const MAX_RETRIES = 10;
@@ -436,6 +447,9 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 // ---------------------------------------------------------------------------
 
 console.log('[PdfCacheWorker] Starting Episciences PDF Cache Worker...');
+console.log(
+  `[PdfCacheWorker] Env files loaded from ${process.cwd()}: ${loadedEnvFiles.join(', ') || '(none)'}`
+);
 console.log(`[PdfCacheWorker] Channel: ${CHANNEL}`);
 console.log(`[PdfCacheWorker] Cache root: ${getCacheRootDir() || '(unresolved)'}`);
 console.log(`[PdfCacheWorker] Concurrency: ${CONCURRENCY}, queue max: ${QUEUE_MAX}`);

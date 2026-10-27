@@ -292,8 +292,10 @@ A second, independent background worker follows the exact same pattern
 (Sentinel pub/sub subscriber, systemd unit, `ReadWritePaths` hardening) to
 populate the on-disk PDF proxy cache: `scripts/pdf-cache-worker.mjs` /
 `pdf-cache-worker.service`, subscribing to `pdf-cache-populate` instead of
-`revalidate-cache`. It reuses the same `/etc/episciences/worker.env` file
-(no conflict — each worker only reads the variables it cares about). See
+`revalidate-cache`. Unlike the revalidation worker, it reads its settings
+(Valkey included) from the app's own `.env.local`, with `@next/env`, so they
+are never duplicated; `/etc/episciences/worker.env` is optional for it and
+only holds overrides. See
 **[docs/PDF_CACHE_STRATEGY.md](PDF_CACHE_STRATEGY.md)** for the full design,
 environment variables, and rollout phases — installation steps are in its
 [§10 Production rollout](PDF_CACHE_STRATEGY.md#10-production-rollout).

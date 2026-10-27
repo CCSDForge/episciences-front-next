@@ -384,9 +384,35 @@ before this feature), not something introduced here.
 
 ## 8. Environment variables
 
+**Where to set them: in the app's env file, and nowhere else.** In
+deployment that is `.env.production.local` (preprod: `.env.preprod.local`),
+which Ansible uploads to `shared/.env.local`, linked into every release. The
+Next.js app reads it, and so does the worker: it runs from the release
+directory (`WorkingDirectory` of `pdf-cache-worker.service`) and loads the
+same files with the same loader, `@next/env` (`.env.production.local`,
+`.env.local`, `.env.production`, `.env`, first match wins). The app and the
+worker therefore always see the same values; the "Used by" column below is
+informational only.
+
+- **Set only what differs per environment**: `PDF_CACHE_ENABLED`,
+  `PDF_CACHE_MODE`, `EPI_ENV`, plus the Valkey variables already there. Every
+  other variable has a default in the code; set it only to change that
+  default.
+- **Never in the tracked `.env`**: it is shared by every environment, so
+  `EPI_ENV` would be the same in prod and preprod and both would write into
+  the same cache directory, and switching the cache on or off would need a
+  commit.
+- **`/etc/episciences/worker.env` is optional** for this worker. A variable
+  set there (or anywhere in the process environment) overrides `.env.local`
+  for the worker only, so keep `PDF_CACHE_*` and `EPI_ENV` out of it: an old
+  value left there silently wins. At startup the worker logs which env files
+  it loaded.
+- **A change applies after a restart**: of the app (done by the deploy) and of
+  the worker (not done by the deploy, see §10).
+
 | Variable | Default | Used by | Notes |
 |---|---|---|---|
-| `PDF_CACHE_ENABLED` | `false` | app + worker | Master switch. Rollback is always "set this back to `false`". |
+| `PDF_CACHE_ENABLED` | `false` | app | Master switch. Rollback is always "set this back to `false`". The worker does not read it: it processes whatever the app publishes. |
 | `PDF_CACHE_MODE` | `fallback` | app | `fallback` (resilience only) or `systematic` (also latency) — see [§10](#10-production-rollout). |
 | `EPI_ENV` | *(required)* | app + worker | `prod` / `preprod` / ...; `^[a-z0-9-]{2,20}$`. Missing/invalid ⇒ cache disables itself (app) / worker refuses to start. |
 | `PDF_CACHE_BASE_DIR` | `/data/epi` | app + worker | Root prefix, mirrors Nginx's `$epi_data_root`. Override only for local/CI. |
@@ -451,15 +477,14 @@ revalidation worker (see
 for the sibling install this mirrors):
 
 ```bash
-# Add the PDF cache section to the existing worker environment file
-# (the same /etc/episciences/worker.env the revalidation worker already reads
-# from — no conflict, both workers just read the vars they each care about).
-sudo tee -a /etc/episciences/worker.env <<EOF
-EPI_ENV=prod
-PDF_CACHE_ENABLED=true
-PDF_CACHE_MODE=fallback
-PDF_CACHE_MAX_BYTES=104857600
-EOF
+# Configuration: nothing to write on the worker host. The variables are set
+# once in .env.production.local (see §8), which Ansible deploys to every VM;
+# the worker reads it from /var/www/episciences-front-next/current/.env.local.
+#
+# If /etc/episciences/worker.env already exists (revalidation worker), check
+# that it holds no PDF_CACHE_* or EPI_ENV line: it would override .env.local
+# for this worker. This must print nothing:
+grep -E '^(PDF_CACHE_|EPI_ENV)' /etc/episciences/worker.env
 
 # Install the systemd unit
 sudo cp /var/www/episciences-front-next/current/scripts/pdf-cache-worker.service \
@@ -470,14 +495,19 @@ sudo systemctl enable episciences-pdf-cache-worker
 sudo systemctl start episciences-pdf-cache-worker
 ```
 
+**Restart the worker after every deploy and every `.env.local` change**:
+`sudo systemctl restart episciences-pdf-cache-worker`. The deploy's rolling
+restart only restarts the app: until then, the worker keeps running the
+previous release's code with the previous settings.
+
 Only **one host per environment** should run this worker — pick the same
 designated host that already runs `revalidate-worker.service`, or a
 different single host if operationally preferable; the important constraint
-is exactly one instance per environment, not which VM it is. Then, on every
-app VM in that environment (all 3 prod / 2 preprod), set the app-side
-variables (`PDF_CACHE_ENABLED`, `PDF_CACHE_MODE`, `EPI_ENV`, and the Valkey
-variables already deployed for the revalidation worker) and restart the
-Next.js service.
+is exactly one instance per environment, not which VM it is. Then set
+`PDF_CACHE_ENABLED`, `PDF_CACHE_MODE` and `EPI_ENV` in that environment's
+`.env.production.local` / `.env.preprod.local` and deploy: Ansible ships it to
+every app VM (all 3 prod / 2 preprod) and restarts the Next.js service; then
+restart the worker.
 
 Before enabling in an environment, confirm the designated worker host has
 write access to `${PDF_CACHE_BASE_DIR}/${EPI_ENV}/${PDF_CACHE_ROOT}` on the
@@ -505,6 +535,8 @@ export VALKEY_ENABLED=true
 export PDF_CACHE_ENABLED=true
 export EPI_ENV=test
 export PDF_CACHE_BASE_DIR=/tmp/pdf-cache-test   # never point this at real NFS
+# The worker also reads the repository's .env* files, like `next`; the
+# exported variables above take precedence over them.
 
 # Terminal 1
 npm run dev
@@ -531,8 +563,9 @@ request still succeeds with `X-Pdf-Cache: FALLBACK`.
 | Symptom | Likely cause |
 |---|---|
 | `X-Pdf-Cache` always `OFF` | `PDF_CACHE_ENABLED` isn't `true` on the app instance actually serving the request. |
-| Cache never populates, no worker errors | `VALKEY_ENABLED` is off, or `VALKEY_SENTINEL_HOSTS` doesn't match between the app and the worker's env file. Check for the one-time "PDF_CACHE_ENABLED=true but no Valkey client" warning in the app logs. |
-| Worker logs `EPI_ENV env var is required...` and exits | `EPI_ENV` missing or doesn't match `^[a-z0-9-]{2,20}$` in `/etc/episciences/worker.env`. |
+| Cache never populates, no worker errors | `VALKEY_ENABLED` is off, or the worker sees other Valkey or `PDF_CACHE_CHANNEL` values than the app because of an override in `/etc/episciences/worker.env` (§8). Check for the one-time "PDF_CACHE_ENABLED=true but no Valkey client" warning in the app logs. |
+| Worker logs `EPI_ENV env var is required...` and exits | `EPI_ENV` missing or doesn't match `^[a-z0-9-]{2,20}$` in the `.env.local` of the release the worker runs from. The `Env files loaded from ...` line logged at startup shows what it read. |
+| Worker still uses old settings or old code | It was not restarted after the deploy or the `.env.local` change (§10). |
 | Worker logs `Free space below N%...` | Expected behavior of the disk-space guard (§5) — the cache stops growing; the NFS mount needs attention or `PDF_CACHE_MIN_FREE_PERCENT` needs revisiting, not the worker. |
 | A file just written by the worker isn't visible yet from another VM | NFS attribute cache lag (§9) — not a bug, wait a few seconds. |
 
