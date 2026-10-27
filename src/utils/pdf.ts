@@ -5,6 +5,24 @@ import allowedPdfDomainsConfig from '@/config/allowed-pdf-domains.json';
 // runs outside the Next.js build and cannot import from src/utils).
 export const ALLOWED_PDF_DOMAINS: string[] = allowedPdfDomainsConfig.domains;
 
+// An arXiv PDF URL without a version suffix (/pdf/2101.00001, or the
+// pre-2007 /pdf/math/0601001 form) always serves the latest version, so its
+// content changes when a new version is posted. Episciences links versioned
+// URLs (.../2101.00001v2), which never change; this only guards the cache
+// against an unversioned one slipping through.
+const UNVERSIONED_ARXIV_PDF_PATH =
+  /^\/pdf\/(?:\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?\/\d{7})(?:\.pdf)?\/?$/;
+
+export function isMutablePdfUrl(url: string): boolean {
+  try {
+    const { hostname, pathname } = new URL(url);
+    const isArxiv = hostname === 'arxiv.org' || hostname.endsWith('.arxiv.org');
+    return isArxiv && UNVERSIONED_ARXIV_PDF_PATH.test(pathname);
+  } catch {
+    return false;
+  }
+}
+
 export function isAllowedPdfDomain(url: string): boolean {
   try {
     const urlObj = new URL(url);

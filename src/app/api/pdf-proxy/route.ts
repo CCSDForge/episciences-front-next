@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server';
 import { getClientIp, sanitizeForLog } from '@/utils/validation';
-import { isAllowedPdfDomain } from '@/utils/pdf';
+import { isAllowedPdfDomain, isMutablePdfUrl } from '@/utils/pdf';
 import { logger } from '@/lib/logger';
 import {
   isCacheEnabled,
@@ -243,8 +243,13 @@ export async function GET(request: NextRequest) {
   };
 
   // "fallback" mode only ever consults the cache after an upstream failure
-  // (below); "systematic" mode consults it first, here.
-  if (cacheEnabled && cacheKey && getCacheMode() === 'systematic') {
+  // (below); "systematic" mode consults it first, here. A URL whose content
+  // can change (unversioned arXiv) is always handled like "fallback": a
+  // cache-first hit could serve an outdated version for months.
+  const cacheFirst =
+    cacheEnabled && !!cacheKey && getCacheMode() === 'systematic' && !isMutablePdfUrl(pdfUrl);
+
+  if (cacheFirst && cacheKey) {
     const cached = await readCacheEntry(cacheKey);
     if (cached) {
       const stale = isEntryStale(cached, getCacheMaxAgeSeconds());
@@ -261,7 +266,8 @@ export async function GET(request: NextRequest) {
   }
 
   async function tryServeCachedFallback(): Promise<NextResponse | null> {
-    if (!cacheEnabled || !cacheKey || getCacheMode() !== 'fallback') {
+    // A cache-first request already read the cache and missed.
+    if (!cacheEnabled || !cacheKey || cacheFirst) {
       return null;
     }
     // No freshness check here on purpose: an old cached copy beats a hard

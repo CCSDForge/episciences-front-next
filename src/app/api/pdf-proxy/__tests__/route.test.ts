@@ -542,6 +542,57 @@ describe('GET /api/pdf-proxy', () => {
       });
     });
 
+    describe('mode=systematic, unversioned arXiv URL', () => {
+      beforeEach(() => {
+        vi.mocked(isCacheEnabled).mockReturnValue(true);
+        vi.mocked(getCacheMode).mockReturnValue('systematic');
+      });
+
+      it('fetches live instead of serving a cache hit that may be an outdated version', async () => {
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-v1'));
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://arxiv.org/pdf/2101.00001', '10.0.2.1'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('MISS');
+        expect(global.fetch).toHaveBeenCalled();
+        expect(readCacheEntry).not.toHaveBeenCalled();
+      });
+
+      it('still serves the cached copy when arXiv fails', async () => {
+        global.fetch = vi.fn().mockResolvedValue(new Response('Service Unavailable', { status: 503 }));
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-v1'));
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://arxiv.org/pdf/2101.00001', '10.0.2.2'));
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Pdf-Cache')).toBe('FALLBACK');
+      });
+
+      it('keeps serving a versioned arXiv URL cache-first', async () => {
+        vi.mocked(readCacheEntry).mockResolvedValue(fakeCacheEntry('%PDF-v2'));
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://arxiv.org/pdf/2101.00001v2', '10.0.2.3'));
+
+        expect(res.headers.get('X-Pdf-Cache')).toBe('HIT');
+        expect(global.fetch).not.toHaveBeenCalled();
+      });
+
+      it('does not consult the cache a second time after a cache-first miss', async () => {
+        global.fetch = vi.fn().mockResolvedValue(new Response('Service Unavailable', { status: 503 }));
+        vi.mocked(readCacheEntry).mockResolvedValue(null);
+
+        const { GET } = await import('../route');
+        const res = await GET(makeRequest('https://arxiv.org/pdf/2101.00001v2', '10.0.2.4'));
+
+        expect(res.status).toBe(503);
+        expect(readCacheEntry).toHaveBeenCalledTimes(1);
+      });
+    });
+
     describe('mode=fallback', () => {
       beforeEach(() => {
         vi.mocked(isCacheEnabled).mockReturnValue(true);

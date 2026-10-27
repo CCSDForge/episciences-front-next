@@ -174,6 +174,16 @@ what the [rollout](#10-production-rollout) decision between `fallback` and
   (`STALE`). A miss falls through to the exact same upstream fetch as
   `fallback` mode, and also enqueues a populate job on success (`MISS`).
 
+  **Exception, URLs whose content can change**: an arXiv PDF URL without a
+  version suffix (`/pdf/2101.00001`, `/pdf/math/0601001`) always serves the
+  latest version. Episciences links versioned URLs (`.../2101.00001v2`), which
+  never change, but if an unversioned one comes through, it is always handled
+  like `fallback` mode, even in `systematic` mode (live fetch first, cache
+  only on failure), and the worker never skips a `populate` for it, so its
+  fallback copy is re-validated at most once per
+  `PDF_CACHE_ENQUEUE_TTL_SECONDS`. The check is `isMutablePdfUrl()`, in
+  `src/utils/pdf.ts` and `scripts/lib/allowed-pdf-domains.mjs` (parity-tested).
+
 **Enqueuing** (`enqueuePopulateJob()` in `src/lib/pdf-cache.ts`) is
 deduplicated *before* publishing, via a Valkey lock:
 

@@ -5,6 +5,8 @@
  * effects: env checks, Valkey connection, timers) so it can be unit-tested.
  */
 
+import { isMutablePdfUrl } from './allowed-pdf-domains.mjs';
+
 const REASONS = new Set(['populate', 'refresh']);
 
 /**
@@ -36,15 +38,18 @@ export function parsePopulateMessage(message) {
  * every successful upstream fetch in fallback mode (it never reads the cache
  * there), so without this check a popular PDF would be re-downloaded each
  * time the enqueue lock expires. 'refresh' jobs, sent for an entry the route
- * found stale, always proceed.
+ * found stale, always proceed, as does any job for a URL whose content can
+ * change (unversioned arXiv): its fallback copy is then re-validated at most
+ * once per enqueue-lock TTL, usually with a cheap conditional request.
  *
- * @param {{ reason: string }} job
+ * @param {{ reason: string, url?: string }} job
  * @param {{ fetchedAt?: string } | null} existingSidecar a complete entry's sidecar, or null
  * @param {number} maxAgeSeconds
  * @param {number} [now]
  */
 export function shouldSkipPopulate(job, existingSidecar, maxAgeSeconds, now = Date.now()) {
   if (job.reason !== 'populate' || !existingSidecar) return false;
+  if (typeof job.url === 'string' && isMutablePdfUrl(job.url)) return false;
   const fetchedAtMs = Date.parse(existingSidecar.fetchedAt);
   if (!Number.isFinite(fetchedAtMs)) return false;
   return now - fetchedAtMs < maxAgeSeconds * 1000;

@@ -25,6 +25,26 @@ const { domains } = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
 
 export const ALLOWED_PDF_DOMAINS = domains;
 
+// Same check as isMutablePdfUrl() in src/utils/pdf.ts (parity-tested): an
+// unversioned arXiv PDF URL serves the latest version, so its content can
+// change. Episciences links versioned URLs; this is a guard, not the norm.
+const UNVERSIONED_ARXIV_PDF_PATH =
+  /^\/pdf\/(?:\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?\/\d{7})(?:\.pdf)?\/?$/;
+
+/**
+ * @param {string} url
+ * @returns {boolean}
+ */
+export function isMutablePdfUrl(url) {
+  try {
+    const { hostname, pathname } = new URL(url);
+    const isArxiv = hostname === 'arxiv.org' || hostname.endsWith('.arxiv.org');
+    return isArxiv && UNVERSIONED_ARXIV_PDF_PATH.test(pathname);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * @param {string} url
  * @returns {boolean}

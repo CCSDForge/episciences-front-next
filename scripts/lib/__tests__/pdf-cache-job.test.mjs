@@ -49,6 +49,16 @@ describe('pdf-cache-job', () => {
       expect(shouldSkipPopulate({ reason: 'populate' }, fetchedSecondsAgo(7200), maxAge, now)).toBe(false);
     });
 
+    it('never skips a populate for an unversioned arXiv URL', () => {
+      const job = { reason: 'populate', url: 'https://arxiv.org/pdf/2101.00001' };
+      expect(shouldSkipPopulate(job, fetchedSecondsAgo(60), maxAge, now)).toBe(false);
+    });
+
+    it('still skips a fresh populate for a versioned arXiv URL', () => {
+      const job = { reason: 'populate', url: 'https://arxiv.org/pdf/2101.00001v2' };
+      expect(shouldSkipPopulate(job, fetchedSecondsAgo(60), maxAge, now)).toBe(true);
+    });
+
     it('never skips a refresh', () => {
       expect(shouldSkipPopulate({ reason: 'refresh' }, fetchedSecondsAgo(60), maxAge, now)).toBe(false);
     });
