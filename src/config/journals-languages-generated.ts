@@ -52,7 +52,7 @@ export const journalLanguages: Record<string, { default: string; accepted: strin
   'mbj-preprod': { default: 'en', accepted: ["en"] },
   'mscs': { default: 'en', accepted: ["en"] },
   'mscs-preprod': { default: 'en', accepted: ["en"] },
-  'mss': { default: 'fr', accepted: ["en","fr","es"] },
+  'mss': { default: 'fr', accepted: ["en","fr"] },
   'mss-preprod': { default: 'fr', accepted: ["en","fr"] },
   'ocnmp': { default: 'en', accepted: ["en"] },
   'ocnmp-preprod': { default: 'en', accepted: ["en"] },
