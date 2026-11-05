@@ -1,0 +1,56 @@
+[Unit]
+Description=Episciences PDF Cache Worker
+Documentation=https://github.com/episciences/episciences-front-next
+After=network.target network-online.target
+Wants=network-online.target
+# The cache lives on the shared NFS mount — starting before it's mounted
+# would make the worker write into an empty directory on the root
+# filesystem instead (ProtectSystem=strict masks it as read-only anyway,
+# but this avoids racing the mount at boot).
+RequiresMountsFor=/data/epi
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+
+WorkingDirectory=/var/www/episciences-front-next/current
+
+# Configuration comes from the app's own .env.local in WorkingDirectory
+# (deployed by Ansible), loaded by the worker itself with @next/env, like
+# Next.js: one place for every setting, shared with the app.
+# This file is optional ("-" prefix) and only for overrides: any variable set
+# here wins over .env.local, for this worker only. Keep PDF_CACHE_* and
+# EPI_ENV out of it, or they will silently diverge from the app. It can be
+# the same file as revalidate-worker.service's.
+EnvironmentFile=-/etc/episciences/worker.env
+
+ExecStart=/usr/bin/node scripts/pdf-cache-worker.mjs
+
+# Restart on failure
+Restart=always
+RestartSec=5
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+UMask=0027
+ReadWritePaths=/var/www/episciences-front-next
+# ProtectSystem=strict makes the rest of the filesystem read-only — this is
+# the one path the worker actually needs to write to. Adjust to match
+# PDF_CACHE_BASE_DIR if it is set away from its default (/data/epi) in
+# .env.local.
+ReadWritePaths=/data/epi
+
+# Resource limits
+LimitNOFILE=65536
+
+# Logging — journal with identifier for easy filtering:
+# journalctl -u episciences-pdf-cache-worker -f
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=episciences-pdf-cache-worker
+
+[Install]
+WantedBy=multi-user.target
