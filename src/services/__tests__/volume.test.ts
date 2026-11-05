@@ -463,8 +463,8 @@ describe('volume service', () => {
 
     it('requests JSON-LD (the plain JSON serialization omits the committee) and keeps it', async () => {
       const committee = [
-        { uuid: 'a', screenName: 'Jakub Kozik', orcid: '0000-0002-1362-7780' },
-        { uuid: 'b', screenName: 'Hadas Shachnai', orcid: '' },
+        { screenName: 'Jakub Kozik', orcid: '0000-0002-1362-7780' },
+        { screenName: 'Hadas Shachnai', orcid: '' },
       ];
       mockFetch.mockResolvedValueOnce({
         ok: true,

@@ -10,7 +10,6 @@ export interface IFacetAuthor {
 }
 
 export interface IAuthor {
-  id: string;
   name: string;
   count: number;
 }
@@ -45,7 +44,6 @@ export interface PaginatedResponse<T> {
  * Transformer pour convertir les données brutes d'auteurs en format standardisé
  */
 const authorTransformer = (author: IFacetAuthor): IAuthor => ({
-  id: author['@id'],
   name: author['values']['name'],
   count: author['values']['count'],
 });

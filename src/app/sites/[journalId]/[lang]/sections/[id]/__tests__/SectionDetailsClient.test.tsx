@@ -150,10 +150,7 @@ describe('SectionDetailsClient', () => {
   it('renders the section committee names when present', () => {
     const sectionWithCommittee: ISection = {
       ...mockSection,
-      committee: [
-        { uuid: 'a', screenName: 'Alice' },
-        { uuid: 'b', screenName: 'Bob' },
-      ],
+      committee: [{ screenName: 'Alice' }, { screenName: 'Bob' }],
     } as unknown as ISection;
 
     render(
@@ -344,9 +341,9 @@ describe('SectionDetailsClient', () => {
     const sectionWithCommittee = {
       ...mockSection,
       committee: [
-        { uuid: 'a', screenName: 'Corina Cirstea', orcid: '0000-0003-3165-5678' },
-        { uuid: 'b', screenName: 'Henning Fernau', orcid: '' },
-        { uuid: 'c', screenName: 'Val Tannen', orcid: null },
+        { screenName: 'Corina Cirstea', orcid: '0000-0003-3165-5678' },
+        { screenName: 'Henning Fernau', orcid: '' },
+        { screenName: 'Val Tannen', orcid: null },
       ],
     } as unknown as ISection;
 

@@ -7,11 +7,6 @@ export type IIssue = Omit<IVolume, 'downloadLink'> & {
   tileImageURL?: string;
 };
 
-interface IVolumeCommitteeMember {
-  uuid: string;
-  screenName: string;
-}
-
 export interface IVolumeMetadata {
   title?: Record<AvailableLanguage, string>;
   content?: Record<AvailableLanguage, string>;

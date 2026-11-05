@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { TFunction } from 'i18next';
 import CommitteeMembers from '../CommitteeMembers';
 import { ICommitteeMember } from '@/types/committee';
@@ -9,10 +9,10 @@ const t = ((key: string, options?: { name?: string }) =>
   options?.name ? `${key}:${options.name}` : key) as unknown as TFunction<'translation', undefined>;
 
 const members: ICommitteeMember[] = [
-  { uuid: 'a', screenName: 'Corina Cirstea', orcid: '0000-0003-3165-5678' },
-  { uuid: 'b', screenName: 'Henning Fernau', orcid: '' },
-  { uuid: 'c', screenName: 'Val Tannen', orcid: null },
-  { uuid: 'd', screenName: 'Pascal Weil', orcid: ' https://orcid.org/0000-0001-7996-5291 ' },
+  { screenName: 'Corina Cirstea', orcid: '0000-0003-3165-5678' },
+  { screenName: 'Henning Fernau', orcid: '' },
+  { screenName: 'Val Tannen', orcid: null },
+  { screenName: 'Pascal Weil', orcid: ' https://orcid.org/0000-0001-7996-5291 ' },
 ];
 
 describe('CommitteeMembers', () => {
@@ -44,7 +44,7 @@ describe('CommitteeMembers', () => {
   it('renders no link for an ORCID that is not an orcid.org iD', () => {
     render(
       <CommitteeMembers
-        members={[{ uuid: 'x', screenName: 'Mallory', orcid: 'https://attacker.example' }]}
+        members={[{ screenName: 'Mallory', orcid: 'https://attacker.example' }]}
         t={t}
       />
     );
@@ -57,6 +57,19 @@ describe('CommitteeMembers', () => {
     expect(screen.getAllByRole('link')).toHaveLength(2);
     expect(screen.getByText('Henning Fernau').closest('a')).toBeNull();
     expect(screen.getByText('Val Tannen').closest('a')).toBeNull();
+  });
+
+  it('renders homonyms without duplicate React keys', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const { container } = render(
+      <CommitteeMembers members={[{ screenName: 'Jane Doe' }, { screenName: 'Jane Doe' }]} t={t} />
+    );
+
+    expect(container).toHaveTextContent('Jane Doe, Jane Doe');
+    const errors = consoleError.mock.calls.flat().map(String).join('\n');
+    consoleError.mockRestore();
+    expect(errors).not.toContain('same key');
   });
 
   it('has no accessibility violations', async () => {

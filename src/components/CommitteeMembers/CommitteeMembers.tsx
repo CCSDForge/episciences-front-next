@@ -24,7 +24,8 @@ export default function CommitteeMembers({
         // Only a valid iD gets a link, which can then only point to orcid.org.
         const orcid = parseOrcidId(member.orcid);
         return (
-          <Fragment key={member.uuid ?? member.screenName}>
+          // The API exposes no member identifier; the index separates homonyms.
+          <Fragment key={`${member.screenName}-${index}`}>
             {index > 0 && ', '}
             <span className="committeeMembers-member">
               {member.screenName}

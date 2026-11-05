@@ -22,8 +22,8 @@ describe('author service', () => {
     it('should fetch authors with default parameters', async () => {
       const mockResponse = {
         'hydra:member': [
-          { '@id': '/api/authors/1', values: { id: '1', name: 'John Doe', count: 5 } },
-          { '@id': '/api/authors/2', values: { id: '2', name: 'Jane Smith', count: 3 } },
+          { '@id': '/api/authors/1', values: { name: 'John Doe', count: 5 } },
+          { '@id': '/api/authors/2', values: { name: 'Jane Smith', count: 3 } },
         ],
         'hydra:totalItems': 2,
         'hydra:range': { A: 10, B: 5 },
@@ -133,7 +133,7 @@ describe('author service', () => {
         'hydra:member': [
           {
             '@id': '/api/authors/john-doe',
-            values: { id: 'john-doe', name: 'John Doe', count: 10 },
+            values: { name: 'John Doe', count: 10 },
           },
         ],
         'hydra:totalItems': 1,
@@ -144,7 +144,6 @@ describe('author service', () => {
       const result = await fetchAuthors({ rvcode: 'testjournal' });
 
       expect(result.data[0]).toEqual({
-        id: '/api/authors/john-doe',
         name: 'John Doe',
         count: 10,
       });

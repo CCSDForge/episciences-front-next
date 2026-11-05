@@ -194,8 +194,8 @@ describe('VolumeListCard', () => {
     const volumeWithCommittee: IVolume = {
       ...baseVolume,
       committee: [
-        { uuid: '1', screenName: 'Alice Martin', orcid: '0000-0002-2933-2522' },
-        { uuid: '2', screenName: 'Bob Smith' },
+        { screenName: 'Alice Martin', orcid: '0000-0002-2933-2522' },
+        { screenName: 'Bob Smith' },
       ],
     };
     const { container } = render(
