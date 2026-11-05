@@ -21,6 +21,22 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ## [Unreleased]
 
+## [v1.2.7] - 2026-11-05
+
+### Added
+
+- **New Journals Configuration**: Added configurations and language definitions for new journals and preprod instances (`dimas-preprod`, `eid`, `eid-preprod`, `int-math-preprod`, `raspa`, `raspa-preprod`).
+
+### Changed
+
+- **Journal MSS Accepted Languages**: Updated accepted languages for `mss` to English and French.
+
+### Fixed
+
+- **Boards Sidebar Navigation & Accessibility**: Clicking a board sidebar entry now automatically expands the corresponding section, scrolls smoothly to its anchor with proper header offset, keeps the section open on subsequent clicks, and respects the user's `prefers-reduced-motion` setting (Fixes #30, PR #144).
+- **Former Board Members Labels**: Updated translation of former committee members across English ("Former board members"), French ("Anciens/anciennes membres du comité"), and Spanish ("Antiguos miembros del comité") (Fixes #30, PR #144).
+- **Next.js Dependency Update**: Upgraded `next` from `16.3.8` to `16.4.5` (PR #149).
+
 ## [v1.2.6] - 2026-10-07
 
 ### Fixed
