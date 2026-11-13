@@ -47,12 +47,8 @@ jobs:
       - name: Run type check
         run: npm run typecheck
 
-      # Run tests in CI mode (single run, no watch)
-      - name: Run tests
-        run: npm run test:run
-
-      # Generate code coverage report
-      - name: Generate coverage report
+      # Run tests once with coverage (fails on test failure or threshold breach)
+      - name: Run tests with coverage
         run: npm run test:coverage
 
       # Upload coverage artifacts for later inspection
