@@ -64,6 +64,46 @@ function hexToRgb(hex) {
   return null;
 }
 
+/**
+ * Normalize a hex color to the 6-digit `#rrggbb` form expected by the app
+ * (src/utils/colorContrast.ts only accepts 6 digits). Returns null if invalid.
+ */
+function normalizeHexColor(value) {
+  if (!value || typeof value !== 'string') return null;
+  const clean = value.trim().replace(/^#/, '');
+  if (/^[0-9a-f]{3}$/i.test(clean)) {
+    return `#${clean
+      .split('')
+      .map(ch => ch + ch)
+      .join('')}`;
+  }
+  if (/^[0-9a-f]{6}$/i.test(clean)) return `#${clean}`;
+  return null;
+}
+
+/** Validate a color given on the command line; exits on invalid input. */
+function requireCliColor(value, flag) {
+  const normalized = normalizeHexColor(value);
+  if (!normalized) {
+    console.error(
+      `${c.red}Error: invalid ${flag} value '${value}' (expected #rgb or #rrggbb).${c.reset}`
+    );
+    process.exit(1);
+  }
+  return normalized;
+}
+
+function parseLanguageList(raw) {
+  return [
+    ...new Set(
+      String(raw || '')
+        .split(',')
+        .map(l => l.trim().toLowerCase())
+        .filter(Boolean)
+    ),
+  ];
+}
+
 function rgbToHex(r, g, b) {
   const clamp = v => Math.max(0, Math.min(255, Math.round(v)));
   const toHex = v => clamp(v).toString(16).padStart(2, '0');
@@ -282,12 +322,26 @@ function getExistingJournals() {
   return files.map(f => f.replace('.env.local.', '')).sort();
 }
 
+function getTargetCodes(envTarget, prodCode, preprodCode) {
+  const codes = [];
+  if (envTarget === 'prod' || envTarget === 'both') codes.push(prodCode);
+  if (envTarget === 'preprod' || envTarget === 'both') codes.push(preprodCode);
+  return codes;
+}
+
 function getExistingPreprodJournals() {
   return getExistingJournals().filter(j => j.endsWith('-preprod'));
 }
 
 function updateJournalsTxt(journalCodesToAdd) {
-  const raw = readFileIfExists(JOURNALS_TXT) ?? '';
+  const raw = readFileIfExists(JOURNALS_TXT);
+  if (raw === null) {
+    // Never initialize the registry from the new codes only: runPostSync would then
+    // regenerate src/config/journals-generated.ts without every other journal.
+    throw new Error(
+      'external-assets/journals.txt not found; refusing to create a partial journal registry.'
+    );
+  }
   const lines = raw
     .split('\n')
     .map(l => l.trim())
@@ -363,24 +417,61 @@ function buildEnvContent({
   return content.trim() + '\n';
 }
 
-function handleLogoCopy(sourcePath, targetFileName) {
+/**
+ * Write an env file. Without allowOverwrite, the 'wx' flag makes the write fail
+ * atomically if the file exists (no check-then-write race).
+ */
+function writeEnvFile(filePath, content, allowOverwrite) {
+  try {
+    fs.writeFileSync(filePath, content, {
+      encoding: 'utf-8',
+      flag: allowOverwrite ? 'w' : 'wx',
+    });
+  } catch (err) {
+    if (err.code === 'EEXIST') {
+      throw new Error(`${path.basename(filePath)} already exists; refusing to overwrite it.`);
+    }
+    throw err;
+  }
+}
+
+/**
+ * Copy a logo into external-assets/logos. Without `overwrite`, an existing target
+ * logo is kept (COPYFILE_EXCL makes the check atomic).
+ */
+function handleLogoCopy(sourcePath, targetFileName, { overwrite = false } = {}) {
   if (!fs.existsSync(LOGOS_DIR)) {
     fs.mkdirSync(LOGOS_DIR, { recursive: true });
   }
 
   const targetPath = path.join(LOGOS_DIR, targetFileName);
   const defaultLogo = path.join(LOGOS_DIR, 'logo-default.svg');
+  const copyMode = overwrite ? 0 : fs.constants.COPYFILE_EXCL;
+
+  const copyLogo = source => {
+    try {
+      fs.copyFileSync(source, targetPath, copyMode);
+      return true;
+    } catch (err) {
+      if (err.code === 'EEXIST') {
+        console.log(`  ${c.yellow}ℹ${c.reset} Existing logo ${targetFileName} kept.`);
+        return false;
+      }
+      throw err;
+    }
+  };
 
   // If a source path was provided and exists
   if (sourcePath && fs.existsSync(sourcePath)) {
-    fs.copyFileSync(sourcePath, targetPath);
-    console.log(`  ${c.green}✓${c.reset} Logo copied from ${sourcePath} to ${targetFileName}`);
+    if (copyLogo(sourcePath)) {
+      console.log(`  ${c.green}✓${c.reset} Logo copied from ${sourcePath} to ${targetFileName}`);
+    }
     return true;
   }
 
   // Fallback: systematically use external-assets/logos/logo-default.svg
   if (fs.existsSync(defaultLogo)) {
-    fs.copyFileSync(defaultLogo, targetPath);
+    if (!copyLogo(defaultLogo)) return true;
     console.log(
       `  ${c.yellow}ℹ${c.reset} No logo provided: default logo (${c.bold}logo-default.svg${c.reset}) applied to ${targetFileName}`
     );
@@ -431,6 +522,10 @@ function runPostSync() {
       execSync(s.cmd, { stdio: 'inherit', cwd: ROOT_DIR });
     } catch (e) {
       console.error(`  ${c.red}✗ Failed during '${s.name}':${c.reset}`, e.message || e);
+      // Required step: propagate so the run exits non-zero without a success message.
+      throw new Error(
+        `Synchronization step '${s.name}' failed. Journal files were written; fix the issue and rerun '${s.cmd}'.`
+      );
     }
   }
 
@@ -470,6 +565,7 @@ function parseCliArgs() {
     setCurrent: false,
     dev: false,
     yes: false,
+    force: false,
     help: false,
   };
 
@@ -481,6 +577,8 @@ function parseCliArgs() {
       options.skipApiCheck = true;
     } else if (arg === '--yes' || arg === '-y') {
       options.yes = true;
+    } else if (arg === '--force') {
+      options.force = true;
     } else if (arg === '-s' || arg === '--set-current') {
       options.setCurrent = true;
     } else if (arg === '-d' || arg === '--dev') {
@@ -561,6 +659,8 @@ ${c.bold}Options:${c.reset}
   -d, --dev                 Automatically launch 'npm run dev' upon completion
   --skip-api-check          Bypass database existence verification against the Episciences API
   -y, --yes                 Non-interactive mode: accept defaults without prompting
+  --force                   Allow overwriting existing journal configuration files
+                            ${c.dim}Without it, -y refuses to replace existing .env.local.<code> files.${c.reset}
   -h, --help                Show this help message
 
 ${c.bold}Examples:${c.reset}
@@ -611,9 +711,11 @@ async function handleConversion(cli, rl) {
 
   let sourcePreprod = cli.convertCode;
   if (!sourcePreprod || !preprodJournals.includes(sourcePreprod)) {
-    if (cli.yes && sourcePreprod) {
+    if (cli.yes) {
       console.error(
-        `${c.red}Error: Preproduction journal '${sourcePreprod}' was not found.${c.reset}`
+        sourcePreprod
+          ? `${c.red}Error: Preproduction journal '${sourcePreprod}' was not found.${c.reset}`
+          : `${c.red}Error: --convert requires a preproduction journal code in non-interactive mode (-y).${c.reset}`
       );
       process.exit(1);
     }
@@ -676,8 +778,14 @@ async function handleConversion(cli, rl) {
   // the final write uses the 'wx' flag unless overwrite was allowed, so it fails safely
   // if the file appeared in the meantime.
   const targetExists = getExistingJournals().includes(prodCode);
-  let allowOverwrite = cli.yes;
-  if (targetExists && !cli.yes) {
+  let allowOverwrite = cli.force;
+  if (targetExists && cli.yes && !cli.force) {
+    console.error(
+      `${c.red}Error: .env.local.${prodCode} already exists. Use --force to overwrite it.${c.reset}`
+    );
+    process.exit(1);
+  }
+  if (targetExists && !cli.yes && !cli.force) {
     const overwrite = await askConfirmation(
       rl,
       `${c.yellow}File .env.local.${prodCode} already exists. Overwrite?${c.reset}`,
@@ -691,7 +799,10 @@ async function handleConversion(cli, rl) {
   }
 
   // Color handling
-  let primaryColor = cli.color || preprodEnv['NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR'];
+  const preprodColor = preprodEnv['NEXT_PUBLIC_JOURNAL_PRIMARY_COLOR'];
+  let primaryColor = cli.color
+    ? requireCliColor(cli.color, '--color')
+    : normalizeHexColor(preprodColor) || preprodColor;
   if (!cli.yes && !cli.color) {
     const keepColor = await askConfirmation(
       rl,
@@ -706,14 +817,17 @@ async function handleConversion(cli, rl) {
         `Enter new primary hex color (leave empty for ${suggestedColor})`,
         suggestedColor
       );
-      primaryColor = userColor;
+      primaryColor = normalizeHexColor(userColor);
+      if (!primaryColor) {
+        console.log(`${c.yellow}Invalid color format. Using ${suggestedColor}.${c.reset}`);
+        primaryColor = suggestedColor;
+      }
     }
   }
 
-  let primaryTextColor = cli.textColor;
-  if (!primaryTextColor) {
-    primaryTextColor = getBestTextColor(primaryColor);
-  }
+  const primaryTextColor = cli.textColor
+    ? requireCliColor(cli.textColor, '--text-color')
+    : getBestTextColor(primaryColor);
 
   // Logo handling
   const preprodLogoPath = path.join(LOGOS_DIR, `logo-${sourcePreprod}.svg`);
@@ -760,25 +874,11 @@ async function handleConversion(cli, rl) {
     primaryTextColor,
   });
 
-  try {
-    fs.writeFileSync(targetEnvFile, prodContent, {
-      encoding: 'utf-8',
-      flag: allowOverwrite ? 'w' : 'wx',
-    });
-  } catch (err) {
-    if (err.code === 'EEXIST') {
-      console.error(
-        `${c.red}Error: .env.local.${prodCode} was created concurrently; aborting without overwriting.${c.reset}`
-      );
-      process.exit(1);
-    }
-    throw err;
-  }
+  writeEnvFile(targetEnvFile, prodContent, allowOverwrite);
   console.log(`\n  ${c.green}✓${c.reset} File created: external-assets/.env.local.${prodCode}`);
 
-  if (!fs.existsSync(prodLogoPath) || cli.logo) {
-    handleLogoCopy(logoSource, `logo-${prodCode}.svg`);
-  }
+  // An existing production logo is only replaced when --logo is given explicitly.
+  handleLogoCopy(logoSource, `logo-${prodCode}.svg`, { overwrite: Boolean(cli.logo) });
 
   updateJournalsTxt([prodCode]);
   console.log(`  ${c.green}✓${c.reset} ${prodCode} registered in journals.txt`);
@@ -814,6 +914,13 @@ async function handleCreation(cli, rl) {
   let baseCode = '';
   let prodCode = '';
   let preprodCode = '';
+  const validEnvs = ['prod', 'preprod', 'both'];
+  if (cli.env && !validEnvs.includes(cli.env)) {
+    console.error(
+      `${c.red}Error: invalid --env value '${cli.env}' (expected: ${validEnvs.join(', ')}).${c.reset}`
+    );
+    process.exit(1);
+  }
   let envTarget = cli.env;
 
   while (true) {
@@ -824,8 +931,10 @@ async function handleCreation(cli, rl) {
           `${c.red}Invalid code. Only lowercase letters, digits, and hyphens allowed (2 to 50 characters).${c.reset}`
         );
       }
-      if (cli.yes && !journalCode) {
-        console.error(`${c.red}Error: --code is required in non-interactive mode (-y).${c.reset}`);
+      if (cli.yes) {
+        console.error(
+          `${c.red}Error: a valid --code is required in non-interactive mode (-y).${c.reset}`
+        );
         process.exit(1);
       }
       journalCode = await askQuestion(rl, 'Unique journal code (e.g. new-journal)');
@@ -836,8 +945,7 @@ async function handleCreation(cli, rl) {
     preprodCode = `${baseCode}-preprod`;
 
     // 2. Target environment
-    const validEnvs = ['prod', 'preprod', 'both'];
-    if (!envTarget || !validEnvs.includes(envTarget)) {
+    if (!envTarget) {
       if (cli.yes) {
         envTarget = 'both';
       } else {
@@ -850,6 +958,20 @@ async function handleCreation(cli, rl) {
         else if (choice === '3' || choice === 'preprod') envTarget = 'preprod';
         else envTarget = 'both';
       }
+    }
+
+    // Derived codes (suffix removed or added) must also satisfy the runtime validator
+    const invalidCodes = getTargetCodes(envTarget, prodCode, preprodCode).filter(
+      code => !JOURNAL_ID_REGEX.test(code)
+    );
+    if (invalidCodes.length > 0) {
+      console.log(
+        `${c.red}Derived journal code(s) ${invalidCodes.join(', ')} invalid (must match /^[a-z0-9-]{2,50}$/).${c.reset}`
+      );
+      if (cli.yes) process.exit(1);
+      cli.code = null;
+      envTarget = cli.env;
+      continue;
     }
 
     // 3. API existence verification
@@ -987,7 +1109,7 @@ async function handleCreation(cli, rl) {
 
   // 4. Color selection
   const existingColors = getExistingColors();
-  let primaryColor = cli.color;
+  let primaryColor = cli.color ? requireCliColor(cli.color, '--color') : null;
 
   if (!primaryColor) {
     const suggestedColor = generateDistinctRandomColor(existingColors);
@@ -999,39 +1121,74 @@ async function handleCreation(cli, rl) {
         `Primary hex color (leave empty for distinct random color: ${suggestedColor})`,
         suggestedColor
       );
-      primaryColor = colorInput.trim();
-      if (!hexToRgb(primaryColor)) {
+      primaryColor = normalizeHexColor(colorInput);
+      if (!primaryColor) {
         console.log(`${c.yellow}Invalid color format. Using ${suggestedColor}.${c.reset}`);
         primaryColor = suggestedColor;
       }
     }
   }
 
-  let primaryTextColor = cli.textColor;
+  let primaryTextColor = cli.textColor ? requireCliColor(cli.textColor, '--text-color') : null;
   if (!primaryTextColor) {
-    primaryTextColor = getBestTextColor(primaryColor);
+    const computedTextColor = getBestTextColor(primaryColor);
+    primaryTextColor = computedTextColor;
     if (!cli.yes) {
-      primaryTextColor = await askQuestion(
+      const textColorInput = await askQuestion(
         rl,
-        `Text color on primary background (leave empty for WCAG calculation: ${primaryTextColor})`,
-        primaryTextColor
+        `Text color on primary background (leave empty for WCAG calculation: ${computedTextColor})`,
+        computedTextColor
       );
+      primaryTextColor = normalizeHexColor(textColorInput);
+      if (!primaryTextColor) {
+        console.log(`${c.yellow}Invalid color format. Using ${computedTextColor}.${c.reset}`);
+        primaryTextColor = computedTextColor;
+      }
     }
   }
 
-  // 5. Languages
-  let acceptedLanguages = cli.languages;
-  let defaultLanguage = cli.defaultLanguage;
-  if (!cli.yes) {
-    if (!acceptedLanguages) {
-      acceptedLanguages = await askQuestion(rl, 'Accepted languages (comma-separated)', 'en,fr');
+  // 5. Languages (the default language must belong to the accepted list)
+  let acceptedList = [];
+  if (cli.languages) {
+    acceptedList = parseLanguageList(cli.languages);
+    if (acceptedList.length === 0) {
+      console.error(`${c.red}Error: invalid --langs value '${cli.languages}'.${c.reset}`);
+      process.exit(1);
     }
-    if (!defaultLanguage) {
-      defaultLanguage = await askQuestion(rl, 'Default language', 'en');
-    }
+  } else if (cli.yes) {
+    acceptedList = ['en', 'fr'];
   } else {
-    acceptedLanguages = acceptedLanguages || 'en,fr';
-    defaultLanguage = defaultLanguage || 'en';
+    while (acceptedList.length === 0) {
+      acceptedList = parseLanguageList(
+        await askQuestion(rl, 'Accepted languages (comma-separated)', 'en,fr')
+      );
+    }
+  }
+  const acceptedLanguages = acceptedList.join(',');
+  const fallbackDefault = acceptedList.includes('en') ? 'en' : acceptedList[0];
+
+  let defaultLanguage = cli.defaultLanguage?.trim().toLowerCase() || null;
+  if (defaultLanguage && !acceptedList.includes(defaultLanguage)) {
+    console.error(
+      `${c.red}Error: default language '${defaultLanguage}' is not in the accepted languages (${acceptedLanguages}).${c.reset}`
+    );
+    process.exit(1);
+  }
+  if (!defaultLanguage) {
+    if (cli.yes) {
+      defaultLanguage = fallbackDefault;
+    } else {
+      while (!acceptedList.includes(defaultLanguage)) {
+        defaultLanguage = (await askQuestion(rl, 'Default language', fallbackDefault))
+          .trim()
+          .toLowerCase();
+        if (!acceptedList.includes(defaultLanguage)) {
+          console.log(
+            `${c.yellow}Default language must be one of: ${acceptedLanguages}.${c.reset}`
+          );
+        }
+      }
+    }
   }
 
   // 6. Logo
@@ -1060,6 +1217,35 @@ async function handleCreation(cli, rl) {
   console.log(`  - Text color        : ${primaryTextColor}`);
   console.log(`  - Languages         : ${acceptedLanguages} (default: ${defaultLanguage})`);
 
+  // Collision preflight: refuse to replace existing configurations unless explicitly approved.
+  // Detection uses the directory listing; writes use the 'wx' flag when not approved.
+  const existingCodes = new Set(getExistingJournals());
+  const collisions = getTargetCodes(envTarget, prodCode, preprodCode).filter(code =>
+    existingCodes.has(code)
+  );
+  let allowOverwrite = cli.force;
+  if (collisions.length > 0) {
+    const files = collisions.map(code => `.env.local.${code}`).join(', ');
+    console.log(`  ${c.yellow}⚠️ Existing configuration will be replaced: ${files}${c.reset}`);
+    if (cli.yes && !cli.force) {
+      console.error(
+        `${c.red}Error: ${files} already exist(s). Use --force to overwrite.${c.reset}`
+      );
+      process.exit(1);
+    }
+    if (!cli.yes && !cli.force) {
+      allowOverwrite = await askConfirmation(
+        rl,
+        `${c.yellow}Overwrite existing file(s) ${files}?${c.reset}`,
+        false
+      );
+      if (!allowOverwrite) {
+        console.log('Operation cancelled.');
+        return null;
+      }
+    }
+  }
+
   if (!cli.yes) {
     const proceed = await askConfirmation(rl, 'Confirm creation?', true);
     if (!proceed) {
@@ -1082,11 +1268,12 @@ async function handleCreation(cli, rl) {
       acceptedLanguages,
       defaultLanguage,
     });
-    fs.writeFileSync(prodFile, content, 'utf-8');
+    writeEnvFile(prodFile, content, allowOverwrite);
     codesCreated.push(prodCode);
     console.log(`\n  ${c.green}✓${c.reset} File created: external-assets/.env.local.${prodCode}`);
 
-    handleLogoCopy(logoPath, `logo-${prodCode}.svg`);
+    // An existing logo is only replaced when a logo path is given explicitly.
+    handleLogoCopy(logoPath, `logo-${prodCode}.svg`, { overwrite: Boolean(logoPath) });
   }
 
   if (envTarget === 'preprod' || envTarget === 'both') {
@@ -1100,11 +1287,11 @@ async function handleCreation(cli, rl) {
       acceptedLanguages,
       defaultLanguage,
     });
-    fs.writeFileSync(preprodFile, content, 'utf-8');
+    writeEnvFile(preprodFile, content, allowOverwrite);
     codesCreated.push(preprodCode);
     console.log(`  ${c.green}✓${c.reset} File created: external-assets/.env.local.${preprodCode}`);
 
-    handleLogoCopy(logoPath, `logo-${preprodCode}.svg`);
+    handleLogoCopy(logoPath, `logo-${preprodCode}.svg`, { overwrite: Boolean(logoPath) });
   }
 
   updateJournalsTxt(codesCreated);
@@ -1165,6 +1352,14 @@ async function main() {
   if (!fs.existsSync(ASSETS_DIR)) {
     console.error(
       `${c.red}Error: Directory 'external-assets' not found. Make sure it exists at project root.${c.reset}`
+    );
+    process.exit(1);
+  }
+
+  // journals.txt is the complete registry source: fail before writing anything if it is missing.
+  if (readFileIfExists(JOURNALS_TXT) === null) {
+    console.error(
+      `${c.red}Error: external-assets/journals.txt not found. It must list every journal; make sure external-assets is fully set up.${c.reset}`
     );
     process.exit(1);
   }
