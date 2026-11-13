@@ -1,13 +1,17 @@
 name: CI Tests
 
-# Trigger workflow on push to any branch and pull requests to main
+# Trigger on pushes to long-lived branches and on PRs targeting them.
+# Feature branches are tested through their PR only, to avoid running
+# the same commit twice (push + pull_request).
 on:
   push:
     branches:
-      - '**'
+      - main
+      - preprod
   pull_request:
     branches:
       - main
+      - preprod
 
 jobs:
   test:
