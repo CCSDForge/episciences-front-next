@@ -186,6 +186,19 @@ async function checkAndValidateApi(code, isPreprod, skipCheck) {
   return result;
 }
 
+/**
+ * Read a text file, returning null when it does not exist.
+ * Avoids the existsSync-then-read pattern (TOCTOU race).
+ */
+function readFileIfExists(filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf-8');
+  } catch (err) {
+    if (err.code === 'ENOENT') return null;
+    throw err;
+  }
+}
+
 function parseEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return {};
   const content = fs.readFileSync(filePath, 'utf-8');
@@ -274,12 +287,7 @@ function getExistingPreprodJournals() {
 }
 
 function updateJournalsTxt(journalCodesToAdd) {
-  if (!fs.existsSync(JOURNALS_TXT)) {
-    fs.writeFileSync(JOURNALS_TXT, journalCodesToAdd.join('\n') + '\n');
-    return;
-  }
-
-  const raw = fs.readFileSync(JOURNALS_TXT, 'utf-8');
+  const raw = readFileIfExists(JOURNALS_TXT) ?? '';
   const lines = raw
     .split('\n')
     .map(l => l.trim())
@@ -387,10 +395,7 @@ function handleLogoCopy(sourcePath, targetFileName) {
 
 function setLocalEnvJournal(journalCode) {
   const rootEnvLocal = path.join(ROOT_DIR, '.env.local');
-  let content = '';
-  if (fs.existsSync(rootEnvLocal)) {
-    content = fs.readFileSync(rootEnvLocal, 'utf-8');
-  }
+  let content = readFileIfExists(rootEnvLocal) ?? '';
 
   const regex = /^NEXT_PUBLIC_JOURNAL_RVCODE=.*$/m;
   const line = `NEXT_PUBLIC_JOURNAL_RVCODE=${journalCode}`;
@@ -667,7 +672,12 @@ async function handleConversion(cli, rl) {
   }
 
   const targetEnvFile = path.join(ASSETS_DIR, `.env.local.${prodCode}`);
-  if (fs.existsSync(targetEnvFile) && !cli.yes) {
+  // Existence is detected from the directory listing (not a check on targetEnvFile itself);
+  // the final write uses the 'wx' flag unless overwrite was allowed, so it fails safely
+  // if the file appeared in the meantime.
+  const targetExists = getExistingJournals().includes(prodCode);
+  let allowOverwrite = cli.yes;
+  if (targetExists && !cli.yes) {
     const overwrite = await askConfirmation(
       rl,
       `${c.yellow}File .env.local.${prodCode} already exists. Overwrite?${c.reset}`,
@@ -677,6 +687,7 @@ async function handleConversion(cli, rl) {
       console.log('Operation cancelled.');
       return null;
     }
+    allowOverwrite = true;
   }
 
   // Color handling
@@ -749,7 +760,20 @@ async function handleConversion(cli, rl) {
     primaryTextColor,
   });
 
-  fs.writeFileSync(targetEnvFile, prodContent, 'utf-8');
+  try {
+    fs.writeFileSync(targetEnvFile, prodContent, {
+      encoding: 'utf-8',
+      flag: allowOverwrite ? 'w' : 'wx',
+    });
+  } catch (err) {
+    if (err.code === 'EEXIST') {
+      console.error(
+        `${c.red}Error: .env.local.${prodCode} was created concurrently; aborting without overwriting.${c.reset}`
+      );
+      process.exit(1);
+    }
+    throw err;
+  }
   console.log(`\n  ${c.green}✓${c.reset} File created: external-assets/.env.local.${prodCode}`);
 
   if (!fs.existsSync(prodLogoPath) || cli.logo) {
