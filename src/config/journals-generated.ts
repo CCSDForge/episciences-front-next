@@ -63,6 +63,7 @@ export const journals: string[] = [
   "raspa",
   "raspa-preprod",
   "rdm-preprod",
+  "receptions-preprod",
   "resciencec-preprod",
   "resciencex-preprod",
   "satcom-preprod",
