@@ -2,6 +2,8 @@ import { revalidateTag, revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 import { getClientIp, sanitizeForLog } from '@/utils/validation';
+import { isAllowedPdfDomain } from '@/utils/pdf';
+import { getCacheKey, deleteCacheEntry } from '@/lib/pdf-cache';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ service: 'revalidate-api' });
@@ -18,6 +20,11 @@ const log = logger.child({ service: 'revalidate-api' });
  *
  * Cache consistency across the cluster is handled by the shared Valkey cache
  * (see src/lib/cache-handler.js). PEER_SERVERS broadcasting is no longer needed.
+ *
+ * An optional `pdfUrl` field additionally invalidates one entry of the PDF
+ * disk cache (see docs/PDF_CACHE_STRATEGY.md) — delete-only, and the only
+ * write to that cache made outside the background worker. The key is always
+ * recomputed from pdfUrl server-side, never trusted from the request body.
  */
 
 if (process.env.NODE_ENV === 'production' && !process.env.REVALIDATION_SECRET) {
@@ -89,22 +96,47 @@ function resolveAuthorization(headerToken: string, journalId?: string): boolean 
   return !!globalSecret && verifyToken(headerToken, globalSecret);
 }
 
-function performRevalidation(tag?: string, path?: string, journalId?: string): NextResponse | null {
+/**
+ * Validates every field of the request before any side effect runs, so a
+ * request is either applied entirely or rejected without having deleted a
+ * PDF cache entry first.
+ */
+function validateRevalidationRequest(
+  tag: unknown,
+  path: unknown,
+  journalId: string | undefined,
+  pdfUrl: unknown
+): NextResponse | null {
+  if (!tag && !path && !pdfUrl) {
+    return NextResponse.json({ message: 'Missing tag, path, or pdfUrl' }, { status: 400 });
+  }
+  if (pdfUrl !== undefined && (typeof pdfUrl !== 'string' || !isAllowedPdfDomain(pdfUrl))) {
+    log.warn(`[Revalidate API] Invalid pdfUrl: ${sanitizeForLog(String(pdfUrl))}`);
+    return NextResponse.json({ message: 'Invalid pdfUrl' }, { status: 400 });
+  }
+  // A tag takes precedence over a path (see performRevalidation).
+  if (!tag && path && (typeof path !== 'string' || !isValidRevalidatePath(path, journalId))) {
+    log.warn(`[Revalidate API] Invalid path format: ${sanitizeForLog(String(path))}`);
+    return NextResponse.json({ message: 'Invalid path format' }, { status: 400 });
+  }
+  return null;
+}
+
+async function performPdfCacheInvalidation(pdfUrl: string): Promise<void> {
+  await deleteCacheEntry(getCacheKey(pdfUrl));
+  log.info(`[Revalidate API] Invalidated pdf cache entry for: ${sanitizeForLog(pdfUrl)}`);
+}
+
+function performRevalidation(tag?: string, path?: string): void {
   if (tag) {
     log.info(`[Revalidate API] Revalidating tag: ${sanitizeForLog(tag)}`);
     revalidateTag(tag, { expire: 0 });
-    return null;
+    return;
   }
   if (path) {
-    if (!isValidRevalidatePath(path, journalId)) {
-      log.warn(`[Revalidate API] Invalid path format: ${sanitizeForLog(path)}`);
-      return NextResponse.json({ message: 'Invalid path format' }, { status: 400 });
-    }
     log.info(`[Revalidate API] Revalidating path: ${sanitizeForLog(path)}`);
     revalidatePath(path);
-    return null;
   }
-  return NextResponse.json({ message: 'Missing tag or path' }, { status: 400 });
 }
 
 export async function POST(request: NextRequest) {
@@ -125,7 +157,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { tag, path, journalId } = body;
+    const { tag, path, journalId, pdfUrl } = body;
     const headerToken = request.headers.get('x-episciences-token');
 
     if (!headerToken) {
@@ -139,14 +171,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Invalid secret' }, { status: 401 });
     }
 
-    const errorResponse = performRevalidation(tag, path, journalId);
-    if (errorResponse) return errorResponse;
+    const validationError = validateRevalidationRequest(tag, path, journalId, pdfUrl);
+    if (validationError) return validationError;
+
+    if (pdfUrl) {
+      await performPdfCacheInvalidation(pdfUrl);
+    }
+
+    performRevalidation(tag, path);
 
     return NextResponse.json({
       revalidated: true,
       now: Date.now(),
       journalId: journalId || 'global',
       tag: tag || undefined,
+      pdfUrl: pdfUrl || undefined,
     });
   } catch (error) {
     log.error('[Revalidate API] Error:', error);
