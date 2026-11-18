@@ -30,14 +30,14 @@ export default defineConfig({
         '**/__tests__/**',
         '**/types/**',
       ],
-      // Coverage thresholds - temporarily disabled
-      // TODO: Re-enable and increase progressively as test coverage improves
-      // thresholds: {
-      //   branches: 70,
-      //   functions: 70,
-      //   lines: 80,
-      //   statements: 80,
-      // },
+      // Coverage thresholds: set ~2 points below the current baseline to catch
+      // regressions. Raise them progressively as coverage improves.
+      thresholds: {
+        lines: 89,
+        statements: 87,
+        functions: 81,
+        branches: 81,
+      },
     },
 
     // Test file patterns
