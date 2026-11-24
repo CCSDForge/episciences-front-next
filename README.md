@@ -65,23 +65,24 @@ npm run start
 
 ## Available Scripts
 
-| Command                  | Description                                      |
-| ------------------------ | ------------------------------------------------ |
-| `npm run dev`            | Start development server on port 8080            |
-| `npm run dev:turbo`      | Start development server with Turbopack          |
-| `npm run dev:https`      | Start development server with HTTPS on port 8443 |
-| `npm run build`          | Production build (standalone Node.js)            |
-| `npm run build:turbo`    | Production build with Turbopack                  |
-| `npm run start`          | Start production server                          |
-| `npm run lint`           | Run ESLint                                       |
-| `npm run format`         | Format code with Prettier                        |
-| `npm run format:check`   | Check code formatting                            |
-| `npm run test`           | Run tests in watch mode                          |
-| `npm run test:run`       | Run tests once (CI mode)                         |
-| `npm run test:ui`        | Run tests with UI                                |
-| `npm run test:coverage`  | Generate test coverage report                    |
-| `npm run validate:pages` | Validate static pages configuration              |
-| `npm run sonar`          | Run SonarQube analysis                           |
+| Command                  | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `npm run dev`            | Start development server on port 8080                        |
+| `npm run dev:turbo`      | Start development server with Turbopack                      |
+| `npm run dev:https`      | Start development server with HTTPS on port 8443             |
+| `npm run build`          | Production build (standalone Node.js)                        |
+| `npm run build:turbo`    | Production build with Turbopack                              |
+| `npm run start`          | Start production server                                      |
+| `npm run lint`           | Run ESLint                                                   |
+| `npm run format`         | Format code with Prettier                                    |
+| `npm run format:check`   | Check code formatting                                        |
+| `npm run test`           | Run tests in watch mode                                      |
+| `npm run test:run`       | Run tests once (CI mode)                                     |
+| `npm run test:ui`        | Run tests with UI                                            |
+| `npm run test:coverage`  | Generate test coverage report                                |
+| `npm run validate:pages` | Validate static pages configuration                          |
+| `npm run add-journal`    | Interactive tool to add a journal or convert preprod to prod |
+| `npm run sonar`          | Run SonarQube analysis                                       |
 
 ## Testing
 
@@ -177,6 +178,16 @@ Set the default journal ID in your `.env.local`:
 ```env
 NEXT_PUBLIC_JOURNAL_RVCODE=epijinfo
 ```
+
+### Adding a new journal or converting from preprod
+
+Use the interactive CLI command:
+
+```bash
+npm run add-journal
+```
+
+This command guides you through creating a new journal (production and/or preproduction) or converting a preproduction journal (`-preprod`) to production. It automatically selects distinct WCAG-compliant colors if none are provided, sets `external-assets/logos/logo-default.svg` if no logo is supplied, and offers to update `.env.local` to test the new journal immediately. See [`external-assets/README.md`](external-assets/README.md) for full options and CLI arguments.
 
 ## Project Structure
 

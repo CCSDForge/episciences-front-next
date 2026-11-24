@@ -25,6 +25,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "validate:pages": "tsx scripts/validate-pages.ts",
+    "add-journal": "node scripts/add-journal.mjs",
     "sonar": "npx @sonar/scan"
   },
   "dependencies": {
