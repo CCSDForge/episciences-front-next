@@ -104,38 +104,6 @@ function parseLanguageList(raw) {
   ];
 }
 
-function rgbToHex(r, g, b) {
-  const clamp = v => Math.max(0, Math.min(255, Math.round(v)));
-  const toHex = v => clamp(v).toString(16).padStart(2, '0');
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-}
-
-function hslToRgb(h, s, l) {
-  h = ((h % 360) + 360) % 360;
-  s = Math.max(0, Math.min(100, s)) / 100;
-  l = Math.max(0, Math.min(100, l)) / 100;
-
-  const cVal = (1 - Math.abs(2 * l - 1)) * s;
-  const xVal = cVal * (1 - Math.abs(((h / 60) % 2) - 1));
-  const mVal = l - cVal / 2;
-
-  let r1 = 0,
-    g1 = 0,
-    b1 = 0;
-  if (h < 60) [r1, g1, b1] = [cVal, xVal, 0];
-  else if (h < 120) [r1, g1, b1] = [xVal, cVal, 0];
-  else if (h < 180) [r1, g1, b1] = [0, cVal, xVal];
-  else if (h < 240) [r1, g1, b1] = [0, xVal, cVal];
-  else if (h < 300) [r1, g1, b1] = [xVal, 0, cVal];
-  else [r1, g1, b1] = [cVal, 0, xVal];
-
-  return {
-    r: Math.round((r1 + mVal) * 255),
-    g: Math.round((g1 + mVal) * 255),
-    b: Math.round((b1 + mVal) * 255),
-  };
-}
-
 // Low-cost perceptual color distance (Redmean metric)
 function colorDistance(rgb1, rgb2) {
   const rmean = (rgb1.r + rgb2.r) / 2;
@@ -162,6 +130,56 @@ function getBestTextColor(hex) {
   const contrastWhite = 1.05 / (lum + 0.05);
   const contrastBlack = (lum + 0.05) / 0.05;
   return contrastWhite >= contrastBlack ? '#ffffff' : '#000000';
+}
+
+// WCAG contrast ratio between two colors
+function getContrastRatio(hex1, hex2) {
+  const l1 = getLuminance(hexToRgb(hex1));
+  const l2 = getLuminance(hexToRgb(hex2));
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
+
+// WCAG 2.2 AA minimum contrast for normal text
+const MIN_TEXT_CONTRAST = 4.5;
+
+// Episciences base colors (source: CCSD graphic charter, "Couleurs-CCSD.pdf",
+// colors labelled "EPIsciences")
+const EPISCIENCES_BASE_COLORS = [
+  { name: 'Cyan 01', hex: '#0aa0be' },
+  { name: 'Cyan 02', hex: '#008cc3' },
+  { name: 'Cyan 03', hex: '#005fb9' },
+  { name: 'Cyan 04', hex: '#0a32af' },
+];
+
+// Variants derived from each base color: mixed with black (shades) or white (tint)
+const EPISCIENCES_VARIANTS = [
+  { suffix: 'dark 2', target: 0, weight: 0.3 },
+  { suffix: 'dark 1', target: 0, weight: 0.15 },
+  { suffix: 'light 1', target: 255, weight: 0.15 },
+];
+
+/** Mix a hex color towards a gray level (0 = black, 255 = white) by `weight` (0..1). */
+function mixHexColor(hex, target, weight) {
+  const { r, g, b } = hexToRgb(hex);
+  const toHex = v =>
+    Math.round(v + (target - v) * weight)
+      .toString(16)
+      .padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+const EPISCIENCES_PALETTE = EPISCIENCES_BASE_COLORS.flatMap(base => [
+  base,
+  ...EPISCIENCES_VARIANTS.map(v => ({
+    name: `${base.name} ${v.suffix}`,
+    hex: mixHexColor(base.hex, v.target, v.weight),
+  })),
+]);
+
+/** Name of an Episciences palette color, or null if the color is not part of the palette. */
+function getEpisciencesColorName(hex) {
+  const normalized = normalizeHexColor(hex);
+  return EPISCIENCES_PALETTE.find(p => p.hex === normalized)?.name ?? null;
 }
 
 // -----------------------------------------------------------------------------
@@ -269,47 +287,41 @@ function getExistingColors() {
   return colors;
 }
 
-function generateDistinctRandomColor(existingColors) {
-  // Generate a pool of varied candidates tailored for academic / editorial brand identities
-  // Avoid fluorescent, neon, or overly bright colors (e.g. #3fed1d)
-  const candidates = [];
-  for (let hue = 0; hue < 360; hue += 5) {
-    const isGreenOrYellow = hue >= 40 && hue <= 165;
-    // Restrict saturation and lightness to avoid neon/fluorescent tones, especially in green/yellow
-    const satOptions = isGreenOrYellow ? [35, 45, 52] : [45, 60, 70];
-    const lightOptions = isGreenOrYellow ? [25, 30, 35] : [26, 33, 40];
+/**
+ * Pick a random background color from the Episciences palette (base colors + variants).
+ * Only colors for which the computed text color (white or black) reaches
+ * WCAG 2.2 AA (4.5:1) are eligible. The draw is random among the eligible
+ * colors that are the least used by existing journals, so the palette is
+ * spread evenly across journals.
+ */
+function pickEpisciencesColor(existingColors) {
+  const eligible = EPISCIENCES_PALETTE.filter(
+    p => getContrastRatio(p.hex, getBestTextColor(p.hex)) >= MIN_TEXT_CONTRAST
+  ).map(p => ({
+    ...p,
+    usage: existingColors.filter(ext => normalizeHexColor(ext.color) === p.hex).length,
+  }));
 
-    for (const sat of satOptions) {
-      for (const light of lightOptions) {
-        const rgb = hslToRgb(hue, sat, light);
-        const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
-        candidates.push({ hex, rgb });
-      }
-    }
+  const minUsage = Math.min(...eligible.map(p => p.usage));
+  const pool = eligible.filter(p => p.usage === minUsage);
+  return pool[Math.floor(Math.random() * pool.length)].hex;
+}
+
+/** Human-readable label for a color: "#hex (Episciences name)" when it belongs to the palette. */
+function describeColor(hex) {
+  const name = getEpisciencesColorName(hex);
+  return name ? `${hex} (Episciences ${name})` : hex;
+}
+
+/** Warn when a primary/text color pair does not reach WCAG 2.2 AA. */
+function warnIfLowContrast(primaryColor, textColor) {
+  if (!hexToRgb(primaryColor) || !hexToRgb(textColor)) return;
+  const ratio = getContrastRatio(primaryColor, textColor);
+  if (ratio < MIN_TEXT_CONTRAST) {
+    console.log(
+      `${c.yellow}Warning: contrast between ${primaryColor} and ${textColor} is ${ratio.toFixed(2)}:1, below WCAG AA (${MIN_TEXT_CONTRAST}:1).${c.reset}`
+    );
   }
-
-  if (existingColors.length === 0) {
-    const random = candidates[Math.floor(Math.random() * candidates.length)];
-    return random.hex;
-  }
-
-  // Calculate minimum distance to any existing color for each candidate
-  const scored = candidates.map(cand => {
-    let minD = Infinity;
-    for (const ext of existingColors) {
-      const d = colorDistance(cand.rgb, ext.rgb);
-      if (d < minD) minD = d;
-    }
-    return { ...cand, minD };
-  });
-
-  // Sort descending by distance from existing colors
-  scored.sort((a, b) => b.minD - a.minD);
-
-  // Pick randomly among top 12 best spaced colors for variety
-  const topPool = scored.slice(0, Math.min(12, scored.length));
-  const picked = topPool[Math.floor(Math.random() * topPool.length)];
-  return picked.hex;
 }
 
 // -----------------------------------------------------------------------------
@@ -648,7 +660,7 @@ ${c.bold}Options:${c.reset}
   -t, --template <name>     Template journal (e.g. 'arima') or '.env.example' (default)
   -e, --env <target>        Target environment: 'prod', 'preprod', or 'both' (default: 'both')
   --color <#hex>            Primary brand hex color (e.g. '#248386').
-                            ${c.dim}If omitted: a random distinct, non-fluorescent color is generated.${c.reset}
+                            ${c.dim}If omitted: a random Episciences palette color (WCAG AA, least used first) is picked.${c.reset}
   --text-color <#hex>       Text color on primary background.
                             ${c.dim}If omitted: automatically calculated for WCAG 2.2 AA compliance.${c.reset}
   --langs <list>            Accepted languages comma-separated (default: 'en,fr')
@@ -667,7 +679,7 @@ ${c.bold}Examples:${c.reset}
   # 1. Fully interactive mode (recommended)
   npm run add-journal
 
-  # 2. Fast non-interactive creation with auto-generated distinct color & default logo
+  # 2. Fast non-interactive creation with random Episciences palette color & default logo
   npm run add-journal -- --code my-journal --env both -y
 
   # 3. Direct conversion from preproduction to production
@@ -811,10 +823,10 @@ async function handleConversion(cli, rl) {
     );
     if (!keepColor) {
       const existingColors = getExistingColors();
-      const suggestedColor = generateDistinctRandomColor(existingColors);
+      const suggestedColor = pickEpisciencesColor(existingColors);
       const userColor = await askQuestion(
         rl,
-        `Enter new primary hex color (leave empty for ${suggestedColor})`,
+        `Enter new primary hex color (leave empty for ${describeColor(suggestedColor)})`,
         suggestedColor
       );
       primaryColor = normalizeHexColor(userColor);
@@ -828,6 +840,7 @@ async function handleConversion(cli, rl) {
   const primaryTextColor = cli.textColor
     ? requireCliColor(cli.textColor, '--text-color')
     : getBestTextColor(primaryColor);
+  warnIfLowContrast(primaryColor, primaryTextColor);
 
   // Logo handling
   const preprodLogoPath = path.join(LOGOS_DIR, `logo-${sourcePreprod}.svg`);
@@ -852,7 +865,7 @@ async function handleConversion(cli, rl) {
   console.log(`\n${c.bold}Conversion summary:${c.reset}`);
   console.log(`  - Source preprod journal : ${c.cyan}${sourcePreprod}${c.reset}`);
   console.log(`  - Target prod journal    : ${c.green}${prodCode}${c.reset}`);
-  console.log(`  - Primary color          : ${primaryColor}`);
+  console.log(`  - Primary color          : ${describeColor(primaryColor)}`);
   console.log(`  - Text color             : ${primaryTextColor}`);
   console.log(`  - Endpoints              : Production gateway (api.episciences.org)`);
   console.log(`  - Indexing               : true`);
@@ -1112,13 +1125,13 @@ async function handleCreation(cli, rl) {
   let primaryColor = cli.color ? requireCliColor(cli.color, '--color') : null;
 
   if (!primaryColor) {
-    const suggestedColor = generateDistinctRandomColor(existingColors);
+    const suggestedColor = pickEpisciencesColor(existingColors);
     if (cli.yes) {
       primaryColor = suggestedColor;
     } else {
       const colorInput = await askQuestion(
         rl,
-        `Primary hex color (leave empty for distinct random color: ${suggestedColor})`,
+        `Primary hex color (leave empty for Episciences palette color: ${describeColor(suggestedColor)})`,
         suggestedColor
       );
       primaryColor = normalizeHexColor(colorInput);
@@ -1146,6 +1159,7 @@ async function handleCreation(cli, rl) {
       }
     }
   }
+  warnIfLowContrast(primaryColor, primaryTextColor);
 
   // 5. Languages (the default language must belong to the accepted list)
   let acceptedList = [];
@@ -1213,7 +1227,7 @@ async function handleCreation(cli, rl) {
     console.log(`  - Preproduction code: ${preprodCode}`);
   }
   console.log(`  - Template source   : ${templateName}`);
-  console.log(`  - Primary color     : ${primaryColor}`);
+  console.log(`  - Primary color     : ${describeColor(primaryColor)}`);
   console.log(`  - Text color        : ${primaryTextColor}`);
   console.log(`  - Languages         : ${acceptedLanguages} (default: ${defaultLanguage})`);
 
