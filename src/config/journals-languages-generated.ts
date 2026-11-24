@@ -77,6 +77,7 @@ export const journalLanguages: Record<string, { default: string; accepted: strin
   'slovo-preprod': { default: 'fr', accepted: ["fr"] },
   'societes-plurielles': { default: 'fr', accepted: ["fr","en"] },
   'societes-plurielles-preprod': { default: 'fr', accepted: ["fr","en"] },
+  'template-preprod': { default: 'en', accepted: ["en","fr"] },
   'thejft-preprod': { default: 'en', accepted: ["en"] },
   'toc': { default: 'en', accepted: ["en"] },
   'toc-preprod': { default: 'en', accepted: ["en"] },

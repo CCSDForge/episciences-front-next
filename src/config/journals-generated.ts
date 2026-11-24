@@ -77,6 +77,7 @@ export const journals: string[] = [
   "slovo-preprod",
   "societes-plurielles",
   "societes-plurielles-preprod",
+  "template-preprod",
   "thejft-preprod",
   "toc",
   "toc-preprod",
