@@ -1,13 +1,17 @@
 name: CI Tests
 
-# Trigger workflow on push to any branch and pull requests to main
+# Trigger on pushes to long-lived branches and on PRs targeting them.
+# Feature branches are tested through their PR only, to avoid running
+# the same commit twice (push + pull_request).
 on:
   push:
     branches:
-      - '**'
+      - main
+      - preprod
   pull_request:
     branches:
       - main
+      - preprod
 
 jobs:
   test:
@@ -47,12 +51,8 @@ jobs:
       - name: Run type check
         run: npm run typecheck
 
-      # Run tests in CI mode (single run, no watch)
-      - name: Run tests
-        run: npm run test:run
-
-      # Generate code coverage report
-      - name: Generate coverage report
+      # Run tests once with coverage (fails on test failure or threshold breach)
+      - name: Run tests with coverage
         run: npm run test:coverage
 
       # Upload coverage artifacts for later inspection
