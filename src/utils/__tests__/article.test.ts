@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { getLicenseLabelInfo, getCitations, CITATION_TEMPLATE, decodeAbstractText } from '../article';
+import {
+  getLicenseLabelInfo,
+  getCitations,
+  CITATION_TEMPLATE,
+  decodeAbstractText,
+  getArticleTypeLabel,
+} from '../article';
 
 describe('getLicenseLabelInfo', () => {
   describe('Creative Commons licenses', () => {
@@ -209,5 +215,23 @@ describe('decodeAbstractText', () => {
     expect(decodeAbstractText('below 1 if $\\tau_i&amp;lt;10$ years')).toBe(
       'below 1 if $\\tau_i<10$ years'
     );
+  });
+});
+
+describe('getArticleTypeLabel', () => {
+  it('returns an empty string when no tag is given', () => {
+    expect(getArticleTypeLabel(undefined)).toBe('');
+    expect(getArticleTypeLabel('')).toBe('');
+  });
+
+  it('returns the matching label for a known tag', () => {
+    expect(getArticleTypeLabel('preprint')).toBe('pages.articles.types.preprint');
+    expect(getArticleTypeLabel('conferenceproceeding')).toBe(
+      'pages.articles.types.conferenceproceeding'
+    );
+  });
+
+  it('falls back to the "other" label for an unknown tag', () => {
+    expect(getArticleTypeLabel('dataset')).toBe('pages.articles.types.other');
   });
 });
