@@ -23,6 +23,7 @@ Usually the right type is clear. Three of them cause the most questions:
 
 ### Added
 
+- **Dead Code Detection**: Added [knip](https://knip.dev) (`npm run knip`, config in `knip.json`) to report unused files and dependencies in production code. It runs in CI as a non-blocking step until the existing dead code is removed.
 - **Configurable Editorial Board Order**: Added `NEXT_PUBLIC_JOURNAL_BOARDS_ORDER` configuration parameter (comma-separated list of board types) allowing journals to customize the display order of board types on the `/boards` page and member groups in the homepage carousel (PR #137, Refs #130).
 - **GitHub Issue Forms & Templates**: Added interactive GitHub issue forms and a documentation request template (`.github/ISSUE_TEMPLATE/`) to streamline bug reporting and feature requests.
 - **Journal Support**: Added `mscs` to generated journal configurations.

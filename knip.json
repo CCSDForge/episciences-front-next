@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["scripts/**/*.{js,mjs,ts}!", "src/lib/cache-handler.js!"],
+  "project": [
+    "src/**/*.{ts,tsx,js,mjs,scss}!",
+    "scripts/**/*.{js,mjs,ts}!",
+    "!src/test-utils/**!",
+    "!src/**/__tests__/**!",
+    "!src/**/*.test.{ts,tsx}!"
+  ]
+}
