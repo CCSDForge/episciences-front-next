@@ -596,9 +596,16 @@ export const articleTypes: { labelPath: string; value: string }[] = [
   { labelPath: 'pages.articles.types.software', value: ARTICLE_TYPE.SOFTWARE },
 ];
 
+/**
+ * Returns the i18n key for an article type tag.
+ * Unknown non-empty tags fall back to the "other" label so a raw
+ * translation key is never displayed to the reader.
+ */
 export function getArticleTypeLabel(tag: string | undefined): string {
   if (!tag) return '';
-  return articleTypes.find(type => type.value === tag)?.labelPath ?? '';
+  return (
+    articleTypes.find(type => type.value === tag)?.labelPath ?? 'pages.articles.types.other'
+  );
 }
 
 export const getCitations = async (csl?: string): Promise<ICitation[]> => {

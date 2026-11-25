@@ -141,6 +141,21 @@ describe('ArticleDetailsServer', () => {
     expect(document.querySelector('.articleDetails-tag')).toBeInTheDocument();
   });
 
+  it('falls back to the "other" label for an unknown article type', () => {
+    render(
+      <ArticleDetailsServer
+        article={{ ...baseArticle, tag: 'dataset' }}
+        id="1"
+        translations={translations}
+        language="en"
+      />
+    );
+
+    const tag = document.querySelector('.articleDetails-tag');
+    expect(tag).toBeInTheDocument();
+    expect(tag).not.toHaveTextContent('pages.articles.types.dataset');
+  });
+
   it('renders the graphical abstract image when rvcode and graphicalAbstract are present', () => {
     render(
       <ArticleDetailsServer
