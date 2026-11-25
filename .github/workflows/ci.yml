@@ -51,6 +51,12 @@ jobs:
       - name: Run type check
         run: npm run typecheck
 
+      # Report unused files and dependencies in production code (knip.json).
+      # Non-blocking until the existing dead code is removed.
+      - name: Check unused files and dependencies
+        run: npm run knip
+        continue-on-error: true
+
       # Run tests once with coverage (fails on test failure or threshold breach)
       - name: Run tests with coverage
         run: npm run test:coverage
