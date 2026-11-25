@@ -7,6 +7,13 @@
  * A `<picture>` with a `prefers-color-scheme` media query can't be used because
  * it ignores the explicit theme toggle. The hidden variant is `display: none`,
  * so it is removed from the accessibility tree and only one alt text is announced.
+ * Without CSS (reader mode, text browsers) both images show and the alt text is
+ * announced twice: accepted trade-off, since an empty alt on the dark variant
+ * would leave dark-mode screen-reader users without an accessible name.
+ *
+ * Both variants are loaded eagerly: browsers don't fetch a lazy image while it is
+ * `display: none`, so the other variant would only start downloading on theme
+ * toggle, leaving the logo slot empty meanwhile. The SVGs are small.
  *
  * Both files must share the same intrinsic aspect ratio so that swapping
  * variants on theme change causes no layout shift.
@@ -22,7 +29,6 @@ export interface ThemedLogoProps {
   readonly width: number;
   readonly height: number;
   readonly className?: string;
-  readonly loading?: 'lazy' | 'eager';
 }
 
 export default function ThemedLogo({
@@ -32,7 +38,6 @@ export default function ThemedLogo({
   width,
   height,
   className = '',
-  loading,
 }: ThemedLogoProps): React.JSX.Element {
   const extraClass = className ? ` ${className}` : '';
 
@@ -44,7 +49,7 @@ export default function ThemedLogo({
         width={width}
         height={height}
         className={`themed-logo themed-logo--light${extraClass}`}
-        loading={loading}
+        loading="eager"
         unoptimized // SVG doesn't benefit from optimization
       />
       <Image
@@ -53,7 +58,7 @@ export default function ThemedLogo({
         width={width}
         height={height}
         className={`themed-logo themed-logo--dark${extraClass}`}
-        loading={loading}
+        loading="eager"
         unoptimized
       />
     </>

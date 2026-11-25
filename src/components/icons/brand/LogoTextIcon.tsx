@@ -8,7 +8,6 @@
  * @param size - Icon width in pixels
  * @param className - Additional CSS classes
  * @param ariaLabel - Accessible label for screen readers
- * @param loading - Native image loading strategy
  */
 
 import ThemedLogo from './ThemedLogo';
@@ -17,7 +16,6 @@ export interface LogoTextIconProps {
   readonly size?: number;
   readonly className?: string;
   readonly ariaLabel?: string;
-  readonly loading?: 'lazy' | 'eager';
 }
 
 // Both SVG files share the same 156×45 intrinsic aspect ratio (width / height).
@@ -27,7 +25,6 @@ export default function LogoTextIcon({
   size = 200,
   className,
   ariaLabel,
-  loading,
 }: LogoTextIconProps): React.JSX.Element {
   return (
     <ThemedLogo
@@ -37,7 +34,6 @@ export default function LogoTextIcon({
       width={size}
       height={Math.round(size / ASPECT_RATIO)}
       className={className}
-      loading={loading}
     />
   );
 }

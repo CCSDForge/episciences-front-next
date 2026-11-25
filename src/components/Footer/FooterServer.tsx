@@ -171,7 +171,7 @@ export default async function FooterServer({
       <div className="footer-episciences">
         <div className="footer-episciences-logo">
           <Link href={episciencesUrl} lang={lang}>
-            <LogoSignIcon size={30} ariaLabel="Episciences" loading="lazy" />
+            <LogoSignIcon size={30} ariaLabel="Episciences" />
           </Link>
         </div>
         <div className="footer-episciences-links">
