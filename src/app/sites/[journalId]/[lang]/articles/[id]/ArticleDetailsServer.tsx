@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { IArticle, IArticleAuthor, IInstitution } from '@/types/article';
 import { IVolume } from '@/types/volume';
-import { INTER_WORK_RELATIONSHIP, articleTypes } from '@/utils/article';
+import { INTER_WORK_RELATIONSHIP, getArticleTypeLabel } from '@/utils/article';
 import { BREADCRUMB_PATHS } from '@/config/paths';
 import { MAX_BREADCRUMB_TITLE } from '@/config/constants';
 import { truncate } from '@/utils/string';
@@ -282,11 +282,7 @@ export default function ArticleDetailsServer({
 
         {article?.tag && (
           <span className="articleDetails-tag">
-            {t(
-              articleTypes.find(type => type.value === article.tag)?.labelPath ||
-                `pages.articles.types.${article.tag}`,
-              translations
-            )}
+            {t(getArticleTypeLabel(article.tag), translations)}
           </span>
         )}
 

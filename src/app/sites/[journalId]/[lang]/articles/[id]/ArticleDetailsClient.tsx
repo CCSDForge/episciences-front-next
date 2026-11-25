@@ -14,8 +14,8 @@ import { useAppSelector } from '@/hooks/store';
 import { IArticle, IArticleAuthor, IInstitution } from '@/types/article';
 import { IVolume } from '@/types/volume';
 import {
-  articleTypes,
   CITATION_TEMPLATE,
+  getArticleTypeLabel,
   getCitations,
   ICitation,
   METADATA_TYPE,
@@ -439,7 +439,7 @@ export default function ArticleDetailsClient({
         <>
           {article?.tag && (
             <div className="articleDetails-tag">
-              {t(articleTypes.find(tag => tag.value === article.tag)?.labelPath!)}
+              {t(getArticleTypeLabel(article.tag))}
             </div>
           )}
           <div className="articleDetails-content">

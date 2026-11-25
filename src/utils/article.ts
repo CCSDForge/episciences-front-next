@@ -572,6 +572,7 @@ export enum ARTICLE_TYPE {
   BOOK = 'book',
   BOOK_PART = 'bookpart',
   CONFERENCE = 'conferenceobject',
+  CONFERENCE_PROCEEDING = 'conferenceproceeding',
   LECTURE = 'lecture',
   OTHER = 'other',
   PRE_PRINT = 'preprint',
@@ -584,6 +585,10 @@ export const articleTypes: { labelPath: string; value: string }[] = [
   { labelPath: 'pages.articles.types.book', value: ARTICLE_TYPE.BOOK },
   { labelPath: 'pages.articles.types.bookpart', value: ARTICLE_TYPE.BOOK_PART },
   { labelPath: 'pages.articles.types.conference', value: ARTICLE_TYPE.CONFERENCE },
+  {
+    labelPath: 'pages.articles.types.conferenceproceeding',
+    value: ARTICLE_TYPE.CONFERENCE_PROCEEDING,
+  },
   { labelPath: 'pages.articles.types.lecture', value: ARTICLE_TYPE.LECTURE },
   { labelPath: 'pages.articles.types.other', value: ARTICLE_TYPE.OTHER },
   { labelPath: 'pages.articles.types.preprint', value: ARTICLE_TYPE.PRE_PRINT },
@@ -591,9 +596,16 @@ export const articleTypes: { labelPath: string; value: string }[] = [
   { labelPath: 'pages.articles.types.software', value: ARTICLE_TYPE.SOFTWARE },
 ];
 
+/**
+ * Returns the i18n key for an article type tag.
+ * Unknown non-empty tags fall back to the "other" label so a raw
+ * translation key is never displayed to the reader.
+ */
 export function getArticleTypeLabel(tag: string | undefined): string {
   if (!tag) return '';
-  return articleTypes.find(type => type.value === tag)?.labelPath ?? '';
+  return (
+    articleTypes.find(type => type.value === tag)?.labelPath ?? 'pages.articles.types.other'
+  );
 }
 
 export const getCitations = async (csl?: string): Promise<ICitation[]> => {

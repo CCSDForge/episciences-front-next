@@ -248,6 +248,7 @@
         "book": "Livre",
         "bookpart": "Partie de livre",
         "conference": "Communication dans un congrès",
+        "conferenceproceeding": "Actes de congrès",
         "lecture": "Lecture",
         "other": "Autre",
         "preprint": "Pré-publication",
