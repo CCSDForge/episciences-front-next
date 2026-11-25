@@ -416,18 +416,32 @@ describe('formatArticle', () => {
       expect(article?.licenseName).toBe('Creative Commons Attribution 4.0 International');
     });
 
-    it('falls back to any named entry when the selected entry has no name', () => {
+    it('falls back to a named entry with the same URL when the selected entry has no name', () => {
       const program = [
         {
           license_ref: [
-            { value: 'https://cc/first' },
-            { name: 'Some License', value: 'https://cc/other', '@applies_to': 'tdm' },
+            { value: 'https://cc/same', '@applies_to': 'vor' },
+            { name: 'Same License', value: 'https://cc/same', '@applies_to': 'tdm' },
+          ],
+        },
+      ];
+      const article = formatArticle(makeRaw({ content: { program } }));
+      expect(article?.license).toBe('https://cc/same');
+      expect(article?.licenseName).toBe('Same License');
+    });
+
+    it('ignores the name of an entry pointing to a different license URL', () => {
+      const program = [
+        {
+          license_ref: [
+            { value: 'https://cc/first', '@applies_to': 'vor' },
+            { name: 'Other License', value: 'https://cc/other', '@applies_to': 'tdm' },
           ],
         },
       ];
       const article = formatArticle(makeRaw({ content: { program } }));
       expect(article?.license).toBe('https://cc/first');
-      expect(article?.licenseName).toBe('Some License');
+      expect(article?.licenseName).toBeUndefined();
     });
 
     it('leaves licenseName undefined when no entry has a name', () => {

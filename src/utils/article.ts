@@ -343,8 +343,10 @@ function findLicenseRef(
 function extractLicense(articleContent: RawArticleContent): { url?: string; name?: string } {
   const licenseRef = findLicenseRef(articleContent);
   const entry = pickLicenseEntry(licenseRef);
-  // The name may only be set on some entries (typically "vor"): fall back to any named entry
-  const name = entry?.name || toArray(licenseRef).find(l => l.name)?.name;
+  // The name may only be set on some entries (typically "vor"): fall back to a named entry
+  // carrying the same license URL, so the label never mismatches the link
+  const name =
+    entry?.name || toArray(licenseRef).find(l => l.name && l.value === entry?.value)?.name;
   return { url: entry?.value, name: name?.trim() || undefined };
 }
 
