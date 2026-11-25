@@ -40,6 +40,10 @@ Usually the right type is clear. Three of them cause the most questions:
   - Updated localized labels for "former members" across English, French, and Spanish (`common.boards.formerMembers`).
 - **Inline Script Client Rendering**: Converted `InlineScript` to a Client Component to eliminate SSR warnings regarding executable script tags.
 
+### Removed
+
+- **Dead Code**: Removed code that the site no longer renders or imports, reported by knip in production mode: the client `MainLayout`/`ClientLayout` with their `Header`, `Footer`, `HeaderDropdown` and `HeaderSearchInput`, plus `ArticleDetailsClient`, `ArticleDetailsSidebar`, `SearchResultCard`, `SectionArticleCard`, `VolumeDetailsDesktop`/`Mobile`, `HeaderServerSimple`, unused hooks, services, utils and types, and their tests. Also removed the unused `date-fns` and `@citation-js/plugin-doi` dependencies (the latter is still provided by `citation-js`).
+
 ### Fixed
 
 - **Search Bar Focus Layout**: Resolved a display gap between the search input and submit button when focused by removing the flex gap on `.header-postheader-search-form`, spacing the back button with right margin, and nesting the clear button inside the input container.

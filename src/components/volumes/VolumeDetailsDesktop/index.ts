@@ -1,1 +1,0 @@
-export { VolumeDetailsDesktop } from './VolumeDetailsDesktop';

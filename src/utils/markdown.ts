@@ -2,7 +2,7 @@ import React from 'react';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
-import { Node, Root } from 'mdast';
+import type { Node, Root } from 'mdast';
 import he from 'he';
 
 export interface AstNode {
