@@ -19,7 +19,10 @@ $footer-mobile: 768px;
     align-items: center;
     padding: 25px 80px 25px 25px;
     border-bottom: 2px solid var(--accent-border);
-    box-shadow: 0px 0px 6px var(--shadow);
+    // Inset 1px --edge line on top: the shadow alone is invisible on a dark surface.
+    box-shadow:
+      inset 0 1px 0 var(--edge),
+      0px 0px 6px var(--shadow);
 
     @media (max-width: $footer-mobile) {
       padding: 20px 16px;

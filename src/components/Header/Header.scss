@@ -6,7 +6,10 @@
   background: var(--surface);
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 2px 4px var(--shadow);
+  // 1px --edge line: the shadow alone is invisible on a dark surface.
+  box-shadow:
+    0 1px 0 var(--edge),
+    0px 2px 4px var(--shadow);
   position: fixed;
   top: 0;
   z-index: 2;

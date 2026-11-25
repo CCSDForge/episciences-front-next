@@ -102,6 +102,12 @@
   // declared here, not inline, so the @supports fallback loop can re-derive them too.
   --shadow-light: #{$black-shadow};
   --shadow-dark: #00000073;
+  // Hairline separating page chrome (header, footer) from the page body. In light
+  // mode the --shadow already reads; in dark mode a black shadow on a near-black
+  // surface vanishes, so a soft translucent white line takes over (same value as
+  // the dark elevated-card border in _mixins.scss).
+  --edge-light: transparent;
+  --edge-dark: rgba(255, 255, 255, 0.12);
   --overlay-scrim-light: rgba(0, 0, 0, 0.35);
   --overlay-scrim-dark: oklch(0.1 0 0 / 55%);
   --blue-navy-light: #{$blue-navy};
@@ -137,6 +143,7 @@
   --text-muted: light-dark(var(--text-muted-light), var(--text-muted-dark));
   --border: light-dark(var(--border-light), var(--border-dark));
   --shadow: light-dark(var(--shadow-light), var(--shadow-dark));
+  --edge: light-dark(var(--edge-light), var(--edge-dark));
   --overlay-scrim: light-dark(var(--overlay-scrim-light), var(--overlay-scrim-dark));
 
   // heading-color always equalled primary-text's formula — pure alias, no own pair.
@@ -188,10 +195,10 @@
 // config). Re-emits the same cascade manually from the very pairs declared above,
 // written once via this loop.
 // ---------------------------------------------------------------------------
-$theme-tokens: 'primary', 'primary-text', 'primary-border', 'button-text-on-primary-bg',
-  'focus-color', 'focus-color-on-primary', 'focus-color-on-dark', 'surface', 'surface-2',
-  'surface-raised', 'text-strong', 'text', 'text-muted', 'border', 'shadow', 'overlay-scrim',
-  'blue-navy';
+$theme-tokens:
+  'primary', 'primary-text', 'primary-border', 'button-text-on-primary-bg', 'focus-color',
+  'focus-color-on-primary', 'focus-color-on-dark', 'surface', 'surface-2', 'surface-raised',
+  'text-strong', 'text', 'text-muted', 'border', 'shadow', 'edge', 'overlay-scrim', 'blue-navy';
 
 @supports not (color: light-dark(#fff, #000)) {
   :root {
