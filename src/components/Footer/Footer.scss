@@ -98,10 +98,8 @@ $footer-mobile: 768px;
     &-logo {
       margin-right: 25px;
       flex-shrink: 0;
-      // Light island: the Episciences mark is drawn in dark navy/teal for a white
-      // background — invisible on a dark surface. Same rationale as the journal
-      // logo boxes above.
-      @include mixins.light-island;
+      // No light island here: LogoSignIcon swaps to a dedicated dark-background
+      // sign (logo-episciences-dark.svg) when the dark scheme is active.
       box-sizing: border-box;
       padding: 4px;
       border-radius: 4px;

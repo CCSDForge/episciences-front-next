@@ -1,0 +1,19 @@
+@use '@/styles/mixins';
+
+// Show exactly one logo variant for the active colour scheme.
+// The hidden one is display:none, which also removes it from the a11y tree.
+.themed-logo--dark {
+  display: none;
+}
+
+.themed-logo--light {
+  @include mixins.when-dark {
+    display: none;
+  }
+}
+
+.themed-logo--dark {
+  @include mixins.when-dark {
+    display: inline-block;
+  }
+}

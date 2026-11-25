@@ -222,6 +222,10 @@ export type { RorIconProps } from './brand/RorIcon';
 export { default as LogoTextIcon } from './brand/LogoTextIcon';
 export type { LogoTextIconProps } from './brand/LogoTextIcon';
 
+// Logo Sign Icon (Episciences sign, without text)
+export { default as LogoSignIcon } from './brand/LogoSignIcon';
+export type { LogoSignIconProps } from './brand/LogoSignIcon';
+
 // ORCID Icon
 export { default as OrcidIcon } from './brand/OrcidIcon';
 export type { OrcidIconProps } from './brand/OrcidIcon';

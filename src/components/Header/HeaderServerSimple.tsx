@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
+import LogoSignIcon from '@/components/icons/brand/LogoSignIcon';
 import './Header.scss';
 
 interface HeaderServerSimpleProps {
@@ -14,14 +15,7 @@ export default function HeaderServerSimple({
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <a href="https://www.episciences.org">
-            <Image
-              src="/logos/logo-episciences.svg"
-              alt="Episciences"
-              width={120}
-              height={30}
-              loading="lazy"
-              unoptimized
-            />
+            <LogoSignIcon size={30} ariaLabel="Episciences" loading="lazy" />
           </a>
         </div>
       </div>

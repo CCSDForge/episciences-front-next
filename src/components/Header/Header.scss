@@ -157,10 +157,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      // Light island: the Episciences wordmark SVG is drawn in dark navy/teal for a
-      // white background ("fond-clair" in the source file) — invisible on a dark
-      // surface. Same rationale as .header-journal-logo below.
-      @include mixins.light-island;
+      // No light island here: LogoTextIcon swaps to a dedicated dark-background
+      // logotype (logo-text-dark.svg) when the dark scheme is active.
       box-sizing: border-box;
       padding: 4px;
       border-radius: 4px;
