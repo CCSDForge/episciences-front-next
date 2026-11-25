@@ -241,6 +241,7 @@
         "book": "Book",
         "bookpart": "Book part",
         "conference": "Conference paper",
+        "conferenceproceeding": "Conference proceedings",
         "lecture": "Lecture",
         "other": "Other",
         "preprint": "Preprint",
