@@ -8,7 +8,6 @@
  * @param size - Icon width and height in pixels (the sign is square)
  * @param className - Additional CSS classes
  * @param ariaLabel - Accessible label for screen readers
- * @param loading - Native image loading strategy
  */
 
 import ThemedLogo from './ThemedLogo';
@@ -17,14 +16,12 @@ export interface LogoSignIconProps {
   readonly size?: number;
   readonly className?: string;
   readonly ariaLabel?: string;
-  readonly loading?: 'lazy' | 'eager';
 }
 
 export default function LogoSignIcon({
   size = 30,
   className,
   ariaLabel,
-  loading,
 }: LogoSignIconProps): React.JSX.Element {
   return (
     <ThemedLogo
@@ -34,7 +31,6 @@ export default function LogoSignIcon({
       width={size}
       height={size}
       className={className}
-      loading={loading}
     />
   );
 }

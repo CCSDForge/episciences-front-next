@@ -15,7 +15,7 @@ export default function HeaderServerSimple({
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <a href="https://www.episciences.org">
-            <LogoSignIcon size={30} ariaLabel="Episciences" loading="lazy" />
+            <LogoSignIcon size={30} ariaLabel="Episciences" />
           </a>
         </div>
       </div>

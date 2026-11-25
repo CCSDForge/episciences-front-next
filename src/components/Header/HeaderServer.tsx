@@ -153,7 +153,7 @@ export default async function HeaderServer({
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <Link href={episciencesUrl} lang={lang}>
-            <LogoTextIcon size={156} ariaLabel="Episciences" loading="lazy" />
+            <LogoTextIcon size={156} ariaLabel="Episciences" />
           </Link>
         </div>
         <div className="header-preheader-links">
