@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import LogoTextIcon from '@/components/icons/brand/LogoTextIcon';
 import { Link } from '@/components/Link/Link';
 import SearchBar from './SearchBar';
 import { logger } from '@/lib/logger';
@@ -152,14 +153,7 @@ export default async function HeaderServer({
       <div className="header-preheader">
         <div className="header-preheader-logo">
           <Link href={episciencesUrl} lang={lang}>
-            <Image
-              src={logoEpisciences}
-              alt="Episciences"
-              width={156}
-              height={45}
-              loading="lazy"
-              unoptimized
-            />
+            <LogoTextIcon size={156} ariaLabel="Episciences" loading="lazy" />
           </Link>
         </div>
         <div className="header-preheader-links">

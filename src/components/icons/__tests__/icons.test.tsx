@@ -62,6 +62,7 @@ import {
   PlusCircleIcon,
   RorIcon,
   LogoTextIcon,
+  LogoSignIcon,
   OrcidIcon,
   FacebookIcon,
   TwitterIcon,
@@ -674,14 +675,29 @@ describe('Icon Components', () => {
   });
 
   describe('Image-based logo icons', () => {
-    it('renders LogoTextIcon via next/image', () => {
+    it('renders LogoTextIcon light and dark variants via next/image', () => {
       render(<LogoTextIcon ariaLabel="Episciences" />);
-      expect(screen.getByAltText('Episciences')).toBeInTheDocument();
+      const [light, dark] = screen.getAllByAltText('Episciences');
+      expect(light).toHaveAttribute('src', '/icons/logo-text.svg');
+      expect(light).toHaveClass('themed-logo--light');
+      expect(dark).toHaveAttribute('src', '/icons/logo-text-dark.svg');
+      expect(dark).toHaveClass('themed-logo--dark');
     });
 
     it('LogoTextIcon falls back to default alt text', () => {
       render(<LogoTextIcon />);
-      expect(screen.getByAltText('Episciences logo')).toBeInTheDocument();
+      expect(screen.getAllByAltText('Episciences logo')).toHaveLength(2);
+    });
+
+    it('renders LogoSignIcon light and dark variants as a square', () => {
+      render(<LogoSignIcon ariaLabel="Episciences" size={40} />);
+      const [light, dark] = screen.getAllByAltText('Episciences');
+      expect(light).toHaveAttribute('src', '/logos/logo-episciences.svg');
+      expect(light).toHaveClass('themed-logo--light');
+      expect(dark).toHaveAttribute('src', '/logos/logo-episciences-dark.svg');
+      expect(dark).toHaveClass('themed-logo--dark');
+      expect(dark).toHaveAttribute('width', '40');
+      expect(dark).toHaveAttribute('height', '40');
     });
 
     it('renders OrcidIcon via next/image', () => {

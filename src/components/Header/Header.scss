@@ -6,7 +6,10 @@
   background: var(--surface);
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 2px 4px var(--shadow);
+  // 1px --edge line: the shadow alone is invisible on a dark surface.
+  box-shadow:
+    0 1px 0 var(--edge),
+    0px 2px 4px var(--shadow);
   position: fixed;
   top: 0;
   z-index: 2;
@@ -157,10 +160,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      // Light island: the Episciences wordmark SVG is drawn in dark navy/teal for a
-      // white background ("fond-clair" in the source file) — invisible on a dark
-      // surface. Same rationale as .header-journal-logo below.
-      @include mixins.light-island;
+      // No light island here: LogoTextIcon swaps to a dedicated dark-background
+      // logotype (logo-text-dark.svg) when the dark scheme is active.
       box-sizing: border-box;
       padding: 4px;
       border-radius: 4px;

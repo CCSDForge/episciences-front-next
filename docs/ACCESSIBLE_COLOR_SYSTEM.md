@@ -292,9 +292,12 @@ deadline to remove the aliases.
 
 Polychrome SVGs designed for a white background cannot be inverted safely with `filter: invert()` (which would corrupt brand colors). They are wrapped in a light island via the `@include mixins.light-island` mixin:
 - **Journal logos**: `.header-journal-logo`, `.header-reduced-journal-logo`, and `.footer-journal-logo`.
-- **Episciences wordmark**: `.header-preheader-logo`.
 
 This forces `color-scheme: only light`, `background: var(--pure-white)`, `color: var(--pure-black)`, and `accent-color: auto` on the logo box with zero per-journal adjustments.
+
+The **Episciences logos** are not light islands: the official brand ships dark-background variants, so they are swapped instead via `ThemedLogo` (`src/components/icons/brand/ThemedLogo.tsx`), which renders both files and shows only the one matching the active scheme through `mixins.when-dark`:
+- **Logotype** (`.header-preheader-logo`, `LogoTextIcon`): `/icons/logo-text.svg` / `/icons/logo-text-dark.svg`.
+- **Sign** (`.footer-episciences-logo`, `HeaderServerSimple`, `LogoSignIcon`): `/logos/logo-episciences.svg` / `/logos/logo-episciences-dark.svg`.
 
 ### Cross-origin iframes
 

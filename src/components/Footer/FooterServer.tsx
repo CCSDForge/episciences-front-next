@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Link } from '@/components/Link/Link';
+import LogoSignIcon from '@/components/icons/brand/LogoSignIcon';
 import { getServerTranslations, t } from '@/utils/server-i18n';
 import { logger } from '@/lib/logger';
 
@@ -10,7 +11,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import './Footer.scss';
 
-const logoEpisciences = '/logos/logo-episciences.svg';
 const logoSmall = '/logos/logo-small.svg';
 
 function resolveFooterLogoSrc(rvcode: string, journalLogo: string | undefined): string {
@@ -83,9 +83,7 @@ export default async function FooterServer({
       : process.env.NEXT_PUBLIC_EPISCIENCES_LEGAL_PRIVACY_TERMS_OF_USE_PAGE ||
         `${episciencesUrl}/terms-of-use`;
   const publishingPolicyAnchor =
-    lang === 'fr'
-      ? `${PATHS.about}#politiques-de-publication`
-      : `${PATHS.about}#publishing-policy`;
+    lang === 'fr' ? `${PATHS.about}#politiques-de-publication` : `${PATHS.about}#publishing-policy`;
 
   // Load translations for the current language
   const translations = await getServerTranslations(lang);
@@ -173,14 +171,7 @@ export default async function FooterServer({
       <div className="footer-episciences">
         <div className="footer-episciences-logo">
           <Link href={episciencesUrl} lang={lang}>
-            <Image
-              src={logoEpisciences}
-              alt="Episciences"
-              width={120}
-              height={30}
-              loading="lazy"
-              unoptimized
-            />
+            <LogoSignIcon size={30} ariaLabel="Episciences" loading="lazy" />
           </Link>
         </div>
         <div className="footer-episciences-links">
