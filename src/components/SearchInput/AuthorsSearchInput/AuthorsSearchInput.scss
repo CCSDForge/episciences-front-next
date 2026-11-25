@@ -18,6 +18,12 @@
     font-size: 17px;
     font-style: italic;
     border: none;
+    // Without an explicit background, type="search" gets the UA field fill,
+    // which renders as a grey box under color-scheme: dark. Same reset as the
+    // header search input (Header.scss .header-postheader-search-input input).
+    background: transparent;
+    appearance: none;
+    -webkit-appearance: none;
     width: 100%;
     padding-right: 30px;
 
