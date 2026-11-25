@@ -26,15 +26,6 @@ vi.mock('@/utils/language-utils', () => ({
   acceptedLanguages: ['en', 'fr'],
 }));
 
-vi.mock('@/utils/static-params-helper', () => ({
-  combineWithLanguageParams: vi.fn(),
-}));
-
-vi.mock('@/utils/build-progress', () => ({
-  initBuildProgress: vi.fn(),
-  logArticleProgress: vi.fn(),
-}));
-
 vi.mock('@/utils/env-loader', () => ({
   loadJournalConfig: vi.fn(() => ({ env: {} })),
 }));

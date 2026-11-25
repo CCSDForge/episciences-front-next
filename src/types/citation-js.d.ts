@@ -24,11 +24,6 @@ declare module '@citation-js/plugin-csl' {
   // No exports needed
 }
 
-declare module '@citation-js/plugin-doi' {
-  // DOI plugin - auto-registers when imported
-  // No exports needed
-}
-
 declare module '@citation-js/core' {
   export class Cite {
     constructor(data: any, options?: any);
