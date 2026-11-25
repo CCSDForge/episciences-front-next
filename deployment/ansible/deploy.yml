@@ -53,3 +53,28 @@
         port: 3000
         delay: 3
         timeout: 30
+
+# The PDF cache worker (scripts/pdf-cache-worker.service) runs on a single
+# host per environment and is not restarted with the app above: without this
+# play it would keep running the previous release's code and .env.local.
+# A separate play, after every app restart, so that a failure here (e.g. a
+# missing sudoers rule, see SETUP.md) never interrupts the app rollout.
+- name: Restart the PDF cache worker where it is installed
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Check whether the PDF cache worker unit is installed
+      ansible.builtin.command:
+        cmd: /bin/systemctl list-unit-files episciences-pdf-cache-worker.service --no-legend
+      register: pdf_cache_worker_unit
+      changed_when: false
+      failed_when: false
+
+    # try-restart only restarts the unit if it is running: a stopped worker
+    # (cache not rolled out yet, or deliberately stopped) stays stopped.
+    - name: Restart the PDF cache worker if it is running
+      ansible.builtin.command:
+        cmd: sudo /bin/systemctl try-restart episciences-pdf-cache-worker
+      when: pdf_cache_worker_unit.stdout | trim | length > 0
+      changed_when: true

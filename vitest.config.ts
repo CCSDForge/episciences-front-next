@@ -25,7 +25,10 @@ export default defineConfig({
         'node_modules/**',
         'dist/**',
         'external-assets/**',
-        'scripts/**',
+        // Entrypoints only (subscribe loop, systemd glue) — not unit-tested,
+        // same as revalidate-worker.mjs. scripts/lib/**, the actual cache
+        // logic, IS unit-tested and counted in coverage.
+        'scripts/*.mjs',
         '**/*.config.{js,ts}',
         '**/__tests__/**',
         '**/types/**',
@@ -41,7 +44,13 @@ export default defineConfig({
     },
 
     // Test file patterns
-    include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    include: [
+      'src/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      // scripts/lib/** (pdf-cache worker's store/fetch logic) is real, tested
+      // code — see the coverage.exclude note above for why scripts/*.mjs
+      // entrypoints are not included here.
+      'scripts/**/*.{test,spec}.{js,mjs,ts}',
+    ],
 
     // Exclude patterns
     exclude: ['node_modules', 'dist', 'external-assets', '.next', 'coverage'],

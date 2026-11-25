@@ -123,3 +123,23 @@ git clone <external-assets-repo> /var/www/episciences-front-next/shared/external
 ```
 
 `shared/.env.local` is created/updated automatically at each deploy — no manual step needed.
+
+### PDF cache worker host: sudoers rule
+
+On the host that runs `episciences-pdf-cache-worker` (one per environment, see
+`docs/PDF_CACHE_STRATEGY.md` section 10), the last play of `deploy.yml`
+restarts the worker so it picks up the new release and `.env.local`. The
+deploy user needs this rule, next to the one that already allows restarting
+`episciences-front-next` (replace `epi-deploy` with the actual deploy user):
+
+```bash
+echo 'epi-deploy ALL=(root) NOPASSWD: /bin/systemctl try-restart episciences-pdf-cache-worker' \
+  | sudo tee /etc/sudoers.d/episciences-pdf-cache-worker
+sudo chmod 0440 /etc/sudoers.d/episciences-pdf-cache-worker
+sudo visudo -c
+```
+
+Hosts without the worker unit skip that step, so they need nothing. If the rule
+is missing on the worker host, the deploy reports the failure on that last
+play only, after the app has been restarted everywhere; restart the worker by
+hand (`sudo systemctl restart episciences-pdf-cache-worker`) until it is added.
